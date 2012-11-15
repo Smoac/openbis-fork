@@ -216,6 +216,13 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
+    public List<ExternalData> listByMetaprojectId(Long metaprojectId)
+    {
+        DataIterator<DatasetRecord> dataSets = query.getDatasetsForMetaproject(metaprojectId);
+        return enrichDatasets(dataSets);
+    }
+
+    @Override
     public Map<Long, Set<Long>> listParentIds(Collection<Long> dataSetIDs)
     {
         LongOpenHashSet ids = new LongOpenHashSet();
@@ -497,8 +504,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         LongSet set = new LongOpenHashSet();
         set.addAll(datasetMap.keySet());
 
-        for (MetaProjectWithEntityId metaProject : query.getMetaprojects(
-                set, userId))
+        for (MetaProjectWithEntityId metaProject : query.getMetaprojects(set, userId))
         {
             Metaproject mp = new Metaproject();
             mp.setId(metaProject.id);

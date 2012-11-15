@@ -51,11 +51,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -97,6 +99,40 @@ public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
         browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendBottomToolbar(detailsAvailable);
         return browserGrid.asDisposableWithToolbar(toolbar);
+    }
+
+    public static DisposableEntityChooser<TableModelRowWithObject<Material>> createForMetaproject(
+            final IViewContext<?> viewContext, TechId metaprojectId)
+    {
+        final ListMaterialDisplayCriteria criteria =
+                ListMaterialDisplayCriteria.createForMetaproject(new MetaprojectCriteria(
+                        metaprojectId.getId()));
+        final ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider =
+                new ICriteriaProvider<ListMaterialDisplayCriteria>()
+                    {
+                        @Override
+                        public ListMaterialDisplayCriteria tryGetCriteria()
+                        {
+                            return criteria;
+                        }
+
+                        @Override
+                        public DatabaseModificationKind[] getRelevantModifications()
+                        {
+                            return new DatabaseModificationKind[0];
+                        }
+
+                        @Override
+                        public void update(Set<DatabaseModificationKind> observedModifications,
+                                IDataRefreshCallback postRefreshCallback)
+                        {
+                            postRefreshCallback.postRefresh(true);
+                        }
+                    };
+        final MaterialBrowserGrid browserGrid =
+                createBrowserGrid(viewContext.getCommonViewContext(), criteriaProvider, true);
+        browserGrid.extendBottomToolbar(true);
+        return browserGrid.asDisposableWithoutToolbar();
     }
 
     /**
@@ -255,10 +291,17 @@ public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
     public String getGridDisplayTypeID()
     {
         ListMaterialDisplayCriteria criteria = criteriaProvider.tryGetCriteria();
-        String suffix =
-                createDisplayIdSuffix(EntityKind.MATERIAL, criteria == null ? null : criteria
-                        .getListCriteria().tryGetMaterialType());
-        return createGridDisplayTypeID(suffix);
+
+        if (criteria == null || criteria.getListCriteria() != null)
+        {
+            String suffix =
+                    createDisplayIdSuffix(EntityKind.MATERIAL, criteria == null ? null : criteria
+                            .getListCriteria().tryGetMaterialType());
+            return createGridDisplayTypeID(suffix);
+        } else
+        {
+            return createGridDisplayTypeID(null);
+        }
     }
 
     @Override

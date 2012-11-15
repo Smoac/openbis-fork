@@ -27,10 +27,8 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -48,7 +46,8 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
 
     private SectionsPanel sectionsPanel;
 
-    private Map<EntityKind, DisposableTabContent> sectionsMap;
+    private Map<EntityKind, DisposableTabContent> sectionsMap =
+            new HashMap<EntityKind, DisposableTabContent>();
 
     private Long currentMetaprojectId;
 
@@ -57,13 +56,18 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
     public MetaprojectEntities(IViewContext<?> viewContext, String idPrefix)
     {
         this.viewContext = viewContext;
+
         setLayout(new FitLayout());
         setId(idPrefix + ID_SUFFIX);
     }
 
-    private void initSections(final Long metaprojectId, final IDelegatedAction callback)
+    private void initSections(final Long metaprojectId)
     {
-        currentMetaprojectId = metaprojectId;
+        if (sectionsPanel != null)
+        {
+            remove(sectionsPanel);
+        }
+        sectionsMap.clear();
 
         viewContext.getCommonService().getMetaprojectAssignmentsCount(metaprojectId,
                 new AbstractAsyncCallback<MetaprojectAssignmentsCount>(viewContext)
@@ -71,17 +75,9 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
                         @Override
                         protected void process(MetaprojectAssignmentsCount count)
                         {
-                            if (sectionsPanel != null)
-                            {
-                                remove(sectionsPanel);
-                            }
-
                             sectionsPanel =
                                     new SectionsPanel(viewContext.getCommonViewContext(),
                                             getElement().getId());
-                            sectionsPanel.setDisplayID(
-                                    DisplayTypeIDGenerator.GENERIC_METAPROJECT_VIEWER, null);
-                            sectionsMap = new HashMap<EntityKind, DisposableTabContent>();
 
                             if (count.getExperimentCount() > 0)
                             {
@@ -105,10 +101,9 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
                                         viewContext, new TechId(metaprojectId)));
                             }
 
+                            selectSection(currentEntityKind);
                             add(sectionsPanel);
                             layout();
-
-                            callback.execute();
                         }
                     });
     }
@@ -125,7 +120,6 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
         if (section != null)
         {
             sectionsPanel.selectSection(section);
-            currentEntityKind = entityKind;
         }
     }
 
@@ -133,14 +127,8 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
     {
         if (currentMetaprojectId != metaprojectId)
         {
-            initSections(metaprojectId, new IDelegatedAction()
-                {
-                    @Override
-                    public void execute()
-                    {
-                        selectSection(currentEntityKind);
-                    }
-                });
+            currentMetaprojectId = metaprojectId;
+            initSections(metaprojectId);
         }
     }
 
@@ -148,16 +136,12 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
     {
         if (currentMetaprojectId != metaprojectId)
         {
-            initSections(metaprojectId, new IDelegatedAction()
-                {
-                    @Override
-                    public void execute()
-                    {
-                        selectSection(entityKind);
-                    }
-                });
+            currentMetaprojectId = metaprojectId;
+            currentEntityKind = entityKind;
+            initSections(metaprojectId);
         } else
         {
+            currentEntityKind = entityKind;
             selectSection(entityKind);
         }
     }

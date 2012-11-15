@@ -43,6 +43,7 @@ import ch.systemsx.cisd.common.collection.IKeyExtractor;
 import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -181,6 +182,9 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
                 return commonServer.listSamples(sessionToken, criteria.getBrowseCriteria());
             case SEARCH:
                 return commonServer.searchForSamples(sessionToken, criteria.getSearchCriteria());
+            case METAPROJECT:
+                return commonServer.listMetaprojectSamples(sessionToken, new MetaprojectTechIdId(
+                        criteria.getMetaprojectCriteria().getMetaprojectId()));
         }
         return null; // not possible
     }

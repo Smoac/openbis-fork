@@ -464,6 +464,13 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<TypedTableResultSet<ExternalData>> asyncCallback);
 
     /**
+     * @see ICommonClientService#listMetaprojectDataSets(TechId, DefaultResultSetConfig)
+     */
+    public void listMetaprojectDataSets(TechId metaprojectId,
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,
+            AsyncCallback<TypedTableResultSet<ExternalData>> asyncCallback);
+
+    /**
      * @see ICommonClientService#listDataSetRelationships(TechId, DataSetRelationshipRole,
      *      DefaultResultSetConfig)
      */

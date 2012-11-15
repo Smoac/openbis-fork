@@ -182,8 +182,7 @@ final class SampleListingWorker extends AbstractLister
             final long databaseInstanceId, final DatabaseInstance databaseInstance,
             final ISampleListingQuery query,
             IEntityPropertiesEnricher samplePropertiesEnricherOrNull,
-            SecondaryEntityDAO referencedEntityDAO,
-            Long userId)
+            SecondaryEntityDAO referencedEntityDAO, Long userId)
     {
         super(referencedEntityDAO);
         assert criteria != null;
@@ -236,6 +235,7 @@ final class SampleListingWorker extends AbstractLister
         retrievePrimaryBasicSamples(tryGetIteratorForParentSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForChildSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForNewTrackedSamples());
+        retrievePrimaryBasicSamples(tryGetIteratorForMetaprojectSamples());
         if (operationLog.isDebugEnabled())
         {
             watch.stop();
@@ -265,8 +265,8 @@ final class SampleListingWorker extends AbstractLister
 
     private void enrichWithMetaProjects()
     {
-        for (MetaProjectWithEntityId metaProject : query.getMetaprojects(
-                sampleMap.keySet(), userId))
+        for (MetaProjectWithEntityId metaProject : query
+                .getMetaprojects(sampleMap.keySet(), userId))
         {
             Metaproject mp = new Metaproject();
             mp.setId(metaProject.id);
@@ -531,6 +531,16 @@ final class SampleListingWorker extends AbstractLister
             return query.getListableSamplesForExperiment(experimentTechId.getId());
         }
         return query.getListableSamplesAndDescendentsForExperiment(experimentTechId.getId());
+    }
+
+    private Iterable<SampleRecord> tryGetIteratorForMetaprojectSamples()
+    {
+        final Long metaprojectId = criteria.getMetaprojectId();
+        if (metaprojectId == null)
+        {
+            return null;
+        }
+        return query.getSamplesForMetaproject(metaprojectId);
     }
 
     private Iterable<SampleRecord> tryGetIteratorForContainedSamples()

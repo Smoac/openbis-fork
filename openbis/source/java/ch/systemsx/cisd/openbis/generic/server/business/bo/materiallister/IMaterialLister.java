@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectCriteria;
 
 /**
  * A class for fast material listing.
@@ -37,4 +38,12 @@ public interface IMaterialLister
      * @param withProperties if true material properties will be fetched as well.
      */
     public List<Material> list(ListMaterialCriteria criteria, boolean withProperties);
+
+    /**
+     * Returns a sorted list of {@link Material}s matching given criteria.
+     * 
+     * @param withProperties if true material properties will be fetched as well.
+     */
+    public List<Material> list(MetaprojectCriteria criteria, boolean withProperties);
+
 }

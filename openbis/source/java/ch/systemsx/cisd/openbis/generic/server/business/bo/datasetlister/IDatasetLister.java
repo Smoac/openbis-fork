@@ -60,6 +60,9 @@ public interface IDatasetLister
     /** @return all datasets that are children of any specified dataset id */
     List<ExternalData> listByParentTechIds(Collection<Long> parentDatasetIds);
 
+    /** @return datasets connected to the metaproject with the specified id */
+    List<ExternalData> listByMetaprojectId(Long metaprojectId);
+
     /**
      * Returns a map with all parent data set IDs of specified data set IDs. The keys of the map are
      * IDs from the argument. A value of the map contains at least one element.

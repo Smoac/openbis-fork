@@ -59,25 +59,28 @@ public class SectionsPanel extends LayoutContainer
         tryApplyDisplaySettings();
     }
 
-    private void tryApplyDisplaySettings()
+    protected void tryApplyDisplaySettings()
     {
-        final String tabToActivateID =
-                viewContext.getDisplaySettingsManager().getActiveTabSettings(getDisplayID());
-        if (tabToActivateID != null)
+        if (getDisplayID() != null)
         {
-            for (SectionElement sectionElement : elements)
+            final String tabToActivateID =
+                    viewContext.getDisplaySettingsManager().getActiveTabSettings(getDisplayID());
+            if (tabToActivateID != null)
             {
-                final String thisTabID = sectionElement.getTabContent().getDisplayID();
-                if (tabToActivateID.equals(thisTabID))
+                for (SectionElement sectionElement : elements)
                 {
-                    tabPanel.setSelection(sectionElement);
-                    return;
+                    final String thisTabID = sectionElement.getTabContent().getDisplayID();
+                    if (tabToActivateID.equals(thisTabID))
+                    {
+                        tabPanel.setSelection(sectionElement);
+                        return;
+                    }
                 }
             }
-        }
-        if (elements.size() > 0)
-        {
-            tabPanel.setSelection(elements.get(0));
+            if (elements.size() > 0)
+            {
+                tabPanel.setSelection(elements.get(0));
+            }
         }
     }
 
@@ -86,7 +89,8 @@ public class SectionsPanel extends LayoutContainer
     public void addSection(final TabContent tabContent)
     {
         DetailViewConfiguration viewSettingsOrNull =
-                viewContext.getDisplaySettingsManager().tryGetDetailViewSettings(getDisplayID());
+                getDisplayID() != null ? viewContext.getDisplaySettingsManager()
+                        .tryGetDetailViewSettings(getDisplayID()) : null;
         String panelDisplayId = tabContent.getDisplayID().toUpperCase();
         if (viewSettingsOrNull != null
                 && viewSettingsOrNull.getDisabledTabs().contains(panelDisplayId))
@@ -112,6 +116,11 @@ public class SectionsPanel extends LayoutContainer
                 break;
             }
         }
+    }
+
+    public void selectFirstSection(final TabContent tabContent)
+    {
+        tabPanel.setSelection(tabPanel.getItem(0));
     }
 
     @Override
@@ -160,8 +169,11 @@ public class SectionsPanel extends LayoutContainer
                     public void handleEvent(TabPanelEvent be)
                     {
                         tabContent.setContentVisible(true);
-                        viewContext.getDisplaySettingsManager().storeActiveTabSettings(
-                                getDisplayID(), tabContent.getDisplayID(), SectionsPanel.this);
+                        if (getDisplayID() != null)
+                        {
+                            viewContext.getDisplaySettingsManager().storeActiveTabSettings(
+                                    getDisplayID(), tabContent.getDisplayID(), SectionsPanel.this);
+                        }
                     }
                 });
             // WORKAROUND to fix problems when paging toolbar's layout is performed in a hidden tab
@@ -181,13 +193,7 @@ public class SectionsPanel extends LayoutContainer
 
     public String getDisplayID()
     {
-        if (displayId == null)
-        {
-            throw new IllegalStateException("Undefined display ID");
-        } else
-        {
-            return displayId;
-        }
+        return displayId;
     }
 
     public void setDisplayID(IDisplayTypeIDGenerator generator, String suffix)

@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectCriteria;
 
 /**
  * Fast DB operations on material table.
@@ -119,7 +120,15 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
     {
         Long2ObjectMap<Material> materialMap = getMaterialsByCriteria(criteria);
 
-        return convertAndEnrich(materialMap, criteria.tryGetMaterialType(), withProperties);
+        return convertAndEnrich(materialMap, withProperties);
+    }
+
+    @Override
+    public List<Material> list(MetaprojectCriteria criteria, boolean withProperties)
+    {
+        Long2ObjectMap<Material> materialMap = getMaterialsByCriteria(criteria);
+
+        return convertAndEnrich(materialMap, withProperties);
     }
 
     /**
@@ -174,6 +183,11 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
         }
     }
 
+    private Long2ObjectMap<Material> getMaterialsByCriteria(MetaprojectCriteria criteria)
+    {
+        return asMaterials(getIteratorByMetaprojectId(criteria.getMetaprojectId()), null);
+    }
+
     private Long2ObjectMap<Material> getMaterialsByIndentifiers(
             Collection<MaterialIdentifier> identifiers)
     {
@@ -202,7 +216,7 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
     }
 
     private List<Material> convertAndEnrich(Long2ObjectMap<Material> materialMap,
-            MaterialType materialTypeOrNull, boolean withProperties)
+            boolean withProperties)
     {
         if (withProperties)
         {
@@ -232,6 +246,11 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
     private DataIterator<MaterialRecord> getIteratorByCodes(String[] materialCodes)
     {
         return query.getMaterialsForMaterialCodes(databaseInstanceId, materialCodes);
+    }
+
+    private DataIterator<MaterialRecord> getIteratorByMetaprojectId(Long metaprojectId)
+    {
+        return query.getMaterialsForMetaprojectId(databaseInstanceId, metaprojectId);
     }
 
     //
@@ -306,8 +325,8 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
 
     private void enrichWithMetaProjects(final Long2ObjectMap<Material> resultMap)
     {
-        for (MetaProjectWithEntityId metaProject : query.getMetaprojects(
-                resultMap.keySet(), userId))
+        for (MetaProjectWithEntityId metaProject : query
+                .getMetaprojects(resultMap.keySet(), userId))
         {
             Metaproject mp = new Metaproject();
             mp.setId(metaProject.id);

@@ -5,6 +5,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
@@ -38,8 +39,10 @@ final class ListSamplesOriginalDataProvider extends AbstractOriginalDataProvider
                 return commonServer.listSamples(sessionToken, criteria.getBrowseCriteria());
             case SEARCH:
                 return commonServer.searchForSamples(sessionToken, criteria.getSearchCriteria());
+            case METAPROJECT:
+                commonServer.listMetaprojectSamples(sessionToken, new MetaprojectTechIdId(criteria
+                        .getMetaprojectCriteria().getMetaprojectId()));
         }
         return null; // not possible
     }
-
 }

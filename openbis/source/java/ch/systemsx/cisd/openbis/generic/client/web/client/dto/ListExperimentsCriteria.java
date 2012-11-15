@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -40,6 +41,8 @@ public final class ListExperimentsCriteria extends
     private Project projectOrNull;
 
     private Space spaceOrNull;
+
+    private TechId metaprojectId;
 
     public ExperimentType getExperimentType()
     {
@@ -81,6 +84,16 @@ public final class ListExperimentsCriteria extends
     public void setSpace(Space space)
     {
         this.spaceOrNull = space;
+    }
+
+    public TechId tryGetMetaprojectId()
+    {
+        return metaprojectId;
+    }
+
+    public void setMetaprojectId(TechId metaprojectId)
+    {
+        this.metaprojectId = metaprojectId;
     }
 
 }

@@ -128,8 +128,6 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     GENERIC_MATERIAL_VIEWER("generic_material_viewer"),
 
-    GENERIC_METAPROJECT_VIEWER("generic_metaproject_viewer"),
-
     ;
 
     private final String genericNameOrPrefix;

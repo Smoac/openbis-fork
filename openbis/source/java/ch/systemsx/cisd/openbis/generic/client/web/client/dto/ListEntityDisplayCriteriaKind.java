@@ -28,5 +28,5 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public enum ListEntityDisplayCriteriaKind implements IsSerializable
 {
-    SEARCH, BROWSE
+    SEARCH, BROWSE, METAPROJECT
 }

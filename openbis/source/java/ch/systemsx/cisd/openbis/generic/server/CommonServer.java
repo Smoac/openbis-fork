@@ -210,6 +210,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsCount;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -671,6 +672,18 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Sample> listMetaprojectSamples(final String sessionToken,
+            IMetaprojectId metaprojectId)
+    {
+        final Session session = getSession(sessionToken);
+        final MetaprojectPE metaprojectPE = getMetaproject(sessionToken, metaprojectId);
+        final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
+        return sampleLister.list(new ListOrSearchSampleCriteria(new MetaprojectCriteria(
+                metaprojectPE.getId())));
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> listSamplesOnBehalfOfUser(final String sessionToken,
             @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class)
@@ -722,6 +735,20 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final IDatasetLister datasetLister = createDatasetLister(session);
         final List<ExternalData> datasets =
                 datasetLister.listByExperimentTechId(experimentId, showOnlyDirectlyConnected);
+        Collections.sort(datasets);
+        return datasets;
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<ExternalData> listMetaprojectExternalData(final String sessionToken,
+            final IMetaprojectId metaprojectId)
+    {
+        final Session session = getSession(sessionToken);
+        final MetaprojectPE metaprojectPE = getMetaproject(sessionToken, metaprojectId);
+        final IDatasetLister datasetLister = createDatasetLister(session);
+        final List<ExternalData> datasets =
+                datasetLister.listByMetaprojectId(metaprojectPE.getId());
         Collections.sort(datasets);
         return datasets;
     }
@@ -853,6 +880,24 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Experiment> listMetaprojectExperiments(final String sessionToken,
+            IMetaprojectId metaprojectId)
+    {
+        MetaprojectPE metaprojectPE = getMetaproject(sessionToken, metaprojectId);
+        Collection<MetaprojectAssignmentPE> assignments =
+                getMetaprojectAssignments(metaprojectPE, EntityKind.EXPERIMENT);
+        List<ExperimentPE> experiments = new ArrayList<ExperimentPE>();
+
+        for (MetaprojectAssignmentPE assignment : assignments)
+        {
+            experiments.add(assignment.getExperiment());
+        }
+
+        return translateExperiments(sessionToken, experiments);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Experiment> listExperiments(final String sessionToken,
             ExperimentType experimentType,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
@@ -932,7 +977,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             experimentTable.load(experimentType.getCode(), spaceIdentifierOrNull);
         }
-        final List<ExperimentPE> experiments = experimentTable.getExperiments();
+
+        return translateExperiments(sessionToken, experimentTable.getExperiments());
+    }
+
+    private List<Experiment> translateExperiments(String sessionToken,
+            List<ExperimentPE> experiments)
+    {
+        final Session session = getSession(sessionToken);
         final Collection<MetaprojectAssignmentPE> assignmentPEs =
                 getDAOFactory()
                         .getMetaprojectDAO()
@@ -1478,6 +1530,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
         final IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
         return materialLister.list(criteria, withProperties);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Material> listMetaprojectMaterials(String sessionToken, IMetaprojectId metaprojectId)
+    {
+        final Session session = getSession(sessionToken);
+        final MetaprojectPE metaprojectPE = getMetaproject(sessionToken, metaprojectId);
+        final IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
+        return materialLister.list(new MetaprojectCriteria(metaprojectPE.getId()), true);
     }
 
     @Override

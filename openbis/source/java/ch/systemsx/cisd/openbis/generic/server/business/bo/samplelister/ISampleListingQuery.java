@@ -270,6 +270,13 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
     public DataIterator<SampleRecord> getParentSamplesForChildren(long relationshipId,
             LongSet sampleChildIds);
 
+    /**
+     * Returns the samples for the given <var>metaprojectId</var>.
+     */
+    @Select(sql = SELECT_FROM_SAMPLES_S + " JOIN metaproject_assignments ma ON s.id=ma.samp_id"
+            + " WHERE ma.mepr_id=?{1}", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getSamplesForMetaproject(long metaprojectId);
+
     //
     // New samples of type
     //

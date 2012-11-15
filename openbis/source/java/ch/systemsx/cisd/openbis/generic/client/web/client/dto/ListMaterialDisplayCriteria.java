@@ -21,6 +21,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
@@ -36,7 +37,15 @@ public class ListMaterialDisplayCriteria extends
         return new ListMaterialDisplayCriteria(materialType);
     }
 
+    public static ListMaterialDisplayCriteria createForMetaproject(
+            MetaprojectCriteria metaprojectCriteria)
+    {
+        return new ListMaterialDisplayCriteria(metaprojectCriteria);
+    }
+
     private ListMaterialCriteria listCriteria;
+
+    private MetaprojectCriteria metaprojectCriteria;
 
     private ListMaterialDisplayCriteria(final MaterialType materialType)
     {
@@ -44,9 +53,19 @@ public class ListMaterialDisplayCriteria extends
         this.listCriteria = ListMaterialCriteria.createFromMaterialType(materialType);
     }
 
+    private ListMaterialDisplayCriteria(final MetaprojectCriteria metaprojectCriteria)
+    {
+        this.metaprojectCriteria = metaprojectCriteria;
+    }
+
     public ListMaterialCriteria getListCriteria()
     {
         return listCriteria;
+    }
+
+    public MetaprojectCriteria getMetaprojectCriteria()
+    {
+        return metaprojectCriteria;
     }
 
     //

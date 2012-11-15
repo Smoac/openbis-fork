@@ -287,6 +287,15 @@ public interface ICommonServer extends IServer
     public List<Sample> listSamples(final String sessionToken, final ListSampleCriteria criteria);
 
     /**
+     * Lists samples for metaproject.
+     * 
+     * @return a sorted list of {@link Sample}.
+     */
+    @Transactional(readOnly = true)
+    public List<Sample> listMetaprojectSamples(final String sessionToken,
+            IMetaprojectId metaprojectId);
+
+    /**
      * Lists samples using given configuration on behalf of another user.
      * 
      * @return a sorted list of {@link Sample}.
@@ -294,6 +303,15 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     public List<Sample> listSamplesOnBehalfOfUser(final String sessionToken,
             final ListSampleCriteria criteria, String userId);
+
+    /**
+     * Lists experiments for metaproject.
+     * 
+     * @return a sorted list of {@link Experiment}.
+     */
+    @Transactional(readOnly = true)
+    public List<Experiment> listMetaprojectExperiments(final String sessionToken,
+            IMetaprojectId metaprojectId);
 
     /**
      * Lists experiments by project.
@@ -357,6 +375,16 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     public List<ExternalData> listExperimentExternalData(final String sessionToken,
             final TechId experimentId, boolean showOnlyDirectlyConnected);
+
+    /**
+     * For given metaproject {@link IMetaprojectId} returns the corresponding list of
+     * {@link ExternalData}.
+     * 
+     * @return a sorted list of {@link ExternalData}.
+     */
+    @Transactional(readOnly = true)
+    public List<ExternalData> listMetaprojectExternalData(final String sessionToken,
+            final IMetaprojectId metaprojectId);
 
     /**
      * For given data set {@link TechId} in given relationship <var>role</var> returns corresponding
@@ -647,6 +675,14 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     public List<Material> listMaterials(String sessionToken, ListMaterialCriteria criteria,
             boolean withProperties);
+
+    /**
+     * Lists materials for metaproject.
+     * 
+     * @return a sorted list of {@link Material}.
+     */
+    @Transactional(readOnly = true)
+    public List<Material> listMetaprojectMaterials(String sessionToken, IMetaprojectId metaprojectId);
 
     /**
      * Creates a new material type.

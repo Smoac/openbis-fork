@@ -42,6 +42,8 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
 
     private TrackingSampleCriteria newTrackingCriteria;
 
+    private MetaprojectCriteria metaprojectCriteria;
+
     private Collection<Long> sampleIds;
 
     private final String[] sampleCodes;
@@ -67,6 +69,15 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     {
         assert newTrackingCriteria != null;
         this.newTrackingCriteria = newTrackingCriteria;
+        this.sampleCodes = null;
+        this.permIds = null;
+        this.searchForContainerSamplesOnly = false;
+    }
+
+    /** Creates criteria that delegates to given {@link MetaprojectCriteria}. */
+    public ListOrSearchSampleCriteria(MetaprojectCriteria metaprojectCriteria)
+    {
+        this.metaprojectCriteria = metaprojectCriteria;
         this.sampleCodes = null;
         this.permIds = null;
         this.searchForContainerSamplesOnly = false;
@@ -157,6 +168,13 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     {
         return newTrackingCriteria == null ? null : newTrackingCriteria
                 .getAlreadyTrackedSampleIds();
+    }
+
+    // delegation to MetaprojectCriteria
+
+    public Long getMetaprojectId()
+    {
+        return metaprojectCriteria == null ? null : metaprojectCriteria.getMetaprojectId();
     }
 
     // delegation to ListSampleCriteria

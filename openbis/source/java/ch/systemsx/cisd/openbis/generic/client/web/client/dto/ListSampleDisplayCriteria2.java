@@ -21,6 +21,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -33,13 +34,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  * @author Tomasz Pylak
  * @author Piotr Buczek
  */
-public class ListSampleDisplayCriteria2 extends DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> implements
-        IsSerializable
+public class ListSampleDisplayCriteria2 extends
+        DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> implements IsSerializable
 {
     public static ListSampleDisplayCriteria2 createForContainer(final TechId containerSampleId)
     {
-        return new ListSampleDisplayCriteria2(ListSampleCriteria
-                .createForContainer(containerSampleId));
+        return new ListSampleDisplayCriteria2(
+                ListSampleCriteria.createForContainer(containerSampleId));
     }
 
     public static ListSampleDisplayCriteria2 createForParent(final TechId parentSampleId)
@@ -73,10 +74,12 @@ public class ListSampleDisplayCriteria2 extends DefaultResultSetConfig<String, T
     // artificial 'all' SampleType
     private SampleType allSampleTypeOrNull;
 
-    // either search criteria or list criteria is set
+    // either search criteria or list criteria or metaproject criteria is set
     private DetailedSearchCriteria searchCriteriaOrNull;
 
     private ListSampleCriteria listCriteriaOrNull;
+
+    private MetaprojectCriteria metaprojectCriteriaOrNull;
 
     public ListSampleDisplayCriteria2(final DetailedSearchCriteria searchCriteria)
     {
@@ -90,6 +93,13 @@ public class ListSampleDisplayCriteria2 extends DefaultResultSetConfig<String, T
         assert listCriteria != null : "list criteria not set";
         this.criteriaKind = ListEntityDisplayCriteriaKind.BROWSE;
         this.setListCriteriaOrNull(listCriteria);
+    }
+
+    public ListSampleDisplayCriteria2(final MetaprojectCriteria metaprojectCriteria)
+    {
+        assert metaprojectCriteria != null : "metaproject criteria not set";
+        this.criteriaKind = ListEntityDisplayCriteriaKind.METAPROJECT;
+        this.setMetaprojectCriteriaOrNull(metaprojectCriteria);
     }
 
     public ListEntityDisplayCriteriaKind getCriteriaKind()
@@ -107,6 +117,12 @@ public class ListSampleDisplayCriteria2 extends DefaultResultSetConfig<String, T
     {
         assert getCriteriaKind() == ListEntityDisplayCriteriaKind.SEARCH : "not a search criteria";
         return getSearchCriteriaOrNull();
+    }
+
+    public MetaprojectCriteria getMetaprojectCriteria()
+    {
+        assert getCriteriaKind() == ListEntityDisplayCriteriaKind.METAPROJECT : "not a metaproject criteria";
+        return getMetaprojectCriteriaOrNull();
     }
 
     public void updateSearchCriteria(final DetailedSearchCriteria newSearchCriteria)
@@ -134,6 +150,16 @@ public class ListSampleDisplayCriteria2 extends DefaultResultSetConfig<String, T
     private void setSearchCriteriaOrNull(DetailedSearchCriteria searchCriteriaOrNull)
     {
         this.searchCriteriaOrNull = searchCriteriaOrNull;
+    }
+
+    public MetaprojectCriteria getMetaprojectCriteriaOrNull()
+    {
+        return metaprojectCriteriaOrNull;
+    }
+
+    public void setMetaprojectCriteriaOrNull(MetaprojectCriteria metaprojectCriteriaOrNull)
+    {
+        this.metaprojectCriteriaOrNull = metaprojectCriteriaOrNull;
     }
 
     public void setAllSampleType(SampleType sampleType)

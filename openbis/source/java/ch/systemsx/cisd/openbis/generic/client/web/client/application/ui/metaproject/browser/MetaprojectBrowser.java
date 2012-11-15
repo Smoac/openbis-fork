@@ -47,10 +47,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 public class MetaprojectBrowser extends ContentPanel implements IDisposableComponent
 {
 
-    // TODO add logic to handle new metaprojectId parameter in
-    // ListSampleCriteria
+    // TODO add loading to tree and entities (Loading class)
 
     // TODO add remove assignments button to entity grids
+
+    // TODO check ids are correct (maybe pass idPrefix)
 
     public static final String ID = GenericConstants.ID_PREFIX + "metaproject-browser";
 
@@ -113,7 +114,7 @@ public class MetaprojectBrowser extends ContentPanel implements IDisposableCompo
         gridsLayout.setFloatable(false);
 
         add(new MetaprojectBrowserTreePanel(viewContext, tree), treeLayout);
-        add(new MetaprojectBrowserEntitiesPanel(viewContext, entities), gridsLayout);
+        add(entities, gridsLayout);
 
         layout();
     }

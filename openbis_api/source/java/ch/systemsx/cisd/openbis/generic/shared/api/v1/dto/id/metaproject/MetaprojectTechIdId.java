@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.ObjectTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -37,6 +38,11 @@ public class MetaprojectTechIdId extends ObjectTechIdId implements IMetaprojectI
     public MetaprojectTechIdId(Long techId)
     {
         super(techId);
+    }
+
+    public MetaprojectTechIdId(TechId techId)
+    {
+        this(techId.getId());
     }
 
     //

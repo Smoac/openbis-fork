@@ -51,19 +51,21 @@ public interface IMaterialListingQuery extends BaseQuery, IPropertyListingQuery
 
     public static final String SELECT_MATERIALS = "select m.id, m.code, m.dbin_id, m.maty_id, "
             + "m.registration_timestamp, m.modification_timestamp, m.pers_id_registerer "
-            + "from materials m where ";
+            + "from materials m";
+
+    public static final String SELECT_MATERIALS_WHERE = SELECT_MATERIALS + " where";
 
     /**
      * Returns the materials for the given <var>materialTypeId</var>
      */
-    @Select(sql = SELECT_MATERIALS + " m.dbin_id=?{1} and m.maty_id=?{2} order by m.code", fetchSize = FETCH_SIZE)
+    @Select(sql = SELECT_MATERIALS_WHERE + " m.dbin_id=?{1} and m.maty_id=?{2} order by m.code", fetchSize = FETCH_SIZE)
     public DataIterator<MaterialRecord> getMaterialsForMaterialType(long dbInstanceId,
             long materialTypeId);
 
     /**
      * Returns the materials for the given <var>materialTypeId</var> and <var>materialIds</var>
      */
-    @Select(sql = SELECT_MATERIALS + " m.dbin_id=?{1} and m.id = any(?{2}) order by m.code", parameterBindings =
+    @Select(sql = SELECT_MATERIALS_WHERE + " m.dbin_id=?{1} and m.id = any(?{2}) order by m.code", parameterBindings =
         { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<MaterialRecord> getMaterialsForMaterialTypeWithIds(long dbInstanceId,
             LongSet materialIds);
@@ -71,10 +73,18 @@ public interface IMaterialListingQuery extends BaseQuery, IPropertyListingQuery
     /**
      * Returns the materials for the given <var>materialTypeId</var> and <var>materialIds</var>
      */
-    @Select(sql = SELECT_MATERIALS + " m.dbin_id=?{1} and m.code = any(?{2}) order by m.code", parameterBindings =
+    @Select(sql = SELECT_MATERIALS_WHERE + " m.dbin_id=?{1} and m.code = any(?{2}) order by m.code", parameterBindings =
         { TypeMapper.class/* default */, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<MaterialRecord> getMaterialsForMaterialCodes(long dbInstanceId,
             String[] codes);
+
+    /**
+     * Returns the materials for the given <var>metaprojectId</var>
+     */
+    @Select(sql = SELECT_MATERIALS
+            + " JOIN metaproject_assignments ma ON m.id=ma.mate_id WHERE m.dbin_id=?{1} AND ma.mepr_id=?{2} order by m.code", fetchSize = FETCH_SIZE)
+    public DataIterator<MaterialRecord> getMaterialsForMetaprojectId(long dbInstanceId,
+            long metaprojectId);
 
     //
     // Entity Properties

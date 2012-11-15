@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserG
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -99,32 +100,70 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
         final ProjectSelectionTreeGridContainer tree =
                 new ProjectSelectionTreeGridContainer(viewContext);
         final ExperimentBrowserToolbar toolbar = new ExperimentBrowserToolbar(viewContext, tree);
-        final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar)
-            {
-                @Override
-                protected ICellListenerAndLinkGenerator<Experiment> tryGetCellListenerAndLinkGenerator(
-                        String columnId)
-                {
-                    // No links in choosers needed
-                    return null;
-                }
+        final ExperimentBrowserGrid browserGrid =
+                new ExperimentBrowserGrid(viewContext, toolbar, false)
+                    {
+                        @Override
+                        protected ICellListenerAndLinkGenerator<Experiment> tryGetCellListenerAndLinkGenerator(
+                                String columnId)
+                        {
+                            // No links in choosers needed
+                            return null;
+                        }
 
-                @Override
-                protected boolean isEditable(
-                        BaseEntityModel<TableModelRowWithObject<Experiment>> model, String columnID)
-                {
-                    return false;
-                }
+                        @Override
+                        protected boolean isEditable(
+                                BaseEntityModel<TableModelRowWithObject<Experiment>> model,
+                                String columnID)
+                        {
+                            return false;
+                        }
 
-                @Override
-                protected void showNonEditableTableCellMessage(
-                        BaseEntityModel<TableModelRowWithObject<Experiment>> model, String columnID)
-                {
-                    // Do not show a message because in a chooser nobody is expecting editable table
-                    // cells.
-                }
-            };
+                        @Override
+                        protected void showNonEditableTableCellMessage(
+                                BaseEntityModel<TableModelRowWithObject<Experiment>> model,
+                                String columnID)
+                        {
+                            // Do not show a message because in a chooser nobody is expecting
+                            // editable table
+                            // cells.
+                        }
+                    };
         return createExperimentBrowser(tree, toolbar, browserGrid, viewContext);
+    }
+
+    public static DisposableEntityChooser<TableModelRowWithObject<Experiment>> createForMetaproject(
+            IViewContext<?> viewContext, TechId metaprojectId)
+    {
+        final ListExperimentsCriteria criteria = new ListExperimentsCriteria();
+        criteria.setMetaprojectId(metaprojectId);
+
+        ExperimentBrowserGrid browserGrid =
+                new ExperimentBrowserGrid(viewContext.getCommonViewContext(),
+                        new ICriteriaProvider<ListExperimentsCriteria>()
+                            {
+                                @Override
+                                public ListExperimentsCriteria tryGetCriteria()
+                                {
+                                    return criteria;
+                                }
+
+                                @Override
+                                public void update(
+                                        Set<DatabaseModificationKind> observedModifications,
+                                        IDataRefreshCallback dataRefreshCallback)
+                                {
+                                    dataRefreshCallback.postRefresh(true);
+                                }
+
+                                @Override
+                                public DatabaseModificationKind[] getRelevantModifications()
+                                {
+                                    return new DatabaseModificationKind[0];
+                                }
+                            }, true);
+        browserGrid.extendBottomToolbar();
+        return browserGrid.asDisposableWithoutToolbar();
     }
 
     private static DisposableEntityChooser<TableModelRowWithObject<Experiment>> createExperimentBrowser(
@@ -149,7 +188,8 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
                         initialProjectOrNull);
         final ExperimentBrowserToolbar toolbar =
                 new ExperimentBrowserToolbar(viewContext, tree, initialExperimentTypeOrNull);
-        final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar);
+        final ExperimentBrowserGrid browserGrid =
+                new ExperimentBrowserGrid(viewContext, toolbar, false);
         browserGrid.extendBottomToolbar();
         return createExperimentBrowser(tree, toolbar, browserGrid, viewContext);
     }
@@ -164,9 +204,11 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
     private final ICriteriaProvider<ListExperimentsCriteria> criteriaProvider;
 
     private ExperimentBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            ICriteriaProvider<ListExperimentsCriteria> criteriaProvider)
+            ICriteriaProvider<ListExperimentsCriteria> criteriaProvider,
+            boolean refreshAutomatically)
     {
-        super(viewContext, GRID_ID, DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
+        super(viewContext, GRID_ID, refreshAutomatically,
+                DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
         this.criteriaProvider = criteriaProvider;
         registerLinkClickListenerFor(ExperimentBrowserGridColumnIDs.EXPERIMENT_IDENTIFIER,
                 showEntityViewerLinkClickListener);

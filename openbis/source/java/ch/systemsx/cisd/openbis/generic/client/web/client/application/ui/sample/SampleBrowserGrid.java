@@ -73,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -251,15 +252,16 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
 
     public static IDisposableComponent createGridForMetaprojectSamples(
             final IViewContext<ICommonClientServiceAsync> viewContext, final TechId metaprojectId,
-            final String browserId, IDirectlyConnectedController directlyConnectedController)
+            final String browserId)
     {
         final ListSampleDisplayCriteria criteria =
-                ListSampleDisplayCriteria.createForMetaproject(metaprojectId);
+                ListSampleDisplayCriteria.createForMetaproject(new MetaprojectCriteria(
+                        metaprojectId.getId()));
 
         final SampleBrowserGrid browserGrid =
                 createGridAsComponent(viewContext, browserId, criteria, METAPROJECT_TYPE,
                         DisplayTypeIDGenerator.METAPROJECT_DETAILS_GRID,
-                        directlyConnectedController);
+                        DUMMY_DIRECTLY_CONNECTED_CONTROLLER);
 
         browserGrid.updateCriteriaProviderAndRefresh();
         browserGrid.extendBottomToolbar();
@@ -485,19 +487,28 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
     {
         ListSampleDisplayCriteria c1 = getCriteriaProvider().tryGetCriteria();
         ListSampleDisplayCriteria2 criteria;
+
         if (c1.getCriteriaKind() == ListEntityDisplayCriteriaKind.BROWSE)
         {
             criteria = new ListSampleDisplayCriteria2(c1.getBrowseCriteria());
-        } else
+        } else if (c1.getCriteriaKind() == ListEntityDisplayCriteriaKind.SEARCH)
         {
             criteria = new ListSampleDisplayCriteria2(c1.getSearchCriteria());
+        } else if (c1.getCriteriaKind() == ListEntityDisplayCriteriaKind.METAPROJECT)
+        {
+            criteria = new ListSampleDisplayCriteria2(c1.getMetaprojectCriteria());
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported criteria kind: " + c1.getCriteriaKind());
         }
+
         criteria.copyPagingConfig(resultSetConfig);
         if (criteria.getCriteriaKind() == ListEntityDisplayCriteriaKind.BROWSE)
         {
             criteria.getBrowseCriteria().setOnlyDirectlyConnected(
                     directlyConnectedController.isOnlyDirectlyConnected());
         }
+
         viewContext.getService().listSamples2(criteria, callback);
     }
 

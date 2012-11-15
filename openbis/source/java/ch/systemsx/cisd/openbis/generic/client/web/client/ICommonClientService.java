@@ -544,6 +544,13 @@ public interface ICommonClientService extends IClientService
             boolean onlyDirectlyConnected) throws UserFailureException;
 
     /**
+     * For given <var>metaprojectId</var> returns corresponding list of {@link ExternalData}.
+     */
+    public TypedTableResultSet<ExternalData> listMetaprojectDataSets(final TechId metaprojectId,
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria)
+            throws UserFailureException;
+
+    /**
      * For given <var>datasetId</var> in given relationship <var>role</var> returns corresponding
      * list of {@link ExternalData}.
      */

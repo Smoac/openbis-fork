@@ -16,19 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.entity;
 
-import java.util.Set;
-
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.Text;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
 /**
  * @author pkupczyk
@@ -51,32 +46,7 @@ public class MetaprojectExperimentsSection extends DisposableTabContent
     @Override
     protected IDisposableComponent createDisposableContent()
     {
-        return new IDisposableComponent()
-            {
-
-                @Override
-                public void update(Set<DatabaseModificationKind> observedModifications)
-                {
-
-                }
-
-                @Override
-                public DatabaseModificationKind[] getRelevantModifications()
-                {
-                    return new DatabaseModificationKind[] {};
-                }
-
-                @Override
-                public Component getComponent()
-                {
-                    return new Text("Experiments for metaproject: " + metaprojectId);
-                }
-
-                @Override
-                public void dispose()
-                {
-                }
-            };
+        return ExperimentBrowserGrid.createForMetaproject(viewContext, metaprojectId);
     }
 
 }

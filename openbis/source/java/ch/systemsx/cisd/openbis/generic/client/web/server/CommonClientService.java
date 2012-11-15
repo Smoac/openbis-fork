@@ -911,6 +911,22 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
+    public TypedTableResultSet<ExternalData> listMetaprojectDataSets(final TechId metaprojectId,
+            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return listEntities(new AbstractExternalDataProvider(commonServer, getSessionToken())
+            {
+                @Override
+                protected List<ExternalData> getDataSets()
+                {
+                    return commonServer.listMetaprojectExternalData(sessionToken,
+                            new MetaprojectTechIdId(metaprojectId));
+                }
+            }, criteria);
+    }
+
+    @Override
     public TypedTableResultSet<ExternalData> listDataSetRelationships(final TechId datasetId,
             final DataSetRelationshipRole role,
             final DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria)
@@ -1368,8 +1384,19 @@ public final class CommonClientService extends AbstractClientService implements
                 @Override
                 protected List<Material> getMaterials()
                 {
-                    return commonServer.listMaterials(getSessionToken(),
-                            criteria.getListCriteria(), true);
+                    if (criteria.getListCriteria() != null)
+                    {
+                        return commonServer.listMaterials(getSessionToken(),
+                                criteria.getListCriteria(), true);
+                    } else if (criteria.getMetaprojectCriteria() != null)
+                    {
+                        return commonServer.listMetaprojectMaterials(getSessionToken(),
+                                new MetaprojectTechIdId(criteria.getMetaprojectCriteria()
+                                        .getMetaprojectId()));
+                    } else
+                    {
+                        throw new IllegalArgumentException("Unsupported criteria: " + criteria);
+                    }
                 }
             }, criteria);
     }

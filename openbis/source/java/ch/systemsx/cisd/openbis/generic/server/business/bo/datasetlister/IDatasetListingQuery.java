@@ -55,7 +55,7 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     public static final int FETCH_SIZE = 1000;
 
     public final static String SELECT_ALL =
-            "select * from data left outer join external_data on data.id = external_data.data_id left outer join link_data on data.id = link_data.data_id ";
+            "select data.*, external_data.*, link_data.* from data left outer join external_data on data.id = external_data.data_id left outer join link_data on data.id = link_data.data_id ";
 
     public final static String SELECT_ALL_EXTERNAL_DATAS =
             "select * from data join external_data on data.id = external_data.data_id ";
@@ -65,6 +65,13 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
      */
     @Select(sql = SELECT_ALL + " WHERE data.expe_id = ?{1}")
     public DataIterator<DatasetRecord> getDatasetsForExperiment(long experimentId);
+
+    /**
+     * Returns the datasets for the given metaproject id.
+     */
+    @Select(sql = SELECT_ALL
+            + " JOIN metaproject_assignments ma ON data.id=ma.data_id WHERE ma.mepr_id = ?{1}")
+    public DataIterator<DatasetRecord> getDatasetsForMetaproject(long metaprojectId);
 
     @Select(sql = "with recursive connected_data as ( "
             + "select * from data as d left outer join external_data as ed on d.id = ed.data_id left outer join link_data as ld on d.id = ld.data_id "

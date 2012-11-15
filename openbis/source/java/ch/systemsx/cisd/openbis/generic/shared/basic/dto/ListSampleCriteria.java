@@ -64,8 +64,6 @@ public class ListSampleCriteria implements Serializable
     // --------- filter 5 fields
     private TechId experimentId;
 
-    private TechId metaprojectId;
-
     private boolean onlyDirectlyConnected = true;
 
     // --------- filter 6 fields
@@ -110,13 +108,6 @@ public class ListSampleCriteria implements Serializable
     {
         final ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setExperimentId(experimentId);
-        return criteria;
-    }
-
-    public static ListSampleCriteria createForMetaproject(final TechId metaprojectId)
-    {
-        final ListSampleCriteria criteria = new ListSampleCriteria();
-        criteria.setMetaprojectId(metaprojectId);
         return criteria;
     }
 
@@ -218,16 +209,6 @@ public class ListSampleCriteria implements Serializable
     private void setExperimentId(final TechId experimentId)
     {
         this.experimentId = experimentId;
-    }
-
-    public TechId getMetaprojectId()
-    {
-        return metaprojectId;
-    }
-
-    private void setMetaprojectId(TechId metaprojectId)
-    {
-        this.metaprojectId = metaprojectId;
     }
 
     public boolean isOnlyDirectlyConnected()

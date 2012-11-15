@@ -21,6 +21,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
@@ -56,9 +57,10 @@ public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sa
         return new ListSampleDisplayCriteria(ListSampleCriteria.createForExperiment(experimentId));
     }
 
-    public static ListSampleDisplayCriteria createForMetaproject(final TechId metaprojectId)
+    public static ListSampleDisplayCriteria createForMetaproject(
+            final MetaprojectCriteria criteria)
     {
-        return new ListSampleDisplayCriteria(ListSampleCriteria.createForMetaproject(metaprojectId));
+        return new ListSampleDisplayCriteria(criteria);
     }
 
     public static ListSampleDisplayCriteria createForSearch()
@@ -77,12 +79,14 @@ public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sa
     // artificial 'all' SampleType
     private SampleType allSampleTypeOrNull;
 
-    // either search criteria or list criteria is set
+    // either search criteria or list criteria or metaproject criteria is set
     private DetailedSearchCriteria searchCriteriaOrNull;
 
     private ListSampleCriteria listCriteriaOrNull;
 
-    ListSampleDisplayCriteria(final DetailedSearchCriteria searchCriteria)
+    private MetaprojectCriteria metaprojectCriteriaOrNull;
+
+    private ListSampleDisplayCriteria(final DetailedSearchCriteria searchCriteria)
     {
         assert searchCriteria != null : "search criteria not set";
         this.criteriaKind = ListEntityDisplayCriteriaKind.SEARCH;
@@ -94,6 +98,13 @@ public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sa
         assert listCriteria != null : "list criteria not set";
         this.criteriaKind = ListEntityDisplayCriteriaKind.BROWSE;
         this.setListCriteriaOrNull(listCriteria);
+    }
+
+    public ListSampleDisplayCriteria(final MetaprojectCriteria metaprojectCriteria)
+    {
+        assert metaprojectCriteria != null : "metaproject criteria not set";
+        this.criteriaKind = ListEntityDisplayCriteriaKind.METAPROJECT;
+        this.setMetaprojectCriteriaOrNull(metaprojectCriteria);
     }
 
     public ListEntityDisplayCriteriaKind getCriteriaKind()
@@ -111,6 +122,12 @@ public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sa
     {
         assert getCriteriaKind() == ListEntityDisplayCriteriaKind.SEARCH : "not a search criteria";
         return getSearchCriteriaOrNull();
+    }
+
+    public MetaprojectCriteria getMetaprojectCriteria()
+    {
+        assert getCriteriaKind() == ListEntityDisplayCriteriaKind.METAPROJECT : "not a metaproject criteria";
+        return getMetaprojectCriteriaOrNull();
     }
 
     public void updateSearchCriteria(final DetailedSearchCriteria newSearchCriteria)
@@ -138,6 +155,16 @@ public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sa
     private void setSearchCriteriaOrNull(DetailedSearchCriteria searchCriteriaOrNull)
     {
         this.searchCriteriaOrNull = searchCriteriaOrNull;
+    }
+
+    public MetaprojectCriteria getMetaprojectCriteriaOrNull()
+    {
+        return metaprojectCriteriaOrNull;
+    }
+
+    public void setMetaprojectCriteriaOrNull(MetaprojectCriteria metaprojectCriteriaOrNull)
+    {
+        this.metaprojectCriteriaOrNull = metaprojectCriteriaOrNull;
     }
 
     public void setAllSampleType(SampleType sampleType)

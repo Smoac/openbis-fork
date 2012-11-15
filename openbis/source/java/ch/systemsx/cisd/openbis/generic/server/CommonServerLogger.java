@@ -302,6 +302,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
+    public List<Sample> listMetaprojectSamples(String sessionToken, IMetaprojectId metaprojectId)
+    {
+        logAccess(sessionToken, "list_metaproject_samples", "METAPROJECT_ID(%s)", metaprojectId);
+        return null;
+    }
+
+    @Override
     public List<Sample> listSamplesOnBehalfOfUser(String sessionToken, ListSampleCriteria criteria,
             String userId)
     {
@@ -366,6 +373,15 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
+    public List<ExternalData> listMetaprojectExternalData(final String sessionToken,
+            final IMetaprojectId metaprojectId)
+    {
+        logAccess(sessionToken, "list_metaproject_external_data", "METAPROJECT_ID(%s)",
+                metaprojectId);
+        return null;
+    }
+
+    @Override
     public List<ExternalData> listDataSetRelationships(String sessionToken, TechId datasetId,
             DataSetRelationshipRole role)
     {
@@ -395,6 +411,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             final ExperimentType experimentType, final ProjectIdentifier project)
     {
         logAccess(sessionToken, "list_experiments", "TYPE(%s) PROJECT(%s)", experimentType, project);
+        return null;
+    }
+
+    @Override
+    public List<Experiment> listMetaprojectExperiments(String sessionToken,
+            IMetaprojectId metaprojectId)
+    {
+        logAccess(sessionToken, "list_metaproject_experiments", "METAPROJECT_ID(%s)", metaprojectId);
         return null;
     }
 
@@ -685,6 +709,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logAccess(sessionToken, "list_materials", "TYPE(%s) IDS(%s) withProperties(%s)",
                 criteria.tryGetMaterialType(), criteria.tryGetMaterialIds() == null ? "-"
                         : abbreviate(criteria.tryGetMaterialIds()), withProperties);
+        return null;
+    }
+
+    @Override
+    public List<Material> listMetaprojectMaterials(String sessionToken, IMetaprojectId metaprojectId)
+    {
+        logAccess(sessionToken, "list_metaproject_materials", "METAPROJECT_ID(%s)", metaprojectId);
         return null;
     }
 
