@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3605B05C1653EE8500CEC7F8 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 3605B05B1653EE8500CEC7F8 /* Settings.bundle */; };
 		362B81EC163FFB6C00127554 /* CISDOBIpadServiceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 362B81EB163FFB6C00127554 /* CISDOBIpadServiceManager.m */; };
 		364D509E161C6ADB00A739B0 /* openBISData.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 364D509C161C6ADB00A739B0 /* openBISData.sqlite */; };
 		3687D8FF162D3AB500622690 /* openbis-icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 3687D8FD162D3AB500622690 /* openbis-icon-72.png */; };
@@ -74,6 +75,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3605B05B1653EE8500CEC7F8 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		362B81EA163FFB6C00127554 /* CISDOBIpadServiceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBIpadServiceManager.h; sourceTree = "<group>"; };
 		362B81EB163FFB6C00127554 /* CISDOBIpadServiceManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBIpadServiceManager.m; sourceTree = "<group>"; };
 		364D5098161C6A3600A739B0 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = readme.md; sourceTree = "<group>"; };
@@ -237,6 +239,7 @@
 				36F71E8C161C3AE900C87277 /* Default.png */,
 				36F71E8E161C3AE900C87277 /* Default@2x.png */,
 				36F71E90161C3AE900C87277 /* Default-568h@2x.png */,
+				3605B05B1653EE8500CEC7F8 /* Settings.bundle */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -417,6 +420,7 @@
 				364D509E161C6ADB00A739B0 /* openBISData.sqlite in Resources */,
 				3687D8FF162D3AB500622690 /* openbis-icon-72.png in Resources */,
 				3687D900162D3AB500622690 /* openbis-icon-144.png in Resources */,
+				3605B05C1653EE8500CEC7F8 /* Settings.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
