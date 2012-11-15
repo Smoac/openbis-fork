@@ -128,6 +128,13 @@ public class AtomicEntityOperationDetailsBuilder
         return this;
     }
 
+    public AtomicEntityOperationDetailsBuilder metaProjectUpdate(
+            MetaprojectUpdatesDTO metaProjectUpdate)
+    {
+        metaprojectUpdates.add(metaProjectUpdate);
+        return this;
+    }
+
     public AtomicEntityOperationDetails getDetails()
     {
         return new AtomicEntityOperationDetails(registrationIdOrNull, userIdOrNull,

@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -57,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleTypeBuil
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
+import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -368,6 +370,24 @@ public class ToolBox
                 SampleIdentifierFactory.parse(sample.getIdentifier()));
     }
 
+    public ExternalData createAndLoadDataSet(NewDataSet dataSet)
+    {
+        AtomicEntityOperationDetailsBuilder builder =
+                new AtomicEntityOperationDetailsBuilder().dataSet(dataSet);
+        etlService.performEntityOperations(systemSessionToken, builder.getDetails());
+        return loadDataSet(systemSessionToken, dataSet.getCode());
+    }
+
+    public ExternalData loadDataSet(String dataSetCode)
+    {
+        return loadDataSet(systemSessionToken, dataSetCode);
+    }
+
+    public ExternalData loadDataSet(String sessionToken, String dataSetCode)
+    {
+        return etlService.tryGetDataSet(sessionToken, dataSetCode);
+    }
+
     public NewDataSet dataSet(String code, Experiment experiment)
     {
         NewDataSet dataSet = dataSet(code);
@@ -385,6 +405,7 @@ public class ToolBox
 
     private NewDataSet dataSet(String code)
     {
+        String userId = "system";
         NewDataSet dataSet = new NewDataSet();
         dataSet.setCode(code);
         dataSet.setDataSetType(DATA_SET_TYPE);
@@ -394,6 +415,7 @@ public class ToolBox
         dataSet.setLocatorType(LOCATOR_TYPE);
         dataSet.setStorageFormat(StorageFormat.PROPRIETARY);
         dataSet.setDataStoreCode(DATA_STORE_CODE);
+        dataSet.setUserId(userId);
         return dataSet;
     }
 

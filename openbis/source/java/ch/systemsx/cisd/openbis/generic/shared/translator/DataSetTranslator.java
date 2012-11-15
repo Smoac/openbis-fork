@@ -211,7 +211,7 @@ public class DataSetTranslator
         externalData.setModificationDate(dataPE.getModificationDate());
         externalData.setVersion(dataPE.getVersion());
         externalData.setRegistrator(PersonTranslator.translate(dataPE.getRegistrator()));
-        externalData.setModifier(PersonTranslator.translate(dataPE.getRegistrator()));
+        externalData.setModifier(PersonTranslator.translate(dataPE.getModifier()));
         externalData.setRegistrationDate(dataPE.getRegistrationDate());
         externalData.setSample(sampleOrNull == null ? null : fillSample(new Sample(), sampleOrNull,
                 withDetails));

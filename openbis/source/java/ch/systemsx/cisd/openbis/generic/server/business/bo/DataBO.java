@@ -637,7 +637,6 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     {
         try
         {
-            data.setModifier(findPerson());
             getDataDAO().validateAndSaveUpdatedEntity(data);
         } catch (final DataAccessException ex)
         {

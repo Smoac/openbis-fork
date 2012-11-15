@@ -152,7 +152,7 @@ public class RelationshipService implements IRelationshipService
     {
         ExperimentPE experiment = sample.getExperiment();
         RelationshipUtils.setExperimentForDataSet(data, experiment, session);
-        data.setSample(sample);
+        RelationshipUtils.setSampleForDataSet(data, sample, session);
     }
 
     @Override

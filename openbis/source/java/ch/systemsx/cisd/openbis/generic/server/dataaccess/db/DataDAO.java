@@ -1120,7 +1120,6 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         {
             validatePE(data);
             data.setCode(CodeConverter.tryToDatabase(data.getCode()));
-            data.setModifier(modifier);
             hibernateTemplate.saveOrUpdate(data);
         }
 
