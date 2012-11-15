@@ -86,7 +86,7 @@
     self.summaryLabel.text = self.detailItem.summary;
     self.identifierLabel.text = self.detailItem.identifier;
     
-    if (!self.detailItem.imageUrlString) {
+    if (!self.detailItem.imageUrlString || [self.detailItem.imageUrlString length] == 0) {
         [self.webView loadHTMLString: @"<html><head></head><body></body></html>" baseURL: nil];
         self.webView.hidden = YES;
         self.webView.scrollView.hidden = YES;
