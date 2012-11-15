@@ -42,12 +42,11 @@ NSString *const CISDOBIpadServiceDidSynchEntitiesNotification = @"CISDOBIpadServ
 // Internal service call that includes the private state
 @interface CISDOBIpadServiceManagerCall : CISDOBAsyncCall
 
-@property(weak) CISDOBIpadServiceManager *serviceManager;
+@property(weak, nonatomic) CISDOBIpadServiceManager *serviceManager;
 @property(nonatomic) CISDOBAsyncCall *serviceCall;
-@property(copy) NSString *willCallNotificationName;
-@property(copy) NSString *didCallNotificationName;
 
-@property(nonatomic) BOOL sendSynchNotifications;
+@property(copy, nonatomic) NSString *willCallNotificationName;  //<! The notification called before the call takes place, may be nil
+@property(copy, nonatomic) NSString *didCallNotificationName;   //<! The notification called after the call has completed, may be nil
 
 // Initialization
 - (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager serviceCall:(CISDOBAsyncCall *)call;
@@ -73,7 +72,7 @@ NSString *const CISDOBIpadServiceDidSynchEntitiesNotification = @"CISDOBIpadServ
 
 // Actions
 - (void)run;
-- (void)notifyCallOfResult:(id)args;
+- (void)notifyCallOfResult;
 
 @end
 
@@ -108,7 +107,13 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 {
     if (!(self = [super init])) return nil;
     
-    CISDOBLiveConnection *connection = [[CISDOBLiveConnection alloc] initWithUrl: openbisUrl trusted: trusted];
+    CISDOBConnection *connection;
+    if (openbisUrl) {
+        connection = [[CISDOBLiveConnection alloc] initWithUrl: openbisUrl trusted: trusted];
+    } else {
+        connection = [[CISDOBDeadConnection alloc] init];
+    }
+    
     _storeUrl = [storeUrl copy];
     _service = [[CISDOBIpadService alloc] initWithConnection: connection];
     _managedObjectContext = GetMainThreadManagedObjectContext(self.storeUrl, error);
@@ -123,6 +128,28 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     return self;
 }
 
+- (NSURL *)openbisUrl
+{
+    if (![_service.connection isKindOfClass: [CISDOBLiveConnection class]]) return nil;
+    
+    return ((CISDOBLiveConnection *) _service.connection).url;
+
+}
+
+- (void)setOpenbisUrl:(NSURL *)openbisUrl trusted:(BOOL)trusted;
+{
+    if ([self.openbisUrl isEqual: openbisUrl]) return;
+    
+    CISDOBConnection *connection;
+    if (openbisUrl) {
+        connection = [[CISDOBLiveConnection alloc] initWithUrl: openbisUrl trusted: trusted];
+    } else {
+        connection = [[CISDOBDeadConnection alloc] init];
+    }
+    
+    _service = [[CISDOBIpadService alloc] initWithConnection: connection];
+}
+
 - (NSString *)sessionToken
 {
    return ((CISDOBLiveConnection *)(self.service.connection)).sessionToken;
@@ -131,10 +158,6 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 - (void)syncEntities:(NSArray *)rawEntities pruning:(BOOL)prune notifying:(CISDOBIpadServiceManagerCall *)managerCall
 {
     void (^syncBlock)(void) = ^{
-        if (managerCall.didCallNotificationName) {
-            [[NSNotificationCenter defaultCenter] postNotificationName: managerCall.didCallNotificationName object: self];
-        }
-        
         [[NSNotificationCenter defaultCenter] postNotificationName: CISDOBIpadServiceWillSynchEntitiesNotification object: self];
         
         // Run the synchronizer in the background thread
@@ -153,7 +176,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
                     notifySynchronizer.error = error;
                 }
             }
-            [notifySynchronizer notifyCallOfResult: nil];
+            [notifySynchronizer notifyCallOfResult];
         };
         [[NSOperationQueue mainQueue] addOperationWithBlock: notifyBlock];
     };
@@ -165,11 +188,11 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     CISDOBIpadServiceManagerCall *managerCall = [[CISDOBIpadServiceManagerCall alloc] initWithServiceManager: self serviceCall: serviceCall];
     
     serviceCall.success = ^(id result) {
-        // Update the cache
+        // Update the cache and call the managerCall success when done
         [self syncEntities: result pruning: prune notifying: managerCall];
     };    
     
-    serviceCall.fail = ^(NSError *error) { if (managerCall.fail) managerCall.fail(error); };
+    serviceCall.fail = ^(NSError *error) { [managerCall notifyFailure: error]; };
     
     return managerCall;
 }
@@ -186,7 +209,6 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     call.success = ^(id result) { [managerCall notifySuccess: result]; };
     managerCall.willCallNotificationName = CISDOBIpadServiceWillLoginNotification;
     managerCall.didCallNotificationName = CISDOBIpadServiceDidLoginNotification;
-    managerCall.sendSynchNotifications = NO;
     return managerCall;
 }
 
@@ -198,7 +220,6 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     
     managerCall.willCallNotificationName = CISDOBIpadServiceWillRetrieveRootLevelEntitiesNotification;
     managerCall.didCallNotificationName = CISDOBIpadServiceDidRetrieveRootLevelEntitiesNotification;
-    managerCall.sendSynchNotifications = YES;
     
     return managerCall;
 }
@@ -210,7 +231,6 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     
     managerCall.willCallNotificationName = CISDOBIpadServiceWillDrillOnEntityNotification;
     managerCall.didCallNotificationName = CISDOBIpadServiceDidDrillOnEntityNotification;
-    managerCall.sendSynchNotifications = YES;
     
     return managerCall;
 }
@@ -222,7 +242,6 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     
     managerCall.willCallNotificationName = CISDOBIpadServiceWillRetrieveDetailsForEntityNotification;
     managerCall.didCallNotificationName = CISDOBIpadServiceDidRetrieveDetailsForEntityNotification;
-    managerCall.sendSynchNotifications = YES;
     
     return managerCall;
 }
@@ -285,25 +304,25 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     return self;
 }
 
-- (void)sendCompletionNotification
+- (void)sendCompletionNotification:(NSError *)errorOrNil
 {
-    if (self.sendSynchNotifications) {
-        // This is handled elsewhere
-    } else if (self.didCallNotificationName) {
-        [[NSNotificationCenter defaultCenter] postNotificationName: self.didCallNotificationName object: self.serviceManager];
+    if (self.didCallNotificationName) {
+        NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+        if (errorOrNil) [userInfo setValue: errorOrNil forKey: NSUnderlyingErrorKey];
+        [[NSNotificationCenter defaultCenter] postNotificationName: self.didCallNotificationName object: self.serviceManager userInfo: userInfo];
     }
 }
 
 - (void)notifySuccess:(id)result
 {
+    [self sendCompletionNotification: nil];
     if (self.success) self.success(result);
-    [self sendCompletionNotification];
 }
 
 - (void)notifyFailure:(NSError *)error
 {
+    [self sendCompletionNotification: error];
     if (self.fail) self.fail(error);
-    [self sendCompletionNotification];
 }
 
 - (void)start
@@ -388,7 +407,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     self.error = nil;
 }
 
-- (void)notifyCallOfResult:(id)args
+- (void)notifyCallOfResult
 {
     if (self.error) {
         [self.managerCall notifyFailure: self.error];

@@ -25,7 +25,11 @@
 #import "CISDOBShared.h"
 
 //
-// The names of the notifications posted by the service manager
+// The names of the notifications posted by the service manager.
+//
+// The notifications include a userInfo dictionary with the following
+// keys and values:
+//      NSUnderlyingErrorKey If in the dictionary, the error that occured when making the call.
 //
 FOUNDATION_EXPORT NSString *const CISDOBIpadServiceWillLoginNotification;
 FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidLoginNotification;
@@ -44,12 +48,14 @@ FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidSynchEntitiesNotification;
 
 
 
+
 @class CISDOBIpadService, CISDOBAsyncCall, CISDOBIpadEntity;
 /**
  * \brief A class that manages a connection to the openBIS iPad service, caching data locally as CISDOBIpadEntity objects.
  */
 @interface CISDOBIpadServiceManager : NSObject
 
+@property (readonly) NSURL *openbisUrl;
 @property (readonly, strong) CISDOBIpadService *service;
 @property (readonly, strong) NSURL *storeUrl;
 @property (readonly, strong) NSManagedObjectContext *managedObjectContext;
@@ -62,6 +68,9 @@ FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidSynchEntitiesNotification;
 
 // Initialization
 - (id)initWithStoreUrl:(NSURL *)storeUrl openbisUrl:(NSURL *)openbisUrl trusted:(BOOL)trusted error:(NSError **)error;
+
+// Properties
+- (void)setOpenbisUrl:(NSURL *)openbisUrl trusted:(BOOL)trusted;
 
 // Actions
 

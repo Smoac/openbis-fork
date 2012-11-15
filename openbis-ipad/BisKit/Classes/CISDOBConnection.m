@@ -25,6 +25,8 @@
 #import "CISDOBJsonRpcCall.h"
 #import "CISDOBAsyncCall.h"
 
+NSString *const CISDOBConnectionErrorDomain = @"CISDOBConnectionErrorDomain";
+
 // Internal connection call that includes the private state
 @interface CISDOBConnectionCall : CISDOBAsyncCall {
 @private
@@ -155,6 +157,22 @@
 @end
 
 @implementation CISDOBPlaybackConnection
+
+@end
+
+@implementation CISDOBDeadConnection
+
+- (void)executeCall:(CISDOBConnectionCall *)call
+{
+    void (^notifyBlock)(void) = ^ {
+        NSString *errorMessage = @"The app is not connected to an openBIS server.";
+        NSDictionary *userInfo =
+            [NSDictionary dictionaryWithObjectsAndKeys: errorMessage, NSLocalizedDescriptionKey, nil];
+        NSError *error = [NSError errorWithDomain: CISDOBConnectionErrorDomain code: kCISDOBConnectionError_NoServerAvailable userInfo: userInfo];
+        call.failWrapper(error);
+    };
+    [[NSOperationQueue mainQueue] addOperationWithBlock: notifyBlock];    
+}
 
 @end
 

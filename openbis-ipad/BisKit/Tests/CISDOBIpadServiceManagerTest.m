@@ -248,4 +248,26 @@
     [self checkFindingChildren];
 }
 
+- (void)testNilUrl
+{
+    [self.serviceManager setOpenbisUrl: nil trusted: YES];
+    
+    CISDOBAsyncCall *call;
+    
+    [self assertNotLoggedIn];
+    call = [self.serviceManager loginUser: GetDefaultUserName() password: GetDefaultUserPassword()];
+    [self configureAndRunCallSynchronously: call];
+    [self assertLoggedIn];
+    
+    [self assertBeforeRootLevelCall];
+    call = [self.serviceManager retrieveRootLevelEntities];
+    [self configureAndRunCallSynchronously: call];
+    STAssertTrue(self.willRetrieveRootLevel, @"Should have retrieved root level");
+    STAssertTrue(self.didRetrieveRootLevel, @"Should have retrieved root level");
+    // No synch should have happened
+    
+    STAssertNotNil(_callError, @"The service manager should have failed to return entities.");
+}
+
+
 @end

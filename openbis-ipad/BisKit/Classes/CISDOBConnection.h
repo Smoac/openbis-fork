@@ -24,6 +24,13 @@
 #import <Foundation/Foundation.h>
 #import "CISDOBShared.h"
 
+//! The error domain for errors in the Connection layer
+FOUNDATION_EXPORT NSString *const CISDOBConnectionErrorDomain;
+
+enum CISDOBConnectionErrorCode {
+    kCISDOBConnectionError_NoServerAvailable = 1,
+};
+
 
 /**
  *  \brief A connection to an openBIS server.
@@ -78,6 +85,17 @@
 @end
 
 @interface CISDOBPlaybackConnection : CISDOBConnection {
+@private
+    
+}
+
+@end
+
+/**
+ *  \brief A fake connection to openBIS
+ *
+ */
+@interface CISDOBDeadConnection : CISDOBConnection {
 @private
     
 }
