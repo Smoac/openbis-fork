@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabula
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -699,4 +700,14 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
         return null;
     }
 
+    @Override
+    public List<? extends EntityTypePropertyType<?>> listPropertyDefinitionsForType(
+            String sessionToken, String code,
+            ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind entityKind)
+    {
+        logAccess(Level.DEBUG, sessionToken, "listPropertyDefinitionsForType",
+                "CODE(%s) ENTITY_KIND(%s)", code, entityKind);
+
+        return null;
+    }
 }

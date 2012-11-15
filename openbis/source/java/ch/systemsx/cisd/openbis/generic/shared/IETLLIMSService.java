@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -705,4 +706,11 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public ExternalDataManagementSystem tryGetExternalDataManagementSystem(String token,
             String externalDataManagementSystemCode);
 
+    /**
+     * For given entity type list all assigned property definitions.
+     */
+    @Transactional(readOnly = true)
+    public List<? extends EntityTypePropertyType<?>> listPropertyDefinitionsForType(
+            String sessionToken, String code,
+            ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind entityKind);
 }

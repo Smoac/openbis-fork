@@ -20,10 +20,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.Transformer;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
@@ -84,4 +87,13 @@ public final class SampleTypePropertyTypeTranslator
                 result, cacheOrNull);
     }
 
+    public static final Transformer<EntityTypePropertyTypePE, SampleTypePropertyType> TRANSFORMER =
+            new Transformer<EntityTypePropertyTypePE, SampleTypePropertyType>()
+                {
+                    @Override
+                    public SampleTypePropertyType transform(EntityTypePropertyTypePE input)
+                    {
+                        return translate((SampleTypePropertyTypePE) input, null);
+                    }
+                };
 }

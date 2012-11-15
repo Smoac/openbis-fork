@@ -22,12 +22,15 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.DummyAuthenticationService;
@@ -95,6 +98,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
@@ -109,15 +113,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
@@ -129,6 +136,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -145,6 +153,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
@@ -165,6 +174,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOrUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityOperationsLogEntryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
@@ -202,18 +212,22 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypePropertyTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTypePropertyTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataManagementSystemTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypePropertyTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MetaprojectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypePropertyTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SimpleDataSetHelper;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SpaceTranslator;
@@ -2375,6 +2389,48 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     public List<String> filterToVisibleSamples(String token, String user, List<String> sampleIds)
     {
         return new AuthorizationServiceUtils(daoFactory, user).filterSampleIds(sampleIds);
+    }
+
+    @Override
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public List<? extends EntityTypePropertyType<?>> listPropertyDefinitionsForType(
+            String sessionToken, String code, EntityKind entityKind)
+    {
+        IEntityTypeDAO edao = daoFactory.getEntityTypeDAO(entityKind);
+        IEntityPropertyTypeDAO dao = daoFactory.getEntityPropertyTypeDAO(entityKind);
+
+        EntityTypePE type = edao.tryToFindEntityTypeByCode(code);
+        List<EntityTypePropertyTypePE> propertiesPE = dao.listEntityPropertyTypes(type);
+
+        if (entityKind == EntityKind.DATA_SET)
+        {
+            Collection<DataSetTypePropertyType> collection =
+                    CollectionUtils.collect(propertiesPE,
+                            DataSetTypePropertyTypeTranslator.TRANSFORMER);
+            return new LinkedList<DataSetTypePropertyType>(collection);
+        } else if (entityKind == EntityKind.SAMPLE)
+        {
+            Collection<SampleTypePropertyType> collection =
+                    CollectionUtils.collect(propertiesPE,
+                            SampleTypePropertyTypeTranslator.TRANSFORMER);
+            return new LinkedList<SampleTypePropertyType>(collection);
+        } else if (entityKind == EntityKind.EXPERIMENT)
+        {
+            Collection<ExperimentTypePropertyType> collection =
+                    CollectionUtils.collect(propertiesPE,
+                            ExperimentTypePropertyTypeTranslator.TRANSFORMER);
+            return new LinkedList<ExperimentTypePropertyType>(collection);
+        } else if (entityKind == EntityKind.MATERIAL)
+        {
+            Collection<MaterialTypePropertyType> collection =
+                    CollectionUtils.collect(propertiesPE,
+                            MaterialTypePropertyTypeTranslator.TRANSFORMER);
+            return new LinkedList<MaterialTypePropertyType>(collection);
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported entity kind " + entityKind);
+        }
     }
 
     @Override

@@ -20,10 +20,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.Transformer;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -67,9 +70,11 @@ public final class ExperimentTypePropertyTypeTranslator
     }
 
     public static List<ExperimentTypePropertyType> translate(
-            Set<ExperimentTypePropertyTypePE> experimentTypePropertyTypes, PropertyType result, Map<PropertyTypePE, PropertyType> cacheOrNull)
+            Set<ExperimentTypePropertyTypePE> experimentTypePropertyTypes, PropertyType result,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
-        ExperimentTypePropertyTypeTranslatorHelper helper = new ExperimentTypePropertyTypeTranslatorHelper();
+        ExperimentTypePropertyTypeTranslatorHelper helper =
+                new ExperimentTypePropertyTypeTranslatorHelper();
         return helper.translate(experimentTypePropertyTypes, result, cacheOrNull);
     }
 
@@ -79,4 +84,14 @@ public final class ExperimentTypePropertyTypeTranslator
         return new ExperimentTypePropertyTypeTranslatorHelper().translate(entityTypePropertyType,
                 null);
     }
+
+    public static final Transformer<EntityTypePropertyTypePE, ExperimentTypePropertyType> TRANSFORMER =
+            new Transformer<EntityTypePropertyTypePE, ExperimentTypePropertyType>()
+                {
+                    @Override
+                    public ExperimentTypePropertyType transform(EntityTypePropertyTypePE input)
+                    {
+                        return translate((ExperimentTypePropertyTypePE) input);
+                    }
+                };
 }

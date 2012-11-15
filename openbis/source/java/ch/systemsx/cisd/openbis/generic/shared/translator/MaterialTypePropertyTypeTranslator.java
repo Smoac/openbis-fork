@@ -20,10 +20,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.Transformer;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -78,4 +81,13 @@ public class MaterialTypePropertyTypeTranslator
                 result, cacheOrNull);
     }
 
+    public static final Transformer<EntityTypePropertyTypePE, MaterialTypePropertyType> TRANSFORMER =
+            new Transformer<EntityTypePropertyTypePE, MaterialTypePropertyType>()
+                {
+                    @Override
+                    public MaterialTypePropertyType transform(EntityTypePropertyTypePE input)
+                    {
+                        return translate((MaterialTypePropertyTypePE) input, null);
+                    }
+                };
 }
