@@ -20,6 +20,8 @@ import java.io.Serializable;
 
 import net.lemnik.eodsql.ResultColumn;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
+
 /**
  * Corresponds to a row in the FEATURE_DEFS table. Name and description should be filled out, but if
  * the object has not yet been persisted, id and dataSetId may be invalid.
@@ -66,7 +68,7 @@ public class ImgFeatureDefDTO extends AbstractImgIdentifiable implements Seriali
 
     public void setCode(String code)
     {
-        this.code = code.toUpperCase();
+        this.code = CodeNormalizer.normalize(code.toUpperCase());
     }
 
     public String getCode()
