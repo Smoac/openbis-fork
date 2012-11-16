@@ -676,10 +676,27 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             IMetaprojectId metaprojectId)
     {
         final Session session = getSession(sessionToken);
-        final MetaprojectPE metaprojectPE = getMetaproject(sessionToken, metaprojectId);
-        final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
-        return sampleLister.list(new ListOrSearchSampleCriteria(new MetaprojectCriteria(
-                metaprojectPE.getId())));
+        final AuthorizationServiceUtils authorization = getAuthorizationService(session);
+        final MetaprojectPE metaproject = getMetaproject(sessionToken, metaprojectId);
+        final ISampleLister lister = businessObjectFactory.createSampleLister(session);
+
+        List<Sample> samples =
+                lister.list(new ListOrSearchSampleCriteria(new MetaprojectCriteria(metaproject
+                        .getId())));
+        List<Sample> translatedSamples = new ArrayList<Sample>(samples.size());
+
+        for (Sample sample : samples)
+        {
+            if (authorization.canAccessSample(sample))
+            {
+                translatedSamples.add(sample);
+            } else
+            {
+                translatedSamples.add(SampleTranslator.translateWithoutRevealingData(sample));
+            }
+        }
+
+        return translatedSamples;
     }
 
     @Override
@@ -745,12 +762,26 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             final IMetaprojectId metaprojectId)
     {
         final Session session = getSession(sessionToken);
-        final MetaprojectPE metaprojectPE = getMetaproject(sessionToken, metaprojectId);
-        final IDatasetLister datasetLister = createDatasetLister(session);
-        final List<ExternalData> datasets =
-                datasetLister.listByMetaprojectId(metaprojectPE.getId());
+        final AuthorizationServiceUtils authorization = getAuthorizationService(session);
+        final MetaprojectPE metaproject = getMetaproject(sessionToken, metaprojectId);
+        final IDatasetLister lister = createDatasetLister(session);
+
+        final List<ExternalData> datasets = lister.listByMetaprojectId(metaproject.getId());
         Collections.sort(datasets);
-        return datasets;
+        List<ExternalData> translatedDatasets = new ArrayList<ExternalData>();
+
+        for (ExternalData dataset : datasets)
+        {
+            if (authorization.canAccessDataSet(dataset))
+            {
+                translatedDatasets.add(dataset);
+            } else
+            {
+                translatedDatasets.add(DataSetTranslator.translateWithoutRevealingData(dataset));
+            }
+        }
+
+        return translatedDatasets;
     }
 
     // 'fast' implementation
@@ -883,17 +914,35 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public List<Experiment> listMetaprojectExperiments(final String sessionToken,
             IMetaprojectId metaprojectId)
     {
-        MetaprojectPE metaprojectPE = getMetaproject(sessionToken, metaprojectId);
+        final Session session = getSession(sessionToken);
+        final AuthorizationServiceUtils authorization = getAuthorizationService(session);
+
+        MetaprojectPE metaproject = getMetaproject(sessionToken, metaprojectId);
         Collection<MetaprojectAssignmentPE> assignments =
-                getMetaprojectAssignments(metaprojectPE, EntityKind.EXPERIMENT);
-        List<ExperimentPE> experiments = new ArrayList<ExperimentPE>();
+                getMetaprojectAssignments(metaproject, EntityKind.EXPERIMENT);
+        List<ExperimentPE> experimentsPE = new ArrayList<ExperimentPE>();
 
         for (MetaprojectAssignmentPE assignment : assignments)
         {
-            experiments.add(assignment.getExperiment());
+            experimentsPE.add(assignment.getExperiment());
         }
 
-        return translateExperiments(sessionToken, experiments);
+        List<Experiment> experiments = translateExperiments(sessionToken, experimentsPE);
+        List<Experiment> translatedExperiments = new ArrayList<Experiment>(experiments.size());
+
+        for (Experiment experiment : experiments)
+        {
+            if (authorization.canAccessExperiment(experiment))
+            {
+                translatedExperiments.add(experiment);
+            } else
+            {
+                translatedExperiments.add(ExperimentTranslator
+                        .translateWithoutRevealingData(experiment));
+            }
+        }
+
+        return translatedExperiments;
     }
 
     @Override

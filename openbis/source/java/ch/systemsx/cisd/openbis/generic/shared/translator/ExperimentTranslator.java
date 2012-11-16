@@ -86,6 +86,18 @@ public final class ExperimentTranslator
         return result;
     }
 
+    public final static Experiment translateWithoutRevealingData(final Experiment experiment)
+    {
+        final Experiment result = new Experiment(true);
+
+        result.setId(HibernateUtils.getId(experiment));
+        result.setPermId(experiment.getPermId());
+        result.setProperties(new ArrayList<IEntityProperty>());
+        result.setMetaprojects(experiment.getMetaprojects());
+
+        return result;
+    }
+
     public final static Experiment translate(final ExperimentPE experiment, String baseIndexURL,
             Collection<Metaproject> metaprojects, final LoadableFields... withFields)
     {

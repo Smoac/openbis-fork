@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metapr
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -294,6 +296,29 @@ public class MetaprojectTree extends TreeGrid<MetaprojectTreeItemData> implement
                                     items.add(new MetaprojectTreeEntityItemData(parent
                                             .getMetaprojectId(), entity));
                                 }
+
+                                Collections.sort(items, new Comparator<MetaprojectTreeItemData>()
+                                    {
+                                        @Override
+                                        public int compare(MetaprojectTreeItemData o1,
+                                                MetaprojectTreeItemData o2)
+                                        {
+                                            MetaprojectTreeEntityItemData e1 =
+                                                    (MetaprojectTreeEntityItemData) o1;
+                                            MetaprojectTreeEntityItemData e2 =
+                                                    (MetaprojectTreeEntityItemData) o2;
+
+                                            if (e1.isEntityStub() ^ e2.isEntityStub())
+                                            {
+                                                return e1.isEntityStub() ? -1 : 1;
+                                            } else
+                                            {
+                                                return e1.getEntityLabel().compareTo(
+                                                        e2.getEntityLabel());
+                                            }
+                                        }
+
+                                    });
 
                                 callback.onSuccess(items);
                             }

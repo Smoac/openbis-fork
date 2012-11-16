@@ -24,6 +24,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityWithDeletionInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIsStub;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 
 /**
@@ -33,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  */
 public abstract class ExternalData extends CodeWithRegistrationAndModificationDate<ExternalData>
         implements IEntityWithDeletionInformation, IEntityInformationHolderWithProperties,
-        IIdAndCodeHolder, IPermIdHolder
+        IIdAndCodeHolder, IPermIdHolder, IIsStub
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -84,7 +85,7 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
 
     private boolean storageConfirmation;
 
-    private final boolean isStub;
+    private boolean isStub;
 
     private Collection<Metaproject> metaprojects;
 
@@ -408,6 +409,7 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
         return SourceType.create(isDerived()).name();
     }
 
+    @Override
     public boolean isStub()
     {
         return this.isStub;

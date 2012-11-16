@@ -264,7 +264,6 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                         DUMMY_DIRECTLY_CONNECTED_CONTROLLER);
 
         browserGrid.updateCriteriaProviderAndRefresh();
-        browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithoutToolbar();
     }
 

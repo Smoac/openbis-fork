@@ -141,6 +141,28 @@ public class DataSetTranslator
         return result;
     }
 
+    public static ExternalData translateWithoutRevealingData(ExternalData data)
+    {
+        ExternalData externalData = null;
+
+        if (data.isContainer())
+        {
+            externalData = new ContainerDataSet(true);
+        } else if (data.isLinkData())
+        {
+            externalData = new LinkDataSet(true);
+        } else
+        {
+            externalData = new DataSet(true);
+        }
+
+        externalData.setId(data.getId());
+        externalData.setCode(data.getCode());
+        externalData.setDataSetProperties(new ArrayList<IEntityProperty>());
+
+        return externalData;
+    }
+
     public static ExternalData translateWithoutRevealingData(DataPE dataPE)
     {
         ExternalData externalData = null;

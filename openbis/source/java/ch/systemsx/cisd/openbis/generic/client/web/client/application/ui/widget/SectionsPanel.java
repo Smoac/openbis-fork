@@ -118,7 +118,7 @@ public class SectionsPanel extends LayoutContainer
         }
     }
 
-    public void selectFirstSection(final TabContent tabContent)
+    public void selectFirstSection()
     {
         tabPanel.setSelection(tabPanel.getItem(0));
     }

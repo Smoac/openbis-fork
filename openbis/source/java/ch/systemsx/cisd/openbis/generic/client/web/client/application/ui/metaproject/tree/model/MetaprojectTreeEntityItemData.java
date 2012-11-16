@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIsStub;
 
 /**
  * @author pkupczyk
@@ -50,6 +51,28 @@ public class MetaprojectTreeEntityItemData extends MetaprojectTreeItemData
     public IEntityInformationHolderWithIdentifier getEntity()
     {
         return entity;
+    }
+
+    public String getEntityLabel()
+    {
+        if (isEntityStub())
+        {
+            return getEntity().getPermId();
+        } else
+        {
+            return getEntity().getIdentifier();
+        }
+    }
+
+    public boolean isEntityStub()
+    {
+        if (entity instanceof IIsStub)
+        {
+            return ((IIsStub) entity).isStub();
+        } else
+        {
+            return false;
+        }
     }
 
     @Override

@@ -56,6 +56,12 @@ public class MetaprojectDataSetsGrid extends AbstractExternalDataGrid
     }
 
     @Override
+    protected void extendBottomToolbar()
+    {
+        // do nothing
+    }
+
+    @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
             AbstractAsyncCallback<TypedTableResultSet<ExternalData>> callback)

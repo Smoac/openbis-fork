@@ -162,7 +162,6 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
                                     return new DatabaseModificationKind[0];
                                 }
                             }, true);
-        browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithoutToolbar();
     }
 

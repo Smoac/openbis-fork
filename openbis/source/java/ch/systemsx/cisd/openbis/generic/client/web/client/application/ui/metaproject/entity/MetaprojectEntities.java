@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.entity;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,7 +47,7 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
     private SectionsPanel sectionsPanel;
 
     private Map<EntityKind, DisposableTabContent> sectionsMap =
-            new HashMap<EntityKind, DisposableTabContent>();
+            new LinkedHashMap<EntityKind, DisposableTabContent>();
 
     private Long currentMetaprojectId;
 
@@ -101,7 +101,16 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
                                         viewContext, new TechId(metaprojectId)));
                             }
 
-                            selectSection(currentEntityKind);
+                            if (currentEntityKind == null)
+                            {
+                                currentEntityKind =
+                                        sectionsMap.entrySet().iterator().next().getKey();
+                                sectionsPanel.selectFirstSection();
+                            } else
+                            {
+                                selectSection(currentEntityKind);
+                            }
+
                             add(sectionsPanel);
                             layout();
                         }
@@ -128,6 +137,7 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
         if (currentMetaprojectId != metaprojectId)
         {
             currentMetaprojectId = metaprojectId;
+            currentEntityKind = null;
             initSections(metaprojectId);
         }
     }

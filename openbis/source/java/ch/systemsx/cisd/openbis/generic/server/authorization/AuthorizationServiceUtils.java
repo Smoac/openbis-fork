@@ -32,8 +32,11 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIden
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
@@ -156,6 +159,11 @@ public class AuthorizationServiceUtils
         return canAccessDataSet(dataSet.getCode());
     }
 
+    public boolean canAccessDataSet(ExternalData dataSet)
+    {
+        return canAccessDataSet(dataSet.getCode());
+    }
+
     private boolean canAccessDataSet(String dataSetCode)
     {
         DataSetCodePredicate predicate = new DataSetCodePredicate();
@@ -202,6 +210,11 @@ public class AuthorizationServiceUtils
         }
     }
 
+    public boolean canAccessExperiment(Experiment experiment)
+    {
+        return canAccessExperiment(experiment.getIdentifier());
+    }
+
     public boolean canAccessExperiment(ExperimentPE experimentPE)
     {
         return canAccessExperiment(experimentPE.getIdentifier());
@@ -232,6 +245,11 @@ public class AuthorizationServiceUtils
     }
 
     public boolean canAccessSample(SamplePE sample)
+    {
+        return canAccessSample(sample.getIdentifier());
+    }
+
+    public boolean canAccessSample(Sample sample)
     {
         return canAccessSample(sample.getIdentifier());
     }

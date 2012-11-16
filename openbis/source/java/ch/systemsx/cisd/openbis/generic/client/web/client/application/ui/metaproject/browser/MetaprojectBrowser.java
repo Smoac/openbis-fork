@@ -27,7 +27,6 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComposite;
@@ -38,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metapro
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeEntityKindItemData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeItemData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeMetaprojectItemData;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
 /**
@@ -46,13 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  */
 public class MetaprojectBrowser extends ContentPanel implements IDisposableComponent
 {
-
-    // TODO add loading to tree and entities (Loading class)
-
-    // TODO add remove assignments button to entity grids
-
-    // TODO check ids are correct (maybe pass idPrefix)
-
+    
     public static final String ID = GenericConstants.ID_PREFIX + "metaproject-browser";
 
     private MetaprojectTree tree;
@@ -97,7 +89,6 @@ public class MetaprojectBrowser extends ContentPanel implements IDisposableCompo
                         }
                     });
 
-        GWTUtils.setToolTip(tree, viewContext.getMessage(Dict.METAPROJECT_BROWSER_TREE_TOOLTIP));
         entities = new MetaprojectEntities(viewContext, getId());
         composite = new DisposableComposite(this, tree, entities);
 

@@ -96,48 +96,55 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
         for (Sample sample : samples)
         {
             builder.addRow(sample);
-            builder.column(CODE).addEntityLink(sample, sample.getCode());
-            builder.column(SUBCODE).addEntityLink(sample, sample.getSubCode());
-            builder.column(DATABASE_INSTANCE).addString(getDatabaseInstance(sample).getCode());
-            builder.column(SPACE).addString(
-                    sample.getSpace() == null ? "" : sample.getSpace().getCode());
-            builder.column(SAMPLE_IDENTIFIER).addEntityLink(sample, sample.getIdentifier());
-            builder.column(SAMPLE_TYPE).addString(sample.getSampleType().getCode());
-            builder.column(IS_INSTANCE_SAMPLE).addString(
-                    SimpleYesNoRenderer.render(sample.getDatabaseInstance() != null));
-            builder.column(IS_DELETED).addString(
-                    SimpleYesNoRenderer.render(DeletionUtils.isDeleted(sample)));
-            builder.column(REGISTRATOR).addPerson(sample.getRegistrator());
-            builder.column(MODIFIER).addPerson(sample.getModifier());
-            builder.column(REGISTRATION_DATE).addDate(sample.getRegistrationDate());
-            builder.column(MODIFICATION_DATE).addDate(sample.getModificationDate());
-            final Experiment experimentOrNull = sample.getExperiment();
-            if (experimentOrNull != null)
-            {
-                final Experiment experiment = experimentOrNull;
-                builder.column(EXPERIMENT).addEntityLink(experiment, experiment.getCode());
-                builder.column(EXPERIMENT_IDENTIFIER).addEntityLink(experiment,
-                        experiment.getIdentifier());
-            }
-            builder.column(PROJECT).addString(getProjectCode(sample));
-            builder.column(PERM_ID).addString(sample.getPermId());
-            builder.column(SHOW_DETAILS_LINK_COLUMN_NAME).addString(sample.getPermlink());
-            builder.column(PARENTS).addEntityLink(sample.getParents());
 
-            final Sample containerOrNull = sample.getContainer();
-            if (containerOrNull != null)
+            if (sample.isStub())
             {
-                final Sample container = containerOrNull;
-                builder.column(CONTAINER_SAMPLE)
-                        .addEntityLink(container, container.getIdentifier());
-            }
-            SampleType sampleType = sampleTypes.tryGet(sample.getSampleType().getCode());
-            IColumnGroup columnGroup = builder.columnGroup(PROPERTIES_PREFIX);
-            if (sampleType != null)
+                builder.column(PERM_ID).addString(sample.getPermId());
+            } else
             {
-                columnGroup.addColumnsForAssignedProperties(sampleType);
+                builder.column(CODE).addEntityLink(sample, sample.getCode());
+                builder.column(SUBCODE).addEntityLink(sample, sample.getSubCode());
+                builder.column(DATABASE_INSTANCE).addString(getDatabaseInstance(sample).getCode());
+                builder.column(SPACE).addString(
+                        sample.getSpace() == null ? "" : sample.getSpace().getCode());
+                builder.column(SAMPLE_IDENTIFIER).addEntityLink(sample, sample.getIdentifier());
+                builder.column(SAMPLE_TYPE).addString(sample.getSampleType().getCode());
+                builder.column(IS_INSTANCE_SAMPLE).addString(
+                        SimpleYesNoRenderer.render(sample.getDatabaseInstance() != null));
+                builder.column(IS_DELETED).addString(
+                        SimpleYesNoRenderer.render(DeletionUtils.isDeleted(sample)));
+                builder.column(REGISTRATOR).addPerson(sample.getRegistrator());
+                builder.column(MODIFIER).addPerson(sample.getModifier());
+                builder.column(REGISTRATION_DATE).addDate(sample.getRegistrationDate());
+                builder.column(MODIFICATION_DATE).addDate(sample.getModificationDate());
+                final Experiment experimentOrNull = sample.getExperiment();
+                if (experimentOrNull != null)
+                {
+                    final Experiment experiment = experimentOrNull;
+                    builder.column(EXPERIMENT).addEntityLink(experiment, experiment.getCode());
+                    builder.column(EXPERIMENT_IDENTIFIER).addEntityLink(experiment,
+                            experiment.getIdentifier());
+                }
+                builder.column(PROJECT).addString(getProjectCode(sample));
+                builder.column(PERM_ID).addString(sample.getPermId());
+                builder.column(SHOW_DETAILS_LINK_COLUMN_NAME).addString(sample.getPermlink());
+                builder.column(PARENTS).addEntityLink(sample.getParents());
+
+                final Sample containerOrNull = sample.getContainer();
+                if (containerOrNull != null)
+                {
+                    final Sample container = containerOrNull;
+                    builder.column(CONTAINER_SAMPLE).addEntityLink(container,
+                            container.getIdentifier());
+                }
+                SampleType sampleType = sampleTypes.tryGet(sample.getSampleType().getCode());
+                IColumnGroup columnGroup = builder.columnGroup(PROPERTIES_PREFIX);
+                if (sampleType != null)
+                {
+                    columnGroup.addColumnsForAssignedProperties(sampleType);
+                }
+                columnGroup.addProperties(sample.getProperties());
             }
-            columnGroup.addProperties(sample.getProperties());
         }
         return builder.getModel();
     }

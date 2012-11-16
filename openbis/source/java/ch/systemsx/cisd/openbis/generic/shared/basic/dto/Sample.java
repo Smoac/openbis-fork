@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityWithDeletionInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIsStub;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 
 /**
@@ -36,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  */
 public final class Sample extends CodeWithRegistrationAndModificationDate<Sample> implements
         IEntityWithDeletionInformation, Comparable<Sample>, IEntityInformationHolderWithProperties,
-        IAttachmentHolder, IIdAndCodeHolder, IPermIdHolder
+        IAttachmentHolder, IIdAndCodeHolder, IPermIdHolder, IIsStub
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -74,7 +75,7 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
 
     private String subCode;
 
-    private final boolean isStub;
+    private boolean isStub;
 
     private Collection<Metaproject> metaprojects;
 
@@ -320,6 +321,7 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
         return permId;
     }
 
+    @Override
     public boolean isStub()
     {
         return isStub;

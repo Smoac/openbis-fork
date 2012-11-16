@@ -121,92 +121,99 @@ public abstract class AbstractExternalDataProvider extends
         for (ExternalData dataSet : dataSets)
         {
             builder.addRow(dataSet);
-            builder.column(CODE).addEntityLink(dataSet, dataSet.getCode());
 
-            LinkDataSet linkDataSet = dataSet.tryGetAsLinkDataSet();
-            if (linkDataSet != null)
+            if (dataSet.isStub())
             {
-                LinkTableCell externalCodeCell = new LinkTableCell();
-                externalCodeCell.setText(linkDataSet.getExternalCode());
-                externalCodeCell.setUrl(new LinkDataSetUrl(linkDataSet).toString());
-                externalCodeCell.setOpenInNewWindow(true);
-                builder.column(EXTERNAL_CODE).addValue(externalCodeCell);
+                builder.column(PERM_ID).addString(dataSet.getPermId());
+            } else
+            {
+                builder.column(CODE).addEntityLink(dataSet, dataSet.getCode());
 
-                ExternalDataManagementSystem externalDms =
-                        linkDataSet.getExternalDataManagementSystem();
-                if (externalDms != null)
+                LinkDataSet linkDataSet = dataSet.tryGetAsLinkDataSet();
+                if (linkDataSet != null)
                 {
-                    builder.column(EXTERNAL_DMS_CODE).addString(externalDms.getCode());
-                    builder.column(EXTERNAL_DMS_LABEL).addString(externalDms.getLabel());
+                    LinkTableCell externalCodeCell = new LinkTableCell();
+                    externalCodeCell.setText(linkDataSet.getExternalCode());
+                    externalCodeCell.setUrl(new LinkDataSetUrl(linkDataSet).toString());
+                    externalCodeCell.setOpenInNewWindow(true);
+                    builder.column(EXTERNAL_CODE).addValue(externalCodeCell);
+
+                    ExternalDataManagementSystem externalDms =
+                            linkDataSet.getExternalDataManagementSystem();
+                    if (externalDms != null)
+                    {
+                        builder.column(EXTERNAL_DMS_CODE).addString(externalDms.getCode());
+                        builder.column(EXTERNAL_DMS_LABEL).addString(externalDms.getLabel());
+                    }
                 }
-            }
 
-            builder.column(DATA_SET_TYPE).addString(dataSet.getDataSetType().getCode());
-            ContainerDataSet container = dataSet.tryGetContainer();
-            if (container != null)
-            {
-                builder.column(CONTAINER_DATASET).addEntityLink(container, container.getCode());
-            }
-            Integer orderInContainer = dataSet.getOrderInContainer();
-            builder.column(ORDER_IN_CONTAINER).addString(
-                    orderInContainer == null ? "" : orderInContainer.toString());
-            builder.column(PARENT_DATASETS).addEntityLink(dataSet.getParents());
+                builder.column(DATA_SET_TYPE).addString(dataSet.getDataSetType().getCode());
+                ContainerDataSet container = dataSet.tryGetContainer();
+                if (container != null)
+                {
+                    builder.column(CONTAINER_DATASET).addEntityLink(container, container.getCode());
+                }
+                Integer orderInContainer = dataSet.getOrderInContainer();
+                builder.column(ORDER_IN_CONTAINER).addString(
+                        orderInContainer == null ? "" : orderInContainer.toString());
+                builder.column(PARENT_DATASETS).addEntityLink(dataSet.getParents());
 
-            Sample sample = dataSet.getSample();
-            if (sample != null)
-            {
-                builder.column(SAMPLE).addEntityLink(sample, sample.getCode());
-                builder.column(EXTERNAL_DATA_SAMPLE_IDENTIFIER).addEntityLink(sample,
-                        sample.getIdentifier());
-                SampleType sampleType = dataSet.getSampleType();
-                builder.column(SAMPLE_TYPE).addString(sampleType.getCode());
-            }
-            Experiment experiment = dataSet.getExperiment();
-            if (experiment != null)
-            {
-                builder.column(EXPERIMENT).addEntityLink(experiment, experiment.getCode());
-                builder.column(EXTERNAL_DATA_EXPERIMENT_IDENTIFIER).addEntityLink(experiment,
-                        experiment.getIdentifier());
-                builder.column(EXPERIMENT_TYPE).addString(experiment.getEntityType().getCode());
-                builder.column(PROJECT).addString(experiment.getProject().getCode());
-            }
-            builder.column(REGISTRATOR).addPerson(dataSet.getRegistrator());
-            builder.column(MODIFIER).addPerson(dataSet.getModifier());
-            builder.column(REGISTRATION_DATE).addDate(dataSet.getRegistrationDate());
-            builder.column(MODIFICATION_DATE).addDate(dataSet.getModificationDate());
-            builder.column(IS_DELETED).addString(
-                    SimpleYesNoRenderer.render(DeletionUtils.isDeleted(dataSet)));
-            builder.column(SOURCE_TYPE).addString(dataSet.getSourceType());
-            if (dataSet instanceof DataSet)
-            {
-                DataSet realDataSet = (DataSet) dataSet;
-                Boolean complete = realDataSet.getComplete();
-                builder.column(IS_COMPLETE).addString(
-                        complete == null ? "?" : SimpleYesNoRenderer.render(complete));
-                builder.column(LOCATION).addString(realDataSet.getFullLocation());
-                builder.column(ARCHIVING_STATUS)
-                        .addString(realDataSet.getStatus().getDescription());
-                builder.column(PRESENT_IN_ARCHIVE).addString(
-                        SimpleYesNoRenderer.render(realDataSet.isPresentInArchive()));
-                FileFormatType fileFormatType = realDataSet.getFileFormatType();
-                builder.column(FILE_FORMAT_TYPE).addString(
-                        fileFormatType == null ? "" : fileFormatType.getCode());
-                builder.column(STORAGE_CONFIRMATION).addString(
-                        SimpleYesNoRenderer.render(dataSet.isStorageConfirmation()));
-            }
-            builder.column(PRODUCTION_DATE).addDate(dataSet.getProductionDate());
-            builder.column(DATA_PRODUCER_CODE).addString(dataSet.getDataProducerCode());
-            builder.column(DATA_STORE_CODE).addString(dataSet.getDataStore().getCode());
-            builder.column(PERM_ID).addString(dataSet.getPermId());
-            builder.column(SHOW_DETAILS_LINK).addString(dataSet.getPermlink());
+                Sample sample = dataSet.getSample();
+                if (sample != null)
+                {
+                    builder.column(SAMPLE).addEntityLink(sample, sample.getCode());
+                    builder.column(EXTERNAL_DATA_SAMPLE_IDENTIFIER).addEntityLink(sample,
+                            sample.getIdentifier());
+                    SampleType sampleType = dataSet.getSampleType();
+                    builder.column(SAMPLE_TYPE).addString(sampleType.getCode());
+                }
+                Experiment experiment = dataSet.getExperiment();
+                if (experiment != null)
+                {
+                    builder.column(EXPERIMENT).addEntityLink(experiment, experiment.getCode());
+                    builder.column(EXTERNAL_DATA_EXPERIMENT_IDENTIFIER).addEntityLink(experiment,
+                            experiment.getIdentifier());
+                    builder.column(EXPERIMENT_TYPE).addString(experiment.getEntityType().getCode());
+                    builder.column(PROJECT).addString(experiment.getProject().getCode());
+                }
+                builder.column(REGISTRATOR).addPerson(dataSet.getRegistrator());
+                builder.column(MODIFIER).addPerson(dataSet.getModifier());
+                builder.column(REGISTRATION_DATE).addDate(dataSet.getRegistrationDate());
+                builder.column(MODIFICATION_DATE).addDate(dataSet.getModificationDate());
+                builder.column(IS_DELETED).addString(
+                        SimpleYesNoRenderer.render(DeletionUtils.isDeleted(dataSet)));
+                builder.column(SOURCE_TYPE).addString(dataSet.getSourceType());
+                if (dataSet instanceof DataSet)
+                {
+                    DataSet realDataSet = (DataSet) dataSet;
+                    Boolean complete = realDataSet.getComplete();
+                    builder.column(IS_COMPLETE).addString(
+                            complete == null ? "?" : SimpleYesNoRenderer.render(complete));
+                    builder.column(LOCATION).addString(realDataSet.getFullLocation());
+                    builder.column(ARCHIVING_STATUS).addString(
+                            realDataSet.getStatus().getDescription());
+                    builder.column(PRESENT_IN_ARCHIVE).addString(
+                            SimpleYesNoRenderer.render(realDataSet.isPresentInArchive()));
+                    FileFormatType fileFormatType = realDataSet.getFileFormatType();
+                    builder.column(FILE_FORMAT_TYPE).addString(
+                            fileFormatType == null ? "" : fileFormatType.getCode());
+                    builder.column(STORAGE_CONFIRMATION).addString(
+                            SimpleYesNoRenderer.render(dataSet.isStorageConfirmation()));
+                }
+                builder.column(PRODUCTION_DATE).addDate(dataSet.getProductionDate());
+                builder.column(DATA_PRODUCER_CODE).addString(dataSet.getDataProducerCode());
+                builder.column(DATA_STORE_CODE).addString(dataSet.getDataStore().getCode());
+                builder.column(PERM_ID).addString(dataSet.getPermId());
+                builder.column(SHOW_DETAILS_LINK).addString(dataSet.getPermlink());
 
-            IColumnGroup columnGroup = builder.columnGroup(PROPERTIES_PREFIX);
-            DataSetType dataSetType = dataSet.getDataSetType();
-            if (dataSetType != null)
-            {
-                columnGroup.addColumnsForAssignedProperties(dataSetType);
+                IColumnGroup columnGroup = builder.columnGroup(PROPERTIES_PREFIX);
+                DataSetType dataSetType = dataSet.getDataSetType();
+                if (dataSetType != null)
+                {
+                    columnGroup.addColumnsForAssignedProperties(dataSetType);
+                }
+                columnGroup.addProperties(dataSet.getProperties());
             }
-            columnGroup.addProperties(dataSet.getProperties());
 
         }
         return builder.getModel();

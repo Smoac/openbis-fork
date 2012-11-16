@@ -105,31 +105,38 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
         for (Experiment experiment : experiments)
         {
             builder.addRow(experiment);
-            builder.column(CODE).addEntityLink(experiment, experiment.getCode());
-            builder.column(EXPERIMENT_TYPE).addString(experiment.getExperimentType().getCode());
-            builder.column(EXPERIMENT_IDENTIFIER).addEntityLink(experiment,
-                    experiment.getIdentifier());
-            builder.column(DATABASE_INSTANCE).addString(
-                    experiment.getProject().getSpace().getInstance().getCode());
-            builder.column(SPACE).addString(experiment.getProject().getSpace().getCode());
-            builder.column(PROJECT).addString(experiment.getProject().getCode());
-            builder.column(REGISTRATOR).addPerson(experiment.getRegistrator());
-            builder.column(MODIFIER).addPerson(experiment.getModifier());
-            builder.column(REGISTRATION_DATE).addDate(experiment.getRegistrationDate());
-            builder.column(MODIFICATION_DATE).addDate(experiment.getModificationDate());
-            builder.column(IS_DELETED).addString(
-                    SimpleYesNoRenderer.render(DeletionUtils.isDeleted(experiment)));
-            builder.column(PERM_ID).addString(experiment.getPermId());
-            builder.column(SHOW_DETAILS_LINK).addString(experiment.getPermlink());
-            ExperimentType experimentType =
-                    experimentTypes.tryGet(experiment.getExperimentType().getCode());
-            IColumnGroup columnGroup =
-                    builder.columnGroup(ExperimentBrowserGridColumnIDs.PROPERTIES_PREFIX);
-            if (experimentType != null)
+
+            if (experiment.isStub())
             {
-                columnGroup.addColumnsForAssignedProperties(experimentType);
+                builder.column(PERM_ID).addString(experiment.getPermId());
+            } else
+            {
+                builder.column(CODE).addEntityLink(experiment, experiment.getCode());
+                builder.column(EXPERIMENT_TYPE).addString(experiment.getExperimentType().getCode());
+                builder.column(EXPERIMENT_IDENTIFIER).addEntityLink(experiment,
+                        experiment.getIdentifier());
+                builder.column(DATABASE_INSTANCE).addString(
+                        experiment.getProject().getSpace().getInstance().getCode());
+                builder.column(SPACE).addString(experiment.getProject().getSpace().getCode());
+                builder.column(PROJECT).addString(experiment.getProject().getCode());
+                builder.column(REGISTRATOR).addPerson(experiment.getRegistrator());
+                builder.column(MODIFIER).addPerson(experiment.getModifier());
+                builder.column(REGISTRATION_DATE).addDate(experiment.getRegistrationDate());
+                builder.column(MODIFICATION_DATE).addDate(experiment.getModificationDate());
+                builder.column(IS_DELETED).addString(
+                        SimpleYesNoRenderer.render(DeletionUtils.isDeleted(experiment)));
+                builder.column(PERM_ID).addString(experiment.getPermId());
+                builder.column(SHOW_DETAILS_LINK).addString(experiment.getPermlink());
+                ExperimentType experimentType =
+                        experimentTypes.tryGet(experiment.getExperimentType().getCode());
+                IColumnGroup columnGroup =
+                        builder.columnGroup(ExperimentBrowserGridColumnIDs.PROPERTIES_PREFIX);
+                if (experimentType != null)
+                {
+                    columnGroup.addColumnsForAssignedProperties(experimentType);
+                }
+                columnGroup.addProperties(experiment.getProperties());
             }
-            columnGroup.addProperties(experiment.getProperties());
         }
         return builder.getModel();
     }

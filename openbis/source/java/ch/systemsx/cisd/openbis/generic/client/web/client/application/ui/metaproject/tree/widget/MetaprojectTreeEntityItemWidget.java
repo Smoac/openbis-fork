@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metapr
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -38,22 +39,27 @@ public class MetaprojectTreeEntityItemWidget extends MetaprojectTreeItemWidget
     {
         super(viewContext);
 
-        ClickHandler listener = new ClickHandler()
-            {
-                @Override
-                public void onClick(ClickEvent event)
+        if (model.isEntityStub())
+        {
+            initWidget(new InlineLabel(model.getEntityLabel()));
+        } else
+        {
+            ClickHandler listener = new ClickHandler()
                 {
-                    OpenEntityDetailsTabHelper.open(viewContext, model.getEntity().getEntityKind(),
-                            model.getEntity().getPermId(),
-                            WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent()));
-                }
-            };
+                    @Override
+                    public void onClick(ClickEvent event)
+                    {
+                        OpenEntityDetailsTabHelper.open(viewContext, model.getEntity()
+                                .getEntityKind(), model.getEntity().getPermId(), WidgetUtils
+                                .ifSpecialKeyPressed(event.getNativeEvent()));
+                    }
+                };
 
-        Widget link =
-                LinkRenderer.getLinkWidget(model.getEntity().getIdentifier(), listener,
-                        LinkExtractor.tryExtract(model.getEntity()));
-
-        initWidget(link);
+            Widget link =
+                    LinkRenderer.getLinkWidget(model.getEntityLabel(), listener,
+                            LinkExtractor.tryExtract(model.getEntity()));
+            initWidget(link);
+        }
     }
 
 }

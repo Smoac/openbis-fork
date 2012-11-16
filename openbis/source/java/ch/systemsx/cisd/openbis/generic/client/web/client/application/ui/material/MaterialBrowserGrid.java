@@ -131,7 +131,6 @@ public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
                     };
         final MaterialBrowserGrid browserGrid =
                 createBrowserGrid(viewContext.getCommonViewContext(), criteriaProvider, true);
-        browserGrid.extendBottomToolbar(true);
         return browserGrid.asDisposableWithoutToolbar();
     }
 
