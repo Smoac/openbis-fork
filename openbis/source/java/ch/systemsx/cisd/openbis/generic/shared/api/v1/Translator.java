@@ -360,6 +360,21 @@ public class Translator
     public static DataSet translate(ExternalData externalDatum,
             EnumSet<Connections> connectionsToGet)
     {
+        return translate(externalDatum, connectionsToGet, true);
+    }
+
+    /**
+     * Translates the specified {@link ExternalData} instance into a {@link DataSet} instance.
+     * 
+     * @param connectionsToGet Set of data set connections which should also be translated. This
+     *            assumes that the {@link ExternalData} instance is populated with these
+     *            connections.
+     * @param doRecurseIntoContainedDataSets If <code>true</code>, the translation will recurse into
+     *            contained dataset, if <code>false</code>, contained datasets will not be set.
+     */
+    private static DataSet translate(ExternalData externalDatum,
+            EnumSet<Connections> connectionsToGet, boolean doRecurseIntoContainedDataSets)
+    {
         DataSetInitializer initializer = new DataSetInitializer();
         initializer.setId(externalDatum.getId());
         initializer.setCode(externalDatum.getCode());
@@ -383,22 +398,22 @@ public class Translator
         if (externalDatum.tryGetContainer() != null)
         {
             initializer.setContainerOrNull(translate(externalDatum.tryGetContainer(),
-                    connectionsToGet));
+                    connectionsToGet, false));
         }
 
         initializer.setContainerDataSet(externalDatum.isContainer());
-        if (externalDatum.isContainer())
+        if (externalDatum.isContainer() && doRecurseIntoContainedDataSets)
         {
             // Recursively translate any contained data sets
             ContainerDataSet containerDataSet = externalDatum.tryGetAsContainerDataSet();
 
-            ArrayList<DataSet> containedDataSetCodes =
+            ArrayList<DataSet> containedDataSets =
                     new ArrayList<DataSet>(containerDataSet.getContainedDataSets().size());
             for (ExternalData containedDataSet : containerDataSet.getContainedDataSets())
             {
-                containedDataSetCodes.add(translate(containedDataSet, connectionsToGet));
+                containedDataSets.add(translate(containedDataSet, connectionsToGet, true));
             }
-            initializer.setContainedDataSets(containedDataSetCodes);
+            initializer.setContainedDataSets(containedDataSets);
         }
         initializer.setLinkDataSet(externalDatum.isLinkData());
         if (externalDatum.isLinkData())
