@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,8 +36,10 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -62,10 +65,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Tomasz Pylak
  */
-// TODO 2008-12-10, Christian Ribeaud: Unit test for this class?
 public final class SampleTable extends AbstractSampleBusinessObject implements ISampleTable
 {
     private List<SamplePE> samples;
+
+    /**
+     * Is either <code>null</code> or has a list of attachments for each sample in {@link #samples}.
+     */
+    private List<List<AttachmentPE>> attachmentListsOrNull;
 
     private boolean dataChanged;
 
@@ -105,6 +112,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             }
         }
         samples = foundSamples;
+        attachmentListsOrNull = new ArrayList<List<AttachmentPE>>(samples.size());
     }
 
     private List<SamplePE> filterSamplesByExperiment(List<SamplePE> foundSamples,
@@ -181,6 +189,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 
         onlyNewSamples = true;
         samples = new ArrayList<SamplePE>();
+        attachmentListsOrNull = new ArrayList<List<AttachmentPE>>();
 
         setBatchUpdateMode(true);
 
@@ -202,8 +211,13 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             throws UserFailureException
     {
         assert newSample != null : "Unspecified new sample.";
-        samples.add(createSample(newSample, sampleTypeCache, sampleOwnerCache, experimentCache,
-                registratorOrNull));
+        final SamplePE samplePE =
+                createSample(newSample, sampleTypeCache, sampleOwnerCache, experimentCache,
+                        registratorOrNull);
+        samples.add(samplePE);
+        final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
+        addAttachments(samplePE, newSample.getAttachments(), attachments);
+        attachmentListsOrNull.add(attachments);
         dataChanged = true;
     }
 
@@ -220,6 +234,15 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                 checkAllBusinessRules();
             }
             getSampleDAO().createOrUpdateSamples(samples, findPerson());
+            if (attachmentListsOrNull != null)
+            {
+                int idx = 0;
+                for (List<AttachmentPE> attachments : attachmentListsOrNull)
+                {
+                    saveAttachment(samples.get(idx), attachments);
+                    ++idx;
+                }
+            }
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("One of samples"));
@@ -291,8 +314,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
      * version assumes that all the properties are provided in the updates object, not just those
      * that should explicitly be updated.
      */
-    private void prepareBatchUpdate(SamplePE sample, SampleUpdatesDTO updates,
-            Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache,
+    private void prepareBatchUpdate(SamplePE sample, List<AttachmentPE> attachments,
+            SampleUpdatesDTO updates, Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache,
             Map<String, ExperimentPE> experimentCache,
             Map<EntityTypePE, List<EntityTypePropertyTypePE>> propertiesCache)
     {
@@ -317,6 +340,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 
         boolean containerUpdated = updateContainer(sample, updates);
 
+        addAttachments(sample, updates.getAttachments(), attachments);
+
         // NOTE: Checking business rules with relationships is expensive.
         // Don't perform them unless relevant data were changed.
         if (updates.isUpdateExperimentLink() || parentsUpdated)
@@ -328,6 +353,19 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             checkContainerBusinessRules(sample);
         }
         RelationshipUtils.updateModificationDateAndModifier(sample, session);
+    }
+
+    private void addAttachments(SamplePE sample, Collection<NewAttachment> newAttachments,
+            List<AttachmentPE> attachments)
+    {
+        if (newAttachments == null)
+        {
+            return;
+        }
+        for (NewAttachment attachment : newAttachments)
+        {
+            attachments.add(prepareAttachment(sample, attachment));
+        }
     }
 
     private boolean updateContainer(SamplePE sample, SampleUpdatesDTO updates)
@@ -416,10 +454,11 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         final Map<EntityTypePE, List<EntityTypePropertyTypePE>> propertiesCache =
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         samples = loadSamples(updates, sampleOwnerCache);
+        attachmentListsOrNull = null;
 
         assertInstanceSampleUpdateAllowed(samples);
 
-        Map<SampleIdentifier, SamplePE> samplesByIdentifiers =
+        final Map<SampleIdentifier, SamplePE> samplesByIdentifiers =
                 new HashMap<SampleIdentifier, SamplePE>();
         for (SamplePE sample : samples)
         {
@@ -495,10 +534,11 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         final Map<EntityTypePE, List<EntityTypePropertyTypePE>> propertiesCache =
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         samples = loadSamplesByTechId(updates);
+        attachmentListsOrNull = new ArrayList<List<AttachmentPE>>(samples.size());
 
         assertInstanceSampleUpdateAllowed(samples);
 
-        Map<Long, SamplePE> samplesById = new HashMap<Long, SamplePE>();
+        final Map<Long, SamplePE> samplesById = new HashMap<Long, SamplePE>();
         for (SamplePE sample : samples)
         {
             samplesById.put(sample.getId(), sample);
@@ -520,8 +560,10 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                         + sampleUpdates.getSampleIdentifier()
                         + " is not in the database and therefore cannot be updated.");
             }
-            prepareBatchUpdate(sample, sampleUpdates, sampleOwnerCache, experimentCache,
-                    propertiesCache);
+            final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
+            prepareBatchUpdate(sample, attachments, sampleUpdates, sampleOwnerCache,
+                    experimentCache, propertiesCache);
+            attachmentListsOrNull.add(attachments);
         }
 
         dataChanged = true;

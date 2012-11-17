@@ -26,7 +26,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmuta
  */
 public interface ISample extends ISampleImmutable
 {
-
     /**
      * Set the experiment for this sample. The experiment need not be immutable, but the immutable
      * one is the superclass.
@@ -49,7 +48,19 @@ public interface ISample extends ISampleImmutable
     void setPropertyValue(String propertyCode, String propertyValue);
 
     /**
-     * Set the parent samples of this sample
+     * Set the parent samples of this sample.
      */
     void setParentSampleIdentifiers(List<String> parentSampleIdentifiers);
+    
+    /**
+     * Add a new attachment to this sample.
+     * 
+     * @param filePath The path of the attachment as reported to the database.
+     * @param title The title of the attachment.
+     * @param description A description of the attachment.
+     * @param content The actual content of the attachment.
+     */
+    void addAttachment(String filePath, String title, String description,
+            byte[] content);
+
 }

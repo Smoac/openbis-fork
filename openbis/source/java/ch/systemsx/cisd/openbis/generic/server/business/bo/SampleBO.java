@@ -27,9 +27,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
@@ -40,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -52,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -225,25 +221,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
                 onlyNewSamples = dataChanged = spaceUpdated = false;
             }
         }
-        if (attachments.isEmpty() == false)
-        {
-            final IAttachmentDAO dao = getAttachmentDAO();
-            for (final AttachmentPE property : attachments)
-            {
-                try
-                {
-                    dao.createAttachment(property, sample);
-                } catch (final DataAccessException e)
-                {
-                    final String fileName = property.getFileName();
-                    throwException(
-                            e,
-                            String.format("Filename '%s' for sample '%s'", fileName,
-                                    sample.getSampleIdentifier()));
-                }
-            }
-            attachments.clear();
-        }
+        saveAttachment(sample, attachments);
     }
 
     @Override
@@ -326,7 +304,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
                 null);
         for (NewAttachment attachment : updates.getAttachments())
         {
-            addAttachment(AttachmentTranslator.translate(attachment));
+            attachments.add(prepareAttachment(sample, attachment));
         }
         updateParents(updates);
         setMetaprojects(sample, updates.getMetaprojectsOrNull());
@@ -354,19 +332,8 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     {
         assert sample != null : "no sample has been loaded";
         assertInstanceSampleUpdateAllowed(Collections.singletonList(sample));
-        PersonPE user = findPerson();
-        sampleAttachment.setRegistrator(user);
-        escapeFileName(sampleAttachment);
+        prepareAttachment(sample, sampleAttachment);
         attachments.add(sampleAttachment);
-        RelationshipUtils.updateModificationDateAndModifier(sample, user);
-    }
-
-    private void escapeFileName(final AttachmentPE attachment)
-    {
-        if (attachment != null)
-        {
-            attachment.setFileName(AttachmentHolderPE.escapeFileName(attachment.getFileName()));
-        }
     }
 
     private void checkSampleLoaded()

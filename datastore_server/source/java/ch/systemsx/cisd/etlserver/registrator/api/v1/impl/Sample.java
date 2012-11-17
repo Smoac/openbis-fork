@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentIm
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -39,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
  */
 public class Sample extends SampleImmutable implements ISample
 {
+    private final List<NewAttachment> newAttachments;
 
     private final SampleBatchUpdateDetails updateDetails;
 
@@ -82,6 +84,7 @@ public class Sample extends SampleImmutable implements ISample
     {
         super(sample);
         updateDetails = new SampleBatchUpdateDetails();
+        newAttachments = new ArrayList<NewAttachment>();
         initializeUpdateDetails();
     }
 
@@ -95,6 +98,7 @@ public class Sample extends SampleImmutable implements ISample
         super(buildSampleWithIdentifier(sampleIdentifier), false);
         getSample().setPermId(permId);
         updateDetails = new SampleBatchUpdateDetails();
+        newAttachments = new ArrayList<NewAttachment>();
         initializeUpdateDetails();
     }
 
@@ -151,6 +155,31 @@ public class Sample extends SampleImmutable implements ISample
 
         getSample().setParents(parents);
         updateDetails.setParentsUpdateRequested(true);
+    }
+
+    @Override
+    public void addAttachment(String filePath, String title, String description, byte[] content)
+    {
+        newAttachments.add(createAttachment(filePath, title, description, content));
+    }
+
+    private static NewAttachment createAttachment(String filePath, String title,
+            String description, byte[] content)
+    {
+        final NewAttachment newAttachment = new NewAttachment();
+        newAttachment.setFilePath(filePath);
+        newAttachment.setTitle(title);
+        newAttachment.setDescription(description);
+        newAttachment.setContent(content);
+        return newAttachment;
+    }
+
+    /**
+     * For conversion to updates DTO.
+     */
+    List<NewAttachment> getNewAttachments()
+    {
+        return newAttachments;
     }
 
     /**

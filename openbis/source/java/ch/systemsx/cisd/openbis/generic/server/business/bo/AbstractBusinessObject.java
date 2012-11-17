@@ -28,6 +28,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
@@ -72,6 +73,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -85,6 +89,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 
 /**
  * An <code>abstract</code> <i>Business Object</i>.
@@ -575,5 +580,56 @@ abstract class AbstractBusinessObject implements IDAOFactory
             return materialValue;
         }
         return property.getVocabularyTerm();
+    }
+
+    protected AttachmentPE prepareAttachment(IModifierAndModificationDateBean beanOrNull,
+            NewAttachment attachment)
+    {
+        final AttachmentPE attachmentPE = AttachmentTranslator.translate(attachment);
+        prepareAttachment(beanOrNull, attachmentPE);
+        return attachmentPE;
+    }
+
+    protected void prepareAttachment(IModifierAndModificationDateBean beanOrNull,
+            AttachmentPE attachment)
+    {
+        PersonPE user = findPerson();
+        attachment.setRegistrator(user);
+        escapeFileName(attachment);
+        RelationshipUtils.updateModificationDateAndModifier(beanOrNull, user);
+    }
+
+    private void escapeFileName(final AttachmentPE attachment)
+    {
+        if (attachment != null)
+        {
+            attachment.setFileName(AttachmentHolderPE.escapeFileName(attachment.getFileName()));
+        }
+    }
+
+    protected void saveAttachment(final AttachmentHolderPE attachmentHolder,
+            List<AttachmentPE> attachments)
+    {
+        if (attachments.isEmpty())
+        {
+            return;
+        }
+        final IAttachmentDAO dao = getAttachmentDAO();
+        for (final AttachmentPE attachment : attachments)
+        {
+            try
+            {
+                dao.createAttachment(attachment, attachmentHolder);
+            } catch (final DataAccessException e)
+            {
+                final String fileName = attachment.getFileName();
+                throwException(
+                        e,
+                        String.format("Filename '%s' for %s '%s'", fileName,
+                                attachmentHolder.getHolderName(),
+                                attachmentHolder.getIdentifier()));
+            }
+        }
+        attachments.clear();
     }
 }

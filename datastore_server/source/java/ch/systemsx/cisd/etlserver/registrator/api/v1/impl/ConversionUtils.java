@@ -153,7 +153,7 @@ public class ConversionUtils
             parentIdentifiers = null;
         }
 
-        List<NewAttachment> attachments = Collections.emptyList();
+        final List<NewAttachment> attachments = apiSample.getNewAttachments();
         String containerIdentifier =
                 (sample.getContainer() != null) ? sample.getContainer().getIdentifier() : null;
         SampleUpdatesDTO sampleUpdate =
