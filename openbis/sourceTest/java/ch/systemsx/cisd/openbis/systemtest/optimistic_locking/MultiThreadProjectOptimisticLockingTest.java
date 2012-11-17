@@ -89,7 +89,7 @@ public class MultiThreadProjectOptimisticLockingTest extends MultiThreadOptimist
                 {
                     NewExperiment experiment3 = toolBox.experiment(3);
                     String sessionToken =
-                            genericServer.tryToAuthenticate("test", "a").getSessionToken();
+                            genericServer.tryAuthenticate("test", "a").getSessionToken();
                     messageChannelMain.assertNextMessage(ToolBox.FIRST_REGISTERED);
                     genericServer.registerExperiment(sessionToken, experiment3,
                             Collections.<NewAttachment> emptyList());

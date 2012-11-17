@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 
@@ -55,7 +56,7 @@ public class DefaultEntityOperationService<T extends DataSetInformation> impleme
     }
 
     @Override
-    public AtomicEntityOperationResult performOperationsInApplcationServer(
+    public AtomicEntityOperationResult performOperationsInApplicationServer(
             AtomicEntityOperationDetails<T> registrationDetails)
     {
         IEncapsulatedOpenBISService openBisService =
@@ -82,6 +83,7 @@ public class DefaultEntityOperationService<T extends DataSetInformation> impleme
 
         List<NewSpace> spaceRegistrations = details.getSpaceRegistrations();
         List<NewProject> projectRegistrations = details.getProjectRegistrations();
+        List<ProjectUpdatesDTO> projectUpdates = details.getProjectUpdates();
         List<NewExperiment> experimentRegistrations = details.getExperimentRegistrations();
         List<ExperimentUpdatesDTO> experimentUpdates = details.getExperimentUpdates();
         List<SampleUpdatesDTO> sampleUpdates = details.getSampleUpdates();
@@ -102,9 +104,10 @@ public class DefaultEntityOperationService<T extends DataSetInformation> impleme
 
         return new ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails(
                 details.getRegistrationId(), details.tryUserIdOrNull(), spaceRegistrations,
-                projectRegistrations, experimentRegistrations, experimentUpdates, sampleUpdates,
-                sampleRegistrations, materialRegistrations, materialUpdates, dataSetRegistrations,
-                dataSetUpdates, metaprojectRegistrations, metaprojectUpdates, vocabularyUpdates);
+                projectRegistrations, projectUpdates, experimentRegistrations, experimentUpdates,
+                sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
+                dataSetRegistrations, dataSetUpdates, metaprojectRegistrations, metaprojectUpdates,
+                vocabularyUpdates);
     }
 
 }

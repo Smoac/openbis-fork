@@ -39,16 +39,21 @@ public final class ProjectIdentifierFactory extends AbstractIdentifierFactory
 
     public final ProjectIdentifier createIdentifier() throws UserFailureException
     {
-        return parseProjectIdentifier(getTextToParse(), null);
+        return parse(getTextToParse(), null);
     }
 
     public final ProjectIdentifier createIdentifier(final String defaultSpace)
             throws UserFailureException
     {
-        return parseProjectIdentifier(getTextToParse(), defaultSpace);
+        return parse(getTextToParse(), defaultSpace);
     }
 
-    private static ProjectIdentifier parseProjectIdentifier(final String text,
+    public static ProjectIdentifier parse(final String text)
+    {
+        return parse(text, null);
+    }
+
+    public static ProjectIdentifier parse(final String text,
             final String defaultSpace)
     {
         final TokenLexer lexer = new TokenLexer(text);

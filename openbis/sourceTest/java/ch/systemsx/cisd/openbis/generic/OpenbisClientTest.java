@@ -79,7 +79,7 @@ public class OpenbisClientTest
         System.out.println("TEST CommonServerService: " + serviceURL);
         ICommonServer commonServer =
                 HttpInvokerUtils.createServiceStub(ICommonServer.class, serviceURL, SERVER_TIMEOUT);
-        SessionContextDTO session = commonServer.tryToAuthenticate(USER_ID, USER_PASSWORD);
+        SessionContextDTO session = commonServer.tryAuthenticate(USER_ID, USER_PASSWORD);
 
         List<Person> persons = commonServer.listPersons(session.getSessionToken());
         for (Person p : persons)
@@ -94,7 +94,7 @@ public class OpenbisClientTest
         IGenericServer genericServer =
                 HttpInvokerUtils
                         .createServiceStub(IGenericServer.class, serviceURL, SERVER_TIMEOUT);
-        SessionContextDTO session = genericServer.tryToAuthenticate(USER_ID, USER_PASSWORD);
+        SessionContextDTO session = genericServer.tryAuthenticate(USER_ID, USER_PASSWORD);
 
         SampleParentWithDerived sampleInfo =
                 genericServer.getSampleInfo(session.getSessionToken(), new TechId(1L));
@@ -107,7 +107,7 @@ public class OpenbisClientTest
         ITrackingServer trackingServer =
                 HttpInvokerUtils.createServiceStub(ITrackingServer.class, serviceURL,
                         SERVER_TIMEOUT);
-        SessionContextDTO session = trackingServer.tryToAuthenticate(USER_ID, USER_PASSWORD);
+        SessionContextDTO session = trackingServer.tryAuthenticate(USER_ID, USER_PASSWORD);
 
         final String sampleTypeCode = "CELL_PLATE";
         final int lastSeenDataSetId = 0; // compare with 3

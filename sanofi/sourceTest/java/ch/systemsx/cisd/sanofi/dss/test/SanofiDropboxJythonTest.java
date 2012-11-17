@@ -371,7 +371,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     will(returnValue(null));
 
                     allowing(openBisService)
-                            .getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                            .tryGetPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
 
                     one(openBisService).drawANewUniqueID();
@@ -525,7 +525,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     will(returnValue(null));
 
                     allowing(openBisService)
-                            .getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                            .tryGetPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
 
                     one(openBisService).drawANewUniqueID();
@@ -602,7 +602,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     will(returnValue(null));
 
                     allowing(openBisService)
-                            .getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                            .tryGetPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
 
                     one(openBisService).drawANewUniqueID();
@@ -905,7 +905,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     final String identifierString = plate.getExperiment().getIdentifier();
                     ExperimentIdentifier identifier =
                             ExperimentIdentifierFactory.parse(identifierString);
-                    oneOf(openBisService).tryToGetExperiment(identifier);
+                    oneOf(openBisService).tryGetExperiment(identifier);
                     will(returnValue(plate.getExperiment()));
                 }
             });

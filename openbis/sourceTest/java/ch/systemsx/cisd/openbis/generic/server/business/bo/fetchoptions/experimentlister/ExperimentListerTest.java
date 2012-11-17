@@ -65,7 +65,7 @@ public class ExperimentListerTest extends AbstractDAOTest
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
-        sessionToken = service.tryToAuthenticate("test", "password").getSessionToken();
+        sessionToken = service.tryAuthenticate("test", "password").getSessionToken();
         lister =
                 new ExperimentLister(daoFactory, service.getBaseIndexURL(sessionToken),
                         EntityListingTestUtils.createQuery(daoFactory,
@@ -195,7 +195,7 @@ public class ExperimentListerTest extends AbstractDAOTest
         for (ExperimentIdentifier expectedExperimentIdentifier : expectedExperimentsIdentifiers)
         {
             Experiment expectedExperiment =
-                    service.tryToGetExperiment(sessionToken, expectedExperimentIdentifier);
+                    service.tryGetExperiment(sessionToken, expectedExperimentIdentifier);
             expectedExperimentsMap.put(expectedExperiment.getId(), expectedExperiment);
         }
 

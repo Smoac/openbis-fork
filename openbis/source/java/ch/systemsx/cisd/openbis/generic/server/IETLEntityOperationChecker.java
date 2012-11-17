@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewExperi
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewExternalDataPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewProjectPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewSamplePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleUpdatesCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 
 /**
@@ -67,6 +69,13 @@ public interface IETLEntityOperationChecker
     public void assertProjectCreationAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = NewProjectPredicate.class)
             List<NewProject> newProjects);
+
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("UPDATE_PROJECTS_VIA_DSS")
+    public void assertProjectUpdateAllowed(IAuthSession session,
+            @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class)
+            List<ProjectUpdatesDTO> projectsToUpdate);
 
     @RolesAllowed(
         { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })

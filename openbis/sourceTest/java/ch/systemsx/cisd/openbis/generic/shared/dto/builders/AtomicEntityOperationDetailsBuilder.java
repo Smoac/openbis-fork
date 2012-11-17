@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 
@@ -48,6 +49,8 @@ public class AtomicEntityOperationDetailsBuilder
     private final List<NewSpace> spaceRegistrations = new ArrayList<NewSpace>();
 
     private final List<NewProject> projectRegistrations = new ArrayList<NewProject>();
+
+    private final List<ProjectUpdatesDTO> projectUpdates = new ArrayList<ProjectUpdatesDTO>();
 
     private final List<NewExperiment> experimentRegistrations = new ArrayList<NewExperiment>();
 
@@ -138,7 +141,7 @@ public class AtomicEntityOperationDetailsBuilder
     public AtomicEntityOperationDetails getDetails()
     {
         return new AtomicEntityOperationDetails(registrationIdOrNull, userIdOrNull,
-                spaceRegistrations, projectRegistrations, experimentRegistrations,
+                spaceRegistrations, projectRegistrations, projectUpdates, experimentRegistrations,
                 experimentUpdates, sampleUpdates, sampleRegistrations, materialRegistrations,
                 materialUpdates, dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
                 metaprojectUpdates, vocabularyUpdates, batchSizeOrNull);

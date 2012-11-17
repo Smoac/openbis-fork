@@ -193,7 +193,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
                 @Override
                 public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
                 {
-                    return openBISService.tryToGetSampleIdentifier(samplePermId);
+                    return openBISService.tryGetSampleIdentifier(samplePermId);
                 }
             };
     }

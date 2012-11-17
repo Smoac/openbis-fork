@@ -607,6 +607,19 @@ abstract class AbstractBusinessObject implements IDAOFactory
         }
     }
 
+    protected void addAttachments(IModifierAndModificationDateBean holder,
+            Collection<NewAttachment> newAttachments, List<AttachmentPE> attachments)
+    {
+        if (newAttachments == null)
+        {
+            return;
+        }
+        for (NewAttachment attachment : newAttachments)
+        {
+            attachments.add(prepareAttachment(holder, attachment));
+        }
+    }
+
     protected void saveAttachment(final AttachmentHolderPE attachmentHolder,
             List<AttachmentPE> attachments)
     {
@@ -631,5 +644,20 @@ abstract class AbstractBusinessObject implements IDAOFactory
             }
         }
         attachments.clear();
+    }
+
+    protected void saveAttachments(List<? extends AttachmentHolderPE> holders,
+            List<List<AttachmentPE>> attachmentListsOrNull)
+    {
+        if (attachmentListsOrNull == null)
+        {
+            return;
+        }
+        int idx = 0;
+        for (List<AttachmentPE> attachments : attachmentListsOrNull)
+        {
+            saveAttachment(holders.get(idx), attachments);
+            ++idx;
+        }
     }
 }

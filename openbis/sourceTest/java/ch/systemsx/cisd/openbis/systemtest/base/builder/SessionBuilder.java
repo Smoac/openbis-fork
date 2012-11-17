@@ -107,7 +107,7 @@ public class SessionBuilder extends Builder<String>
                     Grantee.createPerson(this.userName));
         }
 
-        return commonServer.tryToAuthenticate(userName, "pwd").getSessionToken();
+        return commonServer.tryAuthenticate(userName, "pwd").getSessionToken();
     }
 
     private static class Pair<X, Y>

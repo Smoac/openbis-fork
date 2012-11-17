@@ -1753,7 +1753,7 @@ public final class CommonClientService extends AbstractClientService implements
         updatesDTO.setDescription(updates.getDescription());
         updatesDTO.setVersion(updates.getVersion());
         updatesDTO.setTechId(updates.getTechId());
-        updatesDTO.setGroupCode(updates.getGroupCode());
+        updatesDTO.setSpaceCode(updates.getSpaceCode());
         return updatesDTO;
     }
 

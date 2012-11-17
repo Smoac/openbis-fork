@@ -68,7 +68,7 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
-        session = server.tryToAuthenticate("test", "password");
+        session = server.tryAuthenticate("test", "password");
     }
 
     @Test

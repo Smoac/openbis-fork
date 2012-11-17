@@ -159,7 +159,7 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
                 new ExperimentIdentifier(dataset.getDatabaseInstanceCode(), dataset.getSpaceCode(),
                         dataset.getProjectCode(), dataset.getExperimentCode());
         Experiment experiment =
-                ServiceProvider.getOpenBISService().tryToGetExperiment(experimentIdentifier);
+                ServiceProvider.getOpenBISService().tryGetExperiment(experimentIdentifier);
         return experiment;
     }
 

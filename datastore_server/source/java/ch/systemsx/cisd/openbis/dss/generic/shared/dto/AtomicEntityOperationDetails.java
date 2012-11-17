@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 
@@ -55,6 +56,8 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
     private final List<NewSpace> spaceRegistrations;
 
     private final List<NewProject> projectRegistrations;
+    
+    private final List<ProjectUpdatesDTO> projectUpdates;
 
     private final List<ExperimentUpdatesDTO> experimentUpdates;
 
@@ -79,8 +82,8 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
     private final List<VocabularyUpdatesDTO> vocabularyUpdates;
 
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
-            List<NewSpace> spaceRegistrations, List<NewProject> projectRegistrations,
-            List<ExperimentUpdatesDTO> experimentUpdates,
+            List<NewSpace> spaceRegistrations, List<ProjectUpdatesDTO> projectUpdates,
+            List<NewProject> projectRegistrations, List<ExperimentUpdatesDTO> experimentUpdates,
             List<NewExperiment> experimentRegistrations, List<SampleUpdatesDTO> sampleUpdates,
             List<NewSample> sampleRegistrations,
             Map<String, List<NewMaterial>> materialRegistrations,
@@ -95,6 +98,7 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
         this.userIdOrNull = userIdOrNull;
         this.spaceRegistrations = new ArrayList<NewSpace>(spaceRegistrations);
         this.projectRegistrations = new ArrayList<NewProject>(projectRegistrations);
+        this.projectUpdates = new ArrayList<ProjectUpdatesDTO>(projectUpdates);
         this.experimentUpdates = new ArrayList<ExperimentUpdatesDTO>(experimentUpdates);
         this.experimentRegistrations = new ArrayList<NewExperiment>(experimentRegistrations);
         this.sampleUpdates = new ArrayList<SampleUpdatesDTO>(sampleUpdates);
@@ -157,6 +161,11 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
     public List<NewProject> getProjectRegistrations()
     {
         return projectRegistrations;
+    }
+
+    public List<ProjectUpdatesDTO> getProjectUpdates()
+    {
+        return projectUpdates;
     }
 
     public Map<String, List<NewMaterial>> getMaterialRegistrations()

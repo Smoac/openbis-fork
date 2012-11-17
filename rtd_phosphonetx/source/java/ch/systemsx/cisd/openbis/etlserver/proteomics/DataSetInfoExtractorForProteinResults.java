@@ -157,7 +157,7 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
         {
             ExperimentIdentifier identifier =
                     new ExperimentIdentifierFactory(baseExperimentIdentifier).createIdentifier();
-            Experiment baseExperiment = service.tryToGetExperiment(identifier);
+            Experiment baseExperiment = service.tryGetExperiment(identifier);
             if (baseExperiment != null)
             {
                 parentDataSets.addAll(service.listDataSetsByExperimentID(baseExperiment.getId()));

@@ -44,7 +44,7 @@ public class ProjectUpdateBuilder extends UpdateBuilder<ProjectUpdatesDTO>
 
     public ProjectUpdateBuilder toSpace(Space space)
     {
-        updates.setGroupCode(space.getCode());
+        updates.setSpaceCode(space.getCode());
         return this;
     }
 

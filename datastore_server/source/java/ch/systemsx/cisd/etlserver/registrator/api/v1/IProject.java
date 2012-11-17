@@ -18,8 +18,9 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmutable;
 
-
 /**
+ * Interface to specify an experiment to be modified or created.
+ *
  * @author Kaloyan Enimanev
  */
 public interface IProject extends IProjectImmutable
@@ -28,5 +29,16 @@ public interface IProject extends IProjectImmutable
      * Set the project description.
      */
     void setDescription(String description);
+
+    /**
+     * Add a new attachment to this sample.
+     * 
+     * @param filePath The path of the attachment as reported to the database.
+     * @param title The title of the attachment.
+     * @param description A description of the attachment.
+     * @param content The actual content of the attachment.
+     */
+    void addAttachment(String filePath, String title, String description,
+            byte[] content);
 
 }

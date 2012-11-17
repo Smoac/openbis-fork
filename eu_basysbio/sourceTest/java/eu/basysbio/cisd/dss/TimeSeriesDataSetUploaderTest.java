@@ -140,7 +140,7 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(service).tryToGetExperiment(
+                    one(service).tryGetExperiment(
                             new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
                     will(returnValue(experiment));
 
@@ -222,7 +222,7 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(service).tryToGetExperiment(
+                    one(service).tryGetExperiment(
                             new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
                     will(returnValue(experiment));
 

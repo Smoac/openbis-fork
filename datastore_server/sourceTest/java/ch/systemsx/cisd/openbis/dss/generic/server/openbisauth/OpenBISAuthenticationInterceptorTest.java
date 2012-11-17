@@ -186,7 +186,7 @@ public class OpenBISAuthenticationInterceptorTest
 
     private void setUpAuthenticationExpectations(final Expectations exp)
     {
-        exp.one(limsService).tryToAuthenticate(LIMS_USER, LIMS_PASSWORD);
+        exp.one(limsService).tryAuthenticate(LIMS_USER, LIMS_PASSWORD);
         exp.will(Expectations.returnValue(createSession()));
 
         exp.one(limsService).registerDataStoreServer(

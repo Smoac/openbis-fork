@@ -588,7 +588,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                         ExperimentIdentifier experimentId =
                                 new ExperimentIdentifier(DatabaseInstanceIdentifier.HOME,
                                         SPACE_CODE, "MYPROJ", "EXP" + i);
-                        allowing(openbisService).tryToGetExperiment(experimentId);
+                        allowing(openbisService).tryGetExperiment(experimentId);
                         Experiment exp = new Experiment();
                         exp.setIdentifier(experimentId.toString());
                         will(returnValue(exp));

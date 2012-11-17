@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
@@ -100,6 +101,8 @@ public class EntityOperationTest extends SystemTestCase
         private final List<NewSpace> spaces = new ArrayList<NewSpace>();
 
         private final List<NewProject> projects = new ArrayList<NewProject>();
+
+        private final List<ProjectUpdatesDTO> projectUpdates = new ArrayList<ProjectUpdatesDTO>();
 
         private final List<NewExperiment> experiments = new ArrayList<NewExperiment>();
 
@@ -172,6 +175,13 @@ public class EntityOperationTest extends SystemTestCase
         EntityOperationBuilder project(NewProject project)
         {
             projects.add(project);
+            return this;
+        }
+
+        @SuppressWarnings("unused")
+        EntityOperationBuilder project(ProjectUpdatesDTO project)
+        {
+            projectUpdates.add(project);
             return this;
         }
 
@@ -288,8 +298,8 @@ public class EntityOperationTest extends SystemTestCase
         AtomicEntityOperationDetails create()
         {
             return new AtomicEntityOperationDetails(registrationID, userID, spaces, projects,
-                    experiments, experimentUpdates, sampleUpdates, samples, materials,
-                    materialUpdates, dataSets, dataSetUpdates, metaprojectRegistrations,
+                    projectUpdates, experiments, experimentUpdates, sampleUpdates, samples,
+                    materials, materialUpdates, dataSets, dataSetUpdates, metaprojectRegistrations,
                     metaprojectUpdates, vocabularyUpdates);
         }
 
@@ -444,7 +454,7 @@ public class EntityOperationTest extends SystemTestCase
 
         // Need to make an additional call to get the experiment from the DB
         Experiment experiment =
-                etlService.tryToGetExperiment(sessionToken,
+                etlService.tryGetExperiment(sessionToken,
                         ExperimentIdentifierFactory.parse(experimentIdentifier));
 
         assertEquals("/CISD/NEMO/E1", experiment.getIdentifier());
@@ -470,7 +480,7 @@ public class EntityOperationTest extends SystemTestCase
 
         // Need to make an additional call to get the experiment from the DB
         Experiment experiment =
-                etlService.tryToGetExperiment(sessionToken,
+                etlService.tryGetExperiment(sessionToken,
                         ExperimentIdentifierFactory.parse(experimentIdentifier));
 
         assertEquals("/CISD/NEMO/E1", experiment.getIdentifier());

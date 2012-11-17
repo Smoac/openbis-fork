@@ -136,7 +136,7 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      * Tries to get the experiment of specified identifier or <code>null</code> if not found.
      */
     @ManagedAuthentication
-    public Experiment tryToGetExperiment(ExperimentIdentifier experimentIdentifier)
+    public Experiment tryGetExperiment(ExperimentIdentifier experimentIdentifier)
             throws UserFailureException;
 
     /**
@@ -173,7 +173,7 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      * @return <code>null</code> if nothing found.
      */
     @ManagedAuthentication
-    public SampleIdentifier tryToGetSampleIdentifier(String samplePermID)
+    public SampleIdentifier tryGetSampleIdentifier(String samplePermID)
             throws UserFailureException;
 
     /**
@@ -270,11 +270,11 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      * Tries to return the properties of the top sample (e.g. master plate) registered for the
      * specified sample identifier.
      * 
-     * @return <code>null</code> if no appropriated sample found. Returns an empty array if a a
-     *         sample found with no properties.
+     * @return <code>null</code> if no appropriated sample is found. Returns an empty array if a
+     *         sample is found with no properties.
      */
     @ManagedAuthentication
-    public IEntityProperty[] getPropertiesOfTopSampleRegisteredFor(
+    public IEntityProperty[] tryGetPropertiesOfTopSampleRegisteredFor(
             final SampleIdentifier sampleIdentifier) throws UserFailureException;
 
     /** See {@link IETLLIMSService#listSamplesByCriteria(String, ListSamplesByPropertyCriteria)} */

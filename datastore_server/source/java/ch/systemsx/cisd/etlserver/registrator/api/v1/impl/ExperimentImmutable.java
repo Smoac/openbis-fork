@@ -102,18 +102,28 @@ public class ExperimentImmutable implements IExperimentImmutable
     public boolean equals(Object obj)
     {
         if (this == obj)
+        {
             return true;
+        }
         if (obj == null)
+        {
             return false;
+        }
         if (getClass().isAssignableFrom(obj.getClass()) == false)
+        {
             return false;
+        }
         ExperimentImmutable other = (ExperimentImmutable) obj;
         if (getExperimentIdentifier() == null)
         {
             if (other.getExperimentIdentifier() != null)
+            {
                 return false;
-        } else if (!getExperimentIdentifier().equals(other.getExperimentIdentifier()))
+            }
+        } else if (getExperimentIdentifier().equals(other.getExperimentIdentifier()) == false)
+        {
             return false;
+        }
         return true;
     }
 

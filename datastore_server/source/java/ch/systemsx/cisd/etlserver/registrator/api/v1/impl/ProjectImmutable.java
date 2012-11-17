@@ -39,6 +39,29 @@ public class ProjectImmutable implements IProjectImmutable
         this.project = project;
         this.isExistingProject = isExistingProject;
     }
+    
+    public Long getId()
+    {
+        return project.getId();
+    }
+
+    @Override
+    public String getPermId()
+    {
+        return project.getPermId();
+    }
+
+    @Override
+    public String getSpaceCode()
+    {
+        return project.getSpace().getCode();
+    }
+
+    @Override
+    public String getCode()
+    {
+        return project.getCode();
+    }
 
     @Override
     public String getProjectIdentifier()
@@ -72,6 +95,41 @@ public class ProjectImmutable implements IProjectImmutable
     public String getDescription()
     {
         return project.getDescription();
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return getProjectIdentifier().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj == null)
+        {
+            return false;
+        }
+        if (getClass().isAssignableFrom(obj.getClass()) == false)
+        {
+            return false;
+        }
+        ProjectImmutable other = (ProjectImmutable) obj;
+        if (getProjectIdentifier() == null)
+        {
+            if (other.getProjectIdentifier() != null)
+            {
+                return false;
+            }
+        } else if (getProjectIdentifier().equals(other.getProjectIdentifier()) == false)
+        {
+            return false;
+        }
+        return true;
     }
 
 }

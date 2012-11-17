@@ -59,7 +59,7 @@ public class EncapsulatedCommonServer
                 HttpInvokerUtils.createServiceStub(ICommonServer.class, openBisUrl + SERVICE_PATH,
                         5 * DateUtils.MILLIS_PER_MINUTE);
 
-        SessionContextDTO session = commonService.tryToAuthenticate(userID, password);
+        SessionContextDTO session = commonService.tryAuthenticate(userID, password);
         if (session == null)
         {
             throw UserFailureException.fromTemplate("Invalid username/password combination");

@@ -221,14 +221,14 @@ public abstract class AbstractServerLogger implements IServer
     }
 
     @Override
-    public final SessionContextDTO tryToAuthenticate(final String user, final String password)
+    public final SessionContextDTO tryAuthenticate(final String user, final String password)
     {
         // No logging because already done by the session manager
         return null;
     }
 
     @Override
-    public SessionContextDTO tryToAuthenticateAnonymously()
+    public SessionContextDTO tryAuthenticateAnonymously()
     {
         return null;
     }

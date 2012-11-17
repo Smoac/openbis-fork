@@ -27,28 +27,37 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
  */
 public class AbstractProjectUpdates implements Serializable
 {
-
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private int version;
 
+    /**
+     * If set, id takes precedence over permId.
+     */
     private TechId id;
+
+    /**
+     * If set, id takes precedence over identifier.
+     */
+    private String permId;
+
+    private String identifier;
 
     // ----- the data which should be changed:
 
     private String description;
 
-    // Code of the group to which project should be moved. If null nothing happens.
-    private String groupCodeOrNull;
+    // Code of the data space to which project should be moved. If null nothing happens.
+    private String spaceCodeOrNull;
 
-    public String getGroupCode()
+    public String getSpaceCode()
     {
-        return groupCodeOrNull;
+        return spaceCodeOrNull;
     }
 
-    public void setGroupCode(String groupCode)
+    public void setSpaceCode(String spaceCode)
     {
-        this.groupCodeOrNull = groupCode;
+        this.spaceCodeOrNull = spaceCode;
     }
 
     public int getVersion()
@@ -79,5 +88,25 @@ public class AbstractProjectUpdates implements Serializable
     public void setTechId(TechId id)
     {
         this.id = id;
+    }
+
+    public String getPermId()
+    {
+        return permId;
+    }
+
+    public void setPermId(String permId)
+    {
+        this.permId = permId;
+    }
+
+    public String getIdentifier()
+    {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier)
+    {
+        this.identifier = identifier;
     }
 }

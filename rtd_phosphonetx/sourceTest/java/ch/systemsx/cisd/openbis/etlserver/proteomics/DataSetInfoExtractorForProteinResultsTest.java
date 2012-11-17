@@ -203,7 +203,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         context.checking(new Expectations()
             {
                 {
-                    one(service).tryToGetExperiment(
+                    one(service).tryGetExperiment(
                             new ExperimentIdentifier(new ProjectIdentifier("TEST", "PROJECT"),
                                     "EXP1"));
                     Experiment experiment = new ExperimentBuilder().id(123789L).getExperiment();
@@ -241,7 +241,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         context.checking(new Expectations()
             {
                 {
-                    one(service).tryToGetExperiment(
+                    one(service).tryGetExperiment(
                             new ExperimentIdentifier(new ProjectIdentifier("TEST", "PROJECT"),
                                     "EXP1"));
                     will(returnValue(null));

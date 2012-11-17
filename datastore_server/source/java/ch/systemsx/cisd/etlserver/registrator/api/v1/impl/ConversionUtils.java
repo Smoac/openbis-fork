@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewLinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -76,6 +77,7 @@ public class ConversionUtils
         }
         IEntityProperty[] properties = experiment.getProperties().toArray(new IEntityProperty[0]);
         newExperiment.setProperties(properties);
+        newExperiment.setAttachments(apiExperiment.getNewAttachments());
 
         return newExperiment;
     }
@@ -95,6 +97,7 @@ public class ConversionUtils
                 .getIdentifier()).createIdentifier());
 
         updates.setProperties(experiment.getProperties());
+        updates.setAttachments(apiExperiment.getNewAttachments());
 
         return updates;
     }
@@ -128,8 +131,9 @@ public class ConversionUtils
         }
         newSample.setSampleType(sample.getSampleType());
 
-        IEntityProperty[] properties = sample.getProperties().toArray(new IEntityProperty[0]);
+        final IEntityProperty[] properties = sample.getProperties().toArray(new IEntityProperty[0]);
         newSample.setProperties(properties);
+        newSample.setAttachments(apiSample.getNewAttachments());
 
         return newSample;
     }
@@ -281,7 +285,19 @@ public class ConversionUtils
 
     public static NewProject convertToNewProject(Project apiProject)
     {
-        return new NewProject(apiProject.getProjectIdentifier(), apiProject.getDescription());
+        final NewProject newProject =
+                new NewProject(apiProject.getProjectIdentifier(), apiProject.getDescription());
+        newProject.setAttachments(apiProject.getNewAttachments());
+        return newProject;
+    }
+    
+    public static ProjectUpdatesDTO convertToProjectUpdateDTO(Project apiProject)
+    {
+        final ProjectUpdatesDTO projectUpdate = new ProjectUpdatesDTO();
+        projectUpdate.setTechId(new TechId(apiProject.getId()));
+        projectUpdate.setDescription(apiProject.getDescription());
+        projectUpdate.setAttachments(apiProject.getNewAttachments());
+        return projectUpdate;
     }
 
     public static DataSetUpdatesDTO convertToDataSetUpdatesDTO(DataSetUpdatable dataSet)
@@ -410,4 +426,16 @@ public class ConversionUtils
         update.setRemovedEntities(metaproject.getRemovedEntities());
         return update;
     }
+
+    static NewAttachment createAttachment(String filePath, String title,
+            String description, byte[] content)
+    {
+        final NewAttachment newAttachment = new NewAttachment();
+        newAttachment.setFilePath(filePath);
+        newAttachment.setTitle(title);
+        newAttachment.setDescription(description);
+        newAttachment.setContent(content);
+        return newAttachment;
+    }
+
 }

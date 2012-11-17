@@ -621,7 +621,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
                     {
                         SampleIdentifier identifier =
                                 SampleIdentifierFactory.parse(sample.getIdentifier());
-                        one(service).getPropertiesOfTopSampleRegisteredFor(identifier);
+                        one(service).tryGetPropertiesOfTopSampleRegisteredFor(identifier);
                         if (sample.getSubCode().equals("2"))
                         {
                             GenericEntityProperty p1 =

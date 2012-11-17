@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 // TODO 2010-07-14, Piotr Buczek: write tests for nontrivial methods
 final public class AuthorizationDataProvider implements IAuthorizationDataProvider
@@ -105,7 +106,20 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     }
 
     @Override
-    public ProjectPE tryGetProject(String dataSetCode)
+    public ProjectPE tryGetProjectByPermId(PermId permId)
+    {
+        return daoFactory.getProjectDAO().tryGetByPermID(permId.getId());
+    }
+
+    @Override
+    public ProjectPE tryGetProjectByIdentifier(ProjectIdentifier identifier)
+    {
+        return daoFactory.getProjectDAO().tryFindProject(identifier.getDatabaseInstanceCode(),
+                identifier.getSpaceCode(), identifier.getProjectCode());
+    }
+
+    @Override
+    public ProjectPE tryGetProjectForDataSet(String dataSetCode)
     {
         DataPE dataSet = daoFactory.getDataDAO().tryToFindDataSetByCode(dataSetCode);
         if (dataSet != null && dataSet.getExperiment() != null)

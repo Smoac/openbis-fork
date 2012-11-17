@@ -63,7 +63,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
         updates.setTechId(projectId);
         updates.setVersion(originalProject.getVersion());
         Space space = spaceField.tryGetSelected();
-        updates.setGroupCode(space == null ? null : space.getCode());
+        updates.setSpaceCode(space == null ? null : space.getCode());
 
         viewContext.getCommonService().updateProject(updates, new ProjectEditCallback(viewContext));
     }

@@ -261,7 +261,7 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
      */
     protected String authenticateAs(String user)
     {
-        return commonServer.tryToAuthenticate(user, "password").getSessionToken();
+        return commonServer.tryAuthenticate(user, "password").getSessionToken();
     }
 
     protected NewSampleBuilder sample(String identifier)

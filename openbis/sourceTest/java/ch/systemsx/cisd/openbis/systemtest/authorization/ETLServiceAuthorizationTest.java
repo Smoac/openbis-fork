@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
@@ -137,6 +138,7 @@ public class ETLServiceAuthorizationTest extends BaseTest
         String userID = session.getUserID();
         List<NewSpace> spaceRegistrations = Collections.emptyList();
         List<NewProject> projectRegistrations = Collections.emptyList();
+        List<ProjectUpdatesDTO> projectUpdates = Collections.emptyList();
         List<NewExperiment> experimentRegistrations = Collections.emptyList();
         List<ExperimentUpdatesDTO> experimentUpdates =
                 Collections.<ExperimentUpdatesDTO> emptyList();
@@ -156,7 +158,7 @@ public class ETLServiceAuthorizationTest extends BaseTest
         TechId registrationid = new TechId(etlService.drawANewUniqueID(sessionToken));
 
         etlService.performEntityOperations(sessionToken, new AtomicEntityOperationDetails(
-                registrationid, userID, spaceRegistrations, projectRegistrations,
+                registrationid, userID, spaceRegistrations, projectRegistrations, projectUpdates,
                 experimentRegistrations, experimentUpdates, sampleUpdates, sampleRegistrations,
                 materialRegistrations, materialUpdates, dataSetRegistrations, dataSetUpdates,
                 metaprojectRegistrations, metaprojectUpdates, vocabularyUpdates));

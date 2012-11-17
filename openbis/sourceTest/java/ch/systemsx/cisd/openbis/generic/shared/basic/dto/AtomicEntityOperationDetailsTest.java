@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -64,6 +65,7 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
         ArrayList<NewProject> projectRegistrations = new ArrayList<NewProject>();
         projectRegistrations.add(new NewProject("/SPACE/P1", "description"));
         projectRegistrations.add(new NewProject("/SPACE/P2", "description"));
+        ArrayList<ProjectUpdatesDTO> projectUpdates = new ArrayList<ProjectUpdatesDTO>();
 
         ArrayList<NewExperiment> experimentRegistrations = new ArrayList<NewExperiment>();
         experimentRegistrations.add(new NewExperiment("/SPACE/PROJECT/EXP-ID1", "EXP-TYPE"));
@@ -103,8 +105,9 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
 
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(null, null, spaceRegistrations,
-                        projectRegistrations, experimentRegistrations, experimentUpdates,
-                        sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
+                        projectRegistrations, projectUpdates, experimentRegistrations,
+                        experimentUpdates, sampleUpdates, sampleRegistrations,
+                        materialRegistrations, materialUpdates,
                         dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
                         metaprojectUpdates, vocabularyUpdates);
 
@@ -113,6 +116,7 @@ public class AtomicEntityOperationDetailsTest extends AssertJUnit
                         + ",userIdOrNull=<null>"
                         + ",spaceRegistrations=[SPACE1, SPACE2]"
                         + ",projectRegistrations=[/SPACE/P1, /SPACE/P2]"
+                        + ",projectUpdates=[]"
                         + ",experimentUpdates=[]"
                         + ",experimentRegistrations=[/SPACE/PROJECT/EXP-ID1, /SPACE/PROJECT/EXP-ID2]"
                         + ",sampleUpdates=[]"

@@ -670,7 +670,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     public String tryLoginScreening(String userId, String userPassword)
     {
-        SessionContextDTO sessionContext = tryToAuthenticate(userId, userPassword);
+        SessionContextDTO sessionContext = tryAuthenticate(userId, userPassword);
         if (sessionContext != null)
         {
             return sessionContext.getSessionToken();

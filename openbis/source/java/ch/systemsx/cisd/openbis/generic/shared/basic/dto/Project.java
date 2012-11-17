@@ -64,8 +64,6 @@ public class Project extends CodeWithRegistrationAndModificationDate<Project> im
         this.permId = permId;
     }
 
-    private List<Attachment> attachments;
-
     // TODO 2009-06-17, Piotr Buczek: remove and create NewProject with NewAttachments, ...
     private List<NewAttachment> newAttachments;
 
@@ -113,16 +111,6 @@ public class Project extends CodeWithRegistrationAndModificationDate<Project> im
     public void setIdentifier(String identifier)
     {
         this.identifier = identifier;
-    }
-
-    public void setAttachments(List<Attachment> attachments)
-    {
-        this.attachments = attachments;
-    }
-
-    public List<Attachment> getAttachments()
-    {
-        return attachments;
     }
 
     public void setNewAttachments(List<NewAttachment> newAttachments)

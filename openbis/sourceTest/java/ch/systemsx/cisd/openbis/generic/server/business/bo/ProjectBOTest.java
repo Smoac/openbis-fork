@@ -261,7 +261,7 @@ public final class ProjectBOTest extends AbstractBOTest
         boolean fail = true;
         try
         {
-            projectBO.define(null, null, null);
+            projectBO.define(null, null, null, null);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -282,7 +282,7 @@ public final class ProjectBOTest extends AbstractBOTest
                 }
             });
 
-        projectBO.define(createProjectIdent(), null, null);
+        projectBO.define(createProjectIdent(), null, null, null);
 
         context.checking(new Expectations()
             {
@@ -321,7 +321,7 @@ public final class ProjectBOTest extends AbstractBOTest
                 }
             });
 
-        projectBO.define(projIdent, null, null);
+        projectBO.define(projIdent, null, null, null);
 
         context.checking(new Expectations()
             {

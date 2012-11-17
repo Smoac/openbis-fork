@@ -102,7 +102,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * @param experimentIdentifier an identifier which uniquely identifies the experiment.
      */
     @Transactional(readOnly = true)
-    public Experiment tryToGetExperiment(String sessionToken,
+    public Experiment tryGetExperiment(String sessionToken,
             ExperimentIdentifier experimentIdentifier) throws UserFailureException;
 
     /**
@@ -123,7 +123,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * @return <code>null</code> if nothing found.
      */
     @Transactional(readOnly = true)
-    public SampleIdentifier tryToGetSampleIdentifier(String sessionToken, String samplePermID)
+    public SampleIdentifier tryGetSampleIdentifier(String sessionToken, String samplePermID)
             throws UserFailureException;
 
     /**
@@ -221,7 +221,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      *         sample found with no properties.
      */
     @Transactional(readOnly = true)
-    public IEntityProperty[] tryToGetPropertiesOfTopSampleRegisteredFor(final String sessionToken,
+    public IEntityProperty[] tryGetPropertiesOfTopSampleRegisteredFor(final String sessionToken,
             final SampleIdentifier sampleIdentifier) throws UserFailureException;
 
     /**

@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.common.conversation.context.ServiceConversationsThreadContext;
 import ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener;
-import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -58,6 +59,8 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
 
     private final NewProjectPredicate newProjectPredicate;
 
+    private final ProjectUpdatesPredicate projectUpdatePredicate;
+
     public AtomicOperationsPredicate()
     {
         newExperimentPredicate = new NewExperimentPredicate();
@@ -68,6 +71,7 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
         experimentOwnerIdentifierPredicate = new ExistingSpaceIdentifierPredicate();
         dataSetUpdatesCollectionPredicate = new DataSetUpdatesCollectionPredicate();
         newProjectPredicate = new NewProjectPredicate();
+        projectUpdatePredicate = new ProjectUpdatesPredicate();
     }
 
     @Override
@@ -81,6 +85,7 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
         experimentOwnerIdentifierPredicate.init(provider);
         dataSetUpdatesCollectionPredicate.init(provider);
         newProjectPredicate.init(provider);
+        projectUpdatePredicate.init(provider);
     }
 
     @Override
@@ -175,6 +180,10 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
             }
             if (result.equals(Status.OK))
             {
+                result = evaluateProjectUpdates();
+            }
+            if (result.equals(Status.OK))
+            {
                 result = evaluateMaterialRegistrations();
             }
             if (result.equals(Status.OK))
@@ -214,6 +223,33 @@ public class AtomicOperationsPredicate extends AbstractPredicate<AtomicEntityOpe
                         return status;
                     }
                     progressListener.update("authorizeProjectRegistrations", value
+                            .getExperimentUpdates().size(), ++index);
+                }
+                return Status.OK;
+            } else
+            {
+                return Status.OK;
+            }
+        }
+
+        private Status evaluateProjectUpdates()
+        {
+            if (value.getProjectUpdates() != null
+                    && value.getProjectUpdates().size() > 0)
+            {
+                int index = 0;
+                for (ProjectUpdatesDTO projectToUpdate : value.getProjectUpdates())
+                {
+                    Status status;
+
+                    status =
+                            predicate.projectUpdatePredicate.doEvaluation(person, allowedRoles,
+                                    projectToUpdate);
+                    if (status.equals(Status.OK) == false)
+                    {
+                        return status;
+                    }
+                    progressListener.update("authorizeProjectUpdates", value
                             .getExperimentUpdates().size(), ++index);
                 }
                 return Status.OK;

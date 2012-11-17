@@ -74,7 +74,7 @@ public class ScreeningServerAuthorizationTest extends AbstractScreeningSystemTes
             commonServer.registerSpaceRole(sessionToken, RoleCode.OBSERVER, new SpaceIdentifier(
                     SPACE_CODE), grantee);
         }
-        userSessionToken = commonServer.tryToAuthenticate(TEST_USER, "abc").getSessionToken();
+        userSessionToken = commonServer.tryAuthenticate(TEST_USER, "abc").getSessionToken();
     }
 
     private boolean hasSpace(String sessionToken, String spaceCode)

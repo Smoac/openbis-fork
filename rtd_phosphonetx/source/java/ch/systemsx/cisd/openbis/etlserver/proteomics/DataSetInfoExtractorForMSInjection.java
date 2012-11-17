@@ -218,7 +218,7 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
 
     private long getOrCreateExperiment(ExperimentIdentifier identifier)
     {
-        Experiment experiment = service.tryToGetExperiment(identifier);
+        Experiment experiment = service.tryGetExperiment(identifier);
         if (experiment == null)
         {
             return service.registerExperiment(new NewExperiment(identifier.toString(),

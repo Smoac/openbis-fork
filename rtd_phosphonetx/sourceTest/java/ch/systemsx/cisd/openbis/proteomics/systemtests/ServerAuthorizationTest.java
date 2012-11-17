@@ -63,7 +63,7 @@ public class ServerAuthorizationTest extends AbstractProteomicsSystemTestCase
     public void testForDataServiceInternalSetSessionUserFailedBecauseOfAuthorization()
     {
         IProteomicsDataServiceInternal dataServiceInternal = getDataServiceInternal();
-        String sessionToken = dataServiceInternal.tryToAuthenticate(USER_A, "abc").getSessionToken();
+        String sessionToken = dataServiceInternal.tryAuthenticate(USER_A, "abc").getSessionToken();
         dataServiceInternal.setSessionUser(sessionToken, "abc");
     }
     
@@ -71,7 +71,7 @@ public class ServerAuthorizationTest extends AbstractProteomicsSystemTestCase
     public void testForDataServiceInternalListExperimentsFailedBecauseOfAuthorization()
     {
         IProteomicsDataServiceInternal dataServiceInternal = getDataServiceInternal();
-        String sessionToken = dataServiceInternal.tryToAuthenticate(USER_A, "abc").getSessionToken();
+        String sessionToken = dataServiceInternal.tryAuthenticate(USER_A, "abc").getSessionToken();
         dataServiceInternal.listExperiments(sessionToken, "MS_SEARCH");
     }
     

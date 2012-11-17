@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -72,10 +73,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewVocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
@@ -171,6 +175,8 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         private final List<Space> spacesToBeRegistered = new ArrayList<Space>();
 
         private final List<Project> projectsToBeRegistered = new ArrayList<Project>();
+
+        private final List<Project> projectsToBeUpdated = new ArrayList<Project>();
 
         private final List<Sample> samplesToBeRegistered = new ArrayList<Sample>();
 
@@ -567,7 +573,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                     ExperimentIdentifierFactory.parse(experimentIdentifierString);
 
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experimentOrNull =
-                    openBisService.tryToGetExperiment(identifier);
+                    openBisService.tryGetExperiment(identifier);
 
             ExperimentUpdatable result = null;
             if (experimentOrNull != null)
@@ -637,6 +643,58 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             Project project = new Project(projectIdentifier);
             projectsToBeRegistered.add(project);
             return project;
+        }
+
+        public IProject getProjectForUpdate(String projectIdentifier)
+        {
+            final ProjectIdentifier identifier = ProjectIdentifierFactory.parse(projectIdentifier);
+
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project projectOrNull =
+                    openBisService.tryGetProject(identifier);
+
+            Project result = null;
+            if (projectOrNull != null)
+            {
+                result = new Project(projectOrNull);
+                projectsToBeUpdated.add(result);
+            }
+
+            return result;
+        }
+
+        public IProject makeProjectMutable(IProjectImmutable project)
+        {
+            if (project == null)
+            {
+                return null;
+            }
+            // Check if we already have an updatable project for this one
+            Project result = findProjectLocally(project);
+            if (result != null)
+            {
+                return result;
+            }
+
+            if (project instanceof ProjectImmutable)
+            {
+                result = new Project(((ProjectImmutable) project).getProject());
+                projectsToBeUpdated.add(result);
+                return result;
+            }
+
+            return null;
+        }
+
+        private Project findProjectLocally(IProjectImmutable projectToFind)
+        {
+            for (Project project : projectsToBeUpdated)
+            {
+                if (project.equals(projectToFind))
+                {
+                    return project;
+                }
+            }
+            return null;
         }
 
         public IMaterial createNewMaterial(String materialCode, String materialType)
@@ -1000,6 +1058,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
 
             List<NewSpace> spaceRegistrations = convertSpacesToBeRegistered();
             List<NewProject> projectRegistrations = convertProjectsToBeRegistered();
+            List<ProjectUpdatesDTO> projectUpdates = convertProjectsToBeUpdated();
             List<NewExperiment> experimentRegistrations = convertExperimentsToBeRegistered();
             List<ExperimentUpdatesDTO> experimentUpdates = convertExperimentsToBeUpdated();
             List<SampleUpdatesDTO> sampleUpdates = convertSamplesToBeUpdated();
@@ -1013,10 +1072,11 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
 
             AtomicEntityOperationDetails<T> registrationDetails =
                     new AtomicEntityOperationDetails<T>(registrationId, getUserId(),
-                            spaceRegistrations, projectRegistrations, experimentUpdates,
-                            experimentRegistrations, sampleUpdates, sampleRegistrations,
-                            materialRegistrations, materialUpdates, dataSetRegistrations,
-                            dataSetUpdates, metaprojectRegistrations, metaprojectUpdates,
+                            spaceRegistrations, projectUpdates, projectRegistrations,
+                            experimentUpdates, experimentRegistrations, sampleUpdates,
+                            sampleRegistrations, materialRegistrations, materialUpdates,
+                            dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
+                            metaprojectUpdates,
                             vocabularyUpdates);
             return registrationDetails;
         }
@@ -1027,6 +1087,17 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             for (Project apiProject : projectsToBeRegistered)
             {
                 result.add(ConversionUtils.convertToNewProject(apiProject));
+            }
+            return result;
+        }
+
+        private List<ProjectUpdatesDTO> convertProjectsToBeUpdated()
+        {
+            final List<ProjectUpdatesDTO> result =
+                    new ArrayList<ProjectUpdatesDTO>(projectsToBeUpdated.size());
+            for (Project apiProject : projectsToBeUpdated)
+            {
+                result.add(ConversionUtils.convertToProjectUpdateDTO(apiProject));
             }
             return result;
         }

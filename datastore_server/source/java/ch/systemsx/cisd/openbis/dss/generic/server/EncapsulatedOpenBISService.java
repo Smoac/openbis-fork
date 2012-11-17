@@ -213,10 +213,10 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     //
 
     @Override
-    public Experiment tryToGetExperiment(ExperimentIdentifier experimentIdentifier)
+    public Experiment tryGetExperiment(ExperimentIdentifier experimentIdentifier)
     {
         assert experimentIdentifier != null : " Unspecified experiment identifier.";
-        return service.tryToGetExperiment(session.getSessionToken(), experimentIdentifier);
+        return service.tryGetExperiment(session.getSessionToken(), experimentIdentifier);
     }
 
     @Override
@@ -248,10 +248,10 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public SampleIdentifier tryToGetSampleIdentifier(String samplePermID)
+    public SampleIdentifier tryGetSampleIdentifier(String samplePermID)
             throws UserFailureException
     {
-        return service.tryToGetSampleIdentifier(session.getSessionToken(), samplePermID);
+        return service.tryGetSampleIdentifier(session.getSessionToken(), samplePermID);
     }
 
     @Override
@@ -426,11 +426,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public final IEntityProperty[] getPropertiesOfTopSampleRegisteredFor(
+    public final IEntityProperty[] tryGetPropertiesOfTopSampleRegisteredFor(
             final SampleIdentifier sampleIdentifier) throws UserFailureException
     {
         assert sampleIdentifier != null : "Given sample identifier can not be null.";
-        return service.tryToGetPropertiesOfTopSampleRegisteredFor(session.getSessionToken(),
+        return service.tryGetPropertiesOfTopSampleRegisteredFor(session.getSessionToken(),
                 sampleIdentifier);
     }
 

@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -86,7 +87,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
-        sessionToken = service.tryToAuthenticate("test", "password").getSessionToken();
+        sessionToken = service.tryAuthenticate("test", "password").getSessionToken();
     }
 
     @Test
@@ -312,6 +313,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         TechId registrationid = new TechId(service.drawANewUniqueID(sessionToken));
         List<NewSpace> spaceRegistrations = Collections.emptyList();
         List<NewProject> projectRegistrations = Collections.emptyList();
+        List<ProjectUpdatesDTO> projectUpdates = Collections.emptyList();
         List<NewExperiment> experimentRegistrations = Collections.emptyList();
         List<ExperimentUpdatesDTO> experimentUpdates =
                 Collections.<ExperimentUpdatesDTO> emptyList();
@@ -326,9 +328,10 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
 
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(registrationid, null, spaceRegistrations,
-                        projectRegistrations, experimentRegistrations, experimentUpdates,
-                        sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
-                        dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
+                        projectRegistrations, projectUpdates, experimentRegistrations,
+                        experimentUpdates, sampleUpdates, sampleRegistrations,
+                        materialRegistrations, materialUpdates, dataSetRegistrations,
+                        dataSetUpdates, metaprojectRegistrations,
                         metaprojectUpdates, vocabularyUpdates, batchSizeOrNull);
         service.performEntityOperations(sessionToken, details);
     }
@@ -338,6 +341,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         TechId registrationid = new TechId(service.drawANewUniqueID(sessionToken));
         List<NewSpace> spaceRegistrations = Collections.emptyList();
         List<NewProject> projectRegistrations = Collections.emptyList();
+        List<ProjectUpdatesDTO> projectUpdates = Collections.emptyList();
         List<NewExperiment> experimentRegistrations = Collections.emptyList();
         List<ExperimentUpdatesDTO> experimentUpdates =
                 Collections.<ExperimentUpdatesDTO> emptyList();
@@ -353,8 +357,9 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
 
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(registrationid, null, spaceRegistrations,
-                        projectRegistrations, experimentRegistrations, experimentUpdates,
-                        sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
+                        projectRegistrations, projectUpdates, experimentRegistrations,
+                        experimentUpdates, sampleUpdates, sampleRegistrations,
+                        materialRegistrations, materialUpdates,
                         dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
                         metaprojectUpdates, vocabularyUpdates, batchSizeOrNull);
         service.performEntityOperations(sessionToken, details);
@@ -417,6 +422,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         TechId registrationid = new TechId(service.drawANewUniqueID(sessionToken));
         List<NewSpace> spaceRegistrations = Collections.emptyList();
         List<NewProject> projectRegistrations = Collections.emptyList();
+        List<ProjectUpdatesDTO> projectUpdates = Collections.emptyList();
         List<NewExperiment> experimentRegistrations = Collections.emptyList();
         List<ExperimentUpdatesDTO> experimentUpdates =
                 Collections.<ExperimentUpdatesDTO> emptyList();
@@ -432,8 +438,9 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
 
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(registrationid, null, spaceRegistrations,
-                        projectRegistrations, experimentRegistrations, experimentUpdates,
-                        sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
+                        projectRegistrations, projectUpdates, experimentRegistrations,
+                        experimentUpdates, sampleUpdates, sampleRegistrations,
+                        materialRegistrations, materialUpdates,
                         dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
                         metaprojectUpdates, vocabularyUpdates);
         service.performEntityOperations(sessionToken, details);

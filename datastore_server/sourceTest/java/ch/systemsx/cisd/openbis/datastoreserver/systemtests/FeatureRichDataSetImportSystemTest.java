@@ -88,7 +88,7 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
     private void assertExperimentUpdated(IEncapsulatedOpenBISService openBISService)
     {
         Experiment experiment =
-                openBISService.tryToGetExperiment(new ExperimentIdentifier(null, "CISD", "NEMO",
+                openBISService.tryGetExperiment(new ExperimentIdentifier(null, "CISD", "NEMO",
                         "EXP1"));
 
         IEntityProperty property = experiment.getProperties().get(0);

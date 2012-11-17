@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -147,7 +148,8 @@ public class ProteinResultDataSetParentLinkingTask implements IMaintenanceTask
         }
         service.performEntityOperations(new AtomicEntityOperationDetails(null, null, Collections
                 .<NewSpace> emptyList(), Collections.<NewProject> emptyList(), Collections
-                .<NewExperiment> emptyList(), Collections.<ExperimentUpdatesDTO> emptyList(),
+                .<ProjectUpdatesDTO> emptyList(), Collections.<NewExperiment> emptyList(),
+                Collections.<ExperimentUpdatesDTO> emptyList(),
                 Collections.<SampleUpdatesDTO> emptyList(), Collections.<NewSample> emptyList(),
                 Collections.<String, List<NewMaterial>> emptyMap(), Collections
                         .<MaterialUpdateDTO> emptyList(),

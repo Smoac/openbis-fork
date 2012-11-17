@@ -103,6 +103,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -539,7 +540,7 @@ public class ETLServiceTest extends AbstractServerTestCase
             });
 
         SampleIdentifier identifier =
-                createService().tryToGetSampleIdentifier(SESSION_TOKEN, "abc");
+                createService().tryGetSampleIdentifier(SESSION_TOKEN, "abc");
 
         assertEquals("S42", identifier.toString());
         context.assertIsSatisfied();
@@ -584,7 +585,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         prepareLoadSample(sampleIdentifier, null);
 
         IEntityProperty[] properties =
-                createService().tryToGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
+                createService().tryGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
                         sampleIdentifier);
 
         assertNull(properties);
@@ -601,7 +602,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         prepareLoadSample(sampleIdentifier, toplessSample);
 
         final IEntityProperty[] properties =
-                createService().tryToGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
+                createService().tryGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
                         sampleIdentifier);
 
         assertEquals(1, properties.length);
@@ -625,7 +626,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         prepareLoadSample(sampleIdentifier, sample);
 
         IEntityProperty[] properties =
-                createService().tryToGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
+                createService().tryGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
                         sampleIdentifier);
 
         assertEquals(0, properties.length);
@@ -648,7 +649,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         prepareLoadSample(sampleIdentifier, sample);
 
         IEntityProperty[] properties =
-                createService().tryToGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
+                createService().tryGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
                         sampleIdentifier);
 
         assertEquals(1, properties.length);
@@ -1093,6 +1094,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(null, USER_FOR_ENTITY_OPERATIONS,
                         new ArrayList<NewSpace>(), new ArrayList<NewProject>(),
+                        new ArrayList<ProjectUpdatesDTO>(),
                         new ArrayList<NewExperiment>(), experimentUpdates,
                         Collections.singletonList(sampleUpdate),
                         Collections.singletonList(newSample), materialRegistrations,
@@ -1337,6 +1339,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(new TechId(1), USER_FOR_ENTITY_OPERATIONS,
                         new ArrayList<NewSpace>(), new ArrayList<NewProject>(),
+                        new ArrayList<ProjectUpdatesDTO>(),
                         new ArrayList<NewExperiment>(), new ArrayList<ExperimentUpdatesDTO>(),
                         Collections.singletonList(sampleUpdate),
                         Collections.singletonList(newSample), materialRegistrations,

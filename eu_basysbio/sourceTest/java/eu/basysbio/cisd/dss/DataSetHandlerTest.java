@@ -156,7 +156,7 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(service).tryToGetExperiment(
+                    one(service).tryGetExperiment(
                             new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
                     will(returnValue(experiment));
 
@@ -198,7 +198,7 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(service).tryToGetExperiment(
+                    one(service).tryGetExperiment(
                             new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
                     will(returnValue(experiment));
                     one(dao).listDataSetsByTimeSeriesDataColumnHeader(
@@ -243,7 +243,7 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(service).tryToGetExperiment(
+                    one(service).tryGetExperiment(
                             new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
                     will(returnValue(experiment));
                     one(dao).listDataSetsByTimeSeriesDataColumnHeader(

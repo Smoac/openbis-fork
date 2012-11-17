@@ -150,7 +150,7 @@ public class PersonManagementTest extends BaseTest
         commonServer.deactivatePersons(sessionToken, Arrays.asList("system"));
 
         assertEquals(1, commonServer.countActivePersons(sessionToken));
-        SessionContextDTO session = commonServer.tryToAuthenticate("system", "password");
+        SessionContextDTO session = commonServer.tryAuthenticate("system", "password");
         assertEquals(null, session);
         assertEquals("INFO  AUTH.CommonServer - User 'system' has no role assignments "
                 + "and thus is not permitted to login.", logRecorder.getLogContent());

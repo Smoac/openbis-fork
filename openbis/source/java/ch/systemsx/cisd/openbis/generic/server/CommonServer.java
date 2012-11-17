@@ -1371,7 +1371,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         final Session session = getSession(sessionToken);
         final IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
-        projectBO.define(projectIdentifier, description, leaderId);
+        projectBO.define(projectIdentifier, description, null, leaderId);
         projectBO.save();
         for (NewAttachment attachment : attachments)
         {
@@ -2453,7 +2453,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         if ((entityKind.equals(EntityKind.SAMPLE) || entityKind.equals(EntityKind.DATA_SET) || entityKind
-                .equals(EntityKind.MATERIAL)) && EntityType.isDefinedInFileEntityTypeCode(type))
+                .equals(EntityKind.MATERIAL))
+                && EntityType.isDefinedInFileEntityTypeCode(type))
         {
             types.addAll(getDAOFactory().getEntityTypeDAO(
                     DtoConverters.convertEntityKind(entityKind)).listEntityTypes());

@@ -16,16 +16,34 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 
 /**
  * @author Kaloyan Enimanev
  */
 class Project extends ProjectImmutable implements IProject
 {
+    private final List<NewAttachment> newAttachments;
+
+    public Project(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project project)
+    {
+        super(project);
+        newAttachments = new ArrayList<NewAttachment>();
+    }
+    
     public Project(String projectIdentifier)
     {
-        super(new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project(), false);
+        this(projectIdentifier, false);
+    }
+    
+    public Project(String projectIdentifier, boolean isExistingProject)
+    {
+        super(new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project(), isExistingProject);
+        newAttachments = new ArrayList<NewAttachment>();
         getProject().setIdentifier(projectIdentifier);
     }
 
@@ -35,4 +53,17 @@ class Project extends ProjectImmutable implements IProject
         getProject().setDescription(description);
     }
 
+    @Override
+    public void addAttachment(String filePath, String title, String description, byte[] content)
+    {
+        newAttachments.add(ConversionUtils.createAttachment(filePath, title, description, content));
+    }
+
+    /**
+     * For conversion to updates DTO.
+     */
+    List<NewAttachment> getNewAttachments()
+    {
+        return newAttachments;
+    }
 }

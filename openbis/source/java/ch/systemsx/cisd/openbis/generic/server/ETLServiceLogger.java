@@ -186,7 +186,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public Experiment tryToGetExperiment(String sessionToken,
+    public Experiment tryGetExperiment(String sessionToken,
             ExperimentIdentifier experimentIdentifier) throws UserFailureException
     {
         logAccess(sessionToken, "tryToGetExperiment", "EXPERIMENT(%s)", experimentIdentifier);
@@ -209,7 +209,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public SampleIdentifier tryToGetSampleIdentifier(String sessionToken, String samplePermID)
+    public SampleIdentifier tryGetSampleIdentifier(String sessionToken, String samplePermID)
             throws UserFailureException
     {
         logAccess(sessionToken, "tryToGetSampleIdentifier", "SAMPLE(%s)", samplePermID);
@@ -264,7 +264,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public IEntityProperty[] tryToGetPropertiesOfTopSampleRegisteredFor(String sessionToken,
+    public IEntityProperty[] tryGetPropertiesOfTopSampleRegisteredFor(String sessionToken,
             SampleIdentifier sampleIdentifier) throws UserFailureException
     {
         logAccess(sessionToken, "tryToGetPropertiesOfTopSampleRegisteredFor", "SAMPLE(%s)",

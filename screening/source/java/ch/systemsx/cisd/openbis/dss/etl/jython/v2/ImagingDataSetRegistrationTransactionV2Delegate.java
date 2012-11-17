@@ -185,6 +185,17 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     }
 
     @Override
+    public IProject getProjectForUpdate(String projectIdentifier)
+    {
+        return transaction.getProjectForUpdate(projectIdentifier);
+    }
+
+    @Override
+    public IProject makeProjectMutable(IProjectImmutable project)
+    {
+        return transaction.makeProjectMutable(project);
+    }
+    @Override
     public ISpace createNewSpace(String spaceCode, String spaceAdminUserIdOrNull)
     {
         return transaction.createNewSpace(spaceCode, spaceAdminUserIdOrNull);

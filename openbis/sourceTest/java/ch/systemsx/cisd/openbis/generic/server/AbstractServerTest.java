@@ -133,7 +133,7 @@ public class AbstractServerTest extends AssertJUnit
                     one(roleAssigmentDAO).createRoleAssignment(with(matcher));
                 }
             });
-        SessionContextDTO session = server.tryToAuthenticate(USERNAME, PASSWORD);
+        SessionContextDTO session = server.tryAuthenticate(USERNAME, PASSWORD);
         assertNotNull(session);
         RoleAssignmentPE roleAssigment = matcher.recordedObject();
         assertEquals(USERNAME, roleAssigment.getPerson().getUserId());
@@ -155,7 +155,7 @@ public class AbstractServerTest extends AssertJUnit
                     will(returnValue(personsList));
                 }
             });
-        SessionContextDTO session = server.tryToAuthenticate(USERNAME, PASSWORD);
+        SessionContextDTO session = server.tryAuthenticate(USERNAME, PASSWORD);
         assertNull(session);
     }
 
@@ -176,7 +176,7 @@ public class AbstractServerTest extends AssertJUnit
                     one(roleAssigmentDAO).createRoleAssignment(with(matcher));
                 }
             });
-        SessionContextDTO session = server.tryToAuthenticate(ETL_SERVER, PASSWORD);
+        SessionContextDTO session = server.tryAuthenticate(ETL_SERVER, PASSWORD);
         assertNotNull(session);
         RoleAssignmentPE roleAssigment = matcher.recordedObject();
         assertEquals(ETL_SERVER, roleAssigment.getPerson().getUserId());
@@ -197,7 +197,7 @@ public class AbstractServerTest extends AssertJUnit
                     will(returnValue(personsList));
                 }
             });
-        SessionContextDTO session = server.tryToAuthenticate(ETL_SERVER, PASSWORD);
+        SessionContextDTO session = server.tryAuthenticate(ETL_SERVER, PASSWORD);
         assertNull(session);
     }
 

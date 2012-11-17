@@ -40,10 +40,16 @@ public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO
 
     private final ProjectTechIdPredicate projectTechIdPredicate;
 
+    private final ProjectPermIdPredicate projectPermIdPredicate;
+
+    private final ProjectIdentifierPredicate projectIdentifierPredicate;
+
     public ProjectUpdatesPredicate()
     {
         this.spacePredicate = new SpaceIdentifierPredicate();
         this.projectTechIdPredicate = new ProjectTechIdPredicate();
+        this.projectPermIdPredicate = new ProjectPermIdPredicate();
+        this.projectIdentifierPredicate = new ProjectIdentifierPredicate();
     }
 
     @Override
@@ -51,6 +57,8 @@ public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO
     {
         spacePredicate.init(provider);
         projectTechIdPredicate.init(provider);
+        projectPermIdPredicate.init(provider);
+        projectIdentifierPredicate.init(provider);
     }
 
     @Override
@@ -67,17 +75,29 @@ public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO
         assert spacePredicate.initialized : "Predicate has not been initialized";
         assert projectTechIdPredicate.initialized : "Predicate has not been initialized";
         Status status;
-        status = projectTechIdPredicate.doEvaluation(person, allowedRoles, updates.getTechId());
+        if (updates.getTechId() != null)
+        {
+            status = projectTechIdPredicate.doEvaluation(person,
+                    allowedRoles, updates.getTechId());
+        } else if (updates.getPermId() != null)
+        {
+            status = projectPermIdPredicate.doEvaluation(person,
+                    allowedRoles, updates.getPermId());
+        } else
+        {
+            status = projectIdentifierPredicate.doEvaluation(person,
+                    allowedRoles, updates.getIdentifier());
+        }
         if (status.equals(Status.OK) == false)
         {
             return status;
         }
-        String newGroupCode = updates.getGroupCode();
-        if (newGroupCode != null)
+        String newSpaceCode = updates.getSpaceCode();
+        if (newSpaceCode != null)
         {
-            SpaceIdentifier newGroupIdentifier =
-                    new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, newGroupCode);
-            status = spacePredicate.doEvaluation(person, allowedRoles, newGroupIdentifier);
+            SpaceIdentifier newSpaceIdentifier =
+                    new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, newSpaceCode);
+            status = spacePredicate.doEvaluation(person, allowedRoles, newSpaceIdentifier);
         }
         return status;
     }

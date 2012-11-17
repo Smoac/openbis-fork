@@ -256,7 +256,7 @@ public class JythonScreeningDropboxRecoveryTest extends AbstractJythonDataSetHan
         private void prepareExpecatations()
         {
             one(openBisService).tryGetSampleWithExperiment(with(any(SampleIdentifier.class)));
-            atLeast(1).of(openBisService).tryToGetExperiment(
+            atLeast(1).of(openBisService).tryGetExperiment(
                     new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier());
 
             int permIds = 2;

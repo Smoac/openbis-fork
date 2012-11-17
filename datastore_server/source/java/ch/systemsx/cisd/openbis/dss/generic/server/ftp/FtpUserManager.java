@@ -57,7 +57,7 @@ public class FtpUserManager implements UserManager
             UsernamePasswordAuthentication upa = (UsernamePasswordAuthentication) authentication;
             String user = upa.getUsername();
             String password = upa.getPassword();
-            SessionContextDTO session = service.tryToAuthenticate(user, password);
+            SessionContextDTO session = service.tryAuthenticate(user, password);
             if (session != null && session.getSessionToken() != null)
             {
                 return new FtpUser(user, session.getSessionToken());

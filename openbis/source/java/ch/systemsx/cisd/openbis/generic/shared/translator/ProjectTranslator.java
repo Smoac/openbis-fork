@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -69,9 +68,6 @@ public final class ProjectTranslator
         result.setRegistrator(PersonTranslator.translate(project.getRegistrator()));
         result.setRegistrationDate(project.getRegistrationDate());
         result.setIdentifier(IdentifierHelper.createProjectIdentifier(project).toString());
-        // we don't use attachments collection directly from project
-        List<Attachment> attachments = DtoConverters.createUnmodifiableEmptyList();
-        result.setAttachments(attachments);
         return result;
     }
 }

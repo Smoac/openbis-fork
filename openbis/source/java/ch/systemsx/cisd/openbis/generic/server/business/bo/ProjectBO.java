@@ -27,14 +27,11 @@ import org.springframework.orm.ObjectRetrievalFailureException;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -49,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -83,7 +79,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     }
 
     private ProjectPE createProject(final ProjectIdentifier projectIdentifier, String description,
-            String leaderIdOrNull)
+            List<NewAttachment> attachmentsOrNull, String leaderIdOrNull)
     {
         final ProjectPE result = new ProjectPE();
         final SpacePE group =
@@ -102,6 +98,13 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
             }
             result.setProjectLeader(leader);
         }
+        if (attachmentsOrNull != null)
+        {
+            for (NewAttachment attachment : attachmentsOrNull)
+            {
+                attachments.add(prepareAttachment(result, attachment));
+            }
+        }
         return result;
     }
 
@@ -118,25 +121,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
             {
                 throwException(ex, "Project '" + project.getCode() + "'");
             }
-        }
-        if (attachments.isEmpty() == false)
-        {
-            final IAttachmentDAO attachmentDAO = getAttachmentDAO();
-            for (final AttachmentPE attachment : attachments)
-            {
-                try
-                {
-                    attachmentDAO.createAttachment(attachment, project);
-                } catch (final DataAccessException e)
-                {
-                    final String fileName = attachment.getFileName();
-                    throwException(
-                            e,
-                            String.format("Filename '%s' for project '%s'", fileName,
-                                    project.getIdentifier()));
-                }
-            }
-            attachments.clear();
+            saveAttachment(project, attachments);
         }
     }
 
@@ -147,11 +132,12 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     }
 
     @Override
-    public void define(ProjectIdentifier projectIdentifier, String description, String leaderId)
+    public void define(ProjectIdentifier projectIdentifier, String description,
+            List<NewAttachment> attachmentsOrNull, String creatorId)
             throws UserFailureException
     {
         assert projectIdentifier != null : "Unspecified project identifier.";
-        this.project = createProject(projectIdentifier, description, leaderId);
+        this.project = createProject(projectIdentifier, description, attachmentsOrNull, creatorId);
         dataChanged = true;
     }
 
@@ -200,19 +186,8 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     public final void addAttachment(final AttachmentPE attachment)
     {
         assert project != null : "no project has been loaded";
-        PersonPE user = findPerson();
-        attachment.setRegistrator(user);
-        escapeFileName(attachment);
+        prepareAttachment(project, attachment);
         attachments.add(attachment);
-        RelationshipUtils.updateModificationDateAndModifier(project, user);
-    }
-
-    private void escapeFileName(final AttachmentPE attachment)
-    {
-        if (attachment != null)
-        {
-            attachment.setFileName(AttachmentHolderPE.escapeFileName(attachment.getFileName()));
-        }
     }
 
     @Override
@@ -298,9 +273,9 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         project.setDescription(updates.getDescription());
         for (NewAttachment attachment : updates.getAttachments())
         {
-            addAttachment(AttachmentTranslator.translate(attachment));
+            attachments.add(prepareAttachment(project, attachment));
         }
-        String groupCode = updates.getGroupCode();
+        String groupCode = updates.getSpaceCode();
         if (groupCode != null && groupCode.equals(project.getSpace().getCode()) == false)
         {
 

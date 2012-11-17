@@ -272,7 +272,7 @@ class DatasetMappingResolver
     {
         try
         {
-            Experiment experiment = openbisService.tryToGetExperiment(experimentIdentifier);
+            Experiment experiment = openbisService.tryGetExperiment(experimentIdentifier);
             if (experiment == null)
             {
                 log.datasetMappingError(mapping, "experiment '%s' does not exist",

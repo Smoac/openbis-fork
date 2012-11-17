@@ -100,7 +100,7 @@ public class TrackingClient
         {
             String openbisUser = params.getOpenbisUser();
             SessionContextDTO session =
-                    trackingServer.tryToAuthenticate(openbisUser, params.getOpenbisPassword());
+                    trackingServer.tryAuthenticate(openbisUser, params.getOpenbisPassword());
             if (session == null)
             {
                 throw createAuthentificationException(params, null);

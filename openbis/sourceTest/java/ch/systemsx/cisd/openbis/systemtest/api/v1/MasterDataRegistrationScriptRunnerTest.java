@@ -36,7 +36,7 @@ public class MasterDataRegistrationScriptRunnerTest extends SystemTestCase
     @BeforeMethod
     public void beforeMethod()
     {
-        sessionToken = commonServer.tryToAuthenticate("test", "a").getSessionToken();
+        sessionToken = commonServer.tryAuthenticate("test", "a").getSessionToken();
         EncapsulatedCommonServer server =
                 EncapsulatedCommonServer.create(commonServer, sessionToken);
 

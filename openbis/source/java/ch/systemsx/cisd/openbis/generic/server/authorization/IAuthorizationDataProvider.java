@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * Interface of providers of data needed for authorization.
@@ -71,7 +72,21 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
      * 
      * @return <code>null</code> if no data set found.
      */
-    public ProjectPE tryGetProject(String dataSetCode);
+    public ProjectPE tryGetProjectForDataSet(String dataSetCode);
+
+    /**
+     * Returns the project for the given <var>permId</var>
+     * 
+     * @return <code>null</code> if no project can be found.
+     */
+    public ProjectPE tryGetProjectByPermId(PermId permId);
+
+    /**
+     * Returns the project for the given <var>permId</var>
+     * 
+     * @return <code>null</code> if no project can be found.
+     */
+    public ProjectPE tryGetProjectByIdentifier(ProjectIdentifier identifier);
 
     /**
      * Returns the information necessary to determine if a user is allowed to access this data set.

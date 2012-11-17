@@ -76,7 +76,7 @@ public abstract class AbstractProteomicsSystemTestCase extends SystemTestCase
 
     protected String authenticateAs(String user)
     {
-        return getCommonServer().tryToAuthenticate(user, "password").getSessionToken();
+        return getCommonServer().tryAuthenticate(user, "password").getSessionToken();
     }
 
     protected ICommonServerForInternalUse getCommonServer()

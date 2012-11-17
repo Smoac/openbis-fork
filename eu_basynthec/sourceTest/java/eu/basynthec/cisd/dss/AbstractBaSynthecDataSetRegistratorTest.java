@@ -114,13 +114,13 @@ public abstract class AbstractBaSynthecDataSetRegistratorTest extends
 
                     atLeast(
                             1).of(
-                            openBisService).tryToGetExperiment(
+                            openBisService).tryGetExperiment(
                             new ExperimentIdentifierFactory(experiment.getIdentifier())
                                     .createIdentifier());
                     will(returnValue(experiment));
 
                     allowing(
-                            openBisService).tryToGetExperiment(
+                            openBisService).tryGetExperiment(
                             null);
                     will(returnValue(null));
 

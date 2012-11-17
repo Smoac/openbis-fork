@@ -131,7 +131,7 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
         {
             operationLog.debug("Authenticating to openBIS server as user '" + username + "'.");
         }
-        SessionContextDTO sessionContextDTO = service.tryToAuthenticate(username, password);
+        SessionContextDTO sessionContextDTO = service.tryAuthenticate(username, password);
         String sessionToken =
                 sessionContextDTO == null ? null : sessionContextDTO.getSessionToken();
         if (sessionToken == null)

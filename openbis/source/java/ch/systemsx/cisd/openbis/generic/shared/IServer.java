@@ -61,10 +61,10 @@ public interface IServer extends ISessionProvider
      * @return <code>null</code> if authentication failed.
      */
     @Transactional
-    public SessionContextDTO tryToAuthenticate(final String user, final String password);
+    public SessionContextDTO tryAuthenticate(final String user, final String password);
 
     @Transactional
-    public SessionContextDTO tryToAuthenticateAnonymously();
+    public SessionContextDTO tryAuthenticateAnonymously();
 
     /** @return session for the specified token or null if session has expired */
     public SessionContextDTO tryGetSession(String sessionToken);

@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
@@ -29,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 
 /**
@@ -58,6 +61,13 @@ public class ETLEntityOperationChecker implements IETLEntityOperationChecker
 
     @Override
     public void assertProjectCreationAllowed(IAuthSession session, List<NewProject> newProjects)
+    {
+    }
+
+    @Override
+    public void assertProjectUpdateAllowed(IAuthSession session,
+            @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class)
+            List<ProjectUpdatesDTO> projectsToUpdate)
     {
     }
 
@@ -107,5 +117,4 @@ public class ETLEntityOperationChecker implements IETLEntityOperationChecker
             ExperimentUpdatesDTO experimentUpdates)
     {
     }
-
 }

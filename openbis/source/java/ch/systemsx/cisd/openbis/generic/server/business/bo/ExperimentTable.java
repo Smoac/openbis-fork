@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentBatchUpdatesDTO;
@@ -60,6 +61,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public final class ExperimentTable extends AbstractBusinessObject implements IExperimentTable
 {
     private List<ExperimentPE> experiments;
+
+    private List<List<AttachmentPE>> attachmentListsOrNull;
 
     private boolean dataChanged = false;
 
@@ -115,6 +118,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
                     getExperimentDAO().listExperimentsWithProperties((ExperimentTypePE) entityType,
                             project, null, onlyHavingSamples, onlyHavingDataSets);
         }
+        attachmentListsOrNull = null;
     }
 
     @Override
@@ -139,6 +143,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
                     getExperimentDAO().listExperimentsWithProperties((ExperimentTypePE) entityType,
                             null, space);
         }
+        attachmentListsOrNull = null;
     }
 
     @Override
@@ -146,6 +151,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     {
         checkNotEmpty(identifiers);
         experiments = listExperimentsByIdentifiers(identifiers);
+        attachmentListsOrNull = null;
     }
 
     private void checkNotNull(final SpaceIdentifier spaceIdentifier, final SpacePE space)
@@ -204,6 +210,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     public void add(List<NewBasicExperiment> entities, ExperimentTypePE experimentTypePE)
     {
         experiments = new ArrayList<ExperimentPE>();
+        attachmentListsOrNull = null;
         setBatchUpdateMode(true);
         for (NewBasicExperiment ne : entities)
         {
@@ -220,17 +227,21 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
 
         setBatchUpdateMode(true);
         experiments = loadExperiments(updates);
-        Map<String, ExperimentPE> experimentsByIdentifier = new HashMap<String, ExperimentPE>();
+        attachmentListsOrNull = new ArrayList<List<AttachmentPE>>(experiments.size());
+        final Map<String, ExperimentPE> experimentsByIdentifier =
+                new HashMap<String, ExperimentPE>();
         for (ExperimentPE experiment : experiments)
         {
             experimentsByIdentifier.put(experiment.getIdentifier(), experiment);
         }
         for (ExperimentBatchUpdatesDTO experimentUpdates : updates)
         {
-            final ExperimentPE sample =
+            final ExperimentPE experiment =
                     experimentsByIdentifier.get(experimentUpdates.getOldExperimentIdentifier()
                             .toString());
-            prepareBatchUpdate(sample, experimentUpdates);
+            final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
+            prepareBatchUpdate(experiment, attachments, experimentUpdates);
+            attachmentListsOrNull.add(attachments);
         }
 
         dataChanged = true;
@@ -238,7 +249,8 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         setBatchUpdateMode(false);
     }
 
-    private void prepareBatchUpdate(ExperimentPE experiment, ExperimentBatchUpdatesDTO updates)
+    private void prepareBatchUpdate(ExperimentPE experiment, List<AttachmentPE> attachments,
+            ExperimentBatchUpdatesDTO updates)
     {
         if (experiment == null)
         {
@@ -262,6 +274,8 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
             }
             relationshipService.assignExperimentToProject(session, experiment, project);
         }
+
+        addAttachments(experiment, updates.getAttachments(), attachments);
     }
 
     private ProjectPE findProject(ProjectIdentifier newProjectIdentifier)
@@ -380,6 +394,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         {
             checkBusinessRules();
             getExperimentDAO().createOrUpdateExperiments(experiments, findPerson());
+            saveAttachments(experiments, attachmentListsOrNull);
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("One of experiments"));

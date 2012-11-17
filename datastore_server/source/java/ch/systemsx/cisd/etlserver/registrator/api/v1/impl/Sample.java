@@ -160,18 +160,7 @@ public class Sample extends SampleImmutable implements ISample
     @Override
     public void addAttachment(String filePath, String title, String description, byte[] content)
     {
-        newAttachments.add(createAttachment(filePath, title, description, content));
-    }
-
-    private static NewAttachment createAttachment(String filePath, String title,
-            String description, byte[] content)
-    {
-        final NewAttachment newAttachment = new NewAttachment();
-        newAttachment.setFilePath(filePath);
-        newAttachment.setTitle(title);
-        newAttachment.setDescription(description);
-        newAttachment.setContent(content);
-        return newAttachment;
+        newAttachments.add(ConversionUtils.createAttachment(filePath, title, description, content));
     }
 
     /**

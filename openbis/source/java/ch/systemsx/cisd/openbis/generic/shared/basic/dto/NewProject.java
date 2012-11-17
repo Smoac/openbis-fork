@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author Kaloyan Enimanev
@@ -29,6 +30,8 @@ public class NewProject implements Serializable
     private final String identifier;
 
     private final String description;
+
+    private List<NewAttachment> attachments;
 
     public NewProject(String identifier, String description)
     {
@@ -44,6 +47,16 @@ public class NewProject implements Serializable
     public String getDescription()
     {
         return description;
+    }
+
+    public List<NewAttachment> getAttachments()
+    {
+        return attachments;
+    }
+
+    public void setAttachments(List<NewAttachment> attachments)
+    {
+        this.attachments = attachments;
     }
 
     @Override

@@ -196,7 +196,7 @@ public abstract class PersistentSystemTestCase extends AbstractTestNGSpringConte
      */
     protected String authenticateAs(String user)
     {
-        return commonServer.tryToAuthenticate(user, "password").getSessionToken();
+        return commonServer.tryAuthenticate(user, "password").getSessionToken();
     }
 
     protected void uploadFile(String fileName, String fileContent)

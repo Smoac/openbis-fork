@@ -514,7 +514,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
                     ExperimentIdentifier identifier =
                             new ExperimentIdentifier(null, CommonConstants.MS_DATA_SPACE, PROJECT_CODE,
                                     EXPERIMENT_CODE);
-                    one(service).tryToGetExperiment(identifier);
+                    one(service).tryGetExperiment(identifier);
                     Experiment experiment = new Experiment();
                     experiment.setId(EXPERIMENT_ID);
                     will(returnValue(experimentExists ? experiment : null));

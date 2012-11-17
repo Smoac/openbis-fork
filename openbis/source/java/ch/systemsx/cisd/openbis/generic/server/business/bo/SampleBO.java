@@ -220,8 +220,8 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             {
                 onlyNewSamples = dataChanged = spaceUpdated = false;
             }
+            saveAttachment(sample, attachments);
         }
-        saveAttachment(sample, attachments);
     }
 
     @Override
@@ -328,12 +328,12 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     }
 
     @Override
-    public void addAttachment(AttachmentPE sampleAttachment)
+    public void addAttachment(AttachmentPE attachment)
     {
         assert sample != null : "no sample has been loaded";
         assertInstanceSampleUpdateAllowed(Collections.singletonList(sample));
-        prepareAttachment(sample, sampleAttachment);
-        attachments.add(sampleAttachment);
+        prepareAttachment(sample, attachment);
+        attachments.add(attachment);
     }
 
     private void checkSampleLoaded()

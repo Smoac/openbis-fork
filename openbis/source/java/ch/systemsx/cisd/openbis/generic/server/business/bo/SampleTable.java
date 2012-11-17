@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -69,9 +67,6 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 {
     private List<SamplePE> samples;
 
-    /**
-     * Is either <code>null</code> or has a list of attachments for each sample in {@link #samples}.
-     */
     private List<List<AttachmentPE>> attachmentListsOrNull;
 
     private boolean dataChanged;
@@ -112,7 +107,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             }
         }
         samples = foundSamples;
-        attachmentListsOrNull = new ArrayList<List<AttachmentPE>>(samples.size());
+        attachmentListsOrNull = null;
     }
 
     private List<SamplePE> filterSamplesByExperiment(List<SamplePE> foundSamples,
@@ -188,8 +183,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         assertInstanceSampleCreationAllowed(newSamples);
 
         onlyNewSamples = true;
-        samples = new ArrayList<SamplePE>();
-        attachmentListsOrNull = new ArrayList<List<AttachmentPE>>();
+        samples = new ArrayList<SamplePE>(newSamples.size());
+        attachmentListsOrNull = new ArrayList<List<AttachmentPE>>(newSamples.size());
 
         setBatchUpdateMode(true);
 
@@ -234,15 +229,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                 checkAllBusinessRules();
             }
             getSampleDAO().createOrUpdateSamples(samples, findPerson());
-            if (attachmentListsOrNull != null)
-            {
-                int idx = 0;
-                for (List<AttachmentPE> attachments : attachmentListsOrNull)
-                {
-                    saveAttachment(samples.get(idx), attachments);
-                    ++idx;
-                }
-            }
+            saveAttachments(samples, attachmentListsOrNull);
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("One of samples"));
@@ -262,7 +249,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
     }
 
-    private void prepareBatchUpdate(SamplePE sample, SampleBatchUpdatesDTO updates,
+    private void prepareBatchUpdate(SamplePE sample, List<AttachmentPE> attachments,
+            SampleBatchUpdatesDTO updates,
             Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache,
             Map<String, ExperimentPE> experimentCache,
             Map<EntityTypePE, List<EntityTypePropertyTypePE>> propertiesCache)
@@ -277,7 +265,6 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         batchUpdateProperties(sample, updates.getProperties(), details.getPropertiesToUpdate());
         checkPropertiesBusinessRules(sample, propertiesCache);
 
-        // TODO 2010-10-09, Piotr Buczek: don't check business rules if value wasn't changed
         if (details.isExperimentUpdateRequested())
         {
             updateSpace(sample, updates.getSampleIdentifier(), sampleOwnerCache);
@@ -297,6 +284,9 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             setContainer(updates.getSampleIdentifier(), sample,
                     updates.getContainerIdentifierOrNull(), updates.tryGetDefaultSpaceIdentifier());
         }
+
+        addAttachments(sample, updates.getAttachments(), attachments);
+
         // NOTE: Checking business rules with relationships is expensive.
         // Don't perform them unless relevant data were changed.
         if (details.isExperimentUpdateRequested() || details.isParentsUpdateRequested())
@@ -353,19 +343,6 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             checkContainerBusinessRules(sample);
         }
         RelationshipUtils.updateModificationDateAndModifier(sample, session);
-    }
-
-    private void addAttachments(SamplePE sample, Collection<NewAttachment> newAttachments,
-            List<AttachmentPE> attachments)
-    {
-        if (newAttachments == null)
-        {
-            return;
-        }
-        for (NewAttachment attachment : newAttachments)
-        {
-            attachments.add(prepareAttachment(sample, attachment));
-        }
     }
 
     private boolean updateContainer(SamplePE sample, SampleUpdatesDTO updates)
@@ -454,7 +431,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         final Map<EntityTypePE, List<EntityTypePropertyTypePE>> propertiesCache =
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         samples = loadSamples(updates, sampleOwnerCache);
-        attachmentListsOrNull = null;
+        attachmentListsOrNull = new ArrayList<List<AttachmentPE>>(samples.size());
 
         assertInstanceSampleUpdateAllowed(samples);
 
@@ -468,8 +445,11 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         {
             final SamplePE sample =
                     samplesByIdentifiers.get(sampleUpdates.getOldSampleIdentifierOrNull());
-            prepareBatchUpdate(sample, sampleUpdates, sampleOwnerCache, experimentCache,
+            final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
+            prepareBatchUpdate(sample, attachments, sampleUpdates, sampleOwnerCache,
+                    experimentCache,
                     propertiesCache);
+            attachmentListsOrNull.add(attachments);
         }
 
         dataChanged = true;

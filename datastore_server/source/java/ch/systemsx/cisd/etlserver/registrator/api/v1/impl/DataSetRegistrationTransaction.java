@@ -342,7 +342,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         ExperimentIdentifier experimentIdentifier =
                 new ExperimentIdentifierFactory(experimentIdentifierString).createIdentifier();
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experimentOrNull =
-                openBisService.tryToGetExperiment(experimentIdentifier);
+                openBisService.tryGetExperiment(experimentIdentifier);
         return (null == experimentOrNull) ? null : new ExperimentImmutable(experimentOrNull);
     }
 
@@ -370,6 +370,18 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return (null == projectOrNull) ? null : new ProjectImmutable(projectOrNull);
     }
 
+    @Override
+    public IProject getProjectForUpdate(String projectIdentifier)
+    {
+        return getStateAsLiveState().getProjectForUpdate(projectIdentifier);
+    }
+
+    @Override
+    public IProject makeProjectMutable(IProjectImmutable project)
+    {
+        return getStateAsLiveState().makeProjectMutable(project);
+    }
+    
     @Override
     public ISpace createNewSpace(String spaceCode, String spaceAdminUserIdOrNull)
     {
@@ -662,7 +674,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
         verifyOriginalFileIsStillAvailable();
 
-        entityRegistrationService.performOperationsInApplcationServer(registrationDetails);
+        entityRegistrationService.performOperationsInApplicationServer(registrationDetails);
     }
 
     /**

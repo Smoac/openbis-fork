@@ -233,7 +233,8 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
                         createDataTransferredProperty(flowLaneSample)));
             }
 
-            File markerFile = new File(flowLaneDropBox, FileConstants.IS_FINISHED_PREFIX + fileName);
+            File markerFile =
+                    new File(flowLaneDropBox, FileConstants.IS_FINISHED_PREFIX + fileName);
             addFileForUndo(markerFile);
             FileUtilities.writeToFile(markerFile, "");
             if (operationLog.isInfoEnabled())
@@ -310,17 +311,21 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         addLine(builder, "Code", flowLaneSample.getCode());
         addLine(builder, "Contact Person Email", flowLaneSample.getRegistrator().getEmail());
         SampleIdentifier identifier = SampleIdentifierFactory.parse(flowLaneSample.getIdentifier());
-        IEntityProperty[] properties = service.getPropertiesOfTopSampleRegisteredFor(identifier);
+        IEntityProperty[] propertiesOrNull =
+                service.tryGetPropertiesOfTopSampleRegisteredFor(identifier);
         File dropBox = null;
-        for (IEntityProperty property : properties)
+        if (propertiesOrNull != null)
         {
-            PropertyType propertyType = property.getPropertyType();
-            String value = property.tryGetAsString();
-            addLine(builder, propertyType.getCode(), value);
-            String code = propertyType.getCode();
-            if (code.equals(AFFILIATION_KEY))
+            for (IEntityProperty property : propertiesOrNull)
             {
-                dropBox = transferDropBoxes.get(value);
+                PropertyType propertyType = property.getPropertyType();
+                String value = property.tryGetAsString();
+                addLine(builder, propertyType.getCode(), value);
+                String code = propertyType.getCode();
+                if (code.equals(AFFILIATION_KEY))
+                {
+                    dropBox = transferDropBoxes.get(value);
+                }
             }
         }
         if (srfInfo.isEmpty() == false)

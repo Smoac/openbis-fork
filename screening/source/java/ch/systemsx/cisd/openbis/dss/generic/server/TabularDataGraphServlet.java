@@ -208,7 +208,7 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
                 @Override
                 public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
                 {
-                    return openBISService.tryToGetSampleIdentifier(samplePermId);
+                    return openBISService.tryGetSampleIdentifier(samplePermId);
                 }
             };
     }

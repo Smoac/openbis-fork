@@ -89,7 +89,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
     @Override
     public String tryToAuthenticateAtRawDataServer(String userID, String userPassword)
     {
-        SessionContextDTO session = tryToAuthenticate(userID, userPassword);
+        SessionContextDTO session = tryAuthenticate(userID, userPassword);
         return session == null ? null : session.getSessionToken();
     }
 
@@ -369,7 +369,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
 
     private SessionContextDTO login(String userID)
     {
-        SessionContextDTO session = service.tryToAuthenticate(userID, "dummy-password");
+        SessionContextDTO session = service.tryAuthenticate(userID, "dummy-password");
         if (session == null)
         {
             throw new UserFailureException("Unknown user ID: " + userID);

@@ -326,7 +326,7 @@ class DatabaseFeeder implements IDatabaseFeeder
         Experiment experiment = experimentCache.get(experimentIdentifier);
         if (experiment == null)
         {
-            experiment = service.tryToGetExperiment(experimentIdentifier);
+            experiment = service.tryGetExperiment(experimentIdentifier);
             experimentCache.put(experimentIdentifier, experiment);
         }
         return experiment;

@@ -197,7 +197,7 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
             throw new UserFailureException("An experiment identifier must be specified");
         }
 
-        Experiment experiment = globalState.getOpenbisService().tryToGetExperiment(experimentId);
+        Experiment experiment = globalState.getOpenbisService().tryGetExperiment(experimentId);
         if (null == experiment)
         {
             throw new UserFailureException("The experiment with identifier " + experimentId

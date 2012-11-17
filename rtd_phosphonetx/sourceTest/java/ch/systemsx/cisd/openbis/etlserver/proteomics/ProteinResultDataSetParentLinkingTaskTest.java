@@ -114,7 +114,7 @@ public class ProteinResultDataSetParentLinkingTaskTest extends AssertJUnit
                     one(service).listExperiments(new ProjectIdentifier("A", "P2"));
                     will(returnValue(Arrays.asList(e2, e3)));
 
-                    one(service).tryToGetExperiment(ExperimentIdentifierFactory.parse("/S/P1/E1"));
+                    one(service).tryGetExperiment(ExperimentIdentifierFactory.parse("/S/P1/E1"));
                     will(returnValue(e1));
 
                     one(service).tryGetDataSet("non-sense2");

@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentUpdatable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -26,10 +30,13 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
  */
 class ExperimentUpdatable extends ExperimentImmutable implements IExperimentUpdatable
 {
+    private final List<NewAttachment> newAttachments;
+
     public ExperimentUpdatable(
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment)
     {
         super(experiment);
+        newAttachments = new ArrayList<NewAttachment>();
     }
 
     @Override
@@ -44,4 +51,17 @@ class ExperimentUpdatable extends ExperimentImmutable implements IExperimentUpda
         EntityHelper.createOrUpdateProperty(getExperiment(), propertyCode, propertyValue);
     }
 
+    @Override
+    public void addAttachment(String filePath, String title, String description, byte[] content)
+    {
+        newAttachments.add(ConversionUtils.createAttachment(filePath, title, description, content));
+    }
+
+    /**
+     * For conversion to updates DTO.
+     */
+    List<NewAttachment> getNewAttachments()
+    {
+        return newAttachments;
+    }
 }

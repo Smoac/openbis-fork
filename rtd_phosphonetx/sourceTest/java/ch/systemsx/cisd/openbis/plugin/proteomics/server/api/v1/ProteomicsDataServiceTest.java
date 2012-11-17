@@ -374,7 +374,7 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(internalService).tryToAuthenticate("abc", "dummy-password");
+                    one(internalService).tryAuthenticate("abc", "dummy-password");
                     will(returnValue(mySession));
                     
                     if (mySession != null)

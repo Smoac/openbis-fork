@@ -74,7 +74,7 @@ public class JythonTopLevelDataSetRegistratorRollbackTest extends AbstractJython
                     
                     one(openBisService).createPermId();
                     will(returnValue(DATA_SET_CODE));
-                    atLeast(1).of(openBisService).tryToGetExperiment(
+                    atLeast(1).of(openBisService).tryGetExperiment(
                             new ExperimentIdentifierFactory(experiment.getIdentifier())
                                     .createIdentifier());
                     will(returnValue(experiment));

@@ -62,7 +62,7 @@ public class SetSessionUserTest extends SystemTestCase
     public void testNotInstanceAdmin()
     {
 
-        SessionContextDTO session = commonServer.tryToAuthenticate("observer", "a");
+        SessionContextDTO session = commonServer.tryAuthenticate("observer", "a");
         String sessionToken = session.getSessionToken();
         try
         {
@@ -79,7 +79,7 @@ public class SetSessionUserTest extends SystemTestCase
     public void testUnkownRemoteHost()
     {
         remoteHostValidator.removeRemoteHost("localhost");
-        SessionContextDTO session = commonServer.tryToAuthenticate("test", "a");
+        SessionContextDTO session = commonServer.tryAuthenticate("test", "a");
         String sessionToken = session.getSessionToken();
         try
         {
@@ -96,7 +96,7 @@ public class SetSessionUserTest extends SystemTestCase
     public void testUnkownUser()
     {
 
-        SessionContextDTO session = commonServer.tryToAuthenticate("test", "a");
+        SessionContextDTO session = commonServer.tryAuthenticate("test", "a");
         String sessionToken = session.getSessionToken();
         try
         {
@@ -111,7 +111,7 @@ public class SetSessionUserTest extends SystemTestCase
     @Test
     public void testLogging()
     {
-        SessionContextDTO session = commonServer.tryToAuthenticate("test", "a");
+        SessionContextDTO session = commonServer.tryAuthenticate("test", "a");
         String sessionToken = session.getSessionToken();
 
         commonServer.setSessionUser(sessionToken, "observer");
@@ -136,7 +136,7 @@ public class SetSessionUserTest extends SystemTestCase
     @Test
     public void testAuthorization()
     {
-        SessionContextDTO session = commonServer.tryToAuthenticate("test", "a");
+        SessionContextDTO session = commonServer.tryAuthenticate("test", "a");
         String sessionToken = session.getSessionToken();
         ListSampleCriteria criteria = new ListSampleCriteria();
         SampleType sampleType = new SampleType();

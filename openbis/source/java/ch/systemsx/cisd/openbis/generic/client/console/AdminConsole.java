@@ -64,7 +64,7 @@ public class AdminConsole
                 HttpInvokerUtils.createServiceStub(ICommonServer.class, serverURL + SERVICE_PATH,
                         5 * DateUtils.MILLIS_PER_MINUTE);
 
-        SessionContextDTO session = commonService.tryToAuthenticate(userID, password);
+        SessionContextDTO session = commonService.tryAuthenticate(userID, password);
         if (session == null)
         {
             System.err.println("Authentication failed");

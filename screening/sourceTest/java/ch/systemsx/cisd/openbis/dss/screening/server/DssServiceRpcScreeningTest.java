@@ -907,7 +907,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                         container.setId(containerIds[i]);
                         containers.add(container);
 
-                        one(service).tryToGetSampleIdentifier("12-34");
+                        one(service).tryGetSampleIdentifier("12-34");
                         will(returnValue(new SampleIdentifier(new SpaceIdentifier("1", "S"), "P1")));
                     }
 

@@ -56,6 +56,8 @@ public class AtomicEntityOperationDetails implements Serializable
 
     private final List<NewProject> projectRegistrations;
 
+    private final List<ProjectUpdatesDTO> projectUpdates;
+
     private final List<NewExperiment> experimentRegistrations;
 
     private final List<SampleUpdatesDTO> sampleUpdates;
@@ -80,7 +82,7 @@ public class AtomicEntityOperationDetails implements Serializable
 
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
             List<NewSpace> spaceRegistrations, List<NewProject> projectRegistrations,
-            List<NewExperiment> experimentRegistrations,
+            List<ProjectUpdatesDTO> projectUpdates, List<NewExperiment> experimentRegistrations,
             List<ExperimentUpdatesDTO> experimentUpdates, List<SampleUpdatesDTO> sampleUpdates,
             List<NewSample> sampleRegistrations,
             Map<String, List<NewMaterial>> materialRegistrations,
@@ -95,6 +97,7 @@ public class AtomicEntityOperationDetails implements Serializable
         this.userIdOrNull = userIdOrNull;
         this.spaceRegistrations = new ArrayList<NewSpace>(spaceRegistrations);
         this.projectRegistrations = new ArrayList<NewProject>(projectRegistrations);
+        this.projectUpdates = new ArrayList<ProjectUpdatesDTO>(projectUpdates);
         this.experimentUpdates = new ArrayList<ExperimentUpdatesDTO>(experimentUpdates);
         this.experimentRegistrations = new ArrayList<NewExperiment>(experimentRegistrations);
         this.sampleUpdates = new ArrayList<SampleUpdatesDTO>(sampleUpdates);
@@ -110,7 +113,7 @@ public class AtomicEntityOperationDetails implements Serializable
 
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
             List<NewSpace> spaceRegistrations, List<NewProject> projectRegistrations,
-            List<NewExperiment> experimentRegistrations,
+            List<ProjectUpdatesDTO> projectUpdates, List<NewExperiment> experimentRegistrations,
             List<ExperimentUpdatesDTO> experimentUpdates, List<SampleUpdatesDTO> sampleUpdates,
             List<NewSample> sampleRegistrations,
             Map<String, List<NewMaterial>> materialRegistrations,
@@ -122,9 +125,9 @@ public class AtomicEntityOperationDetails implements Serializable
             List<VocabularyUpdatesDTO> vocabularyUpdates, Integer batchSizeOrNull)
     {
         this(registrationId, userIdOrNull, spaceRegistrations, projectRegistrations,
-                experimentRegistrations, experimentUpdates, sampleUpdates, sampleRegistrations,
-                materialRegistrations, materialUpdates, dataSetRegistrations, dataSetUpdates,
-                metaprojectRegistrations, metaprojectUpdates, vocabularyUpdates);
+                projectUpdates, experimentRegistrations, experimentUpdates, sampleUpdates,
+                sampleRegistrations, materialRegistrations, materialUpdates, dataSetRegistrations,
+                dataSetUpdates, metaprojectRegistrations, metaprojectUpdates, vocabularyUpdates);
         this.batchSizeOrNull = batchSizeOrNull;
     }
 
@@ -183,6 +186,11 @@ public class AtomicEntityOperationDetails implements Serializable
         return projectRegistrations;
     }
 
+    public List<ProjectUpdatesDTO> getProjectUpdates()
+    {
+        return projectUpdates;
+    }
+
     public Map<String, List<NewMaterial>> getMaterialRegistrations()
     {
         return materialRegistrations;
@@ -216,6 +224,7 @@ public class AtomicEntityOperationDetails implements Serializable
         sb.append("userIdOrNull", userIdOrNull);
         sb.append("spaceRegistrations", spaceRegistrations);
         sb.append("projectRegistrations", projectRegistrations);
+        sb.append("projectUpdates", projectUpdates);
         sb.append("experimentUpdates", experimentUpdates);
         sb.append("experimentRegistrations", experimentRegistrations);
         sb.append("sampleUpdates", sampleUpdates);

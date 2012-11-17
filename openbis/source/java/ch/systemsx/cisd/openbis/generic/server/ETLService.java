@@ -192,6 +192,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -435,7 +436,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             List<Experiment> experiments = new ArrayList<Experiment>();
             for (ExperimentIdentifier experimentIdentifier : experimentIdentifiers)
             {
-                Experiment experiment = tryToGetExperiment(sessionToken, experimentIdentifier);
+                Experiment experiment = tryGetExperiment(sessionToken, experimentIdentifier);
                 if (experiment != null)
                 {
                     experiment.setFetchOptions(new ExperimentFetchOptions(ExperimentFetchOption
@@ -504,7 +505,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     @Override
     @RolesAllowed(
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public Experiment tryToGetExperiment(String sessionToken,
+    public Experiment tryGetExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class)
             ExperimentIdentifier experimentIdentifier) throws UserFailureException
     {
@@ -512,7 +513,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         assert experimentIdentifier != null : "Unspecified experiment identifier.";
 
         final Session session = getSession(sessionToken);
-        ExperimentPE experiment = tryToLoadExperimentByIdentifier(session, experimentIdentifier);
+        ExperimentPE experiment = tryLoadExperimentByIdentifier(session, experimentIdentifier);
         if (experiment == null)
         {
             return null;
@@ -566,7 +567,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public SampleIdentifier tryToGetSampleIdentifier(String sessionToken, String samplePermID)
+    public SampleIdentifier tryGetSampleIdentifier(String sessionToken, String samplePermID)
             throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
@@ -583,7 +584,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return sample == null ? null : sample.getExperiment();
     }
 
-    private ExperimentPE tryToLoadExperimentByIdentifier(final Session session,
+    private ExperimentPE tryLoadExperimentByIdentifier(final Session session,
             ExperimentIdentifier experimentIdentifier)
     {
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
@@ -766,7 +767,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     @Override
     @RolesAllowed(
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public IEntityProperty[] tryToGetPropertiesOfTopSampleRegisteredFor(final String sessionToken,
+    public IEntityProperty[] tryGetPropertiesOfTopSampleRegisteredFor(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             final SampleIdentifier sampleIdentifier) throws UserFailureException
     {
@@ -1344,7 +1345,6 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     private ISampleBO updateSampleInternal(SampleUpdatesDTO updates, final Session session)
     {
-        // TODO 2010-12-21, CR: Refactor this into an object, SampleUpdater
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.update(updates);
         sampleBO.save();
@@ -1520,6 +1520,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                     createProjects(sessionForEntityOperation, operationDetails, progressListener,
                             authorize);
 
+            long projectsUpdated =
+                    updateProjects(sessionForEntityOperation, operationDetails, progressListener,
+                            authorize);
+
             long vocabulariesUpdated =
                     updateVocabularies(sessionForEntityOperation, operationDetails,
                             progressListener, authorize);
@@ -1568,7 +1572,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                 daoFactory.getEntityOperationsLogDAO().addLogEntry(registrationId.getId());
             }
 
-            return new AtomicEntityOperationResult(spacesCreated, projectsCreated,
+            return new AtomicEntityOperationResult(spacesCreated, projectsCreated, projectsUpdated,
                     materialsCreated, materialsUpdates, experimentsCreated, experimentsUpdates,
                     samplesCreated, samplesUpdated, dataSetsCreated, dataSetsUpdated,
                     metaprojectsCreated, metaprojectsUpdates, vocabulariesUpdated);
@@ -1841,10 +1845,67 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
         ProjectIdentifier identifier =
                 new ProjectIdentifierFactory(newProject.getIdentifier()).createIdentifier();
-        projectBO.define(identifier, newProject.getDescription(), null);
+        projectBO
+                .define(identifier, newProject.getDescription(), newProject.getAttachments(), null);
         if (registratorUserIdOrNull != null)
         {
             projectBO.getProject().setRegistrator(
+                    getOrCreatePerson(session.getSessionToken(), registratorUserIdOrNull));
+        }
+        projectBO.save();
+
+        return projectBO.getProject();
+    }
+
+    private long updateProjects(Session session, AtomicEntityOperationDetails operationDetails,
+            IServiceConversationProgressListener progress, boolean authorize)
+    {
+        ArrayList<ProjectPE> projectPEsUpdated = new ArrayList<ProjectPE>();
+        List<ProjectUpdatesDTO> projectsToUpdate = operationDetails.getProjectUpdates();
+        if (authorize)
+        {
+            checkProjectUpdateAllowed(session, projectsToUpdate);
+        }
+        int index = 0;
+        for (ProjectUpdatesDTO project : projectsToUpdate)
+        {
+            ProjectPE projectPE =
+                    updateProjectInternal(session, project, operationDetails.tryUserIdOrNull());
+            projectPEsUpdated.add(projectPE);
+            progress.update("updateProjects", projectsToUpdate.size(), ++index);
+        }
+        return index;
+    }
+
+    protected void checkProjectUpdateAllowed(Session session,
+            List<ProjectUpdatesDTO> projectsToUpdate)
+    {
+        if (projectsToUpdate != null && projectsToUpdate.isEmpty() == false)
+        {
+            entityOperationChecker.assertProjectUpdateAllowed(session, projectsToUpdate);
+        }
+    }
+
+    private ProjectPE updateProjectInternal(Session session, ProjectUpdatesDTO projectToUpdate,
+            String registratorUserIdOrNull)
+    {
+        IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
+        ProjectIdentifier identifier =
+                new ProjectIdentifierFactory(projectToUpdate.getIdentifier()).createIdentifier();
+        if (projectToUpdate.getTechId() != null)
+        {
+            projectBO.loadDataByTechId(projectToUpdate.getTechId());
+        } else if (projectToUpdate.getPermId() != null)
+        {
+            projectBO.loadByPermId(projectToUpdate.getPermId());
+        } else
+        {
+            projectBO.loadByProjectIdentifier(identifier);
+        }
+        projectBO.update(projectToUpdate);
+        if (registratorUserIdOrNull != null)
+        {
+            projectBO.getProject().setModifier(
                     getOrCreatePerson(session.getSessionToken(), registratorUserIdOrNull));
         }
         projectBO.save();
@@ -2165,7 +2226,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     private IDataBO registerDataSetInternal(final Session session,
             ExperimentIdentifier experimentIdentifier, NewExternalData externalData)
     {
-        ExperimentPE experiment = tryToLoadExperimentByIdentifier(session, experimentIdentifier);
+        ExperimentPE experiment = tryLoadExperimentByIdentifier(session, experimentIdentifier);
         if (experiment.getDeletion() != null)
         {
             throw new UserFailureException("Data set can not be registered because experiment '"

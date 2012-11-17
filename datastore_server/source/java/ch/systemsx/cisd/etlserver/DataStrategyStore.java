@@ -145,7 +145,7 @@ public final class DataStrategyStore implements IDataStrategyStore
         if (sampleIdentifier == null)
         {
             experimentIdentifier = dataSetInfo.getExperimentIdentifier();
-            Experiment experiment = limsService.tryToGetExperiment(experimentIdentifier);
+            Experiment experiment = limsService.tryGetExperiment(experimentIdentifier);
             if (experiment == null)
             {
                 error(emailOrNull, "Unknown experiment identifier '" + experimentIdentifier + "'.");
@@ -183,7 +183,7 @@ public final class DataStrategyStore implements IDataStrategyStore
             dataSetInfo.setExperimentIdentifier(experimentIdentifier);
 
             final IEntityProperty[] properties =
-                    limsService.getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                    limsService.tryGetPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
             if (properties == null)
             {
                 final Person registrator = experiment.getRegistrator();

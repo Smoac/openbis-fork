@@ -21,12 +21,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 
 /**
- * The inteface implemented by a service that can register openBIS entities atomically.
+ * The interface implemented by a service that can register openBIS entities atomically.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 public interface IEntityOperationService<T extends DataSetInformation>
 {
-    AtomicEntityOperationResult performOperationsInApplcationServer(
+    AtomicEntityOperationResult performOperationsInApplicationServer(
             AtomicEntityOperationDetails<T> registrationDetails);
 }

@@ -148,7 +148,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
                     one(limsService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(baseSample));
 
-                    one(limsService).getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                    one(limsService).tryGetPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
                 }
             });
@@ -183,7 +183,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
                     one(limsService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(baseSample));
 
-                    one(limsService).getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                    one(limsService).tryGetPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
                 }
             });
@@ -207,7 +207,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
                     one(limsService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(baseSample));
 
-                    one(limsService).getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                    one(limsService).tryGetPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
                 }
             });
@@ -275,7 +275,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(limsService).tryToGetExperiment(dataSetInfo.getExperimentIdentifier());
+                    one(limsService).tryGetExperiment(dataSetInfo.getExperimentIdentifier());
                     will(returnValue(new Experiment()));
                 }
             });
@@ -307,7 +307,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
                     one(limsService).tryGetSampleWithExperiment(dataSetInfo.getSampleIdentifier());
                     will(returnValue(baseSample));
 
-                    one(limsService).getPropertiesOfTopSampleRegisteredFor(
+                    one(limsService).tryGetPropertiesOfTopSampleRegisteredFor(
                             dataSetInfo.getSampleIdentifier());
                     will(returnValue(null));
 

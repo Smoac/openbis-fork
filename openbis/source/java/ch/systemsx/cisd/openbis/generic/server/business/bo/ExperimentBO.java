@@ -31,7 +31,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
@@ -45,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
@@ -64,7 +62,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -345,28 +342,21 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                 newExperiment.getProperties(), registrator);
         defineExperimentProject(newExperiment, experimentIdentifier);
         experiment.setPermId(getOrCreatePermID(newExperiment));
-        RelationshipUtils.updateModificationDateAndModifier(experiment, session);
         setMetaprojects(experiment, newExperiment.getMetaprojectsOrNull());
+        for (NewAttachment attachment : newExperiment.getAttachments())
+        {
+            attachments.add(prepareAttachment(experiment, attachment));
+        }
+        RelationshipUtils.updateModificationDateAndModifier(experiment, session);
         dataChanged = true;
     }
 
     @Override
-    public final void addAttachment(final AttachmentPE experimentAttachment)
+    public void addAttachment(AttachmentPE attachment)
     {
         assert experiment != null : "no experiment has been loaded";
-        PersonPE user = findPerson();
-        experimentAttachment.setRegistrator(user);
-        escapeFileName(experimentAttachment);
-        attachments.add(experimentAttachment);
-        RelationshipUtils.updateModificationDateAndModifier(experiment, user);
-    }
-
-    private void escapeFileName(final AttachmentPE attachment)
-    {
-        if (attachment != null)
-        {
-            attachment.setFileName(AttachmentHolderPE.escapeFileName(attachment.getFileName()));
-        }
+        prepareAttachment(experiment, attachment);
+        attachments.add(attachment);
     }
 
     private void defineExperimentProject(NewExperiment newExperiment,
@@ -410,24 +400,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                         new ExperimentIdentifier(projectCode, experiment.getCode());
                 throwException(ex, String.format("Experiment '%s'", identifier));
             }
+            saveAttachment(experiment, attachments);
             dataChanged = false;
-        }
-        if (attachments.isEmpty() == false)
-        {
-            final IAttachmentDAO attachmentDAO = getAttachmentDAO();
-            for (final AttachmentPE property : attachments)
-            {
-                try
-                {
-                    attachmentDAO.createAttachment(property, experiment);
-                } catch (final DataAccessException e)
-                {
-                    final String fileName = property.getFileName();
-                    throwException(e, String.format("Filename '%s' for experiment '%s'", fileName,
-                            createExperimentIdentifier()));
-                }
-            }
-            attachments.clear();
         }
         checkBusinessRules();
     }
@@ -436,11 +410,6 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     {
         entityPropertiesConverter.checkMandatoryProperties(experiment.getProperties(),
                 experiment.getExperimentType());
-    }
-
-    private ExperimentIdentifier createExperimentIdentifier()
-    {
-        return new ExperimentIdentifier(experiment.getProject().getCode(), experiment.getCode());
     }
 
     private final void defineExperimentProperties(final String experimentTypeCode,
@@ -475,7 +444,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
 
         for (NewAttachment attachment : updates.getAttachments())
         {
-            addAttachment(AttachmentTranslator.translate(attachment));
+            attachments.add(prepareAttachment(experiment, attachment));
         }
         updateSamples(updates);
 

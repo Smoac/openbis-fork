@@ -158,6 +158,18 @@ public interface IDataSetRegistrationTransactionV2
     IProjectImmutable getProject(String projectIdentifier);
 
     /**
+     * Get an project from the openBIS AS for the purpose of modifying it.
+     */
+    IProject getProjectForUpdate(String projectIdentifierString);
+
+    /**
+     * Given an immutable project, make it mutable.
+     * 
+     * @return A mutable project.
+     */
+    IProject makeProjectMutable(IProjectImmutable project);
+
+    /**
      * Create a new space to register with the openBIS AS.
      * 
      * @param spaceCode the code of the space

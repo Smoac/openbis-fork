@@ -155,6 +155,18 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
     }
 
     @Override
+    public IProject getProjectForUpdate(String projectIdentifierString)
+    {
+        return transaction.getProjectForUpdate(projectIdentifierString);
+    }
+
+    @Override
+    public IProject makeProjectMutable(IProjectImmutable project)
+    {
+        return transaction.makeProjectMutable(project);
+    }
+
+    @Override
     public ISpace createNewSpace(String spaceCode, String spaceAdminUserIdOrNull)
     {
         return transaction.createNewSpace(spaceCode, spaceAdminUserIdOrNull);

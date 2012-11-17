@@ -563,7 +563,7 @@ public abstract class AbstractClientService implements IClientService,
     {
         try
         {
-            final SessionContextDTO session = getServer().tryToAuthenticateAnonymously();
+            final SessionContextDTO session = getServer().tryAuthenticateAnonymously();
             return tryToLogin(session);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
@@ -580,7 +580,7 @@ public abstract class AbstractClientService implements IClientService,
     {
         try
         {
-            final SessionContextDTO session = getServer().tryToAuthenticate(userID, password);
+            final SessionContextDTO session = getServer().tryAuthenticate(userID, password);
             return tryToLogin(session);
         } catch (final IllegalStateException e)
         {

@@ -85,7 +85,7 @@ public class MultiThreadExperimentOptimisticLockingTest extends
                     NewSample sample3 = toolBox.sample(3, experiment);
 
                     String sessionToken =
-                            genericServer.tryToAuthenticate("test", "a").getSessionToken();
+                            genericServer.tryAuthenticate("test", "a").getSessionToken();
                     messageChannelMain.assertNextMessage(ToolBox.FIRST_REGISTERED);
                     genericServer.registerSample(sessionToken, sample3, ToolBox.NO_ATTACHMENTS);
                     messageChannelSecond.send(ToolBox.REGISTERED);

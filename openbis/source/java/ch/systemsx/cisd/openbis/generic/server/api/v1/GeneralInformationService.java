@@ -151,7 +151,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     // this is not a readOnly transaction - it can create new users
     public String tryToAuthenticateForAllServices(String userID, String userPassword)
     {
-        SessionContextDTO session = tryToAuthenticate(userID, userPassword);
+        SessionContextDTO session = tryAuthenticate(userID, userPassword);
         return session == null ? null : session.getSessionToken();
     }
 

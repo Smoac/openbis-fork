@@ -461,7 +461,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     }
 
     @Override
-    public SessionContextDTO tryToAuthenticateAnonymously()
+    public SessionContextDTO tryAuthenticateAnonymously()
     {
         if (userForAnonymousLogin == null)
         {
@@ -478,7 +478,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     }
 
     @Override
-    public final SessionContextDTO tryToAuthenticate(final String user, final String password)
+    public final SessionContextDTO tryAuthenticate(final String user, final String password)
     {
         return tryToAuthenticate(sessionManager.tryToOpenSession(user, password));
     }

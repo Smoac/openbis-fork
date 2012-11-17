@@ -222,7 +222,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        assertEquals(null, createServer().tryToAuthenticate(user, password));
+        assertEquals(null, createServer().tryAuthenticate(user, password));
 
         context.assertIsSatisfied();
     }
@@ -268,7 +268,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        final SessionContextDTO s = createServer().tryToAuthenticate(user, password);
+        final SessionContextDTO s = createServer().tryAuthenticate(user, password);
 
         assertEquals(person.getUserId(), s.getUserName());
         context.assertIsSatisfied();
@@ -305,7 +305,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        final SessionContextDTO s = createServer().tryToAuthenticate(user, password);
+        final SessionContextDTO s = createServer().tryAuthenticate(user, password);
 
         assertNull(s);
         context.assertIsSatisfied();
@@ -333,7 +333,7 @@ public final class CommonServerTest extends AbstractServerTestCase
             });
         assertEquals(null, mySession.tryGetPerson());
 
-        final SessionContextDTO s = createServer().tryToAuthenticate(user, password);
+        final SessionContextDTO s = createServer().tryAuthenticate(user, password);
 
         assertEquals(person.getUserId(), s.getUserName());
         context.assertIsSatisfied();

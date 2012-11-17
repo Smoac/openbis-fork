@@ -554,7 +554,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 @Override
                 public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
                 {
-                    return openBISService.tryToGetSampleIdentifier(samplePermId);
+                    return openBISService.tryGetSampleIdentifier(samplePermId);
                 }
             };
     }
