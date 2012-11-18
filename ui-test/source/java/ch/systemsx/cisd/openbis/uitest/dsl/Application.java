@@ -97,7 +97,7 @@ public class Application
 
         this.session =
                 commonServer
-                        .tryToAuthenticate(SeleniumTest.ADMIN_USER, SeleniumTest.ADMIN_PASSWORD)
+                        .tryAuthenticate(SeleniumTest.ADMIN_USER, SeleniumTest.ADMIN_PASSWORD)
                         .getSessionToken();
 
         this.user = new User()
@@ -115,7 +115,7 @@ public class Application
     {
         this.session =
                 commonServer
-                        .tryToAuthenticate(newUser.getName(), "pwd")
+                        .tryAuthenticate(newUser.getName(), "pwd")
                         .getSessionToken();
         this.user = newUser;
     }

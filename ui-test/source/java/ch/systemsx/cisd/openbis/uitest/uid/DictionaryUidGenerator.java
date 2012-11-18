@@ -36,10 +36,16 @@ public class DictionaryUidGenerator implements UidGenerator
     {
         tokens = new ArrayList<String>();
         BufferedReader in = new BufferedReader(new FileReader(file));
-        String line;
-        while ((line = in.readLine()) != null)
+        try
         {
-            tokens.add(line);
+            String line;
+            while ((line = in.readLine()) != null)
+            {
+                tokens.add(line);
+            }
+        } finally
+        {
+            in.close();
         }
     }
 
