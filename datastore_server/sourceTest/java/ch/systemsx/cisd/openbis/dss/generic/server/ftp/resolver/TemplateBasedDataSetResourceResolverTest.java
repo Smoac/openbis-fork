@@ -224,7 +224,10 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
     {
         try
         {
-            context.assertIsSatisfied();
+            if (context != null)
+            {
+                context.assertIsSatisfied();
+            }
         } catch (Throwable t)
         {
             throw new Error(m.getName() + "() : ", t);
