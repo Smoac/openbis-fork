@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdenti
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SamplePermIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -192,6 +191,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         assert newSample != null : "Unspecified new sample.";
         assertInstanceSampleCreationAllowed(Collections.singletonList(newSample));
         sample = createSample(newSample, null, null, null, null);
+        addAttachments(sample, newSample.getAttachments(), attachments);
         dataChanged = spaceUpdated = true;
         onlyNewSamples = true;
     }
@@ -302,10 +302,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         }
         setContainer(updates.getSampleIdentifier(), sample, updates.getContainerIdentifierOrNull(),
                 null);
-        for (NewAttachment attachment : updates.getAttachments())
-        {
-            attachments.add(prepareAttachment(sample, attachment));
-        }
+        addAttachments(sample, updates.getAttachments(), attachments);
         updateParents(updates);
         setMetaprojects(sample, updates.getMetaprojectsOrNull());
 

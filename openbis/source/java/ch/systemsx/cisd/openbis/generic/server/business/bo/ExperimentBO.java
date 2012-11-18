@@ -343,10 +343,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         defineExperimentProject(newExperiment, experimentIdentifier);
         experiment.setPermId(getOrCreatePermID(newExperiment));
         setMetaprojects(experiment, newExperiment.getMetaprojectsOrNull());
-        for (NewAttachment attachment : newExperiment.getAttachments())
-        {
-            attachments.add(prepareAttachment(experiment, attachment));
-        }
+        addAttachments(experiment, newExperiment.getAttachments(), attachments);
         RelationshipUtils.updateModificationDateAndModifier(experiment, session);
         dataChanged = true;
     }
