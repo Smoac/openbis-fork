@@ -389,17 +389,20 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     public void save()
     {
         assert experiments != null : "Experiments not loaded.";
-        assert dataChanged : "Data has not been changed.";
-        try
+
+        if (dataChanged)
         {
-            checkBusinessRules();
-            getExperimentDAO().createOrUpdateExperiments(experiments, findPerson());
-            saveAttachments(experiments, attachmentListsOrNull);
-        } catch (final DataAccessException ex)
-        {
-            throwException(ex, String.format("One of experiments"));
+            try
+            {
+                checkBusinessRules();
+                getExperimentDAO().createOrUpdateExperiments(experiments, findPerson());
+            } catch (final DataAccessException ex)
+            {
+                throwException(ex, String.format("One of experiments"));
+            }
+            dataChanged = false;
         }
-        dataChanged = false;
+        saveAttachments(experiments, attachmentListsOrNull);
     }
 
     private void checkBusinessRules()

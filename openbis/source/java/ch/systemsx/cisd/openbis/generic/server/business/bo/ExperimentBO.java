@@ -397,9 +397,9 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                         new ExperimentIdentifier(projectCode, experiment.getCode());
                 throwException(ex, String.format("Experiment '%s'", identifier));
             }
-            saveAttachment(experiment, attachments);
             dataChanged = false;
         }
+        saveAttachment(experiment, attachments);
         checkBusinessRules();
     }
 

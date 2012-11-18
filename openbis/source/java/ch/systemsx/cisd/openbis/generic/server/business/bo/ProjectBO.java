@@ -115,8 +115,9 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
             {
                 throwException(ex, "Project '" + project.getCode() + "'");
             }
-            saveAttachment(project, attachments);
+            dataChanged = false;
         }
+        saveAttachment(project, attachments);
     }
 
     @Override

@@ -220,23 +220,25 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     public void save() throws UserFailureException
     {
         assert samples != null : "Samples not loaded.";
-        assert dataChanged : "Data have not been changed.";
 
-        try
+        if (dataChanged)
         {
-            if (businessRulesChecked == false)
+            try
             {
-                checkAllBusinessRules();
+                if (businessRulesChecked == false)
+                {
+                    checkAllBusinessRules();
+                }
+                getSampleDAO().createOrUpdateSamples(samples, findPerson());
+            } catch (final DataAccessException ex)
+            {
+                throwException(ex, String.format("One of samples"));
             }
-            getSampleDAO().createOrUpdateSamples(samples, findPerson());
-            saveAttachments(samples, attachmentListsOrNull);
-        } catch (final DataAccessException ex)
-        {
-            throwException(ex, String.format("One of samples"));
+            dataChanged = false;
+            businessRulesChecked = false;
+            onlyNewSamples = false;
         }
-        dataChanged = false;
-        businessRulesChecked = false;
-        onlyNewSamples = false;
+        saveAttachments(samples, attachmentListsOrNull);
     }
 
     private void checkAllBusinessRules()

@@ -220,8 +220,8 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             {
                 onlyNewSamples = dataChanged = spaceUpdated = false;
             }
-            saveAttachment(sample, attachments);
         }
+        saveAttachment(sample, attachments);
     }
 
     @Override
