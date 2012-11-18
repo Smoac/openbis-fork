@@ -170,7 +170,10 @@ public class PostRegistrationMaintenanceTaskTest extends AbstractFileSystemTestC
     public void afterMethod()
     {
         ServiceProviderTestWrapper.restoreApplicationContext();
-        logRecorder.reset();
+        if (logRecorder != null)
+        {
+            logRecorder.reset();
+        }
         // The following line of code should also be called at the end of each test method.
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
