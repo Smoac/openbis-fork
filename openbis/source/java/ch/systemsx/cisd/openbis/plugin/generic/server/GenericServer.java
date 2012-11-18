@@ -214,12 +214,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
         final Session session = getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        newSample.setAttachments(new ArrayList<NewAttachment>(attachments));
         sampleBO.define(newSample);
-        sampleBO.save();
-        for (NewAttachment attachment : attachments)
-        {
-            sampleBO.addAttachment(AttachmentTranslator.translate(attachment));
-        }
         sampleBO.save();
     }
 
@@ -593,12 +589,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
         List<NewSamplesWithTypes> newSamples = newExperiment.getNewSamples();
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+        newExperiment.setAttachments(new ArrayList<NewAttachment>(attachments));
         experimentBO.define(newExperiment);
-        experimentBO.save();
-        for (NewAttachment attachment : attachments)
-        {
-            experimentBO.addAttachment(AttachmentTranslator.translate(attachment));
-        }
         experimentBO.save();
         ExperimentPE experiment = experimentBO.getExperiment();
         String experimentSpace = experiment.getProject().getSpace().getCode();
