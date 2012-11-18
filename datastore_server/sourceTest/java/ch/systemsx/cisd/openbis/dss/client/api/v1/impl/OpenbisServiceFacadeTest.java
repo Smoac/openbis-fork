@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.GeneralInformationChangingService;
+import ch.systemsx.cisd.openbis.generic.server.api.v1.GeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
@@ -91,6 +92,8 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         context.checking(new Expectations()
         {
             {
+                allowing(service).getMinorVersion();
+                will(returnValue(GeneralInformationService.MINOR_VERSION));
                 allowing(changingService).getMinorVersion();
                 will(returnValue(GeneralInformationChangingService.MINOR_VERSION));
             }
