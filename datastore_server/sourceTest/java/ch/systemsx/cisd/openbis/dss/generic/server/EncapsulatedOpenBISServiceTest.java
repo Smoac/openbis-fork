@@ -156,7 +156,7 @@ public class EncapsulatedOpenBISServiceTest
                             sampleIdentifier);
                 }
             });
-        encapsulatedLimsService.tryGetPropertiesOfTopSample(sampleIdentifier);
+        encapsulatedLimsService.tryGetPropertiesOfSample(sampleIdentifier);
         context.assertIsSatisfied();
     }
 
