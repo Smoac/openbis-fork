@@ -444,7 +444,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         context.checking(new Expectations()
             {
                 {
-                    one(limsService).tryGetPropertiesOfTopSample(SESSION_TOKEN,
+                    one(limsService).tryGetPropertiesOfSample(SESSION_TOKEN,
                             dataSetInformation.getSampleIdentifier());
                     will(returnValue(new IEntityProperty[0]));
                 }
@@ -642,7 +642,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         context.checking(new Expectations()
             {
                 {
-                    one(limsService).tryGetPropertiesOfTopSample(SESSION_TOKEN,
+                    one(limsService).tryGetPropertiesOfSample(SESSION_TOKEN,
                             dataSetInformation.getSampleIdentifier());
                     will(returnValue(null));
 

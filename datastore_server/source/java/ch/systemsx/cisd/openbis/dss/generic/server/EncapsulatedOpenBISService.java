@@ -439,7 +439,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             final SampleIdentifier sampleIdentifier) throws UserFailureException
     {
         assert sampleIdentifier != null : "Given sample identifier can not be null.";
-        return service.tryGetPropertiesOfTopSample(session.getSessionToken(),
+        return service.tryGetPropertiesOfSample(session.getSessionToken(),
                 sampleIdentifier);
     }
 

@@ -585,7 +585,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         prepareLoadSample(sampleIdentifier, null);
 
         IEntityProperty[] properties =
-                createService().tryGetPropertiesOfTopSample(SESSION_TOKEN,
+                createService().tryGetPropertiesOfSample(SESSION_TOKEN,
                         sampleIdentifier);
 
         assertNull(properties);
@@ -602,7 +602,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         prepareLoadSample(sampleIdentifier, toplessSample);
 
         final IEntityProperty[] properties =
-                createService().tryGetPropertiesOfTopSample(SESSION_TOKEN,
+                createService().tryGetPropertiesOfSample(SESSION_TOKEN,
                         sampleIdentifier);
 
         assertEquals(1, properties.length);
@@ -626,7 +626,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         prepareLoadSample(sampleIdentifier, sample);
 
         IEntityProperty[] properties =
-                createService().tryGetPropertiesOfTopSample(SESSION_TOKEN,
+                createService().tryGetPropertiesOfSample(SESSION_TOKEN,
                         sampleIdentifier);
 
         assertEquals(0, properties.length);
@@ -634,7 +634,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     }
 
     @Test
-    public void testTryToGetPropertiesOfTopSample()
+    public void testTryToGetPropertiesOfSample()
     {
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
@@ -645,11 +645,11 @@ public class ETLServiceTest extends AbstractServerTestCase
                 createParentChildRelation(), null));
         sample.addParentRelationship(new SampleRelationshipPE(parent, sample,
                 createParentChildRelation(), null));
-        SamplePropertyPE property = setAnyProperty(top);
+        SamplePropertyPE property = setAnyProperty(sample);
         prepareLoadSample(sampleIdentifier, sample);
 
         IEntityProperty[] properties =
-                createService().tryGetPropertiesOfTopSample(SESSION_TOKEN,
+                createService().tryGetPropertiesOfSample(SESSION_TOKEN,
                         sampleIdentifier);
 
         assertEquals(1, properties.length);
