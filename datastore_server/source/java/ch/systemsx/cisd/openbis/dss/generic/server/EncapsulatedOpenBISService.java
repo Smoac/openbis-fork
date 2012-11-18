@@ -426,11 +426,20 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public final IEntityProperty[] tryGetPropertiesOfTopSampleRegisteredFor(
+    public IEntityProperty[] tryGetPropertiesOfSample(
+            SampleIdentifier sampleIdentifier) throws UserFailureException
+    {
+        assert sampleIdentifier != null : "Given sample identifier can not be null.";
+        return service.tryGetPropertiesOfSample(session.getSessionToken(),
+                sampleIdentifier);
+    }
+
+    @Override
+    public final IEntityProperty[] tryGetPropertiesOfTopSample(
             final SampleIdentifier sampleIdentifier) throws UserFailureException
     {
         assert sampleIdentifier != null : "Given sample identifier can not be null.";
-        return service.tryGetPropertiesOfTopSampleRegisteredFor(session.getSessionToken(),
+        return service.tryGetPropertiesOfTopSample(session.getSessionToken(),
                 sampleIdentifier);
     }
 

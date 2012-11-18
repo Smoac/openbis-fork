@@ -115,7 +115,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
         protected DatasetOwnerInformation(String dataSetCode, DataSetInformation dataSetOwner)
         {
             this(dataSetCode, dataSetOwner.tryGetContainerDataSet(), dataSetOwner.tryToGetSample(),
-                    dataSetOwner.getSampleIdentifier(), dataSetOwner.getProperties(), dataSetOwner
+                    dataSetOwner.getSampleIdentifier(), dataSetOwner.getSampleProperties(), dataSetOwner
                             .tryToGetExperiment(), dataSetOwner.getExperimentIdentifier());
         }
 

@@ -212,8 +212,10 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public List<Sample> listSamples(final String sessionToken, final ListSampleCriteria criteria);
 
     /**
-     * Tries to return the properties of the top sample (e.g. master plate) registered for the
-     * specified sample code. If sample has no top sample, its own properties are returned.
+     * Tries to return the properties of the top sample of the sample with given
+     * <var>sampleIdentifier</var>. The top sample is the root of the sample relationship graph of
+     * this sample. If a sample has multiple parents or no parents at all, it is considered its own
+     * top sample.
      * 
      * @param sessionToken the user authentication token. Must not be <code>null</code>.
      * @param sampleIdentifier an identifier which uniquely identifies the sample.
@@ -221,7 +223,20 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      *         sample found with no properties.
      */
     @Transactional(readOnly = true)
-    public IEntityProperty[] tryGetPropertiesOfTopSampleRegisteredFor(final String sessionToken,
+    public IEntityProperty[] tryGetPropertiesOfTopSample(final String sessionToken,
+            final SampleIdentifier sampleIdentifier) throws UserFailureException;
+
+    /**
+     * Tries to return the properties of the sample with given <var>sampleIdentifier</var>.. If
+     * sample has no top sample, its own properties are returned.
+     * 
+     * @param sessionToken the user authentication token. Must not be <code>null</code>.
+     * @param sampleIdentifier an identifier which uniquely identifies the sample.
+     * @return <code>null</code> if no appropriated sample found. Returns an empty array if a a
+     *         sample found with no properties.
+     */
+    @Transactional(readOnly = true)
+    public IEntityProperty[] tryGetPropertiesOfSample(final String sessionToken,
             final SampleIdentifier sampleIdentifier) throws UserFailureException;
 
     /**

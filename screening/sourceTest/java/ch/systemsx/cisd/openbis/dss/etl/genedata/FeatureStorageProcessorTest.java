@@ -229,7 +229,7 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
         entityProperty.setValue("A_2X2");
         properties[0] = entityProperty;
         sample.setProperties(Arrays.asList(properties));
-        dataSetInfo.setProperties(properties);
+        dataSetInfo.setSampleProperties(properties);
         return dataSetInfo;
     }
 

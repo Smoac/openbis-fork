@@ -267,14 +267,28 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
             final NewExternalData data) throws UserFailureException;
 
     /**
-     * Tries to return the properties of the top sample (e.g. master plate) registered for the
-     * specified sample identifier.
+     * Tries to return the properties of the top sample of the sample with given
+     * <var>sampleIdentifier</var>. The top sample is the root of the sample relationship graph of
+     * this sample. If a sample has multiple parents or no parents at all, it is considered its own
+     * top sample.
      * 
      * @return <code>null</code> if no appropriated sample is found. Returns an empty array if a
      *         sample is found with no properties.
      */
     @ManagedAuthentication
-    public IEntityProperty[] tryGetPropertiesOfTopSampleRegisteredFor(
+    public IEntityProperty[] tryGetPropertiesOfTopSample(
+            final SampleIdentifier sampleIdentifier) throws UserFailureException;
+
+    /**
+     * Tries to return the properties of the sample with given <var>sampleIdentifier</var>.. If
+     * sample has no top sample, its own properties are returned.
+     * 
+     * @param sampleIdentifier an identifier which uniquely identifies the sample.
+     * @return <code>null</code> if no appropriated sample found. Returns an empty array if a a
+     *         sample found with no properties.
+     */
+    @ManagedAuthentication
+    public IEntityProperty[] tryGetPropertiesOfSample(
             final SampleIdentifier sampleIdentifier) throws UserFailureException;
 
     /** See {@link IETLLIMSService#listSamplesByCriteria(String, ListSamplesByPropertyCriteria)} */

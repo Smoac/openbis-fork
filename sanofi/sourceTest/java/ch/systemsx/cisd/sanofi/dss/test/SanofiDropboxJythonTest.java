@@ -371,7 +371,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     will(returnValue(null));
 
                     allowing(openBisService)
-                            .tryGetPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                            .tryGetPropertiesOfTopSample(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
 
                     one(openBisService).drawANewUniqueID();
@@ -525,7 +525,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     will(returnValue(null));
 
                     allowing(openBisService)
-                            .tryGetPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                            .tryGetPropertiesOfTopSample(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
 
                     one(openBisService).drawANewUniqueID();
@@ -602,7 +602,7 @@ public class SanofiDropboxJythonTest extends AbstractJythonDataSetHandlerTest
                     will(returnValue(null));
 
                     allowing(openBisService)
-                            .tryGetPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                            .tryGetPropertiesOfTopSample(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
 
                     one(openBisService).drawANewUniqueID();

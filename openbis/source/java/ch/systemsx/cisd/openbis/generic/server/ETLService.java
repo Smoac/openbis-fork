@@ -767,7 +767,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     @Override
     @RolesAllowed(
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public IEntityProperty[] tryGetPropertiesOfTopSampleRegisteredFor(final String sessionToken,
+    public IEntityProperty[] tryGetPropertiesOfTopSample(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             final SampleIdentifier sampleIdentifier) throws UserFailureException
     {
@@ -783,11 +783,31 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             return null;
         }
         SamplePE top = sample.getTop();
-        if (top == null)
-        {
-            top = sample;
-        }
         Set<SamplePropertyPE> properties = top.getProperties();
+        HibernateUtils.initialize(properties);
+        return EntityPropertyTranslator.translate(properties.toArray(new SamplePropertyPE[0]),
+                new HashMap<PropertyTypePE, PropertyType>());
+    }
+
+    @Override
+    @RolesAllowed(
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public IEntityProperty[] tryGetPropertiesOfSample(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
+            SampleIdentifier sampleIdentifier) throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        assert sampleIdentifier != null : "Unspecified sample identifier.";
+
+        final Session session = getSession(sessionToken);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.loadBySampleIdentifier(sampleIdentifier);
+        SamplePE sample = sampleBO.getSample();
+        if (sample == null)
+        {
+            return null;
+        }
+        Set<SamplePropertyPE> properties = sample.getProperties();
         HibernateUtils.initialize(properties);
         return EntityPropertyTranslator.translate(properties.toArray(new SamplePropertyPE[0]),
                 new HashMap<PropertyTypePE, PropertyType>());

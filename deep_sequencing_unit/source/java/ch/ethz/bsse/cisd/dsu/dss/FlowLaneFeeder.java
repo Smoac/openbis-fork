@@ -312,7 +312,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         addLine(builder, "Contact Person Email", flowLaneSample.getRegistrator().getEmail());
         SampleIdentifier identifier = SampleIdentifierFactory.parse(flowLaneSample.getIdentifier());
         IEntityProperty[] propertiesOrNull =
-                service.tryGetPropertiesOfTopSampleRegisteredFor(identifier);
+                service.tryGetPropertiesOfTopSample(identifier);
         File dropBox = null;
         if (propertiesOrNull != null)
         {

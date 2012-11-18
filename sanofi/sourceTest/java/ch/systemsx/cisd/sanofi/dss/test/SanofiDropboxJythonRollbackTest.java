@@ -181,7 +181,7 @@ public class SanofiDropboxJythonRollbackTest extends AbstractJythonDataSetHandle
                     will(returnValue(null));
 
                     allowing(openBisService)
-                            .tryGetPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                            .tryGetPropertiesOfTopSample(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
 
                     one(openBisService).drawANewUniqueID();

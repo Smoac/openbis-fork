@@ -148,7 +148,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
                     one(limsService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(baseSample));
 
-                    one(limsService).tryGetPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                    one(limsService).tryGetPropertiesOfTopSample(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
                 }
             });
@@ -183,7 +183,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
                     one(limsService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(baseSample));
 
-                    one(limsService).tryGetPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                    one(limsService).tryGetPropertiesOfTopSample(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
                 }
             });
@@ -207,7 +207,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
                     one(limsService).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(baseSample));
 
-                    one(limsService).tryGetPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                    one(limsService).tryGetPropertiesOfTopSample(sampleIdentifier);
                     will(returnValue(new IEntityProperty[0]));
                 }
             });
@@ -307,7 +307,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
                     one(limsService).tryGetSampleWithExperiment(dataSetInfo.getSampleIdentifier());
                     will(returnValue(baseSample));
 
-                    one(limsService).tryGetPropertiesOfTopSampleRegisteredFor(
+                    one(limsService).tryGetPropertiesOfTopSample(
                             dataSetInfo.getSampleIdentifier());
                     will(returnValue(null));
 

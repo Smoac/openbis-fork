@@ -55,7 +55,7 @@ public class DataSetInformation implements Serializable
     private String sampleCode;
 
     // top sample properties
-    private IEntityProperty[] topSampleProperties = IEntityProperty.EMPTY_ARRAY;
+    private IEntityProperty[] sampleProperties = IEntityProperty.EMPTY_ARRAY;
 
     private DataSetType dataSetType;
 
@@ -172,14 +172,14 @@ public class DataSetInformation implements Serializable
      * 
      * @return never <code>null</code> but could return an empty array.
      */
-    public final IEntityProperty[] getProperties()
+    public final IEntityProperty[] getSampleProperties()
     {
-        return topSampleProperties == null ? new IEntityProperty[0] : topSampleProperties;
+        return sampleProperties == null ? new IEntityProperty[0] : sampleProperties;
     }
 
-    public final void setProperties(final IEntityProperty[] properties)
+    public final void setSampleProperties(final IEntityProperty[] properties)
     {
-        this.topSampleProperties = properties;
+        this.sampleProperties = properties;
     }
 
     public DataSetType getDataSetType()

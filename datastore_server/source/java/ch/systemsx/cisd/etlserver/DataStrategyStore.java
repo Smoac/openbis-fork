@@ -183,7 +183,7 @@ public final class DataStrategyStore implements IDataStrategyStore
             dataSetInfo.setExperimentIdentifier(experimentIdentifier);
 
             final IEntityProperty[] properties =
-                    limsService.tryGetPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+                    limsService.tryGetPropertiesOfSample(sampleIdentifier);
             if (properties == null)
             {
                 final Person registrator = experiment.getRegistrator();
@@ -207,7 +207,7 @@ public final class DataStrategyStore implements IDataStrategyStore
                         incomingDataSetPath, experimentIdentifier, sampleIdentifier));
                 return dataStoreStrategies.get(DataStoreStrategyKey.INVALID);
             }
-            dataSetInfo.setProperties(properties);
+            dataSetInfo.setSampleProperties(properties);
         }
 
         if (operationLog.isInfoEnabled())

@@ -264,10 +264,19 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public IEntityProperty[] tryGetPropertiesOfTopSampleRegisteredFor(String sessionToken,
+    public IEntityProperty[] tryGetPropertiesOfTopSample(String sessionToken,
             SampleIdentifier sampleIdentifier) throws UserFailureException
     {
-        logAccess(sessionToken, "tryToGetPropertiesOfTopSampleRegisteredFor", "SAMPLE(%s)",
+        logAccess(sessionToken, "tryToGetPropertiesOfTopSample", "SAMPLE(%s)",
+                sampleIdentifier);
+        return null;
+    }
+
+    @Override
+    public IEntityProperty[] tryGetPropertiesOfSample(String sessionToken,
+            SampleIdentifier sampleIdentifier) throws UserFailureException
+    {
+        logAccess(sessionToken, "tryToGetPropertiesOfSample", "SAMPLE(%s)",
                 sampleIdentifier);
         return null;
     }

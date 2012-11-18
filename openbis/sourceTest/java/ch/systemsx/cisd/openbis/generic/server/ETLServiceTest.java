@@ -585,7 +585,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         prepareLoadSample(sampleIdentifier, null);
 
         IEntityProperty[] properties =
-                createService().tryGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
+                createService().tryGetPropertiesOfTopSample(SESSION_TOKEN,
                         sampleIdentifier);
 
         assertNull(properties);
@@ -602,7 +602,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         prepareLoadSample(sampleIdentifier, toplessSample);
 
         final IEntityProperty[] properties =
-                createService().tryGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
+                createService().tryGetPropertiesOfTopSample(SESSION_TOKEN,
                         sampleIdentifier);
 
         assertEquals(1, properties.length);
@@ -626,7 +626,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         prepareLoadSample(sampleIdentifier, sample);
 
         IEntityProperty[] properties =
-                createService().tryGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
+                createService().tryGetPropertiesOfTopSample(SESSION_TOKEN,
                         sampleIdentifier);
 
         assertEquals(0, properties.length);
@@ -649,7 +649,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         prepareLoadSample(sampleIdentifier, sample);
 
         IEntityProperty[] properties =
-                createService().tryGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
+                createService().tryGetPropertiesOfTopSample(SESSION_TOKEN,
                         sampleIdentifier);
 
         assertEquals(1, properties.length);

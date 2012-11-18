@@ -152,11 +152,11 @@ public class EncapsulatedOpenBISServiceTest
         context.checking(new Expectations()
             {
                 {
-                    one(limsService).tryGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
+                    one(limsService).tryGetPropertiesOfTopSample(SESSION_TOKEN,
                             sampleIdentifier);
                 }
             });
-        encapsulatedLimsService.tryGetPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+        encapsulatedLimsService.tryGetPropertiesOfTopSample(sampleIdentifier);
         context.assertIsSatisfied();
     }
 
