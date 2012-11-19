@@ -218,9 +218,9 @@ public class EntityValidationTest extends GenericSystemTestCase
                 new AtomicEntityOperationDetails(null, null, spaceRegistrations,
                         projectRegistrations, projectUpdates, experimentRegistrations,
                         experimentUpdates, sampleUpdates, sampleRegistrations,
-                        materialRegistrations, materialUpdates,
-                        dataSetRegistrations, dataSetUpdates, metaprojectsRegistrations,
-                        metaprojectUpdates, vocabularyUpdates);
+                        materialRegistrations, materialUpdates, dataSetRegistrations,
+                        dataSetUpdates, metaprojectsRegistrations, metaprojectUpdates,
+                        vocabularyUpdates);
         return details;
     }
 
@@ -315,6 +315,8 @@ public class EntityValidationTest extends GenericSystemTestCase
         DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
         updates.setDatasetId(new TechId(26));
         updates.setVersion(dataset.getVersion());
+        updates.setMetaprojectsOrNull(new String[]
+            { "TEST_METAPROJECTS" });
         updates.setExperimentIdentifierOrNull(new ExperimentIdentifier(dataset.getExperiment()));
         updates.setProperties(Collections.<IEntityProperty> emptyList());
 
@@ -326,13 +328,17 @@ public class EntityValidationTest extends GenericSystemTestCase
     {
         try
         {
-            updateTestScriptBeforeAction("def validate(entity, isNew):\n  for contained in entity.contained():\n    requestValidation(contained)\n");
+            updateTestScriptBeforeAction("def validate(entity, isNew):\n"
+                    + "  for contained in entity.contained():\n"
+                    + "    requestValidation(contained)\n");
 
             ExternalData dataset = commonServer.getDataSetInfo(systemSessionToken, new TechId(26l));
 
             DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
             updates.setDatasetId(new TechId(26));
             updates.setVersion(dataset.getVersion());
+            updates.setMetaprojectsOrNull(new String[]
+                { "TEST_METAPROJECTS" });
             updates.setExperimentIdentifierOrNull(new ExperimentIdentifier(dataset.getExperiment()));
             updates.setProperties(Collections.<IEntityProperty> emptyList());
 
