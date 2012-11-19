@@ -81,7 +81,7 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
     public final void testSuccessfulEvaluation()
     {
         final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
         predicate.init(provider);
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), new SpaceIdentifier(
@@ -94,10 +94,10 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
     public final void testSuccessfulEvaluationWithHomeGroup()
     {
         final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
         predicate.init(provider);
         final PersonPE person = createPerson();
-        final SpacePE homeGroup = createGroup();
+        final SpacePE homeGroup = createSpace();
         person.setHomeSpace(homeGroup);
         final SpaceIdentifier groupIdentifier = new SpaceIdentifier(INSTANCE_CODE, null);
         final Status evaluation =
@@ -110,7 +110,7 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
     public final void testFailedEvaluation()
     {
         final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
-        prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createGroups());
+        prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createSpaces());
         predicate.init(provider);
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), new SpaceIdentifier(
@@ -126,8 +126,8 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
     {
         final DatabaseInstancePE homeDatabaseInstance = createDatabaseInstance();
         final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
-        final List<SpacePE> groups = createGroups();
-        groups.add(createGroup(ANOTHER_GROUP_CODE, homeDatabaseInstance));
+        final List<SpacePE> groups = createSpaces();
+        groups.add(createSpace(ANOTHER_GROUP_CODE, homeDatabaseInstance));
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), groups);
         predicate.init(provider);
         final Status evaluation =

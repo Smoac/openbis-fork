@@ -45,7 +45,7 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
         ds1.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse("/" + SPACE_CODE
                 + "/P/E"));
         ds1.setSampleIdentifierOrNull(SampleIdentifierFactory.parse("/" + SPACE_CODE + "/S"));
-        prepareProvider(createDatabaseInstance(), createGroups());
+        prepareProvider(createDatabaseInstance(), createSpaces());
         DataSetUpdatesCollectionPredicate predicate = new DataSetUpdatesCollectionPredicate();
         predicate.init(provider);
         context.checking(new Expectations()
@@ -53,7 +53,7 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
                 {
                     one(provider).getDistinctSpacesByEntityIds(SpaceOwnerKind.DATASET,
                             TechId.createList(42L));
-                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createGroup()))));
+                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createSpace()))));
                 }
             });
 
@@ -71,7 +71,7 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
         ds1.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse("/" + SPACE_CODE
                 + "/P/E"));
         ds1.setSampleIdentifierOrNull(SampleIdentifierFactory.parse("/" + SPACE_CODE + "/S"));
-        prepareProvider(createDatabaseInstance(), createGroups());
+        prepareProvider(createDatabaseInstance(), createSpaces());
         DataSetUpdatesCollectionPredicate predicate = new DataSetUpdatesCollectionPredicate();
         predicate.init(provider);
         context.checking(new Expectations()
@@ -79,7 +79,7 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
                 {
                     one(provider).getDistinctSpacesByEntityIds(SpaceOwnerKind.DATASET,
                             TechId.createList(42L));
-                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createAnotherGroup()))));
+                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createAnotherSpace()))));
                 }
             });
 
@@ -98,7 +98,7 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
         ds1.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse("/"
                 + ANOTHER_GROUP_CODE + "/P/E"));
         ds1.setSampleIdentifierOrNull(SampleIdentifierFactory.parse("/" + SPACE_CODE + "/S"));
-        prepareProvider(createDatabaseInstance(), createGroups());
+        prepareProvider(createDatabaseInstance(), createSpaces());
         DataSetUpdatesCollectionPredicate predicate = new DataSetUpdatesCollectionPredicate();
         predicate.init(provider);
 
@@ -118,7 +118,7 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
                 + "/P/E"));
         ds1.setSampleIdentifierOrNull(SampleIdentifierFactory
                 .parse("/" + ANOTHER_GROUP_CODE + "/S"));
-        prepareProvider(createDatabaseInstance(), createGroups());
+        prepareProvider(createDatabaseInstance(), createSpaces());
         DataSetUpdatesCollectionPredicate predicate = new DataSetUpdatesCollectionPredicate();
         predicate.init(provider);
         context.checking(new Expectations()
@@ -126,7 +126,7 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
                 {
                     one(provider).getDistinctSpacesByEntityIds(SpaceOwnerKind.DATASET,
                             TechId.createList(42L));
-                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createGroup()))));
+                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createSpace()))));
                 }
             });
 

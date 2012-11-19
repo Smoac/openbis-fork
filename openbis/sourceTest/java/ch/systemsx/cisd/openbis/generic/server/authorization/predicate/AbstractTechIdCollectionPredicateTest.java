@@ -42,13 +42,13 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
     public void testProjectTechIdCollectionPredicateIsSuccessful()
     {
         ProjectTechIdCollectionPredicate predicate = new ProjectTechIdCollectionPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
         final List<TechId> techIds = TechId.createList(1L, 2L);
         context.checking(new Expectations()
             {
                 {
                     one(provider).getDistinctSpacesByEntityIds(SpaceOwnerKind.PROJECT, techIds);
-                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createGroup()))));
+                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createSpace()))));
                 }
             });
         predicate.init(provider);
@@ -63,13 +63,13 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
     public void testSpaceTechIdCollectionPredicateFails()
     {
         SpaceTechIdCollectionPredicate predicate = new SpaceTechIdCollectionPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
         final List<TechId> techIds = TechId.createList(1L, 2L);
         context.checking(new Expectations()
             {
                 {
                     one(provider).getDistinctSpacesByEntityIds(SpaceOwnerKind.SPACE, techIds);
-                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createAnotherGroup()))));
+                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createAnotherSpace()))));
                 }
             });
         predicate.init(provider);
@@ -85,13 +85,13 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
     public void testDataSetTechIdCollectionPredicateIsSuccessful()
     {
         DataSetTechIdCollectionPredicate predicate = new DataSetTechIdCollectionPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
         final List<TechId> techIds = TechId.createList(1L, 2L);
         context.checking(new Expectations()
             {
                 {
                     one(provider).getDistinctSpacesByEntityIds(SpaceOwnerKind.DATASET, techIds);
-                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createGroup()))));
+                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createSpace()))));
                 }
             });
         predicate.init(provider);
@@ -106,13 +106,13 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
     public void testExperimentTechIdCollectionPredicateFails()
     {
         ExperimentTechIdCollectionPredicate predicate = new ExperimentTechIdCollectionPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
         final List<TechId> techIds = TechId.createList(1L, 2L);
         context.checking(new Expectations()
             {
                 {
                     one(provider).getDistinctSpacesByEntityIds(SpaceOwnerKind.EXPERIMENT, techIds);
-                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createAnotherGroup()))));
+                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createAnotherSpace()))));
                 }
             });
         predicate.init(provider);

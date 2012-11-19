@@ -69,7 +69,7 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
     public final void testExceptionBecauseGroupDoesNotExist()
     {
         final AbstractTechIdPredicate predicate = createPredicate();
-        prepareProvider(Collections.<SpacePE> emptyList(), createGroup(), ENTITY_KIND, TECH_ID);
+        prepareProvider(Collections.<SpacePE> emptyList(), createSpace(), ENTITY_KIND, TECH_ID);
         predicate.init(provider);
         assertTrue(predicate.doEvaluation(createPerson(), createRoles(false), TECH_ID).isError());
         context.assertIsSatisfied();
@@ -79,7 +79,7 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
     public final void testSuccessfulEvaluation()
     {
         final AbstractTechIdPredicate predicate = createPredicate();
-        prepareProvider(createGroups(), createGroup(), ENTITY_KIND, TECH_ID);
+        prepareProvider(createSpaces(), createSpace(), ENTITY_KIND, TECH_ID);
         predicate.init(provider);
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), TECH_ID);
@@ -92,10 +92,10 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
     {
         final AbstractTechIdPredicate predicate = createPredicate();
         final PersonPE person = createPerson();
-        person.setHomeSpace(createGroup());
+        person.setHomeSpace(createSpace());
         final DatabaseInstancePE homeDatabaseInstance = createDatabaseInstance();
-        final SpacePE homeGroup = createGroup(null, homeDatabaseInstance);
-        prepareProvider(createGroups(), homeGroup, ENTITY_KIND, TECH_ID);
+        final SpacePE homeGroup = createSpace(null, homeDatabaseInstance);
+        prepareProvider(createSpaces(), homeGroup, ENTITY_KIND, TECH_ID);
         predicate.init(provider);
         final Status evaluation = predicate.doEvaluation(person, createRoles(false), TECH_ID);
         assertEquals(Status.OK, evaluation);
@@ -106,7 +106,7 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
     public final void testFailedEvaluation()
     {
         final AbstractTechIdPredicate predicate = createPredicate();
-        prepareProvider(createGroups(), createAnotherGroup(), ENTITY_KIND, TECH_ID);
+        prepareProvider(createSpaces(), createAnotherSpace(), ENTITY_KIND, TECH_ID);
         predicate.init(provider);
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), TECH_ID);
@@ -121,8 +121,8 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
     {
         final AbstractTechIdPredicate predicate = createPredicate();
         final DatabaseInstancePE homeDatabaseInstance = createDatabaseInstance();
-        final List<SpacePE> groups = createGroups();
-        final SpacePE anotherGroup = createGroup(ANOTHER_GROUP_CODE, homeDatabaseInstance);
+        final List<SpacePE> groups = createSpaces();
+        final SpacePE anotherGroup = createSpace(ANOTHER_GROUP_CODE, homeDatabaseInstance);
         groups.add(anotherGroup);
         prepareProvider(groups, anotherGroup, ENTITY_KIND, TECH_ID);
         predicate.init(provider);

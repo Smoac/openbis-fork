@@ -35,7 +35,7 @@ public class ProjectValidatorTest extends AuthorizationTestCase
         ProjectValidator validator = new ProjectValidator();
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, ProjectTranslator
-                .translate(createProject(createAnotherGroup()))));
+                .translate(createProject(createAnotherSpace()))));
     }
 
     @Test
@@ -44,7 +44,7 @@ public class ProjectValidatorTest extends AuthorizationTestCase
         ProjectValidator validator = new ProjectValidator();
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, ProjectTranslator
-                .translate(createProject(createGroup()))));
+                .translate(createProject(createSpace()))));
     }
 
     @Test
@@ -52,7 +52,7 @@ public class ProjectValidatorTest extends AuthorizationTestCase
     {
         ProjectValidator validator = new ProjectValidator();
         PersonPE person = createPersonWithRoleAssignments();
-        SpacePE group = createGroup("blabla", createAnotherDatabaseInstance());
+        SpacePE group = createSpace("blabla", createAnotherDatabaseInstance());
         assertEquals(false, validator.isValid(person, ProjectTranslator
                 .translate(createProject(group))));
     }

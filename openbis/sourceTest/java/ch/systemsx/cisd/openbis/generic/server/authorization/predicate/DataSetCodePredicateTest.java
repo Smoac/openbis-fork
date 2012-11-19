@@ -44,7 +44,7 @@ public class DataSetCodePredicateTest extends AuthorizationTestCase
                 }
             });
         DataSetCodePredicate predicate = new DataSetCodePredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
         predicate.init(provider);
 
         Status evaluation = predicate.doEvaluation(createPerson(), createRoles(false), "d1");
@@ -67,7 +67,7 @@ public class DataSetCodePredicateTest extends AuthorizationTestCase
                 }
             });
         DataSetCodePredicate predicate = new DataSetCodePredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
         predicate.init(provider);
 
         Status evaluation = predicate.doEvaluation(createPerson(), createRoles(false), "d1");

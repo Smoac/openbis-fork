@@ -86,7 +86,7 @@ public class NewSamplesWithTypePredicateTest extends AuthorizationTestCase
                     will(returnValue(Status.OK));
                 }
             });
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
         predicate.init(provider);
         Status status =
                 predicate.evaluate(
@@ -118,7 +118,7 @@ public class NewSamplesWithTypePredicateTest extends AuthorizationTestCase
                     will(returnValue(Status.createError()));
                 }
             });
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
         predicate.init(provider);
         Status status =
                 predicate.evaluate(
@@ -152,7 +152,7 @@ public class NewSamplesWithTypePredicateTest extends AuthorizationTestCase
                     will(returnValue(Status.createError()));
                 }
             });
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
         predicate.init(provider);
         Status status =
                 predicate.evaluate(

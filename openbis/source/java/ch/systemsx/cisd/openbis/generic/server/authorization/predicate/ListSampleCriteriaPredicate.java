@@ -47,6 +47,11 @@ public class ListSampleCriteriaPredicate extends AbstractSpacePredicate<ListSamp
 
     private DatabaseInstancePE homeDatabase;
 
+    public ListSampleCriteriaPredicate()
+    {
+        super(true);
+    }
+
     @Override
     public String getCandidateDescription()
     {

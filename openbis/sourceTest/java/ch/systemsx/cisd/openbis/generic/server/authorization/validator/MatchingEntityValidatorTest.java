@@ -84,7 +84,7 @@ public final class MatchingEntityValidatorTest extends AuthorizationTestCase
     public final void testWithExperimentInTheRightDatabase()
     {
         final PersonPE person = createPersonWithRoleAssignments();
-        final ExperimentPE experiment = createExperiment(createGroup());
+        final ExperimentPE experiment = createExperiment(createSpace());
         final MatchingEntityValidator validator = new MatchingEntityValidator();
         assertEquals(true, validator.isValid(person, asMatchingEntityStub(experiment)));
     }
@@ -93,7 +93,7 @@ public final class MatchingEntityValidatorTest extends AuthorizationTestCase
     public final void testWithExperimentInTheRightGroup()
     {
         final PersonPE person = createPersonWithRoleAssignments();
-        final ExperimentPE experiment = createExperiment(createAnotherGroup());
+        final ExperimentPE experiment = createExperiment(createAnotherSpace());
         final MatchingEntityValidator validator = new MatchingEntityValidator();
         assertEquals(true, validator.isValid(person, asMatchingEntityStub(experiment)));
     }
@@ -102,7 +102,7 @@ public final class MatchingEntityValidatorTest extends AuthorizationTestCase
     public final void testWithExperimentInTheWrongGroup()
     {
         final PersonPE person = createPersonWithRoleAssignments();
-        SpacePE group = createGroup("blabla", createAnotherDatabaseInstance());
+        SpacePE group = createSpace("blabla", createAnotherDatabaseInstance());
         final ExperimentPE experiment = createExperiment(group);
         final MatchingEntityValidator validator = new MatchingEntityValidator();
         assertEquals(false, validator.isValid(person, asMatchingEntityStub(experiment)));
@@ -112,7 +112,7 @@ public final class MatchingEntityValidatorTest extends AuthorizationTestCase
     public final void testWithSampleInTheRightGroup()
     {
         final PersonPE person = createPersonWithRoleAssignments();
-        final SamplePE sample = createSample(createGroup());
+        final SamplePE sample = createSample(createSpace());
         final MatchingEntityValidator validator = new MatchingEntityValidator();
         assertEquals(true, validator.isValid(person, asMatchingEntityStub(sample)));
     }
@@ -121,7 +121,7 @@ public final class MatchingEntityValidatorTest extends AuthorizationTestCase
     public final void testWithSampleInTheWrongGroup()
     {
         final PersonPE person = createPersonWithRoleAssignments();
-        SpacePE group = createGroup("blabla", createAnotherDatabaseInstance());
+        SpacePE group = createSpace("blabla", createAnotherDatabaseInstance());
         final SamplePE sample = createSample(group);
         final MatchingEntityValidator validator = new MatchingEntityValidator();
         assertEquals(false, validator.isValid(person, asMatchingEntityStub(sample)));

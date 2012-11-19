@@ -38,7 +38,7 @@ public class SampleValidatorTest extends AuthorizationTestCase
         SampleValidator validator = new SampleValidator();
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person,
-                SampleTranslator.translate(createSample(createAnotherGroup()), BASE_URL, null)));
+                SampleTranslator.translate(createSample(createAnotherSpace()), BASE_URL, null)));
     }
 
     @Test
@@ -67,7 +67,7 @@ public class SampleValidatorTest extends AuthorizationTestCase
         assertEquals(
                 true,
                 validator.isValid(person,
-                        SampleTranslator.translate(createSample(createGroup()), BASE_URL, null)));
+                        SampleTranslator.translate(createSample(createSpace()), BASE_URL, null)));
     }
 
     @Test
@@ -75,7 +75,7 @@ public class SampleValidatorTest extends AuthorizationTestCase
     {
         SampleValidator validator = new SampleValidator();
         PersonPE person = createPersonWithRoleAssignments();
-        SpacePE group = createGroup("blabla", createAnotherDatabaseInstance());
+        SpacePE group = createSpace("blabla", createAnotherDatabaseInstance());
         assertEquals(
                 false,
                 validator.isValid(person,

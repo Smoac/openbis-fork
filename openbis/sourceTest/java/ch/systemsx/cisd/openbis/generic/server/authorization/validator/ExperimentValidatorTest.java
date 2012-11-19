@@ -38,7 +38,7 @@ public class ExperimentValidatorTest extends AuthorizationTestCase
         ExperimentValidator validator = new ExperimentValidator();
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, ExperimentTranslator.translate(
-                createExperiment(createAnotherGroup()), BASE_URL, null)));
+                createExperiment(createAnotherSpace()), BASE_URL, null)));
     }
 
     @Test
@@ -47,7 +47,7 @@ public class ExperimentValidatorTest extends AuthorizationTestCase
         ExperimentValidator validator = new ExperimentValidator();
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person,
-                ExperimentTranslator.translate(createExperiment(createGroup()), BASE_URL, null)));
+                ExperimentTranslator.translate(createExperiment(createSpace()), BASE_URL, null)));
     }
 
     @Test
@@ -55,7 +55,7 @@ public class ExperimentValidatorTest extends AuthorizationTestCase
     {
         ExperimentValidator validator = new ExperimentValidator();
         PersonPE person = createPersonWithRoleAssignments();
-        SpacePE group = createGroup("blabla", createAnotherDatabaseInstance());
+        SpacePE group = createSpace("blabla", createAnotherDatabaseInstance());
         assertEquals(
                 false,
                 validator.isValid(person,

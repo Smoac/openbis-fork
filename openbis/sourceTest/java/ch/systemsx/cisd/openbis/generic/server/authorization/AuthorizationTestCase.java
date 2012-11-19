@@ -28,9 +28,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
-import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.server.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
@@ -157,49 +154,49 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a list of spaces which contains {@link #createGroup()} and
-     * {@link #createAnotherGroup()}.
+     * Creates a list of spaces which contains {@link #createSpace()} and
+     * {@link #createAnotherSpace()}.
      */
-    protected List<SpacePE> createGroups()
+    protected List<SpacePE> createSpaces()
     {
-        final List<SpacePE> groups = new ArrayList<SpacePE>();
-        groups.add(createGroup());
-        groups.add(createAnotherGroup());
-        return groups;
+        final List<SpacePE> spaces = new ArrayList<SpacePE>();
+        spaces.add(createSpace());
+        spaces.add(createAnotherSpace());
+        return spaces;
     }
 
     /**
      * Creates a group with code {@link #SPACE_CODE} and database instance with code
      * {@link AuthorizationTestCase#INSTANCE_CODE}.
      */
-    protected SpacePE createGroup()
+    protected SpacePE createSpace()
     {
-        return createGroup(SPACE_CODE, createDatabaseInstance());
+        return createSpace(SPACE_CODE, createDatabaseInstance());
     }
 
     /**
-     * Creates a group with code {@link #ANOTHER_GROUP_CODE} and database instance with code
+     * Creates a space with code {@link #ANOTHER_GROUP_CODE} and database instance with code
      * {@link #ANOTHER_INSTANCE_CODE}.
      */
-    protected SpacePE createAnotherGroup()
+    protected SpacePE createAnotherSpace()
     {
-        return createGroup(ANOTHER_GROUP_CODE, createAnotherDatabaseInstance());
+        return createSpace(ANOTHER_GROUP_CODE, createAnotherDatabaseInstance());
     }
 
     /**
-     * Creates a group based on the specified identifier.
+     * Creates a space based on the specified identifier.
      */
-    protected SpacePE createGroup(SpaceIdentifier identifier)
+    protected SpacePE createSpace(SpaceIdentifier identifier)
     {
         final String databaseInstanceCode = identifier.getDatabaseInstanceCode();
         final DatabaseInstancePE instance = createDatabaseInstance(databaseInstanceCode);
-        return createGroup(identifier.getSpaceCode(), instance);
+        return createSpace(identifier.getSpaceCode(), instance);
     }
 
     /**
-     * Creates a group with specified group code and database instance.
+     * Creates a space with specified group code and database instance.
      */
-    protected SpacePE createGroup(final String groupCode,
+    protected SpacePE createSpace(final String groupCode,
             final DatabaseInstancePE databaseInstancePE)
     {
         final SpacePE group = new SpacePE();
@@ -210,7 +207,7 @@ public class AuthorizationTestCase extends AssertJUnit
 
     /**
      * Creates a person with two {@link RoleAssignmentPE} instances. One ADMIN role for database
-     * instance {@link #INSTANCE_CODE} and a USER role for the group {@link #createAnotherGroup()}.
+     * instance {@link #INSTANCE_CODE} and a USER role for the group {@link #createAnotherSpace()}.
      */
     protected PersonPE createPersonWithRoleAssignments()
     {
@@ -222,7 +219,7 @@ public class AuthorizationTestCase extends AssertJUnit
     /**
      * Assigns two {@link RoleAssignmentPE} instances to specified person. One ADMIN role for
      * database instance {@link #INSTANCE_CODE} and a USER role for the group
-     * {@link #createAnotherGroup()}.
+     * {@link #createAnotherSpace()}.
      */
     protected void assignRoles(PersonPE person)
     {
@@ -236,7 +233,7 @@ public class AuthorizationTestCase extends AssertJUnit
         // Group assignment
         assignment = new RoleAssignmentPE();
         assignment.setRole(RoleCode.USER);
-        assignment.setSpace(createAnotherGroup());
+        assignment.setSpace(createAnotherSpace());
         person.addRoleAssignment(assignment);
         list.add(assignment);
 
@@ -348,10 +345,10 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Prepares {@link #provider} to expect a query for the home database instance and groups.
+     * Prepares {@link #provider} to expect a query for the home database instance and spaces.
      */
     protected final void prepareProvider(final DatabaseInstancePE databaseInstance,
-            final List<SpacePE> groups)
+            final List<SpacePE> spaces)
     {
         context.checking(new Expectations()
             {
@@ -360,7 +357,7 @@ public class AuthorizationTestCase extends AssertJUnit
                     will(returnValue(databaseInstance));
 
                     allowing(provider).listSpaces();
-                    will(returnValue(groups));
+                    will(returnValue(spaces));
                 }
             });
     }

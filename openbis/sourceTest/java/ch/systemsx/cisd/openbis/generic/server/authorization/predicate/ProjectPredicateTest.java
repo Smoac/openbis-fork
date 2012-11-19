@@ -40,7 +40,7 @@ public class ProjectPredicateTest extends AuthorizationTestCase
             {
                 {
                     allowing(provider).listSpaces();
-                    will(returnValue(createGroups()));
+                    will(returnValue(createSpaces()));
 
                     DatabaseInstancePE db = new DatabaseInstancePE();
                     db.setCode(INSTANCE_CODE);
@@ -67,7 +67,7 @@ public class ProjectPredicateTest extends AuthorizationTestCase
             {
                 {
                     allowing(provider).listSpaces();
-                    will(returnValue(createGroups()));
+                    will(returnValue(createSpaces()));
 
                     DatabaseInstancePE db = new DatabaseInstancePE();
                     db.setCode(INSTANCE_CODE);

@@ -27,7 +27,6 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.SpaceOwnerKind;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ListSampleCriteriaPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
@@ -57,7 +56,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     }
 
     @Test
-    public final void testExceptionBecauseGroupDoesNotExist()
+    public final void testNoSpaces()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
         prepareProvider(createDatabaseInstance(), Collections.<SpacePE> emptyList());
@@ -65,14 +64,27 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         final ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setSpaceCode(SPACE_CODE);
         criteria.setIncludeSpace(true);
-        assertTrue(predicate.doEvaluation(createPerson(), createRoles(false), criteria).isError());
+        assertTrue(predicate.doEvaluation(createPerson(), createRoles(false), criteria).isOK());
         context.assertIsSatisfied();
     }
 
-    public final void testExceptionBecauseGroupUnauthorized()
+    @Test
+    public final void testSpaceDoesNotExist()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
-        prepareProvider(createAnotherDatabaseInstance(), createGroups());
+        prepareProvider(createDatabaseInstance(), Arrays.asList(createAnotherSpace()));
+        predicate.init(provider);
+        final ListSampleCriteria criteria = new ListSampleCriteria();
+        criteria.setSpaceCode(SPACE_CODE);
+        criteria.setIncludeSpace(true);
+        assertTrue(predicate.doEvaluation(createPerson(), createRoles(false), criteria).isOK());
+        context.assertIsSatisfied();
+    }
+
+    public final void testExceptionBecauseSpaceUnauthorized()
+    {
+        final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
+        prepareProvider(createAnotherDatabaseInstance(), createSpaces());
         predicate.init(provider);
         final ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setSpaceCode(ANOTHER_GROUP_CODE);
@@ -82,10 +94,10 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     }
 
     @Test
-    public final void testSuccessfulEvaluationForGroupSamples()
+    public final void testSuccessfulEvaluationForSpaceSamples()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
-        prepareProvider(createDatabaseInstance(), createGroups());
+        prepareProvider(createDatabaseInstance(), createSpaces());
         predicate.init(provider);
         final ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setSpaceCode(SPACE_CODE);
@@ -100,7 +112,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     public final void testSuccessfulEvaluationForSharedSamples()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
-        prepareProvider(createDatabaseInstance(), createGroups());
+        prepareProvider(createDatabaseInstance(), createSpaces());
         predicate.init(provider);
         final ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setIncludeInstance(true);
@@ -115,12 +127,12 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     public final void testSuccessfulEvaluationForExperimentSamples()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
-        prepareProvider(createDatabaseInstance(), createGroups());
+        prepareProvider(createDatabaseInstance(), createSpaces());
         context.checking(new Expectations()
             {
                 {
                     one(provider).tryGetSpace(SpaceOwnerKind.EXPERIMENT, new TechId(17L));
-                    will(returnValue(createGroup()));
+                    will(returnValue(createSpace()));
                 }
             });
         predicate.init(provider);
@@ -135,12 +147,12 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     public final void testExceptionBecauseExperimentUnauthorized()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
-        prepareProvider(createDatabaseInstance(), createGroups());
+        prepareProvider(createDatabaseInstance(), createSpaces());
         context.checking(new Expectations()
             {
                 {
                     one(provider).tryGetSpace(SpaceOwnerKind.EXPERIMENT, new TechId(17L));
-                    will(returnValue(createAnotherGroup()));
+                    will(returnValue(createAnotherSpace()));
                 }
             });
         predicate.init(provider);
@@ -155,12 +167,12 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     public final void testSuccessfulEvaluationForContainerSamples()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
-        prepareProvider(createDatabaseInstance(), createGroups());
+        prepareProvider(createDatabaseInstance(), createSpaces());
         context.checking(new Expectations()
             {
                 {
                     one(provider).getSampleCollectionAccessData(Arrays.asList(new TechId(42L)));
-                    will(returnValue(createSampleAccessSet(createGroup())));
+                    will(returnValue(createSampleAccessSet(createSpace())));
                 }
             });
         predicate.init(provider);
@@ -175,12 +187,12 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     public final void testExceptionBecauseContainerUnauthorized()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
-        prepareProvider(createDatabaseInstance(), createGroups());
+        prepareProvider(createDatabaseInstance(), createSpaces());
         context.checking(new Expectations()
             {
                 {
                     one(provider).getSampleCollectionAccessData(Arrays.asList(new TechId(42L)));
-                    will(returnValue(createSampleAccessSet(createAnotherGroup())));
+                    will(returnValue(createSampleAccessSet(createAnotherSpace())));
                 }
             });
         predicate.init(provider);

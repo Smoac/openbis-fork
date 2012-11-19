@@ -42,7 +42,7 @@ public class ExternalDataValidatorTest extends AuthorizationTestCase
     {
         ExternalDataValidator validator = new ExternalDataValidator();
         PersonPE person = createPersonWithRoleAssignments();
-        assertEquals(true, validator.isValid(person, createData(createAnotherGroup())));
+        assertEquals(true, validator.isValid(person, createData(createAnotherSpace())));
     }
 
     @Test
@@ -50,7 +50,7 @@ public class ExternalDataValidatorTest extends AuthorizationTestCase
     {
         ExternalDataValidator validator = new ExternalDataValidator();
         PersonPE person = createPersonWithRoleAssignments();
-        assertEquals(true, validator.isValid(person, createData(createGroup())));
+        assertEquals(true, validator.isValid(person, createData(createSpace())));
     }
 
     @Test
@@ -58,7 +58,7 @@ public class ExternalDataValidatorTest extends AuthorizationTestCase
     {
         ExternalDataValidator validator = new ExternalDataValidator();
         PersonPE person = createPersonWithRoleAssignments();
-        SpacePE group = createGroup("blabla", createAnotherDatabaseInstance());
+        SpacePE group = createSpace("blabla", createAnotherDatabaseInstance());
         assertEquals(false, validator.isValid(person, createData(group)));
     }
 

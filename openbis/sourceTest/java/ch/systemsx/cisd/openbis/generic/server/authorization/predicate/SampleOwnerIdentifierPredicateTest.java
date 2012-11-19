@@ -40,7 +40,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         PersonPE person = createPerson();
         List<RoleWithIdentifier> roles = createRoles(true);
         SampleOwnerIdentifier identifier = new SampleOwnerIdentifier(ANOTHER_INSTANCE_IDENTIFIER);
-        prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createGroups());
+        prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createSpaces());
         predicate.init(provider);
 
         Status status = predicate.evaluate(person, roles, identifier);
@@ -56,7 +56,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         PersonPE person = createPerson();
         List<RoleWithIdentifier> roles = createRoles(false);
         SampleOwnerIdentifier identifier = new SampleOwnerIdentifier(INSTANCE_IDENTIFIER);
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
         predicate.init(provider);
 
         Status status = predicate.evaluate(person, roles, identifier);
@@ -74,7 +74,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         PersonPE person = createPerson();
         List<RoleWithIdentifier> roles = createRoles(false);
         SampleOwnerIdentifier identifier = new SampleOwnerIdentifier(INSTANCE_IDENTIFIER);
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
         predicate.init(provider);
 
         Status status = predicate.evaluate(person, roles, identifier);
@@ -90,7 +90,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         PersonPE person = createPerson();
         List<RoleWithIdentifier> roles = createRoles(false);
         SampleOwnerIdentifier identifier = new SampleOwnerIdentifier(ANOTHER_INSTANCE_IDENTIFIER);
-        prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createGroups());
+        prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createSpaces());
         predicate.init(provider);
 
         Status status = predicate.evaluate(person, roles, identifier);
@@ -109,7 +109,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         List<RoleWithIdentifier> roles = createRoles(false);
         SampleOwnerIdentifier identifier =
                 new SampleOwnerIdentifier(new SpaceIdentifier(INSTANCE_IDENTIFIER, SPACE_CODE));
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
         predicate.init(provider);
 
         Status status = predicate.evaluate(person, roles, identifier);
@@ -127,7 +127,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         SampleOwnerIdentifier identifier =
                 new SampleOwnerIdentifier(new SpaceIdentifier(ANOTHER_INSTANCE_CODE,
                         ANOTHER_GROUP_CODE));
-        prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createGroups());
+        prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createSpaces());
         predicate.init(provider);
 
         Status status = predicate.evaluate(person, roles, identifier);

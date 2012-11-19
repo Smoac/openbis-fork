@@ -53,7 +53,7 @@ public final class GroupValidatorTest extends AuthorizationTestCase
     {
         final SpaceValidator groupValidator = new SpaceValidator();
         final PersonPE personPE = createPerson();
-        final SpacePE groupPE = createGroup();
+        final SpacePE groupPE = createSpace();
         final Space space = SpaceTranslator.translate(groupPE);
         
         assertFalse(groupValidator.isValid(personPE, space));
@@ -66,7 +66,7 @@ public final class GroupValidatorTest extends AuthorizationTestCase
     {
         final SpaceValidator groupValidator = new SpaceValidator();
         final PersonPE personPE = createPersonWithRoleAssignments();
-        final SpacePE groupPE = createAnotherGroup();
+        final SpacePE groupPE = createAnotherSpace();
         final Space space = SpaceTranslator.translate(groupPE);
         assertTrue(groupValidator.isValid(personPE, space));
         context.assertIsSatisfied();
@@ -77,7 +77,7 @@ public final class GroupValidatorTest extends AuthorizationTestCase
     {
         final SpaceValidator groupValidator = new SpaceValidator();
         final PersonPE personPE = createPersonWithRoleAssignments();
-        final SpacePE groupPE = createGroup();
+        final SpacePE groupPE = createSpace();
         final Space space = SpaceTranslator.translate(groupPE);
         assertTrue(groupValidator.isValid(personPE, space));
         context.assertIsSatisfied();
