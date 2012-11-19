@@ -23,7 +23,7 @@
 #import <Foundation/Foundation.h>
 #import "CISDOBShared.h"
 
-@class CISDOBIpadEntity, CISDOBIpadServiceManager;
+@class CISDOBIpadEntity, CISDOBIpadServiceManager, CISDOBAppDelegate;
 
 /**
  * \brief A model for the interaction with openBIS.
@@ -35,6 +35,7 @@
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 @property (weak, nonatomic) id <NSFetchedResultsControllerDelegate> delegate;
+@property (weak, nonatomic) CISDOBAppDelegate *appDelegate;
 
 @property (weak, nonatomic) CISDOBOpenBisModel *parentModel;
 @property (weak, nonatomic) CISDOBIpadServiceManager *serviceManager;
@@ -50,6 +51,7 @@
 
 // Selection
 @property (strong, nonatomic) CISDOBIpadEntity *selectedObject;
+
 
 //! Select the object and return it
 - (CISDOBIpadEntity *)selectObjectAtIndexPath:(NSIndexPath *)indexPath;

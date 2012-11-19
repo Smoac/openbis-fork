@@ -45,6 +45,7 @@
     if (self.parentModel) {
         self.managedObjectContext = parentModel.managedObjectContext;
         self.serviceManager = parentModel.serviceManager;
+        self.appDelegate = parentModel.appDelegate;
     }
     
     return self;
@@ -114,6 +115,7 @@
     
     return [entity.childrenPermIds count] > 0;
 }
+
 
 #pragma mark - Actions
 - (BOOL)insertNewObjectOrError:(NSError **)error

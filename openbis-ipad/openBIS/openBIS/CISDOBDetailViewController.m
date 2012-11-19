@@ -25,6 +25,7 @@
 #import "CISDOBIpadEntity.h"
 #import "CISDOBOpenBisModel.h"
 #import "CISDOBIpadServiceManager.h"
+#import "CISDOBLoginViewController.h"
 
 @interface NSURLRequest (NSURLRequestDebug)
 + (BOOL)allowsAnyHTTPSCertificateForHost:(NSString *)host;
@@ -126,6 +127,18 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([@"ShowLoginDialog" isEqualToString: segue.identifier]) {
+        ((CISDOBLoginViewController *) segue.destinationViewController).detailViewController = self;
+    }
+}
+
+- (void)loginControllerDidComplete:(CISDOBLoginViewController *)controller
+{
+    [controller dismissViewControllerAnimated: YES completion: nil];
+}
+
 #pragma mark - Split view
 
 - (void)splitViewController:(UISplitViewController *)splitController willHideViewController:(UIViewController *)viewController withBarButtonItem:(UIBarButtonItem *)barButtonItem forPopoverController:(UIPopoverController *)popoverController
@@ -206,11 +219,6 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-{
-
-}
-
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
 
 }

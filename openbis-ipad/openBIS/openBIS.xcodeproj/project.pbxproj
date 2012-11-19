@@ -12,6 +12,7 @@
 		364D509E161C6ADB00A739B0 /* openBISData.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 364D509C161C6ADB00A739B0 /* openBISData.sqlite */; };
 		3687D8FF162D3AB500622690 /* openbis-icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 3687D8FD162D3AB500622690 /* openbis-icon-72.png */; };
 		3687D900162D3AB500622690 /* openbis-icon-144.png in Resources */ = {isa = PBXBuildFile; fileRef = 3687D8FE162D3AB500622690 /* openbis-icon-144.png */; };
+		36BDE60016555869007EC62A /* CISDOBLoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36BDE5FF16555869007EC62A /* CISDOBLoginViewController.m */; };
 		36F71E79161C3AE900C87277 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E78161C3AE900C87277 /* UIKit.framework */; };
 		36F71E7B161C3AE900C87277 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E7A161C3AE900C87277 /* Foundation.framework */; };
 		36F71E7D161C3AE900C87277 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E7C161C3AE900C87277 /* CoreGraphics.framework */; };
@@ -82,6 +83,8 @@
 		364D509C161C6ADB00A739B0 /* openBISData.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = openBISData.sqlite; sourceTree = "<group>"; };
 		3687D8FD162D3AB500622690 /* openbis-icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "openbis-icon-72.png"; sourceTree = "<group>"; };
 		3687D8FE162D3AB500622690 /* openbis-icon-144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "openbis-icon-144.png"; sourceTree = "<group>"; };
+		36BDE5FE16555869007EC62A /* CISDOBLoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBLoginViewController.h; sourceTree = "<group>"; };
+		36BDE5FF16555869007EC62A /* CISDOBLoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBLoginViewController.m; sourceTree = "<group>"; };
 		36F71E74161C3AE900C87277 /* openBIS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = openBIS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		36F71E78161C3AE900C87277 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		36F71E7A161C3AE900C87277 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -215,10 +218,12 @@
 				36F71E8A161C3AE900C87277 /* CISDOBAppDelegate.m */,
 				36F71E92161C3AE900C87277 /* MainStoryboard_iPhone.storyboard */,
 				36F71E95161C3AE900C87277 /* MainStoryboard_iPad.storyboard */,
-				36F71E9B161C3AE900C87277 /* CISDOBMasterViewController.h */,
-				36F71E9C161C3AE900C87277 /* CISDOBMasterViewController.m */,
 				36F71E9E161C3AE900C87277 /* CISDOBDetailViewController.h */,
 				36F71E9F161C3AE900C87277 /* CISDOBDetailViewController.m */,
+				36BDE5FE16555869007EC62A /* CISDOBLoginViewController.h */,
+				36BDE5FF16555869007EC62A /* CISDOBLoginViewController.m */,
+				36F71E9B161C3AE900C87277 /* CISDOBMasterViewController.h */,
+				36F71E9C161C3AE900C87277 /* CISDOBMasterViewController.m */,
 				36F97A2C1628123F005D063E /* CISDOBOpenBisModel.h */,
 				36F97A2D1628123F005D063E /* CISDOBOpenBisModel.m */,
 				364D509A161C6ADB00A739B0 /* DevData */,
@@ -467,6 +472,7 @@
 				36F71EE9161C453D00C87277 /* persistent-data-model.xcdatamodeld in Sources */,
 				36F97A2E1628123F005D063E /* CISDOBOpenBisModel.m in Sources */,
 				362B81EC163FFB6C00127554 /* CISDOBIpadServiceManager.m in Sources */,
+				36BDE60016555869007EC62A /* CISDOBLoginViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

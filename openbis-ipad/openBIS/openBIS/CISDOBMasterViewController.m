@@ -82,6 +82,13 @@
     return (tableView == self.browseTableView) ? self.browseState : self.filterState;
 }
 
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([[segue identifier] isEqualToString:@"showDetail"]) {
+        [[segue destinationViewController] setOpenBisModel: self.openBisModel];
+    }
+}
+
 #pragma mark - Table View
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -152,13 +159,6 @@
     } else {
         // Show the current selection
         [self.detailViewController selectionDidChange];
-    }
-}
-
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    if ([[segue identifier] isEqualToString:@"showDetail"]) {
-        [[segue destinationViewController] setOpenBisModel: self.openBisModel];
     }
 }
 

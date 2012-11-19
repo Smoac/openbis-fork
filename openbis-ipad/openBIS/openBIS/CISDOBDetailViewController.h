@@ -23,7 +23,7 @@
 
 #import <UIKit/UIKit.h>
 
-@class CISDOBIpadEntity, CISDOBOpenBisModel;
+@class CISDOBIpadEntity, CISDOBOpenBisModel, CISDOBLoginViewController;
 @interface CISDOBDetailViewController : UIViewController <UISplitViewControllerDelegate, UIWebViewDelegate>
 
 @property (strong, nonatomic) CISDOBOpenBisModel *openBisModel;
@@ -38,5 +38,7 @@
 // Actions
 - (void)selectionDidChange;     //!< Signals that the user has made a final selction
 - (void)selectionIsChanging;    //!< Signals that the user has changed the seleciton, but has not yet decided
+
+- (void)loginControllerDidComplete:(CISDOBLoginViewController *)controller;
 
 @end

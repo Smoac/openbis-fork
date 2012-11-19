@@ -34,6 +34,12 @@
 @property (readonly, strong, nonatomic) CISDOBOpenBisModel *rootOpenBisModel;
 @property (readonly, strong, nonatomic) CISDOBIpadServiceManager *serviceManager;
 
+// User Settings
+@property (copy, nonatomic) NSString *username;
+@property (copy, nonatomic) NSString *password;
+@property (copy, nonatomic) NSURL *openbisUrl;
+- (BOOL)synchronizeUserSettings;
+
 - (void)saveContext;
 - (NSURL *)applicationDocumentsDirectory;
 

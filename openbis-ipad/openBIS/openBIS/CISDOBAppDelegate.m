@@ -27,17 +27,38 @@
 #import "CISDOBOpenBisModel.h"
 #import "CISDOBIpadServiceManager.h"
 #import "CISDOBAsyncCall.h"
+#import "CISDOBDetailViewController.h"
 
 @implementation CISDOBAppDelegate
 
 @synthesize rootOpenBisModel = _rootOpenBisModel;
 @synthesize serviceManager = _serviceManager;
 
-#pragma mark - User management
+#pragma mark - User Settings
 
-- (NSString *)username { return @"admin"; }
-- (NSString *)password { return @"password"; }
-- (NSURL *)openbisUrl { return [NSURL URLWithString: @"https://localhost:8443"]; }
+//- (NSString *)username { return @"admin"; }
+//- (NSString *)password { return @"password"; }
+//- (NSURL *)openbisUrl { return [NSURL URLWithString: @"https://localhost:8443"]; }
+
+- (NSString *)username { return [[NSUserDefaults standardUserDefaults] stringForKey: @"openbis_username"]; }
+- (NSString *)password { return [[NSUserDefaults standardUserDefaults] stringForKey: @"openbis_password"]; }
+- (NSURL *)openbisUrl { return [[NSUserDefaults standardUserDefaults] URLForKey: @"openbis_server_url"]; }
+
+- (void)setUsername:(NSString *)username
+{
+    return [[NSUserDefaults standardUserDefaults] setObject: username forKey: @"openbis_username"];
+}
+- (void)setPassword:(NSString *)password
+{
+    return [[NSUserDefaults standardUserDefaults] setObject: password forKey: @"openbis_password"];
+}
+- (void)setOpenbisUrl:(NSURL *)openbisUrl
+{
+    return [[NSUserDefaults standardUserDefaults] setURL: openbisUrl forKey: @"openbis_server_url"];
+}
+
+- (BOOL)synchronizeUserSettings { return [[NSUserDefaults standardUserDefaults] synchronize]; }
+
 
 - (void)configureControllers;
 {
@@ -65,6 +86,28 @@
     return controller;
 }
 
+- (CISDOBDetailViewController *)detailsViewController
+{
+    UISplitViewController *splitViewController = (UISplitViewController *)self.window.rootViewController;
+    return (CISDOBDetailViewController *)[[splitViewController.viewControllers lastObject] topViewController];
+}
+
+- (void)initializeOpenBisConnection
+{
+    CISDOBMasterViewController *controller = [self masterViewController];
+
+    // Initialize the connection to openBIS
+    CISDOBAsyncCall *call = [self.serviceManager loginUser: [self username] password: [self password]];
+    call.success = ^(id result) {
+        [controller didConnectServiceManager: self.serviceManager];
+    };
+    call.fail = ^(NSError *error) {
+        NSLog(@"DEBUG Login failed %@", error);
+        [[self detailsViewController] performSegueWithIdentifier: @"ShowLoginDialog" sender: self];
+    };
+    [call start];
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Initialize the controller
@@ -72,12 +115,8 @@
     CISDOBMasterViewController *controller = [self masterViewController];
     controller.openBisModel = self.rootOpenBisModel;
 
-    // Initialize the connection to openBIS
-    CISDOBAsyncCall *call = [self.serviceManager loginUser: [self username] password: [self password]];
-    call.success = ^(id result) {
-        [controller didConnectServiceManager: self.serviceManager];
-    };
-    [call start];    
+    [self initializeOpenBisConnection];
+    
     
     return YES;
 }
@@ -167,6 +206,7 @@
     _rootOpenBisModel = [[CISDOBOpenBisModel alloc] init];
     _rootOpenBisModel.managedObjectContext = self.managedObjectContext;
     _rootOpenBisModel.serviceManager = self.serviceManager;
+    _rootOpenBisModel.appDelegate = self;
     
     return _rootOpenBisModel;
 }

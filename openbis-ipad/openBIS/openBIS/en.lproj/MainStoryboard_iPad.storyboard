@@ -137,6 +137,7 @@
                         <outlet property="summaryHeaderLabel" destination="27" id="f5M-Ao-eBL"/>
                         <outlet property="summaryLabel" destination="T4E-dH-b3j" id="qVC-t4-llZ"/>
                         <outlet property="webView" destination="rUU-Fj-t5t" id="N50-LI-vy0"/>
+                        <segue destination="JpU-kO-AZv" kind="modal" identifier="ShowLoginDialog" id="Ptf-UL-Gbm"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="15" sceneMemberID="firstResponder"/>
@@ -158,6 +159,120 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="17" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-687" y="-630"/>
+        </scene>
+        <!--Login View Controller - Login-->
+        <scene sceneID="SPy-Sj-8UI">
+            <objects>
+                <viewController storyboardIdentifier="LoginDialog" title="Login" id="JpU-kO-AZv" customClass="CISDOBLoginViewController" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="RL9-Rf-b7S">
+                        <rect key="frame" x="0.0" y="20" width="1024" height="748"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="URL" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="sWb-wa-6qu">
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="User" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="IEY-Jd-Yi1">
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="166" id="Jtp-1J-Ywx"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Password" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="156-KK-cHv">
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="300" id="hMu-HO-BTO"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Login" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fv2-LT-eNm">
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="openBIS Server" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LRp-55-gt6">
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Welcome to openBIS!" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="y8r-6g-CzC">
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" lineBreakMode="tailTruncation" numberOfLines="6" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="518" translatesAutoresizingMaskIntoConstraints="NO" id="7Aq-O2-MYr">
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="518" id="Ldk-lk-uGQ"/>
+                                    <constraint firstAttribute="height" constant="82" id="TlM-Xl-NTi"/>
+                                </constraints>
+                                <string key="text">This iPad app is designed to give users of openBIS access to their data from their iPad.
+
+If you are a user of an openBIS server, plese enter the URL and your login details in the space provided below. If you are just curious and want to try out the iPad app, click the "Demo" button to bypass log in.</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" reversesTitleShadowWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3rW-ET-vQX">
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <state key="normal" title="Demo">
+                                    <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="demoClicked:" destination="JpU-kO-AZv" eventType="touchUpInside" id="9n3-wf-vlq"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" reversesTitleShadowWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="t1Z-Hl-UZu">
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <state key="normal" title="Log In">
+                                    <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="loginClicked:" destination="JpU-kO-AZv" eventType="touchUpInside" id="0Ax-4t-pv6"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="y8r-6g-CzC" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="77" id="0ob-Dv-vCz"/>
+                            <constraint firstItem="sWb-wa-6qu" firstAttribute="top" secondItem="LRp-55-gt6" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="28F-qF-pyr"/>
+                            <constraint firstItem="t1Z-Hl-UZu" firstAttribute="trailing" secondItem="156-KK-cHv" secondAttribute="trailing" type="default" id="3Cm-ZJ-4ej"/>
+                            <constraint firstItem="LRp-55-gt6" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="263" id="4Tt-tZ-zJQ"/>
+                            <constraint firstItem="IEY-Jd-Yi1" firstAttribute="baseline" secondItem="156-KK-cHv" secondAttribute="baseline" type="default" id="7HG-Jt-IJz"/>
+                            <constraint firstItem="y8r-6g-CzC" firstAttribute="leading" secondItem="RL9-Rf-b7S" secondAttribute="leading" constant="31" id="DtS-bD-LhH"/>
+                            <constraint firstItem="Fv2-LT-eNm" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="341" id="LEY-Xc-2eO"/>
+                            <constraint firstItem="156-KK-cHv" firstAttribute="leading" secondItem="IEY-Jd-Yi1" secondAttribute="trailing" constant="8" symbolic="YES" type="default" id="MMa-ki-yYc"/>
+                            <constraint firstItem="3rW-ET-vQX" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="125" id="N4K-n3-cea"/>
+                            <constraint firstItem="7Aq-O2-MYr" firstAttribute="top" secondItem="y8r-6g-CzC" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="RJ0-gw-cc5"/>
+                            <constraint firstAttribute="trailing" secondItem="3rW-ET-vQX" secondAttribute="trailing" constant="55" id="TbQ-3X-ryq"/>
+                            <constraint firstItem="Fv2-LT-eNm" firstAttribute="leading" secondItem="IEY-Jd-Yi1" secondAttribute="leading" type="default" id="W0P-8D-xEd"/>
+                            <constraint firstItem="IEY-Jd-Yi1" firstAttribute="top" secondItem="Fv2-LT-eNm" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="g8C-I7-Kju"/>
+                            <constraint firstItem="Fv2-LT-eNm" firstAttribute="leading" secondItem="sWb-wa-6qu" secondAttribute="leading" type="default" id="iAC-ad-Bwq"/>
+                            <constraint firstItem="sWb-wa-6qu" firstAttribute="trailing" secondItem="156-KK-cHv" secondAttribute="trailing" type="default" id="kFD-Ip-DpD"/>
+                            <constraint firstItem="LRp-55-gt6" firstAttribute="leading" secondItem="sWb-wa-6qu" secondAttribute="leading" type="default" id="sJ8-Gb-txC"/>
+                            <constraint firstItem="7Aq-O2-MYr" firstAttribute="leading" secondItem="LRp-55-gt6" secondAttribute="leading" type="default" id="tgp-P1-o0q"/>
+                            <constraint firstItem="t1Z-Hl-UZu" firstAttribute="top" secondItem="156-KK-cHv" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="wRp-wD-diw"/>
+                            <constraint firstItem="7Aq-O2-MYr" firstAttribute="leading" secondItem="y8r-6g-CzC" secondAttribute="leading" type="default" id="ybM-Ej-2gb"/>
+                        </constraints>
+                        <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
+                    </view>
+                    <connections>
+                        <outlet property="passwordTextField" destination="156-KK-cHv" id="LZZ-6g-3h7"/>
+                        <outlet property="urlTextField" destination="sWb-wa-6qu" id="8no-1Z-Woq"/>
+                        <outlet property="usernameTextField" destination="IEY-Jd-Yi1" id="McP-OA-YdO"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="9za-VG-9q0" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1516" y="19"/>
         </scene>
         <!--Master View Controller - Master-->
         <scene sceneID="24">
@@ -255,6 +370,16 @@
                 <relationship kind="outlet" name="summaryHeaderLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="summaryLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="webView" candidateClass="UIWebView"/>
+            </relationships>
+        </class>
+        <class className="CISDOBLoginViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/CISDOBLoginViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="demoClicked:"/>
+                <relationship kind="action" name="loginClicked:"/>
+                <relationship kind="outlet" name="passwordTextField" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="urlTextField" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="usernameTextField" candidateClass="UITextField"/>
             </relationships>
         </class>
         <class className="CISDOBMasterViewController" superclassName="UITableViewController">
