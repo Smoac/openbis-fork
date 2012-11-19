@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoDBAwareHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.RemoteHierarchicalContent;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -150,12 +151,15 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
             }
         } else
         {
-            IDataSetPathInfoProvider dataSetPathInfoProvider =
-                    ServiceProvider.getDataSetPathInfoProvider();
-            ISingleDataSetPathInfoProvider provider =
-                    dataSetPathInfoProvider.tryGetSingleDataSetPathInfoProvider(locationNode
-                            .getLocation()
-                            .getDataSetCode());
+            ISingleDataSetPathInfoProvider provider = null;
+            if (PathInfoDataSourceProvider.isDataSourceDefined())
+            {
+                IDataSetPathInfoProvider dataSetPathInfoProvider =
+                        ServiceProvider.getDataSetPathInfoProvider();
+                provider = dataSetPathInfoProvider.tryGetSingleDataSetPathInfoProvider(locationNode
+                        .getLocation()
+                        .getDataSetCode());
+            }
             return new RemoteHierarchicalContent(locationNode, provider, session, dssService,
                     sessionWorkspaceRoot);
         }
