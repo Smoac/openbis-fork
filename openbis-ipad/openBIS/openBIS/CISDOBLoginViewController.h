@@ -22,7 +22,7 @@
 
 #import <UIKit/UIKit.h>
 
-@class CISDOBDetailViewController;
+@class CISDOBDetailViewController, CISDOBAppDelegate;
 
 @interface CISDOBLoginViewController : UIViewController
 

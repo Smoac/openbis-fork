@@ -45,9 +45,11 @@
 {
     [super viewDidLoad];
     
-    NSString *username = self.detailViewController.openBisModel.appDelegate.username;
-    NSString *password = self.detailViewController.openBisModel.appDelegate.password;
-    NSURL *openbisUrl = self.detailViewController.openBisModel.appDelegate.openbisUrl;
+    CISDOBAppDelegate *appDelegate = self.detailViewController.openBisModel.appDelegate;
+    
+    NSString *username = appDelegate.username;
+    NSString *password = appDelegate.password;
+    NSURL *openbisUrl = appDelegate.openbisUrl;
     
     [self initializeField: self.usernameTextField value: username];
     [self initializeField: self.passwordTextField value: password];
@@ -69,11 +71,12 @@
     NSURL *openbisUrl = (urlString) ? [NSURL URLWithString: urlString] : nil;
     
     // TODO Try to log in, if it succeeds, change the values in the defaults.
+    CISDOBAppDelegate *appDelegate = self.detailViewController.openBisModel.appDelegate;
 
-    self.detailViewController.openBisModel.appDelegate.username = username;
-    self.detailViewController.openBisModel.appDelegate.password = password;
-    self.detailViewController.openBisModel.appDelegate.openbisUrl = openbisUrl;
-    [self.detailViewController.openBisModel.appDelegate synchronizeUserSettings];
+    appDelegate.username = username;
+    appDelegate.password = password;
+    appDelegate.openbisUrl = openbisUrl;
+    [appDelegate synchronizeUserSettings];
     
     [self.detailViewController loginControllerDidComplete: self];
 }
