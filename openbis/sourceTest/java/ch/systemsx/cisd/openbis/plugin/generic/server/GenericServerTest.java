@@ -330,7 +330,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(experimentBO));
 
                     one(experimentBO).define(newExperiment);
-                    exactly(2).of(experimentBO).save();
+                    one(experimentBO).save();
 
                     final ExperimentPE experiment = createExperiment(EXPERIMENT_TYPE, "E1", "S1");
                     final Long id = 1L;
@@ -373,7 +373,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(experimentBO));
 
                     one(experimentBO).define(newExperiment);
-                    exactly(2).of(experimentBO).save();
+                    one(experimentBO).save();
 
                     allowing(experimentBO).getExperiment();
                     will(returnValue(experimentPE));
@@ -416,7 +416,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(experimentBO));
 
                     one(experimentBO).define(newExperiment);
-                    exactly(2).of(experimentBO).save();
+                    one(experimentBO).save();
                     one(experimentBO).getExperiment();
                     will(returnValue(experimentPE));
 
@@ -469,7 +469,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(experimentBO));
 
                     one(experimentBO).define(newExperiment);
-                    exactly(2).of(experimentBO).save();
+                    one(experimentBO).save();
                     one(experimentBO).getExperiment();
                     will(returnValue(experimentPE));
 
