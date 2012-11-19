@@ -45,7 +45,7 @@
 {
     [super viewDidLoad];
     
-    CISDOBAppDelegate *appDelegate = self.detailViewController.openBisModel.appDelegate;
+    CISDOBAppDelegate *appDelegate = self.appDelegate;
     
     NSString *username = appDelegate.username;
     NSString *password = appDelegate.password;
@@ -54,13 +54,12 @@
     [self initializeField: self.usernameTextField value: username];
     [self initializeField: self.passwordTextField value: password];
     [self initializeField: self.urlTextField value: [openbisUrl absoluteString]];
-    
 
 }
 
 - (IBAction)demoClicked:(id)sender
 {
-    [self.detailViewController loginControllerDidComplete: self];
+    [self.appDelegate loginControllerDidComplete: self];
 }
 
 - (IBAction)loginClicked:(id)sender
@@ -70,15 +69,14 @@
     NSString *urlString = [self valueFromTextField: self.urlTextField];
     NSURL *openbisUrl = (urlString) ? [NSURL URLWithString: urlString] : nil;
     
-    // TODO Try to log in, if it succeeds, change the values in the defaults.
-    CISDOBAppDelegate *appDelegate = self.detailViewController.openBisModel.appDelegate;
+    CISDOBAppDelegate *appDelegate = self.appDelegate;
+    [appDelegate verifyLoginURL: openbisUrl username: username password: password sender: self];
+}
 
-    appDelegate.username = username;
-    appDelegate.password = password;
-    appDelegate.openbisUrl = openbisUrl;
-    [appDelegate synchronizeUserSettings];
-    
-    [self.detailViewController loginControllerDidComplete: self];
+- (void)showError:(NSError *)error
+{
+    NSString *errorText = [[error userInfo] valueForKey: NSLocalizedDescriptionKey];
+    self.errorLabel.text = errorText;
 }
 
 

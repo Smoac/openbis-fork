@@ -168,7 +168,7 @@
                         <rect key="frame" x="0.0" y="20" width="1024" height="748"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="URL" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="sWb-wa-6qu">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" verticalHuggingPriority="1000" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="URL" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="sWb-wa-6qu">
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
@@ -187,11 +187,17 @@
                                 <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
                             </textField>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Login" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fv2-LT-eNm">
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="22" id="nEH-LM-o8w"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="openBIS Server" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LRp-55-gt6">
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="22" id="BJL-72-egS"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
@@ -227,6 +233,9 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" reversesTitleShadowWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="t1Z-Hl-UZu">
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="hat-U2-hIZ"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                                 <state key="normal" title="Log In">
                                     <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
@@ -239,32 +248,44 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
                                     <action selector="loginClicked:" destination="JpU-kO-AZv" eventType="touchUpInside" id="0Ax-4t-pv6"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5qJ-y2-Sq5">
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="481" id="f2T-Tb-bZF"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="y8r-6g-CzC" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="77" id="0ob-Dv-vCz"/>
-                            <constraint firstItem="sWb-wa-6qu" firstAttribute="top" secondItem="LRp-55-gt6" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="28F-qF-pyr"/>
+                            <constraint firstItem="sWb-wa-6qu" firstAttribute="top" secondItem="LRp-55-gt6" secondAttribute="bottom" constant="8" symbolic="YES" type="user" id="28F-qF-pyr"/>
                             <constraint firstItem="t1Z-Hl-UZu" firstAttribute="trailing" secondItem="156-KK-cHv" secondAttribute="trailing" type="default" id="3Cm-ZJ-4ej"/>
-                            <constraint firstItem="LRp-55-gt6" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="263" id="4Tt-tZ-zJQ"/>
-                            <constraint firstItem="IEY-Jd-Yi1" firstAttribute="baseline" secondItem="156-KK-cHv" secondAttribute="baseline" type="default" id="7HG-Jt-IJz"/>
+                            <constraint firstItem="LRp-55-gt6" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="263" type="user" id="4Tt-tZ-zJQ"/>
+                            <constraint firstItem="IEY-Jd-Yi1" firstAttribute="baseline" secondItem="156-KK-cHv" secondAttribute="baseline" type="user" id="7HG-Jt-IJz"/>
                             <constraint firstItem="y8r-6g-CzC" firstAttribute="leading" secondItem="RL9-Rf-b7S" secondAttribute="leading" constant="31" id="DtS-bD-LhH"/>
-                            <constraint firstItem="Fv2-LT-eNm" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="341" id="LEY-Xc-2eO"/>
+                            <constraint firstAttribute="bottom" secondItem="5qJ-y2-Sq5" secondAttribute="bottom" constant="20" symbolic="YES" type="user" id="IAL-sF-ZOa"/>
                             <constraint firstItem="156-KK-cHv" firstAttribute="leading" secondItem="IEY-Jd-Yi1" secondAttribute="trailing" constant="8" symbolic="YES" type="default" id="MMa-ki-yYc"/>
                             <constraint firstItem="3rW-ET-vQX" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="125" id="N4K-n3-cea"/>
                             <constraint firstItem="7Aq-O2-MYr" firstAttribute="top" secondItem="y8r-6g-CzC" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="RJ0-gw-cc5"/>
                             <constraint firstAttribute="trailing" secondItem="3rW-ET-vQX" secondAttribute="trailing" constant="55" id="TbQ-3X-ryq"/>
                             <constraint firstItem="Fv2-LT-eNm" firstAttribute="leading" secondItem="IEY-Jd-Yi1" secondAttribute="leading" type="default" id="W0P-8D-xEd"/>
-                            <constraint firstItem="IEY-Jd-Yi1" firstAttribute="top" secondItem="Fv2-LT-eNm" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="g8C-I7-Kju"/>
+                            <constraint firstItem="5qJ-y2-Sq5" firstAttribute="top" secondItem="t1Z-Hl-UZu" secondAttribute="bottom" constant="8" symbolic="YES" type="user" id="WCy-gs-2y4"/>
+                            <constraint firstItem="Fv2-LT-eNm" firstAttribute="top" secondItem="sWb-wa-6qu" secondAttribute="bottom" constant="8" symbolic="YES" type="user" id="cC5-xK-V5C"/>
+                            <constraint firstItem="5qJ-y2-Sq5" firstAttribute="leading" secondItem="IEY-Jd-Yi1" secondAttribute="leading" type="default" id="diM-o0-wZw"/>
+                            <constraint firstItem="IEY-Jd-Yi1" firstAttribute="top" secondItem="Fv2-LT-eNm" secondAttribute="bottom" constant="8" symbolic="YES" type="user" id="g8C-I7-Kju"/>
                             <constraint firstItem="Fv2-LT-eNm" firstAttribute="leading" secondItem="sWb-wa-6qu" secondAttribute="leading" type="default" id="iAC-ad-Bwq"/>
                             <constraint firstItem="sWb-wa-6qu" firstAttribute="trailing" secondItem="156-KK-cHv" secondAttribute="trailing" type="default" id="kFD-Ip-DpD"/>
                             <constraint firstItem="LRp-55-gt6" firstAttribute="leading" secondItem="sWb-wa-6qu" secondAttribute="leading" type="default" id="sJ8-Gb-txC"/>
                             <constraint firstItem="7Aq-O2-MYr" firstAttribute="leading" secondItem="LRp-55-gt6" secondAttribute="leading" type="default" id="tgp-P1-o0q"/>
-                            <constraint firstItem="t1Z-Hl-UZu" firstAttribute="top" secondItem="156-KK-cHv" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="wRp-wD-diw"/>
+                            <constraint firstItem="t1Z-Hl-UZu" firstAttribute="top" secondItem="156-KK-cHv" secondAttribute="bottom" constant="8" symbolic="YES" type="user" id="wRp-wD-diw"/>
                             <constraint firstItem="7Aq-O2-MYr" firstAttribute="leading" secondItem="y8r-6g-CzC" secondAttribute="leading" type="default" id="ybM-Ej-2gb"/>
                         </constraints>
                         <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
                     </view>
                     <connections>
+                        <outlet property="errorLabel" destination="5qJ-y2-Sq5" id="0P5-PF-MBZ"/>
                         <outlet property="passwordTextField" destination="156-KK-cHv" id="LZZ-6g-3h7"/>
                         <outlet property="urlTextField" destination="sWb-wa-6qu" id="8no-1Z-Woq"/>
                         <outlet property="usernameTextField" destination="IEY-Jd-Yi1" id="McP-OA-YdO"/>
@@ -377,6 +398,7 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
             <relationships>
                 <relationship kind="action" name="demoClicked:"/>
                 <relationship kind="action" name="loginClicked:"/>
+                <relationship kind="outlet" name="errorLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="passwordTextField" candidateClass="UITextField"/>
                 <relationship kind="outlet" name="urlTextField" candidateClass="UITextField"/>
                 <relationship kind="outlet" name="usernameTextField" candidateClass="UITextField"/>

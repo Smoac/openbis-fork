@@ -130,13 +130,9 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     if ([@"ShowLoginDialog" isEqualToString: segue.identifier]) {
-        ((CISDOBLoginViewController *) segue.destinationViewController).detailViewController = self;
+        CISDOBLoginViewController *loginViewController = ((CISDOBLoginViewController *) segue.destinationViewController);
+        loginViewController.appDelegate = self.appDelegate;
     }
-}
-
-- (void)loginControllerDidComplete:(CISDOBLoginViewController *)controller
-{
-    [controller dismissViewControllerAnimated: YES completion: nil];
 }
 
 #pragma mark - Split view

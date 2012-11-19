@@ -23,7 +23,7 @@
 
 #import <UIKit/UIKit.h>
 
-@class CISDOBOpenBisModel, CISDOBIpadServiceManager;
+@class CISDOBOpenBisModel, CISDOBIpadServiceManager, CISDOBAsyncCall, CISDOBLoginViewController;
 @interface CISDOBAppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
@@ -39,6 +39,8 @@
 @property (copy, nonatomic) NSString *password;
 @property (copy, nonatomic) NSURL *openbisUrl;
 - (BOOL)synchronizeUserSettings;
+- (void)verifyLoginURL:(NSURL *)openbisUrl username:(NSString *)username password:(NSString *)password sender:(CISDOBLoginViewController *)controller;
+- (void)loginControllerDidComplete:(CISDOBLoginViewController *)controller;
 
 - (void)saveContext;
 - (NSURL *)applicationDocumentsDirectory;

@@ -33,12 +33,12 @@
 }
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
-@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
+@property (readonly) NSManagedObjectContext *managedObjectContext;
 @property (weak, nonatomic) id <NSFetchedResultsControllerDelegate> delegate;
 @property (weak, nonatomic) CISDOBAppDelegate *appDelegate;
 
 @property (weak, nonatomic) CISDOBOpenBisModel *parentModel;
-@property (weak, nonatomic) CISDOBIpadServiceManager *serviceManager;
+@property (readonly) CISDOBIpadServiceManager *serviceManager;
 
 // Initialize
 - (id)initWithParentModel:(CISDOBOpenBisModel *)parentModel; //!< The designated initializer

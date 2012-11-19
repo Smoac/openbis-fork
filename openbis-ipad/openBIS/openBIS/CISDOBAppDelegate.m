@@ -28,6 +28,7 @@
 #import "CISDOBIpadServiceManager.h"
 #import "CISDOBAsyncCall.h"
 #import "CISDOBDetailViewController.h"
+#import "CISDOBLoginViewController.h"
 
 @implementation CISDOBAppDelegate
 
@@ -59,6 +60,35 @@
 
 - (BOOL)synchronizeUserSettings { return [[NSUserDefaults standardUserDefaults] synchronize]; }
 
+- (void)verifyLoginURL:(NSURL *)openbisUrl username:(NSString *)username password:(NSString *)password sender:(CISDOBLoginViewController *)controller
+{
+    NSError *error;
+    [self initializeServiceManager: openbisUrl error: &error];
+    
+    CISDOBMasterViewController *masterViewController = [self masterViewController];
+
+    // Initialize the connection to openBIS
+    CISDOBAsyncCall *call = [self.serviceManager loginUser: [self username] password: [self password]];
+    call.success = ^(id result) {
+        self.username = username;
+        self.password = password;
+        self.openbisUrl = openbisUrl;
+        [self synchronizeUserSettings];
+        [self loginControllerDidComplete: controller];
+        [masterViewController didConnectServiceManager: self.serviceManager];
+    };
+    call.fail = ^(NSError *error) {
+        [controller showError: error];
+    };
+    [call start];
+}
+
+- (void)loginControllerDidComplete:(CISDOBLoginViewController *)controller
+{
+    [controller dismissViewControllerAnimated: YES completion: nil];
+}
+
+#pragma mark - App Startup
 
 - (void)configureControllers;
 {
@@ -66,6 +96,8 @@
         UISplitViewController *splitViewController = (UISplitViewController *)self.window.rootViewController;
         UINavigationController *navigationController = [splitViewController.viewControllers lastObject];
         splitViewController.delegate = (id)navigationController.topViewController;
+        [self detailsViewController].appDelegate = self;
+        [self masterViewController].openBisModel = self.rootOpenBisModel;
     } else {
 
     }
@@ -102,7 +134,6 @@
         [controller didConnectServiceManager: self.serviceManager];
     };
     call.fail = ^(NSError *error) {
-        NSLog(@"DEBUG Login failed %@", error);
         [[self detailsViewController] performSegueWithIdentifier: @"ShowLoginDialog" sender: self];
     };
     [call start];
@@ -112,8 +143,7 @@
 {
     // Initialize the controller
     [self configureControllers];
-    CISDOBMasterViewController *controller = [self masterViewController];
-    controller.openBisModel = self.rootOpenBisModel;
+
     
     // TODO -- This is only necessary because the login controller needs access
     // to the root model... maybe there is a better way to do this.
@@ -177,14 +207,27 @@
 {
     if (_serviceManager) return _serviceManager;
     
-    NSURL *storeUrl = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"openBISData.sqlite"];
-    
     NSURL *openbisUrl = [self openbisUrl];
     
     NSError *error;
+    [self initializeServiceManager: openbisUrl error: &error];
+    if (!_serviceManager) {
+        // TODO Implement error handling
+        NSLog(@"Unresolved error -- could not create service manager %@, %@", error, [error userInfo]);
+        abort();
+    }
+    
+    return _serviceManager;
+}
+
+- (void)initializeServiceManager:(NSURL *)openbisUrl error:(NSError **)error
+{
+    
+    NSURL *storeUrl = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"openBISData.sqlite"];
+        
     _serviceManager =
         [[CISDOBIpadServiceManager alloc]
-            initWithStoreUrl: storeUrl openbisUrl: openbisUrl trusted: YES error: &error];
+            initWithStoreUrl: storeUrl openbisUrl: openbisUrl trusted: YES error: error];
     
     if (!_serviceManager) {
         // We couldn't open the store, probably because we changed the database model. Remove the old cache and create the service manager again.
@@ -192,15 +235,8 @@
         
         _serviceManager =
             [[CISDOBIpadServiceManager alloc]
-                initWithStoreUrl: storeUrl openbisUrl: openbisUrl trusted: YES error: &error];
-        if (_serviceManager) {        
-            // TODO Implement error handling
-            NSLog(@"Unresolved error -- could not create service manager %@, %@", error, [error userInfo]);
-            abort();
-        }
+                initWithStoreUrl: storeUrl openbisUrl: openbisUrl trusted: YES error: error];
     }
-    
-    return _serviceManager;
 }
 
 - (CISDOBOpenBisModel *)rootOpenBisModel
@@ -208,8 +244,6 @@
     if (_rootOpenBisModel != nil) return _rootOpenBisModel;
     
     _rootOpenBisModel = [[CISDOBOpenBisModel alloc] init];
-    _rootOpenBisModel.managedObjectContext = self.managedObjectContext;
-    _rootOpenBisModel.serviceManager = self.serviceManager;
     _rootOpenBisModel.appDelegate = self;
     
     return _rootOpenBisModel;

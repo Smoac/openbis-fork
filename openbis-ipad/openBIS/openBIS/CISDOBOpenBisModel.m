@@ -22,6 +22,7 @@
 
 #import "CISDOBOpenBisModel.h"
 #import "CISDOBIpadEntity.h"
+#import "CISDOBAppDelegate.h"
 #import "CISDOBIpadServiceManager.h"
 #import "CISDOBAsyncCall.h"
 
@@ -43,13 +44,15 @@
     _selectedObject = nil;
     
     if (self.parentModel) {
-        self.managedObjectContext = parentModel.managedObjectContext;
-        self.serviceManager = parentModel.serviceManager;
         self.appDelegate = parentModel.appDelegate;
     }
     
     return self;
 }
+
+#pragma mark - Accessor
+- (CISDOBIpadServiceManager *)serviceManager { return self.appDelegate.serviceManager; }
+- (NSManagedObjectContext *)managedObjectContext { return self.appDelegate.managedObjectContext; }
 
 #pragma mark - Model
 - (NSInteger)numberOfSections

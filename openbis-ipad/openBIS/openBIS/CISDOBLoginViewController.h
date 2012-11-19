@@ -26,14 +26,16 @@
 
 @interface CISDOBLoginViewController : UIViewController
 
-@property (weak, nonatomic) CISDOBDetailViewController *detailViewController;
+@property (weak, nonatomic) CISDOBAppDelegate *appDelegate;
 
 @property (weak, nonatomic) IBOutlet UITextField *urlTextField;
 @property (weak, nonatomic) IBOutlet UITextField *usernameTextField;
 @property (weak, nonatomic) IBOutlet UITextField *passwordTextField;
+@property (weak, nonatomic) IBOutlet UILabel *errorLabel;
 
 // Actions
 - (IBAction)demoClicked:(id)sender;
 - (IBAction)loginClicked:(id)sender;
+- (void)showError:(NSError *)error;
 
 @end
