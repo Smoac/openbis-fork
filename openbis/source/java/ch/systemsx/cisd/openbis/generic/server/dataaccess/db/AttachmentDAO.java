@@ -75,21 +75,27 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
     //
 
     @Override
-    public final void createAttachment(final AttachmentPE attachment, final AttachmentHolderPE owner)
+    public final void createAttachment(final AttachmentPE attachment,
+            final AttachmentHolderPE ownerParam)
             throws DataAccessException
     {
         assert attachment != null : "Unspecified attachment";
         assert attachment.getAttachmentContent() != null : "Unspecified attachment content.";
+        AttachmentHolderPE owner = ownerParam;
         validatePE(attachment.getAttachmentContent());
 
         final AttachmentPE previousAttachmentVersionOrNull =
                 tryFindAttachmentByOwnerAndFileName(owner, attachment.getFileName());
         fillAttachmentData(attachment, previousAttachmentVersionOrNull);
 
+        final HibernateTemplate template = getHibernateTemplate();
+        if (getSession().contains(owner) == false)
+        {
+            owner = (AttachmentHolderPE) getSession().merge(owner);
+        }
         owner.addAttachment(attachment);
         validatePE(attachment);
 
-        final HibernateTemplate template = getHibernateTemplate();
         template.save(attachment);
         template.flush();
         if (operationLog.isInfoEnabled())
