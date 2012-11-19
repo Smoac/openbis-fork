@@ -112,6 +112,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailure
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
@@ -733,6 +734,14 @@ public final class CommonClientService extends AbstractClientService implements
 
         return commonServer.getMetaprojectAssignments(getSessionToken(), new MetaprojectTechIdId(
                 metaprojectId), fetchOptionsSet);
+    }
+
+    @Override
+    public Metaproject getMetaproject(Long metaprojectId)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return commonServer.getMetaproject(getSessionToken(),
+                new MetaprojectTechIdId(metaprojectId));
     }
 
     @Override
@@ -1603,6 +1612,21 @@ public final class CommonClientService extends AbstractClientService implements
     {
         final String sessionToken = getSessionToken();
         commonServer.deleteProjects(sessionToken, projectIds, reason);
+    }
+
+    @Override
+    public void deleteMetaprojects(List<TechId> metaprojectIds, String reason)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+
+        List<IMetaprojectId> ids = new ArrayList<IMetaprojectId>();
+        for (TechId metaprojectId : metaprojectIds)
+        {
+            ids.add(new MetaprojectTechIdId(metaprojectId));
+        }
+
+        commonServer.deleteMetaprojects(sessionToken, ids, reason);
     }
 
     @Override

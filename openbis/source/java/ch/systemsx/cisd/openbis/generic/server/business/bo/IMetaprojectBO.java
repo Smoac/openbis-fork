@@ -56,7 +56,8 @@ public interface IMetaprojectBO extends IEntityBusinessObject
 
     void removeMaterials(List<? extends IMaterialId> materials);
 
-    void deleteByMetaprojectId(IMetaprojectId metaprojectId) throws UserFailureException;
+    void deleteByMetaprojectId(IMetaprojectId metaprojectId, String reason)
+            throws UserFailureException;
 
     MetaprojectPE getMetaproject();
 }

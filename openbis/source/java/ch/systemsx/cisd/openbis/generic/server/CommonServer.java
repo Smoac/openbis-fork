@@ -677,7 +677,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         final Session session = getSession(sessionToken);
         final AuthorizationServiceUtils authorization = getAuthorizationService(session);
-        final MetaprojectPE metaproject = getMetaproject(sessionToken, metaprojectId);
+        final Metaproject metaproject = getMetaproject(sessionToken, metaprojectId);
         final ISampleLister lister = businessObjectFactory.createSampleLister(session);
 
         List<Sample> samples =
@@ -763,7 +763,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         final Session session = getSession(sessionToken);
         final AuthorizationServiceUtils authorization = getAuthorizationService(session);
-        final MetaprojectPE metaproject = getMetaproject(sessionToken, metaprojectId);
+        final Metaproject metaproject = getMetaproject(sessionToken, metaprojectId);
         final IDatasetLister lister = createDatasetLister(session);
 
         final List<ExternalData> datasets = lister.listByMetaprojectId(metaproject.getId());
@@ -917,9 +917,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
         final AuthorizationServiceUtils authorization = getAuthorizationService(session);
 
-        MetaprojectPE metaproject = getMetaproject(sessionToken, metaprojectId);
+        Metaproject metaproject = getMetaproject(sessionToken, metaprojectId);
         Collection<MetaprojectAssignmentPE> assignments =
-                getMetaprojectAssignments(metaproject, EntityKind.EXPERIMENT);
+                getMetaprojectAssignments(metaproject.getId(), EntityKind.EXPERIMENT);
         List<ExperimentPE> experimentsPE = new ArrayList<ExperimentPE>();
 
         for (MetaprojectAssignmentPE assignment : assignments)
@@ -1586,9 +1586,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public List<Material> listMetaprojectMaterials(String sessionToken, IMetaprojectId metaprojectId)
     {
         final Session session = getSession(sessionToken);
-        final MetaprojectPE metaprojectPE = getMetaproject(sessionToken, metaprojectId);
+        final Metaproject metaproject = getMetaproject(sessionToken, metaprojectId);
         final IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
-        return materialLister.list(new MetaprojectCriteria(metaprojectPE.getId()), true);
+        return materialLister.list(new MetaprojectCriteria(metaproject.getId()), true);
     }
 
     @Override
@@ -2453,8 +2453,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         if ((entityKind.equals(EntityKind.SAMPLE) || entityKind.equals(EntityKind.DATA_SET) || entityKind
-                .equals(EntityKind.MATERIAL))
-                && EntityType.isDefinedInFileEntityTypeCode(type))
+                .equals(EntityKind.MATERIAL)) && EntityType.isDefinedInFileEntityTypeCode(type))
         {
             types.addAll(getDAOFactory().getEntityTypeDAO(
                     DtoConverters.convertEntityKind(entityKind)).listEntityTypes());
@@ -3728,8 +3727,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public MetaprojectAssignmentsCount getMetaprojectAssignmentsCount(String sessionToken,
             IMetaprojectId metaprojectId)
     {
-        MetaprojectPE metaprojectPE = getMetaproject(sessionToken, metaprojectId);
-        Metaproject metaproject = MetaprojectTranslator.translate(metaprojectPE);
+        Metaproject metaproject = getMetaproject(sessionToken, metaprojectId);
         return getMetaprojectAssignmentsCount(metaproject);
     }
 
@@ -3760,10 +3758,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         String baseIndexURL = getBaseIndexURL(sessionToken);
         AuthorizationServiceUtils authorizationUtils = getAuthorizationService(session);
 
-        MetaprojectPE metaprojectPE = getMetaproject(sessionToken, metaprojectId);
-
+        Metaproject metaproject = getMetaproject(sessionToken, metaprojectId);
         MetaprojectAssignments metaprojectAssignments = new MetaprojectAssignments();
-        metaprojectAssignments.setMetaproject(MetaprojectTranslator.translate(metaprojectPE));
+        metaprojectAssignments.setMetaproject(metaproject);
 
         List<Experiment> experiments = new ArrayList<Experiment>();
         List<Sample> samples = new ArrayList<Sample>();
@@ -3773,7 +3770,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         if (fetchOptions.contains(MetaprojectAssignmentsFetchOption.EXPERIMENTS))
         {
             for (MetaprojectAssignmentPE metaprojectAssignmentPE : getMetaprojectAssignments(
-                    metaprojectPE, EntityKind.EXPERIMENT))
+                    metaproject.getId(), EntityKind.EXPERIMENT))
             {
                 if (authorizationUtils.canAccessExperiment(metaprojectAssignmentPE.getExperiment()))
                 {
@@ -3791,7 +3788,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         if (fetchOptions.contains(MetaprojectAssignmentsFetchOption.SAMPLES))
         {
             for (MetaprojectAssignmentPE metaprojectAssignmentPE : getMetaprojectAssignments(
-                    metaprojectPE, EntityKind.SAMPLE))
+                    metaproject.getId(), EntityKind.SAMPLE))
             {
                 if (authorizationUtils.canAccessSample(metaprojectAssignmentPE.getSample()))
                 {
@@ -3808,7 +3805,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         if (fetchOptions.contains(MetaprojectAssignmentsFetchOption.DATA_SETS))
         {
             for (MetaprojectAssignmentPE metaprojectAssignmentPE : getMetaprojectAssignments(
-                    metaprojectPE, EntityKind.DATA_SET))
+                    metaproject.getId(), EntityKind.DATA_SET))
             {
                 if (authorizationUtils.canAccessDataSet(metaprojectAssignmentPE.getDataSet()))
                 {
@@ -3825,7 +3822,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         if (fetchOptions.contains(MetaprojectAssignmentsFetchOption.MATERIALS))
         {
             for (MetaprojectAssignmentPE metaprojectAssignmentPE : getMetaprojectAssignments(
-                    metaprojectPE, EntityKind.MATERIAL))
+                    metaproject.getId(), EntityKind.MATERIAL))
             {
                 materials.add(MaterialTranslator.translate(metaprojectAssignmentPE.getMaterial(),
                         null));
@@ -3900,7 +3897,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId)
+    public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId, String reason)
     {
         if (metaprojectId == null)
         {
@@ -3914,7 +3911,23 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         getAuthorizationService(session).checkAccessMetaproject(metaprojectBO.getMetaproject());
 
-        metaprojectBO.deleteByMetaprojectId(metaprojectId);
+        metaprojectBO.deleteByMetaprojectId(metaprojectId, reason);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public void deleteMetaprojects(String sessionToken, List<IMetaprojectId> metaprojectIds,
+            String reason)
+    {
+        if (metaprojectIds == null)
+        {
+            throw new UserFailureException("Metaproject ids cannot be null");
+        }
+
+        for (IMetaprojectId metaprojectId : metaprojectIds)
+        {
+            deleteMetaproject(sessionToken, metaprojectId, reason);
+        }
     }
 
     @Override
@@ -3977,7 +3990,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return MetaprojectTranslator.translate(metaprojectPE);
     }
 
-    private MetaprojectPE getMetaproject(String sessionToken, IMetaprojectId metaprojectId)
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public Metaproject getMetaproject(String sessionToken, IMetaprojectId metaprojectId)
     {
         if (metaprojectId == null)
         {
@@ -3997,14 +4012,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         AuthorizationServiceUtils authorizationUtils = getAuthorizationService(session);
         authorizationUtils.checkAccessMetaproject(metaprojectPE);
-
-        return metaprojectPE;
+        return MetaprojectTranslator.translate(metaprojectPE);
     }
 
-    private Collection<MetaprojectAssignmentPE> getMetaprojectAssignments(
-            MetaprojectPE metaproject, EntityKind entityKind)
+    private Collection<MetaprojectAssignmentPE> getMetaprojectAssignments(Long metaprojectId,
+            EntityKind entityKind)
     {
-        return getDAOFactory().getMetaprojectDAO().listMetaprojectAssignments(metaproject.getId(),
+        return getDAOFactory().getMetaprojectDAO().listMetaprojectAssignments(metaprojectId,
                 DtoConverters.convertEntityKind(entityKind));
     }
 

@@ -20,13 +20,13 @@ import java.io.Serializable;
 import java.util.Date;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 
 /**
  * @author Pawel Glyzewski
  */
 @JsonObject("Metaproject")
-public class Metaproject implements Serializable, IIdHolder
+public class Metaproject implements Serializable, IIdAndCodeHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -70,6 +70,12 @@ public class Metaproject implements Serializable, IIdHolder
             this.ownerId = null;
             this.name = null;
         }
+    }
+
+    @Override
+    public String getCode()
+    {
+        return getName();
     }
 
     public String getName()

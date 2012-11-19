@@ -216,15 +216,17 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
     }
 
     @Override
-    public void deleteByMetaprojectId(IMetaprojectId metaprojectId) throws UserFailureException
+    public void deleteByMetaprojectId(IMetaprojectId metaprojectId, String reason)
+            throws UserFailureException
     {
         loadByMetaprojectId(metaprojectId);
 
         getMetaprojectDAO().delete(metaproject);
-        getEventDAO().persist(createDeletionEvent(metaproject, session.tryGetPerson()));
+        getEventDAO().persist(createDeletionEvent(metaproject, session.tryGetPerson(), reason));
     }
 
-    private static EventPE createDeletionEvent(MetaprojectPE metaproject, PersonPE registrator)
+    private static EventPE createDeletionEvent(MetaprojectPE metaproject, PersonPE registrator,
+            String reason)
     {
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
@@ -232,6 +234,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
         event.setIdentifiers(Collections.singletonList(metaproject.getName()));
         event.setDescription(metaproject.getName());
         event.setRegistrator(registrator);
+        event.setReason(reason);
 
         return event;
     }

@@ -227,6 +227,20 @@ public class MetaprojectTree extends TreeGrid<MetaprojectTreeItemData> implement
                     items.add(new MetaprojectTreeMetaprojectItemData(count.getMetaproject()));
                 }
 
+                Collections.sort(items, new Comparator<MetaprojectTreeItemData>()
+                    {
+                        @Override
+                        public int compare(MetaprojectTreeItemData o1, MetaprojectTreeItemData o2)
+                        {
+                            MetaprojectTreeMetaprojectItemData m1 =
+                                    (MetaprojectTreeMetaprojectItemData) o1;
+                            MetaprojectTreeMetaprojectItemData m2 =
+                                    (MetaprojectTreeMetaprojectItemData) o2;
+                            return m1.getMetaproject().getName()
+                                    .compareTo(m2.getMetaproject().getName());
+                        }
+                    });
+
                 callback.onSuccess(items);
             }
         }

@@ -181,6 +181,11 @@ public interface ICommonClientService extends IClientService
             MetaprojectAssignmentsFetchOption[] fetchOptions) throws UserFailureException;
 
     /**
+     * Returns metaproject.
+     */
+    public Metaproject getMetaproject(Long metaprojectId) throws UserFailureException;
+
+    /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for scripts.
      */
     public String prepareExportScripts(
@@ -748,6 +753,10 @@ public interface ICommonClientService extends IClientService
 
     /** Deletes the specified projects. */
     public void deleteProjects(List<TechId> projectIds, String reason) throws UserFailureException;
+
+    /** Deletes the specified metaprojects. */
+    public void deleteMetaprojects(List<TechId> metaprojectIds, String reason)
+            throws UserFailureException;
 
     /** Deletes the specified spaces. */
     public void deleteSpaces(List<TechId> spaceIds, String reason) throws UserFailureException;

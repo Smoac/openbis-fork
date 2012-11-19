@@ -1571,6 +1571,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
+    public Metaproject getMetaproject(String sessionToken, IMetaprojectId metaprojectId)
+    {
+        logAccess(sessionToken, "getMetaproject", "METAPROJECT_ID(%s)", metaprojectId);
+        return null;
+    }
+
+    @Override
     public MetaprojectAssignments getMetaprojectAssignments(String sessionToken,
             IMetaprojectId metaprojectId)
     {
@@ -1607,9 +1614,17 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId)
+    public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId, String reason)
     {
         logAccess(sessionToken, "deleteMetaproject", "METAPROJECT_ID(%s)", metaprojectId);
+    }
+
+    @Override
+    public void deleteMetaprojects(String sessionToken, List<IMetaprojectId> metaprojectIds,
+            String reason)
+    {
+        logTracking(sessionToken, "deleteMetaprojects", "METAPROJECT_IDS(%s) REASON(%s)",
+                abbreviate(metaprojectIds), reason);
     }
 
     @Override

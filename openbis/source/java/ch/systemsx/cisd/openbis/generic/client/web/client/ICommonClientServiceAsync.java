@@ -162,6 +162,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             MetaprojectAssignmentsFetchOption[] fetchOptions,
             final AsyncCallback<MetaprojectAssignments> asyncCallback);
 
+    /**
+     * @see ICommonClientService#getMetaproject(Long)
+     */
+    public void getMetaproject(Long metaprojectId, final AsyncCallback<Metaproject> asyncCallback);
+
     /** @see ICommonClientService#prepareExportScripts(TableExportCriteria) */
     public void prepareExportScripts(
             TableExportCriteria<TableModelRowWithObject<Script>> exportCriteria,
@@ -650,6 +655,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#deleteProjects(List, String) */
     public void deleteProjects(List<TechId> projectIds, String reason,
+            AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#deleteMetaprojects(List, String) */
+    public void deleteMetaprojects(List<TechId> metaprojectIds, String reason,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteSpaces(List, String) */

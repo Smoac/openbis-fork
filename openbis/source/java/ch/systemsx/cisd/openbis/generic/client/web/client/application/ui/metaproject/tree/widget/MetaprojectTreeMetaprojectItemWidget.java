@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.widget;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
@@ -27,7 +29,10 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeMetaprojectItemData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 
 /**
@@ -83,8 +88,24 @@ public class MetaprojectTreeMetaprojectItemWidget extends MetaprojectTreeItemWid
     {
         if (link == null)
         {
-            // TODO make a real link that opens a metaproject detail view
-            link = new InlineLabel(getViewContext().getMessage(Dict.METAPROJECT_TREE_INFO_LINK));
+            ClickHandler listener = new ClickHandler()
+                {
+                    @Override
+                    public void onClick(ClickEvent event)
+                    {
+                        OpenEntityDetailsTabHelper.openMetaproject(getViewContext(),
+                                data.getMetaproject(),
+                                WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent()));
+                    }
+                };
+
+            // TODO create href
+            String href = "";
+
+            link =
+                    LinkRenderer.getLinkWidget(
+                            getViewContext().getMessage(Dict.METAPROJECT_TREE_INFO_LINK), listener,
+                            href);
             link.setVisible(isSelected());
         }
         return link;

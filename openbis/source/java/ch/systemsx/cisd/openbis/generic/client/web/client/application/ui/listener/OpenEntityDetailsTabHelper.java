@@ -29,8 +29,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.viewer.MetaprojectViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -135,6 +137,49 @@ public class OpenEntityDetailsTabHelper
                 public String tryGetLink()
                 {
                     return permlinkOrNull;
+                }
+            };
+        tabFactory.setInBackground(keyPressed);
+        DispatcherHelper.dispatchNaviEvent(tabFactory);
+    }
+
+    public static void openMetaproject(final IViewContext<?> viewContext,
+            final IIdAndCodeHolder metaproject, boolean keyPressed)
+    {
+        AbstractTabItemFactory tabFactory;
+        tabFactory = new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    final DatabaseModificationAwareComponent viewer =
+                            MetaprojectViewer.create(viewContext, metaproject.getId());
+                    return DefaultTabItem.create(getTabTitle(), viewer, viewContext, false);
+                }
+
+                @Override
+                public String getId()
+                {
+                    return MetaprojectViewer.createId(metaproject.getId());
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return AbstractViewer.getTitle(viewContext, Dict.METAPROJECT, metaproject);
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.METAPROJECT, HelpPageAction.VIEW);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    // TODO return a link
+                    return null;
                 }
             };
         tabFactory.setInBackground(keyPressed);

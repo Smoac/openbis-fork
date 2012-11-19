@@ -167,7 +167,7 @@ public class GeneralInformationChangingService extends
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId)
     {
-        server.deleteMetaproject(sessionToken, metaprojectId);
+        server.deleteMetaproject(sessionToken, metaprojectId, null);
     }
 
     @Override

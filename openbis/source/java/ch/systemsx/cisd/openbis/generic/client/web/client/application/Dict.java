@@ -80,6 +80,8 @@ public abstract class Dict
 
     public static final String BREADCRUMBS_SEPARATOR = "breadcrumbs_separator";
 
+    public static final String METAPROJECT = "metaproject";
+
     public static final String METAPROJECTS = "metaprojects";
 
     public static final String METAPROJECTS_HINT = "metaprojects_hint";
@@ -1157,6 +1159,8 @@ public abstract class Dict
     public static final String BUTTON_DELETE_DATA_SET = "button_delete_data_set";
 
     public static final String BUTTON_DELETE_PROJECT = "button_delete_project";
+
+    public static final String BUTTON_DELETE_METAPROJECT = "button_delete_metaproject";
 
     public static final String BUTTON_CONFIGURE = "button_configure";
 

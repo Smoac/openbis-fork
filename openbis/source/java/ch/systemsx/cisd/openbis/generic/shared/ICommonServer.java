@@ -1441,6 +1441,12 @@ public interface ICommonServer extends IServer
             IMetaprojectId metaprojectId, EnumSet<MetaprojectAssignmentsFetchOption> fetchOptions);
 
     /**
+     * Returns metaproject.
+     */
+    @Transactional(readOnly = true)
+    public Metaproject getMetaproject(String sessionToken, IMetaprojectId metaprojectId);
+
+    /**
      * Adds specified entities to given metaproject.
      */
     @Transactional
@@ -1461,7 +1467,15 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value = ObjectKind.METAPROJECT)
-    public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId);
+    public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId, String reason);
+
+    /**
+     * Deletes given metaprojects.
+     */
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.METAPROJECT)
+    public void deleteMetaprojects(String sessionToken, List<IMetaprojectId> metaprojectIds,
+            String reason);
 
     /**
      * Registers a new metaproject.
