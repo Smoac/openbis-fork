@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilde
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
@@ -521,5 +523,122 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet1, "test");
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet2, "test");
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedChild, "test");
+    }
+
+    @Test
+    public void testCreateContainerAndContainedDataSets()
+    {
+        Experiment experiment = toolBox.createAndLoadExperiment(1);
+        NewContainerDataSet containerDataSet = toolBox.containerDataSet("DS-1", experiment);
+        NewDataSet containedDataSet = toolBox.dataSet("DS-2", experiment);
+        containerDataSet.setContainedDataSetCodes(Arrays.asList(containedDataSet.getCode()));
+        AtomicEntityOperationDetailsBuilder builder =
+                new AtomicEntityOperationDetailsBuilder().user("test").dataSet(containerDataSet)
+                        .dataSet(containedDataSet);
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+
+        etlService.performEntityOperations(systemSessionToken, builder.getDetails());
+
+        ContainerDataSet loadedContainerDataSet =
+                (ContainerDataSet) toolBox.loadDataSet(containerDataSet.getCode());
+        ExternalData loadedContainedDataSet = toolBox.loadDataSet(containedDataSet.getCode());
+        assertEquals("[DS-2]", toolBox.extractCodes(loadedContainerDataSet.getContainedDataSets())
+                .toString());
+        assertEquals("DS-1", loadedContainedDataSet.tryGetContainer().getCode());
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedContainerDataSet,
+                "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedContainedDataSet,
+                "test");
+    }
+
+    @Test
+    public void testMoveContainedDataSetToAnotherContainerViaUpdateDataSet()
+    {
+        Experiment experiment = toolBox.createAndLoadExperiment(1);
+        NewContainerDataSet containerDataSet1 = toolBox.containerDataSet("DS-1", experiment);
+        NewDataSet containedDataSet = toolBox.dataSet("DS-3", experiment);
+        containerDataSet1.setContainedDataSetCodes(Arrays.asList(containedDataSet.getCode()));
+        toolBox.createAndLoadDataSet(containerDataSet1);
+        NewContainerDataSet containerDataSet2 = toolBox.containerDataSet("DS-2", experiment);
+        toolBox.createAndLoadDataSet(containerDataSet2);
+        ExternalData dataSet = toolBox.loadDataSet(containedDataSet.getCode());
+        assertEquals("DS-1", dataSet.tryGetContainer().getCode());
+        DataSetBatchUpdatesDTO dataSetBatchUpdates = new DataSetBatchUpdatesDTO();
+        dataSetBatchUpdates.setVersion(dataSet.getVersion());
+        dataSetBatchUpdates.setDatasetCode(dataSet.getCode());
+        dataSetBatchUpdates.setDatasetId(new TechId(dataSet));
+        dataSetBatchUpdates.setProperties(Arrays.<IEntityProperty> asList());
+        dataSetBatchUpdates.setExperimentIdentifierOrNull(new ExperimentIdentifier(experiment));
+        dataSetBatchUpdates.setModifiedContainerDatasetCodeOrNull(containerDataSet2.getCode());
+        DataSetBatchUpdateDetails updateDetails = new DataSetBatchUpdateDetails();
+        updateDetails.setContainerUpdateRequested(true);
+        dataSetBatchUpdates.setDetails(updateDetails);
+        String sessionToken = logIntoCommonClientService().getSessionID();
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+
+        etlService.updateDataSet(sessionToken, dataSetBatchUpdates);
+
+        ContainerDataSet loadedContainerDataSet1 =
+                (ContainerDataSet) toolBox.loadDataSet(containerDataSet1.getCode());
+        ContainerDataSet loadedContainerDataSet2 =
+                (ContainerDataSet) toolBox.loadDataSet(containerDataSet2.getCode());
+        ExternalData loadedContainedDataSet = toolBox.loadDataSet(containedDataSet.getCode());
+        assertEquals("[]", toolBox.extractCodes(loadedContainerDataSet1.getContainedDataSets())
+                .toString());
+        assertEquals("[DS-3]", toolBox.extractCodes(loadedContainerDataSet2.getContainedDataSets())
+                .toString());
+        assertEquals("DS-2", loadedContainedDataSet.tryGetContainer().getCode());
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
+                loadedContainerDataSet1, "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
+                loadedContainerDataSet2, "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedContainedDataSet,
+                "test");
+    }
+
+    @Test
+    public void testMoveContainedDataSetToAnotherContainerViaPerformEntityOperation()
+    {
+        Experiment experiment = toolBox.createAndLoadExperiment(1);
+        NewContainerDataSet containerDataSet1 = toolBox.containerDataSet("DS-1", experiment);
+        NewDataSet containedDataSet = toolBox.dataSet("DS-3", experiment);
+        containerDataSet1.setContainedDataSetCodes(Arrays.asList(containedDataSet.getCode()));
+        toolBox.createAndLoadDataSet(containerDataSet1);
+        NewContainerDataSet containerDataSet2 = toolBox.containerDataSet("DS-2", experiment);
+        toolBox.createAndLoadDataSet(containerDataSet2);
+        ExternalData dataSet = toolBox.loadDataSet(containedDataSet.getCode());
+        assertEquals("DS-1", dataSet.tryGetContainer().getCode());
+        DataSetBatchUpdatesDTO dataSetBatchUpdates = new DataSetBatchUpdatesDTO();
+        dataSetBatchUpdates.setVersion(dataSet.getVersion());
+        dataSetBatchUpdates.setDatasetCode(dataSet.getCode());
+        dataSetBatchUpdates.setDatasetId(new TechId(dataSet));
+        dataSetBatchUpdates.setProperties(Arrays.<IEntityProperty> asList());
+        dataSetBatchUpdates.setModifiedContainerDatasetCodeOrNull(containerDataSet2.getCode());
+        DataSetBatchUpdateDetails updateDetails = new DataSetBatchUpdateDetails();
+        updateDetails.setContainerUpdateRequested(true);
+        dataSetBatchUpdates.setDetails(updateDetails);
+        AtomicEntityOperationDetailsBuilder builder =
+                new AtomicEntityOperationDetailsBuilder().dataSetUpdate(dataSetBatchUpdates).user(
+                        "test");
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+
+        etlService.performEntityOperations(systemSessionToken, builder.getDetails());
+
+        ContainerDataSet loadedContainerDataSet1 =
+                (ContainerDataSet) toolBox.loadDataSet(containerDataSet1.getCode());
+        ContainerDataSet loadedContainerDataSet2 =
+                (ContainerDataSet) toolBox.loadDataSet(containerDataSet2.getCode());
+        ExternalData loadedContainedDataSet = toolBox.loadDataSet(containedDataSet.getCode());
+        assertEquals("[]", toolBox.extractCodes(loadedContainerDataSet1.getContainedDataSets())
+                .toString());
+        assertEquals("[DS-3]", toolBox.extractCodes(loadedContainerDataSet2.getContainedDataSets())
+                .toString());
+        assertEquals("DS-2", loadedContainedDataSet.tryGetContainer().getCode());
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
+                loadedContainerDataSet1, "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
+                loadedContainerDataSet2, "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedContainedDataSet,
+                "test");
     }
 }

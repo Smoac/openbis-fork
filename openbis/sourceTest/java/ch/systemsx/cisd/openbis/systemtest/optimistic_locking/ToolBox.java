@@ -55,7 +55,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentTypeBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleTypeBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
@@ -370,7 +372,7 @@ public class ToolBox
                 SampleIdentifierFactory.parse(sample.getIdentifier()));
     }
 
-    public ExternalData createAndLoadDataSet(NewDataSet dataSet)
+    public ExternalData createAndLoadDataSet(NewExternalData dataSet)
     {
         AtomicEntityOperationDetailsBuilder builder =
                 new AtomicEntityOperationDetailsBuilder().dataSet(dataSet);
@@ -414,6 +416,25 @@ public class ToolBox
         dataSet.setLocation("a/b/c/" + code);
         dataSet.setLocatorType(LOCATOR_TYPE);
         dataSet.setStorageFormat(StorageFormat.PROPRIETARY);
+        dataSet.setDataStoreCode(DATA_STORE_CODE);
+        dataSet.setUserId(userId);
+        return dataSet;
+    }
+
+    public NewContainerDataSet containerDataSet(String code, Experiment experiment)
+    {
+        NewContainerDataSet dataSet = containerDataSet(code);
+        dataSet.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse(experiment
+                .getIdentifier()));
+        return dataSet;
+    }
+
+    private NewContainerDataSet containerDataSet(String code)
+    {
+        String userId = "system";
+        NewContainerDataSet dataSet = new NewContainerDataSet();
+        dataSet.setCode(code);
+        dataSet.setDataSetType(new DataSetType("CONTAINER_TYPE"));
         dataSet.setDataStoreCode(DATA_STORE_CODE);
         dataSet.setUserId(userId);
         return dataSet;

@@ -240,13 +240,24 @@ public class RelationshipService implements IRelationshipService
     public void assignDataSetToContainer(IAuthSession session, DataPE data, DataPE container)
     {
         PersonPE modifier = session.tryGetPerson();
+        DataPE oldContainer = data.getContainer();
+        if (oldContainer != null)
+        {
+            oldContainer.removeComponent(data);
+            RelationshipUtils.updateModificationDateAndModifier(oldContainer, session);
+        }
         container.addComponent(data, modifier);
+        RelationshipUtils.updateModificationDateAndModifier(container, session);
+        RelationshipUtils.updateModificationDateAndModifier(data, session);
     }
 
     @Override
     public void removeDataSetFromContainer(IAuthSession session, DataPE data)
     {
-        data.getContainer().removeComponent(data);
+        DataPE container = data.getContainer();
+        container.removeComponent(data);
+        RelationshipUtils.updateModificationDateAndModifier(container, session);
+        RelationshipUtils.updateModificationDateAndModifier(data, session);
     }
 
     public void setDaoFactory(DAOFactory daoFactory)
