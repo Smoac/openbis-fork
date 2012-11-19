@@ -47,6 +47,11 @@ abstract public class DisposableTabContent extends TabContent
         return disposableComponentOrNull;
     }
 
+    public IDisposableComponent tryGetDisposableComponentOrNull()
+    {
+        return disposableComponentOrNull;
+    }
+
     @Override
     public void disposeComponents()
     {

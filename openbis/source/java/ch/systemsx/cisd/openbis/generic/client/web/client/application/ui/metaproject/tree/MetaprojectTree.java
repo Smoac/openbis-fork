@@ -21,16 +21,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseTreeLoader;
+import com.extjs.gxt.ui.client.data.LoadEvent;
 import com.extjs.gxt.ui.client.data.Loader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.data.TreeLoadEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.LoadListener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -60,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metapro
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsCount;
@@ -324,6 +328,12 @@ public class MetaprojectTree extends TreeGrid<MetaprojectTreeItemData> implement
                             }
                         });
         }
+
+        public void clearCache()
+        {
+            countMap = null;
+        }
+
     }
 
     private static class MetaprojectTreeLoader extends BaseTreeLoader<MetaprojectTreeItemData>
@@ -339,6 +349,11 @@ public class MetaprojectTree extends TreeGrid<MetaprojectTreeItemData> implement
         {
             return parent == null || parent instanceof MetaprojectTreeMetaprojectItemData
                     || parent instanceof MetaprojectTreeEntityKindItemData;
+        }
+
+        public void clearCache()
+        {
+            ((MetaprojectTreeProxy) getProxy()).clearCache();
         }
     }
 
@@ -409,6 +424,157 @@ public class MetaprojectTree extends TreeGrid<MetaprojectTreeItemData> implement
 
     }
 
+    private class MetaprojectTreeState
+    {
+
+        Map<MetaprojectTreeItemData, Boolean> expandedState;
+
+        List<MetaprojectTreeItemData> selectedState;
+
+        public Map<MetaprojectTreeItemData, Boolean> getExpandedState()
+        {
+            return expandedState;
+        }
+
+        public void setExpandedState(Map<MetaprojectTreeItemData, Boolean> expandedState)
+        {
+            this.expandedState = expandedState;
+        }
+
+        public List<MetaprojectTreeItemData> getSelectedState()
+        {
+            return selectedState;
+        }
+
+        public void setSelectedState(List<MetaprojectTreeItemData> selectedState)
+        {
+            this.selectedState = selectedState;
+        }
+
+    }
+
+    private MetaprojectTreeState recordState()
+    {
+        MetaprojectTreeState state = new MetaprojectTreeState();
+        state.setExpandedState(recordExpandedState());
+        state.setSelectedState(recordSelectedState());
+        return state;
+    }
+
+    private void restoreState(MetaprojectTreeState state)
+    {
+        restoreExpandedState(state.getExpandedState());
+        restoreSelectedState(state.getSelectedState());
+    }
+
+    private Map<MetaprojectTreeItemData, Boolean> recordExpandedState()
+    {
+        Map<MetaprojectTreeItemData, Boolean> expandedState =
+                new HashMap<MetaprojectTreeItemData, Boolean>();
+
+        for (MetaprojectTreeItemData item : getTreeStore().getAllItems())
+        {
+            expandedState.put(item, isExpanded(item));
+        }
+
+        return expandedState;
+    }
+
+    private List<MetaprojectTreeItemData> recordSelectedState()
+    {
+        final List<MetaprojectTreeItemData> selectedPath = new ArrayList<MetaprojectTreeItemData>();
+
+        if (selectedItem != null)
+        {
+            MetaprojectTreeItemData currentItem = selectedItem;
+            while (currentItem != null)
+            {
+                selectedPath.add(currentItem);
+                currentItem = getTreeStore().getParent(currentItem);
+            }
+        }
+
+        return selectedPath;
+    }
+
+    private void restoreExpandedState(Map<MetaprojectTreeItemData, Boolean> expandedState)
+    {
+        for (Map.Entry<MetaprojectTreeItemData, Boolean> entry : expandedState.entrySet())
+        {
+            setExpanded(entry.getKey(), entry.getValue());
+        }
+    }
+
+    private void restoreSelectedState(List<MetaprojectTreeItemData> selectedPath)
+    {
+        for (MetaprojectTreeItemData selectedPathItem : selectedPath)
+        {
+            if (getTreeStore().contains(selectedPathItem))
+            {
+                getSelectionModel().select(false, selectedPathItem);
+                break;
+            }
+        }
+    }
+
+    private MetaprojectTreeLoader getLoader()
+    {
+        return (MetaprojectTreeLoader) getTreeStore().getLoader();
+    }
+
+    public void refresh(final IDelegatedAction callback)
+    {
+        final MetaprojectTreeState state = recordState();
+
+        LoadListener afterLoadListener = new LoadListener()
+            {
+                @Override
+                public void loaderLoad(LoadEvent le)
+                {
+                    restoreState(state);
+                    getLoader().removeLoadListener(this);
+
+                    if (callback != null)
+                    {
+                        callback.execute();
+                    }
+                }
+            };
+
+        getLoader().clearCache();
+        getLoader().addLoadListener(afterLoadListener);
+        getLoader().load();
+    }
+
+    @Override
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        refresh(IDelegatedAction.DO_NOTHING);
+    }
+
+    @Override
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        Set<DatabaseModificationKind> result = new HashSet<DatabaseModificationKind>();
+        DatabaseModificationKind.addAny(result, ObjectKind.METAPROJECT);
+        DatabaseModificationKind.addAny(result, ObjectKind.EXPERIMENT);
+        DatabaseModificationKind.addAny(result, ObjectKind.SAMPLE);
+        DatabaseModificationKind.addAny(result, ObjectKind.DATA_SET);
+        DatabaseModificationKind.addAny(result, ObjectKind.MATERIAL);
+        return result.toArray(DatabaseModificationKind.EMPTY_ARRAY);
+    }
+
+    @Override
+    public Component getComponent()
+    {
+        return this;
+    }
+
+    @Override
+    public void dispose()
+    {
+    }
+
     private static MetaprojectAssignmentsFetchOption getAssignmentsFetchOption(EntityKind entityKind)
     {
         if (EntityKind.EXPERIMENT.equals(entityKind))
@@ -448,34 +614,6 @@ public class MetaprojectTree extends TreeGrid<MetaprojectTreeItemData> implement
         {
             throw new IllegalArgumentException("Unsupported entity kind: " + entityKind);
         }
-    }
-
-    @Override
-    public void update(Set<DatabaseModificationKind> observedModifications)
-    {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public DatabaseModificationKind[] getRelevantModifications()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Component getComponent()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void dispose()
-    {
-        // TODO Auto-generated method stub
-
     }
 
 }

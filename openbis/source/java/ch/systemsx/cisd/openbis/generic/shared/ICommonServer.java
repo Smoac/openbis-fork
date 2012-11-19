@@ -1444,6 +1444,7 @@ public interface ICommonServer extends IServer
      * Adds specified entities to given metaproject.
      */
     @Transactional
+    @DatabaseUpdateModification(value = ObjectKind.METAPROJECT)
     public void addToMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             MetaprojectAssignmentsIds assignmentsToAdd);
 
@@ -1451,6 +1452,7 @@ public interface ICommonServer extends IServer
      * Removes specified entities to given metaproject.
      */
     @Transactional
+    @DatabaseUpdateModification(value = ObjectKind.METAPROJECT)
     public void removeFromMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             MetaprojectAssignmentsIds assignmentsToRemove);
 
@@ -1458,12 +1460,14 @@ public interface ICommonServer extends IServer
      * Deletes given metaproject.
      */
     @Transactional
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.METAPROJECT)
     public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId);
 
     /**
      * Registers a new metaproject.
      */
     @Transactional
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.METAPROJECT)
     public Metaproject registerMetaproject(String sessionToken, String name,
             String descriptionOrNull);
 
@@ -1471,6 +1475,7 @@ public interface ICommonServer extends IServer
      * Updates existing metaprojest.
      */
     @Transactional
+    @DatabaseUpdateModification(value = ObjectKind.METAPROJECT)
     public Metaproject updateMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             String name, String descriptionOrNull);
 

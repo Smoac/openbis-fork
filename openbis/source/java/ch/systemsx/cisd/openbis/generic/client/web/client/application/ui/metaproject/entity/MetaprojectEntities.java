@@ -27,7 +27,9 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComposite;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -53,6 +55,8 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
 
     private EntityKind currentEntityKind;
 
+    private DisposableComposite composite = new DisposableComposite(this);
+
     public MetaprojectEntities(IViewContext<?> viewContext, String idPrefix)
     {
         this.viewContext = viewContext;
@@ -63,11 +67,7 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
 
     private void initSections(final Long metaprojectId)
     {
-        if (sectionsPanel != null)
-        {
-            remove(sectionsPanel);
-        }
-        sectionsMap.clear();
+        clearSections();
 
         viewContext.getCommonService().getMetaprojectAssignmentsCount(metaprojectId,
                 new AbstractAsyncCallback<MetaprojectAssignmentsCount>(viewContext)
@@ -101,14 +101,14 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
                                         viewContext, new TechId(metaprojectId)));
                             }
 
-                            if (currentEntityKind == null)
+                            if (hasSection(currentEntityKind))
+                            {
+                                selectSection(currentEntityKind);
+                            } else if (sectionsMap.size() > 0)
                             {
                                 currentEntityKind =
                                         sectionsMap.entrySet().iterator().next().getKey();
                                 sectionsPanel.selectFirstSection();
-                            } else
-                            {
-                                selectSection(currentEntityKind);
                             }
 
                             add(sectionsPanel);
@@ -117,10 +117,34 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
                     });
     }
 
-    private void addSection(EntityKind entityKind, DisposableTabContent section)
+    private void clearSections()
+    {
+        if (sectionsPanel != null)
+        {
+            sectionsPanel.removeFromParent();
+            sectionsPanel = null;
+        }
+        sectionsMap.clear();
+        composite.clearSubcomponents();
+    }
+
+    private boolean hasSection(EntityKind entityKind)
+    {
+        return sectionsMap.containsKey(entityKind);
+    }
+
+    private void addSection(EntityKind entityKind, final DisposableTabContent section)
     {
         sectionsPanel.addSection(section);
         sectionsMap.put(entityKind, section);
+        composite.addSubcomponent(new IDisposableComponentProvider()
+            {
+                @Override
+                public IDisposableComponent getDisposableComponent()
+                {
+                    return section.tryGetDisposableComponentOrNull();
+                }
+            });
     }
 
     private void selectSection(EntityKind entityKind)
@@ -156,32 +180,43 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
         }
     }
 
+    public void hideEntities()
+    {
+        currentMetaprojectId = null;
+        currentEntityKind = null;
+        clearSections();
+    }
+
+    public void refresh()
+    {
+        if (currentMetaprojectId != null)
+        {
+            initSections(currentMetaprojectId);
+        }
+    }
+
     @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
-        // TODO Auto-generated method stub
-
+        refresh();
     }
 
     @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return composite.getRelevantModifications();
     }
 
     @Override
     public Component getComponent()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return this;
     }
 
     @Override
     public void dispose()
     {
-        // TODO Auto-generated method stub
-
+        composite.dispose();
     }
 
 }

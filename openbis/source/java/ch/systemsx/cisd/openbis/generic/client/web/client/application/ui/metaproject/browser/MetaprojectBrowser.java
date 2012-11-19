@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metapro
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeEntityKindItemData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeItemData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeMetaprojectItemData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
 /**
@@ -44,14 +45,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  */
 public class MetaprojectBrowser extends ContentPanel implements IDisposableComponent
 {
-    
+
     public static final String ID = GenericConstants.ID_PREFIX + "metaproject-browser";
 
     private MetaprojectTree tree;
 
+    private SelectionChangedListener<MetaprojectTreeItemData> treeListener;
+
     private MetaprojectEntities entities;
 
-    private DisposableComposite composite;
+    private DisposableComposite composite = new DisposableComposite(this);
 
     public MetaprojectBrowser(final IViewContext<?> viewContext)
     {
@@ -59,38 +62,20 @@ public class MetaprojectBrowser extends ContentPanel implements IDisposableCompo
         setLayout(new BorderLayout());
 
         tree = new MetaprojectTree(viewContext, getId());
-        tree.getSelectionModel().addSelectionChangedListener(
-                new SelectionChangedListener<MetaprojectTreeItemData>()
-                    {
-                        @Override
-                        public void selectionChanged(
-                                SelectionChangedEvent<MetaprojectTreeItemData> se)
-                        {
-                            MetaprojectTreeItemData item = se.getSelectedItem();
-
-                            if (item instanceof MetaprojectTreeMetaprojectItemData)
-                            {
-                                MetaprojectTreeMetaprojectItemData metaprojectItem =
-                                        (MetaprojectTreeMetaprojectItemData) item;
-                                entities.showEntities(metaprojectItem.getMetaproject().getId());
-                            } else if (item instanceof MetaprojectTreeEntityKindItemData)
-                            {
-                                MetaprojectTreeEntityKindItemData entityKindItem =
-                                        (MetaprojectTreeEntityKindItemData) item;
-                                entities.showEntities(entityKindItem.getMetaprojectId(),
-                                        entityKindItem.getEntityKind());
-                            } else if (item instanceof MetaprojectTreeEntityItemData)
-                            {
-                                MetaprojectTreeEntityItemData entityItem =
-                                        (MetaprojectTreeEntityItemData) item;
-                                entities.showEntities(entityItem.getMetaprojectId(), entityItem
-                                        .getEntity().getEntityKind());
-                            }
-                        }
-                    });
+        treeListener = new SelectionChangedListener<MetaprojectTreeItemData>()
+            {
+                @Override
+                public void selectionChanged(SelectionChangedEvent<MetaprojectTreeItemData> se)
+                {
+                    showEntities(se.getSelectedItem());
+                }
+            };
+        tree.getSelectionModel().addSelectionChangedListener(treeListener);
 
         entities = new MetaprojectEntities(viewContext, getId());
-        composite = new DisposableComposite(this, tree, entities);
+
+        composite.addSubcomponent(tree);
+        composite.addSubcomponent(entities);
 
         BorderLayoutData treeLayout = new BorderLayoutData(LayoutRegion.WEST, 300, 20, 2000);
         treeLayout.setSplit(true);
@@ -108,6 +93,44 @@ public class MetaprojectBrowser extends ContentPanel implements IDisposableCompo
         add(entities, gridsLayout);
 
         layout();
+    }
+
+    private void showEntities(MetaprojectTreeItemData item)
+    {
+        if (item == null)
+        {
+            entities.hideEntities();
+        } else if (item instanceof MetaprojectTreeMetaprojectItemData)
+        {
+            MetaprojectTreeMetaprojectItemData metaprojectItem =
+                    (MetaprojectTreeMetaprojectItemData) item;
+            entities.showEntities(metaprojectItem.getMetaproject().getId());
+        } else if (item instanceof MetaprojectTreeEntityKindItemData)
+        {
+            MetaprojectTreeEntityKindItemData entityKindItem =
+                    (MetaprojectTreeEntityKindItemData) item;
+            entities.showEntities(entityKindItem.getMetaprojectId(), entityKindItem.getEntityKind());
+        } else if (item instanceof MetaprojectTreeEntityItemData)
+        {
+            MetaprojectTreeEntityItemData entityItem = (MetaprojectTreeEntityItemData) item;
+            entities.showEntities(entityItem.getMetaprojectId(), entityItem.getEntity()
+                    .getEntityKind());
+        }
+    }
+
+    public void refresh()
+    {
+        showEntities(null);
+        tree.getSelectionModel().removeSelectionListener(treeListener);
+        tree.refresh(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    showEntities(tree.getSelectionModel().getSelectedItem());
+                    tree.getSelectionModel().addSelectionChangedListener(treeListener);
+                }
+            });
     }
 
     @Override
@@ -131,7 +154,7 @@ public class MetaprojectBrowser extends ContentPanel implements IDisposableCompo
     @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
-        composite.update(observedModifications);
+        refresh();
     }
 
 }

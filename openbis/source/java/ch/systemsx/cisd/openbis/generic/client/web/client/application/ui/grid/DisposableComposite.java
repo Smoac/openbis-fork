@@ -16,12 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.Component;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
@@ -31,36 +32,65 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 public class DisposableComposite implements IDisposableComponent
 {
 
-    private Component mainComponent;
+    private Component component;
 
-    private IDisposableComponent[] subComponents;
+    private List<IDisposableComponentProvider> subcomponentProviders =
+            new ArrayList<IDisposableComponentProvider>();
 
-    public DisposableComposite(Component mainComponent, IDisposableComponent... subComponents)
+    public DisposableComposite(Component component)
     {
-        this.mainComponent = mainComponent;
-
-        if (subComponents == null)
+        if (component == null)
         {
-            this.subComponents = new IDisposableComponent[0];
-        } else
-        {
-            this.subComponents = subComponents;
+            throw new IllegalArgumentException("Component cannot be null");
         }
-
+        this.component = component;
     }
 
     @Override
     public Component getComponent()
     {
-        return mainComponent;
+        return component;
+    }
+
+    public void addSubcomponent(final IDisposableComponent subcomponent)
+    {
+        if (subcomponent != null)
+        {
+            subcomponentProviders.add(new IDisposableComponentProvider()
+                {
+                    @Override
+                    public IDisposableComponent getDisposableComponent()
+                    {
+                        return subcomponent;
+                    }
+                });
+        }
+    }
+
+    public void addSubcomponent(final IDisposableComponentProvider subcomponentProvider)
+    {
+        if (subcomponentProvider != null)
+        {
+            subcomponentProviders.add(subcomponentProvider);
+        }
+    }
+
+    public void clearSubcomponents()
+    {
+        subcomponentProviders.clear();
     }
 
     @Override
     public void dispose()
     {
-        for (IDisposableComponent subComponent : subComponents)
+        for (IDisposableComponentProvider subcomponentProvider : subcomponentProviders)
         {
-            subComponent.dispose();
+            IDisposableComponent subcomponent = subcomponentProvider.getDisposableComponent();
+
+            if (subcomponent != null)
+            {
+                subcomponent.dispose();
+            }
         }
     }
 
@@ -70,9 +100,20 @@ public class DisposableComposite implements IDisposableComponent
         Set<DatabaseModificationKind> relevantModifications =
                 new HashSet<DatabaseModificationKind>();
 
-        for (IDisposableComponent subComponent : subComponents)
+        for (IDisposableComponentProvider subcomponentProvider : subcomponentProviders)
         {
-            SetUtils.addAll(relevantModifications, subComponent.getRelevantModifications());
+            IDisposableComponent subcomponent = subcomponentProvider.getDisposableComponent();
+
+            if (subcomponent != null)
+            {
+                DatabaseModificationKind[] subcomponentRelevantModifications =
+                        subcomponent.getRelevantModifications();
+
+                if (subcomponentRelevantModifications != null)
+                {
+                    SetUtils.addAll(relevantModifications, subcomponentRelevantModifications);
+                }
+            }
         }
 
         return relevantModifications.toArray(DatabaseModificationKind.EMPTY_ARRAY);
@@ -81,14 +122,22 @@ public class DisposableComposite implements IDisposableComponent
     @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
-        for (IDatabaseModificationObserver subComponent : subComponents)
+        for (IDisposableComponentProvider subcomponentProvider : subcomponentProviders)
         {
-            if (SetUtils
-                    .containsAny(observedModifications, subComponent.getRelevantModifications()))
+            IDisposableComponent subcomponent = subcomponentProvider.getDisposableComponent();
+
+            if (subcomponent != null)
             {
-                subComponent.update(observedModifications);
+                DatabaseModificationKind[] subcomponentRelevantModifications =
+                        subcomponent.getRelevantModifications();
+
+                if (subcomponentRelevantModifications != null
+                        && SetUtils.containsAny(observedModifications,
+                                subcomponentRelevantModifications))
+                {
+                    subcomponent.update(observedModifications);
+                }
             }
         }
     }
-
 }
