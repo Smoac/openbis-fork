@@ -39,10 +39,10 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.common.io.ByteArrayBasedContentNode;
 import ch.systemsx.cisd.openbis.common.io.ConcatenatedContentInputStream;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.dss.screening.server.DssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.GeneralInformationChangingService;
+import ch.systemsx.cisd.openbis.generic.server.api.v1.GeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -200,6 +201,9 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
                     allowing(dssService2).getMinorVersion();
                     will(returnValue(DssServiceRpcScreening.MINOR_VERSION));
+
+                    allowing(generalInformationService).getMinorVersion();
+                    will(returnValue(GeneralInformationService.MINOR_VERSION));
 
                     allowing(generalInformationChangingService).getMinorVersion();
                     will(returnValue(GeneralInformationChangingService.MINOR_VERSION));
