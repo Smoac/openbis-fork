@@ -105,7 +105,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         if (infoProvider != null)
         {
             String trust =
-                    infoProvider.getResolvedProps().getProperty("keystore.trust-all-certificates");
+                    infoProvider.getResolvedProps().getProperty("trust-all-certificates");
             this.trustAllCertificates = (trust != null && trust.equalsIgnoreCase("true"));
             this.sessionWorkspaceRoot =
                     infoProvider.getResolvedProps().getProperty("session-workspace-root-dir",
