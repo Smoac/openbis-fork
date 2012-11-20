@@ -641,7 +641,12 @@ class AuthenticatedState extends AbstractDssComponentState
     File tryLinkToContents(DataSetDss dataSetDss, String overrideStoreRootPathOrNull)
             throws InvalidSessionException, EnvironmentFailureException
     {
-        final String path = tryGetInternalPathInDataStore(dataSetDss);
+        final String path = tryGetInternalPathInDataStore(dataSetDss, overrideStoreRootPathOrNull);
+        
+        if (path == null)
+        {
+            return null;
+        }
 
         // Check if the file referenced by the path exists, if so return it.
         // NOTE: the path will never exist if the data set is a container.
@@ -660,7 +665,7 @@ class AuthenticatedState extends AbstractDssComponentState
      * Returns null if link couldn't be retrieved (e.g. when the <var>dataSetDss</var> is a
      * container).
      */
-    String tryGetInternalPathInDataStore(DataSetDss dataSetDss)
+    String tryGetInternalPathInDataStore(DataSetDss dataSetDss, String overrideStoreRootPathOrNull)
             throws InvalidSessionException, EnvironmentFailureException
     {
         int minorVersion = dataSetDss.getService().getMinorVersion();
@@ -672,7 +677,7 @@ class AuthenticatedState extends AbstractDssComponentState
         try
         {
             return dataSetDss.getService().getPathToDataSet(getSessionToken(),
-                            dataSetDss.getCode(), null);
+                            dataSetDss.getCode(), overrideStoreRootPathOrNull);
         } catch (IllegalArgumentException e)
         {
             // We could not create a link, return null

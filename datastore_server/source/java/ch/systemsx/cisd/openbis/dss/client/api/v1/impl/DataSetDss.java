@@ -77,7 +77,7 @@ public class DataSetDss implements IDataSetDss
     public String tryGetInternalPathInDataStore() throws InvalidSessionException,
             EnvironmentFailureException
     {
-        return parent.tryGetInternalPathInDataStore(this);
+        return parent.tryGetInternalPathInDataStore(this, null);
     }
 
     @Override
