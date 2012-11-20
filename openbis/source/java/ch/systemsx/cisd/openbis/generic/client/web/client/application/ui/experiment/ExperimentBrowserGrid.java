@@ -171,6 +171,11 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
                                     return new DatabaseModificationKind[0];
                                 }
                             }, true);
+
+        browserGrid.addEntityOperationsLabel();
+        browserGrid.addTaggingButtons();
+        browserGrid.addEntityOperationsSeparator();
+        browserGrid.allowMultipleSelection();
         return browserGrid.asDisposableWithoutToolbar();
     }
 
@@ -255,34 +260,8 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
                     });
     }
 
-    private void extendBottomToolbar()
+    protected void addTaggingButtons()
     {
-        if (viewContext.isSimpleOrEmbeddedMode())
-        {
-            return;
-        }
-
-        addEntityOperationsLabel();
-
-        final Button addButton =
-                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Experiment"),
-                        new SelectionListener<ButtonEvent>()
-                            {
-                                @Override
-                                public void componentSelected(ButtonEvent ce)
-                                {
-                                    openExperimentRegistrationTab();
-                                }
-
-                            });
-        addButton(addButton);
-
-        String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
-        Button showDetailsButton =
-                createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
-        showDetailsButton.setId(SHOW_DETAILS_BUTTON_ID);
-        addButton(showDetailsButton);
-
         final MetaprojectChooserButton tagButton =
                 new MetaprojectChooserButton(viewContext, getId(),
                         new IChosenEntitiesProvider<String>()
@@ -377,6 +356,37 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
         untagButton.setText(viewContext.getMessage(Dict.BUTTON_UNTAG));
         enableButtonOnSelectedItems(untagButton);
         addButton(untagButton);
+    }
+
+    private void extendBottomToolbar()
+    {
+        if (viewContext.isSimpleOrEmbeddedMode())
+        {
+            return;
+        }
+
+        addEntityOperationsLabel();
+
+        final Button addButton =
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Experiment"),
+                        new SelectionListener<ButtonEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ButtonEvent ce)
+                                {
+                                    openExperimentRegistrationTab();
+                                }
+
+                            });
+        addButton(addButton);
+
+        String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
+        Button showDetailsButton =
+                createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
+        showDetailsButton.setId(SHOW_DETAILS_BUTTON_ID);
+        addButton(showDetailsButton);
+
+        addTaggingButtons();
 
         String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
         Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));

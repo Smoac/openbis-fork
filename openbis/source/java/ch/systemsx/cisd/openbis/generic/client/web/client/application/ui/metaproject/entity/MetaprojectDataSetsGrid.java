@@ -45,6 +45,10 @@ public class MetaprojectDataSetsGrid extends AbstractExternalDataGrid
             TechId metaprojectId)
     {
         MetaprojectDataSetsGrid grid = new MetaprojectDataSetsGrid(viewContext, metaprojectId);
+        grid.addEntityOperationsLabel();
+        grid.addTaggingButtons();
+        grid.addEntityOperationsSeparator();
+        grid.allowMultipleSelection();
         return grid.asDisposableWithoutToolbar();
     }
 

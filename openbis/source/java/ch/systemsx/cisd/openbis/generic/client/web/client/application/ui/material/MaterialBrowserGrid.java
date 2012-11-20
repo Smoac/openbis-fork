@@ -142,6 +142,10 @@ public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
                     };
         final MaterialBrowserGrid browserGrid =
                 createBrowserGrid(viewContext.getCommonViewContext(), criteriaProvider, true);
+        browserGrid.addEntityOperationsLabel();
+        browserGrid.addTaggingButtons();
+        browserGrid.addEntityOperationsSeparator();
+        browserGrid.allowMultipleSelection();
         return browserGrid.asDisposableWithoutToolbar();
     }
 
@@ -248,17 +252,8 @@ public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
         }
     }
 
-    private void addEntityOperationButtons()
+    protected void addTaggingButtons()
     {
-        String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
-        Button showDetailsButton =
-                createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
-        addButton(showDetailsButton);
-
-        String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
-        Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
-        addButton(editButton);
-
         final MetaprojectChooserButton tagButton =
                 new MetaprojectChooserButton(viewContext, getId(),
                         new IChosenEntitiesProvider<String>()
@@ -353,6 +348,20 @@ public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
         untagButton.setText(viewContext.getMessage(Dict.BUTTON_UNTAG));
         enableButtonOnSelectedItems(untagButton);
         addButton(untagButton);
+    }
+
+    private void addEntityOperationButtons()
+    {
+        String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
+        Button showDetailsButton =
+                createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
+        addButton(showDetailsButton);
+
+        String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
+        Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
+        addButton(editButton);
+
+        addTaggingButtons();
 
         final String deleteTitle = viewContext.getMessage(Dict.BUTTON_DELETE);
         final String deleteAllTitle = deleteTitle + " All";

@@ -274,6 +274,10 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                         DUMMY_DIRECTLY_CONNECTED_CONTROLLER);
 
         browserGrid.updateCriteriaProviderAndRefresh();
+        browserGrid.addEntityOperationsLabel();
+        browserGrid.addTaggingButtons();
+        browserGrid.addEntityOperationsSeparator();
+        browserGrid.allowMultipleSelection();
         return browserGrid.asDisposableWithoutToolbar();
     }
 
@@ -592,22 +596,8 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
         addEntityOperationsSeparator();
     }
 
-    protected void addEntityOperationButtons()
+    protected void addTaggingButtons()
     {
-
-        final Button addButton =
-                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Sample"),
-                        new SelectionListener<ButtonEvent>()
-                            {
-                                @Override
-                                public void componentSelected(ButtonEvent ce)
-                                {
-                                    openSampleRegistrationTab();
-                                }
-                            });
-        addButton.setId(createChildComponentId(ADD_BUTTON_ID_SUFFIX));
-        addButton(addButton);
-
         final MetaprojectChooserButton tagButton =
                 new MetaprojectChooserButton(viewContext, getId(),
                         new IChosenEntitiesProvider<String>()
@@ -702,6 +692,26 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
         untagButton.setText(viewContext.getMessage(Dict.BUTTON_UNTAG));
         enableButtonOnSelectedItems(untagButton);
         addButton(untagButton);
+
+    }
+
+    protected void addEntityOperationButtons()
+    {
+
+        final Button addButton =
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Sample"),
+                        new SelectionListener<ButtonEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ButtonEvent ce)
+                                {
+                                    openSampleRegistrationTab();
+                                }
+                            });
+        addButton.setId(createChildComponentId(ADD_BUTTON_ID_SUFFIX));
+        addButton(addButton);
+
+        addTaggingButtons();
 
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =

@@ -134,6 +134,104 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
 
     }
 
+    protected void addTaggingButtons()
+    {
+        final MetaprojectChooserButton tagButton =
+                new MetaprojectChooserButton(viewContext, getId(),
+                        new IChosenEntitiesProvider<String>()
+                            {
+                                @Override
+                                public List<String> getEntities()
+                                {
+                                    return getMetaProjectsReferencedyByEachOf(taggables(getSelectedItems()));
+                                }
+
+                                @Override
+                                public boolean isBlackList()
+                                {
+                                    return true;
+                                }
+                            });
+
+        tagButton
+                .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>()
+                    {
+                        @Override
+                        public void entitiesChosen(
+                                List<TableModelRowWithObject<Metaproject>> entities)
+                        {
+                            List<Long> dataSetIds = new ArrayList<Long>();
+                            for (BaseEntityModel<TableModelRowWithObject<ExternalData>> item : getSelectedItems())
+                            {
+                                dataSetIds.add(item.getBaseObject().getObjectOrNull().getId());
+                            }
+
+                            List<Long> metaProjectIds = new ArrayList<Long>();
+                            for (TableModelRowWithObject<Metaproject> row : entities)
+                            {
+                                metaProjectIds.add(row.getObjectOrNull().getId());
+                            }
+                            viewContext.getCommonService().assignDataSetsToMetaProjects(
+                                    metaProjectIds, dataSetIds,
+                                    createRefreshCallback(asActionInvoker()));
+
+                        }
+                    });
+
+        tagButton.setId(getId() + ADD_METAPROJECTS_BUTTON_ID_SUFFIX);
+        tagButton.setText(viewContext.getMessage(Dict.BUTTON_TAG));
+        enableButtonOnSelectedItems(tagButton);
+        addButton(tagButton);
+
+        final MetaprojectChooserButton untagButton =
+                new MetaprojectChooserButton(viewContext, getId(),
+                        new IChosenEntitiesProvider<String>()
+                            {
+                                @Override
+                                public List<String> getEntities()
+                                {
+                                    return getMetaProjectsReferencedByAtLeastOneOf(taggables(getSelectedItems()));
+                                }
+
+                                @Override
+                                public boolean isBlackList()
+                                {
+                                    return false;
+                                }
+                            });
+
+        untagButton
+                .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>()
+                    {
+                        @Override
+                        public void entitiesChosen(
+                                List<TableModelRowWithObject<Metaproject>> entities)
+                        {
+                            List<Long> dataSetIds = new ArrayList<Long>();
+                            for (BaseEntityModel<TableModelRowWithObject<ExternalData>> item : getSelectedItems())
+                            {
+                                dataSetIds.add(item.getBaseObject().getObjectOrNull().getId());
+                            }
+
+                            List<Long> metaProjectIds = new ArrayList<Long>();
+                            for (TableModelRowWithObject<Metaproject> row : entities)
+                            {
+                                metaProjectIds.add(row.getObjectOrNull().getId());
+                            }
+                            viewContext.getCommonService()
+                                    .removeDataSetsFromMetaProjects(
+                                            metaProjectIds, dataSetIds,
+                                            createRefreshCallback(asActionInvoker()));
+
+                        }
+                    });
+
+        untagButton.setId(getId() + REMOVE_METAPROJECTS_BUTTON_ID_SUFFIX);
+        untagButton.setText(viewContext.getMessage(Dict.BUTTON_UNTAG));
+        enableButtonOnSelectedItems(untagButton);
+        addButton(untagButton);
+    }
+
     // adds show, show-details and invalidate buttons
     protected void extendBottomToolbar()
     {
@@ -146,100 +244,7 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
             addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
                     asShowEntityInvoker(true)));
 
-            final MetaprojectChooserButton tagButton =
-                    new MetaprojectChooserButton(viewContext, getId(),
-                            new IChosenEntitiesProvider<String>()
-                                {
-                                    @Override
-                                    public List<String> getEntities()
-                                    {
-                                        return getMetaProjectsReferencedyByEachOf(taggables(getSelectedItems()));
-                                    }
-
-                                    @Override
-                                    public boolean isBlackList()
-                                    {
-                                        return true;
-                                    }
-                                });
-
-            tagButton
-                    .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>()
-                        {
-                            @Override
-                            public void entitiesChosen(
-                                    List<TableModelRowWithObject<Metaproject>> entities)
-                            {
-                                List<Long> dataSetIds = new ArrayList<Long>();
-                                for (BaseEntityModel<TableModelRowWithObject<ExternalData>> item : getSelectedItems())
-                                {
-                                    dataSetIds.add(item.getBaseObject().getObjectOrNull().getId());
-                                }
-
-                                List<Long> metaProjectIds = new ArrayList<Long>();
-                                for (TableModelRowWithObject<Metaproject> row : entities)
-                                {
-                                    metaProjectIds.add(row.getObjectOrNull().getId());
-                                }
-                                viewContext.getCommonService().assignDataSetsToMetaProjects(
-                                        metaProjectIds, dataSetIds,
-                                        createRefreshCallback(asActionInvoker()));
-
-                            }
-                        });
-
-            tagButton.setId(getId() + ADD_METAPROJECTS_BUTTON_ID_SUFFIX);
-            tagButton.setText(viewContext.getMessage(Dict.BUTTON_TAG));
-            enableButtonOnSelectedItems(tagButton);
-            addButton(tagButton);
-
-            final MetaprojectChooserButton untagButton =
-                    new MetaprojectChooserButton(viewContext, getId(),
-                            new IChosenEntitiesProvider<String>()
-                                {
-                                    @Override
-                                    public List<String> getEntities()
-                                    {
-                                        return getMetaProjectsReferencedByAtLeastOneOf(taggables(getSelectedItems()));
-                                    }
-
-                                    @Override
-                                    public boolean isBlackList()
-                                    {
-                                        return false;
-                                    }
-                                });
-
-            untagButton
-                    .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>()
-                        {
-                            @Override
-                            public void entitiesChosen(
-                                    List<TableModelRowWithObject<Metaproject>> entities)
-                            {
-                                List<Long> dataSetIds = new ArrayList<Long>();
-                                for (BaseEntityModel<TableModelRowWithObject<ExternalData>> item : getSelectedItems())
-                                {
-                                    dataSetIds.add(item.getBaseObject().getObjectOrNull().getId());
-                                }
-
-                                List<Long> metaProjectIds = new ArrayList<Long>();
-                                for (TableModelRowWithObject<Metaproject> row : entities)
-                                {
-                                    metaProjectIds.add(row.getObjectOrNull().getId());
-                                }
-                                viewContext.getCommonService()
-                                        .removeDataSetsFromMetaProjects(
-                                                metaProjectIds, dataSetIds,
-                                                createRefreshCallback(asActionInvoker()));
-
-                            }
-                        });
-
-            untagButton.setId(getId() + REMOVE_METAPROJECTS_BUTTON_ID_SUFFIX);
-            untagButton.setText(viewContext.getMessage(Dict.BUTTON_UNTAG));
-            enableButtonOnSelectedItems(untagButton);
-            addButton(untagButton);
+            addTaggingButtons();
 
             final String deleteTitle = viewContext.getMessage(Dict.BUTTON_DELETE);
             final String deleteAllTitle = deleteTitle + " All";
