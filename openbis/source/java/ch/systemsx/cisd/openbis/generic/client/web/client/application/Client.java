@@ -19,6 +19,17 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.mvc.Controller;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.rpc.ServiceDefTarget;
+
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
@@ -32,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Br
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.GlobalSearchLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.HomeLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MaterialLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MetaprojectBrowserLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ProjectLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SampleRegistrationLocatorResolver;
@@ -52,17 +64,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
-
-import com.extjs.gxt.ui.client.mvc.Controller;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.user.client.History;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
 /**
  * The {@link EntryPoint} implementation.
@@ -438,6 +439,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         handlerRegistry.registerHandler(new PermlinkLocatorResolver(context));
 
         handlerRegistry.registerHandler(new SearchLocatorResolver(context));
+        handlerRegistry.registerHandler(new MetaprojectBrowserLocatorResolver(context));
         handlerRegistry.registerHandler(new BrowserLocatorResolver(context));
         handlerRegistry.registerHandler(new GlobalSearchLocatorResolver(context));
         handlerRegistry.registerHandler(new HomeLocatorResolver(context));

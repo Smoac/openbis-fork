@@ -1008,7 +1008,7 @@ public final class ComponentProvider
                 @Override
                 public String tryGetLink()
                 {
-                    return null;
+                    return LinkExtractor.createMetaprojectBrowserLink();
                 }
 
             };
