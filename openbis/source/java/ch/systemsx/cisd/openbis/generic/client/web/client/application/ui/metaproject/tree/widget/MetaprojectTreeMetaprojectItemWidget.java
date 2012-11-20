@@ -18,10 +18,13 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metapr
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseDownEvent;
+import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.InlineLabel;
@@ -43,7 +46,7 @@ public class MetaprojectTreeMetaprojectItemWidget extends MetaprojectTreeItemWid
 
     private MetaprojectTreeMetaprojectItemData data;
 
-    private Widget link;
+    private Anchor link;
 
     public MetaprojectTreeMetaprojectItemWidget(IViewContext<?> viewContext,
             MetaprojectTreeMetaprojectItemData data)
@@ -88,7 +91,7 @@ public class MetaprojectTreeMetaprojectItemWidget extends MetaprojectTreeItemWid
     {
         if (link == null)
         {
-            ClickHandler listener = new ClickHandler()
+            ClickHandler clickListener = new ClickHandler()
                 {
                     @Override
                     public void onClick(ClickEvent event)
@@ -96,6 +99,20 @@ public class MetaprojectTreeMetaprojectItemWidget extends MetaprojectTreeItemWid
                         OpenEntityDetailsTabHelper.openMetaproject(getViewContext(),
                                 data.getMetaproject(),
                                 WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent()));
+
+                        // just open the metaproject detail view when the link is clicked
+                        // and prevent the metaproject tree selection to be changed
+                        event.stopPropagation();
+                    }
+                };
+            MouseDownHandler mouseDownHandler = new MouseDownHandler()
+                {
+                    @Override
+                    public void onMouseDown(MouseDownEvent event)
+                    {
+                        // just open the metaproject detail view when the link is clicked
+                        // and prevent the metaproject tree selection to be changed
+                        event.stopPropagation();
                     }
                 };
 
@@ -103,9 +120,10 @@ public class MetaprojectTreeMetaprojectItemWidget extends MetaprojectTreeItemWid
             String href = "";
 
             link =
-                    LinkRenderer.getLinkWidget(
-                            getViewContext().getMessage(Dict.METAPROJECT_TREE_INFO_LINK), listener,
-                            href);
+                    LinkRenderer.getLinkAnchor(
+                            getViewContext().getMessage(Dict.METAPROJECT_TREE_INFO_LINK),
+                            clickListener, href);
+            link.addMouseDownHandler(mouseDownHandler);
             link.setVisible(isSelected());
         }
         return link;

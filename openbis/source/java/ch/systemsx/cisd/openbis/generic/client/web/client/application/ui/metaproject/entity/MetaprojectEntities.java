@@ -21,16 +21,19 @@ import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableComposite;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -65,9 +68,13 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
         setId(idPrefix + ID_SUFFIX);
     }
 
-    private void initSections(final Long metaprojectId)
+    private void initSections(final Long metaprojectId, final IDelegatedAction callback)
     {
         clearSections();
+
+        final Html loading = new Html(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
+        add(loading);
+        layout();
 
         viewContext.getCommonService().getMetaprojectAssignmentsCount(metaprojectId,
                 new AbstractAsyncCallback<MetaprojectAssignmentsCount>(viewContext)
@@ -111,8 +118,14 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
                                 sectionsPanel.selectFirstSection();
                             }
 
+                            remove(loading);
                             add(sectionsPanel);
                             layout();
+
+                            if (callback != null)
+                            {
+                                callback.execute();
+                            }
                         }
                     });
     }
@@ -156,27 +169,32 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
         }
     }
 
-    public void showEntities(Long metaprojectId)
+    public void showEntities(Long metaprojectId, IDelegatedAction callback)
     {
         if (currentMetaprojectId != metaprojectId)
         {
             currentMetaprojectId = metaprojectId;
             currentEntityKind = null;
-            initSections(metaprojectId);
+            initSections(metaprojectId, callback);
         }
     }
 
-    public void showEntities(Long metaprojectId, final EntityKind entityKind)
+    public void showEntities(Long metaprojectId, final EntityKind entityKind,
+            IDelegatedAction callback)
     {
         if (currentMetaprojectId != metaprojectId)
         {
             currentMetaprojectId = metaprojectId;
             currentEntityKind = entityKind;
-            initSections(metaprojectId);
+            initSections(metaprojectId, callback);
         } else
         {
             currentEntityKind = entityKind;
             selectSection(entityKind);
+            if (callback != null)
+            {
+                callback.execute();
+            }
         }
     }
 
@@ -191,7 +209,7 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
     {
         if (currentMetaprojectId != null)
         {
-            initSections(currentMetaprojectId);
+            initSections(currentMetaprojectId, IDelegatedAction.DO_NOTHING);
         }
     }
 

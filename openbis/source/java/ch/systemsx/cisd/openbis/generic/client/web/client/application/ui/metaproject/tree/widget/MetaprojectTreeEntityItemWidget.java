@@ -18,8 +18,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metapr
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseDownEvent;
+import com.google.gwt.event.dom.client.MouseDownHandler;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.InlineLabel;
-import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
@@ -44,7 +46,7 @@ public class MetaprojectTreeEntityItemWidget extends MetaprojectTreeItemWidget
             initWidget(new InlineLabel(model.getEntityLabel()));
         } else
         {
-            ClickHandler listener = new ClickHandler()
+            ClickHandler clickListener = new ClickHandler()
                 {
                     @Override
                     public void onClick(ClickEvent event)
@@ -52,12 +54,27 @@ public class MetaprojectTreeEntityItemWidget extends MetaprojectTreeItemWidget
                         OpenEntityDetailsTabHelper.open(viewContext, model.getEntity()
                                 .getEntityKind(), model.getEntity().getPermId(), WidgetUtils
                                 .ifSpecialKeyPressed(event.getNativeEvent()));
+
+                        // just open the entity detail view when the link is clicked
+                        // and prevent the metaproject tree selection to be changed
+                        event.stopPropagation();
+                    }
+                };
+            MouseDownHandler mouseDownHandler = new MouseDownHandler()
+                {
+                    @Override
+                    public void onMouseDown(MouseDownEvent event)
+                    {
+                        // just open the entity detail view when the link is clicked
+                        // and prevent the metaproject tree selection to be changed
+                        event.stopPropagation();
                     }
                 };
 
-            Widget link =
-                    LinkRenderer.getLinkWidget(model.getEntityLabel(), listener,
+            Anchor link =
+                    LinkRenderer.getLinkAnchor(model.getEntityLabel(), clickListener,
                             LinkExtractor.tryExtract(model.getEntity()));
+            link.addMouseDownHandler(mouseDownHandler);
             initWidget(link);
         }
     }

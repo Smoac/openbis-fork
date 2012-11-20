@@ -68,6 +68,8 @@ public abstract class Dict
 
     public static final String REGISTRATION_DATE = "registration_date";
 
+    public static final String CREATION_DATE = "creation_date";
+
     public static final String NOT_IMPLEMENTED = "not_implemented";
 
     public static final String LOAD_IN_PROGRESS = "load_in_progress";
@@ -991,6 +993,12 @@ public abstract class Dict
     public static final String METAPROJECT_ENTITIES_DATA_SETS = "metaproject_entities_data_sets";
 
     public static final String METAPROJECT_ENTITIES_MATERIALS = "metaproject_entities_materials";
+
+    //
+    // Metaproject Viewer
+    //
+
+    public static final String METAPROJECT_PROPERTIES = "metaproject_properties";
 
     //
     // Detailed Search

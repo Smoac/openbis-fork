@@ -755,6 +755,12 @@ var common = {
  metaproject_entities_materials: "Materials",
 
  //
+ // Metaproject Viewer
+ //
+
+ metaproject_properties: "Metaproject properties",
+ 
+ //
  // Project Registration
  //
  project_registration: "Project Registration",

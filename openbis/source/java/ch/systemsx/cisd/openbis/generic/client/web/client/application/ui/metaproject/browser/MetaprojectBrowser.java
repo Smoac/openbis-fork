@@ -60,6 +60,7 @@ public class MetaprojectBrowser extends ContentPanel implements IDisposableCompo
     {
         setId(ID);
         setLayout(new BorderLayout());
+        setHeaderVisible(false);
 
         tree = new MetaprojectTree(viewContext, getId());
         treeListener = new SelectionChangedListener<MetaprojectTreeItemData>()
@@ -104,17 +105,19 @@ public class MetaprojectBrowser extends ContentPanel implements IDisposableCompo
         {
             MetaprojectTreeMetaprojectItemData metaprojectItem =
                     (MetaprojectTreeMetaprojectItemData) item;
-            entities.showEntities(metaprojectItem.getMetaproject().getId());
+            entities.showEntities(metaprojectItem.getMetaproject().getId(),
+                    IDelegatedAction.DO_NOTHING);
         } else if (item instanceof MetaprojectTreeEntityKindItemData)
         {
             MetaprojectTreeEntityKindItemData entityKindItem =
                     (MetaprojectTreeEntityKindItemData) item;
-            entities.showEntities(entityKindItem.getMetaprojectId(), entityKindItem.getEntityKind());
+            entities.showEntities(entityKindItem.getMetaprojectId(),
+                    entityKindItem.getEntityKind(), IDelegatedAction.DO_NOTHING);
         } else if (item instanceof MetaprojectTreeEntityItemData)
         {
             MetaprojectTreeEntityItemData entityItem = (MetaprojectTreeEntityItemData) item;
             entities.showEntities(entityItem.getMetaprojectId(), entityItem.getEntity()
-                    .getEntityKind());
+                    .getEntityKind(), IDelegatedAction.DO_NOTHING);
         }
     }
 

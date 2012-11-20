@@ -133,7 +133,11 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
             toolBar.add(new FillToolItem());
             if (viewContext.isSimpleOrEmbeddedMode() == false)
             {
-                addToolBarButton(createEditButton());
+                Button editButton = createEditButton();
+                if (editButton != null)
+                {
+                    addToolBarButton(editButton);
+                }
             }
         }
         viewContext.getClientPluginFactoryProvider().registerModuleInitializationObserver(this);
@@ -141,7 +145,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
 
     protected abstract String getDeleteButtonLabel();
 
-    private Button createEditButton()
+    protected Button createEditButton()
     {
         Button result = new Button(viewContext.getMessage(Dict.BUTTON_EDIT));
         result.setId(getId() + ID_EDIT_SUFFIX);

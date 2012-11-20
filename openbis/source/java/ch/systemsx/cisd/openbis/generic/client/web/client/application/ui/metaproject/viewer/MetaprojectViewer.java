@@ -17,10 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.viewer;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -28,8 +32,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.dialog.MetaprojectDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.entity.MetaprojectEntities;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -39,7 +45,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 /**
  * @author pkupczyk
  */
-public final class MetaprojectViewer extends AbstractViewer<IEntityInformationHolder> implements
+public final class MetaprojectViewer extends
+        AbstractViewerWithVerticalSplit<IEntityInformationHolder> implements
         IDatabaseModificationObserver
 {
     private static final String PREFIX = "metaproject-viewer_";
@@ -69,6 +76,13 @@ public final class MetaprojectViewer extends AbstractViewer<IEntityInformationHo
     public static String createId(final Long metaprojectId)
     {
         return ID_PREFIX + metaprojectId;
+    }
+
+    @Override
+    protected void fillBreadcrumbWidgets(List<Widget> widgets)
+    {
+        widgets.add(new Label(originalMetaproject.getOwnerId()));
+        super.fillBreadcrumbWidgets(widgets);
     }
 
     private void extendToolBar()
@@ -117,10 +131,34 @@ public final class MetaprojectViewer extends AbstractViewer<IEntityInformationHo
         updateOriginalMetaproject(metaproject);
         removeAll();
 
-        // TODO layout
-        add(new Label(metaproject.getIdentifier()));
+        MetaprojectPropertiesPanel properties =
+                new MetaprojectPropertiesPanel(viewContext, metaprojectId);
+        add(properties, createLeftBorderLayoutData());
+        configureLeftPanel(properties);
 
+        final Html loading = new Html(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
+        add(loading, createRightBorderLayoutData());
         layout();
+
+        GWTUtils.executeDelayed(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    final MetaprojectEntities entities =
+                            new MetaprojectEntities(viewContext, getId());
+                    entities.showEntities(metaprojectId, new IDelegatedAction()
+                        {
+                            @Override
+                            public void execute()
+                            {
+                                remove(loading);
+                                add(entities, createRightBorderLayoutData());
+                                layout();
+                            }
+                        });
+                }
+            });
     }
 
     private void updateOriginalMetaproject(Metaproject metaproject)
@@ -142,6 +180,13 @@ public final class MetaprojectViewer extends AbstractViewer<IEntityInformationHo
     protected String getOriginalDataDescription()
     {
         return viewContext.getMessage(Dict.METAPROJECT) + " " + originalMetaproject.getName();
+    }
+
+    @Override
+    protected Button createEditButton()
+    {
+        // TODO
+        return null;
     }
 
     @Override
