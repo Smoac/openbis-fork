@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.InputStream;
 
 import ch.systemsx.cisd.common.api.retry.Retry;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 
@@ -74,6 +75,23 @@ public interface IDataSetDss
     @Retry
     public File tryLinkToContents(String overrideStoreRootPathOrNull)
             throws IllegalArgumentException, InvalidSessionException;
+
+    /**
+     * Returns the internal storage path of this data set in the datastore.
+     * <p>
+     * <b>Caution: using the return value of this methods to perform any operation on the dataset,
+     * e.g. in your own scripts, scripts opens you to a set of race conditions, e.g. when the
+     * dataset is moved to another share or deleted. Consider using
+     * {@link #tryLinkToContents(String)} if you are actually interested in the data set
+     * content.</b>
+     * 
+     * @return Returns null if the operation is not possible (e.g. when the data set is a
+     *         container), the path of the data set in the data store otherwise.
+     * @since 1.7
+     */
+    @Retry
+    public String tryGetInternalPathInDataStore() throws InvalidSessionException,
+            EnvironmentFailureException;
 
     /**
      * Returns a {@link File}, if possible, that directly references the contents of a data set in

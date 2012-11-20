@@ -641,25 +641,7 @@ class AuthenticatedState extends AbstractDssComponentState
     File tryLinkToContents(DataSetDss dataSetDss, String overrideStoreRootPathOrNull)
             throws InvalidSessionException, EnvironmentFailureException
     {
-        int minorVersion = dataSetDss.getService().getMinorVersion();
-        if (minorVersion < 1)
-        {
-            throw new EnvironmentFailureException("Server does not support this feature.");
-        }
-
-        // Get the path
-
-        String path;
-        try
-        {
-            path =
-                    dataSetDss.getService().getPathToDataSet(getSessionToken(),
-                            dataSetDss.getCode(), overrideStoreRootPathOrNull);
-        } catch (IllegalArgumentException e)
-        {
-            // We could not create a link, return null
-            return null;
-        }
+        final String path = tryGetInternalPathInDataStore(dataSetDss);
 
         // Check if the file referenced by the path exists, if so return it.
         // NOTE: the path will never exist if the data set is a container.
@@ -671,6 +653,31 @@ class AuthenticatedState extends AbstractDssComponentState
 
         // Otherwise return null
         return null;
+    }
+
+    /**
+     * Package visible method to communicate with the server and get a link to the file in the DSS.
+     * Returns null if link couldn't be retrieved (e.g. when the <var>dataSetDss</var> is a
+     * container).
+     */
+    String tryGetInternalPathInDataStore(DataSetDss dataSetDss)
+            throws InvalidSessionException, EnvironmentFailureException
+    {
+        int minorVersion = dataSetDss.getService().getMinorVersion();
+        if (minorVersion < 1)
+        {
+            throw new EnvironmentFailureException("Server does not support this feature.");
+        }
+
+        try
+        {
+            return dataSetDss.getService().getPathToDataSet(getSessionToken(),
+                            dataSetDss.getCode(), null);
+        } catch (IllegalArgumentException e)
+        {
+            // We could not create a link, return null
+            return null;
+        }
     }
 
     /**

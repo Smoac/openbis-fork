@@ -22,6 +22,7 @@ import java.io.InputStream;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
@@ -70,6 +71,13 @@ public class DataSetDss implements IDataSetDss
             throws IllegalArgumentException, InvalidSessionException
     {
         return parent.tryLinkToContents(this, overrideStoreRootPathOrNull);
+    }
+
+    @Override
+    public String tryGetInternalPathInDataStore() throws InvalidSessionException,
+            EnvironmentFailureException
+    {
+        return parent.tryGetInternalPathInDataStore(this);
     }
 
     @Override
