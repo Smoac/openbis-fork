@@ -104,7 +104,10 @@ public class DssServiceRpcGenericTest extends AssertJUnit
     public void tearDown()
     {
         ServiceProviderTestWrapper.restoreApplicationContext();
-        context.assertIsSatisfied();
+        if (context != null)
+        {
+            context.assertIsSatisfied();
+        }
     }
 
     @Test
