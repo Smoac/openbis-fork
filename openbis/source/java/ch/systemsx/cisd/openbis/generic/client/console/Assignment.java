@@ -49,7 +49,7 @@ class Assignment implements ICommand
         }
         NewETPTAssignment newAssignment =
                 new NewETPTAssignment(entityKind, propertyTypeCode, entityTypeCode, isMandatory,
-                        null, null, 0L, false, false, null, true);
+                        null, null, 0L, false, false, null, true, false);
         server.assignPropertyType(sessionToken, newAssignment);
 
     }

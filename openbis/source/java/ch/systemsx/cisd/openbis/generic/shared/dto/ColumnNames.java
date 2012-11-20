@@ -316,6 +316,8 @@ public final class ColumnNames
 
     public static final String IS_SHOWN_EDIT = "is_shown_edit";
 
+    public static final String SHOW_RAW_VALUE = "show_raw_value";
+
     public static final String MASTER_DATA_REGISTRATION_SCRIPT = "master_reg_script";
 
     public static final String DELETION_DISALLOW = "deletion_disallow";

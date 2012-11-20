@@ -426,64 +426,6 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     }
 
     @Test
-    public void testGetShowRawValueInFormsForUndefinedShowRawValueFunction()
-    {
-        ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator("");
-
-        assertEquals(false, evaluator.getShowRawValueInForms());
-    }
-
-    @Test
-    public void testGetShowRawValueForDefinedShowRawValueFunctionWhichReturnsTrue()
-    {
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator("def showRawValueInForms():\n return True");
-
-        assertEquals(true, evaluator.getShowRawValueInForms());
-    }
-
-    @Test
-    public void testGetShowRawValueForDefinedShowRawValueFunctionWhichReturnsFalse()
-    {
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator("def showRawValueInForms():\n return False");
-
-        assertEquals(false, evaluator.getShowRawValueInForms());
-    }
-
-    @Test(expectedExceptionsMessageRegExp = "Function 'showRawValueInForms' doesn't return "
-            + "a boolean values but an object of type 'java.lang.Integer'.", expectedExceptions = EvaluatorException.class)
-    public void testShowRawValueFunctionWhichReturnsWrongTypeOfData()
-    {
-        new ManagedPropertyEvaluator("def showRawValueInForms():\n return 42");
-    }
-
-    @Test
-    public void testEmptyInputWidgetsIfRawValueShouldBeShownButBatchColumnNamesDefined()
-    {
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator("def showRawValueInForms():\n return True\n"
-                        + "def batchColumnNames():\n return ['A']\n"
-                        + "def updateFromBatchInput():\n  None");
-
-        assertEquals("[A]", evaluator.getBatchColumnNames().toString());
-        assertEquals("[]", evaluator.getInputWidgetDescriptions().toString());
-    }
-
-    @Test
-    public void testEmptyInputWidgetsIfRawValueShouldBeShownButInputWidgetsDefined()
-    {
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator(
-                        "def showRawValueInForms():\n return True\n"
-                                + "def inputWidgets():\n return [inputWidgetFactory().createTextInputField('A')]\n"
-                                + "def updateFromRegistrationForm():\n  None");
-
-        assertEquals("[A]", evaluator.getBatchColumnNames().toString());
-        assertEquals("[]", evaluator.getInputWidgetDescriptions().toString());
-    }
-
-    @Test
     public void testUpdateFromBatchInputWithNoScript()
     {
         ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator("");

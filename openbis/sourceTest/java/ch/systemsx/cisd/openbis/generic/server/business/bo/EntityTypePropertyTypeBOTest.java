@@ -145,7 +145,7 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
                 new NewETPTAssignment(
                         ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind.EXPERIMENT,
                         propertyType.getCode(), experimentType.getCode(), mandatory, defaultValue,
-                        section, 1L, false, false, null, false);
+                        section, 1L, false, false, null, false, false);
         bo.createAssignment(newAssignment);
 
         context.assertIsSatisfied();
@@ -188,7 +188,7 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
                 new NewETPTAssignment(
                         ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind.EXPERIMENT,
                         propertyType.getCode(), experimentType.getCode(), false, null, "s",
-                        etpt.getOrdinal() - 1, true, false, script2.getName(), false);
+                        etpt.getOrdinal() - 1, true, false, script2.getName(), false, false);
         bo.updateLoadedAssignment(updatedAssignment);
     }
 

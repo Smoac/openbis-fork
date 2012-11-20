@@ -50,13 +50,15 @@ public class NewETPTAssignment implements Serializable
 
     private boolean shownInEditView;
 
+    private boolean showRawValue;
+
     public NewETPTAssignment()
     {
     }
 
     public NewETPTAssignment(EntityKind entityKind, String propertyTypeCode, String entityTypeCode,
             boolean mandatory, String defaultValue, String section, Long ordinal, boolean dynamic,
-            boolean managed, String scriptOrNull, boolean shownInEditView)
+            boolean managed, String scriptOrNull, boolean shownInEditView, boolean showRawValue)
     {
         this.entityKind = entityKind;
         this.propertyTypeCode = propertyTypeCode;
@@ -69,6 +71,7 @@ public class NewETPTAssignment implements Serializable
         this.managed = managed;
         this.scriptName = scriptOrNull;
         this.shownInEditView = shownInEditView;
+        this.showRawValue = showRawValue;
     }
 
     public EntityKind getEntityKind()
@@ -181,4 +184,13 @@ public class NewETPTAssignment implements Serializable
         this.shownInEditView = shownInEditView;
     }
 
+    public boolean getShowRawValue()
+    {
+        return showRawValue;
+    }
+
+    public void setShowRawValue(boolean showRawValue)
+    {
+        this.showRawValue = showRawValue;
+    }
 }

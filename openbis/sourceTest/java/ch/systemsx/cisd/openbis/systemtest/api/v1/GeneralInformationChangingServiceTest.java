@@ -82,10 +82,11 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
     public void testUpdateSampleProperties()
     {
         TechId id = new TechId(1043L);
+        localCommonServer.assignPropertyType(sessionToken,
+                new NewETPTAssignment(EntityKind.SAMPLE, "DESCRIPTION", "CELL_PLATE", false, null,
+                        null, 1L, false, false, null, true, false));
         localCommonServer.assignPropertyType(sessionToken, new NewETPTAssignment(EntityKind.SAMPLE,
-                "DESCRIPTION", "CELL_PLATE", false, null, null, 1L, false, false, null, true));
-        localCommonServer.assignPropertyType(sessionToken, new NewETPTAssignment(EntityKind.SAMPLE,
-                "GENDER", "CELL_PLATE", false, null, null, 1L, false, false, null, true));
+                "GENDER", "CELL_PLATE", false, null, null, 1L, false, false, null, true, false));
         assertProperties("[ANY_MATERIAL: 2 (GENE), BACTERIUM: BACTERIUM-Y (BACTERIUM), "
                 + "COMMENT: extremely simple stuff, ORGANISM: GORILLA, SIZE: 321]",
                 localCommonServer.getSampleInfo(sessionToken, id).getParent());

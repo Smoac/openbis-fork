@@ -126,6 +126,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
 
     private CheckBox shownInEditViewCheckBox;
 
+    private CheckBox showRawValueCheckBox;
+
     private SectionSelectionWidget sectionSelectionWidget;
 
     private EntityTypePropertyTypeSelectionWidget etptSelectionWidget;
@@ -150,6 +152,9 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
 
     // Track if the user has set a value
     private boolean userDidChangeShownInEditViewCheckBox = false;
+
+    // Track if the user has set a value
+    private boolean userDidChangeShowRawValueCheckBox = false;
 
     // Track the state of the code
     private boolean synchronizingGuiFields = false;
@@ -235,6 +240,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                 {
                     scriptChooser.setRawValue("");
                     updateVisibilityOfShownInEditViewField();
+                    updateVisibilityOfShowRawValueField();
                 }
             });
         return result;
@@ -348,6 +354,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
             FieldUtil.setVisibility(scriptable == false, mandatoryCheckbox);
         }
         updateVisibilityOfShownInEditViewField();
+        updateVisibilityOfShowRawValueField();
     }
 
     private void updateVisibilityOfShownInEditViewField()
@@ -355,6 +362,14 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         if (shownInEditViewCheckBox != null)
         {
             FieldUtil.setVisibility(isManaged(), shownInEditViewCheckBox);
+        }
+    }
+
+    private void updateVisibilityOfShowRawValueField()
+    {
+        if (showRawValueCheckBox != null)
+        {
+            FieldUtil.setVisibility(isManaged() && isShownInEditView(), showRawValueCheckBox);
         }
     }
 
@@ -384,6 +399,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                     public void handleEvent(BaseEvent be)
                     {
                         updateShownInEditView();
+                        updateShowRawValue();
                         updateVisibilityOfScriptRelatedFields();
                     }
                 });
@@ -400,25 +416,29 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         }
 
         synchronizingGuiFields = true;
-        if (false == isScriptable())
+        try
         {
-            shownInEditViewCheckBox.setValue(true);
-            return;
-        }
+            if (false == isScriptable())
+            {
+                shownInEditViewCheckBox.setValue(true);
+                return;
+            }
 
-        if (isDynamic())
+            if (isDynamic())
+            {
+                shownInEditViewCheckBox.setValue(false);
+                return;
+            }
+
+            if (isManaged())
+            {
+                shownInEditViewCheckBox.setValue(false);
+                return;
+            }
+        } finally
         {
-            shownInEditViewCheckBox.setValue(false);
-            return;
+            synchronizingGuiFields = false;
         }
-
-        if (isManaged())
-        {
-            shownInEditViewCheckBox.setValue(false);
-            return;
-        }
-        synchronizingGuiFields = false;
-
     }
 
     private CheckBox getShownInEditViewCheckbox()
@@ -439,11 +459,56 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                         {
                             userDidChangeShownInEditViewCheckBox = true;
                         }
+                        updateVisibilityOfShowRawValueField();
                     }
                 });
         }
 
         return shownInEditViewCheckBox;
+    }
+
+    private void updateShowRawValue()
+    {
+        if (userDidChangeShowRawValueCheckBox)
+        {
+            // If the user has made a change, don't overwrite her changes.
+            return;
+        }
+
+        synchronizingGuiFields = true;
+        try
+        {
+            showRawValueCheckBox.setValue(true);
+            return;
+        } finally
+        {
+            synchronizingGuiFields = false;
+        }
+    }
+
+    private CheckBox getShowRawValueCheckBox()
+    {
+        if (null == showRawValueCheckBox)
+        {
+            showRawValueCheckBox =
+                    new CheckBoxField(viewContext.getMessage(Dict.SHOW_RAW_VALUE_IN_FORMS), false);
+            showRawValueCheckBox.setValue(true);
+            showRawValueCheckBox.setVisible(false);
+            showRawValueCheckBox.addListener(Events.Change, new Listener<BaseEvent>()
+                {
+                    @Override
+                    public void handleEvent(BaseEvent be)
+                    {
+                        // Make sure the User triggered the change
+                        if (false == synchronizingGuiFields)
+                        {
+                            userDidChangeShowRawValueCheckBox = true;
+                        }
+                    }
+                });
+        }
+
+        return showRawValueCheckBox;
     }
 
     private boolean isScriptable()
@@ -543,6 +608,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         formPanel.add(scriptChooser);
         formPanel.add(getMandatoryCheckbox());
         formPanel.add(getShownInEditViewCheckbox());
+        formPanel.add(getShowRawValueCheckBox());
         updatePropertyTypeRelatedFields();
 
         modificationManager.addObserver(propertyTypeWidget);
@@ -590,8 +656,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         final PropertyType propertyType = propertyTypeSelectionWidget.tryGetSelectedPropertyType();
         if (propertyType != null)
         {
-            String fieldId =
-                    createChildId(DEFAULT_VALUE_ID_PART);
+            String fieldId = createChildId(DEFAULT_VALUE_ID_PART);
             DatabaseModificationAwareField<?> fieldHolder =
                     PropertyFieldFactory.createField(propertyType, false,
                             viewContext.getMessage(Dict.DEFAULT_VALUE), fieldId, null, viewContext);
@@ -705,6 +770,15 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         return shownInEditViewCheckBox.getValue();
     }
 
+    private boolean getShowRawValue()
+    {
+        if (false == (isManaged() && isShownInEditView()))
+        {
+            return false;
+        }
+        return showRawValueCheckBox.getValue();
+    }
+
     private final void submitForm()
     {
         if (formPanel.isValid())
@@ -714,7 +788,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                             propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode(),
                             getSelectedEntityCode(), getMandatoryCheckbox().getValue(),
                             getDefaultValue(), getSectionValue(), getPreviousETPTOrdinal(),
-                            isDynamic(), isManaged(), tryGetScriptNameValue(), isShownInEditView());
+                            isDynamic(), isManaged(), tryGetScriptNameValue(), isShownInEditView(),
+                            getShowRawValue());
             viewContext.getService().assignPropertyType(newAssignment,
                     new AssignPropertyTypeCallback(viewContext));
         }

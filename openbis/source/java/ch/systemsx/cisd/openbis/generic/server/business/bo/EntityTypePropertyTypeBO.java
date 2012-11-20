@@ -121,7 +121,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         assignment =
                 createAssignment(newAssignment.isMandatory(), newAssignment.getSection(),
                         newAssignment.getOrdinal(), entityType, propertyType, scriptOrNull,
-                        newAssignment.isShownInEditView());
+                        newAssignment.isShownInEditView(), newAssignment.getShowRawValue());
         String defaultValue = newAssignment.getDefaultValue();
         if (newAssignment.isDynamic())
         {
@@ -254,6 +254,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             assignment.setScript(script);
         }
         assignment.setShownInEditView(assignmentUpdates.isShownInEditView());
+        assignment.setShowRawValue(assignmentUpdates.getShowRawValue());
         validateAndSave();
         if (scriptChanged)
         {
@@ -278,7 +279,8 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
 
     private EntityTypePropertyTypePE createAssignment(final boolean mandatory,
             final String section, final Long previousETPTOrdinal, final EntityTypePE entityType,
-            final PropertyTypePE propertyType, ScriptPE scriptOrNull, boolean shownInEditView)
+            final PropertyTypePE propertyType, ScriptPE scriptOrNull, boolean shownInEditView,
+            boolean showRawValue)
     {
         checkAssignmentDoesNotExist(entityType, propertyType);
         Long previousOrdinal =
@@ -298,6 +300,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         etpt.setOrdinal(currentOrdinal);
         etpt.setScript(scriptOrNull);
         etpt.setShownInEditView(shownInEditView);
+        etpt.setShowRawValue(showRawValue);
 
         try
         {

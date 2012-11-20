@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -101,8 +100,7 @@ abstract public class AbstractEntityTypePropertyTypeTranslator<ET extends Entity
         Script script = ScriptTranslator.translate(etptPE.getScript());
         if (script != null && managed && shownInEditView)
         {
-            ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script.getScript());
-            result.setShowRawValue(evaluator.getShowRawValueInForms());
+            result.setShowRawValue(etptPE.getShowRawValue());
         }
         result.setScript(script);
         return result;

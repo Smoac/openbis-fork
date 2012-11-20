@@ -73,6 +73,8 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
 
     private boolean shownInEditView;
 
+    private boolean showRawValue;
+
     final public static <T extends EntityTypePropertyTypePE> T createEntityTypePropertyType(
             final EntityKind entityKind)
     {
@@ -135,6 +137,18 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
     public void setShownInEditView(final boolean shownInEditView)
     {
         this.shownInEditView = shownInEditView;
+    }
+
+    @NotNull
+    @Column(name = ColumnNames.SHOW_RAW_VALUE, updatable = true)
+    public boolean getShowRawValue()
+    {
+        return showRawValue;
+    }
+
+    public void setShowRawValue(final boolean showRawValue)
+    {
+        this.showRawValue = showRawValue;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)

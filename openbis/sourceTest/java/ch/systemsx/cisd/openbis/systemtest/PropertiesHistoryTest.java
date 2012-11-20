@@ -64,9 +64,9 @@ public class PropertiesHistoryTest extends SystemTestCase
     {
         TechId id = new TechId(2);
         logIntoCommonClientService();
-        commonClientService
-                .assignPropertyType(new NewETPTAssignment(EntityKind.EXPERIMENT, "BACTERIUM",
-                        "SIRNA_HCS", false, "BACTERIUM-X", null, 1L, false, false, null, true));
+        commonClientService.assignPropertyType(new NewETPTAssignment(EntityKind.EXPERIMENT,
+                "BACTERIUM", "SIRNA_HCS", false, "BACTERIUM-X", null, 1L, false, false, null, true,
+                false));
         Experiment experiment = commonClientService.getExperimentInfo(id);
 
         ExperimentUpdates updates = new ExperimentUpdates();
@@ -117,12 +117,12 @@ public class PropertiesHistoryTest extends SystemTestCase
     {
         TechId id = new TechId(2);
         logIntoCommonClientService();
-        commonClientService
-                .assignPropertyType(new NewETPTAssignment(EntityKind.EXPERIMENT, "BACTERIUM",
-                        "SIRNA_HCS", false, "BACTERIUM-X", null, 1L, false, false, null, true));
+        commonClientService.assignPropertyType(new NewETPTAssignment(EntityKind.EXPERIMENT,
+                "BACTERIUM", "SIRNA_HCS", false, "BACTERIUM-X", null, 1L, false, false, null, true,
+                false));
         commonClientService.updatePropertyTypeAssignment(new NewETPTAssignment(
                 EntityKind.EXPERIMENT, "DESCRIPTION", "SIRNA_HCS", false, null, null, 1L, false,
-                false, null, true));
+                false, null, true, false));
         Experiment experiment = commonClientService.getExperimentInfo(id);
         assertEquals(3, experiment.getProperties().size());
 
@@ -153,7 +153,7 @@ public class PropertiesHistoryTest extends SystemTestCase
         TechId id = new TechId(1042);
         logIntoCommonClientService();
         commonClientService.assignPropertyType(new NewETPTAssignment(EntityKind.SAMPLE, "GENDER",
-                "CELL_PLATE", false, "male", null, 1L, false, false, null, true));
+                "CELL_PLATE", false, "male", null, 1L, false, false, null, true, false));
         Sample sample = genericClientService.getSampleInfo(id);
 
         SampleUpdates updates = new SampleUpdates();
@@ -206,7 +206,7 @@ public class PropertiesHistoryTest extends SystemTestCase
         TechId id = new TechId(1042);
         logIntoCommonClientService();
         commonClientService.assignPropertyType(new NewETPTAssignment(EntityKind.SAMPLE, "GENDER",
-                "CELL_PLATE", false, "male", null, 1L, false, false, null, true));
+                "CELL_PLATE", false, "male", null, 1L, false, false, null, true, false));
         Sample sample = genericClientService.getSampleInfo(id);
         assertEquals(6, sample.getProperties().size());
 
@@ -287,7 +287,7 @@ public class PropertiesHistoryTest extends SystemTestCase
         TechId id = new TechId(5);
         logIntoCommonClientService();
         commonClientService.updatePropertyTypeAssignment(new NewETPTAssignment(EntityKind.DATA_SET,
-                "COMMENT", "HCS_IMAGE", false, null, null, 1L, false, false, null, true));
+                "COMMENT", "HCS_IMAGE", false, null, null, 1L, false, false, null, true, false));
         ExternalData dataSet = genericClientService.getDataSetInfo(id);
         assertEquals(4, dataSet.getProperties().size());
 

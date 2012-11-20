@@ -297,6 +297,8 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
                 private final CheckBox shownInEditViewCheckBox;
 
+                private final CheckBox showRawValuesCheckBox;
+
                 {
                     originalIsMandatory = etpt.isMandatory();
 
@@ -326,6 +328,16 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                         shownInEditViewCheckBox.setVisible(false);
                     }
                     addField(shownInEditViewCheckBox);
+
+                    showRawValuesCheckBox =
+                            new CheckBoxField(viewContext.getMessage(Dict.SHOW_RAW_VALUE), false);
+                    showRawValuesCheckBox.setValue(etpt.getShowRawValue());
+                    if (false == etpt.isManaged())
+                    {
+                        // This option is currently only available for managed properties.
+                        showRawValuesCheckBox.setVisible(false);
+                    }
+                    addField(showRawValuesCheckBox);
 
                     // default value needs to be specified only if currently property is optional
                     if (originalIsMandatory == false)
@@ -460,15 +472,30 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                     return shownInEditViewCheckBox.getValue();
                 }
 
+                private boolean getShowRawValue()
+                {
+                    // The logic for defaulting the value of the showRawValue check box is
+                    // duplicated here to enforce the current semantics that this value is only
+                    // considered by managed properties
+                    if (false == (etpt.isManaged() && isShownInEditView()))
+                    {
+                        return false;
+                    }
+
+                    return showRawValuesCheckBox.getValue();
+                }
+
                 @Override
                 protected void register(AsyncCallback<Void> registrationCallback)
                 {
-                    viewContext.getService().updatePropertyTypeAssignment(
-                            new NewETPTAssignment(entityKind, propertyTypeCode, entityTypeCode,
-                                    getMandatoryValue(), getDefaultValue(), getSectionValue(),
-                                    getPreviousETPTOrdinal(), etpt.isDynamic(), etpt.isManaged(),
-                                    tryGetScriptNameValue(), isShownInEditView()),
-                            registrationCallback);
+                    viewContext.getService()
+                            .updatePropertyTypeAssignment(
+                                    new NewETPTAssignment(entityKind, propertyTypeCode,
+                                            entityTypeCode, getMandatoryValue(), getDefaultValue(),
+                                            getSectionValue(), getPreviousETPTOrdinal(),
+                                            etpt.isDynamic(), etpt.isManaged(),
+                                            tryGetScriptNameValue(), isShownInEditView(),
+                                            getShowRawValue()), registrationCallback);
                 }
 
                 private HelpPageIdentifier createHelpPageIdentifier()
