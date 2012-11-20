@@ -79,10 +79,11 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     public void trashSamples(final List<TechId> sampleIds)
     {
         assert deletion != null;
+
         trashSamples(sampleIds, CascadeSampleDependentComponents.TRUE);
     }
 
-    void trashSamples(final List<TechId> sampleIds,
+    private void trashSamples(final List<TechId> sampleIds,
             final CascadeSampleDependentComponents cascadeType)
     {
         assert deletion != null;
@@ -216,7 +217,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                         }
                     };
         BatchOperationExecutor.executeInBatches(batchOperation);
-        trashSamples(batchOperation.getResults());
+        trashSamples(batchOperation.getResults(), CascadeSampleDependentComponents.TRUE);
     }
 
     private void trashExperimentDependentDataSets(List<TechId> experimentIds)

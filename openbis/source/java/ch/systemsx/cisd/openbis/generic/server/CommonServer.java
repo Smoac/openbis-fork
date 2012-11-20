@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -116,6 +117,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContex
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
@@ -280,6 +282,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
@@ -1789,6 +1792,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Session session = getSession(sessionToken);
         // NOTE: logical deletion and new implementation of permanent deletion doesn't use
         // IDataSetTypeSlaveServerPlugin (we have just 1 implementation!)
+        updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(dataSetCodes, session);
         switch (type)
         {
             case PERMANENT:
@@ -1819,6 +1823,41 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    private void updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(
+            Collection<String> dataSetCodes, Session session)
+    {
+        List<DataPE> dataSets =
+                getDAOFactory().getDataDAO().listByCode(new HashSet<String>(dataSetCodes));
+        for (DataPE dataSet : dataSets)
+        {
+            ExperimentPE experiment = dataSet.getExperiment();
+            RelationshipUtils.updateModificationDateAndModifier(experiment, session);
+            SamplePE sample = dataSet.tryGetSample();
+            if (sample != null)
+            {
+                RelationshipUtils.updateModificationDateAndModifier(sample, session);
+            }
+            updateModificationDateAndModifierOfDataSets(dataSet.getChildren(), session);
+            updateModificationDateAndModifierOfDataSets(dataSet.getParents(), session);
+            DataPE container = dataSet.getContainer();
+            if (container != null)
+            {
+                RelationshipUtils.updateModificationDateAndModifier(container, session);
+            }
+        }
+    }
+
+    private void updateModificationDateAndModifierOfDataSets(List<DataPE> dataSets, Session session)
+    {
+        if (dataSets != null)
+        {
+            for (DataPE child : dataSets)
+            {
+                RelationshipUtils.updateModificationDateAndModifier(child, session);
+            }
+        }
+    }
+
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("DELETE_SAMPLE")
@@ -1827,6 +1866,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             List<TechId> sampleIds, String reason, DeletionType deletionType)
     {
         Session session = getSession(sessionToken);
+        updateModificationDateAndModifierOfRelatedEntitiesOfSamples(sampleIds, session);
         switch (deletionType)
         {
             case PERMANENT:
@@ -1841,6 +1881,43 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    private void updateModificationDateAndModifierOfRelatedEntitiesOfSamples(
+            Collection<TechId> sampleIds, Session session)
+    {
+        List<SamplePE> samples =
+                getDAOFactory().getSampleDAO().listByIDs(TechId.asLongs(sampleIds));
+        for (SamplePE sample : samples)
+        {
+            ExperimentPE experiment = sample.getExperiment();
+            if (experiment != null)
+            {
+                RelationshipUtils.updateModificationDateAndModifier(experiment, session);
+            }
+            SamplePE container = sample.getContainer();
+            if (container != null)
+            {
+                RelationshipUtils.updateModificationDateAndModifier(container, session);
+            }
+            List<SamplePE> parents = sample.getParents();
+            if (parents != null)
+            {
+                for (SamplePE parent : parents)
+                {
+                    RelationshipUtils.updateModificationDateAndModifier(parent, session);
+                }
+            }
+            Set<SampleRelationshipPE> childRelationships = sample.getChildRelationships();
+            if (childRelationships != null)
+            {
+                for (SampleRelationshipPE childRelationship : childRelationships)
+                {
+                    SamplePE childSample = childRelationship.getChildSample();
+                    RelationshipUtils.updateModificationDateAndModifier(childSample, session);
+                }
+            }
+        }
+    }
+
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("DELETE_EXPERIMENT")
@@ -1849,6 +1926,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             List<TechId> experimentIds, String reason, DeletionType deletionType)
     {
         Session session = getSession(sessionToken);
+        updateModificationDateAndModifierOfRelatedProjectsOfExperiments(experimentIds, session);
         IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         switch (deletionType)
         {
@@ -1860,6 +1938,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 trashBO.createDeletion(reason);
                 trashBO.trashExperiments(experimentIds);
                 break;
+        }
+    }
+
+    private void updateModificationDateAndModifierOfRelatedProjectsOfExperiments(
+            Collection<TechId> experimentIds, Session session)
+    {
+        List<ExperimentPE> experiments =
+                getDAOFactory().getExperimentDAO().listByIDs(TechId.asLongs(experimentIds));
+        for (ExperimentPE experiment : experiments)
+        {
+            RelationshipUtils.updateModificationDateAndModifier(experiment.getProject(), session);
         }
     }
 
@@ -3480,11 +3569,46 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         final Session session = getSession(sessionToken);
 
+        Set<Long> deletionIdsAsASet = new HashSet<Long>(TechId.asLongs(deletionIds));
+        IDeletionTable deletionTable = getBusinessObjectFactory().createDeletionTable(session);
+        deletionTable.load(true);
+        List<Deletion> deletions = deletionTable.getDeletions();
+        Set<TechId> deletedExperimentIds = new HashSet<TechId>();
+        Set<TechId> deletedSampleIds = new HashSet<TechId>();
+        Set<String> deletedDataSetCodes = new HashSet<String>();
         final ITrashBO trashBO = getBusinessObjectFactory().createTrashBO(session);
-        for (TechId deletionId : deletionIds)
+        for (Deletion deletion : deletions)
         {
-            trashBO.revertDeletion(deletionId);
+            Long deletionId = deletion.getId();
+            if (deletionIdsAsASet.contains(deletionId))
+            {
+                List<IEntityInformationHolderWithIdentifier> deletedEntities =
+                        deletion.getDeletedEntities();
+                for (IEntityInformationHolderWithIdentifier deletedEntity : deletedEntities)
+                {
+                    EntityKind entityKind = deletedEntity.getEntityKind();
+                    TechId entityId = new TechId(deletedEntity.getId());
+                    switch (entityKind)
+                    {
+                        case EXPERIMENT:
+                            deletedExperimentIds.add(entityId);
+                            break;
+                        case SAMPLE:
+                            deletedSampleIds.add(entityId);
+                            break;
+                        case DATA_SET:
+                            deletedDataSetCodes.add(deletedEntity.getCode());
+                            break;
+                        default:
+                    }
+                }
+                trashBO.revertDeletion(new TechId(deletionId));
+            }
         }
+        updateModificationDateAndModifierOfRelatedProjectsOfExperiments(deletedExperimentIds,
+                session);
+        updateModificationDateAndModifierOfRelatedEntitiesOfSamples(deletedSampleIds, session);
+        updateModificationDateAndModifierOfRelatedEntitiesOfDataSets(deletedDataSetCodes, session);
     }
 
     @Override

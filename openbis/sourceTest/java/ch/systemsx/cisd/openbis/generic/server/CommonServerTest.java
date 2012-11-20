@@ -1388,6 +1388,11 @@ public final class CommonServerTest extends AbstractServerTestCase
                             Arrays.asList(ds1, ds2), reason, false);
                     one(dataSetTypeSlaveServerPlugin).permanentlyDeleteDataSets(session,
                             Arrays.asList(ds3), reason, false);
+
+                    one(dataSetDAO).listByCode(
+                            new HashSet<String>(Arrays.asList(ds1.getCode(), ds2.getCode(),
+                                    ds3.getCode())));
+                    will(returnValue(Arrays.asList(ds1, ds2, ds3)));
                 }
             });
 
@@ -1412,6 +1417,9 @@ public final class CommonServerTest extends AbstractServerTestCase
 
                     one(deletedDataSetTable).loadByDataSetCodes(dataSetCodes);
                     one(deletedDataSetTable).permanentlyDeleteLoadedDataSets(reason, false);
+
+                    one(dataSetDAO).listByCode(new HashSet<String>(dataSetCodes));
+                    will(returnValue(Arrays.asList()));
                 }
             });
 
@@ -1449,6 +1457,9 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(trashBO));
                     one(trashBO).createDeletion(reason);
                     one(trashBO).trashDataSets(TechId.createList(dataSets));
+
+                    one(dataSetDAO).listByCode(new HashSet<String>(dataSetCodes));
+                    will(returnValue(Arrays.asList()));
                 }
             });
 
