@@ -78,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationServerManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityCodeGenerator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityObjectIdHelper;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
@@ -104,7 +105,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.EntityObjectIdDAOHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -2606,7 +2606,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         IMetaprojectDAO metaprojectDAO = daoFactory.getMetaprojectDAO();
         PersonPE owner = daoFactory.getPersonDAO().tryFindPersonByUserId(userId);
 
-        EntityObjectIdDAOHelper helper = new EntityObjectIdDAOHelper(businessObjectFactory);
+        EntityObjectIdHelper helper = new EntityObjectIdHelper(businessObjectFactory);
 
         IEntityInformationHolderDTO entity =
                 helper.getEntityById(getSession(systemSessionToken), entityId);

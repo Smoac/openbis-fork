@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
+package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.IDataSetId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
@@ -36,11 +31,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 /**
  * @author Jakub Straszewski
  */
-public class EntityObjectIdDAOHelper
+public class EntityObjectIdHelper
 {
     protected final ICommonBusinessObjectFactory businessObjectFactory;
 
-    public EntityObjectIdDAOHelper(ICommonBusinessObjectFactory businessObjectFactory)
+    public EntityObjectIdHelper(ICommonBusinessObjectFactory businessObjectFactory)
     {
         this.businessObjectFactory = businessObjectFactory;
     }
