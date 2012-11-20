@@ -180,6 +180,10 @@ public abstract class Dict
 
     public static final String BUTTON_SAVE = "button_save";
 
+    public static final String BUTTON_TAG = "button_tag";
+
+    public static final String BUTTON_UNTAG = "button_untag";
+
     public static final String BUTTON_UPLOAD = "button_upload";
 
     public static final String BUTTON_SAVE_AND_UPLOAD = "button_save_and_upload";

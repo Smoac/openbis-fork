@@ -91,9 +91,12 @@ public class MetaprojectGrid extends TypedTableGrid<Metaproject>
         ListMetaprojectsCriteria listCriteria = new ListMetaprojectsCriteria();
         List<String> chosenMetaprojects = chosenProvider.getEntities();
 
-        if (chosenMetaprojects != null)
+        if (chosenMetaprojects != null && chosenProvider.isBlackList())
         {
             listCriteria.setBlacklist(new HashSet<String>(chosenMetaprojects));
+        } else if (chosenMetaprojects != null && chosenProvider.isBlackList() == false)
+        {
+            listCriteria.setWhitelist(new HashSet<String>(chosenMetaprojects));
         }
 
         listCriteria.copyPagingConfig(resultSetConfig);

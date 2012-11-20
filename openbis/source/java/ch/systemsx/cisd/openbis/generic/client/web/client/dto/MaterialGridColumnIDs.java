@@ -35,6 +35,8 @@ public class MaterialGridColumnIDs
 
     public static final String DATABASE_INSTANCE = "DATABASE_INSTANCE";
 
+    public static final String METAPROJECTS = "METAPROJECTS";
+
     public static final String PROPERTIES_GROUP = "property-";
 
 }

@@ -86,26 +86,26 @@ public class SampleProviderTest extends AbstractProviderTest
                 "[CODE, SUBCODE, DATABASE_INSTANCE, SPACE, SAMPLE_IDENTIFIER, SAMPLE_TYPE, "
                         + "IS_INSTANCE_SAMPLE, IS_DELETED, REGISTRATOR, MODIFIER, REGISTRATION_DATE, "
                         + "MODIFICATION_DATE, EXPERIMENT, EXPERIMENT_IDENTIFIER, PROJECT, "
-                        + "PERM_ID, SHOW_DETAILS_LINK, generatedFromParent, containerParent, "
+                        + "PERM_ID, SHOW_DETAILS_LINK, generatedFromParent, containerParent, METAPROJECTS, "
                         + "property-USER-NUMBER, property-USER-TIMESTAMP, property-USER-NAME, property-USER-MY-MATERIAL, property-USER-TEXT]",
                 getHeaderIDs(tableModel).toString());
         assertEquals(
                 "[null, null, VARCHAR, VARCHAR, null, VARCHAR, "
                         + "VARCHAR, VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, TIMESTAMP, null, null, VARCHAR, "
-                        + "VARCHAR, VARCHAR, null, null, REAL, TIMESTAMP, VARCHAR, MATERIAL, MULTILINE_VARCHAR]",
+                        + "VARCHAR, VARCHAR, null, null, VARCHAR, REAL, TIMESTAMP, VARCHAR, MATERIAL, MULTILINE_VARCHAR]",
                 getHeaderDataTypes(tableModel).toString());
         assertEquals("[SAMPLE, SAMPLE, null, null, SAMPLE, null, "
                 + "null, null, null, null, null, null, null, null, "
-                + "null, null, null, null, null, null, null, null, MATERIAL, null]",
+                + "null, null, null, null, null, null, null, null, null, MATERIAL, null]",
                 getHeaderEntityKinds(tableModel).toString());
         List<TableModelRowWithObject<Sample>> rows = tableModel.getRows();
         assertSame(s1.getSample(), rows.get(0).getObjectOrNull());
         assertEquals(
-                "[S1, S1, DB, MY-SPACE, DB:/MY-SPACE/S1, ALPHA, no, no, , , , , , , , 123-45, , , , , , "
+                "[S1, S1, DB, MY-SPACE, DB:/MY-SPACE/S1, ALPHA, no, no, , , , , , , , 123-45, , , , , , , "
                         + "hello, WATER (FLUID), ]", rows.get(0).getValues().toString());
         assertSame(s2.getSample(), rows.get(1).getObjectOrNull());
         assertEquals(
-                "[S2, S2, DB, MY-SPACE, DB:/MY-SPACE/S2, BETA, no, no, , , , , , , , 234-56, , , , 2.5, Thu Jan 01 01:00:00 CET 1970, , , ]",
+                "[S2, S2, DB, MY-SPACE, DB:/MY-SPACE/S2, BETA, no, no, , , , , , , , 234-56, , , , , 2.5, Thu Jan 01 01:00:00 CET 1970, , , ]",
                 rows.get(1).getValues().toString());
         assertEquals(2, rows.size());
         context.assertIsSatisfied();
@@ -142,26 +142,27 @@ public class SampleProviderTest extends AbstractProviderTest
                 "[CODE, SUBCODE, DATABASE_INSTANCE, SPACE, SAMPLE_IDENTIFIER, SAMPLE_TYPE, "
                         + "IS_INSTANCE_SAMPLE, IS_DELETED, REGISTRATOR, MODIFIER, REGISTRATION_DATE, "
                         + "MODIFICATION_DATE, EXPERIMENT, EXPERIMENT_IDENTIFIER, PROJECT, "
-                        + "PERM_ID, SHOW_DETAILS_LINK, generatedFromParent, containerParent, "
+                        + "PERM_ID, SHOW_DETAILS_LINK, generatedFromParent, containerParent, METAPROJECTS, "
                         + "property-USER-NAME, property-USER-TIMESTAMP, property-USER-NUMBER, property-USER-TEXT]",
                 getHeaderIDs(tableModel).toString());
-        assertEquals("[null, null, VARCHAR, VARCHAR, null, VARCHAR, "
-                + "VARCHAR, VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, TIMESTAMP, null, null, VARCHAR, "
-                + "VARCHAR, VARCHAR, null, null, VARCHAR, TIMESTAMP, REAL, MULTILINE_VARCHAR]",
+        assertEquals(
+                "[null, null, VARCHAR, VARCHAR, null, VARCHAR, "
+                        + "VARCHAR, VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, TIMESTAMP, null, null, VARCHAR, "
+                        + "VARCHAR, VARCHAR, null, null, VARCHAR, VARCHAR, TIMESTAMP, REAL, MULTILINE_VARCHAR]",
                 getHeaderDataTypes(tableModel).toString());
         assertEquals("[SAMPLE, SAMPLE, null, null, SAMPLE, null, "
                 + "null, null, null, null, null, null, EXPERIMENT, EXPERIMENT, null, "
-                + "null, null, SAMPLE, SAMPLE, null, null, null, null]",
+                + "null, null, SAMPLE, SAMPLE, null, null, null, null, null]",
                 getHeaderEntityKinds(tableModel).toString());
         List<TableModelRowWithObject<Sample>> rows = tableModel.getRows();
         assertSame(s1.getSample(), rows.get(0).getObjectOrNull());
         assertEquals(
                 "[S1, S1, DB, , DB:/S1, ALPHA, yes, yes, Einstein, Albert, , "
-                        + "Thu Jan 01 01:00:04 CET 1970, Thu Jan 01 01:00:05 CET 1970, , , , 123-45, http, /AB/CD, , hello, , , ]",
+                        + "Thu Jan 01 01:00:04 CET 1970, Thu Jan 01 01:00:05 CET 1970, , , , 123-45, http, /AB/CD, , , hello, , , ]",
                 rows.get(0).getValues().toString());
         assertSame(s2.getSample(), rows.get(1).getObjectOrNull());
         assertEquals("[S:2, 2, DB, MY-SPACE, DB:/MY-SPACE/S:2, BETA, no, no, , , , , EXP1, "
-                + "DB:/SPACE1/P1/EXP1, P1, 234-56, , /AB/CD\n/DE/FG\n, DB:/A/B, , , , ]",
+                + "DB:/SPACE1/P1/EXP1, P1, 234-56, , /AB/CD\n/DE/FG\n, DB:/A/B, , , , , ]",
                 rows.get(1).getValues().toString());
         assertEquals(2, rows.size());
         context.assertIsSatisfied();

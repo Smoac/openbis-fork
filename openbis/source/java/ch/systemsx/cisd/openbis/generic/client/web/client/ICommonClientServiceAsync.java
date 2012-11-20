@@ -154,6 +154,42 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void getMetaprojectAssignmentsCount(Long metaprojectId,
             final AsyncCallback<MetaprojectAssignmentsCount> asyncCallback);
 
+    /** @see ICommonClientService#assignSamplesToMetaProjects(List, List) */
+    public void assignSamplesToMetaProjects(List<Long> metaProjectIds, List<Long> sampleIds,
+            AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#removeSamplesFromMetaProjects(List, List) */
+    public void removeSamplesFromMetaProjects(List<Long> metaProjectIds, List<Long> sampleIds,
+            AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#assignSamplesToMetaProjects(List, List) */
+    public void assignExperimentsToMetaProjects(List<Long> metaProjectIds,
+            List<Long> experimentIds,
+            AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#removeSamplesFromMetaProjects(List, List) */
+    public void removeExperimentsFromMetaProjects(List<Long> metaProjectIds,
+            List<Long> experimentIds,
+            AsyncCallback<Void> asyncCallback);
+
+    public void assignDataSetsToMetaProjects(List<Long> metaProjectIds,
+            List<Long> dataSetIds,
+            AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#removeSamplesFromMetaProjects(List, List) */
+    public void removeDataSetsFromMetaProjects(List<Long> metaProjectIds,
+            List<Long> dataSetIds,
+            AsyncCallback<Void> asyncCallback);
+
+    public void assignMaterialsToMetaProjects(List<Long> metaProjectIds,
+            List<Long> materialIds,
+            AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#removeSamplesFromMetaProjects(List, List) */
+    public void removeMaterialsFromMetaProjects(List<Long> metaProjectIds,
+            List<Long> materialds,
+            AsyncCallback<Void> asyncCallback);
+
     /**
      * @see ICommonClientService#getMetaprojectAssignments(Long,
      *      MetaprojectAssignmentsFetchOption[])

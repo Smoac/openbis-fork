@@ -56,6 +56,8 @@ public class ExternalDataGridColumnIDs
 
     public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
 
+    public static final String METAPROJECTS = "METAPROJECTS";
+
     public static final String IS_DELETED = "IS_DELETED";
 
     public static final String SOURCE_TYPE = "SOURCE_TYPE";

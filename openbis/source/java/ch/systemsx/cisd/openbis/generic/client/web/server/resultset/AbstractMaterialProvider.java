@@ -22,6 +22,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDat
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs.CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs.DATABASE_INSTANCE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs.MATERIAL_TYPE;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs.METAPROJECTS;
 
 import java.util.List;
 
@@ -51,6 +52,7 @@ public abstract class AbstractMaterialProvider extends AbstractTableModelProvide
         builder.addColumn(REGISTRATOR);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(200);
         builder.addColumn(MODIFICATION_DATE).withDefaultWidth(200).hideByDefault();
+        builder.addColumn(METAPROJECTS);
         for (Material material : materials)
         {
             builder.addRow(material);
@@ -61,6 +63,8 @@ public abstract class AbstractMaterialProvider extends AbstractTableModelProvide
             builder.column(REGISTRATOR).addPerson(material.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(material.getRegistrationDate());
             builder.column(MODIFICATION_DATE).addDate(material.getModificationDate());
+            builder.column(METAPROJECTS)
+                    .addString(metaProjectsToString(material.getMetaprojects()));
             IColumnGroup columnGroup = builder.columnGroup(MaterialGridColumnIDs.PROPERTIES_GROUP);
             columnGroup.addColumnsForAssignedProperties(materialType);
             columnGroup.addProperties(material.getProperties());

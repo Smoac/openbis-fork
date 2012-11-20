@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -42,6 +43,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Display
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentDataSetArchivingMenu.SelectedAndDisplayedItems;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntitiesListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntitiesProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MetaprojectChooserButton;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
@@ -68,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -90,6 +95,10 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
     public static final String SHOW_DETAILS_BUTTON_ID = BROWSER_ID + "_show-details-button";
 
     public static final String DELETE_BUTTON_ID = BROWSER_ID + "_delete-button";
+
+    public static final String ADD_METAPROJECTS_BUTTON_ID = BROWSER_ID + "_add-metaprojects";
+
+    public static final String REMOVE_METAPROJECTS_BUTTON_ID = BROWSER_ID + "_remove-metaprojects";
 
     /**
      * Creates a grid without additional toolbar buttons. It can serve as a entity chooser.
@@ -273,6 +282,101 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
                 createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
         showDetailsButton.setId(SHOW_DETAILS_BUTTON_ID);
         addButton(showDetailsButton);
+
+        final MetaprojectChooserButton tagButton =
+                new MetaprojectChooserButton(viewContext, getId(),
+                        new IChosenEntitiesProvider<String>()
+                            {
+                                @Override
+                                public List<String> getEntities()
+                                {
+                                    return getMetaProjectsReferencedyByEachOf(taggables(getSelectedItems()));
+                                }
+
+                                @Override
+                                public boolean isBlackList()
+                                {
+                                    return true;
+                                }
+                            });
+
+        tagButton
+                .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>()
+                    {
+                        @Override
+                        public void entitiesChosen(
+                                List<TableModelRowWithObject<Metaproject>> entities)
+                        {
+                            List<Long> experimentIds = new ArrayList<Long>();
+                            for (BaseEntityModel<TableModelRowWithObject<Experiment>> item : getSelectedItems())
+                            {
+                                experimentIds.add(item.getBaseObject().getObjectOrNull().getId());
+                            }
+
+                            List<Long> metaProjectIds = new ArrayList<Long>();
+                            for (TableModelRowWithObject<Metaproject> row : entities)
+                            {
+                                metaProjectIds.add(row.getObjectOrNull().getId());
+                            }
+                            viewContext.getCommonService().assignExperimentsToMetaProjects(
+                                    metaProjectIds, experimentIds,
+                                    createRefreshCallback(asActionInvoker()));
+
+                        }
+                    });
+
+        tagButton.setId(ADD_METAPROJECTS_BUTTON_ID);
+        tagButton.setText(viewContext.getMessage(Dict.BUTTON_TAG));
+        enableButtonOnSelectedItems(tagButton);
+        addButton(tagButton);
+
+        final MetaprojectChooserButton untagButton =
+                new MetaprojectChooserButton(viewContext, getId(),
+                        new IChosenEntitiesProvider<String>()
+                            {
+                                @Override
+                                public List<String> getEntities()
+                                {
+                                    return getMetaProjectsReferencedByAtLeastOneOf(taggables(getSelectedItems()));
+                                }
+
+                                @Override
+                                public boolean isBlackList()
+                                {
+                                    return false;
+                                }
+                            });
+
+        untagButton
+                .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>()
+                    {
+                        @Override
+                        public void entitiesChosen(
+                                List<TableModelRowWithObject<Metaproject>> entities)
+                        {
+                            List<Long> experimentIds = new ArrayList<Long>();
+                            for (BaseEntityModel<TableModelRowWithObject<Experiment>> item : getSelectedItems())
+                            {
+                                experimentIds.add(item.getBaseObject().getObjectOrNull().getId());
+                            }
+
+                            List<Long> metaProjectIds = new ArrayList<Long>();
+                            for (TableModelRowWithObject<Metaproject> row : entities)
+                            {
+                                metaProjectIds.add(row.getObjectOrNull().getId());
+                            }
+                            viewContext.getCommonService()
+                                    .removeExperimentsFromMetaProjects(
+                                            metaProjectIds, experimentIds,
+                                            createRefreshCallback(asActionInvoker()));
+
+                        }
+                    });
+
+        untagButton.setId(REMOVE_METAPROJECTS_BUTTON_ID);
+        untagButton.setText(viewContext.getMessage(Dict.BUTTON_UNTAG));
+        enableButtonOnSelectedItems(untagButton);
+        addButton(untagButton);
 
         String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
         Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
@@ -470,4 +574,23 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
                 }
             };
     }
+
+    private List<Taggable> taggables(List<BaseEntityModel<TableModelRowWithObject<Experiment>>> data)
+    {
+        List<Taggable> list = new ArrayList<Taggable>();
+        for (final BaseEntityModel<TableModelRowWithObject<Experiment>> item : data)
+        {
+            list.add(new Taggable()
+                {
+                    @Override
+                    public Collection<Metaproject> getMetaprojects()
+                    {
+                        return item.getBaseObject().getObjectOrNull()
+                                .getMetaprojects();
+                    }
+                });
+        }
+        return list;
+    }
+
 }

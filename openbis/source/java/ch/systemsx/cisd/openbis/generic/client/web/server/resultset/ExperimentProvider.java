@@ -23,6 +23,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentB
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.EXPERIMENT_IDENTIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.EXPERIMENT_TYPE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.IS_DELETED;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.METAPROJECTS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.PERM_ID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.PROJECT;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.REGISTRATION_DATE;
@@ -101,6 +102,7 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
         builder.addColumn(IS_DELETED).hideByDefault();
         builder.addColumn(PERM_ID).hideByDefault();
         builder.addColumn(SHOW_DETAILS_LINK).hideByDefault();
+        builder.addColumn(METAPROJECTS);
         TableMap<String, ExperimentType> experimentTypes = getExperimentTypes();
         for (Experiment experiment : experiments)
         {
@@ -127,6 +129,8 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
                         SimpleYesNoRenderer.render(DeletionUtils.isDeleted(experiment)));
                 builder.column(PERM_ID).addString(experiment.getPermId());
                 builder.column(SHOW_DETAILS_LINK).addString(experiment.getPermlink());
+                builder.column(METAPROJECTS).addString(
+                        metaProjectsToString(experiment.getMetaprojects()));
                 ExperimentType experimentType =
                         experimentTypes.tryGet(experiment.getExperimentType().getCode());
                 IColumnGroup columnGroup =

@@ -161,6 +161,8 @@ var common = {
   
   button_add: "Add {0}",
   button_save: "Save",
+  button_tag: "Tag",
+  button_untag: "Untag",
   button_upload: "Upload",
   button_save_and_upload: "Save + Upload Data Set",
   button_choose: "Choose",

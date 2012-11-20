@@ -45,5 +45,7 @@ public class ExperimentBrowserGridColumnIDs
 
     public static final String SHOW_DETAILS_LINK = "SHOW_DETAILS_LINK";
 
+    public static final String METAPROJECTS = "METAPROJECTS";
+
     public static final String PROPERTIES_PREFIX = "property-";
 }

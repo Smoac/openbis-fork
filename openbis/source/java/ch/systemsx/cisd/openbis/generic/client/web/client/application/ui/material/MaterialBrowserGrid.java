@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -30,8 +32,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntitiesListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntitiesProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MetaprojectChooserButton;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
@@ -57,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -71,6 +78,10 @@ public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
     private static final String PREFIX = "material-browser";
 
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + PREFIX;
+
+    public static final String ADD_METAPROJECTS_BUTTON_ID = BROWSER_ID + "_add-metaprojects";
+
+    public static final String REMOVE_METAPROJECTS_BUTTON_ID = BROWSER_ID + "_remove-metaprojects";
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
 
@@ -248,6 +259,101 @@ public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
         Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
         addButton(editButton);
 
+        final MetaprojectChooserButton tagButton =
+                new MetaprojectChooserButton(viewContext, getId(),
+                        new IChosenEntitiesProvider<String>()
+                            {
+                                @Override
+                                public List<String> getEntities()
+                                {
+                                    return getMetaProjectsReferencedyByEachOf(taggables(getSelectedItems()));
+                                }
+
+                                @Override
+                                public boolean isBlackList()
+                                {
+                                    return true;
+                                }
+                            });
+
+        tagButton
+                .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>()
+                    {
+                        @Override
+                        public void entitiesChosen(
+                                List<TableModelRowWithObject<Metaproject>> entities)
+                        {
+                            List<Long> materialIds = new ArrayList<Long>();
+                            for (BaseEntityModel<TableModelRowWithObject<Material>> item : getSelectedItems())
+                            {
+                                materialIds.add(item.getBaseObject().getObjectOrNull().getId());
+                            }
+
+                            List<Long> metaProjectIds = new ArrayList<Long>();
+                            for (TableModelRowWithObject<Metaproject> row : entities)
+                            {
+                                metaProjectIds.add(row.getObjectOrNull().getId());
+                            }
+                            viewContext.getCommonService().assignMaterialsToMetaProjects(
+                                    metaProjectIds, materialIds,
+                                    createRefreshCallback(asActionInvoker()));
+
+                        }
+                    });
+
+        tagButton.setId(ADD_METAPROJECTS_BUTTON_ID);
+        tagButton.setText(viewContext.getMessage(Dict.BUTTON_TAG));
+        enableButtonOnSelectedItems(tagButton);
+        addButton(tagButton);
+
+        final MetaprojectChooserButton untagButton =
+                new MetaprojectChooserButton(viewContext, getId(),
+                        new IChosenEntitiesProvider<String>()
+                            {
+                                @Override
+                                public List<String> getEntities()
+                                {
+                                    return getMetaProjectsReferencedByAtLeastOneOf(taggables(getSelectedItems()));
+                                }
+
+                                @Override
+                                public boolean isBlackList()
+                                {
+                                    return false;
+                                }
+                            });
+
+        untagButton
+                .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>()
+                    {
+                        @Override
+                        public void entitiesChosen(
+                                List<TableModelRowWithObject<Metaproject>> entities)
+                        {
+                            List<Long> materialIds = new ArrayList<Long>();
+                            for (BaseEntityModel<TableModelRowWithObject<Material>> item : getSelectedItems())
+                            {
+                                materialIds.add(item.getBaseObject().getObjectOrNull().getId());
+                            }
+
+                            List<Long> metaProjectIds = new ArrayList<Long>();
+                            for (TableModelRowWithObject<Metaproject> row : entities)
+                            {
+                                metaProjectIds.add(row.getObjectOrNull().getId());
+                            }
+                            viewContext.getCommonService()
+                                    .removeMaterialsFromMetaProjects(
+                                            metaProjectIds, materialIds,
+                                            createRefreshCallback(asActionInvoker()));
+
+                        }
+                    });
+
+        untagButton.setId(REMOVE_METAPROJECTS_BUTTON_ID);
+        untagButton.setText(viewContext.getMessage(Dict.BUTTON_UNTAG));
+        enableButtonOnSelectedItems(untagButton);
+        addButton(untagButton);
+
         final String deleteTitle = viewContext.getMessage(Dict.BUTTON_DELETE);
         final String deleteAllTitle = deleteTitle + " All";
         final Button deleteButton = new Button(deleteAllTitle, new AbstractCreateDialogListener()
@@ -397,6 +503,24 @@ public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
                             createTableExportCriteria(), getTotalCount());
                 }
             };
+    }
+
+    private List<Taggable> taggables(List<BaseEntityModel<TableModelRowWithObject<Material>>> data)
+    {
+        List<Taggable> list = new ArrayList<Taggable>();
+        for (final BaseEntityModel<TableModelRowWithObject<Material>> item : data)
+        {
+            list.add(new Taggable()
+                {
+                    @Override
+                    public Collection<Metaproject> getMetaprojects()
+                    {
+                        return item.getBaseObject().getObjectOrNull()
+                                .getMetaprojects();
+                    }
+                });
+        }
+        return list;
     }
 
 }

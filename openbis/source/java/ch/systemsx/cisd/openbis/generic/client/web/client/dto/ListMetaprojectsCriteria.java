@@ -33,6 +33,8 @@ public class ListMetaprojectsCriteria extends
 
     private Set<String> blacklist;
 
+    private Set<String> whitelist;
+
     public Set<String> getBlacklist()
     {
         return blacklist;
@@ -41,6 +43,16 @@ public class ListMetaprojectsCriteria extends
     public void setBlacklist(Set<String> blacklist)
     {
         this.blacklist = blacklist;
+    }
+
+    public Set<String> getWhitelist()
+    {
+        return whitelist;
+    }
+
+    public void setWhitelist(Set<String> whitelist)
+    {
+        this.whitelist = whitelist;
     }
 
 }

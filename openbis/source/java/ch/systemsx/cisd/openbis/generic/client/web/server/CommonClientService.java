@@ -112,8 +112,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailure
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -2705,5 +2710,140 @@ public final class CommonClientService extends AbstractClientService implements
         }
 
         return null;
+    }
+
+    @Override
+    public void assignSamplesToMetaProjects(List<Long> metaProjectIds, List<Long> sampleIds)
+    {
+        MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
+        for (Long id : sampleIds)
+        {
+            ids.addSample(new SampleTechIdId(id));
+        }
+
+        for (Long metaProjectId : metaProjectIds)
+        {
+            commonServer.addToMetaproject(getSessionToken(),
+                    new MetaprojectTechIdId(metaProjectId),
+                    ids);
+        }
+    }
+
+    @Override
+    public void removeSamplesFromMetaProjects(List<Long> metaProjectIds, List<Long> sampleIds)
+    {
+        MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
+        for (Long id : sampleIds)
+        {
+            ids.addSample(new SampleTechIdId(id));
+        }
+        for (Long metaProjectId : metaProjectIds)
+        {
+            commonServer.removeFromMetaproject(getSessionToken(),
+                    new MetaprojectTechIdId(metaProjectId),
+                    ids);
+        }
+    }
+
+    @Override
+    public void assignExperimentsToMetaProjects(List<Long> metaProjectIds, List<Long> experimentIds)
+    {
+        MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
+        for (Long id : experimentIds)
+        {
+            ids.addExperiment(new ExperimentTechIdId(id));
+        }
+
+        for (Long metaProjectId : metaProjectIds)
+        {
+            commonServer.addToMetaproject(getSessionToken(),
+                    new MetaprojectTechIdId(metaProjectId),
+                    ids);
+        }
+    }
+
+    @Override
+    public void removeExperimentsFromMetaProjects(List<Long> metaProjectIds,
+            List<Long> experimentIds)
+    {
+        MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
+        for (Long id : experimentIds)
+        {
+            ids.addExperiment(new ExperimentTechIdId(id));
+        }
+        for (Long metaProjectId : metaProjectIds)
+        {
+            commonServer.removeFromMetaproject(getSessionToken(),
+                    new MetaprojectTechIdId(metaProjectId),
+                    ids);
+        }
+    }
+
+    @Override
+    public void assignDataSetsToMetaProjects(List<Long> metaProjectIds, List<Long> dataSetIds)
+    {
+        MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
+        for (Long id : dataSetIds)
+        {
+            ids.addDataSet(new DataSetTechIdId(id));
+        }
+
+        for (Long metaProjectId : metaProjectIds)
+        {
+            commonServer.addToMetaproject(getSessionToken(),
+                    new MetaprojectTechIdId(metaProjectId),
+                    ids);
+        }
+    }
+
+    @Override
+    public void removeDataSetsFromMetaProjects(List<Long> metaProjectIds,
+            List<Long> dataSetIds)
+    {
+        MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
+        for (Long id : dataSetIds)
+        {
+            ids.addDataSet(new DataSetTechIdId(id));
+        }
+        for (Long metaProjectId : metaProjectIds)
+        {
+            commonServer.removeFromMetaproject(getSessionToken(),
+                    new MetaprojectTechIdId(metaProjectId),
+                    ids);
+        }
+    }
+
+    @Override
+    public void assignMaterialsToMetaProjects(List<Long> metaProjectIds, List<Long> materialIds)
+    {
+        MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
+        for (Long id : materialIds)
+        {
+            ids.addMaterial(new MaterialTechIdId(id));
+        }
+
+        for (Long metaProjectId : metaProjectIds)
+        {
+            commonServer.addToMetaproject(getSessionToken(),
+                    new MetaprojectTechIdId(metaProjectId),
+                    ids);
+        }
+    }
+
+    @Override
+    public void removeMaterialsFromMetaProjects(List<Long> metaProjectIds,
+            List<Long> materialIds)
+    {
+        MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
+        for (Long id : materialIds)
+        {
+            ids.addMaterial(new MaterialTechIdId(id));
+        }
+        for (Long metaProjectId : metaProjectIds)
+        {
+            commonServer.removeFromMetaproject(getSessionToken(),
+                    new MetaprojectTechIdId(metaProjectId),
+                    ids);
+        }
     }
 }

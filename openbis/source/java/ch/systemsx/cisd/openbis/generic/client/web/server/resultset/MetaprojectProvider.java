@@ -54,6 +54,28 @@ public class MetaprojectProvider extends AbstractCommonTableModelProvider<Metapr
         builder.addColumn(DESCRIPTION);
         builder.addColumn(CREATION_DATE).withDefaultWidth(300);
 
+        Set<String> whitelistLowerCase = new HashSet<String>();
+
+        if (criteria.getWhitelist() != null)
+        {
+            for (String whitelistItem : criteria.getWhitelist())
+            {
+                whitelistLowerCase.add(whitelistItem.toLowerCase());
+            }
+
+            for (Metaproject metaproject : metaprojects)
+            {
+                if (whitelistLowerCase.contains(metaproject.getName().toLowerCase()))
+                {
+                    builder.addRow(metaproject);
+                    builder.column(NAME).addString(metaproject.getName());
+                    builder.column(DESCRIPTION).addString(metaproject.getDescription());
+                    builder.column(CREATION_DATE).addDate(metaproject.getCreationDate());
+                }
+            }
+            return builder.getModel();
+        }
+
         Set<String> blacklistLowerCase = new HashSet<String>();
 
         if (criteria.getBlacklist() != null)

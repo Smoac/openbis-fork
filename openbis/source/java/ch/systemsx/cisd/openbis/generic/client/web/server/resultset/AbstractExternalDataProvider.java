@@ -35,6 +35,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDat
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.IS_COMPLETE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.IS_DELETED;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.LOCATION;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.METAPROJECTS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.ORDER_IN_CONTAINER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PARENT_DATASETS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PERM_ID;
@@ -118,6 +119,7 @@ public abstract class AbstractExternalDataProvider extends
         builder.addColumn(EXTERNAL_DMS_LABEL).withDefaultWidth(150).hideByDefault();
         builder.addColumn(PERM_ID).hideByDefault();
         builder.addColumn(SHOW_DETAILS_LINK).hideByDefault();
+        builder.addColumn(METAPROJECTS);
         for (ExternalData dataSet : dataSets)
         {
             builder.addRow(dataSet);
@@ -146,6 +148,9 @@ public abstract class AbstractExternalDataProvider extends
                         builder.column(EXTERNAL_DMS_LABEL).addString(externalDms.getLabel());
                     }
                 }
+
+                builder.column(METAPROJECTS).addString(
+                        metaProjectsToString(dataSet.getMetaprojects()));
 
                 builder.column(DATA_SET_TYPE).addString(dataSet.getDataSetType().getCode());
                 ContainerDataSet container = dataSet.tryGetContainer();

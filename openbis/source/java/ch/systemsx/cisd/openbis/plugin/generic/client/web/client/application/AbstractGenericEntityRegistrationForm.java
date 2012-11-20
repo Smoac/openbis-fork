@@ -239,6 +239,12 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
                                     return metaprojects != null ? Arrays.asList(metaprojects)
                                             : null;
                                 }
+
+                                @Override
+                                public boolean isBlackList()
+                                {
+                                    return true;
+                                }
                             });
         metaprojectChooserButton
                 .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>()

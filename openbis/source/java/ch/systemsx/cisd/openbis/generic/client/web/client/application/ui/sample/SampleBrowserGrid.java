@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,6 +43,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntitiesListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntitiesProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MetaprojectChooserButton;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
@@ -73,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -110,6 +116,10 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
     public static final String MAIN_GRID_ID = createGridId(MAIN_BROWSER_ID);
 
     public static final String ADD_BUTTON_ID_SUFFIX = "_add-button";
+
+    public static final String ADD_METAPROJECTS_BUTTON_ID_SUFFIX = "_add-metaprojects";
+
+    public static final String REMOVE_METAPROJECTS_BUTTON_ID_SUFFIX = "_remove-metaprojects";
 
     public static final String EDIT_BUTTON_ID_SUFFIX = "_edit-button";
 
@@ -486,7 +496,6 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
     {
         ListSampleDisplayCriteria c1 = getCriteriaProvider().tryGetCriteria();
         ListSampleDisplayCriteria2 criteria;
-
         if (c1.getCriteriaKind() == ListEntityDisplayCriteriaKind.BROWSE)
         {
             criteria = new ListSampleDisplayCriteria2(c1.getBrowseCriteria());
@@ -500,14 +509,12 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
         {
             throw new IllegalArgumentException("Unsupported criteria kind: " + c1.getCriteriaKind());
         }
-
         criteria.copyPagingConfig(resultSetConfig);
         if (criteria.getCriteriaKind() == ListEntityDisplayCriteriaKind.BROWSE)
         {
             criteria.getBrowseCriteria().setOnlyDirectlyConnected(
                     directlyConnectedController.isOnlyDirectlyConnected());
         }
-
         viewContext.getService().listSamples2(criteria, callback);
     }
 
@@ -600,6 +607,101 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                             });
         addButton.setId(createChildComponentId(ADD_BUTTON_ID_SUFFIX));
         addButton(addButton);
+
+        final MetaprojectChooserButton tagButton =
+                new MetaprojectChooserButton(viewContext, getId(),
+                        new IChosenEntitiesProvider<String>()
+                            {
+                                @Override
+                                public List<String> getEntities()
+                                {
+                                    return getMetaProjectsReferencedyByEachOf(taggables(getSelectedItems()));
+                                }
+
+                                @Override
+                                public boolean isBlackList()
+                                {
+                                    return true;
+                                }
+                            });
+
+        tagButton
+                .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>()
+                    {
+                        @Override
+                        public void entitiesChosen(
+                                List<TableModelRowWithObject<Metaproject>> entities)
+                        {
+                            List<Long> sampleIds = new ArrayList<Long>();
+                            for (BaseEntityModel<TableModelRowWithObject<Sample>> item : getSelectedItems())
+                            {
+                                sampleIds.add(item.getBaseObject().getObjectOrNull().getId());
+                            }
+
+                            List<Long> metaProjectIds = new ArrayList<Long>();
+                            for (TableModelRowWithObject<Metaproject> row : entities)
+                            {
+                                metaProjectIds.add(row.getObjectOrNull().getId());
+                            }
+                            viewContext.getCommonService().assignSamplesToMetaProjects(
+                                    metaProjectIds, sampleIds,
+                                    createRefreshCallback(asActionInvoker()));
+
+                        }
+                    });
+
+        tagButton.setId(createChildComponentId(ADD_METAPROJECTS_BUTTON_ID_SUFFIX));
+        tagButton.setText(viewContext.getMessage(Dict.BUTTON_TAG));
+        enableButtonOnSelectedItems(tagButton);
+        addButton(tagButton);
+
+        final MetaprojectChooserButton untagButton =
+                new MetaprojectChooserButton(viewContext, getId(),
+                        new IChosenEntitiesProvider<String>()
+                            {
+                                @Override
+                                public List<String> getEntities()
+                                {
+                                    return getMetaProjectsReferencedByAtLeastOneOf(taggables(getSelectedItems()));
+                                }
+
+                                @Override
+                                public boolean isBlackList()
+                                {
+                                    return false;
+                                }
+                            });
+
+        untagButton
+                .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>()
+                    {
+                        @Override
+                        public void entitiesChosen(
+                                List<TableModelRowWithObject<Metaproject>> entities)
+                        {
+                            List<Long> sampleIds = new ArrayList<Long>();
+                            for (BaseEntityModel<TableModelRowWithObject<Sample>> item : getSelectedItems())
+                            {
+                                sampleIds.add(item.getBaseObject().getObjectOrNull().getId());
+                            }
+
+                            List<Long> metaProjectIds = new ArrayList<Long>();
+                            for (TableModelRowWithObject<Metaproject> row : entities)
+                            {
+                                metaProjectIds.add(row.getObjectOrNull().getId());
+                            }
+                            viewContext.getCommonService()
+                                    .removeSamplesFromMetaProjects(
+                                            metaProjectIds, sampleIds,
+                                            createRefreshCallback(asActionInvoker()));
+
+                        }
+                    });
+
+        untagButton.setId(createChildComponentId(REMOVE_METAPROJECTS_BUTTON_ID_SUFFIX));
+        untagButton.setText(viewContext.getMessage(Dict.BUTTON_UNTAG));
+        enableButtonOnSelectedItems(untagButton);
+        addButton(untagButton);
 
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =
@@ -715,6 +817,24 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                     }
                 }
             };
+    }
+
+    private List<Taggable> taggables(List<BaseEntityModel<TableModelRowWithObject<Sample>>> data)
+    {
+        List<Taggable> list = new ArrayList<Taggable>();
+        for (final BaseEntityModel<TableModelRowWithObject<Sample>> item : data)
+        {
+            list.add(new Taggable()
+                {
+                    @Override
+                    public Collection<Metaproject> getMetaprojects()
+                    {
+                        return item.getBaseObject().getObjectOrNull()
+                                .getMetaprojects();
+                    }
+                });
+        }
+        return list;
     }
 
 }

@@ -25,6 +25,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridC
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.EXPERIMENT_IDENTIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.IS_DELETED;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.IS_INSTANCE_SAMPLE;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.METAPROJECTS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PARENTS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PERM_ID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PROJECT;
@@ -92,6 +93,7 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
         builder.addColumn(SHOW_DETAILS_LINK_COLUMN_NAME).hideByDefault();
         builder.addColumn(PARENTS);
         builder.addColumn(CONTAINER_SAMPLE);
+        builder.addColumn(METAPROJECTS);
         TableMap<String, SampleType> sampleTypes = getSampleTypes();
         for (Sample sample : samples)
         {
@@ -117,6 +119,10 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
                 builder.column(MODIFIER).addPerson(sample.getModifier());
                 builder.column(REGISTRATION_DATE).addDate(sample.getRegistrationDate());
                 builder.column(MODIFICATION_DATE).addDate(sample.getModificationDate());
+
+                builder.column(METAPROJECTS).addString(
+                        metaProjectsToString(sample.getMetaprojects()));
+
                 final Experiment experimentOrNull = sample.getExperiment();
                 if (experimentOrNull != null)
                 {

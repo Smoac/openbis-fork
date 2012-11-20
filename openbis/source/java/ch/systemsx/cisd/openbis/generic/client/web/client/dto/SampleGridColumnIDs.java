@@ -37,6 +37,8 @@ public class SampleGridColumnIDs
 
     public static final String SAMPLE_TYPE = "SAMPLE_TYPE";
 
+    public static final String METAPROJECTS = "METAPROJECTS";
+
     public static final String DATABASE_INSTANCE = "DATABASE_INSTANCE";
 
     public static final String SAMPLE_IDENTIFIER = "SAMPLE_IDENTIFIER";

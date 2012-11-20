@@ -18,8 +18,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -64,5 +68,37 @@ public abstract class AbstractTableModelProvider<T extends Serializable> impleme
      * Creates the complete table model.
      */
     protected abstract TypedTableModel<T> createTableModel();
+
+    protected String metaProjectsToString(Collection<Metaproject> metaProjects)
+    {
+        String text = "";
+        if (metaProjects != null)
+        {
+            List<String> names = new ArrayList<String>();
+            for (Metaproject metaProject : metaProjects)
+            {
+                names.add(metaProject.getName());
+            }
+            Collections.sort(names, new Comparator<String>()
+                {
+                    @Override
+                    public int compare(String arg0, String arg1)
+                    {
+                        return arg0.toLowerCase().compareTo(arg1.toLowerCase());
+                    }
+                });
+
+            for (String name : names)
+            {
+                text += ", " + name;
+            }
+
+        }
+        if (text.length() > 1)
+        {
+            text = text.substring(2);
+        }
+        return text;
+    }
 
 }

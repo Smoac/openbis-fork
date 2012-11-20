@@ -26,4 +26,6 @@ public interface IChosenEntitiesProvider<T>
 
     public List<T> getEntities();
 
+    public boolean isBlackList();
+
 }

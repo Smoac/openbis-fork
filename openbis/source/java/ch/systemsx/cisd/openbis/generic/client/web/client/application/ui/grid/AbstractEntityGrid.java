@@ -16,8 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -39,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
@@ -123,4 +130,62 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
         return suffix;
     }
 
+    protected static interface Taggable
+    {
+        public Collection<Metaproject> getMetaprojects();
+    }
+
+    protected List<String> getMetaProjectsReferencedyByEachOf(List<Taggable> taggables)
+    {
+        int itemCount = taggables.size();
+        Map<String, Integer> counts = new HashMap<String, Integer>();
+
+        for (Taggable taggable : taggables)
+        {
+            Collection<Metaproject> metaProjects = taggable.getMetaprojects();
+
+            if (metaProjects != null)
+            {
+                for (Metaproject metaProject : metaProjects)
+                {
+                    Integer count = counts.get(metaProject.getName());
+                    if (count == null)
+                    {
+                        count = 0;
+                    }
+                    count++;
+                    counts.put(metaProject.getName(), count);
+                }
+            }
+        }
+
+        List<String> result = new ArrayList<String>();
+        for (String name : counts.keySet())
+        {
+            Integer count = counts.get(name);
+            if (count != null && count == itemCount)
+            {
+                result.add(name);
+            }
+        }
+        return result;
+    }
+
+    protected List<String> getMetaProjectsReferencedByAtLeastOneOf(List<Taggable> taggables)
+    {
+        Set<String> result = new HashSet<String>();
+
+        for (Taggable taggable : taggables)
+        {
+            Collection<Metaproject> metaprojects = taggable.getMetaprojects();
+            if (metaprojects != null)
+            {
+                for (Metaproject metaProject : metaprojects)
+                {
+                    result.add(metaProject.getName());
+                }
+            }
+        }
+        return new ArrayList<String>(result);
+    }
 }
