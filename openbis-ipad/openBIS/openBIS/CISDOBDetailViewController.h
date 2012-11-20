@@ -24,7 +24,7 @@
 #import <UIKit/UIKit.h>
 
 @class CISDOBIpadEntity, CISDOBOpenBisModel, CISDOBAppDelegate;
-@interface CISDOBDetailViewController : UIViewController <UISplitViewControllerDelegate, UIWebViewDelegate>
+@interface CISDOBDetailViewController : UIViewController <UISplitViewControllerDelegate, UIWebViewDelegate, UIPopoverControllerDelegate>
 
 @property (weak, nonatomic) CISDOBAppDelegate *appDelegate;
 @property (strong, nonatomic) CISDOBOpenBisModel *openBisModel;

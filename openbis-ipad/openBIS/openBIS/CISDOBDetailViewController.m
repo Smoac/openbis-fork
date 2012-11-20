@@ -143,7 +143,15 @@
             imageUrl = [self.openBisModel urlFromUrlString: self.detailItem.imageUrlString];
         }
         imageViewController.imageUrl = imageUrl;
+        // Order sensitive -- this line needs to happen after setting the url.
+        [(UIStoryboardPopoverSegue *)segue popoverController].delegate = self;
     }    
+}
+
+#pragma mark - UIPopoverControllerDelegate
+- (BOOL)popoverControllerShouldDismissPopover:(UIPopoverController *)popoverController
+{
+    return YES;
 }
 
 #pragma mark - Split view
