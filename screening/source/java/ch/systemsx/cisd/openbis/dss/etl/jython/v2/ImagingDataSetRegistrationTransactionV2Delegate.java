@@ -212,6 +212,7 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     {
         return transaction.getMaterial(materialCode, materialType);
     }
+
     @Override
     public IMaterialImmutable getMaterial(String identifier)
     {
@@ -324,6 +325,12 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     public ISearchService getSearchServiceUnfiltered()
     {
         return transaction.getSearchServiceUnfiltered();
+    }
+
+    @Override
+    public ISearchService getSearchServiceFilteredForUser(String userId)
+    {
+        return transaction.getSearchServiceFilteredForUser(userId);
     }
 
     @Override
