@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.BrowserLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MaterialLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MetaprojectBrowserLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MetaprojectLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ProjectLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SearchLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
@@ -86,6 +87,15 @@ public class LinkExtractor
         {
             url.addParameter(BrowserLocatorResolver.TYPE_PARAMETER_KEY, experimentTypeOrNull);
         }
+        return tryPrint(url);
+    }
+
+    public static final String createMetaprojectLink(String metaprojectName)
+    {
+        URLMethodWithParameters url = new URLMethodWithParameters("");
+        url.addParameter(ViewLocator.ACTION_PARAMETER, MetaprojectLocatorResolver.VIEW_ACTION);
+        url.addParameter(ViewLocator.ENTITY_PARAMETER, MetaprojectLocatorResolver.METAPROJECT);
+        url.addParameter(MetaprojectLocatorResolver.NAME_PARAMETER_KEY, metaprojectName);
         return tryPrint(url);
     }
 

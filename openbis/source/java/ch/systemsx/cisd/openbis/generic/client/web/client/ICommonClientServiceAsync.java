@@ -203,6 +203,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void getMetaproject(Long metaprojectId, final AsyncCallback<Metaproject> asyncCallback);
 
+    /**
+     * @see ICommonClientService#getMetaproject(String)
+     */
+    public void getMetaproject(String metaprojectIdentifier,
+            final AsyncCallback<Metaproject> asyncCallback);
+
     /** @see ICommonClientService#prepareExportScripts(TableExportCriteria) */
     public void prepareExportScripts(
             TableExportCriteria<TableModelRowWithObject<Script>> exportCriteria,

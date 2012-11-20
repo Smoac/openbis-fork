@@ -229,6 +229,11 @@ public interface ICommonClientService extends IClientService
     public Metaproject getMetaproject(Long metaprojectId) throws UserFailureException;
 
     /**
+     * Returns metaproject.
+     */
+    public Metaproject getMetaproject(String metaprojectIdentifier) throws UserFailureException;
+
+    /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for scripts.
      */
     public String prepareExportScripts(

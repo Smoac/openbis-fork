@@ -117,6 +117,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetTech
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -747,6 +748,14 @@ public final class CommonClientService extends AbstractClientService implements
     {
         return commonServer.getMetaproject(getSessionToken(),
                 new MetaprojectTechIdId(metaprojectId));
+    }
+
+    @Override
+    public Metaproject getMetaproject(String metaprojectIdentifier)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return commonServer.getMetaproject(getSessionToken(), new MetaprojectIdentifierId(
+                metaprojectIdentifier));
     }
 
     @Override
