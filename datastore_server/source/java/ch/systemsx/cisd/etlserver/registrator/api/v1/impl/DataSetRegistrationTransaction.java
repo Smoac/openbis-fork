@@ -777,6 +777,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
+    public ISearchService getSearchServiceFilteredForUser(String userId)
+    {
+        return new SearchService(openBisService.getBasicFilteredOpenBISService(userId));
+    }
+
+    @Override
     public IAuthorizationService getAuthorizationService()
     {
         return new AuthorizationService(openBisService);

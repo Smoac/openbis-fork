@@ -352,6 +352,14 @@ public interface IDataSetRegistrationTransaction
     ISearchService getSearchServiceUnfiltered();
 
     /**
+     * Retrieve the search service for this transaction. The search service results will be filtered
+     * for the specified user.
+     * 
+     * @return The search service for this transaction.
+     */
+    ISearchService getSearchServiceFilteredForUser(String userId);
+
+    /**
      * @return A service which can be used to get authorization information about a user.
      */
     IAuthorizationService getAuthorizationService();
