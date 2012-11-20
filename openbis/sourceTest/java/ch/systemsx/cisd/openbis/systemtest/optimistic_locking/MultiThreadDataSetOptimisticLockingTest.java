@@ -104,7 +104,7 @@ public class MultiThreadDataSetOptimisticLockingTest extends MultiThreadOptimist
         assertEquals(experiment.getIdentifier(), loadedParentDataSet.getExperiment()
                 .getIdentifier());
         assertEquals("[DS-CHILD1, DS-CHILD2, DS-CHILD3]",
-                toolBox.extractCodes(loadedParentDataSet.getChildren()));
+                toolBox.extractCodes(loadedParentDataSet.getChildren()).toString());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedParentDataSet,
                 "test");
     }
