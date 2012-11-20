@@ -309,7 +309,6 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityHistoryTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataManagementSystemTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
@@ -919,7 +918,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         Metaproject metaproject = getMetaproject(sessionToken, metaprojectId);
         Collection<MetaprojectAssignmentPE> assignments =
-                getMetaprojectAssignments(metaproject.getId(), EntityKind.EXPERIMENT);
+                new MetaprojectAssignmentsHelper(getDAOFactory()).getMetaprojectAssignments(
+                        metaproject.getId(), EntityKind.EXPERIMENT);
         List<ExperimentPE> experimentsPE = new ArrayList<ExperimentPE>();
 
         for (MetaprojectAssignmentPE assignment : assignments)
@@ -3754,87 +3754,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             throw new UserFailureException("Fetch options cannot be null");
         }
 
-        Session session = getSession(sessionToken);
-        String baseIndexURL = getBaseIndexURL(sessionToken);
-        AuthorizationServiceUtils authorizationUtils = getAuthorizationService(session);
-
         Metaproject metaproject = getMetaproject(sessionToken, metaprojectId);
-        MetaprojectAssignments metaprojectAssignments = new MetaprojectAssignments();
-        metaprojectAssignments.setMetaproject(metaproject);
 
-        List<Experiment> experiments = new ArrayList<Experiment>();
-        List<Sample> samples = new ArrayList<Sample>();
-        List<ExternalData> dataSets = new ArrayList<ExternalData>();
-        List<Material> materials = new ArrayList<Material>();
+        Session session = getSession(sessionToken);
 
-        if (fetchOptions.contains(MetaprojectAssignmentsFetchOption.EXPERIMENTS))
-        {
-            for (MetaprojectAssignmentPE metaprojectAssignmentPE : getMetaprojectAssignments(
-                    metaproject.getId(), EntityKind.EXPERIMENT))
-            {
-                if (authorizationUtils.canAccessExperiment(metaprojectAssignmentPE.getExperiment()))
-                {
-                    experiments.add(ExperimentTranslator.translate(
-                            metaprojectAssignmentPE.getExperiment(), baseIndexURL, null,
-                            LoadableFields.PROPERTIES));
-                } else
-                {
-                    experiments.add(ExperimentTranslator.translateWithoutRevealingData(
-                            metaprojectAssignmentPE.getExperiment(), null));
-                }
-            }
-        }
+        MetaprojectAssignmentsHelper helper = new MetaprojectAssignmentsHelper(getDAOFactory());
 
-        if (fetchOptions.contains(MetaprojectAssignmentsFetchOption.SAMPLES))
-        {
-            for (MetaprojectAssignmentPE metaprojectAssignmentPE : getMetaprojectAssignments(
-                    metaproject.getId(), EntityKind.SAMPLE))
-            {
-                if (authorizationUtils.canAccessSample(metaprojectAssignmentPE.getSample()))
-                {
-                    samples.add(SampleTranslator.translate(metaprojectAssignmentPE.getSample(),
-                            baseIndexURL, null));
-                } else
-                {
-                    samples.add(SampleTranslator
-                            .translateWithoutRevealingData(metaprojectAssignmentPE.getSample()));
-                }
-            }
-        }
-
-        if (fetchOptions.contains(MetaprojectAssignmentsFetchOption.DATA_SETS))
-        {
-            for (MetaprojectAssignmentPE metaprojectAssignmentPE : getMetaprojectAssignments(
-                    metaproject.getId(), EntityKind.DATA_SET))
-            {
-                if (authorizationUtils.canAccessDataSet(metaprojectAssignmentPE.getDataSet()))
-                {
-                    dataSets.add(DataSetTranslator.translate(metaprojectAssignmentPE.getDataSet(),
-                            baseIndexURL, null));
-                } else
-                {
-                    dataSets.add(DataSetTranslator
-                            .translateWithoutRevealingData(metaprojectAssignmentPE.getDataSet()));
-                }
-            }
-        }
-
-        if (fetchOptions.contains(MetaprojectAssignmentsFetchOption.MATERIALS))
-        {
-            for (MetaprojectAssignmentPE metaprojectAssignmentPE : getMetaprojectAssignments(
-                    metaproject.getId(), EntityKind.MATERIAL))
-            {
-                materials.add(MaterialTranslator.translate(metaprojectAssignmentPE.getMaterial(),
-                        null));
-            }
-        }
-
-        metaprojectAssignments.setExperiments(experiments);
-        metaprojectAssignments.setSamples(samples);
-        metaprojectAssignments.setDataSets(dataSets);
-        metaprojectAssignments.setMaterials(materials);
-
-        return metaprojectAssignments;
+        return helper.getMetaprojectAssignments(session, metaproject, session.getUserName(),
+                fetchOptions);
     }
 
     @Override
@@ -4013,13 +3940,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         AuthorizationServiceUtils authorizationUtils = getAuthorizationService(session);
         authorizationUtils.checkAccessMetaproject(metaprojectPE);
         return MetaprojectTranslator.translate(metaprojectPE);
-    }
-
-    private Collection<MetaprojectAssignmentPE> getMetaprojectAssignments(Long metaprojectId,
-            EntityKind entityKind)
-    {
-        return getDAOFactory().getMetaprojectDAO().listMetaprojectAssignments(metaprojectId,
-                DtoConverters.convertEntityKind(entityKind));
     }
 
     private MetaprojectAssignmentsCount getMetaprojectAssignmentsCount(Metaproject metaproject)

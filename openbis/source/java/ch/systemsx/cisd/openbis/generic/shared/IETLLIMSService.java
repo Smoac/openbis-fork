@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.conversation.annotation.Conversational;
 import ch.systemsx.cisd.openbis.common.conversation.annotation.Progress;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
@@ -48,6 +50,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -734,4 +738,18 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     public List<Metaproject> listMetaprojects(String sessionToken, String userId);
+
+    /**
+     * List metaproject assignments for given metaproject name and owner
+     */
+    @Transactional(readOnly = true)
+    public MetaprojectAssignments getMetaprojectAssignments(String systemSessionToken, String name,
+            String userName, EnumSet<MetaprojectAssignmentsFetchOption> fetchOptions);
+
+    /**
+     * List metaprojects for the given entity
+     */
+    @Transactional(readOnly = true)
+    public List<Metaproject> listMetaprojectsForEntity(String systemSessionToken, String userId,
+            IObjectId entityId);
 }

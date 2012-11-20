@@ -18,9 +18,11 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.log4j.Level;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
@@ -29,6 +31,7 @@ import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
@@ -50,6 +53,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -267,8 +272,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     public IEntityProperty[] tryGetPropertiesOfTopSample(String sessionToken,
             SampleIdentifier sampleIdentifier) throws UserFailureException
     {
-        logAccess(sessionToken, "tryToGetPropertiesOfTopSample", "SAMPLE(%s)",
-                sampleIdentifier);
+        logAccess(sessionToken, "tryToGetPropertiesOfTopSample", "SAMPLE(%s)", sampleIdentifier);
         return null;
     }
 
@@ -276,8 +280,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     public IEntityProperty[] tryGetPropertiesOfSample(String sessionToken,
             SampleIdentifier sampleIdentifier) throws UserFailureException
     {
-        logAccess(sessionToken, "tryToGetPropertiesOfSample", "SAMPLE(%s)",
-                sampleIdentifier);
+        logAccess(sessionToken, "tryToGetPropertiesOfSample", "SAMPLE(%s)", sampleIdentifier);
         return null;
     }
 
@@ -723,6 +726,25 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     public List<Metaproject> listMetaprojects(String sessionToken, String userId)
     {
         logAccess(Level.DEBUG, sessionToken, "listMetaprojects", "USER_ID(%s)", userId);
+        return null;
+    }
+
+    @Override
+    public MetaprojectAssignments getMetaprojectAssignments(String systemSessionToken, String name,
+            String userName, EnumSet<MetaprojectAssignmentsFetchOption> fetchOptions)
+    {
+        logAccess(Level.DEBUG, systemSessionToken, "getMetaprojectAssignments",
+                "NAME(%s) USER_ID(%s)", name, userName);
+        return null;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Metaproject> listMetaprojectsForEntity(String systemSessionToken, String userId,
+            IObjectId entityId)
+    {
+        logAccess(Level.DEBUG, systemSessionToken, "listMetaprojects", "USER_ID(%s) ENTITY_ID(%s)",
+                userId, entityId.toString());
         return null;
     }
 }

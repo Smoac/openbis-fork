@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -103,12 +104,14 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.EntityObjectIdDAOHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.LogMessagePrefixGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -139,6 +142,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
@@ -181,6 +186,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
@@ -1494,10 +1500,15 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         final Session session = getSession(sessionToken);
         final IMetaprojectBO bo = businessObjectFactory.createMetaprojectBO(session);
 
-        bo.loadByMetaprojectId(new MetaprojectIdentifierId(ownerId, name));
+        MetaprojectPE pe = bo.tryFindByMetaprojectId(new MetaprojectIdentifierId(ownerId, name));
 
-        MetaprojectPE pe = bo.getMetaproject();
-        return MetaprojectTranslator.translate(pe);
+        if (pe == null)
+        {
+            return null;
+        } else
+        {
+            return MetaprojectTranslator.translate(pe);
+        }
     }
 
     @Override
@@ -2566,6 +2577,42 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
         List<MetaprojectPE> metaprojectPEs = metaprojectDAO.listMetaprojects(owner);
 
+        return MetaprojectTranslator.translate(metaprojectPEs);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public MetaprojectAssignments getMetaprojectAssignments(String systemSessionToken, String name,
+            String userName, EnumSet<MetaprojectAssignmentsFetchOption> fetchOptions)
+    {
+        Metaproject metaproject = tryGetMetaproject(systemSessionToken, name, userName);
+
+        if (metaproject == null)
+        {
+            throw UserFailureException.fromTemplate("Can't find metaproject '%s/%s'", userName,
+                    name);
+        }
+
+        MetaprojectAssignmentsHelper helper = new MetaprojectAssignmentsHelper(daoFactory);
+        return helper.getMetaprojectAssignments(getSession(systemSessionToken), metaproject,
+                userName, fetchOptions);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<Metaproject> listMetaprojectsForEntity(String systemSessionToken, String userId,
+            IObjectId entityId)
+    {
+        IMetaprojectDAO metaprojectDAO = daoFactory.getMetaprojectDAO();
+        PersonPE owner = daoFactory.getPersonDAO().tryFindPersonByUserId(userId);
+
+        EntityObjectIdDAOHelper helper = new EntityObjectIdDAOHelper(businessObjectFactory);
+
+        IEntityInformationHolderDTO entity =
+                helper.getEntityById(getSession(systemSessionToken), entityId);
+
+        Collection<MetaprojectPE> metaprojectPEs =
+                metaprojectDAO.listMetaprojectsForEntity(owner, entity);
         return MetaprojectTranslator.translate(metaprojectPEs);
     }
 }
