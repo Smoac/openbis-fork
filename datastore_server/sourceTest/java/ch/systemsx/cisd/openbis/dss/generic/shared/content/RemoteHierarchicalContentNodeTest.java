@@ -91,7 +91,7 @@ public class RemoteHierarchicalContentNodeTest
         IHierarchicalContentNode node =
                 new RemoteHierarchicalContentNode(REMOTE_DATASET_CODE, pathInfo, provider,
                         localDss,
-                        remoteDss, sessionHolder, SESSION_WORKSPACE_DIR);
+                        remoteDss, sessionHolder, SESSION_WORKSPACE_DIR, false);
 
         context.checking(new Expectations()
             {
@@ -122,7 +122,7 @@ public class RemoteHierarchicalContentNodeTest
 
         IHierarchicalContentNode node =
                 new RemoteHierarchicalContentNode(CACHED_DATASET_CODE, pathInfo, provider,
-                        localDss, remoteDss, sessionHolder, SESSION_WORKSPACE_DIR);
+                        localDss, remoteDss, sessionHolder, SESSION_WORKSPACE_DIR, false);
 
         context.checking(new Expectations()
             {
@@ -146,7 +146,7 @@ public class RemoteHierarchicalContentNodeTest
 
         IHierarchicalContentNode node =
                 new RemoteHierarchicalContentNode(CACHED_DATASET_CODE, pathInfo, provider,
-                        localDss, remoteDss, sessionHolder, SESSION_WORKSPACE_DIR);
+                        localDss, remoteDss, sessionHolder, SESSION_WORKSPACE_DIR, false);
 
         context.checking(new Expectations()
             {
@@ -170,7 +170,7 @@ public class RemoteHierarchicalContentNodeTest
 
         IHierarchicalContentNode node =
                 new RemoteHierarchicalContentNode(CACHED_DATASET_CODE, pathInfo, null,
-                        localDss, remoteDss, sessionHolder, SESSION_WORKSPACE_DIR);
+                        localDss, remoteDss, sessionHolder, SESSION_WORKSPACE_DIR, false);
 
         context.checking(new Expectations()
             {

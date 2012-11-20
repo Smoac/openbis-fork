@@ -47,17 +47,21 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
 
     private final String sessionWorkspaceRoot;
 
+    private final boolean trustAllCertificates;
+
     public RemoteHierarchicalContent(IDatasetLocationNode location,
             ISingleDataSetPathInfoProvider pathInfoProvider,
             OpenBISSessionHolder sessionHolder,
             IDssServiceRpcGeneric local,
-            String sessionWorkspaceRoot)
+            String sessionWorkspaceRoot,
+            boolean trustAllCertificates)
     {
         this.location = location;
         this.provider = pathInfoProvider;
         this.sessionHolder = sessionHolder;
         this.local = local;
         this.sessionWorkspaceRoot = sessionWorkspaceRoot;
+        this.trustAllCertificates = trustAllCertificates;
     }
 
     @Override
@@ -170,7 +174,8 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
                 local,
                 getRemoteDss(),
                 sessionHolder,
-                sessionWorkspaceRoot);
+                sessionWorkspaceRoot,
+                trustAllCertificates);
     }
 
     private List<IHierarchicalContentNode> createNodes(List<DataSetPathInfo> paths)

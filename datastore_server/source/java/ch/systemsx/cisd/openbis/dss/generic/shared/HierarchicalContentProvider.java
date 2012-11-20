@@ -63,6 +63,8 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
 
     private String sessionWorkspaceRoot;
 
+    private boolean trustAllCertificates;
+
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
             IShareIdManager shareIdManager, IConfigProvider configProvider,
             OpenBISSessionHolder session,
@@ -98,8 +100,12 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         this.session = session;
         this.dssService = dssService;
         this.dataStoreCode = dataStoreCode;
+        this.trustAllCertificates = false;
         if (infoProvider != null)
         {
+            String trust =
+                    infoProvider.getResolvedProps().getProperty("keystore.trust-all-certificates");
+            this.trustAllCertificates = (trust != null && trust.equalsIgnoreCase("true"));
             this.sessionWorkspaceRoot =
                     infoProvider.getResolvedProps().getProperty("session-workspace-root-dir",
                             "data/sessionWorkspace");
@@ -154,14 +160,14 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
             ISingleDataSetPathInfoProvider provider = null;
             if (PathInfoDataSourceProvider.isDataSourceDefined())
             {
-                IDataSetPathInfoProvider dataSetPathInfoProvider =
-                        ServiceProvider.getDataSetPathInfoProvider();
+            IDataSetPathInfoProvider dataSetPathInfoProvider =
+                    ServiceProvider.getDataSetPathInfoProvider();
                 provider = dataSetPathInfoProvider.tryGetSingleDataSetPathInfoProvider(locationNode
-                        .getLocation()
-                        .getDataSetCode());
+                            .getLocation()
+                            .getDataSetCode());
             }
             return new RemoteHierarchicalContent(locationNode, provider, session, dssService,
-                    sessionWorkspaceRoot);
+                    sessionWorkspaceRoot, trustAllCertificates);
         }
     }
 

@@ -30,6 +30,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
@@ -62,13 +63,16 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
 
     private String parentRelativePath;
 
+    private boolean trustAllCertificates;
+
     public RemoteHierarchicalContentNode(String dataSetCode,
             DataSetPathInfo path,
             ISingleDataSetPathInfoProvider provider,
             IDssServiceRpcGeneric local,
             IDssServiceRpcGeneric remote,
             OpenBISSessionHolder sessionHolder,
-            String sessionWorkspaceRoot)
+            String sessionWorkspaceRoot,
+            boolean trustAllCertificates)
     {
         this.dataSetCode = dataSetCode;
         this.path = path;
@@ -78,6 +82,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
         this.sessionHolder = sessionHolder;
         this.sessionWorkspaceRoot = sessionWorkspaceRoot;
         this.parentRelativePath = null;
+        this.trustAllCertificates = trustAllCertificates;
     }
 
     private RemoteHierarchicalContentNode(String dataSetCode,
@@ -87,7 +92,8 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
             IDssServiceRpcGeneric remote,
             OpenBISSessionHolder sessionHolder,
             String sessionWorkspaceRoot,
-            String parentRelativePath)
+            String parentRelativePath,
+            boolean trustAllCertificates)
     {
         this.dataSetCode = dataSetCode;
         this.path = path;
@@ -97,6 +103,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
         this.sessionHolder = sessionHolder;
         this.sessionWorkspaceRoot = sessionWorkspaceRoot;
         this.parentRelativePath = parentRelativePath;
+        this.trustAllCertificates = trustAllCertificates;
     }
 
     @Override
@@ -165,7 +172,8 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
             {
                 children.add(new RemoteHierarchicalContentNode(dataSetCode, childPath, provider,
                         localDss,
-                        remoteDss, sessionHolder, sessionWorkspaceRoot, path.getRelativePath()));
+                        remoteDss, sessionHolder, sessionWorkspaceRoot, path.getRelativePath(),
+                        trustAllCertificates));
             }
         } else
         {
@@ -181,7 +189,8 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
                 info.setSizeInBytes(file.getFileSize());
                 children.add(new RemoteHierarchicalContentNode(dataSetCode, info, provider,
                         localDss,
-                        remoteDss, sessionHolder, sessionWorkspaceRoot, path.getRelativePath()));
+                        remoteDss, sessionHolder, sessionWorkspaceRoot, path.getRelativePath(),
+                        trustAllCertificates));
             }
         }
         return children;
@@ -214,6 +223,10 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
         {
             if (url.toLowerCase().startsWith("https"))
             {
+                if (trustAllCertificates)
+                {
+                    SslCertificateHelper.trustAnyCertificate(url);
+                }
                 input = new URL(null, url, new sun.net.www.protocol.https.Handler())
                         .openConnection().getInputStream();
             } else
