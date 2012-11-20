@@ -72,6 +72,12 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
 
     public abstract String getSessionToken();
 
+    /**
+     * Unique short identifier to create data with different ids in different implementation of this
+     * test class
+     */
+    public abstract String getTestId();
+
     public AggregationServiceDescription getAggregationServiceDescription(String key)
     {
         List<AggregationServiceDescription> services = listAggregationServices();
@@ -449,6 +455,7 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
     public void testMetaprojectApi()
     {
         Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("space_id", "META_" + getTestId());
         QueryTableModel table = createReportFromAggregationService("metaproject-api", parameters);
 
         // assert new metaproject with identical description created
@@ -457,28 +464,34 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
                 openBISService.getMetaproject(getSessionToken(),
                         new MetaprojectIdentifierId("test", "TEST_METAPROJECTS")).getMetaproject();
         Metaproject newProject =
-                openBISService.getMetaproject(getSessionToken(),
-                        new MetaprojectIdentifierId("test", "COPY_TEST_METAPROJCTS"))
-                        .getMetaproject();
+                openBISService.getMetaproject(
+                        getSessionToken(),
+                        new MetaprojectIdentifierId("test", "META_" + getTestId()
+                                + "_COPY_TEST_METAPROJCTS")).getMetaproject();
         assertEquals(oldProject.getDescription(), newProject.getDescription());
 
         // find newly created sample and assert that is assigned to newly created metaproject
         SearchCriteria sc = new SearchCriteria();
-        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "METASAMPLE"));
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "SAMPLE"));
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE, "META_"
+                + getTestId()));
 
         List<Sample> samples =
                 openBISService.searchForSamplesOnBehalfOfUser(getSessionToken(), sc,
                         EnumSet.of(SampleFetchOption.METAPROJECTS), "test");
         assertEquals(1, samples.size());
+
         List<Metaproject> metaprojects = samples.get(0).getMetaprojects();
         assertEquals(1, metaprojects.size());
-        assertEquals("TEST_META", metaprojects.get(0).getName());
+        assertEquals("META_" + getTestId() + "_TEST_META", metaprojects.get(0).getName());
 
         assertRowsContent(table, "[ANOTHER_TEST_METAPROJECTS Another example metaproject test]",
                 "[TEST_METAPROJECTS Example metaproject no. 1 test]",
                 "[TEST_METAPROJECTS Example metaproject no. 2 test_role]",
-                "[TEST_METAPROJECTS_2 Example metaproject no. 2 test_role]");
-
+                "[TEST_METAPROJECTS_2 Example metaproject no. 2 test_role]", "[ASSIGNMENTS]",
+                "[SAMPLE None 201206191219327-1055]", "[EXPERIMENT None 201206190940555-1032]",
+                "[DATASET 20120619092259000-22]", "[MATERIAL AD3 (VIRUS)]",
+                "[OLD-SAMPLE TEST_METAPROJECTS Example metaproject no. 2 test_role]");
     }
 
     private void assertRowsContent(QueryTableModel table, String... contents)
@@ -486,6 +499,11 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
         for (int i = 0; i < contents.length; i++)
         {
             assertEquals(contents[i], Arrays.asList(table.getRows().get(i)).toString());
+        }
+        if (table.getRows().size() > contents.length)
+        {
+            fail("Unexpected row in the result: "
+                    + Arrays.asList(table.getRows().get(contents.length)).toString());
         }
         assertEquals(contents.length, table.getRows().size());
     }

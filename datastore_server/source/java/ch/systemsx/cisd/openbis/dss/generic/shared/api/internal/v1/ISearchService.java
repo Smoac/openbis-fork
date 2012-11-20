@@ -141,4 +141,14 @@ public interface ISearchService
      * @return the list of metaprojects for the current user.
      */
     public List<IMetaprojectImmutable> listMetaprojects();
+
+    /**
+     * @return the assignments for the given metaproject for current user.
+     */
+    public IMetaprojectAssignments getMetaprojectAssignments(String name);
+
+    /**
+     * @return metaprojects for current user, which are assigned to the given entity
+     */
+    public List<IMetaprojectImmutable> listMetaprojectsForEntity(IMetaprojectContent entity);
 }

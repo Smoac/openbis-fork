@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedBasicOpenBISServ
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectAssignments;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IPropertyDefinitionImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
@@ -285,6 +287,22 @@ public class SearchService implements ISearchService
     public List<IMetaprojectImmutable> listMetaprojects()
     {
         List<Metaproject> metaprojects = openBisService.listMetaprojects();
+        return ConversionUtils.convertToMetaprojectsImmutable(metaprojects);
+    }
+
+    @Override
+    public IMetaprojectAssignments getMetaprojectAssignments(String name)
+    {
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments assignments =
+                openBisService.getMetaprojectAssignments(name);
+        return new MetaprojectAssignments(assignments, openBisService);
+    }
+
+    @Override
+    public List<IMetaprojectImmutable> listMetaprojectsForEntity(IMetaprojectContent entity)
+    {
+        List<Metaproject> metaprojects =
+                openBisService.listMetaprojectsForEntity(entity.getEntityId());
         return ConversionUtils.convertToMetaprojectsImmutable(metaprojects);
     }
 }

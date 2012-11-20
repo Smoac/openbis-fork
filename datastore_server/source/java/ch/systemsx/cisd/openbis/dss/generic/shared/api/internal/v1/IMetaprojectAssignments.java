@@ -16,30 +16,20 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1;
 
+import java.util.List;
+
 /**
  * @author Jakub Straszewski
  */
-public interface IMetaprojectImmutable
+public interface IMetaprojectAssignments
 {
+    IMetaprojectImmutable getMetaproject();
 
-    /**
-     * @return the name of this metaproject
-     */
-    String getName();
+    List<ISampleImmutable> getSamples();
 
-    /**
-     * @return the description of this metaproject
-     */
-    String getDescription();
+    List<IExperimentImmutable> getExperiments();
 
-    /**
-     * @return the username of the owner of this metaproject
-     */
-    String getOwnerId();
+    List<IDataSetImmutable> getDataSets();
 
-    /**
-     * @return true if this is the already existing metaproject
-     */
-    boolean isExistingMetaproject();
-
+    List<IMaterialImmutable> getMaterials();
 }

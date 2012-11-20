@@ -96,4 +96,10 @@ public class QueryFacadeTest extends AbstractQueryFacadeTest
     {
         return queryFacade.getSessionToken();
     }
+
+    @Override
+    public String getTestId()
+    {
+        return "FACADE";
+    }
 }

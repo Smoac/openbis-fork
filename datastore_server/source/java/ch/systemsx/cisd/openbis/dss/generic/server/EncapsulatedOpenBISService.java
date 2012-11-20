@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedBasicOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ManagedAuthentication;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -38,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
@@ -58,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -248,8 +251,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public SampleIdentifier tryGetSampleIdentifier(String samplePermID)
-            throws UserFailureException
+    public SampleIdentifier tryGetSampleIdentifier(String samplePermID) throws UserFailureException
     {
         return service.tryGetSampleIdentifier(session.getSessionToken(), samplePermID);
     }
@@ -426,12 +428,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public IEntityProperty[] tryGetPropertiesOfSample(
-            SampleIdentifier sampleIdentifier) throws UserFailureException
+    public IEntityProperty[] tryGetPropertiesOfSample(SampleIdentifier sampleIdentifier)
+            throws UserFailureException
     {
         assert sampleIdentifier != null : "Given sample identifier can not be null.";
-        return service.tryGetPropertiesOfSample(session.getSessionToken(),
-                sampleIdentifier);
+        return service.tryGetPropertiesOfSample(session.getSessionToken(), sampleIdentifier);
     }
 
     @Override
@@ -439,8 +440,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             final SampleIdentifier sampleIdentifier) throws UserFailureException
     {
         assert sampleIdentifier != null : "Given sample identifier can not be null.";
-        return service.tryGetPropertiesOfSample(session.getSessionToken(),
-                sampleIdentifier);
+        return service.tryGetPropertiesOfSample(session.getSessionToken(), sampleIdentifier);
     }
 
     @Override
@@ -815,6 +815,22 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     @Override
     public List<Metaproject> listMetaprojects()
+    {
+        throw new UnsupportedOperationException(
+                "Listing metaprojects is available only for the user-filtered version of service");
+    }
+
+    @Override
+    @ManagedAuthentication
+    public MetaprojectAssignments getMetaprojectAssignments(String name)
+    {
+        throw new UnsupportedOperationException(
+                "getting metaproject assignments is available only for the user-filtered version of service");
+    }
+
+    @Override
+    @ManagedAuthentication
+    public List<Metaproject> listMetaprojectsForEntity(IObjectId entityId)
     {
         throw new UnsupportedOperationException(
                 "Listing metaprojects is available only for the user-filtered version of service");

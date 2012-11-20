@@ -100,4 +100,9 @@ public class QueryApiJsonDssServiceRpcGenericTest extends AbstractQueryFacadeTes
         return dssRpcService.listTableReportDescriptions(sessionToken);
     }
 
+    @Override
+    public String getTestId()
+    {
+        return "RPC";
+    }
 }
