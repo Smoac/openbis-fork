@@ -3,15 +3,13 @@ ENTITY_TYPE = "Entity Type"
 PROPERTY_DEFINITION = "Property Definition"
 
 def describe_property(property):
-      t=        "%s %s %s %s %s %s" % ( 
+      return "%s %s %s %s %s %s" % ( 
         property.getCode(), 
         property.getDescription(), 
         property.getLabel(), 
         property.isMandatory(), 
         property.getOrdinal(), 
         property.isManagedInternally())
-      print t
-      return t
 
 def aggregate(parameters, tableBuilder):
     tableBuilder.addHeader(ENTITY_KIND)

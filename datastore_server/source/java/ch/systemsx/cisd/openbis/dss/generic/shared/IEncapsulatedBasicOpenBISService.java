@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -94,5 +95,11 @@ public interface IEncapsulatedBasicOpenBISService
     public List<? extends EntityTypePropertyType<?>> listPropertyDefinitionsForEntityType(
             String code,
             ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind entityKind);
+
+    /**
+     * List metaproject for the current user.
+     */
+    @ManagedAuthentication
+    public List<Metaproject> listMetaprojects();
 
 }

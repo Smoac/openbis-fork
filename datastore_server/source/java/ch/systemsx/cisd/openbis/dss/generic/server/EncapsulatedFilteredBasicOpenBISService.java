@@ -24,7 +24,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AuthorizationHelper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedBasicOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ManagedAuthentication;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
@@ -33,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -150,10 +150,15 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
     }
 
     @Override
-    @ManagedAuthentication
     public List<? extends EntityTypePropertyType<?>> listPropertyDefinitionsForEntityType(
             String code, EntityKind entityKind)
     {
         return encapsulatedService.listPropertyDefinitionsForEntityType(code, entityKind);
+    }
+
+    @Override
+    public List<Metaproject> listMetaprojects()
+    {
+        return etlService.listMetaprojects(systemSessionToken, userName);
     }
 }

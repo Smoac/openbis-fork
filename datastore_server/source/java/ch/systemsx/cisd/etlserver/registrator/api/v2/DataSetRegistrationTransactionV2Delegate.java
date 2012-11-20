@@ -299,6 +299,12 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
     }
 
     @Override
+    public ISearchService getSearchServiceFilteredForUser(String userId)
+    {
+        return transaction.getSearchServiceFilteredForUser(userId);
+    }
+
+    @Override
     public IAuthorizationService getAuthorizationService()
     {
         return transaction.getAuthorizationService();

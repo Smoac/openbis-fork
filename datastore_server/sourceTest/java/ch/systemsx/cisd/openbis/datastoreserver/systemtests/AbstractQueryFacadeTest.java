@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,13 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
@@ -435,6 +442,42 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
                 "[Material, BACTERIUM, ORGANISM The organism from which cells come Organism False 2 False]"
 
         );
+
+    }
+
+    @Test
+    public void testMetaprojectApi()
+    {
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        QueryTableModel table = createReportFromAggregationService("metaproject-api", parameters);
+
+        // assert new metaproject with identical description created
+        IGeneralInformationService openBISService = getGeneralInformationService();
+        Metaproject oldProject =
+                openBISService.getMetaproject(getSessionToken(),
+                        new MetaprojectIdentifierId("test", "TEST_METAPROJECTS")).getMetaproject();
+        Metaproject newProject =
+                openBISService.getMetaproject(getSessionToken(),
+                        new MetaprojectIdentifierId("test", "COPY_TEST_METAPROJCTS"))
+                        .getMetaproject();
+        assertEquals(oldProject.getDescription(), newProject.getDescription());
+
+        // find newly created sample and assert that is assigned to newly created metaproject
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "METASAMPLE"));
+
+        List<Sample> samples =
+                openBISService.searchForSamplesOnBehalfOfUser(getSessionToken(), sc,
+                        EnumSet.of(SampleFetchOption.METAPROJECTS), "test");
+        assertEquals(1, samples.size());
+        List<Metaproject> metaprojects = samples.get(0).getMetaprojects();
+        assertEquals(1, metaprojects.size());
+        assertEquals("TEST_META", metaprojects.get(0).getName());
+
+        assertRowsContent(table, "[ANOTHER_TEST_METAPROJECTS Another example metaproject test]",
+                "[TEST_METAPROJECTS Example metaproject no. 1 test]",
+                "[TEST_METAPROJECTS Example metaproject no. 2 test_role]",
+                "[TEST_METAPROJECTS_2 Example metaproject no. 2 test_role]");
 
     }
 

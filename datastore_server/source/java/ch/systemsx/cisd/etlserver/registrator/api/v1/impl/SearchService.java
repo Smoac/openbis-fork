@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedBasicOpenBISServ
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IPropertyDefinitionImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
@@ -48,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -277,5 +279,12 @@ public class SearchService implements ISearchService
                 org.apache.commons.collections.CollectionUtils.collect(apiList, transformer);
 
         return new LinkedList<IPropertyDefinitionImmutable>(transformed);
+    }
+
+    @Override
+    public List<IMetaprojectImmutable> listMetaprojects()
+    {
+        List<Metaproject> metaprojects = openBisService.listMetaprojects();
+        return ConversionUtils.convertToMetaprojectsImmutable(metaprojects);
     }
 }

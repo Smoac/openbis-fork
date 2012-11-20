@@ -136,4 +136,9 @@ public interface ISearchService
      * @return the list of property definitions for a material type.
      */
     public List<IPropertyDefinitionImmutable> listPropertiesDefinitionsForMaterialType(String code);
+
+    /**
+     * @return the list of metaprojects for the current user.
+     */
+    public List<IMetaprojectImmutable> listMetaprojects();
 }

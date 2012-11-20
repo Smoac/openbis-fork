@@ -16,13 +16,19 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
@@ -290,7 +296,7 @@ public class ConversionUtils
         newProject.setAttachments(apiProject.getNewAttachments());
         return newProject;
     }
-    
+
     public static ProjectUpdatesDTO convertToProjectUpdateDTO(Project apiProject)
     {
         final ProjectUpdatesDTO projectUpdate = new ProjectUpdatesDTO();
@@ -427,8 +433,8 @@ public class ConversionUtils
         return update;
     }
 
-    static NewAttachment createAttachment(String filePath, String title,
-            String description, byte[] content)
+    static NewAttachment createAttachment(String filePath, String title, String description,
+            byte[] content)
     {
         final NewAttachment newAttachment = new NewAttachment();
         newAttachment.setFilePath(filePath);
@@ -438,4 +444,22 @@ public class ConversionUtils
         return newAttachment;
     }
 
+    public static List<IMetaprojectImmutable> convertToMetaprojectsImmutable(
+            Collection<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject> metaprojects)
+    {
+        Collection<IMetaprojectImmutable> converted =
+                CollectionUtils
+                        .collect(
+                                metaprojects,
+                                new Transformer<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject, IMetaprojectImmutable>()
+                                    {
+                                        @Override
+                                        public IMetaprojectImmutable transform(
+                                                ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject input)
+                                        {
+                                            return new MetaprojectImmutable(input);
+                                        }
+                                    });
+        return new LinkedList<IMetaprojectImmutable>(converted);
+    }
 }

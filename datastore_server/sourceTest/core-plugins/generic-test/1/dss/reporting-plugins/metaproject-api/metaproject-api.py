@@ -11,17 +11,29 @@ def create_project_and_experiment(transaction):
     exp.setPropertyValue("DESCRIPTION", "A sample experiment")
     return exp
     
-def process(transaction):
+def process(transaction, parameters, tableBuilder):
   create_project_and_experiment(transaction)
 
   existing_metaproject = transaction.getMetaproject("TEST_METAPROJECTS", "test")
   copy_metaproject = transaction.createNewMetaproject("COPY_TEST_METAPROJCTS", existing_metaproject.getDescription(), "test")
   
-  print existing_metaproject.getDescription()
-  
-  # existing_attached_sample = transaction.getSample("TEST-SPACE/EV-TEST")
-  
   new_metaproject = transaction.createNewMetaproject("TEST_META", "description", "test")
   
   sample = transaction.createNewSample("/META/METASAMPLE", "NORMAL")
   new_metaproject.addEntity(sample)
+
+
+  tableBuilder.addHeader("VALUE")  
+
+  def addRow(value):
+    row = tableBuilder.addRow()
+    row.setCell("VALUE", value)
+
+  transaction.setUserId("test")
+  ms = transaction.getSearchService().listMetaprojects()
+  for m in ms:
+     addRow("%s %s %s" % (m.getName(), m.getDescription(), m.getOwnerId()))
+  
+  ms = transaction.getSearchServiceFilteredForUser("test_role").listMetaprojects()
+  for m in ms:
+     addRow("%s %s %s" % (m.getName(), m.getDescription(), m.getOwnerId()))

@@ -813,4 +813,10 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.listPropertyDefinitionsForType(session.getSessionToken(), code, entityKind);
     }
 
+    @Override
+    public List<Metaproject> listMetaprojects()
+    {
+        throw new UnsupportedOperationException(
+                "Listing metaprojects is available only for the user-filtered version of service");
+    }
 }
