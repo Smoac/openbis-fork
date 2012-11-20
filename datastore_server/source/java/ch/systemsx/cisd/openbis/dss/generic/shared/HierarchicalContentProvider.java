@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
+import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
@@ -160,14 +161,20 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
             ISingleDataSetPathInfoProvider provider = null;
             if (PathInfoDataSourceProvider.isDataSourceDefined())
             {
-            IDataSetPathInfoProvider dataSetPathInfoProvider =
-                    ServiceProvider.getDataSetPathInfoProvider();
+                IDataSetPathInfoProvider dataSetPathInfoProvider =
+                        ServiceProvider.getDataSetPathInfoProvider();
                 provider = dataSetPathInfoProvider.tryGetSingleDataSetPathInfoProvider(locationNode
-                            .getLocation()
-                            .getDataSetCode());
+                        .getLocation()
+                        .getDataSetCode());
+            }
+
+            if (trustAllCertificates)
+            {
+                SslCertificateHelper.trustAnyCertificate(locationNode.getLocation()
+                        .getDataStoreUrl());
             }
             return new RemoteHierarchicalContent(locationNode, provider, session, dssService,
-                    sessionWorkspaceRoot, trustAllCertificates);
+                    sessionWorkspaceRoot);
         }
     }
 
