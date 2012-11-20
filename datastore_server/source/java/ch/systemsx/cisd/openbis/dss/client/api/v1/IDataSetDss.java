@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.InputStream;
 
 import ch.systemsx.cisd.common.api.retry.Retry;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 
@@ -74,7 +73,7 @@ public interface IDataSetDss
      */
     @Retry
     public File tryLinkToContents(String overrideStoreRootPathOrNull)
-            throws IllegalArgumentException, InvalidSessionException;
+            throws InvalidSessionException;
 
     /**
      * Returns the internal storage path of this data set in the datastore.
@@ -90,8 +89,7 @@ public interface IDataSetDss
      * @since 1.7
      */
     @Retry
-    public String tryGetInternalPathInDataStore() throws InvalidSessionException,
-            EnvironmentFailureException;
+    public String tryGetInternalPathInDataStore() throws InvalidSessionException;
 
     /**
      * Returns a {@link File}, if possible, that directly references the contents of a data set in
