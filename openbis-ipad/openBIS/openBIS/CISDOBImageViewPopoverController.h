@@ -25,6 +25,7 @@
 @interface CISDOBImageViewPopoverController : UIViewController
 
 @property (weak, nonatomic) IBOutlet UIWebView *webView;
+
 @property (copy, nonatomic) NSURL *imageUrl;
 
 @end

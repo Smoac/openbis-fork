@@ -61,6 +61,8 @@
     if (self.masterPopoverController != nil) {
         [self.masterPopoverController dismissPopoverAnimated:YES];
     }
+    
+    [self clearStatusText];
 }
 
 - (void)selectionIsChanging
@@ -306,7 +308,14 @@
 #pragma mark - UIWebViewDelegate
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
-
+    // Ignore the "Operation couldn't be completed" error. It is harmless.
+    if ([NSURLErrorDomain isEqualToString: [error domain]] && -999 == [error code]) return;
+    
+    NSString *errorText = [[error userInfo] valueForKey: NSLocalizedDescriptionKey];
+    NSString *statusText = [NSString stringWithFormat: @"Cannot display image: %@", errorText];
+    [self setStatusText: statusText];
+    
+    [self.webView loadHTMLString: @"<html><head></head><body></body></html>" baseURL: nil];
 }
 
 
