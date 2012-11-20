@@ -403,6 +403,7 @@ var common = {
   default_update_value: "Update Value",
   default_update_value_tooltip: "The value of the assigned property for all currently existing entities that didn't have any value for this property.",
   is_shown_in_edit_view: "Shown in Edit Views?",
+  show_raw_value_in_forms: "Show Raw Value in Forms",  
   
   //
   // Entity History Browser and Tab
