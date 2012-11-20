@@ -26,6 +26,7 @@
 #import "CISDOBOpenBisModel.h"
 #import "CISDOBIpadServiceManager.h"
 #import "CISDOBLoginViewController.h"
+#import "CISDOBImageViewPopoverController.h"
 
 @interface NSURLRequest (NSURLRequestDebug)
 + (BOOL)allowsAnyHTTPSCertificateForHost:(NSString *)host;
@@ -97,7 +98,7 @@
         BOOL updateWebView = ![self.webView.request.URL isEqual: url];
         if (updateWebView) {
             // DEBUG -- We will need to switch to getting the data using a NSURLConnection, but for development, it is more convenient to use the request
-            NSURLRequest *request = [NSURLRequest requestWithURL: url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval: 10.f];
+            NSURLRequest *request = [NSURLRequest requestWithURL: url cachePolicy: NSURLRequestReloadIgnoringLocalCacheData timeoutInterval: 10.f];
             [self.webView loadRequest: request];
             if (self.detailItem.imageUrlString) {
                 self.webView.hidden = NO;
@@ -133,6 +134,16 @@
         CISDOBLoginViewController *loginViewController = ((CISDOBLoginViewController *) segue.destinationViewController);
         loginViewController.appDelegate = self.appDelegate;
     }
+    if ([@"ImageFullscreen" isEqualToString: segue.identifier]) {
+        CISDOBImageViewPopoverController *imageViewController = ((CISDOBImageViewPopoverController *) segue.destinationViewController);
+        NSURL *imageUrl;
+        if (!self.detailItem.imageUrlString || [self.detailItem.imageUrlString length] == 0) {
+            imageUrl = [NSURL URLWithString: @"about:blank"];
+        } else {
+            imageUrl = [self.openBisModel urlFromUrlString: self.detailItem.imageUrlString];
+        }
+        imageViewController.imageUrl = imageUrl;
+    }    
 }
 
 #pragma mark - Split view
@@ -287,7 +298,7 @@
 #pragma mark - UIWebViewDelegate
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
-    NSLog(@"Load failed %@", error);
+
 }
 
 
