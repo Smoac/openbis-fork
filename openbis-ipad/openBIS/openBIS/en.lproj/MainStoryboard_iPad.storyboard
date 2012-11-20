@@ -122,7 +122,8 @@
                                         </view>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="0n2-Cb-rbW"/>
-                                    <barButtonItem image="Zoom-small.png" id="ZrU-PG-qcH">
+                                    <barButtonItem image="Zoom-small.png" width="38" id="ZrU-PG-qcH">
+                                        <inset key="imageInsets" minX="0.0" minY="0.0" maxX="0.0" maxY="2"/>
                                         <connections>
                                             <action selector="toggleImageViewMaximization:" destination="4" id="MJw-ZW-Tfx"/>
                                             <segue destination="Jth-PN-dE1" kind="popover" identifier="ImageFullscreen" popoverAnchorView="rUU-Fj-t5t" id="Wmu-mK-2m5">
