@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 
@@ -73,6 +75,7 @@ public class Metaproject implements Serializable, IIdAndCodeHolder
     }
 
     @Override
+    @JsonIgnore
     public String getCode()
     {
         return getName();
