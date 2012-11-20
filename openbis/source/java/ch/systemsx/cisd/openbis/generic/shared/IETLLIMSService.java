@@ -728,4 +728,10 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public List<? extends EntityTypePropertyType<?>> listPropertyDefinitionsForType(
             String sessionToken, String code,
             ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind entityKind);
+
+    /**
+     * List metaprojects for given user
+     */
+    @Transactional(readOnly = true)
+    public List<Metaproject> listMetaprojects(String sessionToken, String userId);
 }

@@ -100,6 +100,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
@@ -2551,4 +2552,20 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         this.conversationServer = conversationServer;
     }
 
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<Metaproject> listMetaprojects(String sessionToken, String userId)
+    {
+        IMetaprojectDAO metaprojectDAO = daoFactory.getMetaprojectDAO();
+        PersonPE owner = daoFactory.getPersonDAO().tryFindPersonByUserId(userId);
+
+        if (owner == null)
+        {
+            throw new IllegalArgumentException("User with id " + userId + " doesn't exist.");
+        }
+
+        List<MetaprojectPE> metaprojectPEs = metaprojectDAO.listMetaprojects(owner);
+
+        return MetaprojectTranslator.translate(metaprojectPEs);
+    }
 }

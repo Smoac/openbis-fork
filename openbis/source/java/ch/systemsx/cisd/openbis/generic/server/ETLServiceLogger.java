@@ -716,7 +716,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     {
         logAccess(Level.DEBUG, sessionToken, "listPropertyDefinitionsForType",
                 "CODE(%s) ENTITY_KIND(%s)", code, entityKind);
+        return null;
+    }
 
+    @Override
+    public List<Metaproject> listMetaprojects(String sessionToken, String userId)
+    {
+        logAccess(Level.DEBUG, sessionToken, "listMetaprojects", "USER_ID(%s)", userId);
         return null;
     }
 }
