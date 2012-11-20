@@ -18,10 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metapr
 
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -37,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metapro
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeEntityKindItemData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeItemData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeMetaprojectItemData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.BorderLayoutHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
@@ -48,7 +47,13 @@ public class MetaprojectBrowser extends ContentPanel implements IDisposableCompo
 
     public static final String ID = GenericConstants.ID_PREFIX + "metaproject-browser";
 
+    public static final String DISPLAY_ID_SUFFIX = "metaproject-browser";
+
+    private IViewContext<?> viewContext;
+
     private MetaprojectTree tree;
+
+    private MetaprojectBrowserTreePanel treePanel;
 
     private SelectionChangedListener<MetaprojectTreeItemData> treeListener;
 
@@ -62,6 +67,8 @@ public class MetaprojectBrowser extends ContentPanel implements IDisposableCompo
         setLayout(new BorderLayout());
         setHeaderVisible(false);
 
+        this.viewContext = viewContext;
+
         tree = new MetaprojectTree(viewContext, getId());
         treeListener = new SelectionChangedListener<MetaprojectTreeItemData>()
             {
@@ -72,28 +79,27 @@ public class MetaprojectBrowser extends ContentPanel implements IDisposableCompo
                 }
             };
         tree.getSelectionModel().addSelectionChangedListener(treeListener);
-
         entities = new MetaprojectEntities(viewContext, getId());
 
         composite.addSubcomponent(tree);
         composite.addSubcomponent(entities);
 
-        BorderLayoutData treeLayout = new BorderLayoutData(LayoutRegion.WEST, 300, 20, 2000);
-        treeLayout.setSplit(true);
-        treeLayout.setMargins(new Margins(2));
-        treeLayout.setCollapsible(true);
-        treeLayout.setFloatable(false);
+        BorderLayoutData treeLayout = getHelper().createLeftBorderLayoutData();
+        BorderLayoutData gridsLayout = BorderLayoutHelper.createRightBorderLayoutData();
 
-        BorderLayoutData gridsLayout = new BorderLayoutData(LayoutRegion.CENTER, 200, 20, 2000);
-        gridsLayout.setSplit(true);
-        gridsLayout.setMargins(new Margins(2));
-        gridsLayout.setCollapsible(true);
-        gridsLayout.setFloatable(false);
+        treePanel = new MetaprojectBrowserTreePanel(viewContext, tree);
 
-        add(new MetaprojectBrowserTreePanel(viewContext, tree), treeLayout);
+        add(treePanel, treeLayout);
         add(entities, gridsLayout);
 
         layout();
+    }
+
+    @Override
+    protected void onAttach()
+    {
+        super.onAttach();
+        getHelper().configureLeftPanel(treePanel);
     }
 
     private void showEntities(MetaprojectTreeItemData item)
@@ -134,6 +140,11 @@ public class MetaprojectBrowser extends ContentPanel implements IDisposableCompo
                     tree.getSelectionModel().addSelectionChangedListener(treeListener);
                 }
             });
+    }
+
+    private BorderLayoutHelper getHelper()
+    {
+        return new BorderLayoutHelper(viewContext, (BorderLayout) getLayout(), DISPLAY_ID_SUFFIX);
     }
 
     @Override

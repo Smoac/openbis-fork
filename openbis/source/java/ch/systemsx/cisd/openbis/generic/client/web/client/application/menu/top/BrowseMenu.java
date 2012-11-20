@@ -38,6 +38,8 @@ public class BrowseMenu extends TopMenuItem
         setId("browse_menu");
 
         Menu submenu = new Menu();
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.METAPROJECT_MENU_BROWSE, messageProvider,
+                componentProvider.getMetaprojectBrowser()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.PROJECT_MENU_BROWSE, messageProvider,
                 componentProvider.getProjectBrowser()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_BROWSE, messageProvider,
@@ -50,8 +52,6 @@ public class BrowseMenu extends TopMenuItem
                 componentProvider.getDataSetSearch()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_BROWSE, messageProvider,
                 componentProvider.getMaterialBrowser()));
-        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.METAPROJECT_MENU_BROWSE, messageProvider,
-                componentProvider.getMetaprojectBrowser()));
 
         setMenu(submenu);
     }

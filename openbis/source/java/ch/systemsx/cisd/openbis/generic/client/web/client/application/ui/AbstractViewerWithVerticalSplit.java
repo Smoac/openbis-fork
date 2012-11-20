@@ -16,16 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.event.BorderLayoutEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.LayoutEvent;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.BorderLayoutHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 
 /**
@@ -37,10 +33,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 public abstract class AbstractViewerWithVerticalSplit<D extends IEntityInformationHolder> extends
         AbstractViewer<D>
 {
-    private final static String LEFT_PANEL_PREFIX = "left_panel_";
-
-    private final static int INITIAL_LEFT_PANEL_SIZE = 350;
-
     protected AbstractViewerWithVerticalSplit(IViewContext<?> viewContext, String id)
     {
         super(viewContext, id);
@@ -54,7 +46,7 @@ public abstract class AbstractViewerWithVerticalSplit<D extends IEntityInformati
 
     protected final static BorderLayoutData createRightBorderLayoutData()
     {
-        return createBorderLayoutData(LayoutRegion.CENTER);
+        return BorderLayoutHelper.createRightBorderLayoutData();
     }
 
     /**
@@ -63,14 +55,7 @@ public abstract class AbstractViewerWithVerticalSplit<D extends IEntityInformati
      */
     protected final BorderLayoutData createLeftBorderLayoutData()
     {
-        final String panelId = getLeftPanelId();
-        float initialSize = getLeftPanelInitialSize();
-        viewContext.log(panelId + " initial size: " + initialSize);
-
-        BorderLayoutData layoutData =
-                BorderLayoutDataFactory.create(LayoutRegion.WEST, initialSize);
-        layoutData.setCollapsible(true);
-        return layoutData;
+        return getHelper().createLeftBorderLayoutData();
     }
 
     /**
@@ -80,82 +65,11 @@ public abstract class AbstractViewerWithVerticalSplit<D extends IEntityInformati
      */
     protected void configureLeftPanel(final Component panel)
     {
-        // displayIdSuffix must be initialized first
-        if (isLeftPanelInitiallyCollapsed())
-        {
-            viewContext.log(displayIdSuffix + " Initially Collapsed");
-            // Without making the panel visible the collapse method is removing the panel
-            // from DOM (nothing is shown, even the collapse/show button).
-            panel.setVisible(true);
-            ((BorderLayout) getLayout()).collapse(LayoutRegion.WEST);
-        }
-
-        // Add the listeners after configuring the panel, so as not to cause confusion
-        addLeftPanelCollapseExpandListeners(panel);
+        getHelper().configureLeftPanel(panel);
     }
 
-    private void addLeftPanelCollapseExpandListeners(final Component panel)
+    private BorderLayoutHelper getHelper()
     {
-        final String panelId = getLeftPanelId();
-        getLayout().addListener(Events.Collapse, new Listener<BorderLayoutEvent>()
-            {
-                @Override
-                public void handleEvent(BorderLayoutEvent be)
-                {
-                    viewContext.log(panelId + " Collapsed");
-                    viewContext.getDisplaySettingsManager().updatePanelCollapsedSetting(panelId,
-                            Boolean.TRUE);
-                }
-
-            });
-        getLayout().addListener(Events.Expand, new Listener<BorderLayoutEvent>()
-            {
-                @Override
-                public void handleEvent(BorderLayoutEvent be)
-                {
-                    viewContext.log(panelId + " Expand");
-                    viewContext.getDisplaySettingsManager().updatePanelCollapsedSetting(panelId,
-                            Boolean.FALSE);
-                }
-
-            });
-        getLayout().addListener(Events.AfterLayout, new Listener<LayoutEvent>()
-            {
-                @Override
-                public void handleEvent(LayoutEvent le)
-                {
-                    final Integer size = panel.getOffsetWidth();
-                    viewContext.log(panelId + " AfterLayout, size: " + size);
-                    // Left panel minimal size can't be less than 20 unless collapse button is used.
-                    // We want to save size only if user dragged the splitter so that after restore
-                    // from collapsed state the size before collapsing it will be used.
-                    if (size > 0)
-                    {
-                        viewContext.getDisplaySettingsManager().updatePanelSizeSetting(panelId,
-                                size);
-                    }
-                }
-            });
+        return new BorderLayoutHelper(viewContext, (BorderLayout) getLayout(), displayIdSuffix);
     }
-
-    private String getLeftPanelId()
-    {
-        return LEFT_PANEL_PREFIX + displayIdSuffix;
-    }
-
-    private boolean isLeftPanelInitiallyCollapsed()
-    {
-        Boolean collapsedOrNull =
-                viewContext.getDisplaySettingsManager().tryGetPanelCollapsedSetting(
-                        getLeftPanelId());
-        return collapsedOrNull == null ? false : collapsedOrNull.booleanValue();
-    }
-
-    private int getLeftPanelInitialSize()
-    {
-        Integer sizeOrNull =
-                viewContext.getDisplaySettingsManager().tryGetPanelSizeSetting(getLeftPanelId());
-        return sizeOrNull == null ? INITIAL_LEFT_PANEL_SIZE : sizeOrNull.intValue();
-    }
-
 }

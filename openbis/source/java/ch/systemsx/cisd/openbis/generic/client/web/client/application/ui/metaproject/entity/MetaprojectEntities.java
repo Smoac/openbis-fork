@@ -108,19 +108,25 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
                                         viewContext, new TechId(metaprojectId)));
                             }
 
-                            if (hasSection(currentEntityKind))
+                            if (sectionsMap.isEmpty())
                             {
-                                selectSection(currentEntityKind);
-                            } else if (sectionsMap.size() > 0)
+                                remove(loading);
+                                clearSections();
+                            } else
                             {
-                                currentEntityKind =
-                                        sectionsMap.entrySet().iterator().next().getKey();
-                                sectionsPanel.selectFirstSection();
+                                if (hasSection(currentEntityKind))
+                                {
+                                    selectSection(currentEntityKind);
+                                } else
+                                {
+                                    currentEntityKind =
+                                            sectionsMap.entrySet().iterator().next().getKey();
+                                    sectionsPanel.selectFirstSection();
+                                }
+                                remove(loading);
+                                add(sectionsPanel);
+                                layout();
                             }
-
-                            remove(loading);
-                            add(sectionsPanel);
-                            layout();
 
                             if (callback != null)
                             {
@@ -163,7 +169,7 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
     private void selectSection(EntityKind entityKind)
     {
         DisposableTabContent section = sectionsMap.get(entityKind);
-        if (section != null)
+        if (section != null && sectionsPanel != null)
         {
             sectionsPanel.selectSection(section);
         }

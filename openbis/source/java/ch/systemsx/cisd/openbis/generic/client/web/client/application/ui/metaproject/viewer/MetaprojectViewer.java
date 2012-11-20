@@ -53,6 +53,8 @@ public final class MetaprojectViewer extends
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
+    private static final String DISPLAY_ID_SUFFIX = "metaproject-viewer";
+
     private final Long metaprojectId;
 
     private Metaproject originalMetaproject;
@@ -68,6 +70,7 @@ public final class MetaprojectViewer extends
     {
         super(viewContext, createId(metaprojectId));
         this.metaprojectId = metaprojectId;
+        this.displayIdSuffix = DISPLAY_ID_SUFFIX;
         setLayout(new BorderLayout());
         extendToolBar();
         reloadAllData();
