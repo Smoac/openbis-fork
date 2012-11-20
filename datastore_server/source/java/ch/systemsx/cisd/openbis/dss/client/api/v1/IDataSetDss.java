@@ -86,7 +86,7 @@ public interface IDataSetDss
      * 
      * @return Returns null if the operation is not possible (e.g. when the data set is a
      *         container), the path of the data set in the data store otherwise.
-     * @since 1.7
+     * @since 1.1 (API call)
      */
     @Retry
     public String tryGetInternalPathInDataStore() throws InvalidSessionException;
