@@ -33,6 +33,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.tree.model.MetaprojectTreeMetaprojectItemData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
@@ -116,13 +117,11 @@ public class MetaprojectTreeMetaprojectItemWidget extends MetaprojectTreeItemWid
                     }
                 };
 
-            // TODO create href
-            String href = "";
-
             link =
                     LinkRenderer.getLinkAnchor(
                             getViewContext().getMessage(Dict.METAPROJECT_TREE_INFO_LINK),
-                            clickListener, href);
+                            clickListener,
+                            LinkExtractor.createMetaprojectLink(data.getMetaproject().getName()));
             link.addMouseDownHandler(mouseDownHandler);
             link.setVisible(isSelected());
         }
