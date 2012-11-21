@@ -17,14 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -48,8 +46,6 @@ abstract class AbstractDeletedEntityPE implements IDeletablePE, Serializable
     // needed
 
     private DeletionPE deletion;
-
-    private Date modificationDate;
 
     // additional info
 
@@ -104,18 +100,6 @@ abstract class AbstractDeletedEntityPE implements IDeletablePE, Serializable
         builder.append("code", getCode());
         builder.append("deletion", getDeletion());
         return builder.toString();
-    }
-
-    @Version
-    @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
-    public Date getModificationDate()
-    {
-        return modificationDate;
-    }
-
-    public void setModificationDate(Date versionDate)
-    {
-        this.modificationDate = versionDate;
     }
 
 }

@@ -242,7 +242,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         try
         {
             deletion = getDeletionDAO().getByTechId(deletionId);
-            getDeletionDAO().revert(deletion);
+            getDeletionDAO().revert(deletion, session.tryGetPerson());
         } catch (final DataAccessException ex)
         {
             throwException(ex, "Deletion");

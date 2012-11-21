@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.openbis.systemtest.optimistic_locking;
 
+import static ch.systemsx.cisd.openbis.systemtest.optimistic_locking.ToolBox.USER_ID;
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -31,14 +33,18 @@ import ch.systemsx.cisd.openbis.common.conversation.context.ServiceConversations
 import ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
  * @author Franz-Josef Elmer
@@ -164,4 +170,35 @@ public class MultiThreadExperimentOptimisticLockingTest extends
                 "test");
     }
 
+    @Test
+    public void testTrashAndRevertExperiment()
+    {
+        Experiment experiment = toolBox.createAndLoadExperiment(1);
+        String sessionToken = logIntoCommonClientService().getSessionID();
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        String reason = "test deletion";
+
+        commonServer.deleteExperiments(sessionToken, Arrays.asList(new TechId(experiment)), reason,
+                DeletionType.TRASH);
+
+        Project loadedProject =
+                commonServer.getProjectInfo(systemSessionToken,
+                        ExperimentIdentifierFactory.parse(experiment.getIdentifier()));
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedProject, "test");
+
+        // Revert deletion
+        sessionToken = commonServer.tryAuthenticate(USER_ID, "a").getSessionToken();
+        timeIntervalChecker = new TimeIntervalChecker();
+        Deletion deletion = toolBox.findDeletion(reason);
+
+        commonServer.revertDeletions(sessionToken, Arrays.asList(new TechId(deletion.getId())));
+
+        loadedProject =
+                commonServer.getProjectInfo(systemSessionToken,
+                        ExperimentIdentifierFactory.parse(experiment.getIdentifier()));
+        Experiment loadedExperiment = toolBox.loadExperiment(experiment);
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedProject, USER_ID);
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedExperiment,
+                USER_ID);
+    }
 }

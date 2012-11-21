@@ -23,6 +23,7 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IDeletablePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -44,8 +45,10 @@ public interface IDeletionDAO extends IGenericDAO<DeletionPE>
     int trash(EntityKind entityKind, List<TechId> entityIds, DeletionPE deletion)
             throws DataAccessException;
 
-    /** Reverts given deletion. The deletion record will be removed from DB. */
-    void revert(DeletionPE deletion);
+    /**
+     * Reverts given deletion for specified modifier. The deletion record will be removed from DB.
+     */
+    void revert(DeletionPE deletion, PersonPE modifier);
 
     /**
      * Returns list of ids of samples moved to trash in specified deletions.

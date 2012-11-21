@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -215,7 +216,8 @@ public class DeletionDAOTest extends AbstractDAOTest
         IDeletionDAO deletionDAO = daoFactory.getDeletionDAO();
 
         DeletionPE deletion = new DeletionPE();
-        deletion.setRegistrator(getTestPerson());
+        PersonPE testPerson = getTestPerson();
+        deletion.setRegistrator(testPerson);
         deletion.setReason("test metaproject assignments deletion reverting");
         deletionDAO.create(deletion);
 
@@ -224,7 +226,7 @@ public class DeletionDAOTest extends AbstractDAOTest
         deletionDAO.trash(EntityKind.SAMPLE, Collections.singletonList(new TechId(1055)), deletion);
         deletionDAO.trash(EntityKind.DATA_SET, Collections.singletonList(new TechId(22)), deletion);
 
-        deletionDAO.revert(deletion);
+        deletionDAO.revert(deletion, testPerson);
 
         MetaprojectPE metaproject = daoFactory.getMetaprojectDAO().getByTechId(new TechId(1));
         Set<MetaprojectAssignmentPE> assignments = metaproject.getAssignments();
@@ -245,7 +247,7 @@ public class DeletionDAOTest extends AbstractDAOTest
         int rowsInDeletions = countRowsInTable(TableNames.DELETIONS_TABLE);
         List<DeletionPE> allDeletions = deletionDAO.listAllEntities();
 
-        deletionDAO.revert(deletion);
+        deletionDAO.revert(deletion, getTestPerson());
 
         assertEquals(rowsInDeletions - 1, countRowsInTable(TableNames.DELETIONS_TABLE));
         assertEquals(allDeletions.size() - 1, deletionDAO.listAllEntities().size());

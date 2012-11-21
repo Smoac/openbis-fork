@@ -94,13 +94,12 @@ public final class TrashBOTest extends AbstractBOTest
     }
 
     @Test
-    @SuppressWarnings("deprecation")
     public final void testCreateDeletion()
     {
         final String reason = EXAMPLE_REASON;
         DeletionPE deletionPE = createDeletion(reason);
         assertEquals(reason, deletionPE.getReason());
-        assertEquals(ManagerTestTool.EXAMPLE_SESSION.getPerson(), deletionPE.getRegistrator());
+        assertEquals(ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(), deletionPE.getRegistrator());
 
         context.assertIsSatisfied();
     }
@@ -117,7 +116,8 @@ public final class TrashBOTest extends AbstractBOTest
                     one(deletionDAO).getByTechId(deletionId);
                     will(returnValue(dummyDeletion));
 
-                    one(deletionDAO).revert(dummyDeletion);
+                    one(deletionDAO).revert(dummyDeletion,
+                            ManagerTestTool.EXAMPLE_SESSION.tryGetPerson());
                 }
             });
         trashBO.revertDeletion(deletionId);

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.systemtest.optimistic_locking;
 
+import static ch.systemsx.cisd.openbis.systemtest.optimistic_locking.ToolBox.USER_ID;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
@@ -30,10 +31,16 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.common.conversation.context.ServiceConversationsThreadContext;
 import ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * @author Franz-Josef Elmer
@@ -109,4 +116,73 @@ public class MultiThreadDataSetOptimisticLockingTest extends MultiThreadOptimist
                 "test");
     }
 
+    @Test
+    public void testTrashAndRevertDataSet()
+    {
+        Experiment experiment = toolBox.createAndLoadExperiment(1);
+        ExternalData parentDataSet =
+                toolBox.createAndLoadDataSet(toolBox.dataSet("DS-PARENT", experiment));
+        Sample sample = toolBox.createAndLoadSample(1, experiment);
+        NewDataSet newDataSet = toolBox.dataSet("DS-1", experiment);
+        newDataSet.setSampleIdentifierOrNull(SampleIdentifierFactory.parse(sample));
+        newDataSet.setParentDataSetCodes(Arrays.asList(parentDataSet.getCode()));
+        ExternalData dataSet = toolBox.createAndLoadDataSet(newDataSet);
+        NewContainerDataSet newContainerDataSet = toolBox.containerDataSet("DS-CONT", experiment);
+        newContainerDataSet.setContainedDataSetCodes(Arrays.asList(dataSet.getCode()));
+        ExternalData containerDataSet = toolBox.createAndLoadDataSet(newContainerDataSet);
+        NewDataSet newChilddataSet = toolBox.dataSet("DS-CHILD", experiment);
+        newChilddataSet.setParentDataSetCodes(Arrays.asList(newDataSet.getCode()));
+        ExternalData childDataSet = toolBox.createAndLoadDataSet(newChilddataSet);
+        assertEquals(dataSet.getCode(), childDataSet.getParents().iterator().next().getCode());
+        assertEquals(parentDataSet.getCode(), dataSet.getParents().iterator().next().getCode());
+        assertEquals(experiment.getIdentifier(), dataSet.getExperiment().getIdentifier());
+        assertEquals(sample.getIdentifier(), dataSet.getSample().getIdentifier());
+        assertEquals(containerDataSet.getCode(), toolBox.loadDataSet(dataSet.getCode())
+                .tryGetContainer().getCode());
+        String sessionToken = logIntoCommonClientService().getSessionID();
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        String reason = "test data set deletion";
+
+        commonServer.deleteDataSets(sessionToken, Arrays.asList(dataSet.getCode()), reason,
+                DeletionType.TRASH, true);
+
+        Experiment loadedExperiment = toolBox.loadExperiment(experiment);
+        Sample loadedSample = toolBox.loadSample(sample);
+        ExternalData loadedContainerDataSet = toolBox.loadDataSet(containerDataSet.getCode());
+        ExternalData loadedParentDataSet = toolBox.loadDataSet(parentDataSet.getCode());
+        ExternalData loadedChildDataSet = toolBox.loadDataSet(childDataSet.getCode());
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedExperiment,
+                "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedSample, "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedContainerDataSet,
+                "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedParentDataSet,
+                "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedChildDataSet,
+                "test");
+
+        // Revert deletion
+        sessionToken = commonServer.tryAuthenticate(USER_ID, "a").getSessionToken();
+        timeIntervalChecker = new TimeIntervalChecker();
+        Deletion deletion = toolBox.findDeletion(reason);
+
+        commonServer.revertDeletions(sessionToken, Arrays.asList(new TechId(deletion.getId())));
+
+        loadedExperiment = toolBox.loadExperiment(experiment);
+        loadedSample = toolBox.loadSample(sample);
+        loadedContainerDataSet = toolBox.loadDataSet(containerDataSet.getCode());
+        ExternalData loadedDataSet = toolBox.loadDataSet(dataSet.getCode());
+        loadedParentDataSet = toolBox.loadDataSet(parentDataSet.getCode());
+        loadedChildDataSet = toolBox.loadDataSet(childDataSet.getCode());
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedExperiment,
+                USER_ID);
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedSample, USER_ID);
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedContainerDataSet,
+                USER_ID);
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedParentDataSet,
+                USER_ID);
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedChildDataSet,
+                USER_ID);
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet, USER_ID);
+    }
 }

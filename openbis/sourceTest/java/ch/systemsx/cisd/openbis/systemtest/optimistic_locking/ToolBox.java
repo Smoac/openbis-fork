@@ -483,4 +483,17 @@ public class ToolBox
         }
         return builder.toString();
     }
+
+    public Deletion findDeletion(String reason)
+    {
+        List<Deletion> deletions = commonServer.listDeletions(systemSessionToken, false);
+        for (Deletion deletion : deletions)
+        {
+            if (deletion.getReason().equals(reason))
+            {
+                return deletion;
+            }
+        }
+        throw new IllegalArgumentException("No deletion found. Reason: " + reason);
+    }
 }

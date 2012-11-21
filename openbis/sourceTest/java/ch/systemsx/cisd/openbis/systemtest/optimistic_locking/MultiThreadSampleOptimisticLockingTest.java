@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.systemtest.optimistic_locking;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -31,9 +32,12 @@ import ch.systemsx.cisd.openbis.common.conversation.context.ServiceConversations
 import ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
@@ -213,4 +217,68 @@ public class MultiThreadSampleOptimisticLockingTest extends MultiThreadOptimisti
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedSample, "test");
     }
 
+    @Test
+    public void testTrashAndRevertSample()
+    {
+        Experiment experiment = toolBox.createAndLoadExperiment(1);
+        Sample containerSample = toolBox.createAndLoadSample(1, null);
+        Sample parentSample = toolBox.createAndLoadSample(2, null);
+        NewSample newContainedSample = toolBox.sample(3, experiment);
+        newContainedSample.setContainerIdentifier(containerSample.getIdentifier());
+        newContainedSample.setParents(parentSample.getCode());
+        Sample containedSample = toolBox.createAndLoadSample(newContainedSample);
+        assertEquals(containerSample.getIdentifier(), containedSample.getContainer()
+                .getIdentifier());
+        assertChildren("[OLT-S1:OLT-S3]", parentSample);
+        Sample childSample =
+                toolBox.createAndLoadSample(toolBox.sampleWithParent(4, containedSample));
+        assertChildren("[OLT-S4]", containedSample);
+        String sessionToken = logIntoCommonClientService().getSessionID();
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
+        String reason = "test sample deletion";
+
+        commonServer.deleteSamples(sessionToken, Arrays.asList(new TechId(containedSample)),
+                reason, DeletionType.TRASH);
+
+        Experiment loadedExperiment = toolBox.loadExperiment(experiment);
+        Sample loadedContainerSample = toolBox.loadSample(containerSample);
+        Sample loadedParentSample = toolBox.loadSample(parentSample);
+        Sample loadedChildSample = toolBox.loadSample(childSample);
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedExperiment,
+                "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedContainerSample,
+                "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedParentSample,
+                "test");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedChildSample,
+                "test");
+
+        // Revert deletion
+        timeIntervalChecker = new TimeIntervalChecker();
+        Deletion deletion = toolBox.findDeletion(reason);
+
+        commonServer.revertDeletions(systemSessionToken,
+                Arrays.asList(new TechId(deletion.getId())));
+
+        loadedExperiment = toolBox.loadExperiment(experiment);
+        loadedContainerSample = toolBox.loadSample(containerSample);
+        loadedParentSample = toolBox.loadSample(parentSample);
+        loadedChildSample = toolBox.loadSample(childSample);
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedExperiment,
+                "system");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedContainerSample,
+                "system");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedParentSample,
+                "system");
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedChildSample,
+                "system");
+    }
+
+    private void assertChildren(String expectedChildren, Sample sample)
+    {
+        ListSampleCriteria criteria = ListSampleCriteria.createForParent(new TechId(sample));
+        assertEquals(expectedChildren,
+                toolBox.extractCodes(etlService.listSamples(systemSessionToken, criteria))
+                        .toString());
+    }
 }

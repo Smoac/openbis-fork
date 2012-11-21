@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IDeletablePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -104,7 +105,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
     }
 
     @Override
-    public void revert(DeletionPE deletion) throws DataAccessException
+    public void revert(DeletionPE deletion, PersonPE modifier) throws DataAccessException
     {
         operationLog.info(String.format("REVERT: deletion %s.", deletion));
         for (EntityKind entityKind : EntityKind.values())
@@ -112,7 +113,7 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
             // NOTE: material deletion are always permanent and therefore can't be reverted
             if (entityKind != EntityKind.MATERIAL)
             {
-                revertDeletionOfEntities(deletion, entityKind);
+                revertDeletionOfEntities(deletion, entityKind, modifier);
             }
         }
         super.delete(deletion);
@@ -140,10 +141,12 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
         operationLog.info(String.format("%s %s(s) reverted", updatedRows, entityKind.name()));
     }
 
-    private void revertDeletionOfEntities(final DeletionPE deletion, final EntityKind entityKind)
+    private void revertDeletionOfEntities(final DeletionPE deletion, final EntityKind entityKind,
+            final PersonPE modifier)
     {
         assert deletion != null : "Unspecified deletion";
         assert entityKind != null : "Unspecified entity kind";
+        assert modifier != null : "Unspecified modifier";
 
         List<TechId> ids =
                 findTrashedEntityIds(Collections.singletonList(TechId.create(deletion)), entityKind);
@@ -154,12 +157,14 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                 @Override
                 public Object doInStatelessSession(StatelessSession session)
                 {
+
                     String query =
                             String.format("UPDATE %s SET modification_timestamp = now(), "
-                                    + "del_id = NULL WHERE del_id = :deletionId",
-                                    entityKind.getAllTableName());
+                                    + "del_id = NULL, pers_id_modifier = :modifierId "
+                                    + "WHERE del_id = :deletionId", entityKind.getAllTableName());
                     final SQLQuery sqlQuery = session.createSQLQuery(query);
                     sqlQuery.setParameter("deletionId", HibernateUtils.getId(deletion));
+                    sqlQuery.setParameter("modifierId", HibernateUtils.getId(modifier));
                     return sqlQuery.executeUpdate();
                 }
 
