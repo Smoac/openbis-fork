@@ -434,18 +434,18 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
 
         assertRowsContent(
                 table,
-                "[Data Set, HCS_IMAGE, COMMENT Any other comments Comment True 1 False]",
-                "[Data Set, HCS_IMAGE, ANY_MATERIAL any_material any_material False 2 False]",
-                "[Data Set, HCS_IMAGE, BACTERIUM bacterium bacterium False 3 False]",
-                "[Data Set, HCS_IMAGE, GENDER The gender of the living organism Gender False 4 False]",
+                "[Data Set, HCS_IMAGE, COMMENT Any other comments Comment True 1 False False None True]",
+                "[Data Set, HCS_IMAGE, ANY_MATERIAL any_material any_material False 2 False False None True]",
+                "[Data Set, HCS_IMAGE, BACTERIUM bacterium bacterium False 3 False False None True]",
+                "[Data Set, HCS_IMAGE, GENDER The gender of the living organism Gender False 4 False False None True]",
                 "[Data Set, UNKNOWN, N/A]",
-                "[Sample, MASTER_PLATE, $PLATE_GEOMETRY Plate Geometry Plate Geometry True 1 True]",
-                "[Sample, MASTER_PLATE, DESCRIPTION A Description Description False 2 False]",
-                "[Sample, DILUTION_PLATE, OFFSET Offset from the start of the sequence Offset False 1 False]",
-                "[Experiment, COMPOUND_HCS, DESCRIPTION A Description Description True 1 True]",
-                "[Experiment, COMPOUND_HCS, COMMENT Any other comments Comment False 2 False]",
-                "[Material, BACTERIUM, DESCRIPTION A Description Description True 1 True]",
-                "[Material, BACTERIUM, ORGANISM The organism from which cells come Organism False 2 False]"
+                "[Sample, MASTER_PLATE, $PLATE_GEOMETRY Plate Geometry Plate Geometry True 1 False False None True]",
+                "[Sample, MASTER_PLATE, DESCRIPTION A Description Description False 2 False False None True]",
+                "[Sample, DILUTION_PLATE, OFFSET Offset from the start of the sequence Offset False 1 False False None True]",
+                "[Experiment, COMPOUND_HCS, DESCRIPTION A Description Description True 1 False False None True]",
+                "[Experiment, COMPOUND_HCS, COMMENT Any other comments Comment False 2 False False None True]",
+                "[Material, BACTERIUM, DESCRIPTION A Description Description True 1 False False None True]",
+                "[Material, BACTERIUM, ORGANISM The organism from which cells come Organism False 2 False False None True]"
 
         );
 

@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmu
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectAssignments;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMetaprojectImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IPropertyDefinitionImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IPropertyAssignmentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IVocabularyImmutable;
@@ -233,54 +233,54 @@ public class SearchService implements ISearchService
     }
 
     @Override
-    public List<IPropertyDefinitionImmutable> listPropertiesDefinitionsForDataSetType(String code)
+    public List<IPropertyAssignmentImmutable> listPropertiesDefinitionsForDataSetType(String code)
     {
         return listPropertyDefinitions(code,
                 ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.DATA_SET);
     }
 
     @Override
-    public List<IPropertyDefinitionImmutable> listPropertiesDefinitionsForExperimentType(String code)
+    public List<IPropertyAssignmentImmutable> listPropertiesDefinitionsForExperimentType(String code)
     {
         return listPropertyDefinitions(code,
                 ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.EXPERIMENT);
     }
 
     @Override
-    public List<IPropertyDefinitionImmutable> listPropertiesDefinitionsForMaterialType(String code)
+    public List<IPropertyAssignmentImmutable> listPropertiesDefinitionsForMaterialType(String code)
     {
         return listPropertyDefinitions(code,
                 ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL);
     }
 
     @Override
-    public List<IPropertyDefinitionImmutable> listPropertiesDefinitionsForSampleType(String code)
+    public List<IPropertyAssignmentImmutable> listPropertiesDefinitionsForSampleType(String code)
     {
         return listPropertyDefinitions(code,
                 ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.SAMPLE);
     }
 
-    private List<IPropertyDefinitionImmutable> listPropertyDefinitions(String code, EntityKind kind)
+    private List<IPropertyAssignmentImmutable> listPropertyDefinitions(String code, EntityKind kind)
     {
         List<? extends EntityTypePropertyType<?>> apiList =
                 openBisService.listPropertyDefinitionsForEntityType(code, kind);
 
         // long version of for (etpt) => new PropertyDefinitionImmutable(etpt)
-        Transformer<EntityTypePropertyType<?>, IPropertyDefinitionImmutable> transformer =
-                new Transformer<EntityTypePropertyType<?>, IPropertyDefinitionImmutable>()
+        Transformer<EntityTypePropertyType<?>, IPropertyAssignmentImmutable> transformer =
+                new Transformer<EntityTypePropertyType<?>, IPropertyAssignmentImmutable>()
                     {
                         @Override
-                        public IPropertyDefinitionImmutable transform(
+                        public IPropertyAssignmentImmutable transform(
                                 EntityTypePropertyType<?> input)
                         {
-                            return new PropertyDefinitionImmutable(input);
+                            return new PropertyAssignmentImmutable(input);
                         }
                     };
 
-        Collection<IPropertyDefinitionImmutable> transformed =
+        Collection<IPropertyAssignmentImmutable> transformed =
                 org.apache.commons.collections.CollectionUtils.collect(apiList, transformer);
 
-        return new LinkedList<IPropertyDefinitionImmutable>(transformed);
+        return new LinkedList<IPropertyAssignmentImmutable>(transformed);
     }
 
     @Override

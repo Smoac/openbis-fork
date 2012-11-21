@@ -3,13 +3,16 @@ ENTITY_TYPE = "Entity Type"
 PROPERTY_DEFINITION = "Property Definition"
 
 def describe_property(property):
-      return "%s %s %s %s %s %s" % ( 
-        property.getCode(), 
-        property.getDescription(), 
-        property.getLabel(), 
+      return "%s %s %s %s %s %s %s %s %s" % ( 
+        property.getPropertyTypeCode(), 
+        property.getPropertyTypeDescription(), 
+        property.getPropertyTypeLabel(), 
         property.isMandatory(), 
-        property.getOrdinal(), 
-        property.isManagedInternally())
+        property.getPositionInForms(), 
+        property.isDynamic(), 
+        property.isManaged(), 
+        property.getScriptName(), 
+        property.shownInEditViews())
 
 def aggregate(parameters, tableBuilder):
     tableBuilder.addHeader(ENTITY_KIND)
@@ -24,6 +27,7 @@ def aggregate(parameters, tableBuilder):
                 row.setCell(ENTITY_KIND, kind)
                 row.setCell(ENTITY_TYPE, type)
                 row.setCell(PROPERTY_DEFINITION, describe_property(property))
+                print describe_property(property)
         else:
             row = tableBuilder.addRow()
             row.setCell(ENTITY_KIND, kind)
