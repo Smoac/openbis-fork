@@ -442,8 +442,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
                     one(fileNode).getFileLength();
                     will(returnValue(2L));
 
-                    one(fileNode).getFile();
-                    will(returnValue(null));
+                    one(fileNode).getLastModified();
+                    will(returnValue(100L));
 
                     one(fileNode).getInputStream();
                     ByteArrayInputStream is = new ByteArrayInputStream(new byte[] {});
