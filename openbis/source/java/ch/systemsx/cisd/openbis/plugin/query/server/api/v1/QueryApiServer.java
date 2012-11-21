@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.server.api.v1;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,15 +36,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
@@ -53,10 +46,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.QueryTableModelTranslator;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
-import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
-import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumnDataType;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
@@ -247,38 +239,6 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
 
     private QueryTableModel translate(TableModel result)
     {
-        List<TableModelColumnHeader> headers = result.getHeader();
-        ArrayList<QueryTableColumn> translatedHeaders = new ArrayList<QueryTableColumn>();
-        for (TableModelColumnHeader header : headers)
-        {
-            String title = header.getTitle();
-            QueryTableColumnDataType dataType = Util.translate(header.getDataType());
-            translatedHeaders.add(new QueryTableColumn(title, dataType));
-        }
-        QueryTableModel tableModel = new QueryTableModel(translatedHeaders);
-        List<TableModelRow> rows = result.getRows();
-        for (TableModelRow row : rows)
-        {
-            List<ISerializableComparable> values = row.getValues();
-            Serializable[] translatedValues = new Serializable[values.size()];
-            for (int i = 0, n = values.size(); i < n; i++)
-            {
-                ISerializableComparable value = values.get(i);
-                Serializable translatedValue = null;
-                if (value instanceof IntegerTableCell)
-                {
-                    translatedValue = ((IntegerTableCell) value).getNumber();
-                } else if (value instanceof DoubleTableCell)
-                {
-                    translatedValue = ((DoubleTableCell) value).getNumber();
-                } else if (value instanceof StringTableCell)
-                {
-                    translatedValue = ((StringTableCell) value).toString();
-                }
-                translatedValues[i] = translatedValue;
-            }
-            tableModel.addRow(translatedValues);
-        }
-        return tableModel;
+        return new QueryTableModelTranslator(result).translate();
     }
 }

@@ -22,9 +22,9 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumnD
 /**
  * @author Franz-Josef Elmer
  */
-class Util
+public class Util
 {
-    static QueryTableColumnDataType translate(DataTypeCode dataTypeCodeOrNull)
+    public static QueryTableColumnDataType translate(DataTypeCode dataTypeCodeOrNull)
     {
         if (dataTypeCodeOrNull == null)
         {
