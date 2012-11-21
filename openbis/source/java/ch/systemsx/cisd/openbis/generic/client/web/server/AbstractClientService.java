@@ -762,10 +762,12 @@ public abstract class AbstractClientService implements IClientService,
 
     protected static UploadedFilesBean getUploadedFiles(String sessionKey, HttpSession session)
     {
-        assert session.getAttribute(sessionKey) != null
-                && session.getAttribute(sessionKey) instanceof UploadedFilesBean : String.format(
-                "No UploadedFilesBean object as session attribute '%s' found.", sessionKey);
+        if (session.getAttribute(sessionKey) == null
+                || session.getAttribute(sessionKey) instanceof UploadedFilesBean == false)
+        {
+            throw new IllegalStateException(String.format(
+                    "No UploadedFilesBean object as session attribute '%s' found.", sessionKey));
+        }
         return (UploadedFilesBean) session.getAttribute(sessionKey);
     }
-
 }
