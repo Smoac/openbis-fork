@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.query.shared.api.v1;
+package ch.systemsx.cisd.openbis.plugin.query.shared.translator;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
-import ch.systemsx.cisd.openbis.plugin.query.server.api.v1.Util;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumnDataType;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;

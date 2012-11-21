@@ -46,13 +46,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
-import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.QueryTableModelTranslator;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
+import ch.systemsx.cisd.openbis.plugin.query.shared.translator.QueryTableModelTranslator;
 
 /**
  * @author Franz-Josef Elmer
