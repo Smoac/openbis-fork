@@ -69,6 +69,8 @@
     NSString *urlString = [self valueFromTextField: self.urlTextField];
     NSURL *openbisUrl = (urlString) ? [NSURL URLWithString: urlString] : nil;
     
+    [self showStatus: @"Logging in..."];
+    
     CISDOBAppDelegate *appDelegate = self.appDelegate;
     [appDelegate verifyLoginURL: openbisUrl username: username password: password sender: self];
 }
@@ -77,6 +79,16 @@
 {
     NSString *errorText = [[error userInfo] valueForKey: NSLocalizedDescriptionKey];
     self.errorLabel.text = errorText;
+}
+
+- (void)showStatus:(NSString *)status
+{
+    self.errorLabel.text = status;
+}
+
+- (void)clearStatus
+{
+    self.errorLabel.text = @"";
 }
 
 
