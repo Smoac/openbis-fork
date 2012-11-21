@@ -45,16 +45,28 @@ import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.IStreamRepository;
 import ch.systemsx.cisd.openbis.dss.generic.server.SessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IDssServiceRpcGenericInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.HierarchicalFileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.QueryTableModelTranslator;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
@@ -406,20 +418,73 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     public QueryTableModel createReportFromAggregationService(String sessionToken,
             String aggregationServiceName, Map<String, Object> parameters)
     {
-        QueryTableModel result =
-                queryApiServer.createReportFromAggregationService(sessionToken, "STANDARD",
-                        aggregationServiceName, parameters);
-        return result;
+        IEncapsulatedOpenBISService openBisService = getOpenBISService();
+        IDataStoreServiceInternal service = ServiceProvider.getDataStoreService();
+        SessionContextDTO sessionContext = openBisService.tryGetSession(sessionToken);
+        TableModel tableModel =
+                service.createReportFromAggregationService(sessionToken, sessionToken,
+                        aggregationServiceName, parameters, sessionContext.getUserName(),
+                        sessionContext.getUserEmail());
+        return new QueryTableModelTranslator(tableModel).translate();
     }
 
     @Override
     public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
             String serviceKey, List<String> dataSetCodes)
     {
-        QueryTableModel result =
-                queryApiServer.createReportFromDataSets(sessionToken, dataStoreCode, serviceKey,
-                        dataSetCodes);
-        return result;
+        IEncapsulatedOpenBISService openBisService = getOpenBISService();
+        IDataStoreServiceInternal service = ServiceProvider.getDataStoreService();
+        SessionContextDTO sessionContext = openBisService.tryGetSession(sessionToken);
+        List<DatasetDescription> dataSetDescriptions = new ArrayList<DatasetDescription>();
+        for (String dataSetCode : dataSetCodes)
+        {
+            ExternalData dataSet = getOpenBISService().tryGetDataSet(dataSetCode);
+            dataSetDescriptions.add(translateToDescription(dataSet));
+        }
+        TableModel tableModel =
+                service.createReportFromDatasets(sessionToken, sessionToken, serviceKey,
+                        dataSetDescriptions, sessionContext.getUserName(),
+                        sessionContext.getUserEmail());
+        return new QueryTableModelTranslator(tableModel).translate();
+    }
+
+    private static DatasetDescription translateToDescription(ExternalData dataSet)
+    {
+        assert dataSet != null;
+
+        DatasetDescription description = new DatasetDescription();
+        description.setDataSetCode(dataSet.getCode());
+        if (dataSet.isPhysical())
+        {
+            DataSet externalData = dataSet.tryGetAsDataSet();
+            description.setDataSetLocation(externalData.getLocation());
+            description.setDataSetSize(externalData.getSize());
+            description.setSpeedHint(externalData.getSpeedHint());
+            description.setFileFormatType(externalData.getFileFormatType().getCode());
+        }
+        String sampleIdentifier = dataSet.getSampleIdentifier();
+        if (sampleIdentifier != null)
+        {
+            description.setSampleCode(dataSet.getSampleCode());
+            description.setSampleIdentifier(sampleIdentifier);
+            description.setSampleTypeCode(dataSet.getSampleType().getCode());
+        }
+        Experiment experiment = dataSet.getExperiment();
+        description.setExperimentIdentifier(experiment.getIdentifier());
+        description.setExperimentTypeCode(experiment.getExperimentType().getCode());
+        description.setExperimentCode(experiment.getCode());
+        Project project = experiment.getProject();
+        description.setProjectCode(project.getCode());
+        Space space = project.getSpace();
+        description.setSpaceCode(space.getCode());
+        description.setDatabaseInstanceCode(space.getInstance().getCode());
+        DataSetType dataSetType = dataSet.getDataSetType();
+        description.setMainDataSetPath(dataSetType.getMainDataSetPath());
+        description.setMainDataSetPattern(dataSetType.getMainDataSetPattern());
+        description.setDatasetTypeCode(dataSetType.getCode());
+        description.setDataStoreCode(dataSet.getDataStore().getCode());
+
+        return description;
     }
 
     @Override
