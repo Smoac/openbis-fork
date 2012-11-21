@@ -351,7 +351,9 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         @Override
         public boolean isChecksumCRC32Precalculated()
         {
-            return checksum != null || entry.hasChecksum();
+            // TODO 2012-07-19, Bernd Rinn: Use entry.hasChecksum() to reliably detect whether
+            // this entry has a CRC32 checksum once JHDF5 is updated.
+            return checksum != null || entry.getCrc32() != 0;
         }
 
         @Override
