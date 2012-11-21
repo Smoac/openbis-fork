@@ -23,7 +23,6 @@ import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
@@ -95,10 +94,11 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
 
         if (info == null)
         {
-            FileInfoDssDTO[] files =
-                    getRemoteDss().listFilesForDataSet(sessionHolder.getSessionToken(),
-                            location.getLocation().getDataSetCode(), relativePath, false);
-            info = convert(files[0]);
+            info = new DataSetPathInfo();
+            info.setDirectory(true);
+            info.setRelativePath(relativePath);
+            info.setParent(null);
+            info.setFileName("");
         }
 
         return createNode(info);
@@ -146,18 +146,6 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
     @Override
     public void close()
     {
-    }
-
-    private DataSetPathInfo convert(FileInfoDssDTO dto)
-    {
-        DataSetPathInfo info = new DataSetPathInfo();
-        info.setChecksumCRC32(dto.tryGetCrc32Checksum());
-        info.setDirectory(dto.isDirectory());
-        info.setFileName(dto.getPathInDataSet());
-        info.setLastModified(null);
-        info.setRelativePath(dto.getPathInDataSet());
-        info.setSizeInBytes(dto.getFileSize());
-        return info;
     }
 
     private IHierarchicalContentNode createNode(DataSetPathInfo info)
