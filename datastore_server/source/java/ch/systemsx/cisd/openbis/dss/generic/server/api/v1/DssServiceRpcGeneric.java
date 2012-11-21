@@ -56,15 +56,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.HierarchicalFileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.QueryTableModelTranslator;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
@@ -450,41 +446,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
 
     private static DatasetDescription translateToDescription(ExternalData dataSet)
     {
-        assert dataSet != null;
-
-        DatasetDescription description = new DatasetDescription();
-        description.setDataSetCode(dataSet.getCode());
-        if (dataSet.isPhysical())
-        {
-            DataSet externalData = dataSet.tryGetAsDataSet();
-            description.setDataSetLocation(externalData.getLocation());
-            description.setDataSetSize(externalData.getSize());
-            description.setSpeedHint(externalData.getSpeedHint());
-            description.setFileFormatType(externalData.getFileFormatType().getCode());
-        }
-        String sampleIdentifier = dataSet.getSampleIdentifier();
-        if (sampleIdentifier != null)
-        {
-            description.setSampleCode(dataSet.getSampleCode());
-            description.setSampleIdentifier(sampleIdentifier);
-            description.setSampleTypeCode(dataSet.getSampleType().getCode());
-        }
-        Experiment experiment = dataSet.getExperiment();
-        description.setExperimentIdentifier(experiment.getIdentifier());
-        description.setExperimentTypeCode(experiment.getExperimentType().getCode());
-        description.setExperimentCode(experiment.getCode());
-        Project project = experiment.getProject();
-        description.setProjectCode(project.getCode());
-        Space space = project.getSpace();
-        description.setSpaceCode(space.getCode());
-        description.setDatabaseInstanceCode(space.getInstance().getCode());
-        DataSetType dataSetType = dataSet.getDataSetType();
-        description.setMainDataSetPath(dataSetType.getMainDataSetPath());
-        description.setMainDataSetPattern(dataSetType.getMainDataSetPattern());
-        description.setDatasetTypeCode(dataSetType.getCode());
-        description.setDataStoreCode(dataSet.getDataStore().getCode());
-
-        return description;
+        return DataSetTranslator.translateToDescription(dataSet);
     }
 
     @Override
