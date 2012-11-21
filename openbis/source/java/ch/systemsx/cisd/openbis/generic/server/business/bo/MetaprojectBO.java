@@ -65,9 +65,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
 
     private MetaprojectPE metaproject;
 
-    private Map<Class<?>, List<Long>> addedEntitiesIds;
-
-    private Map<Class<?>, List<Long>> removedEntitiesIds;
+    private Map<Class<?>, List<Long>> changedEntitiesIds;
 
     private boolean dataChanged;
 
@@ -118,7 +116,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
                     "Metaproject with ID '%s' does not exist.", metaprojectId));
         }
 
-        initEntitiesMaps();
+        initChangedEntities();
         dataChanged = false;
     }
 
@@ -133,7 +131,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
                     "Metaproject with ID '%s' does not exist.", metaprojectId));
         }
 
-        initEntitiesMaps();
+        initChangedEntities();
         dataChanged = false;
     }
 
@@ -157,16 +155,10 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
                 IFullTextIndexUpdateScheduler indexUpdater =
                         getPersistencyResources().getIndexUpdateScheduler();
 
-                for (Map.Entry<Class<?>, List<Long>> addedEntry : addedEntitiesIds.entrySet())
+                for (Map.Entry<Class<?>, List<Long>> changedEntry : changedEntitiesIds.entrySet())
                 {
-                    indexUpdater.scheduleUpdate(IndexUpdateOperation.reindex(addedEntry.getKey(),
-                            addedEntry.getValue()));
-                }
-
-                for (Map.Entry<Class<?>, List<Long>> removedEntry : removedEntitiesIds.entrySet())
-                {
-                    indexUpdater.scheduleUpdate(IndexUpdateOperation.remove(removedEntry.getKey(),
-                            removedEntry.getValue()));
+                    indexUpdater.scheduleUpdate(IndexUpdateOperation.reindex(changedEntry.getKey(),
+                            changedEntry.getValue()));
                 }
 
             } catch (final DataAccessException ex)
@@ -193,7 +185,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
 
         this.metaproject = createMetaproject(metaprojectName, description, ownerId);
 
-        initEntitiesMaps();
+        initChangedEntities();
         dataChanged = true;
     }
 
@@ -304,7 +296,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
                 throw new IllegalArgumentException("Entity for id: " + entityId + " doesn't exist.");
             }
             entityPE.addMetaproject(metaproject);
-            addToAddedEntities(entityPE.getClass(), entityPE.getId());
+            addToChangedEntities(entityPE.getClass(), entityPE.getId());
         }
         dataChanged = true;
     }
@@ -317,7 +309,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
             if (entityPE != null)
             {
                 entityPE.removeMetaproject(metaproject);
-                addToRemovedEntities(entityPE.getClass(), entityPE.getId());
+                addToChangedEntities(entityPE.getClass(), entityPE.getId());
             }
         }
         dataChanged = true;
@@ -343,30 +335,18 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
         }
     }
 
-    private void initEntitiesMaps()
+    private void initChangedEntities()
     {
-        addedEntitiesIds = new HashMap<Class<?>, List<Long>>();
-        removedEntitiesIds = new HashMap<Class<?>, List<Long>>();
+        changedEntitiesIds = new HashMap<Class<?>, List<Long>>();
     }
 
-    private void addToAddedEntities(Class<?> entityClass, Long entityId)
+    private void addToChangedEntities(Class<?> entityClass, Long entityId)
     {
-        addToEntitiesMap(entityClass, entityId, addedEntitiesIds);
-    }
-
-    private void addToRemovedEntities(Class<?> entityClass, Long entityId)
-    {
-        addToEntitiesMap(entityClass, entityId, removedEntitiesIds);
-    }
-
-    private void addToEntitiesMap(Class<?> entityClass, Long entityId,
-            Map<Class<?>, List<Long>> entitiesMap)
-    {
-        List<Long> ids = entitiesMap.get(entityClass);
+        List<Long> ids = changedEntitiesIds.get(entityClass);
         if (ids == null)
         {
             ids = new ArrayList<Long>();
-            entitiesMap.put(entityClass, ids);
+            changedEntitiesIds.put(entityClass, ids);
         }
         ids.add(entityId);
     }
