@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.ftp;
 
-import java.io.File;
-
 import org.apache.ftpserver.ftplet.FtpFile;
 
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentNodeFilter;
@@ -66,11 +64,7 @@ public class FtpFileFactory
     {
         try
         {
-            File file = contentNode.getFile();
-            if (file != null)
-            {
-                return file.lastModified();
-            }
+            return contentNode.getLastModified();
         } catch (UnsupportedOperationException uoe)
         {
             // ignore

@@ -72,11 +72,11 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
 
         if (info == null)
         {
-            FileInfoDssDTO[] files =
-                    getRemoteDss().listFilesForDataSet(sessionHolder.getSessionToken(),
-                            location.getLocation().getDataSetCode(), "", false);
-
-            info = convert(files[0]);
+            info = new DataSetPathInfo();
+            info.setDirectory(true);
+            info.setRelativePath("");
+            info.setParent(null);
+            info.setFileName("");
         }
 
         return createNode(info);

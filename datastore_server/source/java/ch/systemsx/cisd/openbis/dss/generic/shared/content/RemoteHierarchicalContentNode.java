@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -132,7 +133,13 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
     @Override
     public long getLastModified()
     {
-        return path.getLastModified().getTime();
+        if (path.getLastModified() != null)
+        {
+            return path.getLastModified().getTime();
+        } else
+        {
+            return 0;
+        }
     }
 
     @Override
@@ -179,6 +186,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
                 info.setFileName(file.getPathInDataSet());
                 info.setRelativePath(file.getPathInDataSet());
                 info.setSizeInBytes(file.getFileSize());
+                info.setLastModified(new Date(0L));
                 children.add(new RemoteHierarchicalContentNode(dataSetCode, info, provider,
                         localDss,
                         remoteDss, sessionHolder, sessionWorkspaceRoot, path.getRelativePath()));
