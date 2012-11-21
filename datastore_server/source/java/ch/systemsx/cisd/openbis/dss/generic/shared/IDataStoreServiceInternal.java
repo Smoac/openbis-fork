@@ -16,8 +16,13 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
+import java.util.List;
+import java.util.Map;
+
 import ch.systemsx.cisd.common.resource.IInitializable;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * {@link IDataStoreService} for internal(invisible for openBIS) usage.
@@ -40,4 +45,19 @@ public interface IDataStoreServiceInternal extends IInitializable, IDataStoreSer
      * Returns the data set directory provider.
      */
     IDataSetDirectoryProvider getDataSetDirectoryProvider();
+
+    /**
+     * An internal version of
+     * {@link IDataStoreService#createReportFromDatasets(String, String, String, List, String, String)}
+     * .
+     */
+    public TableModel internalCreateReportFromDatasets(String userSessionToken, String serviceKey,
+            List<DatasetDescription> datasets, String userId, String userEmailOrNull);
+
+    /**
+     * An internal version of
+     * {@link IDataStoreService#createReportFromAggregationService(String, String, String, Map, String, String)}
+     */
+    public TableModel internalCreateReportFromAggregationService(String userSessionToken,
+            String serviceKey, Map<String, Object> parameters, String userId, String userEmailOrNull);
 }

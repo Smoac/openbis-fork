@@ -59,13 +59,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
-import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.QueryTableModelTranslator;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
+import ch.systemsx.cisd.openbis.plugin.query.shared.translator.QueryTableModelTranslator;
 
 /**
  * Implementation of the generic RPC interface.
@@ -418,7 +419,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         IDataStoreServiceInternal service = ServiceProvider.getDataStoreService();
         SessionContextDTO sessionContext = openBisService.tryGetSession(sessionToken);
         TableModel tableModel =
-                service.createReportFromAggregationService(sessionToken, sessionToken,
+                service.internalCreateReportFromAggregationService(sessionToken,
                         aggregationServiceName, parameters, sessionContext.getUserName(),
                         sessionContext.getUserEmail());
         return new QueryTableModelTranslator(tableModel).translate();
@@ -438,7 +439,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
             dataSetDescriptions.add(translateToDescription(dataSet));
         }
         TableModel tableModel =
-                service.createReportFromDatasets(sessionToken, sessionToken, serviceKey,
+                service.internalCreateReportFromDatasets(sessionToken, serviceKey,
                         dataSetDescriptions, sessionContext.getUserName(),
                         sessionContext.getUserEmail());
         return new QueryTableModelTranslator(tableModel).translate();

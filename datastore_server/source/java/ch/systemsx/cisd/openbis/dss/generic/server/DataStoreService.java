@@ -325,35 +325,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
-        PluginTaskProvider<IReportingPluginTask> reportingPlugins =
-                pluginTaskInfoProvider.getReportingPluginsProvider();
-        IReportingPluginTask task = reportingPlugins.getPluginInstance(serviceKey);
-        IShareIdManager manager = getShareIdManager();
-        try
-        {
-            String dssCode = config.getDataStoreCode();
-
-            for (DatasetDescription dataSet : datasets)
-            {
-                if (dssCode.equals(dataSet.getDataStoreCode()))
-                {
-                    manager.lock(dataSet.getDataSetCode());
-                }
-            }
-            IMailClient mailClient = createEMailClient();
-            return task.createReport(
-                    datasets,
-                    new DataSetProcessingContext(getHierarchicalContentProvider(),
-                            new DataSetDirectoryProvider(storeRoot, manager),
-                            new SessionWorkspaceProvider(pluginTaskInfoProvider
-                                    .getSessionWorkspaceRootDir(), userSessionToken),
-                            new HashMap<String, String>(), mailClient, userId, userEmailOrNull,
-                            userSessionToken));
-
-        } finally
-        {
-            manager.releaseLocks();
-        }
+        return internalCreateReportFromDatasets(userSessionToken, serviceKey, datasets, userId,
+                userEmailOrNull);
     }
 
     @Override
@@ -374,8 +347,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     @Override
     public void unarchiveDatasets(String sessionToken, String userSessionToken,
-            List<DatasetDescription> datasets,
-            String userId, String userEmailOrNull)
+            List<DatasetDescription> datasets, String userId, String userEmailOrNull)
     {
         String description = "Unarchiving";
         IProcessingPluginTask task = new UnarchiveProcessingPluginTask(getArchiverPlugin());
@@ -386,8 +358,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     @Override
     public void archiveDatasets(String sessionToken, String userSessionToken,
-            List<DatasetDescription> datasets,
-            String userId, String userEmailOrNull, boolean removeFromDataStore)
+            List<DatasetDescription> datasets, String userId, String userEmailOrNull,
+            boolean removeFromDataStore)
     {
         String description = removeFromDataStore ? "Archiving" : "Copying data sets to archive";
         IProcessingPluginTask task =
@@ -416,26 +388,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             String userId, String userEmailOrNull)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
-        PluginTaskProvider<IReportingPluginTask> reportingPlugins =
-                pluginTaskInfoProvider.getReportingPluginsProvider();
-        IReportingPluginTask task = reportingPlugins.getPluginInstance(serviceKey);
-        IShareIdManager manager = getShareIdManager();
-        try
-        {
-            IMailClient mailClient = createEMailClient();
-            return task.createAggregationReport(
-                    parameters,
-                    new DataSetProcessingContext(getHierarchicalContentProvider(),
-                            new DataSetDirectoryProvider(storeRoot, manager),
-                            new SessionWorkspaceProvider(pluginTaskInfoProvider
-                                    .getSessionWorkspaceRootDir(), userSessionToken),
-                            new HashMap<String, String>(), mailClient, userId, userEmailOrNull,
-                            userSessionToken));
-
-        } finally
-        {
-            manager.releaseLocks();
-        }
+        return internalCreateReportFromAggregationService(userSessionToken, serviceKey, parameters,
+                userId, userEmailOrNull);
     }
 
     private IMailClient createEMailClient()
@@ -577,5 +531,66 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     public void setConfig(ConfigProvider config)
     {
         this.config = config;
+    }
+
+    @Override
+    public TableModel internalCreateReportFromDatasets(String userSessionToken, String serviceKey,
+            List<DatasetDescription> datasets, String userId, String userEmailOrNull)
+    {
+        PluginTaskProvider<IReportingPluginTask> reportingPlugins =
+                pluginTaskInfoProvider.getReportingPluginsProvider();
+        IReportingPluginTask task = reportingPlugins.getPluginInstance(serviceKey);
+        IShareIdManager manager = getShareIdManager();
+        try
+        {
+            String dssCode = config.getDataStoreCode();
+
+            for (DatasetDescription dataSet : datasets)
+            {
+                if (dssCode.equals(dataSet.getDataStoreCode()))
+                {
+                    manager.lock(dataSet.getDataSetCode());
+                }
+            }
+            IMailClient mailClient = createEMailClient();
+            return task.createReport(
+                    datasets,
+                    new DataSetProcessingContext(getHierarchicalContentProvider(),
+                            new DataSetDirectoryProvider(storeRoot, manager),
+                            new SessionWorkspaceProvider(pluginTaskInfoProvider
+                                    .getSessionWorkspaceRootDir(), userSessionToken),
+                            new HashMap<String, String>(), mailClient, userId, userEmailOrNull,
+                            userSessionToken));
+
+        } finally
+        {
+            manager.releaseLocks();
+        }
+    }
+
+    @Override
+    public TableModel internalCreateReportFromAggregationService(String userSessionToken,
+            String serviceKey, Map<String, Object> parameters, String userId, String userEmailOrNull)
+    {
+        PluginTaskProvider<IReportingPluginTask> reportingPlugins =
+                pluginTaskInfoProvider.getReportingPluginsProvider();
+        IReportingPluginTask task = reportingPlugins.getPluginInstance(serviceKey);
+        IShareIdManager manager = getShareIdManager();
+        try
+        {
+            IMailClient mailClient = createEMailClient();
+            return task.createAggregationReport(
+                    parameters,
+                    new DataSetProcessingContext(getHierarchicalContentProvider(),
+                            new DataSetDirectoryProvider(storeRoot, manager),
+                            new SessionWorkspaceProvider(pluginTaskInfoProvider
+                                    .getSessionWorkspaceRootDir(), userSessionToken),
+                            new HashMap<String, String>(), mailClient, userId, userEmailOrNull,
+                            userSessionToken));
+
+        } finally
+        {
+            manager.releaseLocks();
+        }
     }
 }

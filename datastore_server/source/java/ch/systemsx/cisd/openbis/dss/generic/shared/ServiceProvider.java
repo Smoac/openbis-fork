@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
 /**
  * Provider of remote service onto openBIS.
@@ -171,6 +172,11 @@ public class ServiceProvider
     public static IConfigProvider getConfigProvider()
     {
         return ((IConfigProvider) getApplicationContext().getBean("config-provider"));
+    }
+
+    public static OpenBISSessionHolder getSessionHolder()
+    {
+        return (OpenBISSessionHolder) getApplicationContext().getBean("sessionHolder");
     }
 
     public static IDataStoreServiceInternal getDataStoreService()
