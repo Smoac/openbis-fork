@@ -72,8 +72,8 @@ public class QueryApiJsonDssServiceRpcGenericTest extends AbstractQueryFacadeTes
     public QueryTableModel createReportFromDataSets(ReportDescription description,
             List<String> dataSetCodes)
     {
-        return dssRpcService.createReportFromDataSets(sessionToken, description.getDataStoreCode(),
-                description.getKey(), dataSetCodes);
+        return dssRpcService.createReportFromDataSets(sessionToken, description.getKey(),
+                dataSetCodes);
     }
 
     @Override

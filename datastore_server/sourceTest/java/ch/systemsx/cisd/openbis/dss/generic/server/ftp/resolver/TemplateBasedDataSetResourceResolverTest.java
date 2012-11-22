@@ -452,6 +452,9 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
                     allowing(content).getNode(subPath);
                     will(returnValue(fileNode));
 
+                    oneOf(fileNode).getLastModified();
+                    will(returnValue(0));
+
                     atLeast(1).of(content).close();
                 }
             });
@@ -515,7 +518,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
                     one(generalInfoService).getDataSetMetaData(
                             SESSION_TOKEN,
                             codes,
-                            EnumSet.of(DataSetFetchOption.BASIC, DataSetFetchOption.PARENTS, DataSetFetchOption.CHILDREN));
+                            EnumSet.of(DataSetFetchOption.BASIC, DataSetFetchOption.PARENTS,
+                                    DataSetFetchOption.CHILDREN));
                     will(returnValue(translateDataSets));
                 }
             });

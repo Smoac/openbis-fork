@@ -59,7 +59,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
@@ -426,8 +425,8 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     }
 
     @Override
-    public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
-            String serviceKey, List<String> dataSetCodes)
+    public QueryTableModel createReportFromDataSets(String sessionToken, String serviceKey,
+            List<String> dataSetCodes)
     {
         IEncapsulatedOpenBISService openBisService = getOpenBISService();
         IDataStoreServiceInternal service = ServiceProvider.getDataStoreService();

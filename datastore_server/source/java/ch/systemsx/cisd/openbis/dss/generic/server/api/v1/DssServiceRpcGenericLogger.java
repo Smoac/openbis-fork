@@ -186,8 +186,8 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
     }
 
     @Override
-    public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
-            String serviceKey, List<String> dataSetCodes)
+    public QueryTableModel createReportFromDataSets(String sessionToken, String serviceKey,
+            List<String> dataSetCodes)
     {
         logAccess(sessionToken, "create_report_from_data_sets", "SERVICE_KEY(%s)", serviceKey);
         return null;

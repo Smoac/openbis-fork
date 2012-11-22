@@ -127,9 +127,9 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                 // AbstractAutoProxyCreator
                 //
                 @Override
-                protected final Object[] getAdvicesAndAdvisorsForBean(@SuppressWarnings("rawtypes")
-                final Class beanClass, final String beanName, final TargetSource customTargetSource)
-                        throws BeansException
+                protected final Object[] getAdvicesAndAdvisorsForBean(
+                        @SuppressWarnings("rawtypes") final Class beanClass, final String beanName,
+                        final TargetSource customTargetSource) throws BeansException
                 {
                     return new Object[]
                         { advisor };
@@ -696,8 +696,8 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         }
 
         @Override
-        public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
-                String serviceKey, List<String> dataSetCodes)
+        public QueryTableModel createReportFromDataSets(String sessionToken, String serviceKey,
+                List<String> dataSetCodes)
         {
             return null;
         }

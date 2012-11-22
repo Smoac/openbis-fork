@@ -50,9 +50,10 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
     @DataSetAccessGuard
-    public FileInfoDssDTO[] listFilesForDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class)
-            DataSetFileDTO fileOrFolder) throws IOExceptionUnchecked, IllegalArgumentException;
+    public FileInfoDssDTO[] listFilesForDataSet(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class) DataSetFileDTO fileOrFolder)
+            throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
@@ -65,9 +66,10 @@ public interface IDssServiceRpcGeneric extends IRpcService
      */
     @DataSetAccessGuard
     @Deprecated
-    public InputStream getFileForDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class)
-            DataSetFileDTO fileOrFolder) throws IOExceptionUnchecked, IllegalArgumentException;
+    public InputStream getFileForDataSet(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class) DataSetFileDTO fileOrFolder)
+            throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
      * Returns an URL from which the requested file. The URL is valid only for a short time.
@@ -79,9 +81,10 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @since 1.4
      */
     @DataSetAccessGuard
-    public String getDownloadUrlForFileForDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class)
-            DataSetFileDTO fileOrFolder) throws IOExceptionUnchecked, IllegalArgumentException;
+    public String getDownloadUrlForFileForDataSet(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class) DataSetFileDTO fileOrFolder)
+            throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
@@ -95,9 +98,8 @@ public interface IDssServiceRpcGeneric extends IRpcService
      */
     @DataSetAccessGuard
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class)
-            String dataSetCode, String path, boolean isRecursive) throws IOExceptionUnchecked,
-            IllegalArgumentException;
+            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
+            String path, boolean isRecursive) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
      * Get an array of FileInfoDss objects that describe the file-system structure of the data set.
@@ -112,8 +114,8 @@ public interface IDssServiceRpcGeneric extends IRpcService
     @DataSetAccessGuard
     @Deprecated
     public InputStream getFileForDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class)
-            String dataSetCode, String path) throws IOExceptionUnchecked, IllegalArgumentException;
+            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
+            String path) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
      * Returns an URL from which the requested file of the specified data set can be downloaded. The
@@ -128,8 +130,8 @@ public interface IDssServiceRpcGeneric extends IRpcService
      */
     @DataSetAccessGuard
     public String getDownloadUrlForFileForDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class)
-            String dataSetCode, String path) throws IOExceptionUnchecked, IllegalArgumentException;
+            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
+            String path) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
      * Upload a new data set to the DSS.
@@ -143,9 +145,8 @@ public interface IDssServiceRpcGeneric extends IRpcService
      */
     @DataSetAccessGuard
     public String putDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = NewDataSetPredicate.class)
-            NewDataSetDTO newDataset, InputStream inputStream) throws IOExceptionUnchecked,
-            IllegalArgumentException;
+            @AuthorizationGuard(guardClass = NewDataSetPredicate.class) NewDataSetDTO newDataset,
+            InputStream inputStream) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
      * Upload a new file to the user's session workspace.
@@ -210,8 +211,8 @@ public interface IDssServiceRpcGeneric extends IRpcService
      */
     @DataSetAccessGuard(releaseDataSetLocks = false)
     public String getPathToDataSet(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class)
-            String dataSetCode, String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
+            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
+            String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
             IllegalArgumentException;
 
     /**
@@ -260,7 +261,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * 
      * @since 1.6
      */
-    public QueryTableModel createReportFromDataSets(String sessionToken, String dataStoreCode,
-            String serviceKey, List<String> dataSetCodes);
+    public QueryTableModel createReportFromDataSets(String sessionToken, String serviceKey,
+            List<String> dataSetCodes);
 
 }
