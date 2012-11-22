@@ -397,6 +397,7 @@
       	<include name="ch/systemsx/cisd/common/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/common/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/generic/shared/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/plugin/query/shared/**/*.class" />
         <include name="ch/systemsx/cisd/openbis/dss/client/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/utils/**/*.class" />
@@ -473,6 +474,7 @@
       	<include name="ch/systemsx/cisd/common/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/common/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/generic/shared/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/plugin/query/shared/**/*.class" />
         <include name="ch/systemsx/cisd/openbis/dss/client/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/utils/**/*.class" />
