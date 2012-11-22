@@ -67,6 +67,8 @@ public class OptimisticLockingRetryAdvisor extends DefaultPointcutAdvisor
 
     private static class RetryInterceptor implements MethodInterceptor
     {
+        private static final int MAX_WAITING_TIME_FOR_RETRY = 5000;
+
         private static final int NUMBER_OF_TRIES = 5;
 
         @Override
@@ -87,9 +89,20 @@ public class OptimisticLockingRetryAdvisor extends DefaultPointcutAdvisor
                     {
                         throw ex;
                     }
-                    operationLog.warn((i < NUMBER_OF_TRIES - 1 ? "" : "Giving up after the ")
-                            + (i + 1) + ". failed invocation of " + invocation.getMethod()
-                            + ". Reason: " + ex);
+                    boolean giveUp = i < NUMBER_OF_TRIES - 1;
+                    operationLog.warn((giveUp ? "" : "Giving up after the ") + (i + 1)
+                            + ". failed invocation of " + invocation.getMethod() + ". Reason: "
+                            + ex);
+                    if (giveUp == false)
+                    {
+                        try
+                        {
+                            Thread.sleep((int) (Math.random() * MAX_WAITING_TIME_FOR_RETRY));
+                        } catch (InterruptedException e)
+                        {
+                            // Ignored
+                        }
+                    }
                 }
             }
             throw latestException;
