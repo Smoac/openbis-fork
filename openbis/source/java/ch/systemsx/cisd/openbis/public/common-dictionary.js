@@ -62,7 +62,7 @@ var common = {
   storage_confirmation: "Storage Confirmed",
   metaproject: "Metaproject",
   metaprojects: "Metaprojects",
-  metaprojects_hint: "List of metaprojects names separated by commas (\",\") or one metaproject name per line.",
+  metaprojects_hint: "List of metaprojects names separated by commas (\",\") or one metaproject name per line. If a metaproject does not exist, it will be created.",
   add_metaproject: "Add Metaproject...",
   choose_metaproject: "Choose a Metaproject",
   create_not_existing_metaprojects_confirmation_title: "Confirm metaprojects creation",
