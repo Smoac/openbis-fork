@@ -415,7 +415,8 @@
       	<include name="ch/systemsx/cisd/openbis/generic/shared/basic/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/generic/shared/api/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/generic/shared/authorization/annotation/**/*.class" />
-      	<include name="ch/systemsx/cisd/openbis/plugin/screening/shared/api/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/plugin/query/shared/**/*.class" />
+	<include name="ch/systemsx/cisd/openbis/plugin/screening/shared/api/**/*.class" />
        	<include name="ch/systemsx/cisd/openbis/plugin/screening/client/api/**/*.class" />
        	<include name="ch/systemsx/cisd/openbis/plugin/screening/client/cli/**/*.class" />
       </fileset>
@@ -434,7 +435,8 @@
   		</fileset> 
   		<fileset dir="../datastore_server/targets/classes">
       	<include name="ch/systemsx/cisd/openbis/dss/client/api/v1/**/*.class" />
-      	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/plugin/query/shared/**/*.class" />
+	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/authorization/**/*.class" />
   		</fileset> 
   		<fileset dir="../openbis-common/targets/classes">
@@ -490,9 +492,11 @@
       	<include name="ch/systemsx/cisd/openbis/generic/shared/basic/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/generic/shared/api/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/generic/shared/authorization/annotation/**/*.class" />
+	<include name="ch/systemsx/cisd/openbis/plugin/query/shared/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/plugin/screening/shared/api/**/*.class" />
        	<include name="ch/systemsx/cisd/openbis/plugin/screening/client/api/**/*.class" />
        	<include name="ch/systemsx/cisd/openbis/plugin/screening/client/cli/**/*.class" />
+
        	<include name="${build.info.filename}" />
       </fileset>
     	<manifest>
