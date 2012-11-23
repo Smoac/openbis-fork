@@ -25,7 +25,6 @@ import java.util.Properties;
 
 import net.lemnik.eodsql.DataIterator;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.dss.yeastx.server.EICMLChromatogramGeneratorServlet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GeneratedImageTableCell;
@@ -172,59 +171,12 @@ public class EICMLChromatogramImagesReporter extends AbstractEICMLDatastoreRepor
 
         String chromatogramLabel = chromatogram.getLabel();
         row.add(SimpleTableModelBuilder.asText(chromatogramLabel));
-        int mz1 = getMz1(chromatogramLabel);
+        int mz1 = Math.round(chromatogram.getQ1Mz());
         row.add(SimpleTableModelBuilder.asInteger(mz1));
-        int mz2 = getMz2(chromatogramLabel);
+        int mz2 = Math.round(chromatogram.getQ3LowMz());
         row.add(SimpleTableModelBuilder.asInteger(mz2));
         row.add(imageCell);
         return row;
-    }
-
-    // All eic_chromatograms.label values have a format [-]EIC mz1[>mz2].
-    @Private
-    static int getMz1(String chromatogramLabel)
-    {
-        String textBefore = "EIC ";
-        int ixEic = chromatogramLabel.indexOf(textBefore);
-        if (ixEic == -1)
-        {
-            return -1;
-        }
-        int ixGt = chromatogramLabel.indexOf(">");
-        if (ixGt == -1)
-        {
-            ixGt = chromatogramLabel.length();
-        }
-        if (ixGt < ixEic)
-        {
-            return -1;
-        }
-        String text = chromatogramLabel.substring(ixEic + textBefore.length(), ixGt);
-        return parseNumber(text, -1);
-    }
-
-    // All eic_chromatograms.label values have a format [-]EIC mz1[>mz2].
-    @Private
-    static int getMz2(String chromatogramLabel)
-    {
-        int ixGt = chromatogramLabel.indexOf(">");
-        if (ixGt == -1)
-        {
-            return -1;
-        }
-        String text = chromatogramLabel.substring(ixGt + 1);
-        return parseNumber(text, -1);
-    }
-
-    private static int parseNumber(String text, int defaultValue)
-    {
-        try
-        {
-            return Integer.parseInt(text);
-        } catch (NumberFormatException ex)
-        {
-            return defaultValue;
-        }
     }
 
     private static void addReportHeaders(SimpleTableModelBuilder builder)
