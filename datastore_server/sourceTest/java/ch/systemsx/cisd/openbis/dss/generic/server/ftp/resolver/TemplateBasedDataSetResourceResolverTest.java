@@ -442,9 +442,6 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
                     one(fileNode).getFileLength();
                     will(returnValue(2L));
 
-                    one(fileNode).getLastModified();
-                    will(returnValue(100L));
-
                     one(fileNode).getInputStream();
                     ByteArrayInputStream is = new ByteArrayInputStream(new byte[] {});
                     will(returnValue(is));
@@ -453,7 +450,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
                     will(returnValue(fileNode));
 
                     oneOf(fileNode).getLastModified();
-                    will(returnValue(0));
+                    will(returnValue(0L));
 
                     atLeast(1).of(content).close();
                 }
