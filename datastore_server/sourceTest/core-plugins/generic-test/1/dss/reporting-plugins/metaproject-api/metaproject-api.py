@@ -13,7 +13,7 @@ def process(transaction, parameters, tableBuilder):
   project_id = "/%s/META" % space_id
   experiment_id = "%s/META" % project_id
 
-  create_project_and_experiment(transaction, space_id, project_id, experiment_id)
+  experiment = create_project_and_experiment(transaction, space_id, project_id, experiment_id)
 
   existing_metaproject = transaction.getMetaproject("TEST_METAPROJECTS", "test")
   copy_metaproject = transaction.createNewMetaproject("%s_COPY_TEST_METAPROJCTS" % space_id, existing_metaproject.getDescription(), "test")
@@ -22,6 +22,7 @@ def process(transaction, parameters, tableBuilder):
   
   sample = transaction.createNewSample("/%s/SAMPLE" % (space_id), "NORMAL")
   new_metaproject.addEntity(sample)
+  new_metaproject.addEntity(experiment)
 
 
   tableBuilder.addHeader("VALUE")  
