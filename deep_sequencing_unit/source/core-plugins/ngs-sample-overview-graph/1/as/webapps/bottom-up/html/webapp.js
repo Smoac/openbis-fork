@@ -1,3 +1,15 @@
+//
+// BEGIN CONFIGURATION PARAMTERS
+// 
+// The following parameters must be configured for the webapp
+
+// The name of the dss
+var DSS_NAME = "DSS1";
+
+var FLOWCELL_SAMPLE_TYPE = "FLOWCELL";
+
+// END CONFIGURATION PARAMTERS
+
 /// The openbisServer we use for our data
 var webappContext = new openbisWebAppContext();
 
@@ -26,8 +38,56 @@ function SampleGraphModel() {
 
 SampleGraphModel.prototype.initializeModel = function() {
 	this.sampleIdentifier = webappContext.getEntityIdentifier();
+	var identifierTokens = this.sampleIdentifier.split("/");
+	this.sampleSpace = identifierTokens[1];	
+	this.sampleCode = identifierTokens[2];
 	this.samplePermId = webappContext.getEntityPermId();
 }
+
+/**
+ * Request the data necessary to display the graph. This variant uses an aggregation service
+ */
+SampleGraphModel.prototype.requestGraphDataFromAggregationService = function(callback)
+{
+	var parameters = {'FLOWCELL_PERM_ID' : this.samplePermId};
+
+	openbisServer.createReportFromAggregationService(DSS_NAME, "sample-bottom-up-data", parameters, callback);
+}
+
+/**
+ * Request the data necessary to display the graph.
+ */
+SampleGraphModel.prototype.requestGraphData = function(callback)
+{
+	var containerCriteria = {
+		matchClauses : 
+			[ {"@type" : "AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "TYPE",
+				desiredValue : FLOWCELL_SAMPLE_TYPE 
+			}, {"@type" : "AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "CODE",
+				desiredValue : this.sampleCode 
+			}, {"@type" : "AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "SPACE",
+				desiredValue : this.sampleSpace 
+			} ],
+		operator : "MATCH_ALL_CLAUSES"		
+	};
+
+	var sampleCriteria = {
+		subCriterias : 
+		[ {"@type" : "SearchSubCriteria",
+		 	criteria : containerCriteria,
+		 	targetEntityKind : "SAMPLE_CONTAINER"
+		} ]
+	};
+
+	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], callback);
+}
+
 
 /**
  * The presenter that shows the model.
@@ -47,14 +107,16 @@ SampleGraphPresenter.prototype.initializePresenter = function()
 	
 	// Create a div to house the tree visualization and the inspectors
 	this.root = d3.select("#root");
+	this.rootLabel = d3.select("#root-label");
+	this.rootLabel.text(this.model.sampleIdentifier);
 
 	this.didCreateVis = true;
 }
 
 /**
- * Display the data returned by the server
+ * Display the table data returned by the server
  */
-SampleGraphPresenter.prototype.showGraph = function(data)
+SampleGraphPresenter.prototype.showGraphTable = function(data)
 {
 	if (data.error) {
 		console.log(data.error);
@@ -72,6 +134,59 @@ SampleGraphPresenter.prototype.showGraph = function(data)
 	table.enter().append("table").attr("class", "table");
 	showTableHeader(table);
 	showTableData(table);
+}
+
+/**
+ * Display the sample returned by the server
+ */
+SampleGraphPresenter.prototype.showGraphSamples = function(data)
+{
+	if (data.error) {
+		console.log(data.error);
+		this.root.append("p").text("Could not retrieve data.");
+		return;
+	}
+	
+	// This will show the object in the log -- helpful for debugging
+	// console.log(data.result);
+	var tableData = data.result;
+
+	// Display the rows in a table
+	var table = this.root.selectAll("table").data([tableData]);
+	// Code under enter is run if there is no HTML element for a data element	
+	table.enter().append("table").attr("class", "table");
+	this.showEntityTableHeader(table);
+	this.showEntityTableData(table);	
+}
+
+/**
+ * Construct the table header.
+ */
+SampleGraphPresenter.prototype.showEntityTableHeader = function(table)
+{
+	var header = table.selectAll("thead").data(function(d) { return [["Identifier", "Multiplex"]] });
+	header.enter().append("thead");
+	var headerRows = header.selectAll("tr").data(function(d) { return [d] });
+	headerRows.enter().append("tr");
+	var headerData = headerRows.selectAll("th").data(function(d) { return d; });
+	headerData.enter().append("th");
+	headerData.text(function (d) { return d})
+}
+
+/**
+ * Construct the table data.
+ */
+SampleGraphPresenter.prototype.showEntityTableData = function(table)
+{
+	var tableBody = table.selectAll("tbody").data(function(d) { return d });
+	tableBody.enter().append("tbody");
+	var dataRows = tableBody.selectAll("tr").data(function(d) { return [d] });
+	dataRows.enter().append("tr").on("click", function (d) { presenter.selectEntity(d); });
+	dataRows.exit().remove();
+
+	var dataData = dataRows.selectAll("td").data(function(d) { console.log(d); return [d.identifier, "" + d.parents[0]["@id"] + " " + d.parents[0].identifier] });
+	dataData.enter().append("td");
+	dataData.text(function (d) { return d });
 }
 
 SampleGraphPresenter.prototype.selectEntity = function(d) {
@@ -117,23 +232,19 @@ function showTableData(table)
 }
 
 
-function displayRoot(data)
+function displayGraphTable(data)
 {
-	presenter.showGraph(data)
+	presenter.showGraphTable(data)
 }
 
-/**
- * Request samples matching some criteria from the server and show them in the Page.
- */
-function listRootLevelEntities()
+function displayGraphSamples(data)
 {
-	var parameters = {requestKey : 'ROOT'};
-
-	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, displayRoot);
+	presenter.showGraphSamples(data)
 }
 
 function enterApp(data)
 {
 	presenter = new SampleGraphPresenter(model);
-    listRootLevelEntities();
+    //model.requestGraphDataFromAggregationService(displayGraphTable);
+    model.requestGraphData(displayGraphSamples);
 }

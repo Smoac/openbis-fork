@@ -232,6 +232,25 @@ openbis.prototype.searchForSamples = function(searchCriteria, action) {
 }
 
 /**
+ * See ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService.searchForSamples(String, SearchCriteria, EnumSet<SampleFetchOption>)
+ * 
+ * @method
+ */
+openbis.prototype.searchForSamplesWithFetchOptions = function(searchCriteria, fetchOptions, action) {
+	ajaxRequest({
+		url: this.generalInfoServiceUrl,
+		data: { 
+				"method" : "searchForSamples",
+				"params" : [ 
+					this.sessionToken,
+					searchCriteria,
+					fetchOptions ] 
+		},
+		success: action
+	 });
+}
+
+/**
  * See ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService.searchForDataSets(String, SearchCriteria)
  * 
  * @method
