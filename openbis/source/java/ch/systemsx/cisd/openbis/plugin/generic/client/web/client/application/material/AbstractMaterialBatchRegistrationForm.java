@@ -122,6 +122,7 @@ abstract class AbstractMaterialBatchRegistrationForm extends AbstractRegistratio
                 @Override
                 protected void onSuccessfullUpload()
                 {
+                    viewContext.log("Save in AbstractMaterialBatchRegistrationForm.addFormFields");
                     save();
                 }
 
@@ -169,6 +170,8 @@ abstract class AbstractMaterialBatchRegistrationForm extends AbstractRegistratio
                             formPanel.submit();
                         } else
                         {
+                            viewContext
+                                    .log("Save in AbstractMaterialBatchRegistrationForm.redefineSaveListners");
                             save();
                         }
                     }
