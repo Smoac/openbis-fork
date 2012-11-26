@@ -18,47 +18,99 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.Style.BorderStyle;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.SimplePanel;
 
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * A {@link Html} extension that should be used as information panel.
- * <p>
- * It nicely informs the user about a certain action result. It should be used instead of a
- * {@link MessageBox} in some cases.
- * </p>
- * <p>
- * Do not directly use {@link #setHtml(String)} method. Instead use one of the display methods
- * specified.
- * </p>
+ * Information panel that nicely informs a user about a certain action result. It should be used
+ * instead of a {@link MessageBox} in some cases.
  * 
  * @author Christian Ribeaud
  */
-public final class InfoBox extends Html implements IInfoHandler
+public final class InfoBox extends Composite implements IInfoHandler
 {
+    private static final int TRUNCATE_THRESHOLD = 200;
+
+    private static final String TRUNCATE_SUFFIX = "...";
+
     private static final String PLACEHOLDER_TEXT = "X";
 
     private static final String WHITE = "#ffffff";
 
-    private Timer timer;
+    private Panel mainPanel;
+
+    private String fullMessage;
+
+    private InfoType messageType;
+
+    private Html truncatedMessageHtml;
+
+    private PopupDialogBasedInfoHandler fullMessageDialog;
+
+    private Anchor showFullMessageLink;
+
+    private Timer progressTimer;
 
     /**
      * Default constructor with {@link HasHorizontalAlignment#ALIGN_CENTER}.
      */
-    public InfoBox()
+    public InfoBox(final IMessageProvider messageProvider)
     {
-        this(HasHorizontalAlignment.ALIGN_DEFAULT);
+        this(messageProvider, HasHorizontalAlignment.ALIGN_DEFAULT);
     }
 
-    public InfoBox(final HorizontalAlignmentConstant horizontalAlignmentConstant)
+    public InfoBox(final IMessageProvider messageProvider,
+            final HorizontalAlignmentConstant alignment)
     {
-        setStyleAttribute("textAlign", horizontalAlignmentConstant.getTextAlignString());
-        setStyleAttribute("borderStyle", "solid");
-        setStyleAttribute("borderWidth", "1px");
-        setStyleAttribute("padding", "3px");
+        truncatedMessageHtml = new Html();
+        showFullMessageLink =
+                new Anchor(messageProvider.getMessage(Dict.INFO_BOX_SHOW_FULL_MESSAGE));
+        showFullMessageLink.addClickHandler(new ClickHandler()
+            {
+                @Override
+                public void onClick(ClickEvent event)
+                {
+                    if (fullMessageDialog != null)
+                    {
+                        fullMessageDialog.hide();
+                    }
+                    fullMessageDialog = new PopupDialogBasedInfoHandler(messageProvider);
+                    fullMessageDialog.display(messageType, fullMessage);
+                }
+            });
+
+        Style showFullMessageLinkStyle = showFullMessageLink.getElement().getStyle();
+        showFullMessageLinkStyle.setMarginLeft(10, Unit.PX);
+
+        HorizontalPanel horizontalPanel = new HorizontalPanel();
+        horizontalPanel.setHorizontalAlignment(alignment);
+        horizontalPanel.setVerticalAlignment(HorizontalPanel.ALIGN_MIDDLE);
+        horizontalPanel.add(truncatedMessageHtml);
+        horizontalPanel.add(showFullMessageLink);
+
+        mainPanel = new SimplePanel();
+        Style mainPanelStyle = mainPanel.getElement().getStyle();
+        mainPanelStyle.setBorderStyle(BorderStyle.SOLID);
+        mainPanelStyle.setBorderWidth(1, Unit.PX);
+        mainPanelStyle.setPadding(3, Unit.PX);
+        mainPanel.add(horizontalPanel);
+
+        initWidget(mainPanel);
         reset();
     }
 
@@ -68,7 +120,7 @@ public final class InfoBox extends Html implements IInfoHandler
     @Override
     public final void displayError(final String text)
     {
-        display(text, Type.ERROR);
+        display(text, InfoType.ERROR);
     }
 
     /**
@@ -77,7 +129,7 @@ public final class InfoBox extends Html implements IInfoHandler
     @Override
     public final void displayInfo(final String text)
     {
-        display(text, Type.INFO);
+        display(text, InfoType.INFO);
     }
 
     /**
@@ -86,9 +138,9 @@ public final class InfoBox extends Html implements IInfoHandler
     @Override
     public final void displayProgress(final String text)
     {
-        display(text, Type.PROGRESS);
+        display(text, InfoType.PROGRESS);
 
-        timer = new Timer()
+        progressTimer = new Timer()
             {
                 String dots;
 
@@ -102,29 +154,50 @@ public final class InfoBox extends Html implements IInfoHandler
                     {
                         dots = "...";
                     }
-                    setHtml(text + dots);
+
+                    truncatedMessageHtml.setHtml(truncate(text) + dots);
                 }
             };
-        timer.run();
-        timer.scheduleRepeating(500);
+        progressTimer.run();
+        progressTimer.scheduleRepeating(500);
     }
 
     /**
      * Displays given <var>text</var> of given <var>type</var>.
      */
-    public final void display(final String text, final Type type)
+    public final void display(final String text, final InfoType type)
     {
-        if (timer != null)
+        if (progressTimer != null)
         {
-            timer.cancel();
-            timer = null;
+            progressTimer.cancel();
+            progressTimer = null;
         }
         if (StringUtils.isBlank(text) == false)
         {
-            setStyleAttribute("color", "#000000");
-            setStyleAttribute("backgroundColor", type.backgroundColor);
-            setStyleAttribute("borderColor", type.borderColor);
-            setHtml(text);
+            Style mainPanelStyle = mainPanel.getElement().getStyle();
+            mainPanelStyle.setColor("#000000");
+            mainPanelStyle.setBackgroundColor(type.getBackgroundColor());
+            mainPanelStyle.setBorderColor(type.getBorderColor());
+
+            fullMessage = text;
+            messageType = type;
+
+            if (shouldTruncate(text))
+            {
+                truncatedMessageHtml.setHtml(truncate(text));
+                showFullMessageLink.setVisible(true);
+            } else
+            {
+                truncatedMessageHtml.setHtml(text);
+                showFullMessageLink.setVisible(false);
+            }
+
+            if (fullMessageDialog != null)
+            {
+                fullMessageDialog.hide();
+                fullMessageDialog = null;
+            }
+
             getElement().scrollIntoView();
         }
     }
@@ -138,36 +211,43 @@ public final class InfoBox extends Html implements IInfoHandler
      */
     public final void reset()
     {
-        if (timer != null)
+        if (progressTimer != null)
         {
-            timer.cancel();
-            timer = null;
+            progressTimer.cancel();
+            progressTimer = null;
         }
-        setStyleAttribute("backgroundColor", WHITE);
-        setStyleAttribute("borderColor", WHITE);
-        // Make placeholder text invisible.
-        setStyleAttribute("color", WHITE);
-        setHtml(PLACEHOLDER_TEXT);
+
+        // Make placeholder invisible.
+        Style mainPanelStyle = mainPanel.getElement().getStyle();
+        mainPanelStyle.setBackgroundColor(WHITE);
+        mainPanelStyle.setBorderColor(WHITE);
+        mainPanelStyle.setColor(WHITE);
+
+        fullMessage = null;
+        truncatedMessageHtml.setHtml(PLACEHOLDER_TEXT);
+        showFullMessageLink.setVisible(false);
+
+        if (fullMessageDialog != null)
+        {
+            fullMessageDialog.hide();
+            fullMessageDialog = null;
+        }
     }
 
-    //
-    // Helper classes
-    //
-
-    private static enum Type
+    private boolean shouldTruncate(String text)
     {
+        return text != null && text.length() > TRUNCATE_THRESHOLD;
+    }
 
-        ERROR("#f6cece", "#f5a9a9"), INFO("#cef6ce", "#a9f5a9"), PROGRESS("#cef6ce", "#a9f5a9");
-
-        private final String backgroundColor;
-
-        private final String borderColor;
-
-        private Type(final String backgroundColor, final String borderColor)
+    private String truncate(String text)
+    {
+        if (shouldTruncate(text))
         {
-
-            this.backgroundColor = backgroundColor;
-            this.borderColor = borderColor;
+            return text.substring(0, TRUNCATE_THRESHOLD) + TRUNCATE_SUFFIX;
+        } else
+        {
+            return text;
         }
     }
+
 }

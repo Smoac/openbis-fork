@@ -393,7 +393,7 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                     insert(createMessageField(), 0);
                     addField(createImportFileField());
 
-                    form.addListener(Events.Submit, new FormPanelListener(new InfoBox())
+                    form.addListener(Events.Submit, new FormPanelListener(new InfoBox(viewContext))
                         {
                             @Override
                             protected void onSuccessfullUpload()

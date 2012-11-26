@@ -124,8 +124,8 @@ public class AttachmentBrowser extends TypedTableGrid<AttachmentVersions>
             attachmentFileUploadField = new AttachmentFileUploadField(viewContext);
             attachmentFileUploadField.addFieldsTo(form, sessionKey, viewContext);
             AbstractRegistrationForm.addFileUploadFeature(form, Arrays.asList(sessionKey));
-            form.addListener(Events.Submit, new FormPanelListener(
-                    PopupDialogBasedInfoHandler.INSTANCE)
+            form.addListener(Events.Submit, new FormPanelListener(new PopupDialogBasedInfoHandler(
+                    viewContext))
                 {
                     @Override
                     protected void setUploadEnabled()

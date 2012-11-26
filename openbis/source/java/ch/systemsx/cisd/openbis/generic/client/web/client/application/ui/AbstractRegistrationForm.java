@@ -130,7 +130,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
         setBorders(false);
         setScrollMode(Scroll.AUTO);
         setId(id);
-        add(infoBox = createInfoBox());
+        add(infoBox = createInfoBox(messageProvider));
         add(loadingInfo = createLoadingInfo());
         add(WidgetUtils.inRow(formPanel = createFormPanel(), rightPanel = createAdditionalPanel()));
         formPanel.setId("registration-panel-" + id);
@@ -162,9 +162,9 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
         return result;
     }
 
-    private final static InfoBox createInfoBox()
+    private final static InfoBox createInfoBox(IMessageProvider messageProvider)
     {
-        final InfoBox infoBox = new InfoBox();
+        final InfoBox infoBox = new InfoBox(messageProvider);
         return infoBox;
     }
 

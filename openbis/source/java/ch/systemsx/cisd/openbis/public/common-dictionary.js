@@ -247,6 +247,20 @@ var common = {
   info_box_msg: "There is an online help under construction for tabs and dialog windows opened in openBIS.<br/><br/>To get help information about specific:<li><b>tab</b> - right click on an opened tab's header and select <i>Help</i> from its context menu,<li><b>dialog window</b> - click on <i>?</i> icon visible in window's header in the right corner.",
   
   //
+  // Info Box
+  //
+  
+  info_box_show_full_message: "show details",
+  
+  //
+  // Info Type
+  //
+  
+  info_type_error: "Error",
+  info_type_info: "Info",
+  info_type_progress: "Progress",
+  
+  //
   // Search
   //
   

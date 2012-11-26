@@ -16,33 +16,68 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
-import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
  * Info handler which shows info in a popup dialog.
  * 
  * @author Franz-Josef Elmer
  */
-public class PopupDialogBasedInfoHandler implements IInfoHandler
+public class PopupDialogBasedInfoHandler extends Dialog implements IInfoHandler
 {
-    public static final IInfoHandler INSTANCE = new PopupDialogBasedInfoHandler();
+
+    private static final int WIDTH = 550;
+
+    private static final int HEIGHT = 400;
+
+    private IMessageProvider messageProvider;
+
+    private Label label;
+
+    public PopupDialogBasedInfoHandler(IMessageProvider messageProvider)
+    {
+        this.messageProvider = messageProvider;
+        this.label = new Label();
+
+        setBodyStyle("padding: 10px");
+        setSize(WIDTH, HEIGHT);
+        setScrollMode(Scroll.AUTOY);
+        setButtons(Dialog.CLOSE);
+        setHideOnButtonClick(true);
+        setModal(true);
+        setLayout(new FitLayout());
+        add(label);
+    }
 
     @Override
     public void displayInfo(String text)
     {
-        MessageBox.info("Info", text, null);
+        display(InfoType.INFO, text);
     }
 
     @Override
     public void displayError(String text)
     {
-        MessageBox.alert("Error", text, null);
+        display(InfoType.ERROR, text);
     }
 
     @Override
     public void displayProgress(String text)
     {
-        MessageBox.alert("Progress", text, null);
+        display(InfoType.PROGRESS, text);
+    }
+
+    public void display(InfoType type, String text)
+    {
+        setHeading(messageProvider.getMessage(type.getMessageKey()));
+        label.setText(text);
+        layout();
+        show();
     }
 
 }

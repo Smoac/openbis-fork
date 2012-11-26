@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -175,7 +176,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         setId(createId(entityKind));
         this.viewContext = viewContext;
         setScrollMode(Scroll.AUTO);
-        add(infoBox = createInfoBox());
+        add(infoBox = createInfoBox(viewContext));
         add(formPanel = createFormPanel());
         scriptTypeRadioGroup = createScriptTypeRadioGroup();
         scriptChooser =
@@ -215,9 +216,9 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         return getId() + childSuffix;
     }
 
-    private final static InfoBox createInfoBox()
+    private final static InfoBox createInfoBox(IMessageProvider messageProvider)
     {
-        final InfoBox infoBox = new InfoBox();
+        final InfoBox infoBox = new InfoBox(messageProvider);
         return infoBox;
     }
 

@@ -1139,6 +1139,20 @@ public abstract class Dict
 
     public static final String INFO_BOX_MSG = "info_box_msg";
 
+    // Info Box
+
+    public static final String INFO_BOX_SHOW_FULL_MESSAGE = "info_box_show_full_message";
+
+    //
+    // Info Type
+    //
+
+    public static final String INFO_TYPE_ERROR = "info_type_error";
+
+    public static final String INFO_TYPE_INFO = "info_type_info";
+
+    public static final String INFO_TYPE_PROGRESS = "info_type_progress";
+
     //
     // Unclassified
     //
