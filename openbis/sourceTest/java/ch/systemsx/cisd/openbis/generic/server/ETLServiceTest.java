@@ -539,8 +539,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                 }
             });
 
-        SampleIdentifier identifier =
-                createService().tryGetSampleIdentifier(SESSION_TOKEN, "abc");
+        SampleIdentifier identifier = createService().tryGetSampleIdentifier(SESSION_TOKEN, "abc");
 
         assertEquals("S42", identifier.toString());
         context.assertIsSatisfied();
@@ -585,8 +584,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         prepareLoadSample(sampleIdentifier, null);
 
         IEntityProperty[] properties =
-                createService().tryGetPropertiesOfSample(SESSION_TOKEN,
-                        sampleIdentifier);
+                createService().tryGetPropertiesOfSample(SESSION_TOKEN, sampleIdentifier);
 
         assertNull(properties);
         context.assertIsSatisfied();
@@ -602,8 +600,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         prepareLoadSample(sampleIdentifier, toplessSample);
 
         final IEntityProperty[] properties =
-                createService().tryGetPropertiesOfSample(SESSION_TOKEN,
-                        sampleIdentifier);
+                createService().tryGetPropertiesOfSample(SESSION_TOKEN, sampleIdentifier);
 
         assertEquals(1, properties.length);
         assertEquals(property.getValue(), properties[0].getValue());
@@ -626,8 +623,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         prepareLoadSample(sampleIdentifier, sample);
 
         IEntityProperty[] properties =
-                createService().tryGetPropertiesOfSample(SESSION_TOKEN,
-                        sampleIdentifier);
+                createService().tryGetPropertiesOfSample(SESSION_TOKEN, sampleIdentifier);
 
         assertEquals(0, properties.length);
         context.assertIsSatisfied();
@@ -649,8 +645,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         prepareLoadSample(sampleIdentifier, sample);
 
         IEntityProperty[] properties =
-                createService().tryGetPropertiesOfSample(SESSION_TOKEN,
-                        sampleIdentifier);
+                createService().tryGetPropertiesOfSample(SESSION_TOKEN, sampleIdentifier);
 
         assertEquals(1, properties.length);
         assertEquals(property.getValue(), properties[0].getValue());
@@ -798,7 +793,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     {
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
-        prepareTryToLoadSample(sampleIdentifier, new SamplePE());
+        prepareLoadSample(sampleIdentifier, new SamplePE());
 
         try
         {
@@ -819,7 +814,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                 new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
         ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
         experiment.setDeletion(new DeletionPE());
-        prepareTryToLoadSample(sampleIdentifier, createSampleWithExperiment(experiment));
+        prepareLoadSample(sampleIdentifier, createSampleWithExperiment(experiment));
 
         try
         {
@@ -842,7 +837,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                 new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
         final ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
         SamplePE sample = createSampleWithExperiment(experiment);
-        prepareTryToLoadSample(sampleIdentifier, sample);
+        prepareGetSession();
         final NewExternalData externalData = new NewExternalData();
         externalData.setCode("dc");
         externalData.setMeasured(true);
@@ -1094,9 +1089,8 @@ public class ETLServiceTest extends AbstractServerTestCase
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(null, USER_FOR_ENTITY_OPERATIONS,
                         new ArrayList<NewSpace>(), new ArrayList<NewProject>(),
-                        new ArrayList<ProjectUpdatesDTO>(),
-                        new ArrayList<NewExperiment>(), experimentUpdates,
-                        Collections.singletonList(sampleUpdate),
+                        new ArrayList<ProjectUpdatesDTO>(), new ArrayList<NewExperiment>(),
+                        experimentUpdates, Collections.singletonList(sampleUpdate),
                         Collections.singletonList(newSample), materialRegistrations,
                         materialUpdates, Collections.singletonList(externalData),
                         Collections.singletonList(dataSetUpdate),
@@ -1226,7 +1220,6 @@ public class ETLServiceTest extends AbstractServerTestCase
                 }
             });
 
-        prepareTryToLoadSample(userSession, newSampleIdentifier, newSamplePE);
         prepareRegisterDataSet(userSession, newSampleIdentifier, newSamplePE.getExperiment(),
                 SourceType.MEASUREMENT, externalData);
 
@@ -1339,8 +1332,8 @@ public class ETLServiceTest extends AbstractServerTestCase
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(new TechId(1), USER_FOR_ENTITY_OPERATIONS,
                         new ArrayList<NewSpace>(), new ArrayList<NewProject>(),
-                        new ArrayList<ProjectUpdatesDTO>(),
-                        new ArrayList<NewExperiment>(), new ArrayList<ExperimentUpdatesDTO>(),
+                        new ArrayList<ProjectUpdatesDTO>(), new ArrayList<NewExperiment>(),
+                        new ArrayList<ExperimentUpdatesDTO>(),
                         Collections.singletonList(sampleUpdate),
                         Collections.singletonList(newSample), materialRegistrations,
                         materialUpdates, Collections.singletonList(externalData),

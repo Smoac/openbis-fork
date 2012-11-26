@@ -584,13 +584,6 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         return (sample == null) ? null : sample.getSampleIdentifier();
     }
 
-    private ExperimentPE tryLoadExperimentBySampleIdentifier(final Session session,
-            SampleIdentifier sampleIdentifier)
-    {
-        final SamplePE sample = tryLoadSample(session, sampleIdentifier);
-        return sample == null ? null : sample.getExperiment();
-    }
-
     private ExperimentPE tryLoadExperimentByIdentifier(final Session session,
             ExperimentIdentifier experimentIdentifier)
     {
@@ -2224,7 +2217,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     private IDataBO registerDataSetInternal(final Session session,
             SampleIdentifier sampleIdentifier, NewExternalData externalData)
     {
-        ExperimentPE experiment = tryLoadExperimentBySampleIdentifier(session, sampleIdentifier);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.loadBySampleIdentifier(sampleIdentifier);
+        final SamplePE sample = sampleBO.getSample();
+        ExperimentPE experiment = sample.getExperiment();
         if (experiment == null)
         {
             throw new UserFailureException("No experiment found for sample " + sampleIdentifier);
@@ -2234,9 +2230,6 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             throw new UserFailureException("Data set can not be registered because experiment '"
                     + experiment.getIdentifier() + "' is in trash.");
         }
-        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.loadBySampleIdentifier(sampleIdentifier);
-        final SamplePE sample = sampleBO.getSample();
         final IDataBO dataBO = businessObjectFactory.createDataBO(session);
         SourceType sourceType =
                 externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
