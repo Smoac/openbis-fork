@@ -102,7 +102,11 @@ public class DssComponentTest extends SystemTestCase
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
         IDataSetDss dataSet = registerDataSet(exampleDataSet, newDataset);
         checkDataSet(dataSet, PUT_DATA_SET_NAME);
+
+        latestDataSetInfo = getCodeOfLatestDataSet();
     }
+
+    private SimpleDataSetInformationDTO latestDataSetInfo;
 
     private IDataSetDss registerDataSet(File exampleDataSet, NewDataSetDTO newDataset)
     {
@@ -245,7 +249,7 @@ public class DssComponentTest extends SystemTestCase
     @Test(dependsOnMethods = "testPutDataSet")
     public void testPutDataSetWithParent() throws Exception
     {
-        String code = getCodeOfLatestDataSet().getDataSetCode();
+        String code = latestDataSetInfo.getDataSetCode();
 
         File exampleDataSet = new File(workingDirectory, PUT_DATA_SET_WITH_PARENT_NAME);
         NewDataSetDTO newDataset = createNewDataSetDTO(exampleDataSet);
@@ -257,7 +261,7 @@ public class DssComponentTest extends SystemTestCase
     @Test(dependsOnMethods = "testPutDataSet")
     public void testGetDataSetGetFile() throws Exception
     {
-        String code = getCodeOfLatestDataSet().getDataSetCode();
+        String code = latestDataSetInfo.getDataSetCode();
 
         IDataSetDss ds = dss.getDataSet(code);
 
@@ -330,12 +334,11 @@ public class DssComponentTest extends SystemTestCase
     @Test(dependsOnMethods = "testPutDataSet")
     public void testGetDataSetGetLink() throws Exception
     {
-        SimpleDataSetInformationDTO dataSetInfo = getCodeOfLatestDataSet();
-        String code = dataSetInfo.getDataSetCode();
+        String code = latestDataSetInfo.getDataSetCode();
         File fileIntoStore =
                 new File(new File(store,
                         ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID),
-                        dataSetInfo.getDataSetLocation());
+                        latestDataSetInfo.getDataSetLocation());
 
         IDataSetDss ds = dss.getDataSet(code);
 
@@ -348,8 +351,7 @@ public class DssComponentTest extends SystemTestCase
     @Test(dependsOnMethods = "testPutDataSet")
     public void testGetDataSetGetCopy() throws Exception
     {
-        SimpleDataSetInformationDTO dataSetInfo = getCodeOfLatestDataSet();
-        String code = dataSetInfo.getDataSetCode();
+        String code = latestDataSetInfo.getDataSetCode();
 
         IDataSetDss ds = dss.getDataSet(code);
 
@@ -373,8 +375,7 @@ public class DssComponentTest extends SystemTestCase
     public void testObserverHasNoReadPermissions() throws Exception
     {
         dss = createDssComponent("observer");
-        SimpleDataSetInformationDTO dataSetInfo = getCodeOfLatestDataSet();
-        String code = dataSetInfo.getDataSetCode();
+        String code = latestDataSetInfo.getDataSetCode();
         IDataSetDss dataSet = dss.getDataSet(code);
         dataSet.listFiles("/", true);
     }
