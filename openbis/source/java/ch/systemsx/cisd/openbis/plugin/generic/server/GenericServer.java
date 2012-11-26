@@ -922,6 +922,18 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         EntityExistenceChecker entityExistenceChecker = new EntityExistenceChecker(getDAOFactory());
         entityExistenceChecker.checkNewMaterials(newMaterialsWithType);
         entityExistenceChecker.checkNewSamples(newSamplesWithType);
+
+        List<String> errors = entityExistenceChecker.getErrors();
+        if (errors.size() > 0)
+        {
+            String errorString = "Found "+errors.size()+ "error(s):";
+            for (String error : errors)
+            {
+                errorString += "\n" + error;
+            }
+            throw new UserFailureException(errorString);
+        }
+
         registerOrUpdateMaterials(sessionToken, newMaterialsWithType);
         registerOrUpdateSamples(sessionToken, newSamplesWithType);
     }

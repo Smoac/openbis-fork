@@ -16,11 +16,18 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
@@ -28,7 +35,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
@@ -143,7 +149,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         checker.checkNewMaterials(Arrays.asList(new NewMaterialsWithTypes(type, Arrays.asList(
                 material("A", "alpha:12", "beta:42"), material("B", "BETa:47", "Alpha:11")))));
 
-        context.assertIsSatisfied();
+        assertThat(checker.getErrors().size(), is(0));
     }
 
     @Test
@@ -153,17 +159,10 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         type.setCode("T1");
         prepareForAssertMaterialTypeExists(type.getCode(), null);
 
-        try
-        {
-            checker.checkNewMaterials(Arrays.asList(new NewMaterialsWithTypes(type, Arrays
-                    .asList(material("A", "alpha:12", "beta:42")))));
-            fail("UserFailureException expected");
-        } catch (UserFailureException ex)
-        {
-            assertEquals("Unknown material type: T1", ex.getMessage());
-        }
+        checker.checkNewMaterials(Arrays.asList(new NewMaterialsWithTypes(type, Arrays
+                .asList(material("A", "alpha:12", "beta:42")))));
 
-        context.assertIsSatisfied();
+        assertThat(checker.getErrors(), containsExactly("Unknown material type: T1"));
     }
 
     @Test
@@ -173,17 +172,11 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         type.setCode("T1");
         prepareForAssertMaterialTypeExists(type.getCode(), materialType("ALPHA"));
 
-        try
-        {
-            checker.checkNewMaterials(Arrays.asList(new NewMaterialsWithTypes(type, Arrays
-                    .asList(material("A", "alpha:12", "beta:42")))));
-            fail("UserFailureException expected");
-        } catch (UserFailureException ex)
-        {
-            assertEquals("Material type T1 has no property type BETA assigned.", ex.getMessage());
-        }
+        checker.checkNewMaterials(Arrays.asList(new NewMaterialsWithTypes(type, Arrays
+                .asList(material("A", "alpha:12", "beta:42")))));
 
-        context.assertIsSatisfied();
+        assertThat(checker.getErrors(),
+                containsExactly("Material type T1 has no property type BETA assigned."));
     }
 
     @Test
@@ -220,7 +213,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                 sample("/S1/A", "/S1/P1/E1", "/S1/PLATE", "alpha:12"),
                 sample("/S1/B", "/S1/P1/E1", "/S1/PLATE", "Beta:42")))));
 
-        context.assertIsSatisfied();
+        assertThat(checker.getErrors().size(), is(0));
     }
 
     @Test
@@ -254,7 +247,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                 sample("A", "/S1/P1/E1", "/PLATE", "alpha:12"),
                 sample("B", "/S1/P1/E1", "/PLATE", "Beta:42")))));
 
-        context.assertIsSatisfied();
+        assertThat(checker.getErrors().size(), is(0));
     }
 
     @Test
@@ -291,7 +284,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                         sample("A2", null, "/S1/PLATE", "beta:42")));
         checker.checkNewSamples(Arrays.asList(containers, contained));
 
-        context.assertIsSatisfied();
+        assertThat(checker.getErrors().size(), is(0));
     }
 
     @Test
@@ -301,17 +294,10 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         sampleType.setCode("T1");
         prepareForAssertSampleTypeExists(sampleType.getCode(), null);
 
-        try
-        {
-            checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays
-                    .asList(sample("/S1/A", null, null, "alpha:12")))));
-            fail("UserFailureException expected");
-        } catch (UserFailureException ex)
-        {
-            assertEquals("Unknown sample type: T1", ex.getMessage());
-        }
+        checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays
+                .asList(sample("/S1/A", null, null, "alpha:12")))));
 
-        context.assertIsSatisfied();
+        assertThat(checker.getErrors(), containsExactly("Unknown sample type: T1"));
     }
 
     @Test
@@ -335,17 +321,10 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                 }
             });
 
-        try
-        {
-            checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays
-                    .asList(sample("A", "/S1/P1/E1", null, "alpha:12")))));
-            fail("UserFailureException expected");
-        } catch (UserFailureException ex)
-        {
-            assertEquals("Unknown experiment: /S1/P1/E1", ex.getMessage());
-        }
+        checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays
+                .asList(sample("A", "/S1/P1/E1", null, "alpha:12")))));
 
-        context.assertIsSatisfied();
+        assertThat(checker.getErrors(), containsExactly("Unknown experiment: /S1/P1/E1"));
     }
 
     @Test
@@ -361,18 +340,11 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                 }
             });
 
-        try
-        {
-            checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays
-                    .asList(sample("A", "/S1/P1/E1", null, "alpha:12")))));
-            fail("UserFailureException expected");
-        } catch (UserFailureException ex)
-        {
-            assertEquals("Unknown experiment because of unknown project: /S1/P1/E1",
-                    ex.getMessage());
-        }
+        checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays
+                .asList(sample("A", "/S1/P1/E1", null, "alpha:12")))));
 
-        context.assertIsSatisfied();
+        assertThat(checker.getErrors(),
+                containsExactly("Unknown experiment because of unknown project: /S1/P1/E1"));
     }
 
     @Test
@@ -388,17 +360,10 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                 }
             });
 
-        try
-        {
-            checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays
-                    .asList(sample("A", null, "/S1/PLATE", "alpha:12")))));
-            fail("UserFailureException expected");
-        } catch (UserFailureException ex)
-        {
-            assertEquals("Unknown space: /S1", ex.getMessage());
-        }
+        checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays
+                .asList(sample("A", null, "/S1/PLATE", "alpha:12")))));
 
-        context.assertIsSatisfied();
+        assertThat(checker.getErrors(), containsExactly("Unknown space: /S1"));
     }
 
     @Test
@@ -414,17 +379,10 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                 }
             });
 
-        try
-        {
-            checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays
-                    .asList(sample("A", null, "/PLATE", "alpha:12")))));
-            fail("UserFailureException expected");
-        } catch (UserFailureException ex)
-        {
-            assertEquals("Unknown sample: /PLATE", ex.getMessage());
-        }
+        checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays
+                .asList(sample("A", null, "/PLATE", "alpha:12")))));
 
-        context.assertIsSatisfied();
+        assertThat(checker.getErrors(), containsExactly("Unknown sample: /PLATE"));
     }
 
     @Test
@@ -434,17 +392,38 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         sampleType.setCode("T1");
         prepareForAssertSampleTypeExists(sampleType.getCode(), sampleType());
 
-        try
-        {
-            checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays
-                    .asList(sample("/S1/A", null, null, "alpha:12")))));
-            fail("UserFailureException expected");
-        } catch (UserFailureException ex)
-        {
-            assertEquals("Sample type T1 has no property type ALPHA assigned.", ex.getMessage());
-        }
+        checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays
+                .asList(sample("/S1/A", null, null, "alpha:12")))));
 
-        context.assertIsSatisfied();
+        assertThat(checker.getErrors(),
+                containsExactly("Sample type T1 has no property type ALPHA assigned."));
+    }
+
+    @Test
+    public void multipleErrors()
+    {
+        final SampleType sampleType = new SampleType();
+        sampleType.setCode("T1");
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(sampleTypeDAO).tryFindSampleTypeByCode("T1");
+                    will(returnValue(sampleType()));
+                    allowing(sampleTypeDAO).tryFindSampleTypeByCode("ALPHA");
+                    will(returnValue(sampleType("ALPHA")));
+                    one(sampleDAO).tryFindByCodeAndDatabaseInstance("PLATE", databaseInstance);
+
+                }
+            });
+
+        checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays
+                .asList(sample("/S1/A", null, null, "alpha:12"), sample("A", null, "/PLATE",
+                        "alpha:12")))));
+
+        assertThat(checker.getErrors(),
+                containsExactly("Sample type T1 has no property type ALPHA assigned.",
+                        "Unknown sample: /PLATE"));
     }
 
     private NewMaterial material(String code, String... properties)
@@ -536,6 +515,35 @@ public class EntityExistenceCheckerTest extends AssertJUnit
             entityProperties[i] = property;
         }
         return entityProperties;
+    }
+
+    private <T> Matcher<Collection<T>> containsExactly(T... t)
+    {
+        return new CollectionContainsExactlyMatcher<T>(t);
+    }
+
+    private static class CollectionContainsExactlyMatcher<T> extends TypeSafeMatcher<Collection<T>>
+    {
+
+        private List<T> expected;
+
+        public CollectionContainsExactlyMatcher(T... expected)
+        {
+            this.expected = Arrays.asList(expected);
+        }
+
+        @Override
+        public void describeTo(Description description)
+        {
+            description.appendText("A collection containing exactly items " + expected.toString());
+        }
+
+        @Override
+        public boolean matchesSafely(Collection<T> collection)
+        {
+            return collection.containsAll(expected) && expected.containsAll(collection);
+        }
+
     }
 
 }

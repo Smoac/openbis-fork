@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -72,9 +73,17 @@ class EntityExistenceChecker
     private final Map<SampleIdentifier, SamplePE> identifierToSampleMap =
             new HashMap<SampleIdentifier, SamplePE>();
 
+    private final Set<String> errors;
+
     EntityExistenceChecker(IDAOFactory daoFactory)
     {
         this.daoFactory = daoFactory;
+        this.errors = new HashSet<String>();
+    }
+
+    public List<String> getErrors()
+    {
+        return new ArrayList<String>(errors);
     }
 
     /**
@@ -89,7 +98,10 @@ class EntityExistenceChecker
         for (NewMaterialsWithTypes newMaterialsWithTypes : newMaterialsWithType)
         {
             MaterialType materialType = newMaterialsWithTypes.getEntityType();
-            assertMaterialTypeExists(materialType);
+            if (assertMaterialTypeExists(materialType) == false)
+            {
+                continue;
+            }
             List<NewMaterial> newMaterials = newMaterialsWithTypes.getNewEntities();
             for (NewMaterial newMaterial : newMaterials)
             {
@@ -99,7 +111,7 @@ class EntityExistenceChecker
         }
     }
 
-    private void assertMaterialTypeExists(MaterialType materialType)
+    private boolean assertMaterialTypeExists(MaterialType materialType)
     {
         String materialTypeCode = materialType.getCode();
         if (materialTypeToPropertyTypesMap.containsKey(materialTypeCode) == false)
@@ -109,7 +121,8 @@ class EntityExistenceChecker
                             .tryToFindEntityTypeByCode(materialTypeCode);
             if (type == null)
             {
-                throw new UserFailureException("Unknown material type: " + materialTypeCode);
+                errors.add("Unknown material type: " + materialTypeCode);
+                return false;
             }
             Set<MaterialTypePropertyTypePE> materialTypePropertyTypes =
                     type.getMaterialTypePropertyTypes();
@@ -120,6 +133,7 @@ class EntityExistenceChecker
             }
             materialTypeToPropertyTypesMap.put(materialTypeCode, propertyTypes);
         }
+        return true;
     }
 
     /**
@@ -137,7 +151,11 @@ class EntityExistenceChecker
         for (NewSamplesWithTypes newSamplesWithTypes : newSamplesWithType)
         {
             SampleType sampleType = newSamplesWithTypes.getEntityType();
-            assertSampleTypeExists(sampleType);
+            if (assertSampleTypeExists(sampleType) == false)
+            {
+                continue;
+            }
+
             List<NewSample> newSamples = newSamplesWithTypes.getNewEntities();
             for (NewSample newSample : newSamples)
             {
@@ -146,7 +164,9 @@ class EntityExistenceChecker
                         extractor.getExperimentIdentifierOrNull();
                 if (experimentIdentifier != null)
                 {
-                    assertExperimentExists(experimentIdentifier);
+                	if (assertExperimentExists(experimentIdentifier) == false) {
+	                	continue;
+                	}
                 }
                 String containerIdentifier = newSample.getContainerIdentifierForNewSample();
                 if (containerIdentifier != null)
@@ -155,7 +175,10 @@ class EntityExistenceChecker
                     SampleIdentifier sampleIdentifier =
                             SampleIdentifierFactory.parse(containerIdentifier,
                                     defaultSpaceIdentifier);
-                    assertSampleExists(sampleIdentifier);
+ 
+                    if (assertSampleExists(sampleIdentifier) == null) {
+                    	continue;
+                    }
                 }
                 addSample(extractor.getNewSampleIdentifier());
                 IEntityProperty[] properties = newSample.getProperties();
@@ -164,7 +187,7 @@ class EntityExistenceChecker
         }
     }
 
-    private void assertExperimentExists(ExperimentIdentifier experimentIdentifier)
+    private boolean assertExperimentExists(ExperimentIdentifier experimentIdentifier)
     {
         if (experimentIdentifers.contains(experimentIdentifier) == false)
         {
@@ -175,21 +198,24 @@ class EntityExistenceChecker
                             experimentIdentifier.getProjectCode());
             if (project == null)
             {
-                throw new UserFailureException("Unknown experiment because of unknown project: "
+                errors.add("Unknown experiment because of unknown project: "
                         + experimentIdentifier);
+                return false;
             }
             ExperimentPE experiment =
                     daoFactory.getExperimentDAO().tryFindByCodeAndProject(project,
                             experimentIdentifier.getExperimentCode());
             if (experiment == null)
             {
-                throw new UserFailureException("Unknown experiment: " + experimentIdentifier);
+                errors.add("Unknown experiment: " + experimentIdentifier);
+                return false;
             }
             experimentIdentifers.add(experimentIdentifier);
         }
+        return true;
     }
 
-    private void assertSampleTypeExists(SampleType sampleType)
+    private boolean assertSampleTypeExists(SampleType sampleType)
     {
         String sampleTypeCode = sampleType.getCode();
         if (sampleTypeToPropertyTypesMap.containsKey(sampleTypeCode) == false)
@@ -198,7 +224,8 @@ class EntityExistenceChecker
                     daoFactory.getSampleTypeDAO().tryFindSampleTypeByCode(sampleTypeCode);
             if (type == null)
             {
-                throw new UserFailureException("Unknown sample type: " + sampleTypeCode);
+                errors.add("Unknown sample type: " + sampleTypeCode);
+                return false;
             }
             Set<SampleTypePropertyTypePE> sampleTypePropertyTypes =
                     type.getSampleTypePropertyTypes();
@@ -209,6 +236,7 @@ class EntityExistenceChecker
             }
             sampleTypeToPropertyTypesMap.put(sampleTypeCode, propertyTypes);
         }
+        return true;
     }
 
     private SpacePE assertSpaceExists(SpaceIdentifier spaceIdentifier)
@@ -222,7 +250,8 @@ class EntityExistenceChecker
                             spaceIdentifier.getSpaceCode(), homeDatabaseInstance);
             if (space == null)
             {
-                throw new UserFailureException("Unknown space: " + spaceIdentifier);
+                errors.add("Unknown space: " + spaceIdentifier);
+                return null;
             }
             spaceIdentifiers.put(spaceIdentifier, space);
         }
@@ -240,6 +269,10 @@ class EntityExistenceChecker
             {
                 SpaceIdentifier spaceLevel = sampleIdentifier.getSpaceLevel();
                 SpacePE space = assertSpaceExists(spaceLevel);
+                if (space == null)
+                {
+                    return null;
+                }
                 sample = sampleDAO.tryFindByCodeAndSpace(sampleCode, space);
             } else
             {
@@ -250,7 +283,8 @@ class EntityExistenceChecker
             identifierToSampleMap.put(sampleIdentifier, sample);
             if (sample == null)
             {
-                throw new UserFailureException("Unknown sample: " + sampleIdentifier);
+                errors.add("Unknown sample: " + sampleIdentifier);
+                return null;
             }
         }
         return sample;
@@ -273,7 +307,7 @@ class EntityExistenceChecker
             if (propertyTypes.contains(propertyTypeCode) == false)
             {
                 String typeName = entityType instanceof SampleType ? "Sample" : "Material";
-                throw new UserFailureException(typeName + " type " + entityTypeCode
+                errors.add(typeName + " type " + entityTypeCode
                         + " has no property type " + propertyTypeCode + " assigned.");
             }
         }
