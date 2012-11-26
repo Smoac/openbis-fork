@@ -171,7 +171,7 @@ class HeatmapPresenter
             List<WellData> wellList, final String featureLabel)
     {
         List<String> uniqueValues = extractUniqueVocabularyTerms(wellList, featureLabel);
-        return new DetegatingStringHeatmapRenderer<WellData>(uniqueValues, null)
+        return new DelegatingStringHeatmapRenderer<WellData>(uniqueValues, null)
             {
                 @Override
                 protected String extractLabel(WellData well)
@@ -308,7 +308,7 @@ class HeatmapPresenter
                 max = Math.max(max, value);
             }
         }
-        return new DetegatingFloatHeatmapRenderer<WellData>(min, max, realNumberRenderer)
+        return new DelegatingFloatHeatmapRenderer<WellData>(min, max, realNumberRenderer)
             {
                 @Override
                 protected Float convert(WellData well)
@@ -332,7 +332,7 @@ class HeatmapPresenter
 
     /** */
     private static class WellMetadataHeatmapRenderer extends
-            DetegatingStringHeatmapRenderer<WellData>
+            DelegatingStringHeatmapRenderer<WellData>
     {
         private static final int MAX_SPECIFIC_COLORS = 3;
 
