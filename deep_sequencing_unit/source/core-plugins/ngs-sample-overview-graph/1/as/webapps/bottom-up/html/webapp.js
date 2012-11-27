@@ -28,6 +28,16 @@ function getAppWidth(){
 
 function parseJson(jsonString) { return eval('(' + jsonString + ')'); }
 
+/**
+ * The node stores the information necessary for presenting the sample data in the graph.
+ */
+function SampleGraphNode(sample) {
+	this.identifier = sample.identifier;
+	this.properties = sample.properties;
+	this.nodeId = sample["@id"];
+	this.children = [];
+}
+
 
 /**
  * The model that manages state and implements the operations for the bottom-up sample graph.
@@ -85,7 +95,53 @@ SampleGraphModel.prototype.requestGraphData = function(callback)
 		} ]
 	};
 
-	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], callback);
+	var lexicalParent = this;
+	function coalesceResult(data) {
+		lexicalParent.coalesceGraphData(data);
+//		callback(lexicalParent.graphData);
+		callback(data);
+	}
+
+	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], coalesceResult);
+}
+
+/**
+ * Request the data necessary to display the graph.
+ */
+SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
+	var samples = data.result;
+	var nodesById = {};
+
+	function isPureId(sample) { return null == sample["@id"]; };
+
+	function nodeForSample(sample) { return isPureId(sample) ? nodesById[sample] : nodesById[sample["@id"]]; }
+
+	function convertSampleToNode(sample) {
+		// This is just a nodeId, it will be converted elsewhere
+		if (isPureId(sample)) return;
+
+		sample.parents.forEach(convertSampleToNode);		
+
+		var node = new SampleGraphNode(sample);
+		nodesById[node.nodeId] = node;
+	}
+
+	function resolveParents(sample) {
+		// This is just a nodeId, it will be resolved elsewhere		
+		if (isPureId(sample)) return;
+
+		sample.parents.forEach(resolveParents);
+
+		// Sample parents become node children
+		var node = nodeForSample(sample);
+		node.children = sample.parents.map(nodeForSample);
+	}
+
+	samples.forEach(convertSampleToNode);
+	samples.forEach(resolveParents);
+
+	this.graphData = samples.map(nodeForSample);
+	console.log(this.graphData);
 }
 
 
@@ -164,7 +220,7 @@ SampleGraphPresenter.prototype.showGraphSamples = function(data)
  */
 SampleGraphPresenter.prototype.showEntityTableHeader = function(table)
 {
-	var header = table.selectAll("thead").data(function(d) { return [["Identifier", "Multiplex"]] });
+	var header = table.selectAll("thead").data(function(d) { return [["Flowlane", "Multiplex"]] });
 	header.enter().append("thead");
 	var headerRows = header.selectAll("tr").data(function(d) { return [d] });
 	headerRows.enter().append("tr");
@@ -184,7 +240,7 @@ SampleGraphPresenter.prototype.showEntityTableData = function(table)
 	dataRows.enter().append("tr").on("click", function (d) { presenter.selectEntity(d); });
 	dataRows.exit().remove();
 
-	var dataData = dataRows.selectAll("td").data(function(d) { console.log(d); return [d.identifier, "" + d.parents[0]["@id"] + " " + d.parents[0].identifier] });
+	var dataData = dataRows.selectAll("td").data(function(d) { return [d.identifier, "" + d.parents[0]["@id"] + " " + d.parents[0].identifier] });
 	dataData.enter().append("td");
 	dataData.text(function (d) { return d });
 }
