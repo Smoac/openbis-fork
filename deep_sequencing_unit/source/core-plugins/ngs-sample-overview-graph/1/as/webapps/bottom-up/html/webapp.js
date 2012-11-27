@@ -15,9 +15,14 @@ var FLOWCELL_SAMPLE_TYPE = "FLOWCELL";
 
 // The view is organized in columns that correspond to a sample type. The columns are defined here.
 var COLUMNS = [
-	{ type : "FLOWLANE", label : "Flowlane", width : 120 },
-	{ type : "MULTIPLEX", label : "Multiplex", width : 120 }
+	{ type : "FLOWLANE", label : "Flowlane", width : 200 },
+	{ type : "MULTIPLEX", label : "Multiplex", width : 240 },
+	{ type : "LIBRARY", label : "Library", width : 240 },
+	{ type : "ALIQUOT", label : "Aliquot", width : 360 },
+	{ type : "SAMPLE", label : "Sample", width : 240 }
 ];
+
+var LINE_HEIGHT = 20;
 
 // END CONFIGURATION PARAMTERS
 
@@ -177,6 +182,14 @@ SampleGraphPresenter.prototype.initializePresenter = function()
 	this.rootLabel = d3.select("#root-label");
 	this.rootLabel.text(this.model.sampleIdentifier);
 
+	// Calculate the offsets for the columns -- only need to do this once
+	var xOffset = 0;
+	COLUMNS.forEach(function(column) { column.xOffset = xOffset; xOffset += column.width });
+
+	// Function used to draw paths between elements
+	var diagonal = d3.svg.diagonal().projection(function(d) { return [d.y, d.x]; });
+	this.path = diagonal;
+
 	this.didCreateVis = true;
 }
 
@@ -188,26 +201,47 @@ SampleGraphPresenter.prototype.showGraphSamples = function()
 	// This will show the object in the log -- helpful for debugging
 	// console.log(nodes);
 
-	// Display the rows in a table
-	var table = this.root.selectAll("table").data([model.graphData]);
+	var vizData = COLUMNS.map(function(c) { return model.samplesByType[c.type] });
+
+	// Display the graph in an SVG element
+	this.viz = this.root.selectAll("svg").data([vizData]);
 	// Code under enter is run if there is no HTML element for a data element	
-	table.enter().append("table").attr("class", "table");
-	this.showEntityTableHeader(table);
-	this.showEntityTableData(table);	
+	this.viz.enter().append("svg:svg").attr("class", "viz");
+	// Columns
+	this.columns = this.viz.selectAll("g").data(function(d) { return d });
+	this.columns.enter().append("svg:g").attr("class", "column");
+	this.columns.attr("transform", function(d, i) { return "translate(" + COLUMNS[i].xOffset + ", 0)"});
+	this.showHeaders();
+	this.showData();
 }
 
 /**
- * Construct the table header.
+ * Construct the visuzliation headers.
  */
-SampleGraphPresenter.prototype.showEntityTableHeader = function(table)
+SampleGraphPresenter.prototype.showHeaders = function()
 {
-	var header = table.selectAll("thead").data(function(d) { return [["Flowlane", "Multiplex", "Library Count"]] });
-	header.enter().append("thead");
-	var headerRows = header.selectAll("tr").data(function(d) { return [d] });
-	headerRows.enter().append("tr");
-	var headerData = headerRows.selectAll("th").data(function(d) { return d; });
-	headerData.enter().append("th");
-	headerData.text(function (d) { return d})
+	var header = this.columns.selectAll("text.header").data(function(d, i) { return [COLUMNS[i]] });
+	header.enter().append("svg:text").attr("class", "header");
+	header
+		.attr("x", "0")
+		.attr("y", LINE_HEIGHT)
+		.attr("text-anchor", "begin")
+		.style("font-weight", "bold")
+		.text(function(d) { return d.label });
+}
+
+/**
+ * Construct the visualization data.
+ */
+SampleGraphPresenter.prototype.showData = function()
+{
+	var sample = this.columns.selectAll("text.sample").data(function(d) { return d });
+	sample.enter().append("svg:text").attr("class", "sample");
+	sample
+		.attr("x", "0")
+		.attr("y", function(d, i) { return LINE_HEIGHT * (i+2)})
+		.attr("text-anchor", "begin")
+		.text(function(d) { return d.identifier });
 }
 
 /**
