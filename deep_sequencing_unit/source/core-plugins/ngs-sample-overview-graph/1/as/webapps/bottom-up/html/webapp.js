@@ -16,9 +16,9 @@ var FLOWCELL_SAMPLE_TYPE = "FLOWCELL";
 // The view is organized in columns that correspond to a sample type. The columns are defined here.
 var COLUMNS = [
 	{ type : "FLOWLANE", label : "Flowlane", width : 200 },
-	{ type : "MULTIPLEX", label : "Multiplex", width : 240 },
+	{ type : "MULTIPLEX", label : "Multiplex", width : 300 },
 	{ type : "LIBRARY", label : "Library", width : 240 },
-	{ type : "ALIQUOT", label : "Aliquot", width : 360 },
+	{ type : "ALIQUOT", label : "Aliquot", width : 400 },
 	{ type : "SAMPLE", label : "Sample", width : 240 }
 ];
 
@@ -55,6 +55,14 @@ function SampleGraphNode(sample) {
 	this.children = [];
 	this.serverSample = sample;
 	this.arrayIndex = -1
+}
+
+/**
+ * The link stores the information necessary for drawing connections between nodes
+ */
+function SampleGraphLink(sourceNode, targetNode) {
+	this.sourceNode = sourceNode;
+	this.targetNode = targetNode;
 }
 
 
@@ -156,8 +164,6 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
 
 	samples.forEach(convertSampleToNode);
 	samples.forEach(resolveParents);
-
-	this.graphData = samples.map(nodeForSample);
 }
 
 
@@ -187,10 +193,57 @@ SampleGraphPresenter.prototype.initializePresenter = function()
 	COLUMNS.forEach(function(column) { column.xOffset = xOffset; xOffset += column.width });
 
 	// Function used to draw paths between elements
-	var diagonal = d3.svg.diagonal().projection(function(d) { return [d.y, d.x]; });
+	var diagonal = d3.svg.diagonal();
+	var yLinkOffset = LINE_HEIGHT * 0.25;
+
+	var lexicalParent = this;
+	function source(d) {
+		// Find the associated text node in the DOM and use that as a basis for creating the links
+		var svgNode = lexicalParent.columns.selectAll("text.sample")[d.sourceNode.col][d.sourceNode.row];
+		return { x : d.sourceNode.x + svgNode.offsetWidth + 5, y  : d.sourceNode.y - yLinkOffset };
+	}
+	function target(d) {
+		return { x : d.targetNode.x, y  : d.targetNode.y - yLinkOffset }
+	}
+	diagonal.source(source);
+	diagonal.target(target);	
 	this.path = diagonal;
 
 	this.didCreateVis = true;
+}
+
+/**
+ * Initialize the sample nodes
+ */
+SampleGraphPresenter.prototype.initializeGraphSamples = function()
+{
+	var nodeData = COLUMNS.map(function(c) { return model.samplesByType[c.type] });
+	// Compute the x/y coordinates for each sample
+	for (var col = 0; col < nodeData.length; ++col) {
+		var colData = nodeData[col];
+		var x = COLUMNS[col].xOffset;
+		var width = COLUMNS[col].width;
+		for (row = 0; row < colData.length; ++row) {
+			var sampleData = colData[row];
+			// X is the x position of the end
+			sampleData.x = x;
+			sampleData.y = LINE_HEIGHT * (row+2);
+			sampleData.col = col;
+			sampleData.row = row;
+			sampleData.visible = true;
+		}
+	}
+	this.nodeData = nodeData;
+
+	var linkData = [];
+	nodeData.forEach(function(samples) {
+		samples.forEach(function(d) { 
+			if (!d.visible) return;
+			d.children.forEach(function(c) { if (c.visible) linkData.push(new SampleGraphLink(d, c))});
+		})
+	});
+
+	this.linkData = linkData;
 }
 
 /**
@@ -198,13 +251,10 @@ SampleGraphPresenter.prototype.initializePresenter = function()
  */
 SampleGraphPresenter.prototype.showGraphSamples = function()
 {
-	// This will show the object in the log -- helpful for debugging
-	// console.log(nodes);
-
-	var vizData = COLUMNS.map(function(c) { return model.samplesByType[c.type] });
+	var nodeData = this.nodeData;
 
 	// Display the graph in an SVG element
-	this.viz = this.root.selectAll("svg").data([vizData]);
+	this.viz = this.root.selectAll("svg").data([nodeData]);
 	// Code under enter is run if there is no HTML element for a data element	
 	this.viz.enter().append("svg:svg").attr("class", "viz");
 	// Columns
@@ -212,11 +262,12 @@ SampleGraphPresenter.prototype.showGraphSamples = function()
 	this.columns.enter().append("svg:g").attr("class", "column");
 	this.columns.attr("transform", function(d, i) { return "translate(" + COLUMNS[i].xOffset + ", 0)"});
 	this.showHeaders();
-	this.showData();
+	this.showNodes();
+	this.showLinks();
 }
 
 /**
- * Construct the visuzliation headers.
+ * Draw the headers
  */
 SampleGraphPresenter.prototype.showHeaders = function()
 {
@@ -231,33 +282,31 @@ SampleGraphPresenter.prototype.showHeaders = function()
 }
 
 /**
- * Construct the visualization data.
+ * Draw the nodes
  */
-SampleGraphPresenter.prototype.showData = function()
+SampleGraphPresenter.prototype.showNodes = function()
 {
 	var sample = this.columns.selectAll("text.sample").data(function(d) { return d });
 	sample.enter().append("svg:text").attr("class", "sample");
 	sample
 		.attr("x", "0")
-		.attr("y", function(d, i) { return LINE_HEIGHT * (i+2)})
+		.attr("y", function(d, i) { return d.y})
 		.attr("text-anchor", "begin")
 		.text(function(d) { return d.identifier });
 }
 
 /**
- * Construct the table data.
+ * Draw the links
  */
-SampleGraphPresenter.prototype.showEntityTableData = function(table)
+SampleGraphPresenter.prototype.showLinks = function()
 {
-	var tableBody = table.selectAll("tbody").data(function(d) { return d });
-	tableBody.enter().append("tbody");
-	var dataRows = tableBody.selectAll("tr").data(function(d) { return [d] });
-	dataRows.enter().append("tr").on("click", function (d) { presenter.selectEntity(d); });
-	dataRows.exit().remove();
-
-	var dataData = dataRows.selectAll("td").data(function(d) { return [d.identifier, d.children[0].identifier, "" + d.children[0].children.length] });
-	dataData.enter().append("td");
-	dataData.text(function (d) { return d });
+	var link = this.viz.selectAll("path.link").data(this.linkData);
+	link.enter().append("svg:path").attr("class", "link");
+	link
+		.style("fill", "none")
+		.style("stroke", "#ccc")
+		.style("stroke-width", "1.5px")
+		.attr("d", this.path);
 }
 
 SampleGraphPresenter.prototype.selectEntity = function(d) {
@@ -275,5 +324,5 @@ var presenter;
 function enterApp(data)
 {
 	presenter = new SampleGraphPresenter(model);
-    model.requestGraphData(function() { presenter.showGraphSamples() });
+    model.requestGraphData(function() { presenter.initializeGraphSamples(); presenter.showGraphSamples() });
 }
