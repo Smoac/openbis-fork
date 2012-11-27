@@ -1,12 +1,26 @@
+/**
+ * Sample-Relationship Bottom Up Webapp
+ *
+ * This webapp draws a graph emanating from a flowcell and terminating at the biological sample.
+ *
+ * Because the structure is rigid, it draws each sample type in its own column.
+ */
+
 //
 // BEGIN CONFIGURATION PARAMTERS
 // 
 // The following parameters must be configured for the webapp
 
-// The name of the dss
+// TODO Remove -- this is not needed (The name of the dss)
 var DSS_NAME = "DSS1";
 
 var FLOWCELL_SAMPLE_TYPE = "FLOWCELL";
+
+// The view is organized in columns that correspond to a sample type. The columns are defined here.
+var COLUMNS = [
+	{ type : "FLOWLANE", label : "Flowlane", width : 120 },
+	{ type : "MULTIPLEX", label : "Multiplex", width : 120 }
+];
 
 // END CONFIGURATION PARAMTERS
 
@@ -38,6 +52,7 @@ function SampleGraphNode(sample) {
 	this.sampleType = sample.sampleTypeCode;
 	this.children = [];
 	this.serverSample = sample;
+	this.arrayIndex = -1
 }
 
 
@@ -54,6 +69,9 @@ SampleGraphModel.prototype.initializeModel = function() {
 	this.sampleSpace = identifierTokens[1];	
 	this.sampleCode = identifierTokens[2];
 	this.samplePermId = webappContext.getEntityPermId();
+	var samplesByType = {};
+	COLUMNS.forEach(function(column) { samplesByType[column.type] = [] });
+	this.samplesByType = samplesByType;
 }
 
 /**
@@ -113,10 +131,11 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
 	var samples = data.result;
 	var nodesById = {};
 
-	function isPureId(sample) { return null == sample["@id"]; };
+	function isPureId(sample) { return null == sample["@id"]; }
 
 	function nodeForSample(sample) { return isPureId(sample) ? nodesById[sample] : nodesById[sample["@id"]]; }
 
+	var lexicalParent = this;
 	function convertSampleToNode(sample) {
 		// This is just a nodeId, it will be converted elsewhere
 		if (isPureId(sample)) return;
@@ -125,6 +144,11 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
 
 		var node = new SampleGraphNode(sample);
 		nodesById[node.nodeId] = node;
+		sampleTypeArray = lexicalParent.samplesByType[node.sampleType]
+		if (sampleTypeArray) {
+			node.arrayIndex = sampleTypeArray.length;
+			sampleTypeArray.push(node);
+		}
 	}
 
 	function resolveParents(sample) {
