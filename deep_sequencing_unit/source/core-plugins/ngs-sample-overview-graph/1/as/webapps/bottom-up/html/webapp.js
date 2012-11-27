@@ -11,9 +11,6 @@
 // 
 // The following parameters must be configured for the webapp
 
-// TODO Remove -- this is not needed (The name of the dss)
-var DSS_NAME = "DSS1";
-
 var FLOWCELL_SAMPLE_TYPE = "FLOWCELL";
 
 // The view is organized in columns that correspond to a sample type. The columns are defined here.
@@ -75,16 +72,6 @@ SampleGraphModel.prototype.initializeModel = function() {
 }
 
 /**
- * Request the data necessary to display the graph. This variant uses an aggregation service
- */
-SampleGraphModel.prototype.requestGraphDataFromAggregationService = function(callback)
-{
-	var parameters = {'FLOWCELL_PERM_ID' : this.samplePermId};
-
-	openbisServer.createReportFromAggregationService(DSS_NAME, "sample-bottom-up-data", parameters, callback);
-}
-
-/**
  * Request the data necessary to display the graph.
  */
 SampleGraphModel.prototype.requestGraphData = function(callback)
@@ -118,7 +105,7 @@ SampleGraphModel.prototype.requestGraphData = function(callback)
 	var lexicalParent = this;
 	function coalesceResult(data) {
 		lexicalParent.coalesceGraphData(data);
-		callback(lexicalParent.graphData);
+		callback();
 	}
 
 	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], coalesceResult);
@@ -194,38 +181,15 @@ SampleGraphPresenter.prototype.initializePresenter = function()
 }
 
 /**
- * Display the table data returned by the server
- */
-SampleGraphPresenter.prototype.showGraphTable = function(data)
-{
-	if (data.error) {
-		console.log(data.error);
-		this.root.append("p").text("Could not retrieve data.");
-		return;
-	}
-	
-	// This will show the object in the log -- helpful for debugging
-	// console.log(data.result);
-	var tableData = data.result;
-	
-	// Display the rows in a table
-	var table = this.root.selectAll("table").data([tableData]);
-	// Code under enter is run if there is no HTML element for a data element	
-	table.enter().append("table").attr("class", "table");
-	showTableHeader(table);
-	showTableData(table);
-}
-
-/**
  * Display the sample nodes.
  */
-SampleGraphPresenter.prototype.showGraphSamples = function(nodes)
+SampleGraphPresenter.prototype.showGraphSamples = function()
 {
 	// This will show the object in the log -- helpful for debugging
 	// console.log(nodes);
 
 	// Display the rows in a table
-	var table = this.root.selectAll("table").data([nodes]);
+	var table = this.root.selectAll("table").data([model.graphData]);
 	// Code under enter is run if there is no HTML element for a data element	
 	table.enter().append("table").attr("class", "table");
 	this.showEntityTableHeader(table);
@@ -274,50 +238,8 @@ model = new SampleGraphModel();
 var presenter;
 
 
-/**
- * Construct the table header.
- */
-function showTableHeader(table)
-{
-	var header = table.selectAll("thead").data(function(d) { return [d.columns] });
-	header.enter().append("thead");
-	var headerRows = header.selectAll("tr").data(function(d) { return [d] });
-	headerRows.enter().append("tr");
-	var headerData = headerRows.selectAll("th").data(function(d) { return d; });
-	headerData.enter().append("th");
-	headerData.text(function (d) { return d.title})
-}
-
-/**
- * Construct the table data.
- */
-function showTableData(table)
-{
-	var tableBody = table.selectAll("tbody").data(function(d) { return [d.rows] });
-	tableBody.enter().append("tbody");
-	var dataRows = tableBody.selectAll("tr").data(function(d) { return d });
-	dataRows.enter().append("tr").on("click", function (d) { presenter.selectEntity(d); });
-	dataRows.exit().remove();
-
-	var dataData = dataRows.selectAll("td").data(function(d) { return d });
-	dataData.enter().append("td");
-	dataData.text(function (d) { return d.value});
-}
-
-
-function displayGraphTable(data)
-{
-	presenter.showGraphTable(data)
-}
-
-function displayGraphSamples(data)
-{
-	presenter.showGraphSamples(data)
-}
-
 function enterApp(data)
 {
 	presenter = new SampleGraphPresenter(model);
-    //model.requestGraphDataFromAggregationService(displayGraphTable);
-    model.requestGraphData(displayGraphSamples);
+    model.requestGraphData(function() { presenter.showGraphSamples() });
 }
