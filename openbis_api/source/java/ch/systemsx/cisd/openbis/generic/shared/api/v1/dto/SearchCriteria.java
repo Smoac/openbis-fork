@@ -77,9 +77,7 @@ public class SearchCriteria implements Serializable
     @JsonObject("MatchClauseFieldType")
     public static enum MatchClauseFieldType
     {
-        PROPERTY, ATTRIBUTE
-        // Commented out fields are not yet supported, but may be in the future.
-        /* ANY_FIELD, ANY_PROPERTY, */
+        PROPERTY, ATTRIBUTE, ANY_FIELD, ANY_PROPERTY
     }
 
     /**
@@ -180,6 +178,26 @@ public class SearchCriteria implements Serializable
                 CompareMode mode, String date, String timezone)
         {
             return new TimeAttributeMatchClause(attribute, date, timezone, mode);
+        }
+
+        /**
+         * Factory method to create a MatchClause matching against any property.
+         * 
+         * @param desiredValue The desired value for a property.
+         */
+        public static MatchClause createAnyPropertyMatch(String desiredValue)
+        {
+            return new AnyPropertyMatchClause(desiredValue);
+        }
+
+        /**
+         * Factory method to create a MatchClause matching against any property or attribute.
+         * 
+         * @param desiredValue The desired value for a property or an attribute.
+         */
+        public static MatchClause createAnyFieldMatch(String desiredValue)
+        {
+            return new AnyFieldMatchClause(desiredValue);
         }
 
         /**
@@ -497,6 +515,68 @@ public class SearchCriteria implements Serializable
         {
             this.timezone = timezone;
         }
+    }
+
+    /**
+     * A MatchClause for checking that any of the properties equals a desired value.
+     * 
+     * @author pkupczyk
+     */
+    @JsonObject("AnyPropertyMatchClause")
+    public static class AnyPropertyMatchClause extends MatchClause
+    {
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * Factory method to create a MatchClause matching against any property.
+         * 
+         * @param desiredValue The desired value of a property.
+         */
+        protected AnyPropertyMatchClause(String desiredValue)
+        {
+            super(MatchClauseFieldType.ANY_PROPERTY, null, desiredValue, CompareMode.EQUALS);
+            assert null != desiredValue;
+        }
+
+        //
+        // JSON-RPC
+        //
+
+        private AnyPropertyMatchClause()
+        {
+        }
+
+    }
+
+    /**
+     * A MatchClause for checking that any of the properties or attributes equals a desired value.
+     * 
+     * @author pkupczyk
+     */
+    @JsonObject("AnyFieldMatchClause")
+    public static class AnyFieldMatchClause extends MatchClause
+    {
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * Factory method to create a MatchClause matching against any property or attribute.
+         * 
+         * @param desiredValue The desired value of a property or an attribute.
+         */
+        protected AnyFieldMatchClause(String desiredValue)
+        {
+            super(MatchClauseFieldType.ANY_FIELD, null, desiredValue, CompareMode.EQUALS);
+            assert null != desiredValue;
+        }
+
+        //
+        // JSON-RPC
+        //
+
+        private AnyFieldMatchClause()
+        {
+        }
+
     }
 
     /**

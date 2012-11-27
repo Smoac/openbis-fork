@@ -315,14 +315,13 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         EnumSet<SampleFetchOption> sampleFetchOptions =
                 (fetchOptions != null) ? fetchOptions : EnumSet.noneOf(SampleFetchOption.class);
         DetailedSearchCriteria detailedSearchCriteria =
-                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(
+                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
                         SearchableEntityKind.SAMPLE, searchCriteria);
         ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister sampleLister =
                 boFactory.createSampleLister(session);
         Collection<Long> sampleIDs =
                 new SampleSearchManager(getDAOFactory().getHibernateSearchDAO(), sampleLister)
-                        .searchForSampleIDs(session.getUserName(),
-                                detailedSearchCriteria);
+                        .searchForSampleIDs(session.getUserName(), detailedSearchCriteria);
         return createSampleLister(session.tryGetPerson()).getSamples(sampleIDs, sampleFetchOptions);
     }
 
@@ -338,7 +337,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         EnumSet<SampleFetchOption> sampleFetchOptions =
                 (fetchOptions != null) ? fetchOptions : EnumSet.noneOf(SampleFetchOption.class);
         DetailedSearchCriteria detailedSearchCriteria =
-                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(
+                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
                         SearchableEntityKind.SAMPLE, searchCriteria);
 
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
@@ -350,8 +349,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                         .searchForSampleIDs(userId, detailedSearchCriteria);
 
         final List<Sample> unfilteredSamples =
-                createSampleLister(person)
-                        .getSamples(sampleIDs, sampleFetchOptions);
+                createSampleLister(person).getSamples(sampleIDs, sampleFetchOptions);
         return filterSamplesVisibleToUser(sessionToken, unfilteredSamples, userId);
     }
 
@@ -886,7 +884,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         checkSession(sessionToken);
 
         DetailedSearchCriteria detailedSearchCriteria =
-                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(
+                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
                         SearchableEntityKind.DATA_SET, searchCriteria);
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData> privateDataSets =
                 commonServer.searchForDataSets(sessionToken, detailedSearchCriteria);
@@ -905,7 +903,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         checkSession(sessionToken);
 
         DetailedSearchCriteria detailedSearchCriteria =
-                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(
+                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
                         SearchableEntityKind.DATA_SET, searchCriteria);
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData> privateDataSets =
                 commonServer.searchForDataSetsOnBehalfOfUser(sessionToken, detailedSearchCriteria,
@@ -1030,7 +1028,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     public List<Material> searchForMaterials(String sessionToken, SearchCriteria searchCriteria)
     {
         DetailedSearchCriteria detailedSearchCriteria =
-                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(
+                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
                         SearchableEntityKind.MATERIAL, searchCriteria);
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material> materials =
                 commonServer.searchForMaterials(sessionToken, detailedSearchCriteria);

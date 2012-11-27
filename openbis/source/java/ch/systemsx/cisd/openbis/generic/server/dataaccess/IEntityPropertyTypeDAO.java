@@ -45,6 +45,11 @@ public interface IEntityPropertyTypeDAO
             throws DataAccessException;
 
     /**
+     * Returns a list of all property type codes.
+     */
+    public List<String> listPropertyTypeCodes() throws DataAccessException;
+
+    /**
      * Returns {@link EntityTypePropertyTypePE} assignment connecting given {@link EntityTypePE} and
      * {@link PropertyTypePE} if it exists and null otherwise.
      */

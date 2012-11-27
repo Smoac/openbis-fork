@@ -2281,7 +2281,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         Session session = getSession(sessionToken);
         DetailedSearchCriteria detailedSearchCriteria =
-                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(
+                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
                         SearchableEntityKind.SAMPLE, searchCriteria);
         SearchHelper searchHelper =
                 new SearchHelper(session, businessObjectFactory, getDAOFactory());
@@ -2294,7 +2294,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         Session session = getSession(sessionToken);
         DetailedSearchCriteria detailedSearchCriteria =
-                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(
+                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
                         SearchableEntityKind.DATA_SET, searchCriteria);
         SearchHelper searchHelper =
                 new SearchHelper(session, businessObjectFactory, getDAOFactory());

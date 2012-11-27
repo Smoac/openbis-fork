@@ -194,6 +194,24 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
     }
 
     @Test
+    public void testSearchForSamplesByAnyField()
+    {
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAnyFieldMatch("\"very advanced stuff\""));
+        List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    public void testSearchForSamplesByAnyProperty()
+    {
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAnyPropertyMatch("\"very advanced stuff\""));
+        List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
+        assertEquals(1, result.size());
+    }
+
+    @Test
     public void testSearchForSamplesByExperimentCode()
     {
         // Search for Samples with only experiment's code limiting the results

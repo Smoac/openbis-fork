@@ -17,9 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -105,6 +108,27 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                     entityType));
         }
         return assignments;
+    }
+
+    @Override
+    public List<String> listPropertyTypeCodes() throws DataAccessException
+    {
+        final List<EntityTypePropertyTypePE> assignments =
+                cast(getHibernateTemplate().loadAll(getEntityTypePropertyTypeAssignmentClass()));
+        Set<String> propertyTypeCodes = new HashSet<String>();
+
+        for (EntityTypePropertyTypePE assignment : assignments)
+        {
+            propertyTypeCodes.add(assignment.getPropertyType().getCode());
+        }
+
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "%d property types have been found for entity kind '%s'.",
+                    propertyTypeCodes.size(), entityKind));
+        }
+        return new ArrayList<String>(propertyTypeCodes);
     }
 
     @Override

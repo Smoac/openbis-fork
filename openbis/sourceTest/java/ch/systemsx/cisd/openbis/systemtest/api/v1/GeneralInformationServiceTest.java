@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.Compare
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseTimeAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
@@ -646,6 +647,59 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testSearchForSamplesByAnyFieldMatchingProperty()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAnyFieldMatch("\"very advanced stuff\""));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/CISD/CP-TEST-1]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByAnyFieldWithSubCriteria()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAnyFieldMatch("stuff"));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/CISD/CP-TEST-1, /CISD/CP-TEST-2, /CISD/CP-TEST-3]", samples);
+
+        SearchCriteria experimentCriteria = new SearchCriteria();
+        experimentCriteria.addMatchClause(MatchClause.createAnyFieldMatch("EXP-TEST-1"));
+        searchCriteria.addSubCriteria(SearchSubCriteria
+                .createExperimentCriteria(experimentCriteria));
+
+        samples = generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/CISD/CP-TEST-1]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByAnyFieldMatchingAttribute()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAnyFieldMatch("\"CP-TEST-2\""));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/CISD/CP-TEST-2]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByAnyProperty()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria
+                .addMatchClause(MatchClause.createAnyPropertyMatch("\"very advanced stuff\""));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/CISD/CP-TEST-1]", samples);
+    }
+
+    @Test
     public void testListSamplesForExperiment()
     {
         List<Sample> samples =
@@ -1029,6 +1083,43 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testSearchForDataSetsByAnyFieldMatchingProperty()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAnyFieldMatch("\"non-virtual comment\""));
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertEquals(
+                "[DataSet[20110509092359990-11,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=non-virtual comment}], DataSet[20110509092359990-12,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=non-virtual comment}]]",
+                dataSets.toString());
+    }
+
+    @Test
+    public void testSearchForDataSetsByAnyFieldMatchingAttribute()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAnyFieldMatch("TEST_METAPROJECTS"));
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertEquals(
+                "[DataSet[20120619092259000-22,/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST,<null>,HCS_IMAGE,{}]]",
+                dataSets.toString());
+    }
+
+    @Test
+    public void testSearchForDataSetsByAnyProperty()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria
+                .addMatchClause(MatchClause.createAnyPropertyMatch("\"non-virtual comment\""));
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertEquals(
+                "[DataSet[20110509092359990-11,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=non-virtual comment}], DataSet[20110509092359990-12,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=non-virtual comment}]]",
+                dataSets.toString());
+    }
+
+    @Test
     public void testGetDefaultPutDataStoreBaseURL()
     {
         String url = generalInformationService.getDefaultPutDataStoreBaseURL(sessionToken);
@@ -1378,6 +1469,42 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.searchForMaterials(sessionToken, searchCriteria);
 
         assertCollection("[]", materials, new MaterialToCode());
+    }
+
+    @Test
+    public void testSearchForMaterialsByAnyFieldMatchingProperty()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAnyFieldMatch("\"Influenza A virus\""));
+
+        List<Material> materials =
+                generalInformationService.searchForMaterials(sessionToken, searchCriteria);
+
+        assertCollection("[FLU]", materials, new MaterialToCode());
+    }
+
+    @Test
+    public void testSearchForMaterialsByAnyFieldMatchingAttribute()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAnyFieldMatch("VIRUS1"));
+
+        List<Material> materials =
+                generalInformationService.searchForMaterials(sessionToken, searchCriteria);
+
+        assertCollection("[VIRUS1]", materials, new MaterialToCode());
+    }
+
+    @Test
+    public void testSearchForMaterialsByAnyProperty()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAnyPropertyMatch("\"Influenza A virus\""));
+
+        List<Material> materials =
+                generalInformationService.searchForMaterials(sessionToken, searchCriteria);
+
+        assertCollection("[FLU]", materials, new MaterialToCode());
     }
 
     @Test

@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.AttributeMatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
@@ -43,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKi
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 
 /**
  * Converts {@link SearchCriteria} objects to {@link DetailedSearchCriteria} objects.
@@ -122,7 +125,11 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
         return null; // can't happen
     }
 
+    private final IDAOFactory daoFactory;
+
     private final SearchCriteria searchCriteria;
+
+    private final SearchableEntityKind entityKind;
 
     private final IMatchClauseAttributeTranslator attributeTranslator;
 
@@ -333,44 +340,43 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
 
     }
 
-    public static DetailedSearchCriteria convert(SearchableEntityKind entityKind,
-            SearchCriteria criteria)
+    public static DetailedSearchCriteria convert(IDAOFactory daoFactory,
+            SearchableEntityKind entityKind, SearchCriteria criteria)
     {
         DetailedSearchCriteria mainCriteria =
-                new SearchCriteriaToDetailedSearchCriteriaTranslator(criteria, entityKind)
-                        .convertToDetailedSearchCriteria();
+                new SearchCriteriaToDetailedSearchCriteriaTranslator(daoFactory, criteria,
+                        entityKind).convertToDetailedSearchCriteria();
+
         for (SearchSubCriteria subCriteria : criteria.getSubCriterias())
         {
             DetailedSearchSubCriteria detailedSearchSubCriteria =
                     SearchCriteriaToDetailedSearchCriteriaTranslator
-                            .convertToDetailedSearchSubCriteria(subCriteria);
+                            .convertToDetailedSearchSubCriteria(daoFactory, subCriteria);
             mainCriteria.addSubCriteria(detailedSearchSubCriteria);
         }
+
         return mainCriteria;
     }
 
     // exposed for tests
-    static DetailedSearchSubCriteria convertToDetailedSearchSubCriteria(
+    static DetailedSearchSubCriteria convertToDetailedSearchSubCriteria(IDAOFactory daoFactory,
             SearchSubCriteria subCriteria)
     {
         final SearchCriteria criteria = subCriteria.getCriteria();
         final SearchableEntityKind targetEntityKind = subCriteria.getTargetEntityKind();
-        final DetailedSearchCriteria detailedSearchCriteria = convert(targetEntityKind, criteria);
+        final DetailedSearchCriteria detailedSearchCriteria =
+                convert(daoFactory, targetEntityKind, criteria);
         return new DetailedSearchSubCriteria(convertToAssociatedEntityKind(targetEntityKind),
                 detailedSearchCriteria);
     }
 
-    public SearchCriteriaToDetailedSearchCriteriaTranslator(SearchCriteria searchCriteria,
-            SearchableEntityKind entityKind)
+    public SearchCriteriaToDetailedSearchCriteriaTranslator(IDAOFactory daoFactory,
+            SearchCriteria searchCriteria, SearchableEntityKind entityKind)
     {
-        this(searchCriteria, translatorFor(entityKind));
-    }
-
-    public SearchCriteriaToDetailedSearchCriteriaTranslator(SearchCriteria searchCriteria,
-            IMatchClauseAttributeTranslator attributeTranslator)
-    {
+        this.daoFactory = daoFactory;
         this.searchCriteria = searchCriteria;
-        this.attributeTranslator = attributeTranslator;
+        this.entityKind = entityKind;
+        this.attributeTranslator = translatorFor(entityKind);
         newDetailedSearchCriteria = new DetailedSearchCriteria();
     }
 
@@ -460,6 +466,16 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                     searchField = DetailedSearchField.createAttributeField(searchFieldKind);
                 }
                 break;
+            case ANY_FIELD:
+                searchField =
+                        DetailedSearchField.createAnyField(getEntityPropertyTypeDAO()
+                                .listPropertyTypeCodes());
+                break;
+            case ANY_PROPERTY:
+                searchField =
+                        DetailedSearchField.createAnyPropertyField(getEntityPropertyTypeDAO()
+                                .listPropertyTypeCodes());
+                break;
             default:
                 // Should never reach here
                 searchField = null;
@@ -485,6 +501,13 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
         }
 
         return connection;
+    }
+
+    private IEntityPropertyTypeDAO getEntityPropertyTypeDAO()
+    {
+        AssociatedEntityKind associatedEntityKind = convertToAssociatedEntityKind(entityKind);
+        return daoFactory.getEntityPropertyTypeDAO(DtoConverters
+                .convertEntityKind(associatedEntityKind.getEntityKind()));
     }
 
 }

@@ -51,7 +51,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslatorTest extends Assert
     {
         SearchCriteria criteria = createBasicSearchCriteria();
         SearchCriteriaToDetailedSearchCriteriaTranslator translator =
-                new SearchCriteriaToDetailedSearchCriteriaTranslator(criteria,
+                new SearchCriteriaToDetailedSearchCriteriaTranslator(null, criteria,
                         SearchableEntityKind.SAMPLE);
 
         DetailedSearchCriteria detailedSearchCriteria =
@@ -69,7 +69,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslatorTest extends Assert
         SearchCriteria criteria = createBasicSearchCriteria();
         criteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
         SearchCriteriaToDetailedSearchCriteriaTranslator translator =
-                new SearchCriteriaToDetailedSearchCriteriaTranslator(criteria,
+                new SearchCriteriaToDetailedSearchCriteriaTranslator(null, criteria,
                         SearchableEntityKind.SAMPLE);
 
         DetailedSearchCriteria detailedSearchCriteria =
@@ -89,7 +89,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslatorTest extends Assert
         criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE,
                 "a space"));
         SearchCriteriaToDetailedSearchCriteriaTranslator translator =
-                new SearchCriteriaToDetailedSearchCriteriaTranslator(criteria,
+                new SearchCriteriaToDetailedSearchCriteriaTranslator(null, criteria,
                         SearchableEntityKind.SAMPLE);
 
         DetailedSearchCriteria detailedSearchCriteria =
@@ -112,7 +112,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslatorTest extends Assert
         criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PROJECT,
                 "a project"));
         SearchCriteriaToDetailedSearchCriteriaTranslator translator =
-                new SearchCriteriaToDetailedSearchCriteriaTranslator(criteria,
+                new SearchCriteriaToDetailedSearchCriteriaTranslator(null, criteria,
                         SearchableEntityKind.EXPERIMENT);
 
         DetailedSearchCriteria detailedSearchCriteria =
@@ -132,7 +132,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslatorTest extends Assert
         criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PROJECT,
                 "a project"));
         SearchCriteriaToDetailedSearchCriteriaTranslator translator =
-                new SearchCriteriaToDetailedSearchCriteriaTranslator(criteria,
+                new SearchCriteriaToDetailedSearchCriteriaTranslator(null, criteria,
                         SearchableEntityKind.SAMPLE);
         try
         {
@@ -152,7 +152,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslatorTest extends Assert
     {
         DetailedSearchSubCriteria detailedSearchSubCriteria =
                 SearchCriteriaToDetailedSearchCriteriaTranslator
-                        .convertToDetailedSearchSubCriteria(subCriteria);
+                        .convertToDetailedSearchSubCriteria(null, subCriteria);
         assertNotNull(detailedSearchSubCriteria);
         assertEquals(expectedEntityKind + ": " + EXPECTED_BASIC_QUERY_SUFFIX,
                 detailedSearchSubCriteria.toString());
