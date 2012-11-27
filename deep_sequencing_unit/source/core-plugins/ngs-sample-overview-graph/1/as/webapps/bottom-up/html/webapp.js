@@ -193,7 +193,6 @@ SampleGraphPresenter.prototype.initializePresenter = function()
 	COLUMNS.forEach(function(column) { column.xOffset = xOffset; xOffset += column.width });
 
 	// Function used to draw paths between elements
-	var diagonal = d3.svg.diagonal();
 	var yLinkOffset = LINE_HEIGHT * 0.25;
 
 	var lexicalParent = this;
@@ -205,11 +204,30 @@ SampleGraphPresenter.prototype.initializePresenter = function()
 	function target(d) {
 		return { x : d.targetNode.x, y  : d.targetNode.y - yLinkOffset }
 	}
+
+	this.useLineLinkPath(source, target);
+	this.didCreateVis = true;
+}
+
+/**
+ * Draw links using the diagonal function
+ */
+SampleGraphPresenter.prototype.useDiagonalLinkPath = function(source, target) {
+	var diagonal = d3.svg.diagonal();
 	diagonal.source(source);
 	diagonal.target(target);	
 	this.path = diagonal;
+}
 
-	this.didCreateVis = true;
+/**
+ * Draw links using the line function
+ */
+SampleGraphPresenter.prototype.useLineLinkPath = function(source, target) {
+	var line = d3.svg.line();
+	this.path = function(d) {
+		var src = source(d);
+		var dst = target(d);
+		return line([[src.x, src.y], [dst.x, dst.y]]); }
 }
 
 /**
@@ -217,6 +235,7 @@ SampleGraphPresenter.prototype.initializePresenter = function()
  */
 SampleGraphPresenter.prototype.initializeGraphSamples = function()
 {
+	var colors = d3.scale.category10();
 	var nodeData = COLUMNS.map(function(c) { return model.samplesByType[c.type] });
 	// Compute the x/y coordinates for each sample
 	for (var col = 0; col < nodeData.length; ++col) {
@@ -230,6 +249,7 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 			sampleData.y = LINE_HEIGHT * (row+2);
 			sampleData.col = col;
 			sampleData.row = row;
+			sampleData.color = (sampleData.children.length > 1) ? colors(row) : "#ccc";
 			sampleData.visible = true;
 		}
 	}
@@ -304,7 +324,7 @@ SampleGraphPresenter.prototype.showLinks = function()
 	link.enter().append("svg:path").attr("class", "link");
 	link
 		.style("fill", "none")
-		.style("stroke", "#ccc")
+		.style("stroke", function(d) { return d.sourceNode.color})
 		.style("stroke-width", "1.5px")
 		.attr("d", this.path);
 }
