@@ -119,6 +119,15 @@ public interface IDataSetRegistrationTransactionV2
     ISample createNewSample(String sampleIdentifierString, String sampleTypeCode);
 
     /**
+     * Create a new sample to register with the openBIS AS. The sample will have a permId and
+     * automatically created identifier.
+     * 
+     * @param spaceCode The space in which to create the sample identifier for the new sample
+     * @param sampleTypeCode The code of the type for the new sample
+     */
+    ISample createNewSampleWithGeneratedCode(String spaceCode, String sampleTypeCode);
+
+    /**
      * Get an experiment from the openBIS AS.
      */
     IExperimentImmutable getExperiment(String experimentIdentifierString);

@@ -118,6 +118,12 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
     }
 
     @Override
+    public ISample createNewSampleWithGeneratedCode(String spaceCode, String sampleTypeCode)
+    {
+        return transaction.createNewSampleWithGeneratedCode(spaceCode, sampleTypeCode);
+    }
+
+    @Override
     public IExperimentImmutable getExperiment(String experimentIdentifierString)
     {
         return transaction.getExperiment(experimentIdentifierString);

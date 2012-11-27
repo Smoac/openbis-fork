@@ -337,6 +337,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
+    public ISample createNewSampleWithGeneratedCode(String spaceCode, String sampleTypeCode)
+    {
+        return getStateAsLiveState().createNewSampleWithGeneratedCode(spaceCode, sampleTypeCode);
+    }
+
+    @Override
     public IExperimentImmutable getExperiment(String experimentIdentifierString)
     {
         ExperimentIdentifier experimentIdentifier =
@@ -381,7 +387,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         return getStateAsLiveState().makeProjectMutable(project);
     }
-    
+
     @Override
     public ISpace createNewSpace(String spaceCode, String spaceAdminUserIdOrNull)
     {

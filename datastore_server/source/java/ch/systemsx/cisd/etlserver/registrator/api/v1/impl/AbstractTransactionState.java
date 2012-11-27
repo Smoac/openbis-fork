@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDeta
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -68,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
@@ -561,6 +563,30 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         public ISample createNewSample(String sampleIdentifierString, String sampleTypeCode)
         {
             String permId = openBisService.createPermId();
+            Sample sample = new Sample(sampleIdentifierString, permId);
+            sample.setSampleType(sampleTypeCode);
+            samplesToBeRegistered.add(sample);
+            return sample;
+        }
+
+        public ISample createNewSampleWithGeneratedCode(String spaceCode, String sampleTypeCode)
+        {
+            String permId = openBisService.createPermId();
+            SampleType sampleType = openBisService.getSampleType(sampleTypeCode);
+
+            String sampleIdentifierString;
+            if (spaceCode == null || spaceCode.length() == 0)
+            {
+                sampleIdentifierString =
+                        "/" + openBisService.generateCodes(sampleType.getGeneratedCodePrefix(),
+                                EntityKind.SAMPLE, 1).get(0);
+            } else
+            {
+                sampleIdentifierString = "/" + spaceCode + "/" +
+                        openBisService.generateCodes(sampleType.getGeneratedCodePrefix(),
+                                EntityKind.SAMPLE, 1).get(0);
+            }
+
             Sample sample = new Sample(sampleIdentifierString, permId);
             sample.setSampleType(sampleTypeCode);
             samplesToBeRegistered.add(sample);

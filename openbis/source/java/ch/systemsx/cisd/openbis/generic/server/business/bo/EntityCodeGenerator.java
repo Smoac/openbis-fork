@@ -42,7 +42,7 @@ public class EntityCodeGenerator
 
     private final CountQuery countQuery;
 
-    private interface CountQuery extends BaseQuery
+    public static interface CountQuery extends BaseQuery
     {
         public final static String PREFIX = "SELECT count(*) FROM ";
 

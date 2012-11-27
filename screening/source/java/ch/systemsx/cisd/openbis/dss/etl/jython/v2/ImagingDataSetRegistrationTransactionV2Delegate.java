@@ -148,6 +148,13 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     }
 
     @Override
+    public ISample createNewSampleWithGeneratedCode(String spaceCode,
+            String sampleTypeCode)
+    {
+        return transaction.createNewSampleWithGeneratedCode(spaceCode, sampleTypeCode);
+    }
+
+    @Override
     public IExperimentImmutable getExperiment(String experimentIdentifierString)
     {
         return transaction.getExperiment(experimentIdentifierString);
@@ -195,6 +202,7 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     {
         return transaction.makeProjectMutable(project);
     }
+
     @Override
     public ISpace createNewSpace(String spaceCode, String spaceAdminUserIdOrNull)
     {

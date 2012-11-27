@@ -98,6 +98,12 @@ public class SampleTypeBuilder implements Builder<SampleType>
         return this;
     }
 
+    public SampleTypeBuilder withPrefix(String prefix)
+    {
+        this.generatedCodePrefix = prefix;
+        return this;
+    }
+
     @Override
     public SampleType build(Application openbis, Ui ui)
     {
