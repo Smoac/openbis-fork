@@ -35,7 +35,9 @@ function SampleGraphNode(sample) {
 	this.identifier = sample.identifier;
 	this.properties = sample.properties;
 	this.nodeId = sample["@id"];
+	this.sampleType = sample.sampleTypeCode;
 	this.children = [];
+	this.serverSample = sample;
 }
 
 
@@ -98,8 +100,7 @@ SampleGraphModel.prototype.requestGraphData = function(callback)
 	var lexicalParent = this;
 	function coalesceResult(data) {
 		lexicalParent.coalesceGraphData(data);
-//		callback(lexicalParent.graphData);
-		callback(data);
+		callback(lexicalParent.graphData);
 	}
 
 	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], coalesceResult);
@@ -120,14 +121,14 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
 		// This is just a nodeId, it will be converted elsewhere
 		if (isPureId(sample)) return;
 
-		sample.parents.forEach(convertSampleToNode);		
+		sample.parents.forEach(convertSampleToNode);
 
 		var node = new SampleGraphNode(sample);
 		nodesById[node.nodeId] = node;
 	}
 
 	function resolveParents(sample) {
-		// This is just a nodeId, it will be resolved elsewhere		
+		// This is just a nodeId, it will be resolved elsewhere
 		if (isPureId(sample)) return;
 
 		sample.parents.forEach(resolveParents);
@@ -141,7 +142,6 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
 	samples.forEach(resolveParents);
 
 	this.graphData = samples.map(nodeForSample);
-	console.log(this.graphData);
 }
 
 
@@ -193,22 +193,15 @@ SampleGraphPresenter.prototype.showGraphTable = function(data)
 }
 
 /**
- * Display the sample returned by the server
+ * Display the sample nodes.
  */
-SampleGraphPresenter.prototype.showGraphSamples = function(data)
+SampleGraphPresenter.prototype.showGraphSamples = function(nodes)
 {
-	if (data.error) {
-		console.log(data.error);
-		this.root.append("p").text("Could not retrieve data.");
-		return;
-	}
-	
 	// This will show the object in the log -- helpful for debugging
-	// console.log(data.result);
-	var tableData = data.result;
+	// console.log(nodes);
 
 	// Display the rows in a table
-	var table = this.root.selectAll("table").data([tableData]);
+	var table = this.root.selectAll("table").data([nodes]);
 	// Code under enter is run if there is no HTML element for a data element	
 	table.enter().append("table").attr("class", "table");
 	this.showEntityTableHeader(table);
@@ -220,7 +213,7 @@ SampleGraphPresenter.prototype.showGraphSamples = function(data)
  */
 SampleGraphPresenter.prototype.showEntityTableHeader = function(table)
 {
-	var header = table.selectAll("thead").data(function(d) { return [["Flowlane", "Multiplex"]] });
+	var header = table.selectAll("thead").data(function(d) { return [["Flowlane", "Multiplex", "Library Count"]] });
 	header.enter().append("thead");
 	var headerRows = header.selectAll("tr").data(function(d) { return [d] });
 	headerRows.enter().append("tr");
@@ -240,7 +233,7 @@ SampleGraphPresenter.prototype.showEntityTableData = function(table)
 	dataRows.enter().append("tr").on("click", function (d) { presenter.selectEntity(d); });
 	dataRows.exit().remove();
 
-	var dataData = dataRows.selectAll("td").data(function(d) { return [d.identifier, "" + d.parents[0]["@id"] + " " + d.parents[0].identifier] });
+	var dataData = dataRows.selectAll("td").data(function(d) { return [d.identifier, d.children[0].identifier, "" + d.children[0].children.length] });
 	dataData.enter().append("td");
 	dataData.text(function (d) { return d });
 }
