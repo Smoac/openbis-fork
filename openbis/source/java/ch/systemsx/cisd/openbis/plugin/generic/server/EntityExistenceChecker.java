@@ -22,8 +22,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -78,7 +78,7 @@ class EntityExistenceChecker
     EntityExistenceChecker(IDAOFactory daoFactory)
     {
         this.daoFactory = daoFactory;
-        this.errors = new HashSet<String>();
+        this.errors = new TreeSet<String>();
     }
 
     public List<String> getErrors()
@@ -87,10 +87,10 @@ class EntityExistenceChecker
     }
 
     /**
-     * Checks specified materials.A {@link UserFailureException} is thrown if
+     * Checks specified materials. An error is added if
      * <ul>
-     * <li>specified material type is not known or
-     * <li>at least one material has a property which is not assigned to specified material type.
+     * <li>specified material type is not known
+     * <li>materials have a property which is not assigned to specified material type.
      * </ul>
      */
     void checkNewMaterials(List<NewMaterialsWithTypes> newMaterialsWithType)
@@ -137,11 +137,11 @@ class EntityExistenceChecker
     }
 
     /**
-     * Checks specified samples. A {@link UserFailureException} is thrown if
+     * Checks specified samples. A error is added if
      * <ul>
      * <li>specified sample type is not known,
-     * <li>at least one sample has a property which is not assigned to the specified sample type,
-     * <li>at least one sample is linked to an unknown experiment or an unknown container.
+     * <li>a sample has a property which is not assigned to the specified sample type,
+     * <li>a one sample is linked to an unknown experiment or an unknown container.
      * </ul>
      * Note, that the new samples are stored in the cache as known samples. Thus, they can be
      * referred as container samples in a second call of this method.
@@ -164,9 +164,10 @@ class EntityExistenceChecker
                         extractor.getExperimentIdentifierOrNull();
                 if (experimentIdentifier != null)
                 {
-                	if (assertExperimentExists(experimentIdentifier) == false) {
-	                	continue;
-                	}
+                    if (assertExperimentExists(experimentIdentifier) == false)
+                    {
+                        continue;
+                    }
                 }
                 String containerIdentifier = newSample.getContainerIdentifierForNewSample();
                 if (containerIdentifier != null)
@@ -175,9 +176,10 @@ class EntityExistenceChecker
                     SampleIdentifier sampleIdentifier =
                             SampleIdentifierFactory.parse(containerIdentifier,
                                     defaultSpaceIdentifier);
- 
-                    if (assertSampleExists(sampleIdentifier) == null) {
-                    	continue;
+
+                    if (assertSampleExists(sampleIdentifier) == null)
+                    {
+                        continue;
                     }
                 }
                 addSample(extractor.getNewSampleIdentifier());
@@ -198,8 +200,7 @@ class EntityExistenceChecker
                             experimentIdentifier.getProjectCode());
             if (project == null)
             {
-                errors.add("Unknown experiment because of unknown project: "
-                        + experimentIdentifier);
+                errors.add("Unknown experiment because of unknown project: " + experimentIdentifier);
                 return false;
             }
             ExperimentPE experiment =
@@ -307,8 +308,8 @@ class EntityExistenceChecker
             if (propertyTypes.contains(propertyTypeCode) == false)
             {
                 String typeName = entityType instanceof SampleType ? "Sample" : "Material";
-                errors.add(typeName + " type " + entityTypeCode
-                        + " has no property type " + propertyTypeCode + " assigned.");
+                errors.add(typeName + " type " + entityTypeCode + " has no property type "
+                        + propertyTypeCode + " assigned.");
             }
         }
     }

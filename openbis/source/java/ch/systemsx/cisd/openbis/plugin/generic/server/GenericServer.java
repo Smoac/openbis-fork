@@ -924,9 +924,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         entityExistenceChecker.checkNewSamples(newSamplesWithType);
 
         List<String> errors = entityExistenceChecker.getErrors();
-        if (errors.size() > 0)
+        int size = errors.size();
+        if (size > 0)
         {
-            String errorString = "Found "+errors.size()+ "error(s):";
+            String errorString = "Found " + (size == 1 ? " one error:" : size + "errors:");
             for (String error : errors)
             {
                 errorString += "\n" + error;
