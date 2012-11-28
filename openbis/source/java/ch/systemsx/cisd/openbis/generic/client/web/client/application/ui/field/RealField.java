@@ -30,5 +30,6 @@ public class RealField extends NumberField
         VarcharField.configureField(this, fieldLabel, mandatory);
         getMessages().setBlankText("Real number required");
         setEmptyText("Real number value");
+        setBaseChars("0123456789-+eE");
     }
 }
