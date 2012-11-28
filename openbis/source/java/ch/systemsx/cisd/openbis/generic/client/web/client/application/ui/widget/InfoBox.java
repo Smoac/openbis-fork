@@ -28,9 +28,9 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -94,21 +94,17 @@ public final class InfoBox extends Composite implements IInfoHandler
                 }
             });
 
-        Style showFullMessageLinkStyle = showFullMessageLink.getElement().getStyle();
-        showFullMessageLinkStyle.setMarginLeft(10, Unit.PX);
-
-        HorizontalPanel horizontalPanel = new HorizontalPanel();
-        horizontalPanel.setHorizontalAlignment(alignment);
-        horizontalPanel.setVerticalAlignment(HorizontalPanel.ALIGN_MIDDLE);
-        horizontalPanel.add(truncatedMessageHtml);
-        horizontalPanel.add(showFullMessageLink);
+        VerticalPanel verticalPanel = new VerticalPanel();
+        verticalPanel.setHorizontalAlignment(alignment);
+        verticalPanel.add(truncatedMessageHtml);
+        verticalPanel.add(showFullMessageLink);
 
         mainPanel = new SimplePanel();
         Style mainPanelStyle = mainPanel.getElement().getStyle();
         mainPanelStyle.setBorderStyle(BorderStyle.SOLID);
         mainPanelStyle.setBorderWidth(1, Unit.PX);
         mainPanelStyle.setPadding(3, Unit.PX);
-        mainPanel.add(horizontalPanel);
+        mainPanel.add(verticalPanel);
 
         initWidget(mainPanel);
         reset();
