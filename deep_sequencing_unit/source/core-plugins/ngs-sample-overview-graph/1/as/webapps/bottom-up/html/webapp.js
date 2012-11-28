@@ -282,9 +282,16 @@ SampleGraphPresenter.prototype.updateVisibility = function() {
 	// Figure out if the nodes should be visible
 	this.allNodes.forEach(function(samps) {
 		samps.forEach(function(sample) {
+			if (null != sample.userChildrenVisible) sample.childrenVisible = sample.userChildrenVisible;
 			var showChildren = sample.visible && sample.childrenVisible;
 			if (!showChildren) return;
-			sample.children.forEach(function(c) { c.visible = true });
+			sample.children.forEach(function(c) { 
+				c.visible = true;
+				// Nodes with only one child should show their children as well, unless the user requests otherwise
+				if (c.children.length == 1) {
+					c.childrenVisible = (null == c.userChildrenVisible) ? true : c.userChildrenVisible;
+				}
+			});
 		})
 	});
 }
@@ -390,7 +397,7 @@ SampleGraphPresenter.prototype.drawLinks = function()
 
 SampleGraphPresenter.prototype.clickedNode = function(svgNode, d) {
 	// toggle visiblity
-	d.childrenVisible = !d.childrenVisible;
+	d.userChildrenVisible = (null == d.userChildrenVisible) ? !d.childrenVisible :!d.userChildrenVisible;
 	this.draw();
 }
 
