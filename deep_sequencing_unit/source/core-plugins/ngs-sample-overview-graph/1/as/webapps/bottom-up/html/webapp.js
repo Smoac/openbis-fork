@@ -205,7 +205,7 @@ SampleGraphPresenter.prototype.initializePresenter = function()
 
 	var lexicalParent = this;
 	function bboxForNode(node) { 
-		var bbox = lexicalParent.columns.selectAll("text.sample")[node.col][node.row].getBBox();
+		var bbox = lexicalParent.columns.selectAll("text.sample")[node.col][node.visibleIndex].getBBox();
 		// Correct for the column
 		bbox.x += node.colOffset;
 		return bbox;
@@ -266,7 +266,7 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 			var childrenWithMultipleParents = sampleData.children.filter(function(c) { return c.parents.length > 1 });
 			var oneToOne = oneChildOrLess && childrenWithMultipleParents.length == 0;
 			sampleData.color = (!oneToOne) ? colors(row) : "#ccc";
-			sampleData.visible = col < FIRST_COLLAPSED_COLUMN;
+			sampleData.childrenVisible = col + 1 < FIRST_COLLAPSED_COLUMN;
 		}
 	}
 	this.allNodes = nodes;
@@ -274,10 +274,25 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 	this.vizHeight = d3.max(nodes, function(d) { return d.length}) * LINE_HEIGHT
 }
 
-SampleGraphPresenter.prototype.computeLinks = function() {
+SampleGraphPresenter.prototype.updateVisibility = function() {
+	// Turn off visibility on all nodes
+	this.allNodes.forEach(function(samps, i) { 
+		samps.forEach(function(s) { s.visible = (i > 0) ? false : true })
+	});
+	// Figure out if the nodes should be visible
+	this.allNodes.forEach(function(samps) {
+		samps.forEach(function(sample) {
+			var showChildren = sample.visible && sample.childrenVisible;
+			if (!showChildren) return;
+			sample.children.forEach(function(c) { c.visible = true });
+		})
+	});
+}
+
+SampleGraphPresenter.prototype.updateLinks = function() {
 	var links = [];
-	this.allNodes.forEach(function(samples) {
-		samples.forEach(function(d) { 
+	this.allNodes.forEach(function(samps) {
+		samps.forEach(function(d) { 
 			if (!d.visible) return;
 			d.children.forEach(function(c) { if (c.visible) links.push(new SampleGraphLink(d, c))});
 		})
@@ -286,13 +301,27 @@ SampleGraphPresenter.prototype.computeLinks = function() {
 	this.links = links;
 }
 
+SampleGraphPresenter.prototype.updateNodes = function() {
+	var nodes = this.allNodes.map(function(d) { return d.filter(function(n) { return n.visible })});
+	nodes.forEach(function(samps) { samps.forEach(function(s, i) { s.visibleIndex = i })});
+	this.nodes = nodes;
+}
+
+SampleGraphPresenter.prototype.updateState = function()
+{
+	// These need to be done in this order
+	this.updateVisibility();
+	this.updateNodes();
+	this.updateLinks();
+}
+
 /**
  * Display the sample nodes.
  */
 SampleGraphPresenter.prototype.draw = function()
 {
-	var nodes = this.allNodes.map(function(d) { return d.filter(function(n) { return n.visible })});
-	this.computeLinks();
+	this.updateState();
+	var nodes = this.nodes;
 	var vizWidth = this.vizWidth;
 	var vizHeight = this.vizHeight;
 
@@ -361,7 +390,7 @@ SampleGraphPresenter.prototype.drawLinks = function()
 
 SampleGraphPresenter.prototype.clickedNode = function(svgNode, d) {
 	// toggle visiblity
-	d.children.forEach(function(c) { c.visible = !c.visible });
+	d.childrenVisible = !d.childrenVisible;
 	this.draw();
 }
 
