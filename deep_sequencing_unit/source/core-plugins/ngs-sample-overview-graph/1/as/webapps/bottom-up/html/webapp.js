@@ -53,6 +53,7 @@ function SampleGraphNode(sample) {
 	this.nodeId = sample["@id"];
 	this.sampleType = sample.sampleTypeCode;
 	this.children = [];
+	this.parents = [];
 	this.serverSample = sample;
 	this.arrayIndex = -1
 }
@@ -160,6 +161,7 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
 		// Sample parents become node children
 		var node = nodeForSample(sample);
 		node.children = sample.parents.map(nodeForSample);
+		node.children.forEach(function(c) { c.parents.push(node)} );
 	}
 
 	samples.forEach(convertSampleToNode);
@@ -249,7 +251,10 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 			sampleData.y = LINE_HEIGHT * (row+2);
 			sampleData.col = col;
 			sampleData.row = row;
-			sampleData.color = (sampleData.children.length > 1) ? colors(row) : "#ccc";
+			var oneChildOrLess = sampleData.children.length < 2;
+			var childrenWithMultipleParents = sampleData.children.filter(function(c) { return c.parents.length > 1 });
+			var oneToOne = oneChildOrLess && childrenWithMultipleParents.length == 0;
+			sampleData.color = (!oneToOne) ? colors(row) : "#ccc";
 			sampleData.visible = true;
 		}
 	}
