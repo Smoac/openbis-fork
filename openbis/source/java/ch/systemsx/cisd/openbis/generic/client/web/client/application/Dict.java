@@ -182,7 +182,11 @@ public abstract class Dict
 
     public static final String BUTTON_TAG = "button_tag";
 
+    public static final String BUTTON_TAG_TOOLTIP = "button_tag_tooltip";
+
     public static final String BUTTON_UNTAG = "button_untag";
+
+    public static final String BUTTON_UNTAG_TOOLTIP = "button_untag_tooltip";
 
     public static final String BUTTON_UPLOAD = "button_upload";
 

@@ -102,6 +102,8 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
             if (sample.isStub())
             {
                 builder.column(PERM_ID).addString(sample.getPermId());
+                builder.column(METAPROJECTS).addString(
+                        metaProjectsToString(sample.getMetaprojects()));
             } else
             {
                 builder.column(CODE).addEntityLink(sample, sample.getCode());

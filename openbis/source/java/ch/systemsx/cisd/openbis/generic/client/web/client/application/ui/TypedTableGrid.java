@@ -373,6 +373,8 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
 
     private List<IColumnDefinitionUI<TableModelRowWithObject<T>>> visibleColDefinitions;
 
+    protected final String gridId;
+
     protected TypedTableGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String browserId, IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
@@ -387,7 +389,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     protected TypedTableGrid(IViewContext<ICommonClientServiceAsync> viewContext, String browserId,
             boolean refreshAutomatically, IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        String gridId = browserId + GRID_POSTFIX;
+        this.gridId = browserId + GRID_POSTFIX;
         pendingFetchManager = new PendingFetchManager();
         this.displayTypeIDGenerator = displayTypeIDGenerator;
         this.viewContext = viewContext;

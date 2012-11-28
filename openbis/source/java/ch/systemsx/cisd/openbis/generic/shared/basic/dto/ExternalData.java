@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityWithDeletionInformat
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIsStub;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ITaggable;
 
 /**
  * A DTO for external data sets.
@@ -34,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  */
 public abstract class ExternalData extends CodeWithRegistrationAndModificationDate<ExternalData>
         implements IEntityWithDeletionInformation, IEntityInformationHolderWithProperties,
-        IIdAndCodeHolder, IPermIdHolder, IIsStub
+        IIdAndCodeHolder, IPermIdHolder, IIsStub, ITaggable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -392,6 +393,7 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
         this.metaprojects = metaprojects;
     }
 
+    @Override
     public Collection<Metaproject> getMetaprojects()
     {
         return metaprojects;

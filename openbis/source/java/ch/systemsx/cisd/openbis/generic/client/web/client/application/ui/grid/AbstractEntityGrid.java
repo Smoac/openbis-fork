@@ -35,11 +35,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntitiesListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntitiesProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MetaprojectChooserButton;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityPropertyUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IUpdateResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ITaggable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -53,9 +57,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithProperties> extends
+public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithProperties & ITaggable>
+        extends
         TypedTableGrid<E>
 {
+
+    public static final String TAG_BUTTON_ID_SUFFIX = "_tag";
+
+    public static final String UNTAG_BUTTON_ID_SUFFIX = "_untag";
+
     public AbstractEntityGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             String browserId, boolean refreshAutomatically,
             IDisplayTypeIDGenerator displayTypeIDGenerator)
@@ -130,17 +140,13 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
         return suffix;
     }
 
-    protected static interface Taggable
-    {
-        public Collection<Metaproject> getMetaprojects();
-    }
-
-    protected List<String> getMetaProjectsReferencedyByEachOf(List<Taggable> taggables)
+    private List<String> getMetaProjectsReferencedyByEachOf(
+            List<ITaggable> taggables)
     {
         int itemCount = taggables.size();
         Map<String, Integer> counts = new HashMap<String, Integer>();
 
-        for (Taggable taggable : taggables)
+        for (ITaggable taggable : taggables)
         {
             Collection<Metaproject> metaProjects = taggable.getMetaprojects();
 
@@ -171,11 +177,11 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
         return result;
     }
 
-    protected List<String> getMetaProjectsReferencedByAtLeastOneOf(List<Taggable> taggables)
+    private List<String> getMetaProjectsReferencedByAtLeastOneOf(List<ITaggable> taggables)
     {
         Set<String> result = new HashSet<String>();
 
-        for (Taggable taggable : taggables)
+        for (ITaggable taggable : taggables)
         {
             Collection<Metaproject> metaprojects = taggable.getMetaprojects();
             if (metaprojects != null)
@@ -187,5 +193,136 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
             }
         }
         return new ArrayList<String>(result);
+    }
+
+    protected final void addTaggingButtons()
+    {
+        final MetaprojectChooserButton tagButton =
+                new MetaprojectChooserButton(viewContext, getId(),
+                        new IChosenEntitiesProvider<String>()
+                            {
+                                @Override
+                                public List<String> getEntities()
+                                {
+                                    List<BaseEntityModel<TableModelRowWithObject<E>>> selectedItems =
+                                            getSelectedItems();
+                                    List<ITaggable> taggables = new ArrayList<ITaggable>();
+                                    for (BaseEntityModel<TableModelRowWithObject<E>> model : selectedItems)
+                                    {
+                                        taggables.add(model.getBaseObject().getObjectOrNull());
+                                    }
+
+                                    return getMetaProjectsReferencedyByEachOf(taggables);
+                                }
+
+                                @Override
+                                public boolean isBlackList()
+                                {
+                                    return true;
+                                }
+                            });
+
+        tagButton
+                .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>()
+                    {
+                        @Override
+                        public void entitiesChosen(
+                                List<TableModelRowWithObject<Metaproject>> entities)
+                        {
+
+                            List<BaseEntityModel<TableModelRowWithObject<E>>> selectedItems =
+                                    getSelectedItems();
+
+                            EntityKind entityKind =
+                                    selectedItems.get(0).getBaseObject().getObjectOrNull()
+                                            .getEntityKind();
+
+                            List<Long> entityIds = new ArrayList<Long>();
+                            for (BaseEntityModel<TableModelRowWithObject<E>> item : selectedItems)
+                            {
+                                entityIds.add(item.getBaseObject().getObjectOrNull().getId());
+                            }
+
+                            List<Long> metaProjectIds = new ArrayList<Long>();
+                            for (TableModelRowWithObject<Metaproject> row : entities)
+                            {
+                                metaProjectIds.add(row.getObjectOrNull().getId());
+                            }
+                            viewContext.getCommonService().assignEntitiesToMetaProjects(entityKind,
+                                    metaProjectIds, entityIds,
+                                    createRefreshCallback(asActionInvoker()));
+
+                        }
+                    });
+
+        tagButton.setId(gridId + TAG_BUTTON_ID_SUFFIX);
+        tagButton.setText(viewContext.getMessage(Dict.BUTTON_TAG));
+        tagButton.setToolTip(viewContext.getMessage(Dict.BUTTON_TAG_TOOLTIP));
+        enableButtonOnSelectedItems(tagButton);
+        addButton(tagButton);
+
+        final MetaprojectChooserButton untagButton =
+                new MetaprojectChooserButton(viewContext, getId(),
+                        new IChosenEntitiesProvider<String>()
+                            {
+                                @Override
+                                public List<String> getEntities()
+                                {
+                                    List<BaseEntityModel<TableModelRowWithObject<E>>> selectedItems =
+                                            getSelectedItems();
+                                    List<ITaggable> taggables = new ArrayList<ITaggable>();
+                                    for (BaseEntityModel<TableModelRowWithObject<E>> model : selectedItems)
+                                    {
+                                        taggables.add(model.getBaseObject().getObjectOrNull());
+                                    }
+                                    return getMetaProjectsReferencedByAtLeastOneOf(taggables);
+                                }
+
+                                @Override
+                                public boolean isBlackList()
+                                {
+                                    return false;
+                                }
+                            });
+
+        untagButton
+                .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>()
+                    {
+                        @Override
+                        public void entitiesChosen(
+                                List<TableModelRowWithObject<Metaproject>> entities)
+                        {
+                            List<BaseEntityModel<TableModelRowWithObject<E>>> selectedItems =
+                                    getSelectedItems();
+
+                            EntityKind entityKind =
+                                    selectedItems.get(0).getBaseObject().getObjectOrNull()
+                                            .getEntityKind();
+
+                            List<Long> entityIds = new ArrayList<Long>();
+                            for (BaseEntityModel<TableModelRowWithObject<E>> item : selectedItems)
+                            {
+                                entityIds.add(item.getBaseObject().getObjectOrNull().getId());
+                            }
+
+                            List<Long> metaProjectIds = new ArrayList<Long>();
+                            for (TableModelRowWithObject<Metaproject> row : entities)
+                            {
+                                metaProjectIds.add(row.getObjectOrNull().getId());
+                            }
+                            viewContext.getCommonService()
+                                    .removeEntitiesFromMetaProjects(entityKind,
+                                            metaProjectIds, entityIds,
+                                            createRefreshCallback(asActionInvoker()));
+
+                        }
+                    });
+
+        untagButton.setId(gridId + UNTAG_BUTTON_ID_SUFFIX);
+        untagButton.setText(viewContext.getMessage(Dict.BUTTON_UNTAG));
+        untagButton.setToolTip(viewContext.getMessage(Dict.BUTTON_UNTAG_TOOLTIP));
+        enableButtonOnSelectedItems(untagButton);
+        addButton(untagButton);
+
     }
 }

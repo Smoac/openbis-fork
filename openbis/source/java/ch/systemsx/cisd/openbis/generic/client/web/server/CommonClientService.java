@@ -2731,127 +2731,56 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public void assignSamplesToMetaProjects(List<Long> metaProjectIds, List<Long> sampleIds)
+    public void assignEntitiesToMetaProjects(EntityKind entityKind, List<Long> metaProjectIds,
+            List<Long> entityIds)
     {
         MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
-        for (Long id : sampleIds)
+        for (Long id : entityIds)
         {
-            ids.addSample(new SampleTechIdId(id));
+            addId(entityKind, id, ids);
         }
-
         for (Long metaProjectId : metaProjectIds)
         {
             commonServer.addToMetaproject(getSessionToken(),
-                    new MetaprojectTechIdId(metaProjectId), ids);
+                    new MetaprojectTechIdId(metaProjectId),
+                    ids);
         }
     }
 
     @Override
-    public void removeSamplesFromMetaProjects(List<Long> metaProjectIds, List<Long> sampleIds)
+    public void removeEntitiesFromMetaProjects(EntityKind entityKind, List<Long> metaProjectIds,
+            List<Long> entityIds)
     {
         MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
-        for (Long id : sampleIds)
+        for (Long id : entityIds)
         {
-            ids.addSample(new SampleTechIdId(id));
+            addId(entityKind, id, ids);
         }
         for (Long metaProjectId : metaProjectIds)
         {
-            commonServer.removeFromMetaproject(getSessionToken(), new MetaprojectTechIdId(
-                    metaProjectId), ids);
+            commonServer.removeFromMetaproject(getSessionToken(),
+                    new MetaprojectTechIdId(metaProjectId),
+                    ids);
         }
     }
 
-    @Override
-    public void assignExperimentsToMetaProjects(List<Long> metaProjectIds, List<Long> experimentIds)
+    private void addId(EntityKind entityKind, Long id, MetaprojectAssignmentsIds assignments)
     {
-        MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
-        for (Long id : experimentIds)
+        if (EntityKind.MATERIAL.equals(entityKind))
         {
-            ids.addExperiment(new ExperimentTechIdId(id));
-        }
-
-        for (Long metaProjectId : metaProjectIds)
+            assignments.addMaterial(new MaterialTechIdId(id));
+        } else if (EntityKind.DATA_SET.equals(entityKind))
         {
-            commonServer.addToMetaproject(getSessionToken(),
-                    new MetaprojectTechIdId(metaProjectId), ids);
-        }
-    }
-
-    @Override
-    public void removeExperimentsFromMetaProjects(List<Long> metaProjectIds,
-            List<Long> experimentIds)
-    {
-        MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
-        for (Long id : experimentIds)
+            assignments.addDataSet(new DataSetTechIdId(id));
+        } else if (EntityKind.SAMPLE.equals(entityKind))
         {
-            ids.addExperiment(new ExperimentTechIdId(id));
-        }
-        for (Long metaProjectId : metaProjectIds)
+            assignments.addSample(new SampleTechIdId(id));
+        } else if (EntityKind.EXPERIMENT.equals(entityKind))
         {
-            commonServer.removeFromMetaproject(getSessionToken(), new MetaprojectTechIdId(
-                    metaProjectId), ids);
-        }
-    }
-
-    @Override
-    public void assignDataSetsToMetaProjects(List<Long> metaProjectIds, List<Long> dataSetIds)
-    {
-        MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
-        for (Long id : dataSetIds)
+            assignments.addExperiment(new ExperimentTechIdId(id));
+        } else
         {
-            ids.addDataSet(new DataSetTechIdId(id));
-        }
-
-        for (Long metaProjectId : metaProjectIds)
-        {
-            commonServer.addToMetaproject(getSessionToken(),
-                    new MetaprojectTechIdId(metaProjectId), ids);
-        }
-    }
-
-    @Override
-    public void removeDataSetsFromMetaProjects(List<Long> metaProjectIds, List<Long> dataSetIds)
-    {
-        MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
-        for (Long id : dataSetIds)
-        {
-            ids.addDataSet(new DataSetTechIdId(id));
-        }
-        for (Long metaProjectId : metaProjectIds)
-        {
-            commonServer.removeFromMetaproject(getSessionToken(), new MetaprojectTechIdId(
-                    metaProjectId), ids);
-        }
-    }
-
-    @Override
-    public void assignMaterialsToMetaProjects(List<Long> metaProjectIds, List<Long> materialIds)
-    {
-        MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
-        for (Long id : materialIds)
-        {
-            ids.addMaterial(new MaterialTechIdId(id));
-        }
-
-        for (Long metaProjectId : metaProjectIds)
-        {
-            commonServer.addToMetaproject(getSessionToken(),
-                    new MetaprojectTechIdId(metaProjectId), ids);
-        }
-    }
-
-    @Override
-    public void removeMaterialsFromMetaProjects(List<Long> metaProjectIds, List<Long> materialIds)
-    {
-        MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
-        for (Long id : materialIds)
-        {
-            ids.addMaterial(new MaterialTechIdId(id));
-        }
-        for (Long metaProjectId : metaProjectIds)
-        {
-            commonServer.removeFromMetaproject(getSessionToken(), new MetaprojectTechIdId(
-                    metaProjectId), ids);
+            throw new IllegalArgumentException("Unknown entity kind " + entityKind);
         }
     }
 }

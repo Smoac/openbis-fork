@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityWithDeletionInformat
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIsStub;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ITaggable;
 
 /**
  * The <i>GWT</i> equivalent to ExperimentPE.
@@ -33,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  */
 public class Experiment extends CodeWithRegistrationAndModificationDate<Experiment> implements
         IEntityWithDeletionInformation, IEntityInformationHolderWithProperties, IAttachmentHolder,
-        IIdAndCodeHolder, IPermIdHolder, IIsStub
+        IIdAndCodeHolder, IPermIdHolder, IIsStub, ITaggable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -227,6 +228,7 @@ public class Experiment extends CodeWithRegistrationAndModificationDate<Experime
         return isStub;
     }
 
+    @Override
     public Collection<Metaproject> getMetaprojects()
     {
         return metaprojects;

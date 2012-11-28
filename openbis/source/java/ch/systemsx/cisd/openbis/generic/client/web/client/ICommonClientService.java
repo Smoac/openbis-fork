@@ -178,43 +178,14 @@ public interface ICommonClientService extends IClientService
     /**
      * Assigns samples to a metaproject.
      */
-    public void assignSamplesToMetaProjects(List<Long> metaProjectIds, List<Long> sampleIds);
+    public void assignEntitiesToMetaProjects(EntityKind entityKind, List<Long> metaProjectIds,
+            List<Long> sampleIds);
 
     /**
      * removes samples from a metaproject.
      */
-    public void removeSamplesFromMetaProjects(List<Long> metaProjectIds, List<Long> sampleIds);
-
-    /**
-     * Assigns experiments to a metaproject.
-     */
-    public void assignExperimentsToMetaProjects(List<Long> metaProjectIds, List<Long> experimentIds);
-
-    /**
-     * removes experiments from a metaproject.
-     */
-    public void removeExperimentsFromMetaProjects(List<Long> metaProjectIds,
-            List<Long> experimentIds);
-
-    /**
-     * Assigns datasets to a metaproject.
-     */
-    public void assignDataSetsToMetaProjects(List<Long> metaProjectIds, List<Long> dataSetIds);
-
-    /**
-     * removes daatasets from a metaproject.
-     */
-    public void removeDataSetsFromMetaProjects(List<Long> metaProjectIds, List<Long> dataSetIds);
-
-    /**
-     * Assigns materials to a metaproject.
-     */
-    public void assignMaterialsToMetaProjects(List<Long> metaProjectIds, List<Long> materialIds);
-
-    /**
-     * removes materials from a metaproject.
-     */
-    public void removeMaterialsFromMetaProjects(List<Long> metaProjectIds, List<Long> materialIds);
+    public void removeEntitiesFromMetaProjects(EntityKind entityKind, List<Long> metaProjectIds,
+            List<Long> sampleIds);
 
     /**
      * Returns metaproject assignments.

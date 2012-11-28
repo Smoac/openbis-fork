@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ITaggable;
 
 /**
  * The <i>GWT</i> equivalent to MaterialPE.
@@ -28,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
  * @author Izabela Adamczyk
  */
 public class Material extends CodeWithRegistration<Material> implements
-        IEntityInformationHolderWithProperties
+        IEntityInformationHolderWithProperties, ITaggable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -123,6 +124,7 @@ public class Material extends CodeWithRegistration<Material> implements
         this.metaprojects = metaprojects;
     }
 
+    @Override
     public Collection<Metaproject> getMetaprojects()
     {
         return metaprojects;

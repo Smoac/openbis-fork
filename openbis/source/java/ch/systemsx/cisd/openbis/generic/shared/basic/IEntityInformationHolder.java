@@ -38,4 +38,5 @@ public interface IEntityInformationHolder extends Serializable, IIdAndCodeHolder
      * Return the entity kind of this matching entity.
      */
     public EntityKind getEntityKind();
+
 }

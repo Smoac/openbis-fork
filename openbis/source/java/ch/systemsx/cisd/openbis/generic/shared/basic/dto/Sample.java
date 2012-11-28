@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityWithDeletionInformat
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIsStub;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ITaggable;
 
 /**
  * <i>Java Bean</i> which contain information about <i>sample</i>.
@@ -37,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
  */
 public final class Sample extends CodeWithRegistrationAndModificationDate<Sample> implements
         IEntityWithDeletionInformation, Comparable<Sample>, IEntityInformationHolderWithProperties,
-        IAttachmentHolder, IIdAndCodeHolder, IPermIdHolder, IIsStub
+        IAttachmentHolder, IIdAndCodeHolder, IPermIdHolder, IIsStub, ITaggable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -332,6 +333,7 @@ public final class Sample extends CodeWithRegistrationAndModificationDate<Sample
         this.metaprojects = metaprojects;
     }
 
+    @Override
     public Collection<Metaproject> getMetaprojects()
     {
         return metaprojects;
