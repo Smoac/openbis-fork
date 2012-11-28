@@ -19,10 +19,15 @@ var COLUMNS = [
 	{ type : "MULTIPLEX", label : "Multiplex", width : 300 },
 	{ type : "LIBRARY", label : "Library", width : 240 },
 	{ type : "ALIQUOT", label : "Aliquot", width : 400 },
-	{ type : "SAMPLE", label : "Sample", width : 240 }
+	{ type : "SAMPLE", label : "Sample", width : 300 }
 ];
 
+// The height of each line in the display
 var LINE_HEIGHT = 20;
+
+// The first N columns are shown expanded when the webapp is started. The next are initially collapsed.
+// N probably should not be less than 2 and certainly should not be less than 1.
+var FIRST_COLLAPSED_COLUMN = 2;
 
 // END CONFIGURATION PARAMTERS
 
@@ -55,7 +60,7 @@ function SampleGraphNode(sample) {
 	this.children = [];
 	this.parents = [];
 	this.serverSample = sample;
-	this.arrayIndex = -1
+	this.arrayIndex = -1;
 }
 
 /**
@@ -193,18 +198,26 @@ SampleGraphPresenter.prototype.initializePresenter = function()
 	// Calculate the offsets for the columns -- only need to do this once
 	var xOffset = 0;
 	COLUMNS.forEach(function(column) { column.xOffset = xOffset; xOffset += column.width });
+	this.vizWidth = xOffset;
 
 	// Function used to draw paths between elements
-	var yLinkOffset = LINE_HEIGHT * 0.25;
+	var yLinkOffset = LINE_HEIGHT * 0.33;
 
 	var lexicalParent = this;
+	function bboxForNode(node) { 
+		var bbox = lexicalParent.columns.selectAll("text.sample")[node.col][node.row].getBBox();
+		// Correct for the column
+		bbox.x += node.colOffset;
+		return bbox;
+	}
 	function source(d) {
 		// Find the associated text node in the DOM and use that as a basis for creating the links
-		var svgNode = lexicalParent.columns.selectAll("text.sample")[d.sourceNode.col][d.sourceNode.row];
-		return { x : d.sourceNode.x + svgNode.offsetWidth + 5, y  : d.sourceNode.y - yLinkOffset };
+		var bbox = bboxForNode(d.sourceNode);
+		return { x : bbox.x + bbox.width + 5, y  : bbox.y + yLinkOffset };
 	}
 	function target(d) {
-		return { x : d.targetNode.x, y  : d.targetNode.y - yLinkOffset }
+		var bbox = bboxForNode(d.targetNode);
+		return { x : bbox.x, y  : bbox.y + yLinkOffset }
 	}
 
 	this.useLineLinkPath(source, target);
@@ -238,37 +251,36 @@ SampleGraphPresenter.prototype.useLineLinkPath = function(source, target) {
 SampleGraphPresenter.prototype.initializeGraphSamples = function()
 {
 	var colors = d3.scale.category10();
-	var nodeData = COLUMNS.map(function(c) { return model.samplesByType[c.type] });
+	var nodes = COLUMNS.map(function(c) { return model.samplesByType[c.type] });
 	// Compute the x/y coordinates for each sample
-	for (var col = 0; col < nodeData.length; ++col) {
-		var colData = nodeData[col];
-		var x = COLUMNS[col].xOffset;
+	for (var col = 0; col < nodes.length; ++col) {
+		var colData = nodes[col];
+		var xOffset = COLUMNS[col].xOffset;
 		var width = COLUMNS[col].width;
 		for (row = 0; row < colData.length; ++row) {
 			var sampleData = colData[row];
-			// X is the x position of the end
-			sampleData.x = x;
-			sampleData.y = LINE_HEIGHT * (row+2);
 			sampleData.col = col;
 			sampleData.row = row;
+			sampleData.colOffset = xOffset;
 			var oneChildOrLess = sampleData.children.length < 2;
 			var childrenWithMultipleParents = sampleData.children.filter(function(c) { return c.parents.length > 1 });
 			var oneToOne = oneChildOrLess && childrenWithMultipleParents.length == 0;
 			sampleData.color = (!oneToOne) ? colors(row) : "#ccc";
-			sampleData.visible = true;
+			sampleData.visible = col < FIRST_COLLAPSED_COLUMN;
 		}
 	}
-	this.nodeData = nodeData;
+	this.allNodes = nodes;
 
-	var linkData = [];
-	nodeData.forEach(function(samples) {
+	var links = [];
+	nodes.forEach(function(samples) {
 		samples.forEach(function(d) { 
 			if (!d.visible) return;
-			d.children.forEach(function(c) { if (c.visible) linkData.push(new SampleGraphLink(d, c))});
+			d.children.forEach(function(c) { if (c.visible) links.push(new SampleGraphLink(d, c))});
 		})
 	});
 
-	this.linkData = linkData;
+	this.links = links;
+	this.vizHeight = d3.max(nodes, function(d) { return d.length}) * LINE_HEIGHT
 }
 
 /**
@@ -276,12 +288,16 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
  */
 SampleGraphPresenter.prototype.showGraphSamples = function()
 {
-	var nodeData = this.nodeData;
+	var nodes = this.allNodes.map(function(d) { return d.filter(function(n) { return n.visible })});
+	var vizWidth = this.vizWidth;
+	var vizHeight = this.vizHeight;
 
 	// Display the graph in an SVG element
-	this.viz = this.root.selectAll("svg").data([nodeData]);
+	this.viz = this.root.selectAll("svg").data([nodes]);
 	// Code under enter is run if there is no HTML element for a data element	
 	this.viz.enter().append("svg:svg").attr("class", "viz");
+	this.viz.attr("width", vizWidth);
+	this.viz.attr("height", vizHeight);
 	// Columns
 	this.columns = this.viz.selectAll("g").data(function(d) { return d });
 	this.columns.enter().append("svg:g").attr("class", "column");
@@ -311,11 +327,11 @@ SampleGraphPresenter.prototype.showHeaders = function()
  */
 SampleGraphPresenter.prototype.showNodes = function()
 {
-	var sample = this.columns.selectAll("text.sample").data(function(d) { return d });
+	var sample = this.columns.selectAll("text.sample").data(function(d) { return d.filter(function(s) { return s.visible; }) });
 	sample.enter().append("svg:text").attr("class", "sample");
 	sample
 		.attr("x", "0")
-		.attr("y", function(d, i) { return d.y})
+		.attr("y", function(d, i) { return LINE_HEIGHT * (i+2)})
 		.attr("text-anchor", "begin")
 		.text(function(d) { return d.identifier });
 }
@@ -325,7 +341,7 @@ SampleGraphPresenter.prototype.showNodes = function()
  */
 SampleGraphPresenter.prototype.showLinks = function()
 {
-	var link = this.viz.selectAll("path.link").data(this.linkData);
+	var link = this.viz.selectAll("path.link").data(this.links);
 	link.enter().append("svg:path").attr("class", "link");
 	link
 		.style("fill", "none")
