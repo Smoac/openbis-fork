@@ -65,6 +65,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectRegistration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -1192,8 +1194,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(boFactory).createMetaprojectBO(userSession);
                     will(returnValue(metaprojectBO));
 
-                    one(metaprojectBO).define(newMetaproject);
-                    one(metaprojectBO).setDescription(null);
+                    one(metaprojectBO).define(with(any(IMetaprojectRegistration.class)));
                     one(metaprojectBO).addSamples(null);
                     one(metaprojectBO).addDataSets(null);
                     one(metaprojectBO).addExperiments(null);
@@ -1206,6 +1207,9 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(boFactory).createMetaprojectBO(userSession);
                     will(returnValue(metaprojectBO));
                     one(metaprojectBO).loadDataByTechId(new TechId(1l));
+                    one(metaprojectBO).getMetaproject();
+                    will(returnValue(new MetaprojectPE()));
+                    one(metaprojectBO).update(with(any(IMetaprojectUpdates.class)));
                     one(metaprojectBO).addSamples(metaprojectUpdates.getAddedSamples());
                     one(metaprojectBO).removeSamples(metaprojectUpdates.getRemovedSamples());
                     one(metaprojectBO).addDataSets(metaprojectUpdates.getAddedDataSets());

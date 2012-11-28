@@ -68,6 +68,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectRegistration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
@@ -85,6 +87,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsCount;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectNullRegistration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectNullUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -1628,20 +1632,40 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public Metaproject registerMetaproject(String sessionToken, String name,
-            String descriptionOrNull)
+    public Metaproject registerMetaproject(String sessionToken,
+            IMetaprojectRegistration registration)
     {
-        logAccess(sessionToken, "registerMetaproject", "NAME(%s) DESCRIPTION(%s)", name,
-                descriptionOrNull);
+        IMetaprojectRegistration notNullRegistration;
+
+        if (registration == null)
+        {
+            notNullRegistration = new MetaprojectNullRegistration();
+        } else
+        {
+            notNullRegistration = registration;
+        }
+
+        logAccess(sessionToken, "registerMetaproject", "NAME(%s) DESCRIPTION(%s)",
+                notNullRegistration.getName(), notNullRegistration.getDescription());
         return null;
     }
 
     @Override
     public Metaproject updateMetaproject(String sessionToken, IMetaprojectId metaprojectId,
-            String name, String descriptionOrNull)
+            IMetaprojectUpdates updates)
     {
+        IMetaprojectUpdates notNullUpdate;
+
+        if (updates == null)
+        {
+            notNullUpdate = new MetaprojectNullUpdates();
+        } else
+        {
+            notNullUpdate = updates;
+        }
+
         logAccess(sessionToken, "updateMetaproject", "METAPROJECT_ID(%s) NAME(%s) DESCRIPTION(%s)",
-                metaprojectId, name, descriptionOrNull);
+                metaprojectId, notNullUpdate.getName(), notNullUpdate.getDescription());
         return null;
     }
 }

@@ -1764,7 +1764,11 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         IMetaprojectBO metaprojectBO = businessObjectFactory.createMetaprojectBO(session);
         metaprojectBO.loadDataByTechId(update.getMetaprojectId());
-        metaprojectBO.setDescription(update.getDescription());
+
+        Metaproject updates = new Metaproject();
+        updates.setName(metaprojectBO.getMetaproject().getName());
+        updates.setDescription(update.getDescription());
+        metaprojectBO.update(updates);
 
         metaprojectBO.addSamples(update.getAddedSamples());
         metaprojectBO.removeSamples(update.getRemovedSamples());
@@ -1795,7 +1799,12 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     private MetaprojectPE registerMetaproject(final Session session, NewMetaproject metaproject)
     {
         IMetaprojectBO metaprojectBO = businessObjectFactory.createMetaprojectBO(session);
-        metaprojectBO.define(metaproject);
+
+        Metaproject registration = new Metaproject();
+        registration.setName(metaproject.getName());
+        registration.setDescription(metaproject.getDescription());
+        metaprojectBO.define(registration);
+
         metaprojectBO.addSamples(metaproject.getSamples());
         metaprojectBO.addExperiments(metaproject.getExperiments());
         metaprojectBO.addMaterials(metaproject.getMaterials());

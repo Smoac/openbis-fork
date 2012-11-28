@@ -78,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
@@ -203,8 +204,7 @@ public interface ICommonClientService extends IClientService
     /**
      * removes daatasets from a metaproject.
      */
-    public void removeDataSetsFromMetaProjects(List<Long> metaProjectIds,
-            List<Long> dataSetIds);
+    public void removeDataSetsFromMetaProjects(List<Long> metaProjectIds, List<Long> dataSetIds);
 
     /**
      * Assigns materials to a metaproject.
@@ -214,8 +214,7 @@ public interface ICommonClientService extends IClientService
     /**
      * removes materials from a metaproject.
      */
-    public void removeMaterialsFromMetaProjects(List<Long> metaProjectIds,
-            List<Long> materialIds);
+    public void removeMaterialsFromMetaProjects(List<Long> metaProjectIds, List<Long> materialIds);
 
     /**
      * Returns metaproject assignments.
@@ -232,6 +231,12 @@ public interface ICommonClientService extends IClientService
      * Returns metaproject.
      */
     public Metaproject getMetaproject(String metaprojectIdentifier) throws UserFailureException;
+
+    /**
+     * Updates a metaproject.
+     */
+    public Metaproject updateMetaproject(Long metaprojectId, IMetaprojectUpdates updates)
+            throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for scripts.

@@ -150,7 +150,10 @@ public class GeneralInformationChangingService extends
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public Metaproject createMetaproject(String sessionToken, String name, String descriptionOrNull)
     {
-        return server.registerMetaproject(sessionToken, name, descriptionOrNull);
+        Metaproject registration = new Metaproject();
+        registration.setName(name);
+        registration.setDescription(descriptionOrNull);
+        return server.registerMetaproject(sessionToken, registration);
     }
 
     @Override
@@ -159,7 +162,10 @@ public class GeneralInformationChangingService extends
     public Metaproject updateMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             String name, String descriptionOrNull)
     {
-        return server.updateMetaproject(sessionToken, metaprojectId, name, descriptionOrNull);
+        Metaproject update = new Metaproject();
+        update.setName(name);
+        update.setDescription(descriptionOrNull);
+        return server.updateMetaproject(sessionToken, metaprojectId, update);
     }
 
     @Override

@@ -24,7 +24,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperim
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.IMaterialId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectRegistration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
 /**
@@ -34,11 +35,11 @@ public interface IMetaprojectBO extends IEntityBusinessObject
 {
     MetaprojectPE tryFindByMetaprojectId(final IMetaprojectId metaprojectId);
 
-    void define(NewMetaproject newMetaproject);
-
-    void setDescription(String description);
-
     void loadByMetaprojectId(IMetaprojectId metaprojectId);
+
+    void define(IMetaprojectRegistration registration);
+
+    void update(IMetaprojectUpdates updates);
 
     void addExperiments(List<? extends IExperimentId> experiments);
 

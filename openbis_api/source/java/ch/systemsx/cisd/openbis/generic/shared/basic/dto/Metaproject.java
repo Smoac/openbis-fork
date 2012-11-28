@@ -28,7 +28,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
  * @author Pawel Glyzewski
  */
 @JsonObject("Metaproject")
-public class Metaproject implements Serializable, IIdAndCodeHolder
+public class Metaproject implements Serializable, IIdAndCodeHolder, IMetaprojectRegistration,
+        IMetaprojectUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -81,6 +82,7 @@ public class Metaproject implements Serializable, IIdAndCodeHolder
         return getName();
     }
 
+    @Override
     public String getName()
     {
         return name;
@@ -91,6 +93,7 @@ public class Metaproject implements Serializable, IIdAndCodeHolder
         this.name = name;
     }
 
+    @Override
     public String getDescription()
     {
         return description;

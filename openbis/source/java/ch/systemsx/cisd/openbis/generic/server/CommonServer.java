@@ -191,6 +191,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectRegistration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
@@ -3983,62 +3985,34 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public Metaproject registerMetaproject(String sessionToken, String name,
-            String descriptionOrNull)
+    public Metaproject registerMetaproject(String sessionToken,
+            IMetaprojectRegistration registration)
     {
-        if (name == null)
-        {
-            throw new UserFailureException("Metaproject name cannot be null");
-        }
-
         Session session = getSession(sessionToken);
 
-        IDAOFactory daoFactory = getDAOFactory();
-        IMetaprojectDAO metaprojectDAO = daoFactory.getMetaprojectDAO();
+        IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
+        metaprojectBO.define(registration);
+        metaprojectBO.save();
 
-        PersonPE owner = session.tryGetPerson();
-
-        MetaprojectPE metaprojectPE = new MetaprojectPE();
-        metaprojectPE.setOwner(owner);
-        metaprojectPE.setName(name);
-        metaprojectPE.setDescription(descriptionOrNull);
-        metaprojectPE.setPrivate(true);
-        metaprojectDAO.createOrUpdateMetaproject(metaprojectPE, session.tryGetPerson());
-        return MetaprojectTranslator.translate(metaprojectPE);
+        return MetaprojectTranslator.translate(metaprojectBO.getMetaproject());
     }
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public Metaproject updateMetaproject(String sessionToken, IMetaprojectId metaprojectId,
-            String name, String descriptionOrNull)
+            IMetaprojectUpdates updates)
     {
-        if (metaprojectId == null)
-        {
-            throw new UserFailureException("Metaproject id cannot be null");
-        }
-        if (name == null)
-        {
-            throw new UserFailureException("Metaproject name cannot be null");
-        }
-
         Session session = getSession(sessionToken);
 
         IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
-        MetaprojectPE metaprojectPE = metaprojectBO.tryFindByMetaprojectId(metaprojectId);
+        metaprojectBO.loadByMetaprojectId(metaprojectId);
 
-        if (metaprojectPE == null)
-        {
-            throw new UserFailureException("Metaproject with id: " + metaprojectId
-                    + " doesn't exist");
-        }
+        getAuthorizationService(session).checkAccessMetaproject(metaprojectBO.getMetaproject());
 
-        getAuthorizationService(session).checkAccessMetaproject(metaprojectPE);
+        metaprojectBO.update(updates);
+        metaprojectBO.save();
 
-        metaprojectPE.setName(name);
-        metaprojectPE.setDescription(descriptionOrNull);
-        IMetaprojectDAO metaprojectDAO = getDAOFactory().getMetaprojectDAO();
-        metaprojectDAO.createOrUpdateMetaproject(metaprojectPE, session.tryGetPerson());
-        return MetaprojectTranslator.translate(metaprojectPE);
+        return MetaprojectTranslator.translate(metaprojectBO.getMetaproject());
     }
 
     @Override

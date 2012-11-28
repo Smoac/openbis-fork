@@ -80,6 +80,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
@@ -164,30 +165,24 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#assignSamplesToMetaProjects(List, List) */
     public void assignExperimentsToMetaProjects(List<Long> metaProjectIds,
-            List<Long> experimentIds,
-            AsyncCallback<Void> asyncCallback);
+            List<Long> experimentIds, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#removeSamplesFromMetaProjects(List, List) */
     public void removeExperimentsFromMetaProjects(List<Long> metaProjectIds,
-            List<Long> experimentIds,
-            AsyncCallback<Void> asyncCallback);
+            List<Long> experimentIds, AsyncCallback<Void> asyncCallback);
 
-    public void assignDataSetsToMetaProjects(List<Long> metaProjectIds,
-            List<Long> dataSetIds,
-            AsyncCallback<Void> asyncCallback);
-
-    /** @see ICommonClientService#removeSamplesFromMetaProjects(List, List) */
-    public void removeDataSetsFromMetaProjects(List<Long> metaProjectIds,
-            List<Long> dataSetIds,
-            AsyncCallback<Void> asyncCallback);
-
-    public void assignMaterialsToMetaProjects(List<Long> metaProjectIds,
-            List<Long> materialIds,
+    public void assignDataSetsToMetaProjects(List<Long> metaProjectIds, List<Long> dataSetIds,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#removeSamplesFromMetaProjects(List, List) */
-    public void removeMaterialsFromMetaProjects(List<Long> metaProjectIds,
-            List<Long> materialds,
+    public void removeDataSetsFromMetaProjects(List<Long> metaProjectIds, List<Long> dataSetIds,
+            AsyncCallback<Void> asyncCallback);
+
+    public void assignMaterialsToMetaProjects(List<Long> metaProjectIds, List<Long> materialIds,
+            AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#removeSamplesFromMetaProjects(List, List) */
+    public void removeMaterialsFromMetaProjects(List<Long> metaProjectIds, List<Long> materialds,
             AsyncCallback<Void> asyncCallback);
 
     /**
@@ -208,6 +203,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void getMetaproject(String metaprojectIdentifier,
             final AsyncCallback<Metaproject> asyncCallback);
+
+    /**
+     * @see ICommonClientService#updateMetaproject(Long, IMetaprojectUpdates)
+     */
+    public void updateMetaproject(Long metaprojectId, IMetaprojectUpdates updates,
+            AsyncCallback<Metaproject> callback);
 
     /** @see ICommonClientService#prepareExportScripts(TableExportCriteria) */
     public void prepareExportScripts(

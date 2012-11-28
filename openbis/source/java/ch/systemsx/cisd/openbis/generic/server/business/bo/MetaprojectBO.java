@@ -39,8 +39,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.Metapro
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectRegistration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -85,7 +86,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
     {
         if (metaprojectId == null)
         {
-            throw new IllegalArgumentException("Metaproject id cannot be null");
+            throw new UserFailureException("Metaproject id cannot be null");
         }
         if (metaprojectId instanceof MetaprojectIdentifierId)
         {
@@ -171,43 +172,6 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
     }
 
     @Override
-    public void define(NewMetaproject newMetaproject)
-    {
-        define(newMetaproject.getName(), newMetaproject.getDescription(),
-                newMetaproject.getOwnerId());
-    }
-
-    public void define(final String metaprojectName, final String description, final String ownerId)
-            throws UserFailureException
-    {
-        assert metaprojectName != null : "Unspecified metaproject name.";
-        assert ownerId != null : "Unspecified metaproject owner";
-
-        this.metaproject = createMetaproject(metaprojectName, description, ownerId);
-
-        initChangedEntities();
-        dataChanged = true;
-    }
-
-    private MetaprojectPE createMetaproject(final String metaprojectName, final String description,
-            String ownerId)
-    {
-        final MetaprojectPE result = new MetaprojectPE();
-
-        result.setName(metaprojectName);
-        result.setDescription(description);
-        PersonPE owner = getPersonDAO().tryFindPersonByUserId(ownerId);
-        if (owner == null)
-        {
-            throw new UserFailureException("Person '%s' not found in the database.");
-        }
-        result.setOwner(owner);
-        result.setPrivate(true);
-
-        return result;
-    }
-
-    @Override
     public void deleteByMetaprojectId(IMetaprojectId metaprojectId, String reason)
             throws UserFailureException
     {
@@ -232,9 +196,45 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
     }
 
     @Override
-    public void setDescription(String description)
+    public void define(IMetaprojectRegistration registration)
     {
-        getMetaproject().setDescription(description);
+        if (registration == null)
+        {
+            throw new UserFailureException("Metaproject data cannot be null");
+        }
+        if (registration.getName() == null)
+        {
+            throw new UserFailureException("Metaproject name cannot be null");
+        }
+
+        metaproject = new MetaprojectPE();
+        metaproject.setName(registration.getName());
+        metaproject.setDescription(registration.getDescription());
+        metaproject.setOwner(findPerson());
+        metaproject.setPrivate(true);
+
+        initChangedEntities();
+        dataChanged = true;
+    }
+
+    @Override
+    public void update(IMetaprojectUpdates updates)
+    {
+        if (updates == null)
+        {
+            throw new UserFailureException("Metaproject data cannot be null");
+        }
+        if (updates.getName() == null)
+        {
+            throw new UserFailureException("Metaproject name cannot be null");
+        }
+
+        metaproject.setName(updates.getName());
+        metaproject.setDescription(updates.getDescription());
+
+        // TODO reindex all metaproject entities
+
+        dataChanged = true;
     }
 
     @Override

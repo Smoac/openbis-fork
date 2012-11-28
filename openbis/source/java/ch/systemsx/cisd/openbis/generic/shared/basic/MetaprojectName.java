@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 public class MetaprojectName
 {
 
-    private static final Pattern NAME_PATTERN = Pattern.compile("^[^\\s,/\\\\]+$",
+    private static final Pattern PATTERN = Pattern.compile(MetaprojectNameConstants.PATTERN,
             Pattern.CASE_INSENSITIVE);
 
     public static void validate(String name)
@@ -42,10 +42,13 @@ public class MetaprojectName
         {
             throw new UserFailureException("Metaproject name cannot be empty");
         }
-        if (NAME_PATTERN.matcher(name).matches() == false)
+        if (name.length() > MetaprojectNameConstants.MAX_LENGTH)
         {
-            throw new UserFailureException(
-                    "Metaproject name cannot contain white spaces, commas, slashes or backslashes");
+            throw new UserFailureException(MetaprojectNameConstants.MAX_LENGTH_ERROR_MESSAGE);
+        }
+        if (PATTERN.matcher(name).matches() == false)
+        {
+            throw new UserFailureException(MetaprojectNameConstants.PATTERN_ERROR_MESSAGE);
         }
     }
 

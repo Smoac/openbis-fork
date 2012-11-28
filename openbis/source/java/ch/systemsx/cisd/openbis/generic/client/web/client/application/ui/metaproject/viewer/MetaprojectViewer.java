@@ -22,7 +22,6 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Label;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -30,11 +29,20 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.dialog.MetaprojectDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.entity.MetaprojectEntities;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.form.MetaprojectEditForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -186,16 +194,45 @@ public final class MetaprojectViewer extends
     }
 
     @Override
-    protected Button createEditButton()
-    {
-        // TODO
-        return null;
-    }
-
-    @Override
     protected void showEntityEditor(boolean inBackground)
     {
-        // TODO
+        AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    DatabaseModificationAwareComponent component =
+                            MetaprojectEditForm.create(viewContext, metaprojectId);
+                    return DefaultTabItem.create(getTabTitle(), component, viewContext, true);
+                }
+
+                @Override
+                public String getId()
+                {
+                    return MetaprojectEditForm.createId(metaprojectId);
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return AbstractRegistrationForm.getEditTitle(viewContext, Dict.METAPROJECT,
+                            originalMetaproject);
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.METAPROJECT, HelpPageAction.EDIT);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+            };
+        tabFactory.setInBackground(inBackground);
+        DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
 
     @Override

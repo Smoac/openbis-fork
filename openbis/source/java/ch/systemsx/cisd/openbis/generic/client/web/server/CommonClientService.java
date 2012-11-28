@@ -158,6 +158,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
@@ -756,6 +757,14 @@ public final class CommonClientService extends AbstractClientService implements
     {
         return commonServer.getMetaproject(getSessionToken(), new MetaprojectIdentifierId(
                 metaprojectIdentifier));
+    }
+
+    @Override
+    public Metaproject updateMetaproject(Long metaprojectId, IMetaprojectUpdates updates)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return commonServer.updateMetaproject(getSessionToken(), new MetaprojectTechIdId(
+                metaprojectId), updates);
     }
 
     @Override
@@ -2733,8 +2742,7 @@ public final class CommonClientService extends AbstractClientService implements
         for (Long metaProjectId : metaProjectIds)
         {
             commonServer.addToMetaproject(getSessionToken(),
-                    new MetaprojectTechIdId(metaProjectId),
-                    ids);
+                    new MetaprojectTechIdId(metaProjectId), ids);
         }
     }
 
@@ -2748,9 +2756,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
         for (Long metaProjectId : metaProjectIds)
         {
-            commonServer.removeFromMetaproject(getSessionToken(),
-                    new MetaprojectTechIdId(metaProjectId),
-                    ids);
+            commonServer.removeFromMetaproject(getSessionToken(), new MetaprojectTechIdId(
+                    metaProjectId), ids);
         }
     }
 
@@ -2766,8 +2773,7 @@ public final class CommonClientService extends AbstractClientService implements
         for (Long metaProjectId : metaProjectIds)
         {
             commonServer.addToMetaproject(getSessionToken(),
-                    new MetaprojectTechIdId(metaProjectId),
-                    ids);
+                    new MetaprojectTechIdId(metaProjectId), ids);
         }
     }
 
@@ -2782,9 +2788,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
         for (Long metaProjectId : metaProjectIds)
         {
-            commonServer.removeFromMetaproject(getSessionToken(),
-                    new MetaprojectTechIdId(metaProjectId),
-                    ids);
+            commonServer.removeFromMetaproject(getSessionToken(), new MetaprojectTechIdId(
+                    metaProjectId), ids);
         }
     }
 
@@ -2800,14 +2805,12 @@ public final class CommonClientService extends AbstractClientService implements
         for (Long metaProjectId : metaProjectIds)
         {
             commonServer.addToMetaproject(getSessionToken(),
-                    new MetaprojectTechIdId(metaProjectId),
-                    ids);
+                    new MetaprojectTechIdId(metaProjectId), ids);
         }
     }
 
     @Override
-    public void removeDataSetsFromMetaProjects(List<Long> metaProjectIds,
-            List<Long> dataSetIds)
+    public void removeDataSetsFromMetaProjects(List<Long> metaProjectIds, List<Long> dataSetIds)
     {
         MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
         for (Long id : dataSetIds)
@@ -2816,9 +2819,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
         for (Long metaProjectId : metaProjectIds)
         {
-            commonServer.removeFromMetaproject(getSessionToken(),
-                    new MetaprojectTechIdId(metaProjectId),
-                    ids);
+            commonServer.removeFromMetaproject(getSessionToken(), new MetaprojectTechIdId(
+                    metaProjectId), ids);
         }
     }
 
@@ -2834,14 +2836,12 @@ public final class CommonClientService extends AbstractClientService implements
         for (Long metaProjectId : metaProjectIds)
         {
             commonServer.addToMetaproject(getSessionToken(),
-                    new MetaprojectTechIdId(metaProjectId),
-                    ids);
+                    new MetaprojectTechIdId(metaProjectId), ids);
         }
     }
 
     @Override
-    public void removeMaterialsFromMetaProjects(List<Long> metaProjectIds,
-            List<Long> materialIds)
+    public void removeMaterialsFromMetaProjects(List<Long> metaProjectIds, List<Long> materialIds)
     {
         MetaprojectAssignmentsIds ids = new MetaprojectAssignmentsIds();
         for (Long id : materialIds)
@@ -2850,9 +2850,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
         for (Long metaProjectId : metaProjectIds)
         {
-            commonServer.removeFromMetaproject(getSessionToken(),
-                    new MetaprojectTechIdId(metaProjectId),
-                    ids);
+            commonServer.removeFromMetaproject(getSessionToken(), new MetaprojectTechIdId(
+                    metaProjectId), ids);
         }
     }
 }

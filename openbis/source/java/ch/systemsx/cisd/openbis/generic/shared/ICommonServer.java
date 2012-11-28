@@ -66,6 +66,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectRegistration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
@@ -1482,8 +1484,8 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value = ObjectKind.METAPROJECT)
-    public Metaproject registerMetaproject(String sessionToken, String name,
-            String descriptionOrNull);
+    public Metaproject registerMetaproject(String sessionToken,
+            IMetaprojectRegistration registration);
 
     /**
      * Updates existing metaprojest.
@@ -1491,6 +1493,6 @@ public interface ICommonServer extends IServer
     @Transactional
     @DatabaseUpdateModification(value = ObjectKind.METAPROJECT)
     public Metaproject updateMetaproject(String sessionToken, IMetaprojectId metaprojectId,
-            String name, String descriptionOrNull);
+            IMetaprojectUpdates updates);
 
 }
