@@ -271,8 +271,12 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 	}
 	this.allNodes = nodes;
 
+	this.vizHeight = d3.max(nodes, function(d) { return d.length}) * LINE_HEIGHT
+}
+
+SampleGraphPresenter.prototype.computeLinks = function() {
 	var links = [];
-	nodes.forEach(function(samples) {
+	this.allNodes.forEach(function(samples) {
 		samples.forEach(function(d) { 
 			if (!d.visible) return;
 			d.children.forEach(function(c) { if (c.visible) links.push(new SampleGraphLink(d, c))});
@@ -280,7 +284,6 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 	});
 
 	this.links = links;
-	this.vizHeight = d3.max(nodes, function(d) { return d.length}) * LINE_HEIGHT
 }
 
 /**
@@ -289,6 +292,7 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 SampleGraphPresenter.prototype.showGraphSamples = function()
 {
 	var nodes = this.allNodes.map(function(d) { return d.filter(function(n) { return n.visible })});
+	this.computeLinks();
 	var vizWidth = this.vizWidth;
 	var vizHeight = this.vizHeight;
 
@@ -327,12 +331,16 @@ SampleGraphPresenter.prototype.showHeaders = function()
  */
 SampleGraphPresenter.prototype.showNodes = function()
 {
+	var lexicalParent = this;
 	var sample = this.columns.selectAll("text.sample").data(function(d) { return d.filter(function(s) { return s.visible; }) });
 	sample.enter().append("svg:text").attr("class", "sample");
+	sample.exit().remove();
 	sample
 		.attr("x", "0")
 		.attr("y", function(d, i) { return LINE_HEIGHT * (i+2)})
 		.attr("text-anchor", "begin")
+		.style("cursor", "pointer")
+		.on("click", function(d) { lexicalParent.clickedNode(this, d) })
 		.text(function(d) { return d.identifier });
 }
 
@@ -343,6 +351,7 @@ SampleGraphPresenter.prototype.showLinks = function()
 {
 	var link = this.viz.selectAll("path.link").data(this.links);
 	link.enter().append("svg:path").attr("class", "link");
+	link.exit().remove();
 	link
 		.style("fill", "none")
 		.style("stroke", function(d) { return d.sourceNode.color})
@@ -350,8 +359,10 @@ SampleGraphPresenter.prototype.showLinks = function()
 		.attr("d", this.path);
 }
 
-SampleGraphPresenter.prototype.selectEntity = function(d) {
-
+SampleGraphPresenter.prototype.clickedNode = function(svgNode, d) {
+	// toggle visiblity
+	d.children.forEach(function(c) { c.visible = !c.visible });
+	this.showGraphSamples();
 }
 
 /// The model that manages state and implements the operations
