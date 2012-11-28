@@ -289,7 +289,7 @@ SampleGraphPresenter.prototype.computeLinks = function() {
 /**
  * Display the sample nodes.
  */
-SampleGraphPresenter.prototype.showGraphSamples = function()
+SampleGraphPresenter.prototype.draw = function()
 {
 	var nodes = this.allNodes.map(function(d) { return d.filter(function(n) { return n.visible })});
 	this.computeLinks();
@@ -306,15 +306,15 @@ SampleGraphPresenter.prototype.showGraphSamples = function()
 	this.columns = this.viz.selectAll("g").data(function(d) { return d });
 	this.columns.enter().append("svg:g").attr("class", "column");
 	this.columns.attr("transform", function(d, i) { return "translate(" + COLUMNS[i].xOffset + ", 0)"});
-	this.showHeaders();
-	this.showNodes();
-	this.showLinks();
+	this.drawHeaders();
+	this.drawNodes();
+	this.drawLinks();
 }
 
 /**
  * Draw the headers
  */
-SampleGraphPresenter.prototype.showHeaders = function()
+SampleGraphPresenter.prototype.drawHeaders = function()
 {
 	var header = this.columns.selectAll("text.header").data(function(d, i) { return [COLUMNS[i]] });
 	header.enter().append("svg:text").attr("class", "header");
@@ -329,7 +329,7 @@ SampleGraphPresenter.prototype.showHeaders = function()
 /**
  * Draw the nodes
  */
-SampleGraphPresenter.prototype.showNodes = function()
+SampleGraphPresenter.prototype.drawNodes = function()
 {
 	var lexicalParent = this;
 	var sample = this.columns.selectAll("text.sample").data(function(d) { return d.filter(function(s) { return s.visible; }) });
@@ -347,7 +347,7 @@ SampleGraphPresenter.prototype.showNodes = function()
 /**
  * Draw the links
  */
-SampleGraphPresenter.prototype.showLinks = function()
+SampleGraphPresenter.prototype.drawLinks = function()
 {
 	var link = this.viz.selectAll("path.link").data(this.links);
 	link.enter().append("svg:path").attr("class", "link");
@@ -362,7 +362,7 @@ SampleGraphPresenter.prototype.showLinks = function()
 SampleGraphPresenter.prototype.clickedNode = function(svgNode, d) {
 	// toggle visiblity
 	d.children.forEach(function(c) { c.visible = !c.visible });
-	this.showGraphSamples();
+	this.draw();
 }
 
 /// The model that manages state and implements the operations
@@ -376,5 +376,5 @@ var presenter;
 function enterApp(data)
 {
 	presenter = new SampleGraphPresenter(model);
-    model.requestGraphData(function() { presenter.initializeGraphSamples(); presenter.showGraphSamples() });
+    model.requestGraphData(function() { presenter.initializeGraphSamples(); presenter.draw() });
 }
