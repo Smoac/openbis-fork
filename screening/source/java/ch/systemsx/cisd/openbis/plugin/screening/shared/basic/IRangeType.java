@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.basic;
 
 /**
- * @author Tomasz Pylak
+ * Marker interface for classes defining types of ranges.
+ *
+ * @author Franz-Josef Elmer
  */
-public class Color
+public interface IRangeType
 {
-    private final String hexColor;
-
-    public Color(String hexColor)
-    {
-        this.hexColor = hexColor;
-    }
-
-    public String getHexColor()
-    {
-        return hexColor;
-    }
-
-    @Override
-    public String toString()
-    {
-        return hexColor;
-    }
-    
 }

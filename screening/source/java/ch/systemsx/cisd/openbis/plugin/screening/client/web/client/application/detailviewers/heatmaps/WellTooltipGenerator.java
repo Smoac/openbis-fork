@@ -21,11 +21,13 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRealNumberRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.WellData;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.model.PlateLayouterModel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
@@ -53,20 +55,20 @@ class WellTooltipGenerator implements HeatmapPresenter.IWellTooltipGenerator
         this.realNumberRenderer = realNumberRenderer;
     }
 
-    // public String generateTooltip(WellData wellData, String distinguishedLabelOrNull)
     @Override
-    public String generateTooltip(int rowIx, int colIx, String distinguishedLabelOrNull)
+    public String generateTooltip(int rowIx, int colIx, CodeAndLabel distinguishedLabelOrNull)
     {
         WellData wellData = model.getWellMatrix()[rowIx][colIx];
         return generateShortDescription(wellData, distinguishedLabelOrNull);
     }
 
-    private String generateShortDescription(WellData wellData, String distinguishedLabelOrNull)
+    private String generateShortDescription(WellData wellData, CodeAndLabel distinguishedLabelOrNull)
     {
         String tooltip = "";
+        String labelOrNull = distinguishedLabelOrNull == null ? null : distinguishedLabelOrNull.getLabel();
         if (distinguishedLabelOrNull != null)
         {
-            tooltip += generateOneFeatureDescription(wellData, distinguishedLabelOrNull, true);
+            tooltip += generateOneFeatureDescription(wellData, labelOrNull, true);
         }
 
         tooltip += generateMetadataDescription(wellData);
@@ -86,7 +88,7 @@ class WellTooltipGenerator implements HeatmapPresenter.IWellTooltipGenerator
             int fCounter = 0;
             for (String featureLabel : wellData.getFeatureLabels())
             {
-                if (featureLabel.equals(distinguishedLabelOrNull) == false)
+                if (featureLabel.equals(labelOrNull) == false)
                 {
                     tooltip += generateOneFeatureDescription(wellData, featureLabel, false);
                 }

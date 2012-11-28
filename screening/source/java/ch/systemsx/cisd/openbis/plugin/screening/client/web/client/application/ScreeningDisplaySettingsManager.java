@@ -24,7 +24,9 @@ import java.util.Map;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.IRangeType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.RangeType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningDisplaySettings;
 
 /**
@@ -145,6 +147,31 @@ public class ScreeningDisplaySettingsManager
             screeningSettings.setDefaultMovieDelays(delays);
         }
         delays.put(displayTypeId, delay);
+    }
+    
+    public IRangeType getHeatMapRangeType(String featureCode)
+    {
+        Map<String, IRangeType> featureRangeTypes = screeningSettings.getDefaultFeatureRangeTypes();
+        if (featureRangeTypes != null)
+        {
+            IRangeType rangeType = featureRangeTypes.get(featureCode);
+            if (rangeType != null)
+            {
+                return rangeType;
+            }
+        }
+        return RangeType.MIN_MAX;
+    }
+    
+    public void setHeatMapRangeType(String featureCode, IRangeType rangeType)
+    {
+        Map<String, IRangeType> featureRangeTypes = screeningSettings.getDefaultFeatureRangeTypes();
+        if (featureRangeTypes == null)
+        {
+            featureRangeTypes = new HashMap<String, IRangeType>();
+            screeningSettings.setDefaultFeatureRangeTypes(featureRangeTypes);
+        }
+        featureRangeTypes.put(featureCode, rangeType);
     }
 
 }

@@ -3,8 +3,10 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRealNumberRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.Color;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleElement;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.model.MinMaxAndRange;
 
 /**
  * Allows to convert any object into a float and present the float on the heatmap using
@@ -15,12 +17,15 @@ abstract class DelegatingFloatHeatmapRenderer<T> implements IHeatmapRenderer<T>
     /** Convert T into a float which will be represented on the heatmap. */
     protected abstract Float convert(T value);
 
+    protected final CodeAndLabel feature;
+    
     private final IHeatmapRenderer<Float> delegator;
-
-    public DelegatingFloatHeatmapRenderer(float min, float max,
+    
+    public DelegatingFloatHeatmapRenderer(MinMaxAndRange minMaxRange, CodeAndLabel feature,
             IRealNumberRenderer realNumberRenderer)
     {
-        this.delegator = new NumberHeatmapRenderer(min, max, realNumberRenderer);
+        this.feature = feature;
+        this.delegator = new NumberHeatmapRenderer(minMaxRange, realNumberRenderer);
     }
 
     @Override
@@ -40,4 +45,5 @@ abstract class DelegatingFloatHeatmapRenderer<T> implements IHeatmapRenderer<T>
     {
         return delegator.tryGetFirstLabel();
     }
+
 }

@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellContentDialog;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.Color;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.model.PlateLayouterModel;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
@@ -118,7 +119,9 @@ public class PlateLayouter
 
     public PlateLayouter(ScreeningViewContext viewContext, PlateMetadata plateMetadata)
     {
-        this.model = new PlateLayouterModel(plateMetadata);
+        this.model =
+                new PlateLayouterModel(plateMetadata,
+                        viewContext.getTechnologySpecificDisplaySettingsManager());
         this.renderedWells = renderWells(model, viewContext, this);
         LayoutContainer legendContainer = new LayoutContainer();
         IRealNumberRenderer realNumberRenderer = createRealNumberRenderer(viewContext);

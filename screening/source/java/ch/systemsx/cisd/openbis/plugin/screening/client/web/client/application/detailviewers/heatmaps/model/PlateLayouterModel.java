@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps;
+package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -27,7 +28,10 @@ import java.util.Set;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplaySettingsManager;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.WellData;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.PlateLayouter;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.IRangeType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
@@ -43,7 +47,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
  * 
  * @author Tomasz Pylak
  */
-class PlateLayouterModel
+public class PlateLayouterModel
 {
     private DatasetReference datasetReference; // currently shown dataset
 
@@ -52,6 +56,8 @@ class PlateLayouterModel
     private final List<WellData> wellList; // the same wells as in the matrix
 
     private final Sample plateSample;
+    
+    private final ScreeningDisplaySettingsManager displaySettingsManager;
 
     // --- internal dynamix state
 
@@ -69,10 +75,15 @@ class PlateLayouterModel
     // lists of features
     private List<FeatureList> featureLists = new ArrayList<FeatureList>();
 
+    private CodeAndLabel chosenFeature;
+    
+    private IRangeType rangeType;
+    
     // ---
 
-    public PlateLayouterModel(PlateMetadata plateMetadata)
+    public PlateLayouterModel(PlateMetadata plateMetadata, ScreeningDisplaySettingsManager displaySettingsManager)
     {
+        this.displaySettingsManager = displaySettingsManager;
         this.plateSample = plateMetadata.getPlate();
         this.wellMatrix = createWellMatrix(plateMetadata);
         this.wellList = asList(wellMatrix);
@@ -113,17 +124,80 @@ class PlateLayouterModel
         return featureLists;
     }
 
-    public boolean isFeatureAvailable(String featureLabel)
+    public boolean isVocabularyFeature()
     {
-        return availableFeatureLabels.contains(featureLabel);
+        return vocabularyFeatureLabels.contains(chosenFeature.getLabel());
     }
 
-    public boolean isVocabularyFeature(String featureLabel)
+    /**
+     * Sets chosen feature.
+     * 
+     * @return <code>true</code> if chosen feature is already available.
+     */
+    public boolean setChosenFeature(CodeAndLabel chosenFeature)
     {
-        return vocabularyFeatureLabels.contains(featureLabel);
+        this.chosenFeature = chosenFeature;
+        setRangeType(displaySettingsManager.getHeatMapRangeType(chosenFeature.getCode()));
+        return availableFeatureLabels.contains(chosenFeature.getLabel());
     }
-
+    
+    public CodeAndLabel getChosenFeature()
+    {
+        return chosenFeature;
+    }
+    
+    public void setRangeType(IRangeType rangeType)
+    {
+        this.rangeType = rangeType;
+        if (chosenFeature != null)
+        {
+            displaySettingsManager.setHeatMapRangeType(chosenFeature.getCode(), rangeType);
+        }
+    }
+    
+    public IRangeType getRangeType()
+    {
+        return rangeType;
+    }
+    
     // --- some logic
+    
+    public MinMaxAndRange calculateRange()
+    {
+        IRangeCalculator calculator = RangeCalculatorFactory.create(rangeType);
+        List<Float> data = new ArrayList<Float>();
+        float min = Float.MAX_VALUE;
+        float max = - Float.MAX_VALUE;
+        String featureKey = chosenFeature.getLabel();
+        for (WellData wellData : wellList)
+        {
+            Float value = Utils.tryAsFloatFeature(wellData, featureKey);
+            if (value != null && Float.isNaN(value) == false && Float.isInfinite(value) == false)
+            {
+                data.add(value);
+                min = Math.min(min, value);
+                max = Math.max(max, value);
+            }
+        }
+        return new MinMaxAndRange(min, max, calculator.calculate(data));
+    }
+    
+    public List<String> extractUniqueVocabularyTerms()
+    {
+        Set<String> uniqueValues = new HashSet<String>();
+        for (WellData well : wellList)
+        {
+            String term = Utils.tryAsVocabularyFeature(well, chosenFeature.getLabel());
+            if (term != null)
+            {
+                uniqueValues.add(term);
+            }
+        }
+        List<String> result = new ArrayList<String>(uniqueValues);
+        Collections.sort(result);
+        return result;
+
+    }
 
     public void setFeatureVectorDataset(FeatureVectorDataset featureVectorDatasetOrNull)
     {

@@ -95,7 +95,6 @@ class StringHeatmapRenderer implements IHeatmapRenderer<String>
     public Color getColor(String value)
     {
         Color color = colorsMap.get(value);
-        assert color != null || moreLabelsThanColors : "Unexpected value " + value;
 
         if (color == null)
         {

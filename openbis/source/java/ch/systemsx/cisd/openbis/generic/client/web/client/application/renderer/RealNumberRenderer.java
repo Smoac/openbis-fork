@@ -48,11 +48,13 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
         try
         {
             double doubleValue = Double.parseDouble(value);
-            String formattedValue = NumberFormat.getFormat(format).format(doubleValue);
+            String formattedValue =
+                    NumberFormat.getFormat(format).format(doubleValue).toLowerCase();
             if (scientific == false && doubleValue != 0 && Double.parseDouble(formattedValue) == 0)
             {
                 formattedValue =
-                        NumberFormat.getFormat(format + EXPONENT_FORMAT).format(doubleValue);
+                        NumberFormat.getFormat(format + EXPONENT_FORMAT).format(doubleValue)
+                                .toLowerCase();
             }
             if (withTooltip)
             {

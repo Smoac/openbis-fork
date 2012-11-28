@@ -8,7 +8,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -16,12 +22,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.Color;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleElement;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.model.MinMaxAndRange;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.model.PlateLayouterModel;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.model.Utils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -63,7 +72,7 @@ class HeatmapPresenter
          * @param distinguishedLabelOrNull if not null contains label of the feature which should be
          *            distinguished.
          */
-        String generateTooltip(int rowIx, int colIx, String distinguishedLabelOrNull);
+        String generateTooltip(int rowIx, int colIx, CodeAndLabel distinguishedLabelOrNull);
     }
 
     private static final String UNKNOWN_WELL_MSG = "No metadata available";
@@ -109,10 +118,8 @@ class HeatmapPresenter
      */
     public void setFeatureValueMode(CodeAndLabel featureName)
     {
-        if (model.isFeatureAvailable(featureName.getLabel()))
-        {
-            doChangeFeatureValueMode(featureName);
-        } else
+        boolean success = changeFeatureValueMode(featureName);
+        if (success == false)
         {
             DatasetReference dataset = model.tryGetDatasetReference();
             if (dataset != null)
@@ -126,10 +133,20 @@ class HeatmapPresenter
         }
     }
 
-    private void doChangeFeatureValueMode(CodeAndLabel featureName)
+    private boolean changeFeatureValueMode(CodeAndLabel featureName)
     {
-        IHeatmapRenderer<WellData> renderer = createFeatureHeatmapRenderer(featureName.getLabel());
-        refreshHeatmap(renderer, featureName.getLabel());
+        boolean result = model.setChosenFeature(featureName);
+        if (result)
+        {
+            refreshHeatMap(featureName);
+        }
+        return result;
+    }
+
+    private void refreshHeatMap(CodeAndLabel featureName)
+    {
+        IHeatmapRenderer<WellData> renderer = createFeatureHeatmapRenderer();
+        refreshHeatmap(renderer, featureName);
     }
 
     private AsyncCallback<FeatureVectorDataset> createChangeHeatmapCallback(
@@ -142,10 +159,8 @@ class HeatmapPresenter
                 {
                     model.updateFeatureVectorDataset(featureVector);
 
-                    if (model.isFeatureAvailable(featureName.getLabel()))
-                    {
-                        doChangeFeatureValueMode(featureName);
-                    } else
+                    boolean success = changeFeatureValueMode(featureName);
+                    if (success == false)
                     {
                         MessageBox.alert("Error",
                                 "No values found for feature " + featureName.getLabel(), null);
@@ -154,52 +169,33 @@ class HeatmapPresenter
             };
     }
 
-    private IHeatmapRenderer<WellData> createFeatureHeatmapRenderer(String featureLabel)
+    private IHeatmapRenderer<WellData> createFeatureHeatmapRenderer()
     {
-        List<WellData> wellList = model.getWellList();
-        if (model.isVocabularyFeature(featureLabel))
+        if (model.isVocabularyFeature())
         {
-            return createVocabularyFeatureHeatmapRenderer(wellList, featureLabel);
+            return createVocabularyFeatureHeatmapRenderer();
         } else
         {
-            return createFloatFeatureHeatmapRenderer(wellList, featureLabel, realNumberRenderer);
+            return createFloatFeatureHeatmapRenderer();
         }
     }
 
     // here we are sure that all wells have a vocabulary feature with given featureLabel
-    private static IHeatmapRenderer<WellData> createVocabularyFeatureHeatmapRenderer(
-            List<WellData> wellList, final String featureLabel)
+    private IHeatmapRenderer<WellData> createVocabularyFeatureHeatmapRenderer()
     {
-        List<String> uniqueValues = extractUniqueVocabularyTerms(wellList, featureLabel);
-        return new DelegatingStringHeatmapRenderer<WellData>(uniqueValues, null)
+        List<String> uniqueValues = model.extractUniqueVocabularyTerms();
+        return new DelegatingStringHeatmapRenderer<WellData>(uniqueValues, model.getChosenFeature(), null)
             {
                 @Override
                 protected String extractLabel(WellData well)
                 {
-                    return tryAsVocabularyFeature(well, featureLabel);
+                    return Utils.tryAsVocabularyFeature(well, feature.getLabel());
                 }
             };
     }
 
-    private static List<String> extractUniqueVocabularyTerms(List<WellData> wellList,
-            String featureLabel)
-    {
-        Set<String> uniqueValues = new HashSet<String>();
-        for (WellData well : wellList)
-        {
-            String term = tryAsVocabularyFeature(well, featureLabel);
-            if (term != null)
-            {
-                uniqueValues.add(term);
-            }
-        }
-        List<String> result = new ArrayList<String>(uniqueValues);
-        Collections.sort(result);
-        return result;
-    }
-
     // updates color of all well components
-    private void refreshHeatmap(IHeatmapRenderer<WellData> renderer, final String featureLabelOrNull)
+    private void refreshHeatmap(IHeatmapRenderer<WellData> renderer, final CodeAndLabel featureOrNull)
     {
         WellData[][] wellMatrix = model.getWellMatrix();
 
@@ -222,7 +218,7 @@ class HeatmapPresenter
                             viewContext.log("Update tooltip: "
                                     + wellData.getWellLocation().toString());
                             final String tooltip =
-                                    tooltipGenerator.generateTooltip(ri, ci, featureLabelOrNull);
+                                    tooltipGenerator.generateTooltip(ri, ci, featureOrNull);
                             viewManipulations.updateTooltip(ri, ci, tooltip);
                         }
                     };
@@ -289,45 +285,57 @@ class HeatmapPresenter
     {
         // creates the heatmap legend using current settings
         List<HeatmapScaleElement> scale = renderer.calculateScale();
-        Widget legend = HeatmapScaleFactory.create(renderer.tryGetFirstLabel(), scale);
+        String firstLabel = renderer.tryGetFirstLabel();
+        Component legend = HeatmapScaleFactory.create(firstLabel, scale);
+        if (firstLabel != null)
+        {
+            LayoutContainer container = new LayoutContainer();
+            container.setLayout(new TableLayout(1));
+            container.add(legend);
+            Button adaptScaleButton =
+                    new Button(viewContext.getMessage(Dict.HEAT_MAP_RANGE_CHOOSER_BUTTON));
+            adaptScaleButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+                {
+                    @Override
+                    public void componentSelected(ButtonEvent ce)
+                    {
+                        showHeatMapRangeChooser();
+                    }
+                });
+            container.add(adaptScaleButton);
+            legend = container;
+        }
         viewManipulations.updateLegend(legend);
     }
 
     // here we are sure that all wells have a float feature with given featureLabel
-    private static IHeatmapRenderer<WellData> createFloatFeatureHeatmapRenderer(
-            List<WellData> wells, final String featureLabel, IRealNumberRenderer realNumberRenderer)
+    private IHeatmapRenderer<WellData> createFloatFeatureHeatmapRenderer()
     {
-        float min = Float.MAX_VALUE;
-        float max = Float.MIN_VALUE;
-        for (WellData well : wells)
-        {
-            Float value = tryAsFloatFeature(well, featureLabel);
-            if (value != null && Float.isNaN(value) == false && Float.isInfinite(value) == false)
-            {
-                min = Math.min(min, value);
-                max = Math.max(max, value);
-            }
-        }
-        return new DelegatingFloatHeatmapRenderer<WellData>(min, max, realNumberRenderer)
+        MinMaxAndRange mmRange = model.calculateRange();
+        return new DelegatingFloatHeatmapRenderer<WellData>(mmRange,
+                model.getChosenFeature(), realNumberRenderer)
             {
                 @Override
                 protected Float convert(WellData well)
                 {
-                    return tryAsFloatFeature(well, featureLabel);
+                    return Utils.tryAsFloatFeature(well, feature.getLabel());
                 }
             };
     }
 
-    private static float tryAsFloatFeature(WellData well, final String featureLabel)
+    private void showHeatMapRangeChooser()
     {
-        FeatureValue value = well.tryGetFeatureValue(featureLabel);
-        return value != null ? value.asFloat() : null;
-    }
-
-    private static String tryAsVocabularyFeature(WellData well, final String featureLabel)
-    {
-        FeatureValue value = well.tryGetFeatureValue(featureLabel);
-        return value != null ? value.tryAsVocabularyTerm() : null;
+        HeatMapRangeChooser chooser =
+                new HeatMapRangeChooser(viewContext, model, new IDelegatedAction()
+                    {
+                        @Override
+                        public void execute()
+                        {
+                            CodeAndLabel feature = model.getChosenFeature();
+                            refreshHeatMap(feature);
+                        }
+                    });
+        chooser.show();
     }
 
     /** */
@@ -415,7 +423,7 @@ class HeatmapPresenter
 
         private WellMetadataHeatmapRenderer(List<String> uniqueValues, List<Color> colorsOrNull)
         {
-            super(uniqueValues, colorsOrNull);
+            super(uniqueValues, null, colorsOrNull);
         }
 
         @Override

@@ -16,40 +16,47 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.Arrays;
 import java.util.List;
 
-import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRealNumberRenderer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleElement;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.model.MinMaxAndRange;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.Range;
 
 /**
  * @author Izabela Adamczyk
  */
 public class NumberHeatmapRendererTest
 {
-    private static final String COLOR1 = "#67001F";
+    private static final String COLOR1 = "#111";
 
-    private static final String COLOR2 = "#B2182B";
+    private static final String COLOR2 = "#222";
+    
+    private static final String COLOR3 = "#333";
 
     @Test
     public void testFirstLabel() throws Exception
     {
         List<String> colors = Arrays.asList(COLOR1);
         NumberHeatmapRenderer renderer = createMin0Max3Renderer(colors);
-        AssertJUnit.assertEquals(3f + "", renderer.tryGetFirstLabel());
+        assertEquals(3f + "", renderer.tryGetFirstLabel());
     }
 
     private NumberHeatmapRenderer createMinNeg1Max3Renderer(List<String> colors)
     {
-        return new NumberHeatmapRenderer(-1, 3, colors, createDummyRealRenderer());
+        MinMaxAndRange minMaxAndRange = new MinMaxAndRange(-1, 3, new Range(-1, 3));
+        return new NumberHeatmapRenderer(minMaxAndRange, colors, createDummyRealRenderer());
     }
 
     private NumberHeatmapRenderer createMin0Max3Renderer(List<String> colors)
     {
-        return new NumberHeatmapRenderer(0, 3, colors, createDummyRealRenderer());
+        MinMaxAndRange minMaxAndRange = new MinMaxAndRange(0, 3, new Range(0, 3));
+        return new NumberHeatmapRenderer(minMaxAndRange, colors, createDummyRealRenderer());
     }
 
     private IRealNumberRenderer createDummyRealRenderer()
@@ -64,20 +71,18 @@ public class NumberHeatmapRendererTest
             };
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testValueTooSmall() throws Exception
     {
         List<String> colors = Arrays.asList(COLOR1);
         NumberHeatmapRenderer renderer = createMin0Max3Renderer(colors);
-        AssertJUnit.assertEquals(COLOR1, renderer.getColor(-1f).getHexColor());
+        assertEquals(COLOR1, renderer.getColor(-1f).getHexColor());
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testValueTooBig() throws Exception
     {
         List<String> colors = Arrays.asList(COLOR1);
         NumberHeatmapRenderer renderer = createMin0Max3Renderer(colors);
-        AssertJUnit.assertEquals(COLOR1, renderer.getColor(10f).getHexColor());
+        assertEquals(COLOR1, renderer.getColor(10f).getHexColor());
     }
 
     @Test
@@ -85,7 +90,7 @@ public class NumberHeatmapRendererTest
     {
         List<String> colors = Arrays.asList(COLOR1);
         NumberHeatmapRenderer renderer = createMin0Max3Renderer(colors);
-        AssertJUnit.assertEquals(COLOR1, renderer.getColor(1.5f).getHexColor());
+        assertEquals(COLOR1, renderer.getColor(1.5f).getHexColor());
     }
 
     @Test
@@ -93,7 +98,7 @@ public class NumberHeatmapRendererTest
     {
         List<String> colors = Arrays.asList(COLOR1);
         NumberHeatmapRenderer renderer = createMin0Max3Renderer(colors);
-        AssertJUnit.assertEquals(COLOR1, renderer.getColor(3f).getHexColor());
+        assertEquals(COLOR1, renderer.getColor(3f).getHexColor());
     }
 
     @Test
@@ -101,7 +106,7 @@ public class NumberHeatmapRendererTest
     {
         List<String> colors = Arrays.asList(COLOR1);
         NumberHeatmapRenderer renderer = createMin0Max3Renderer(colors);
-        AssertJUnit.assertEquals(COLOR1, renderer.getColor(1f).getHexColor());
+        assertEquals(COLOR1, renderer.getColor(1f).getHexColor());
     }
 
     @Test
@@ -109,11 +114,11 @@ public class NumberHeatmapRendererTest
     {
         List<String> colors = Arrays.asList(COLOR2, COLOR1);
         NumberHeatmapRenderer renderer = createMin0Max3Renderer(colors);
-        AssertJUnit.assertEquals(COLOR1, renderer.getColor(0f).getHexColor());
-        AssertJUnit.assertEquals(COLOR1, renderer.getColor(1f).getHexColor());
-        AssertJUnit.assertEquals(COLOR1, renderer.getColor(1.5f).getHexColor());
-        AssertJUnit.assertEquals(COLOR2, renderer.getColor(2f).getHexColor());
-        AssertJUnit.assertEquals(COLOR2, renderer.getColor(3f).getHexColor());
+        assertEquals(COLOR1, renderer.getColor(0f).getHexColor());
+        assertEquals(COLOR1, renderer.getColor(1f).getHexColor());
+        assertEquals(COLOR1, renderer.getColor(1.5f).getHexColor());
+        assertEquals(COLOR2, renderer.getColor(2f).getHexColor());
+        assertEquals(COLOR2, renderer.getColor(3f).getHexColor());
     }
 
     @Test
@@ -121,11 +126,11 @@ public class NumberHeatmapRendererTest
     {
         List<String> colors = Arrays.asList(COLOR1, COLOR2);
         NumberHeatmapRenderer renderer = createMinNeg1Max3Renderer(colors);
-        AssertJUnit.assertEquals(COLOR2, renderer.getColor(-1f).getHexColor());
-        AssertJUnit.assertEquals(COLOR2, renderer.getColor(1f).getHexColor());
-        AssertJUnit.assertEquals(COLOR1, renderer.getColor(1.5f).getHexColor());
-        AssertJUnit.assertEquals(COLOR1, renderer.getColor(2f).getHexColor());
-        AssertJUnit.assertEquals(COLOR1, renderer.getColor(3f).getHexColor());
+        assertEquals(COLOR2, renderer.getColor(-1f).getHexColor());
+        assertEquals(COLOR2, renderer.getColor(1f).getHexColor());
+        assertEquals(COLOR1, renderer.getColor(1.5f).getHexColor());
+        assertEquals(COLOR1, renderer.getColor(2f).getHexColor());
+        assertEquals(COLOR1, renderer.getColor(3f).getHexColor());
     }
 
     @Test
@@ -134,11 +139,11 @@ public class NumberHeatmapRendererTest
         List<String> colors = Arrays.asList(COLOR1);
         NumberHeatmapRenderer renderer = createMinNeg1Max3Renderer(colors);
         List<HeatmapScaleElement> scale = renderer.calculateScale();
-        AssertJUnit.assertEquals(1, scale.size());
+        assertEquals(1, scale.size());
         HeatmapScaleElement element = scale.get(0);
-        AssertJUnit.assertEquals(3f + "", renderer.tryGetFirstLabel());
-        AssertJUnit.assertEquals(COLOR1, element.getColor().getHexColor());
-        AssertJUnit.assertEquals(-1f + "", element.getLabel());
+        assertEquals(3f + "", renderer.tryGetFirstLabel());
+        assertEquals(COLOR1, element.getColor().getHexColor());
+        assertEquals(-1f + "", element.getLabel());
     }
 
     @Test
@@ -147,13 +152,73 @@ public class NumberHeatmapRendererTest
         List<String> colors = Arrays.asList(COLOR1, COLOR2);
         NumberHeatmapRenderer renderer = createMinNeg1Max3Renderer(colors);
         List<HeatmapScaleElement> scale = renderer.calculateScale();
-        AssertJUnit.assertEquals(2, scale.size());
-        AssertJUnit.assertEquals(3f + "", renderer.tryGetFirstLabel());
+        assertEquals(2, scale.size());
+        assertEquals(3f + "", renderer.tryGetFirstLabel());
         HeatmapScaleElement element1 = scale.get(0);
-        AssertJUnit.assertEquals(COLOR1, element1.getColor().getHexColor());
-        AssertJUnit.assertEquals(1.0 + "", element1.getLabel());
+        assertEquals(COLOR1, element1.getColor().getHexColor());
+        assertEquals(1.0 + "", element1.getLabel());
         HeatmapScaleElement element2 = scale.get(1);
-        AssertJUnit.assertEquals(COLOR2, element2.getColor().getHexColor());
-        AssertJUnit.assertEquals(-1f + "", element2.getLabel());
+        assertEquals(COLOR2, element2.getColor().getHexColor());
+        assertEquals(-1f + "", element2.getLabel());
+    }
+    
+    @Test
+    public void testScaleInsideMinMax()
+    {
+        MinMaxAndRange minMaxAndRange = new MinMaxAndRange(0, 5, new Range(1, 4));
+        NumberHeatmapRenderer renderer =
+                new NumberHeatmapRenderer(minMaxAndRange, Arrays.asList(COLOR1, COLOR2, COLOR3),
+                        createDummyRealRenderer());
+        
+        String firstLabel = renderer.tryGetFirstLabel();
+        List<HeatmapScaleElement> scale = renderer.calculateScale();
+
+        assertEquals("[3.0:#111, 2.0:#222, 0.0:#333]", scale.toString());
+        assertEquals("5.0", firstLabel);
+    }
+    
+    @Test
+    public void testScaleOutsideMinMax()
+    {
+        MinMaxAndRange minMaxAndRange = new MinMaxAndRange(2, 3, new Range(1, 4));
+        NumberHeatmapRenderer renderer =
+                new NumberHeatmapRenderer(minMaxAndRange, Arrays.asList(COLOR1, COLOR2, COLOR3),
+                        createDummyRealRenderer());
+        
+        String firstLabel = renderer.tryGetFirstLabel();
+        List<HeatmapScaleElement> scale = renderer.calculateScale();
+        
+        assertEquals("[3.0:#111, 2.0:#222, 1.0:#333]", scale.toString());
+        assertEquals("4.0", firstLabel);
+    }
+    
+    @Test
+    public void testScaleInsideMinMaxButScaleInverted()
+    {
+        MinMaxAndRange minMaxAndRange = new MinMaxAndRange(0, 5, new Range(4, 1));
+        NumberHeatmapRenderer renderer =
+                new NumberHeatmapRenderer(minMaxAndRange, Arrays.asList(COLOR1, COLOR2, COLOR3),
+                        createDummyRealRenderer());
+        
+        String firstLabel = renderer.tryGetFirstLabel();
+        List<HeatmapScaleElement> scale = renderer.calculateScale();
+        
+        assertEquals("[2.0:#111, 3.0:#222, 5.0:#333]", scale.toString());
+        assertEquals("0.0", firstLabel);
+    }
+    
+    @Test
+    public void testScaleOutsideMinMaxButScaleInverted()
+    {
+        MinMaxAndRange minMaxAndRange = new MinMaxAndRange(200, 300, new Range(400.1f, 100));
+        NumberHeatmapRenderer renderer =
+                new NumberHeatmapRenderer(minMaxAndRange, Arrays.asList(COLOR1, COLOR2, COLOR3),
+                        createDummyRealRenderer());
+        
+        String firstLabel = renderer.tryGetFirstLabel();
+        List<HeatmapScaleElement> scale = renderer.calculateScale();
+        
+        assertEquals("[200.0:#111, 300.0:#222, 400.0:#333]", scale.toString());
+        assertEquals("100.0", firstLabel);
     }
 }

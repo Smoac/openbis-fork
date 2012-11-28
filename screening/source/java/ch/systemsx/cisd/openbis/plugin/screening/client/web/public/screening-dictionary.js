@@ -61,6 +61,20 @@ external_data_heading: "Data Sets",
 show_only_directly_connected: "directly connected",
 
 //
+// Heat Map Viewer
+//
+heat_map_range_chooser_button: "Choose Scale",
+heat_map_range_chooser_title: "Heat Map Scale Chooser",
+heat_map_range_chooser_type_label_MIN_MAX: "Minimum Maximum",
+heat_map_range_chooser_type_tooltip_MIN_MAX: "The lowest/highest end of the scale is define by the minimum/maximum of the data.",
+heat_map_range_chooser_type_label_PERCENTILE_10_90: "10 to 90 Percentils",
+heat_map_range_chooser_type_tooltip_PERCENTILE_10_90: "The lowest/highest 10% of the data are mapped to lowest/highest end of the scale.",
+heat_map_range_chooser_type_fixed_type_label: "Fixed Scale",
+heat_map_range_chooser_type_fixed_type_lowest_scale_label: "Bottom Scale End",
+heat_map_range_chooser_type_fixed_type_highest_scale_label: "Top Scale End",
+heat_map_range_chooser_type_fixed_type_same_value_validation_message: "Top and bottom scale ends should be different.",
+
+//
 // Sample import
 //
 import_scheduled: "Import has started successfully. Notification will be sent to '{0}' upon completion.",

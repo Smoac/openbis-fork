@@ -20,6 +20,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.IRangeType;
+
 /**
  * Screening specific display settings.
  * 
@@ -38,6 +40,8 @@ public class ScreeningDisplaySettings implements Serializable
     private Map<String, ImageResolution> defaultResolutions;
 
     private Map<String, Integer> defaultMovieDelays;
+    
+    private Map<String, IRangeType> defaultFeatureRangeTypes;
 
     private String defaultAnalysisProcedure;
 
@@ -112,5 +116,15 @@ public class ScreeningDisplaySettings implements Serializable
     public void setDefaultMovieDelays(Map<String, Integer> defaultMovieDelays)
     {
         this.defaultMovieDelays = defaultMovieDelays;
+    }
+
+    public Map<String, IRangeType> getDefaultFeatureRangeTypes()
+    {
+        return defaultFeatureRangeTypes;
+    }
+
+    public void setDefaultFeatureRangeTypes(Map<String, IRangeType> defaultFeatureRangeTypes)
+    {
+        this.defaultFeatureRangeTypes = defaultFeatureRangeTypes;
     }
 }

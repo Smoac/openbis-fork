@@ -2,6 +2,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.Color;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleElement;
 
@@ -17,9 +18,11 @@ abstract class DelegatingStringHeatmapRenderer<T> implements IHeatmapRenderer<T>
     protected abstract String extractLabel(T value);
 
     private final IHeatmapRenderer<String> delegator;
+    protected final CodeAndLabel feature;
 
-    public DelegatingStringHeatmapRenderer(List<String> uniqueValues, List<Color> colorsOrNull)
+    public DelegatingStringHeatmapRenderer(List<String> uniqueValues, CodeAndLabel feature, List<Color> colorsOrNull)
     {
+        this.feature = feature;
         this.delegator = new StringHeatmapRenderer(uniqueValues, colorsOrNull);
     }
 

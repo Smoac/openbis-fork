@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.model.PlateLayouterModel;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ObjectCreationUtilForTests;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
@@ -75,8 +76,10 @@ public class WellTooltipGeneratorTest extends AssertJUnit
     private static String tryGenerateShortDescription(PlateLayouterModel model, int rowIx,
             int colIx, String featureLabelOrNull)
     {
+        CodeAndLabel distinguishedLabelOrNull =
+                featureLabelOrNull == null ? null : new CodeAndLabel(null, featureLabelOrNull);
         return new WellTooltipGenerator(model, createDummyRealNumberRenderer()).generateTooltip(
-                rowIx, colIx, featureLabelOrNull);
+                rowIx, colIx, distinguishedLabelOrNull);
     }
 
     private static IRealNumberRenderer createDummyRealNumberRenderer()
@@ -113,7 +116,7 @@ public class WellTooltipGeneratorTest extends AssertJUnit
     // no metadata for the wells, feature vectors present
     public void testTooltipWithFeatureVectors()
     {
-        PlateLayouterModel model = new PlateLayouterModel(createEmptyPlateMetadata());
+        PlateLayouterModel model = new PlateLayouterModel(createEmptyPlateMetadata(), null);
         model.setFeatureVectorDataset(createFeatureVectorDataset());
 
         String desc = tryGenerateShortDescription(model, 0, 1, null);
@@ -128,7 +131,7 @@ public class WellTooltipGeneratorTest extends AssertJUnit
     // no metadata for the wells, many feature vectors present (not all can be shown)
     public void testTooltipWithManyFeatureVectors()
     {
-        PlateLayouterModel model = new PlateLayouterModel(createEmptyPlateMetadata());
+        PlateLayouterModel model = new PlateLayouterModel(createEmptyPlateMetadata(), null);
         model.setFeatureVectorDataset(createLargeFeatureVectorDataset());
 
         String desc = tryGenerateShortDescription(model, 0, 1, null);
@@ -204,7 +207,7 @@ public class WellTooltipGeneratorTest extends AssertJUnit
 
     private static PlateLayouterModel createPlateModelWithMetadata()
     {
-        return new PlateLayouterModel(createNonEmptyPlateMetadata());
+        return new PlateLayouterModel(createNonEmptyPlateMetadata(), null);
     }
 
     private static PlateMetadata createNonEmptyPlateMetadata()

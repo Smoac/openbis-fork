@@ -23,7 +23,7 @@ import com.extjs.gxt.ui.client.widget.form.NumberField;
  * 
  * @author Christian Ribeaud
  */
-public final class RealField extends NumberField
+public class RealField extends NumberField
 {
     public RealField(final String fieldLabel, final boolean mandatory)
     {

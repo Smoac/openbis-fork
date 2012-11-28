@@ -6,6 +6,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRealNumberRenderer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.Color;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleElement;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.model.MinMaxAndRange;
 
 /**
  * Assigns colors to numeric ranges. Colors will be used to create a heat map.
@@ -14,35 +15,48 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
  */
 class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
 {
-    private final float min;
-
     private final float step;
 
     private final List<Color> colors;
 
-    private final float max;
+    private final float from;
+    
+    private final float until;
 
     private final IRealNumberRenderer realNumberRenderer;
 
-    public NumberHeatmapRenderer(float min, float max, IRealNumberRenderer realNumberRenderer)
+    private final String scaleTop;
+
+    private final String scaleBottom;
+
+    public NumberHeatmapRenderer(MinMaxAndRange minMaxRange, IRealNumberRenderer realNumberRenderer)
     {
-        this(min, max, ColorConstants.LONG_GRADIENT_DEFAULT_COLORS, realNumberRenderer);
+        this(minMaxRange, ColorConstants.LONG_GRADIENT_DEFAULT_COLORS, realNumberRenderer);
     }
 
-    public NumberHeatmapRenderer(float min, float max, List<String> colors,
+    public NumberHeatmapRenderer(MinMaxAndRange minMaxRange, List<String> colors,
             IRealNumberRenderer realNumberRenderer)
     {
-        this.min = min;
-        this.max = max;
+        from = minMaxRange.getRange().getFrom();
+        until = minMaxRange.getRange().getUntil();
         this.colors = ColorConstants.asColors(colors);
-        if (min == max)
+        this.realNumberRenderer = realNumberRenderer;
+        if (from == until)
         {
             this.step = 1.0f / this.colors.size();
         } else
         {
-            this.step = (max - min) / this.colors.size();
+            this.step = (until - from) / this.colors.size();
         }
-        this.realNumberRenderer = realNumberRenderer;
+        if (step > 0)
+        {
+            scaleTop = round(Math.max(until, minMaxRange.getMax()));
+            scaleBottom = round(Math.min(from, minMaxRange.getMin()));
+        } else
+        {
+            scaleTop = round(Math.min(until, minMaxRange.getMin()));
+            scaleBottom = round(Math.max(from, minMaxRange.getMax()));
+        }
     }
 
     @Override
@@ -52,42 +66,33 @@ class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
         {
             return ColorConstants.EMPTY_VALUE_COLOR;
         }
-        if (value > max || value < min)
-        {
-            throw new IllegalArgumentException("value from the wrong range " + value);
-        }
-        float range = max - value;
-        float part = range / step;
-        int colorNumber = Math.min((int) Math.floor(part), colors.size() - 1);
+        float part = (until - value) / step;
+        int colorNumber = Math.max(0, Math.min((int) Math.floor(part), colors.size() - 1));
         return colors.get(colorNumber);
     }
 
     @Override
     public List<HeatmapScaleElement> calculateScale()
     {
-        ArrayList<HeatmapScaleElement> scale = new ArrayList<HeatmapScaleElement>();
-        for (int i = 0; i < colors.size(); i++)
+        List<HeatmapScaleElement> scale = new ArrayList<HeatmapScaleElement>();
+        for (int i = 0; i < colors.size() - 1; i++)
         {
-            String label = round((max - step * (i + 1)));
+            String label = round(until - step * (i + 1));
             scale.add(new HeatmapScaleElement(label, colors.get(i)));
         }
+        scale.add(new HeatmapScaleElement(scaleBottom, colors.get(colors.size() - 1)));
         return scale;
     }
 
     @Override
     public String tryGetFirstLabel()
     {
-        return round(max);
+        return scaleTop;
     }
 
     private String round(float labelValue)
     {
-        if (Math.abs(step) > 10)
-        {
-            return "" + Math.round(labelValue);
-        } else
-        {
-            return realNumberRenderer.render(labelValue);
-        }
+        return realNumberRenderer
+                .render(Math.abs(step) > 10 ? Math.round(labelValue) : labelValue);
     }
 }

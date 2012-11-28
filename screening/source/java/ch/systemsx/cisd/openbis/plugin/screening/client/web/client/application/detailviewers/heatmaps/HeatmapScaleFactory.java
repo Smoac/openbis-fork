@@ -29,7 +29,7 @@ class HeatmapScaleFactory
      *            label. Otherwise creates a scale widget with one color described by a range (two
      *            labels).
      */
-    public static Widget create(String firstLabelOrNull, List<HeatmapScaleElement> scaleElements)
+    public static Component create(String firstLabelOrNull, List<HeatmapScaleElement> scaleElements)
     {
         LayoutContainer container = new LayoutContainer();
         container.setLayout(new TableLayout(2));

@@ -42,4 +42,11 @@ public class HeatmapScaleElement
     {
         return color;
     }
+
+    @Override
+    public String toString()
+    {
+        return label + ":" + color.getHexColor();
+    }
+    
 }
