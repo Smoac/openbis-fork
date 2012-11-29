@@ -354,12 +354,13 @@ SampleGraphPresenter.prototype.draw = function()
 SampleGraphPresenter.prototype.drawHeaders = function()
 {
 	var header = this.columns.selectAll("text.header").data(function(d, i) { return [COLUMNS[i]] });
-	header.enter().append("svg:text").attr("class", "header");
-	header
+	header.enter().append("svg:text")
+		.attr("class", "header")
 		.attr("x", "0")
 		.attr("y", LINE_HEIGHT)
 		.attr("text-anchor", "begin")
-		.style("font-weight", "bold")
+		.style("font-weight", "bold");
+	header
 		.text(function(d) { return d.label });
 }
 
@@ -371,6 +372,11 @@ SampleGraphPresenter.prototype.drawNodes = function()
 	var sample = this.columns.selectAll("text.sample").data(function(d) { return d });
 	sample.enter().append("svg:text")
 		.attr("class", "sample")
+		.attr("x", "0")
+		.attr("y", LINE_HEIGHT)
+		.attr("text-anchor", "begin")
+		.style("cursor", "pointer")
+		.on("click", function(d) { presenter.openSample(this, d) })
 		.transition()
 			.style("opacity", 1);
 	sample.exit()
@@ -379,28 +385,27 @@ SampleGraphPresenter.prototype.drawNodes = function()
 	sample
 		.attr("x", "0")
 		.attr("y", function(d, i) { return LINE_HEIGHT * (i+2)})
-		.attr("text-anchor", "begin")
-		.style("cursor", "pointer")
-		.on("click", function(d) { presenter.openSample(this, d) })
+
 		.text(function(d) { return d.identifier });
 
 	var ring = this.columns.selectAll("circle.ring").data(function(d) { return d });
 	ring.enter().append("svg:circle")
 		.attr("class", "ring")
+		.attr("pointer-events", "all")
+		.attr("r", 0)
+		.style("cursor", "pointer")
+		.style("stroke-width", "2px")
 		.transition()
-			.style("opacity", function(d) { return d.children.length > 0 ? 1 : 0 });
+			.style("opacity", function(d) { return d.children.length > 0 ? 1 : 0 })
+			.attr("r", 5);
 	ring.exit()
 		.transition()
 			.style("opacity", 0).remove();
 	ring
 		.attr("cx", function(d) { return textBBoxForNode(d).width + 7 })
 		.attr("cy", function(d, i) { return LINE_HEIGHT * (i+2) - yLinkOffset})
-		.attr("r", "5")
-		.attr("pointer-events", "all")
-		.style("cursor", "pointer")
 		.style("fill", function(d) { return d.childrenVisible ? "none" : d.color})
 		.style("stroke", function(d) { return d.color})
-		.style("stroke-width", "2px")
 		.on("click", function(d) { presenter.toggleExpand(this, d) });
 }
 
@@ -412,15 +417,16 @@ SampleGraphPresenter.prototype.drawLinks = function()
 	var link = this.viz.selectAll("path.link").data(this.links);
 	link.enter().append("svg:path")
 		.attr("class", "link")
+		.attr("pointer-events", "none")
+		.style("fill", "none")
+		.style("stroke-width", "1.5px")
 		.transition()
 			.style("opacity", 1);
 	link.exit()
 		.transition()
 			.style("opacity", 0).remove();
 	link
-		.style("fill", "none")
 		.style("stroke", function(d) { return d.sourceNode.color})
-		.style("stroke-width", "1.5px")
 		.attr("d", this.path);
 }
 
