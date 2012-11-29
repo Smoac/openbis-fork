@@ -369,8 +369,13 @@ SampleGraphPresenter.prototype.drawNodes = function()
 {
 	var lexicalParent = this;
 	var sample = this.columns.selectAll("text.sample").data(function(d) { return d.filter(function(s) { return s.visible; }) });
-	sample.enter().append("svg:text").attr("class", "sample");
-	sample.exit().remove();
+	sample.enter().append("svg:text")
+		.attr("class", "sample")
+		.transition()
+			.styleTween("opacity", function(d) { return d3.interpolate(0, 1)});
+	sample.exit()
+		.transition()
+			.styleTween("opacity", function(d) { return d3.interpolate(1, 0)}).remove();
 	sample
 		.attr("x", "0")
 		.attr("y", function(d, i) { return LINE_HEIGHT * (i+2)})
@@ -386,8 +391,13 @@ SampleGraphPresenter.prototype.drawNodes = function()
 SampleGraphPresenter.prototype.drawLinks = function()
 {
 	var link = this.viz.selectAll("path.link").data(this.links);
-	link.enter().append("svg:path").attr("class", "link");
-	link.exit().remove();
+	link.enter().append("svg:path")
+		.attr("class", "link")
+		.transition()
+			.styleTween("opacity", function(d) { return d3.interpolate(0, 1)});
+	link.exit()
+		.transition()
+			.styleTween("opacity", function(d) { return d3.interpolate(1, 0)}).remove();
 	link
 		.style("fill", "none")
 		.style("stroke", function(d) { return d.sourceNode.color})
