@@ -55,6 +55,7 @@ function parseJson(jsonString) { return eval('(' + jsonString + ')'); }
 function SampleGraphNode(sample) {
 	this.identifier = sample.identifier;
 	this.properties = sample.properties;
+	this.permId = sample.permId;
 	this.nodeId = sample["@id"];
 	this.sampleType = sample.sampleTypeCode;
 	this.children = [];
@@ -183,6 +184,15 @@ function SampleGraphPresenter(model) {
 	this.initializePresenter();
 }
 
+function textBBoxForNode(node) { 
+	var bbox = presenter.columns.selectAll("text.sample")[node.col][node.visibleIndex].getBBox();
+	// Correct for the column
+	bbox.x += node.colOffset;
+	return bbox;
+}
+
+var yLinkOffset = LINE_HEIGHT * 0.33;
+
 /**
  * Create the DOM elements to store the visualization (tree + inspectors)
  */
@@ -201,22 +211,13 @@ SampleGraphPresenter.prototype.initializePresenter = function()
 	this.vizWidth = xOffset;
 
 	// Function used to draw paths between elements
-	var yLinkOffset = LINE_HEIGHT * 0.33;
-
-	var lexicalParent = this;
-	function bboxForNode(node) { 
-		var bbox = lexicalParent.columns.selectAll("text.sample")[node.col][node.visibleIndex].getBBox();
-		// Correct for the column
-		bbox.x += node.colOffset;
-		return bbox;
-	}
 	function source(d) {
 		// Find the associated text node in the DOM and use that as a basis for creating the links
-		var bbox = bboxForNode(d.sourceNode);
-		return { x : bbox.x + bbox.width + 5, y  : bbox.y + yLinkOffset };
+		var bbox = textBBoxForNode(d.sourceNode);
+		return { x : bbox.x + bbox.width + 7, y  : bbox.y + yLinkOffset };
 	}
 	function target(d) {
-		var bbox = bboxForNode(d.targetNode);
+		var bbox = textBBoxForNode(d.targetNode);
 		return { x : bbox.x, y  : bbox.y + yLinkOffset }
 	}
 
@@ -367,22 +368,40 @@ SampleGraphPresenter.prototype.drawHeaders = function()
  */
 SampleGraphPresenter.prototype.drawNodes = function()
 {
-	var lexicalParent = this;
-	var sample = this.columns.selectAll("text.sample").data(function(d) { return d.filter(function(s) { return s.visible; }) });
+	var sample = this.columns.selectAll("text.sample").data(function(d) { return d });
 	sample.enter().append("svg:text")
 		.attr("class", "sample")
 		.transition()
-			.styleTween("opacity", function(d) { return d3.interpolate(0, 1)});
+			.style("opacity", 1);
 	sample.exit()
 		.transition()
-			.styleTween("opacity", function(d) { return d3.interpolate(1, 0)}).remove();
+			.style("opacity", 0).remove();
 	sample
 		.attr("x", "0")
 		.attr("y", function(d, i) { return LINE_HEIGHT * (i+2)})
 		.attr("text-anchor", "begin")
 		.style("cursor", "pointer")
-		.on("click", function(d) { lexicalParent.clickedNode(this, d) })
+		.on("click", function(d) { presenter.openSample(this, d) })
 		.text(function(d) { return d.identifier });
+
+	var ring = this.columns.selectAll("circle.ring").data(function(d) { return d });
+	ring.enter().append("svg:circle")
+		.attr("class", "ring")
+		.transition()
+			.style("opacity", function(d) { return d.children.length > 0 ? 1 : 0 });
+	ring.exit()
+		.transition()
+			.style("opacity", 0).remove();
+	ring
+		.attr("cx", function(d) { return textBBoxForNode(d).width + 7 })
+		.attr("cy", function(d, i) { return LINE_HEIGHT * (i+2) - yLinkOffset})
+		.attr("r", "5")
+		.attr("pointer-events", "all")
+		.style("cursor", "pointer")
+		.style("fill", function(d) { return d.childrenVisible ? "none" : d.color})
+		.style("stroke", function(d) { return d.color})
+		.style("stroke-width", "2px")
+		.on("click", function(d) { presenter.toggleExpand(this, d) });
 }
 
 /**
@@ -394,10 +413,10 @@ SampleGraphPresenter.prototype.drawLinks = function()
 	link.enter().append("svg:path")
 		.attr("class", "link")
 		.transition()
-			.styleTween("opacity", function(d) { return d3.interpolate(0, 1)});
+			.style("opacity", 1);
 	link.exit()
 		.transition()
-			.styleTween("opacity", function(d) { return d3.interpolate(1, 0)}).remove();
+			.style("opacity", 0).remove();
 	link
 		.style("fill", "none")
 		.style("stroke", function(d) { return d.sourceNode.color})
@@ -405,10 +424,14 @@ SampleGraphPresenter.prototype.drawLinks = function()
 		.attr("d", this.path);
 }
 
-SampleGraphPresenter.prototype.clickedNode = function(svgNode, d) {
+SampleGraphPresenter.prototype.toggleExpand = function(svgNode, d) {
 	// toggle visiblity
 	d.userChildrenVisible = (null == d.userChildrenVisible) ? !d.childrenVisible :!d.userChildrenVisible;
 	this.draw();
+}
+
+SampleGraphPresenter.prototype.openSample = function(svgNode, d) {
+//	console.log(["open sample", d.permId]);
 }
 
 /// The model that manages state and implements the operations
