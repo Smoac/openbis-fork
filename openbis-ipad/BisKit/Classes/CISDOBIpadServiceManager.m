@@ -388,7 +388,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
         }
     }
     // If pruning is requested, remove entities that cannot be reached from the server result set.
-    // TODO : we should treat the intial results as a root set and trace out to do a gc, but the simpler implementation is just to remove everything that is not mentioned
+    // NOTE: This is a simplified implementation. A better solution would be to treat the intial results as a root set and trace out to do a gc, but the simpler implementation is just to remove everything that is not mentioned. We do the latter here.
     if (_prune) {
         // Remove all entities that were not mentioned
         NSFetchRequest *fetchRequest = [self.serviceManager fetchRequestForEntitiesNotUpdatedSince: lastUpdateDate];

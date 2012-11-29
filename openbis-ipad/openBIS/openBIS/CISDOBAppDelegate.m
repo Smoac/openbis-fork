@@ -143,14 +143,6 @@
 {
     // Initialize the controller
     [self configureControllers];
-
-    
-    // TODO -- This is only necessary because the login controller needs access
-    // to the root model... maybe there is a better way to do this.
-    [self detailsViewController].openBisModel = self.rootOpenBisModel;
-
-//    [self initializeOpenBisConnection];
-    
     
     return YES;
 }
