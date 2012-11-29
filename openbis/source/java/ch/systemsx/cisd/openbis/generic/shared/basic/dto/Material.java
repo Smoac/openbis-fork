@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIsStub;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ITaggable;
 
 /**
@@ -29,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ITaggable;
  * @author Izabela Adamczyk
  */
 public class Material extends CodeWithRegistration<Material> implements
-        IEntityInformationHolderWithProperties, ITaggable
+        IEntityInformationHolderWithProperties, ITaggable, IIsStub
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -169,5 +170,11 @@ public class Material extends CodeWithRegistration<Material> implements
     public String toString()
     {
         return getIdentifier();
+    }
+
+    @Override
+    public boolean isStub()
+    {
+        return false;
     }
 }

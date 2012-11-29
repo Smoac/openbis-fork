@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.uitest.dsl.Command;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
+import ch.systemsx.cisd.openbis.uitest.type.Space;
 import ch.systemsx.cisd.openbis.uitest.type.User;
 
 /**
@@ -37,9 +38,12 @@ public class CreateUserRmi implements Command<User>
 
     private User user;
 
-    public CreateUserRmi(User user)
+    private Space space;
+
+    public CreateUserRmi(User user, Space space)
     {
         this.user = user;
+        this.space = space;
     }
 
     @Override
@@ -47,7 +51,15 @@ public class CreateUserRmi implements Command<User>
     {
         String userName = user.getName();
         commonServer.registerPerson(session, userName);
-        commonServer.registerInstanceRole(session, RoleCode.ADMIN, Grantee.createPerson(userName));
+        if (this.space != null)
+        {
+            commonServer.registerSpaceRole(session, RoleCode.ADMIN, Identifiers.get(space), Grantee
+                    .createPerson(userName));
+        } else
+        {
+            commonServer.registerInstanceRole(session, RoleCode.ADMIN, Grantee
+                    .createPerson(userName));
+        }
         return user;
     }
 }

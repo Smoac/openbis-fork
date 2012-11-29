@@ -25,6 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -43,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IUpdateResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIsStub;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ITaggable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
@@ -57,7 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithProperties & ITaggable>
+public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithProperties & ITaggable & IIsStub>
         extends
         TypedTableGrid<E>
 {
@@ -258,7 +263,7 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
         tagButton.setId(gridId + TAG_BUTTON_ID_SUFFIX);
         tagButton.setText(viewContext.getMessage(Dict.BUTTON_TAG));
         tagButton.setToolTip(viewContext.getMessage(Dict.BUTTON_TAG_TOOLTIP));
-        enableButtonOnSelectedItems(tagButton);
+        enableButtonOnSelectedItemsIfNoStubsAreSelected(tagButton);
         addButton(tagButton);
 
         final MetaprojectChooserButton untagButton =
@@ -324,5 +329,51 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
         enableButtonOnSelectedItems(untagButton);
         addButton(untagButton);
 
+    }
+
+    protected void enableButtonOnSelectedItemsIfNoStubsAreSelected(final Button button)
+    {
+        button.setEnabled(false);
+        addGridSelectionChangeListener(new Listener<SelectionChangedEvent<ModelData>>()
+            {
+                @Override
+                public void handleEvent(SelectionChangedEvent<ModelData> se)
+                {
+
+                    List<BaseEntityModel<TableModelRowWithObject<E>>> selectedItems =
+                            getSelectedItems();
+
+                    List<IIsStub> selection = new ArrayList<IIsStub>();
+                    for (final BaseEntityModel<TableModelRowWithObject<E>> model : selectedItems)
+                    {
+                        selection.add(new IIsStub()
+                            {
+                                @Override
+                                public boolean isStub()
+                                {
+                                    return model.getBaseObject().getObjectOrNull().isStub();
+                                }
+
+                            });
+                    }
+
+                    boolean enabled;
+                    if (selection.size() > 0)
+                    {
+                        enabled = true;
+                        for (IIsStub taggable : selection)
+                        {
+                            if (taggable.isStub())
+                            {
+                                enabled = false;
+                            }
+                        }
+                    } else
+                    {
+                        enabled = false;
+                    }
+                    button.setEnabled(enabled);
+                }
+            });
     }
 }

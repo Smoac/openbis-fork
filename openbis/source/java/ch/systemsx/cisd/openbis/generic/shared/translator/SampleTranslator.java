@@ -69,6 +69,7 @@ public final class SampleTranslator
         result.setPermId(samplePE.getPermId());
         result.setId(HibernateUtils.getId(samplePE));
         result.setProperties(new ArrayList<IEntityProperty>());
+        result.setMetaprojects(MetaprojectTranslator.translate(samplePE.getMetaprojects()));
 
         return result;
     }
@@ -80,6 +81,7 @@ public final class SampleTranslator
         result.setPermId(sample.getPermId());
         result.setId(HibernateUtils.getId(sample));
         result.setProperties(new ArrayList<IEntityProperty>());
+        result.setMetaprojects(sample.getMetaprojects());
 
         return result;
     }

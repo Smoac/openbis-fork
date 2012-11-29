@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.uitest.dsl.type;
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
 import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
 import ch.systemsx.cisd.openbis.uitest.rmi.CreateUserRmi;
+import ch.systemsx.cisd.openbis.uitest.type.Space;
 import ch.systemsx.cisd.openbis.uitest.type.User;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
@@ -29,6 +30,8 @@ public class UserBuilder implements Builder<User>
 {
 
     private String name;
+
+    private Space space;
 
     public UserBuilder(UidGenerator uid)
     {
@@ -46,12 +49,19 @@ public class UserBuilder implements Builder<User>
         return this;
     }
 
+    @SuppressWarnings("hiding")
+    public UserBuilder asAdminOf(Space space)
+    {
+        this.space = space;
+        return this;
+    }
+
     @Override
     public User build(Application openbis, Ui ui)
     {
         if (Ui.PUBLIC_API.equals(ui))
         {
-            return openbis.execute(new CreateUserRmi(new UserDsl(name)));
+            return openbis.execute(new CreateUserRmi(new UserDsl(name), space));
         } else if (Ui.DUMMY.equals(ui))
         {
             return new UserDsl(name);
