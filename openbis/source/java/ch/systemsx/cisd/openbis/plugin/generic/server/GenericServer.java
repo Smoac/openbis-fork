@@ -927,7 +927,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         int size = errors.size();
         if (size > 0)
         {
-            String errorString = "Found " + (size == 1 ? " one error:" : size + "errors:");
+            String errorString = "Found " + (size == 1 ? " one error:" : size + " errors:");
             for (String error : errors)
             {
                 errorString += "\n" + error;
