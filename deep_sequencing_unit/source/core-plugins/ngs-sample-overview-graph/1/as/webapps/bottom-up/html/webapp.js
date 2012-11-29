@@ -437,7 +437,8 @@ SampleGraphPresenter.prototype.toggleExpand = function(svgNode, d) {
 }
 
 SampleGraphPresenter.prototype.openSample = function(svgNode, d) {
-//	console.log(["open sample", d.permId]);
+	var url = "/openbis/index.html?viewMode=SIMPLE#entity=SAMPLE&permId=" + d.permId;
+	window.open(url, '_blank');
 }
 
 /// The model that manages state and implements the operations
