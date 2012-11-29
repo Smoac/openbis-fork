@@ -48,6 +48,11 @@ public interface IMetaprojectDAO extends IGenericDAO<MetaprojectPE>
     public void createOrUpdateMetaproject(MetaprojectPE metaproject, PersonPE owner);
 
     /**
+     * List entity ids for the entity kind and metaproject.
+     */
+    public Collection<Long> listMetaprojectEntityIds(Long metaprojectId, EntityKind entityKind);
+
+    /**
      * Lists all metaprojects owned by given user, connected with given entity.
      */
     public Collection<MetaprojectPE> listMetaprojectsForEntity(PersonPE owner,

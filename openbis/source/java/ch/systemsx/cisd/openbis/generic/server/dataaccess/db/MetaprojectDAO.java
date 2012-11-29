@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -141,6 +142,35 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    public Collection<Long> listMetaprojectEntityIds(Long metaprojectId, EntityKind entityKind)
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(MetaprojectAssignmentPE.class);
+        criteria.createAlias("metaproject", "m");
+        criteria.createAlias(entityKind.getLabel(), "e");
+        criteria.add(Restrictions.eq("m.id", metaprojectId));
+        criteria.setProjection(Projections.property("e.id"));
+
+        List<Number> idsAsNumbers = getHibernateTemplate().findByCriteria(criteria);
+        List<Long> idsAsLongs = new ArrayList<Long>();
+
+        for (Number idAsNumber : idsAsNumbers)
+        {
+            idsAsLongs.add(idAsNumber.longValue());
+        }
+
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "%s(%s, %s): %d metaproject entity ids have been found.", MethodUtils
+                            .getCurrentMethod().getName(), metaprojectId, entityKind, idsAsLongs
+                            .size()));
+        }
+
+        return idsAsLongs;
+    }
+
+    @Override
     public Collection<MetaprojectAssignmentPE> listMetaprojectAssignmentsForEntities(
             PersonPE owner, Collection<? extends IEntityInformationWithPropertiesHolder> entities,
             EntityKind entityKind)
@@ -196,14 +226,14 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
         criteria.setProjection(Projections.rowCount());
 
         Number count = (Number) getHibernateTemplate().findByCriteria(criteria).get(0);
-        
+
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("%s(%s, %s): %d metaproject assignments have been found.",
-                    MethodUtils.getCurrentMethod().getName(), metaprojectId, entityKind,
-                    count));
+            operationLog.debug(String.format(
+                    "%s(%s, %s): %d metaproject assignments have been found.", MethodUtils
+                            .getCurrentMethod().getName(), metaprojectId, entityKind, count));
         }
-        
+
         return count.intValue();
     }
 }

@@ -93,9 +93,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsCount;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -162,14 +160,6 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#removeEntitiesFromMetaProjects(EntityKind, List, List) */
     public void removeEntitiesFromMetaProjects(EntityKind entityKind, List<Long> metaProjectIds,
             List<Long> sampleIds, AsyncCallback<Void> asyncCallback);
-
-    /**
-     * @see ICommonClientService#getMetaprojectAssignments(Long,
-     *      MetaprojectAssignmentsFetchOption[])
-     */
-    public void getMetaprojectAssignments(Long metaprojectId,
-            MetaprojectAssignmentsFetchOption[] fetchOptions,
-            final AsyncCallback<MetaprojectAssignments> asyncCallback);
 
     /**
      * @see ICommonClientService#getMetaproject(Long)
@@ -276,6 +266,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listSamples2(final ListSampleDisplayCriteria2 criteria,
             AsyncCallback<TypedTableResultSet<Sample>> asyncCallback);
 
+    /**
+     * @see ICommonClientService#listMetaprojectSamples(Long)
+     */
+    public void listMetaprojectSamples(final Long metaprojectId,
+            AsyncCallback<List<Sample>> asyncCallback);
+
     /** @see ICommonClientService#prepareExportSamples(TableExportCriteria) */
     public void prepareExportSamples(
             TableExportCriteria<TableModelRowWithObject<Sample>> exportCriteria,
@@ -305,6 +301,13 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listExperiments(
             final ListExperimentsCriteria criteria,
             AsyncCallback<TypedTableResultSet<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment>> asyncCallback);
+
+    /**
+     * @see ICommonClientService#listMetaprojectExperiments(Long)
+     */
+    public void listMetaprojectExperiments(
+            final Long metaprojectId,
+            AsyncCallback<List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment>> asyncCallback);
 
     /**
      * @see ICommonClientService#prepareExportExperiments(TableExportCriteria)
@@ -497,6 +500,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<TypedTableResultSet<ExternalData>> asyncCallback);
 
     /**
+     * @see ICommonClientService#listMetaprojectDataSets(Long)
+     */
+    public void listMetaprojectDataSets(Long metaprojectId,
+            AsyncCallback<List<ExternalData>> asyncCallback);
+
+    /**
      * @see ICommonClientService#listDataSetRelationships(TechId, DataSetRelationshipRole,
      *      DefaultResultSetConfig)
      */
@@ -606,6 +615,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void listMaterials(ListMaterialDisplayCriteria criteria,
             AsyncCallback<TypedTableResultSet<Material>> callback);
+
+    /**
+     * @see ICommonClientService#listMetaprojectMaterials(Long)
+     */
+    public void listMetaprojectMaterials(Long metaprojectId, AsyncCallback<List<Material>> callback);
 
     /** @see ICommonClientService#prepareExportMaterials(TableExportCriteria) */
     public void prepareExportMaterials(

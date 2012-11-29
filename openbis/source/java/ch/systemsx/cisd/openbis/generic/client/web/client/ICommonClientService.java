@@ -91,9 +91,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsCount;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -186,12 +184,6 @@ public interface ICommonClientService extends IClientService
      */
     public void removeEntitiesFromMetaProjects(EntityKind entityKind, List<Long> metaProjectIds,
             List<Long> sampleIds);
-
-    /**
-     * Returns metaproject assignments.
-     */
-    public MetaprojectAssignments getMetaprojectAssignments(Long metaprojectId,
-            MetaprojectAssignmentsFetchOption[] fetchOptions) throws UserFailureException;
 
     /**
      * Returns metaproject.
@@ -333,6 +325,12 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Returns a list of metaproject samples.
+     */
+    public List<Sample> listMetaprojectSamples(final Long metaprojectId)
+            throws UserFailureException;
+
+    /**
      * Returns a key which can be used be the export servlet (and eventually
      * {@link #getExportTable(String, String)}) to reference the export criteria in an easy way.
      */
@@ -347,9 +345,21 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Returns a list of metaproject experiments.
+     */
+    public List<Experiment> listMetaprojectExperiments(final Long metaprojectId)
+            throws UserFailureException;
+
+    /**
      * Returns a list of materials.
      */
     public TypedTableResultSet<Material> listMaterials(final ListMaterialDisplayCriteria criteria)
+            throws UserFailureException;
+
+    /**
+     * Returns a list of metaproject materials.
+     */
+    public List<Material> listMetaprojectMaterials(final Long metaprojectId)
             throws UserFailureException;
 
     /**
@@ -577,6 +587,12 @@ public interface ICommonClientService extends IClientService
      */
     public TypedTableResultSet<ExternalData> listMetaprojectDataSets(final TechId metaprojectId,
             DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria)
+            throws UserFailureException;
+
+    /**
+     * For given <var>metaprojectId</var> returns corresponding list of {@link ExternalData}.
+     */
+    public List<ExternalData> listMetaprojectDataSets(final Long metaprojectId)
             throws UserFailureException;
 
     /**

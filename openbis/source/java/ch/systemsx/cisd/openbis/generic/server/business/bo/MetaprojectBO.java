@@ -42,13 +42,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IMetaprojectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * @author Pawel Glyzewski
@@ -229,12 +234,22 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
             throw new UserFailureException("Metaproject name cannot be null");
         }
 
-        metaproject.setName(updates.getName());
-        metaproject.setDescription(updates.getDescription());
-
-        // TODO reindex all metaproject entities
-
-        dataChanged = true;
+        try
+        {
+            if (metaproject.getName().equals(updates.getName()) == false)
+            {
+                metaproject.setName(updates.getName());
+                addToChangedEntities(ExperimentPE.class, listEntityIds(EntityKind.EXPERIMENT));
+                addToChangedEntities(SamplePE.class, listEntityIds(EntityKind.SAMPLE));
+                addToChangedEntities(DataPE.class, listEntityIds(EntityKind.DATA_SET));
+                addToChangedEntities(MaterialPE.class, listEntityIds(EntityKind.MATERIAL));
+            }
+            metaproject.setDescription(updates.getDescription());
+            dataChanged = true;
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, "Metaproject '" + metaproject.getName() + "'");
+        }
     }
 
     @Override
@@ -335,6 +350,11 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
         }
     }
 
+    private Collection<Long> listEntityIds(EntityKind entityKind)
+    {
+        return getMetaprojectDAO().listMetaprojectEntityIds(metaproject.getId(), entityKind);
+    }
+
     private void initChangedEntities()
     {
         changedEntitiesIds = new HashMap<Class<?>, List<Long>>();
@@ -349,6 +369,14 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
             changedEntitiesIds.put(entityClass, ids);
         }
         ids.add(entityId);
+    }
+
+    private void addToChangedEntities(Class<?> entityClass, Collection<Long> entityIds)
+    {
+        for (Long entityId : entityIds)
+        {
+            addToChangedEntities(entityClass, entityId);
+        }
     }
 
 }

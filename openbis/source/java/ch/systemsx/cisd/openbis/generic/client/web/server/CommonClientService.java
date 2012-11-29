@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -171,9 +170,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsCount;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
@@ -581,6 +578,13 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
+    public List<Sample> listMetaprojectSamples(Long metaprojectId)
+    {
+        return commonServer.listMetaprojectSamples(getSessionToken(), new MetaprojectTechIdId(
+                metaprojectId));
+    }
+
+    @Override
     public TypedTableResultSet<ExternalData> searchForDataSets(
             final DetailedSearchCriteria criteria,
             final IResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig)
@@ -639,6 +643,13 @@ public final class CommonClientService extends AbstractClientService implements
         final String sessionToken = getSessionToken();
         return listEntities(new ExperimentProvider(commonServer, sessionToken, listCriteria),
                 listCriteria);
+    }
+
+    @Override
+    public final List<Experiment> listMetaprojectExperiments(final Long metaprojectId)
+    {
+        return commonServer.listMetaprojectExperiments(getSessionToken(), new MetaprojectTechIdId(
+                metaprojectId));
     }
 
     @Override
@@ -724,23 +735,6 @@ public final class CommonClientService extends AbstractClientService implements
     {
         return commonServer.getMetaprojectAssignmentsCount(getSessionToken(),
                 new MetaprojectTechIdId(metaprojectId));
-    }
-
-    @Override
-    public MetaprojectAssignments getMetaprojectAssignments(Long metaprojectId,
-            MetaprojectAssignmentsFetchOption[] fetchOptions)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        EnumSet<MetaprojectAssignmentsFetchOption> fetchOptionsSet =
-                EnumSet.noneOf(MetaprojectAssignmentsFetchOption.class);
-
-        for (MetaprojectAssignmentsFetchOption fetchOption : fetchOptions)
-        {
-            fetchOptionsSet.add(fetchOption);
-        }
-
-        return commonServer.getMetaprojectAssignments(getSessionToken(), new MetaprojectTechIdId(
-                metaprojectId), fetchOptionsSet);
     }
 
     @Override
@@ -956,6 +950,13 @@ public final class CommonClientService extends AbstractClientService implements
                             new MetaprojectTechIdId(metaprojectId));
                 }
             }, criteria);
+    }
+
+    @Override
+    public List<ExternalData> listMetaprojectDataSets(final Long metaprojectId)
+    {
+        return commonServer.listMetaprojectExternalData(getSessionToken(), new MetaprojectTechIdId(
+                metaprojectId));
     }
 
     @Override
@@ -1431,6 +1432,13 @@ public final class CommonClientService extends AbstractClientService implements
                     }
                 }
             }, criteria);
+    }
+
+    @Override
+    public List<Material> listMetaprojectMaterials(Long metaprojectId)
+    {
+        return commonServer.listMetaprojectMaterials(getSessionToken(), new MetaprojectTechIdId(
+                metaprojectId));
     }
 
     @Override

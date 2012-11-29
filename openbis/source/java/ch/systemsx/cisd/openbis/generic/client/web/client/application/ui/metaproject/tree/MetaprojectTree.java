@@ -65,9 +65,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsCount;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * @author pkupczyk
@@ -293,54 +295,34 @@ public class MetaprojectTree extends TreeGrid<MetaprojectTreeItemData> implement
         private void loadEntities(final MetaprojectTreeEntityKindItemData parent,
                 final AsyncCallback<List<MetaprojectTreeItemData>> callback)
         {
-            MetaprojectAssignmentsFetchOption fetchOption =
-                    getAssignmentsFetchOption(parent.getEntityKind());
-
-            viewContext.getCommonService().getMetaprojectAssignments(parent.getMetaprojectId(),
-                    new MetaprojectAssignmentsFetchOption[]
-                        { fetchOption },
-                    new AbstractAsyncCallback<MetaprojectAssignments>(viewContext)
-                        {
-                            @Override
-                            protected void process(MetaprojectAssignments result)
-                            {
-                                List<MetaprojectTreeItemData> items =
-                                        new ArrayList<MetaprojectTreeItemData>();
-                                List<? extends IEntityInformationHolderWithIdentifier> entities =
-                                        getAssignmentsEntities(result, parent.getEntityKind());
-
-                                for (IEntityInformationHolderWithIdentifier entity : entities)
-                                {
-                                    items.add(new MetaprojectTreeEntityItemData(parent
-                                            .getMetaprojectId(), entity));
-                                }
-
-                                Collections.sort(items, new Comparator<MetaprojectTreeItemData>()
-                                    {
-                                        @Override
-                                        public int compare(MetaprojectTreeItemData o1,
-                                                MetaprojectTreeItemData o2)
-                                        {
-                                            MetaprojectTreeEntityItemData e1 =
-                                                    (MetaprojectTreeEntityItemData) o1;
-                                            MetaprojectTreeEntityItemData e2 =
-                                                    (MetaprojectTreeEntityItemData) o2;
-
-                                            if (e1.isEntityStub() ^ e2.isEntityStub())
-                                            {
-                                                return e1.isEntityStub() ? -1 : 1;
-                                            } else
-                                            {
-                                                return e1.getEntityLabel().compareTo(
-                                                        e2.getEntityLabel());
-                                            }
-                                        }
-
-                                    });
-
-                                callback.onSuccess(items);
-                            }
-                        });
+            if (EntityKind.EXPERIMENT.equals(parent.getEntityKind()))
+            {
+                viewContext.getCommonService().listMetaprojectExperiments(
+                        parent.getMetaprojectId(),
+                        new MetaprojectLoadEntitiesCallback<Experiment>(viewContext, parent,
+                                callback));
+            } else if (EntityKind.SAMPLE.equals(parent.getEntityKind()))
+            {
+                viewContext.getCommonService().listMetaprojectSamples(parent.getMetaprojectId(),
+                        new MetaprojectLoadEntitiesCallback<Sample>(viewContext, parent, callback));
+            } else if (EntityKind.DATA_SET.equals(parent.getEntityKind()))
+            {
+                viewContext.getCommonService().listMetaprojectDataSets(
+                        parent.getMetaprojectId(),
+                        new MetaprojectLoadEntitiesCallback<ExternalData>(viewContext, parent,
+                                callback));
+            } else if (EntityKind.MATERIAL.equals(parent.getEntityKind()))
+            {
+                viewContext.getCommonService()
+                        .listMetaprojectMaterials(
+                                parent.getMetaprojectId(),
+                                new MetaprojectLoadEntitiesCallback<Material>(viewContext, parent,
+                                        callback));
+            } else
+            {
+                throw new IllegalArgumentException("Unsupported entity kind: "
+                        + parent.getEntityKind());
+            }
         }
 
         public void clearCache()
@@ -348,6 +330,56 @@ public class MetaprojectTree extends TreeGrid<MetaprojectTreeItemData> implement
             countMap = null;
         }
 
+    }
+
+    private static class MetaprojectLoadEntitiesCallback<T extends IEntityInformationHolderWithIdentifier>
+            extends AbstractAsyncCallback<List<T>>
+    {
+
+        private MetaprojectTreeEntityKindItemData parent;
+
+        private AsyncCallback<List<MetaprojectTreeItemData>> callback;
+
+        public MetaprojectLoadEntitiesCallback(IViewContext<?> viewContext,
+                MetaprojectTreeEntityKindItemData parent,
+                AsyncCallback<List<MetaprojectTreeItemData>> callback)
+        {
+            super(viewContext);
+            this.parent = parent;
+            this.callback = callback;
+        }
+
+        @Override
+        protected void process(List<T> entities)
+        {
+            List<MetaprojectTreeItemData> items = new ArrayList<MetaprojectTreeItemData>();
+
+            for (IEntityInformationHolderWithIdentifier entity : entities)
+            {
+                items.add(new MetaprojectTreeEntityItemData(parent.getMetaprojectId(), entity));
+            }
+
+            Collections.sort(items, new Comparator<MetaprojectTreeItemData>()
+                {
+                    @Override
+                    public int compare(MetaprojectTreeItemData o1, MetaprojectTreeItemData o2)
+                    {
+                        MetaprojectTreeEntityItemData e1 = (MetaprojectTreeEntityItemData) o1;
+                        MetaprojectTreeEntityItemData e2 = (MetaprojectTreeEntityItemData) o2;
+
+                        if (e1.isEntityStub() ^ e2.isEntityStub())
+                        {
+                            return e1.isEntityStub() ? -1 : 1;
+                        } else
+                        {
+                            return e1.getEntityLabel().compareTo(e2.getEntityLabel());
+                        }
+                    }
+
+                });
+
+            callback.onSuccess(items);
+        }
     }
 
     private static class MetaprojectTreeLoader extends BaseTreeLoader<MetaprojectTreeItemData>
@@ -587,47 +619,6 @@ public class MetaprojectTree extends TreeGrid<MetaprojectTreeItemData> implement
     @Override
     public void dispose()
     {
-    }
-
-    private static MetaprojectAssignmentsFetchOption getAssignmentsFetchOption(EntityKind entityKind)
-    {
-        if (EntityKind.EXPERIMENT.equals(entityKind))
-        {
-            return MetaprojectAssignmentsFetchOption.EXPERIMENTS;
-        } else if (EntityKind.SAMPLE.equals(entityKind))
-        {
-            return MetaprojectAssignmentsFetchOption.SAMPLES;
-        } else if (EntityKind.DATA_SET.equals(entityKind))
-        {
-            return MetaprojectAssignmentsFetchOption.DATA_SETS;
-        } else if (EntityKind.MATERIAL.equals(entityKind))
-        {
-            return MetaprojectAssignmentsFetchOption.MATERIALS;
-        } else
-        {
-            throw new IllegalArgumentException("Unsupported entity kind: " + entityKind);
-        }
-    }
-
-    private static List<? extends IEntityInformationHolderWithIdentifier> getAssignmentsEntities(
-            MetaprojectAssignments assignments, EntityKind entityKind)
-    {
-        if (EntityKind.EXPERIMENT.equals(entityKind))
-        {
-            return assignments.getExperiments();
-        } else if (EntityKind.SAMPLE.equals(entityKind))
-        {
-            return assignments.getSamples();
-        } else if (EntityKind.DATA_SET.equals(entityKind))
-        {
-            return assignments.getDataSets();
-        } else if (EntityKind.MATERIAL.equals(entityKind))
-        {
-            return assignments.getMaterials();
-        } else
-        {
-            throw new IllegalArgumentException("Unsupported entity kind: " + entityKind);
-        }
     }
 
 }
