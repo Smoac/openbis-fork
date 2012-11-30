@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.api;
+package ch.systemsx.cisd.etlserver.registrator.api.v1;
 
 import java.util.List;
 
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
