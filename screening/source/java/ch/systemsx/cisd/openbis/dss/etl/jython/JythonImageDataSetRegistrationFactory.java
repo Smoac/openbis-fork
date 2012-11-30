@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.jython;
 
-import ch.systemsx.cisd.etlserver.registrator.AbstractDataSetRegistrationDetailsFactory;
+import ch.systemsx.cisd.etlserver.registrator.v1.AbstractDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -28,7 +28,7 @@ public class JythonImageDataSetRegistrationFactory extends
 {
 
     public JythonImageDataSetRegistrationFactory(
-            ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState registratorState,
+            ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState registratorState,
             DataSetInformation userProvidedDataSetInformationOrNull)
     {
         super(registratorState, userProvidedDataSetInformationOrNull);

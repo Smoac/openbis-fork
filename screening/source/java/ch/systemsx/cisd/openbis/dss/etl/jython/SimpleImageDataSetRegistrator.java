@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.common.io.FileBasedContentNode;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
-import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
+import ch.systemsx.cisd.etlserver.registrator.v1.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;

@@ -20,12 +20,12 @@ import java.io.File;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
-import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.NoOpDelegate;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
-import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
-import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
+import ch.systemsx.cisd.etlserver.registrator.v2.AbstractOmniscientTopLevelDataSetRegistrator.NoOpDelegate;
+import ch.systemsx.cisd.etlserver.registrator.v2.DataSetRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IImagingDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.openbis.dss.etl.jython.ImagingDataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandlerUtils;
@@ -69,8 +69,7 @@ public class ScreeningJythonIngestionService extends JythonIngestionService
             NoOpDelegate delegate)
     {
         IDataSetRegistrationDetailsFactory<DataSetInformation> registrationDetailsFactory =
-                new JythonPlateDatasetFactory(
-                getRegistratorState(), null);
+                new JythonPlateDatasetFactory(getRegistratorState(), null);
 
         DataSetRegistrationService<DataSetInformation> service =
                 new DataSetRegistrationService<DataSetInformation>(this, incoming,

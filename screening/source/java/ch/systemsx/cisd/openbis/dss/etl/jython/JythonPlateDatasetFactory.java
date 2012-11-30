@@ -22,13 +22,13 @@ import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
-import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
-import ch.systemsx.cisd.etlserver.registrator.IDataSetRegistrationDetailsFactory;
-import ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler.ProgrammableDropboxObjectFactory;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.v1.DataSetRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.v1.IDataSetRegistrationDetailsFactory;
+import ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
+import ch.systemsx.cisd.etlserver.registrator.v1.JythonTopLevelDataSetHandler.ProgrammableDropboxObjectFactory;
 import ch.systemsx.cisd.openbis.dss.etl.PlateGeometryOracle;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSetInformation;

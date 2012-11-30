@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.dss.etl.jython;
 
 import java.io.File;
 
-import ch.systemsx.cisd.etlserver.registrator.AbstractDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
+import ch.systemsx.cisd.etlserver.registrator.v1.AbstractDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageContainerDataSet;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -32,7 +32,7 @@ public class JythonImageContainerDataSetRegistrationFactory extends
 {
 
     public JythonImageContainerDataSetRegistrationFactory(
-            ch.systemsx.cisd.etlserver.registrator.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState registratorState,
+            ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState registratorState,
             DataSetInformation userProvidedDataSetInformationOrNull)
     {
         super(registratorState, userProvidedDataSetInformationOrNull);
