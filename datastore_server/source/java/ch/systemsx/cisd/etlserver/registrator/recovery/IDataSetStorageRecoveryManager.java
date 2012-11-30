@@ -18,7 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator.recovery;
 
 import java.io.File;
 
-import ch.systemsx.cisd.etlserver.registrator.DataSetStorageAlgorithmRunner;
+import ch.systemsx.cisd.etlserver.registrator.v1.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 

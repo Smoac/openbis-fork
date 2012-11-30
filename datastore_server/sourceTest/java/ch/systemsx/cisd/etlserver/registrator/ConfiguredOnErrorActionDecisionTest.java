@@ -22,7 +22,8 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
-import ch.systemsx.cisd.etlserver.registrator.IDataSetOnErrorActionDecision.ErrorType;
+import ch.systemsx.cisd.etlserver.registrator.v1.ConfiguredOnErrorActionDecision;
+import ch.systemsx.cisd.etlserver.registrator.v1.IDataSetOnErrorActionDecision.ErrorType;
 
 /**
  * @author Chandrasekhar Ramakrishnan

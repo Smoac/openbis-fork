@@ -3,6 +3,9 @@ package ch.systemsx.cisd.etlserver.registrator;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.v1.DataSetRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.v1.DataSetStorageAlgorithmRunner;
+import ch.systemsx.cisd.etlserver.registrator.v1.JythonTopLevelDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 

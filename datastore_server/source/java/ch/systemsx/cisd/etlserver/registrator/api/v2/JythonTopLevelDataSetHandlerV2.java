@@ -24,7 +24,7 @@ import ch.systemsx.cisd.common.jython.PythonInterpreter;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
-import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.v1.DataSetRegistrationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * @author Chandrasekhar Ramakrishnan
  */
 public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
-        ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler<T>
+        ch.systemsx.cisd.etlserver.registrator.v1.JythonTopLevelDataSetHandler<T>
 {
     /**
      * Constructor.
@@ -79,7 +79,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
 
     private void configureEvaluator(
             File dataSetFile,
-            ch.systemsx.cisd.etlserver.registrator.JythonTopLevelDataSetHandler.JythonDataSetRegistrationService<T> service,
+            ch.systemsx.cisd.etlserver.registrator.v1.JythonTopLevelDataSetHandler.JythonDataSetRegistrationService<T> service,
             PythonInterpreter interpreter)
     {
         interpreter.set(INCOMING_DATA_SET_VARIABLE_NAME, dataSetFile);
@@ -151,7 +151,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     }
 
     @Override
-    protected ch.systemsx.cisd.etlserver.registrator.AbstractProgrammableTopLevelDataSetHandler<T>.RecoveryHookAdaptor getRecoveryHookAdaptor(
+    protected ch.systemsx.cisd.etlserver.registrator.v1.AbstractProgrammableTopLevelDataSetHandler<T>.RecoveryHookAdaptor getRecoveryHookAdaptor(
             File incoming)
     {
         return new RecoveryHookAdaptor(incoming)
