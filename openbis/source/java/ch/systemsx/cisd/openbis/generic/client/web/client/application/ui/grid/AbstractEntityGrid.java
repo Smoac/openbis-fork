@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -309,7 +309,7 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
                                 {
                                     return false;
                                 }
-                            });
+                            }, false);
 
         untagButton
                 .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Metaproject>>()

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -46,10 +47,10 @@ class EntityChooserDialog<T> extends SimpleDialog
 
     public EntityChooserDialog(DisposableEntityChooser<T> entityBrowser,
             IChosenEntitiesSetter<T> chosenEntitySetter, String title,
-            IMessageProvider messageProvider)
+            IMessageProvider messageProvider, Button... buttons)
     {
         super(entityBrowser.getComponent(), title, messageProvider.getMessage(Dict.BUTTON_CHOOSE),
-                messageProvider);
+                messageProvider, buttons);
         this.entityBrowser = entityBrowser;
         this.onAcceptAction = createAcceptAction(chosenEntitySetter, entityBrowser);
         this.onCancelAction = createCancelAction(chosenEntitySetter, entityBrowser);
@@ -61,7 +62,6 @@ class EntityChooserDialog<T> extends SimpleDialog
         setAcceptAction(onAcceptAction);
         setCancelAction(onCancelAction);
         setModal(true);
-
     }
 
     @Override

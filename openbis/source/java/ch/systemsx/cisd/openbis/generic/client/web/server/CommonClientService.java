@@ -2791,4 +2791,13 @@ public final class CommonClientService extends AbstractClientService implements
             throw new IllegalArgumentException("Unknown entity kind " + entityKind);
         }
     }
+
+    @Override
+    public void registerMetaProject(String name)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        Metaproject metaproject = new Metaproject();
+        metaproject.setName(name);
+        commonServer.registerMetaproject(getSessionToken(), metaproject);
+    }
 }

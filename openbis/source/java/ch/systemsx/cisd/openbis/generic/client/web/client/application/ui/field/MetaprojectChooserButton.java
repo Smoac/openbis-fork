@@ -17,18 +17,25 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.grid.MetaprojectGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -51,6 +58,13 @@ public class MetaprojectChooserButton extends Button implements
     public MetaprojectChooserButton(final IViewContext<?> viewContext, final String idPrefix,
             final IChosenEntitiesProvider<String> chosenProvider)
     {
+        this(viewContext, idPrefix, chosenProvider, true);
+    }
+
+    public MetaprojectChooserButton(final IViewContext<?> viewContext, final String idPrefix,
+            final IChosenEntitiesProvider<String> chosenProvider,
+            final boolean possibleToAddMetaProjects)
+    {
         super(viewContext.getMessage(Dict.ADD_METAPROJECT));
 
         setId(idPrefix + ID_SUFFIX);
@@ -60,15 +74,89 @@ public class MetaprojectChooserButton extends Button implements
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    DisposableEntityChooser<TableModelRowWithObject<Metaproject>> chooserGrid =
+                    final DisposableEntityChooser<TableModelRowWithObject<Metaproject>> chooserGrid =
                             MetaprojectGrid.createChooser(viewContext, chosenProvider);
 
-                    new EntityChooserDialog<TableModelRowWithObject<Metaproject>>(chooserGrid,
-                            MetaprojectChooserButton.this,
-                            viewContext.getMessage(Dict.CHOOSE_METAPROJECT), viewContext).show();
+                    if (possibleToAddMetaProjects)
+                    {
+                        new EntityChooserDialog<TableModelRowWithObject<Metaproject>>(chooserGrid,
+                                MetaprojectChooserButton.this,
+                                viewContext.getMessage(Dict.CHOOSE_METAPROJECT), viewContext,
+                                new Button(viewContext
+                                        .getMessage(Dict.BUTTON_CREATE_NEW_METAPROJECTS),
+                                        getListenerForCreateMetaProjectButton(chooserGrid,
+                                                viewContext,
+                                                idPrefix))).show();
+                    } else
+                    {
+                        new EntityChooserDialog<TableModelRowWithObject<Metaproject>>(chooserGrid,
+                                MetaprojectChooserButton.this,
+                                viewContext.getMessage(Dict.CHOOSE_METAPROJECT), viewContext)
+                                .show();
+                    }
                 }
 
             });
+    }
+
+    private SelectionListener<ButtonEvent> getListenerForCreateMetaProjectButton(
+            final DisposableEntityChooser<TableModelRowWithObject<Metaproject>> chooserGrid,
+            final IViewContext<?> viewContext, final String idPrefix)
+    {
+        return new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public final void componentSelected(ButtonEvent event)
+                {
+                    final MetaprojectArea area = new MetaprojectArea(viewContext, idPrefix);
+                    area.setAutoWidth(true);
+                    area.setAutoHeight(true);
+
+                    SimpleDialog simpleDialog = new SimpleDialog(area,
+                            viewContext.getMessage(Dict.TOPIC_CREATE_METAPROJECTS),
+                            viewContext.getMessage(Dict.BUTTON_CREATE_METAPROJECTS),
+                            viewContext);
+                    simpleDialog.setAutoHeight(true);
+                    simpleDialog.setWidth(400);
+                    simpleDialog.setScrollMode(Scroll.NONE);
+                    simpleDialog.setAcceptAction(new IDelegatedAction()
+                        {
+
+                            @Override
+                            public void execute()
+                            {
+                                for (String name : area.tryGetMetaprojects())
+                                {
+                                    viewContext.getCommonService().registerMetaProject(name,
+                                            new AsyncCallback<Void>()
+                                                {
+                                                    @Override
+                                                    public void onFailure(
+                                                            Throwable caught)
+                                                    {
+                                                    }
+
+                                                    @Override
+                                                    public void onSuccess(
+                                                            Void result)
+                                                    {
+                                                        Set<DatabaseModificationKind> kind =
+                                                                new HashSet<DatabaseModificationKind>();
+                                                        kind.add(new DatabaseModificationKind(
+                                                                DatabaseModificationKind.ObjectKind.METAPROJECT,
+                                                                DatabaseModificationKind.OperationKind.CREATE_OR_DELETE));
+                                                        chooserGrid
+                                                                .update(kind);
+                                                    }
+
+                                                }
+                                            );
+                                }
+                            }
+                        });
+                    simpleDialog.show();
+                }
+            };
     }
 
     @Override

@@ -1146,4 +1146,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#sendCountActiveUsersEmail()
      */
     public void sendCountActiveUsersEmail(AsyncCallback<Void> callback);
+
+    /**
+     * @see ICommonClientService#registerMetaProject(String)
+     */
+    public void registerMetaProject(String name, AsyncCallback<Void> callback);
 }

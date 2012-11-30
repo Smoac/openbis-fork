@@ -934,6 +934,12 @@ default_group: "Default Space",
  how_to_address: "How To Address", 
  insert_columns: "Insert Columns", 
 
+//
+// Metaproject chooser
+//
+button_create_metaprojects: "Create",
+button_create_new_metaprojects: "Create New Metaprojects",
+topic_create_metaprojects: "Create Metaprojects",
 
 //
 // Script Browser

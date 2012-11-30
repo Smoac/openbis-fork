@@ -1251,4 +1251,11 @@ public interface ICommonClientService extends IClientService
      * the action
      */
     public void sendCountActiveUsersEmail() throws UserFailureException;
+
+    /**
+     * Register a new metaproject by given name. Throws exception if metaproject by this name
+     * already exists.
+     */
+    public void registerMetaProject(String name)
+            throws UserFailureException;
 }

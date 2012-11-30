@@ -50,7 +50,7 @@ public class SimpleDialog extends Dialog
     private IDelegatedAction cancelActionOrNull;
 
     public SimpleDialog(final Widget widget, final String heading, String acceptButtonLabel,
-            IMessageProvider messageProvider)
+            IMessageProvider messageProvider, Button... buttons)
     {
         this.messageProvider = messageProvider;
 
@@ -62,6 +62,12 @@ public class SimpleDialog extends Dialog
 
         setLayout(new FitLayout());
         add(widget);
+
+        for (Button button : buttons)
+        {
+            super.addButton(button);
+        }
+
         acceptButton = createAcceptButton(acceptButtonLabel);
         addButton(acceptButton);
         addButton(createCancelButton());

@@ -221,6 +221,16 @@ public abstract class Dict
     public static final String BUTTON_HOME_LABEL = "home_buttonLabel";
 
     //
+    // Metaproject chooser
+    //
+
+    public static final String BUTTON_CREATE_METAPROJECTS = "button_create_metaprojects";
+
+    public static final String BUTTON_CREATE_NEW_METAPROJECTS = "button_create_new_metaprojects";
+
+    public static final String TOPIC_CREATE_METAPROJECTS = "topic_create_metaprojects";
+
+    //
     // LoginWidget
     //
 

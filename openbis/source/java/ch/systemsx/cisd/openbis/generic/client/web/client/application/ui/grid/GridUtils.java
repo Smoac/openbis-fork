@@ -53,6 +53,7 @@ public class GridUtils
         result.add(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
         result.add(edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
         result.add(edit(ObjectKind.VOCABULARY_TERM));
+        result.add(createOrDelete(ObjectKind.METAPROJECT));
         if (withProjectAndSpace)
         {
             addAny(result, ObjectKind.PROJECT);
