@@ -68,11 +68,11 @@ openbis_basynthec.prototype.getStrainsPhenotypesAndPredictions = function(action
 		
 		if(response.result && response.result.rows){
 			$.each(response.result.rows, function(index, row){
-				result[row[0].value] = {
-					"name" : row[0].value,
-					"hasPredictions" : row[1].value && row[1].value.toUpperCase() == "TRUE",
-					"hasPhenotypes" : row[2].value && row[2].value.toUpperCase() == "TRUE"
-				}
+				strain = eval("(" + row[0].value + ")");
+				strain.name = strain.id;
+				strain.hasPredictions = strain.predictions != null && strain.predictions.length > 0;
+				strain.hasPhenotypes = strain.phenotypes != null && strain.phenotypes.length > 0;
+				result[strain.id] = strain;
 			});
 		}
 		

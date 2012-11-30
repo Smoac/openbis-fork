@@ -21,9 +21,9 @@ def convertData(dataString):
 
   for jsonItem in jsonList:
     id = jsonItem[FIELD_ID].upper() 
-    hasPredictions = jsonItem[FIELD_PREDICTIONS] != None and len(jsonItem[FIELD_PREDICTIONS]) > 0
-    hasPhenotypes = jsonItem[FIELD_PHENOTYPES] != None and len(jsonItem[FIELD_PHENOTYPES]) > 0
-    dataList.append({FIELD_ID: id, FIELD_HAS_PREDICTIONS: hasPredictions, FIELD_HAS_PHENOTYPES: hasPhenotypes})
+    predictions = jsonItem[FIELD_PREDICTIONS]
+    phenotypes = jsonItem[FIELD_PHENOTYPES]
+    dataList.append({FIELD_ID: id, FIELD_PREDICTIONS: predictions, FIELD_PHENOTYPES: phenotypes})
 
   return dataList
 
@@ -32,14 +32,9 @@ def writeDataToFile(filePath, dataList):
   try:
 
     file = open(filePath,'w')
-    writer = csv.writer(file)
-    writer.writerow([FIELD_ID, FIELD_HAS_PREDICTIONS, FIELD_HAS_PHENOTYPES]);
 
     for dataItem in dataList:
-      id = dataItem[FIELD_ID]
-      hasPredictions = dataItem[FIELD_HAS_PREDICTIONS]
-      hasPhenotypes = dataItem[FIELD_HAS_PHENOTYPES]
-      writer.writerow([id, hasPredictions, hasPhenotypes])
+        file.write(json.dumps(dataItem) + '\n')
 
   except IOError as err:
     print 'Could not write the data to a file: ' + str(filePath)

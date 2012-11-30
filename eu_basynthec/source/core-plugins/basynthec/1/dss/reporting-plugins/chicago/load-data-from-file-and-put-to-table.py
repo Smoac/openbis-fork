@@ -2,19 +2,16 @@
 
 import csv
 
-FIELD_ID = 'id'
-FIELD_HAS_PREDICTIONS = 'hasPredictions'
-FIELD_HAS_PHENOTYPES = 'hasPhenotypes'
+FIELD_STRAIN = 'strain'
 
 def loadDataFromFile(filePath):
   file = None
   try:
     file = open(filePath, 'r')
-    reader = csv.DictReader(file)
     dataList = []
     
-    for row in reader:
-      dataList.append(row)
+    for line in file:
+      dataList.append(line)
       
     return dataList
   except IOError, err:
@@ -25,19 +22,11 @@ def loadDataFromFile(filePath):
       file.close()
 
 def addDataToTable(dataList, table):
-  table.addHeader(FIELD_ID)
-  table.addHeader(FIELD_HAS_PREDICTIONS)
-  table.addHeader(FIELD_HAS_PHENOTYPES)
+  table.addHeader(FIELD_STRAIN)
   
   for dataItem in dataList:
-    id = dataItem[FIELD_ID]
-    hasPredictions = dataItem[FIELD_HAS_PREDICTIONS]
-    hasPhenotypes = dataItem[FIELD_HAS_PHENOTYPES]
-    
     row = table.addRow()
-    row.setCell(FIELD_ID, id)
-    row.setCell(FIELD_HAS_PREDICTIONS, hasPredictions)
-    row.setCell(FIELD_HAS_PHENOTYPES, hasPhenotypes)
+    row.setCell(FIELD_STRAIN, dataItem)
 
 def aggregate(parameters, table):
     data = loadDataFromFile('TODO_PATH_TO_FILE_WITH_SERVER_DATA')
