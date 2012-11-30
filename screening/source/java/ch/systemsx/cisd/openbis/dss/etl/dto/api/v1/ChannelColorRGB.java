@@ -16,86 +16,20 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
-import java.io.Serializable;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
-
 /**
- * RGB color components specify the color in which channel should be displayed.
+ * This class is obsolete, and should not be used. Use
+ * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorRGB} instead
  * 
- * @author Tomasz Pylak
+ * @author Jakub Straszewski
  */
-public class ChannelColorRGB implements Serializable
+public class ChannelColorRGB extends ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorRGB
 {
-    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private int r, g, b;
-
-    @SuppressWarnings("unused")
-    private ChannelColorRGB()
-    {
-    }
+    private static final long serialVersionUID = 1L;
 
     public ChannelColorRGB(int r, int g, int b)
     {
-        assert r >= 0 && r <= 255 : "invalid color " + r;
-        assert g >= 0 && g <= 255 : "invalid color " + g;
-        assert b >= 0 && b <= 255 : "invalid color " + b;
-
-        this.r = r;
-        this.g = g;
-        this.b = b;
-    }
-
-    public int getR()
-    {
-        return r;
-    }
-
-    public int getG()
-    {
-        return g;
-    }
-
-    public int getB()
-    {
-        return b;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "Color(r=" + r + ", g=" + g + ", b=" + b + ")";
-    }
-
-    @Override
-    public int hashCode()
-    {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + b;
-        result = prime * result + g;
-        result = prime * result + r;
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        ChannelColorRGB other = (ChannelColorRGB) obj;
-        if (b != other.b)
-            return false;
-        if (g != other.g)
-            return false;
-        if (r != other.r)
-            return false;
-        return true;
+        super(r, g, b);
     }
 
 }

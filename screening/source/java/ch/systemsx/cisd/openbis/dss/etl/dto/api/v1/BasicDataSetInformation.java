@@ -16,74 +16,15 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
-import java.util.Arrays;
-
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-
 /**
- * Basic attributes of a dataset connected to a sample and optionally to one parent dataset.
+ * This class is obsolete, and should not be used. Use
+ * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.BasicDataSetInformation} instead
  * 
- * @author Tomasz Pylak
+ * @author Jakub Straszewski
  */
-public class BasicDataSetInformation extends DataSetInformation
+public class BasicDataSetInformation extends
+        ch.systemsx.cisd.openbis.dss.etl.dto.api.BasicDataSetInformation
 {
-    private static final long serialVersionUID = IServer.VERSION;
 
-    private String fileFormatTypeCode;
-
-    // marks if a dataset is measured or derived from measured data
-    private boolean isMeasured = true;
-
-    /** Sets code of the dataset type */
-    public void setDatasetTypeCode(String datasetTypeCode)
-    {
-        DataSetType dataSetType = new DataSetType();
-        dataSetType.setCode(datasetTypeCode);
-        super.setDataSetType(dataSetType);
-    }
-
-    /** Mandatory: sets file format code. */
-    public void setFileFormatCode(String fileFormatCode)
-    {
-        this.fileFormatTypeCode = fileFormatCode;
-    }
-
-    /**
-     * Sets attributes of the connected sample - optional.
-     * <p>
-     * Alternatively, call
-     * {@link ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable#setSample(ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable)}
-     * on the object returned by
-     * {@link ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction#createNewDataSet()}.
-     */
-    public void setSample(String sampleSpaceCode, String sampleCode)
-    {
-        super.setSpaceCode(sampleSpaceCode);
-        super.setSampleCode(sampleCode);
-    }
-
-    /** attributes of the parent dataset - optional */
-    public void setParentDatasetCode(String parentDatasetCode)
-    {
-        super.setParentDataSetCodes(Arrays.asList(parentDatasetCode));
-    }
-
-    /** marks if a dataset is measured or derived from measured data */
-    public void setMeasured(boolean isMeasured)
-    {
-        this.isMeasured = isMeasured;
-    }
-
-    public String getFileFormatTypeCode()
-    {
-        return fileFormatTypeCode;
-    }
-
-    public boolean isMeasured()
-    {
-        return isMeasured;
-    }
-
+    private static final long serialVersionUID = 1L;
 }

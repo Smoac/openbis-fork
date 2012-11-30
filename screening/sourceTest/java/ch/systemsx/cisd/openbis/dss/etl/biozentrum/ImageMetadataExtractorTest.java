@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 
 import com.csvreader.CsvReader;
 
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Location;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.Location;
 
 /**
  * @author Kaloyan Enimanev

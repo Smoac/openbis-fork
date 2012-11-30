@@ -16,124 +16,24 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations;
 
-import java.io.Serializable;
-
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 
 /**
- * Describes image transformation, contains user friendly label and description.
+ * This class is obsolete, and should not be used. Use
+ * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ImageTransformation} instead
  * 
- * @author Tomasz Pylak
+ * @author Jakub Straszewski
  */
-public class ImageTransformation implements Serializable
+public class ImageTransformation extends
+        ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ImageTransformation
 {
-    
+
     private static final long serialVersionUID = 1L;
-
-    private String code;
-
-    private String label;
-
-    // can be null
-    private String description;
-
-    private boolean isDefault;
-
-    private final IImageTransformerFactory imageTransformerFactory;
-
-    private final boolean isEditable;
 
     public ImageTransformation(String code, String label, String description,
             IImageTransformerFactory imageTransformerFactory)
     {
-        assert code != null : "code is null";
-        assert label != null : " label is null";
-        assert imageTransformerFactory != null : "imageTransformerFactory is null";
-
-        this.code = CodeNormalizer.normalize(code);
-        this.label = label;
-        this.description = description;
-        this.isDefault = false;
-        this.imageTransformerFactory = imageTransformerFactory;
-        this.isEditable = false; // will be used later for ImageViewer transformations
+        super(code, label, description, imageTransformerFactory);
     }
 
-    public String getCode()
-    {
-        return code;
-    }
-
-    public String getLabel()
-    {
-        return label;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public boolean isDefault()
-    {
-        return isDefault;
-    }
-
-    public IImageTransformerFactory getImageTransformerFactory()
-    {
-        return imageTransformerFactory;
-    }
-
-    public boolean isEditable()
-    {
-        return isEditable;
-    }
-
-    // ----------- setters
-
-    public void setCode(String code)
-    {
-        this.code = code;
-    }
-
-    public void setLabel(String label)
-    {
-        this.label = label;
-    }
-
-    public void setDescription(String description)
-    {
-        this.description = description;
-    }
-
-    /**
-     * Calling with true makes this transformation a default user's choice and makes the
-     * 'hard-coded' default unavailable. This transformation will become the first one on the list
-     * automatically.
-     * <p>
-     * Marking more then one transformation as a default for one channel will make it impossible to
-     * register a dataset.
-     * </p>
-     * <p>
-     * If no transformation on the list will be marked as default then a 'hard-coded' default
-     * transformation will become available.
-     * </p>
-     */
-    public void setDefault(boolean isDefault)
-    {
-        this.isDefault = isDefault;
-    }
-
-    @Override
-    public String toString()
-    {
-        StringBuffer sb = new StringBuffer();
-        sb.append("ImageTransformation [code=" + code + ", label=" + label);
-        if (description != null)
-        {
-            sb.append(", description=" + description);
-        }
-        sb.append(", isDefault=" + isDefault + "]");
-        return sb.toString();
-    }
 }

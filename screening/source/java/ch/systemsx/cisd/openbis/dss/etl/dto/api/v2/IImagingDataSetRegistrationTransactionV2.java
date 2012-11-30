@@ -18,11 +18,10 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v2;
 
 import java.io.File;
 
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.SimpleImageDataConfig;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeaturesBuilder;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImageDataSet;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
 
 /**
  * Extension of {@link IDataSetRegistrationTransactionV2} for screening.

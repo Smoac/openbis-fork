@@ -33,7 +33,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.hcs.Location;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorRGB;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorRGB;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ExampleImageTransformerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.AbstractDBTest;

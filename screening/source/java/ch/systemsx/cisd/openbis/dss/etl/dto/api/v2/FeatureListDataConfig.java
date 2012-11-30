@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v2;
 
 import java.util.Collection;
 
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetUpdatable;
 
 /**
  * The builder class for creation of feature lists.

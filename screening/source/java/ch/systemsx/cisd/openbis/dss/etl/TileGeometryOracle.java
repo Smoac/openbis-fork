@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import ch.systemsx.cisd.common.geometry.SpatialPoint;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Location;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.Location;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 
 /**

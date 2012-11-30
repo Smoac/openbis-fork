@@ -16,47 +16,25 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails;
 
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
-
 /**
- * @author Pawel Glyzewski
+ * This class is obsolete, and should not be used. Use
+ * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.thumbnails.ResolutionBasedThumbnailsConfiguration}
+ * instead
+ * 
+ * @author Jakub Straszewski
  */
-public class ResolutionBasedThumbnailsConfiguration extends AbstractThumbnailsConfiguration
+public class ResolutionBasedThumbnailsConfiguration extends
+        ch.systemsx.cisd.openbis.dss.etl.dto.api.thumbnails.ResolutionBasedThumbnailsConfiguration
 {
-    private final int maxWidth;
 
-    private final int maxHeight;
-
-    private final boolean allowEnlarging;
-
-    public ResolutionBasedThumbnailsConfiguration(int maxWidth, int maxHeight)
-    {
-        this(maxWidth, maxHeight, true);
-    }
-
-    public ResolutionBasedThumbnailsConfiguration(int maxWidth, int maxHeight,
+    private ResolutionBasedThumbnailsConfiguration(int maxWidth, int maxHeight,
             boolean allowEnlarging)
     {
-        this.maxWidth = maxWidth;
-        this.maxHeight = maxHeight;
-        this.allowEnlarging = allowEnlarging;
+        super(maxWidth, maxHeight, allowEnlarging);
     }
 
-    @Override
-    public ThumbnailsStorageFormat getThumbnailsStorageFormat(SimpleImageDataConfig config)
+    private ResolutionBasedThumbnailsConfiguration(int maxWidth, int maxHeight)
     {
-        ThumbnailsStorageFormat thumbnailsStorageFormat = super.getThumbnailsStorageFormat(config);
-        thumbnailsStorageFormat.setMaxWidth(maxWidth);
-        thumbnailsStorageFormat.setMaxHeight(maxHeight);
-        thumbnailsStorageFormat.setAllowEnlarging(allowEnlarging);
-        return thumbnailsStorageFormat;
-    }
-
-    @Override
-    protected String getDefaultFileName()
-    {
-        return String.format("thumbnails_%dx%d%s.h5ar", maxWidth, maxHeight,
-                getFirstTransformationCode());
+        super(maxWidth, maxHeight);
     }
 }

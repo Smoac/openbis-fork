@@ -16,120 +16,20 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
-import java.io.Serializable;
-
-import ch.systemsx.cisd.imagereaders.ImageID;
-
 /**
- * Immutable value class of an image ID based on series index, time series index, focal plane index,
- * and color channel index. It will be used to identify images in a container image file format like
- * multi-page TIFF.
+ * This class is obsolete, and should not be used. Use
+ * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageIdentifier} instead
  * 
- * @author Franz-Josef Elmer
+ * @author Jakub Straszewski
  */
-public class ImageIdentifier implements Comparable<ImageIdentifier>, Serializable
+public class ImageIdentifier extends ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageIdentifier
 {
+
     private static final long serialVersionUID = 1L;
 
-    public static final ImageIdentifier NULL = new ImageIdentifier(0, 0, 0, 0);
-
-    private final int seriesIndex;
-
-    private final int timeSeriesIndex;
-
-    private final int focalPlaneIndex;
-
-    private final int colorChannelIndex;
-
-    /**
-     * Creates an instance for the specified series index, time series (or T) index, focal plane (or
-     * Z) index, color channel index.
-     */
     public ImageIdentifier(int seriesIndex, int timeSeriesIndex, int focalPlaneIndex,
             int colorChannelIndex)
     {
-        this.seriesIndex = seriesIndex;
-        this.timeSeriesIndex = timeSeriesIndex;
-        this.focalPlaneIndex = focalPlaneIndex;
-        this.colorChannelIndex = colorChannelIndex;
+        super(seriesIndex, timeSeriesIndex, focalPlaneIndex, colorChannelIndex);
     }
-
-    public int getSeriesIndex()
-    {
-        return seriesIndex;
-    }
-
-    public int getTimeSeriesIndex()
-    {
-        return timeSeriesIndex;
-    }
-
-    public int getFocalPlaneIndex()
-    {
-        return focalPlaneIndex;
-    }
-
-    public int getColorChannelIndex()
-    {
-        return colorChannelIndex;
-    }
-
-    public String getUniqueStringIdentifier()
-    {
-        return new ImageID(getSeriesIndex(), getTimeSeriesIndex(), getFocalPlaneIndex(),
-                getColorChannelIndex()).getID();
-    }
-
-    @Override
-    public int compareTo(ImageIdentifier that)
-    {
-        int diff = seriesIndex - that.seriesIndex;
-        if (diff != 0)
-        {
-            return diff;
-        }
-        diff = timeSeriesIndex - that.timeSeriesIndex;
-        if (diff != 0)
-        {
-            return diff;
-        }
-        diff = focalPlaneIndex - that.focalPlaneIndex;
-        if (diff != 0)
-        {
-            return diff;
-        }
-        return colorChannelIndex - that.colorChannelIndex;
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (obj == this)
-        {
-            return true;
-        }
-        if (obj instanceof ImageIdentifier == false)
-        {
-            return false;
-        }
-        ImageIdentifier that = (ImageIdentifier) obj;
-        return seriesIndex == that.seriesIndex && timeSeriesIndex == that.timeSeriesIndex
-                && focalPlaneIndex == that.focalPlaneIndex
-                && colorChannelIndex == that.colorChannelIndex;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return ((((seriesIndex * 37) + timeSeriesIndex) * 37) + focalPlaneIndex) * 37
-                + colorChannelIndex;
-    }
-
-    @Override
-    public String toString()
-    {
-        return seriesIndex + "." + timeSeriesIndex + "." + focalPlaneIndex + "."
-                + colorChannelIndex;
-    }
-
 }

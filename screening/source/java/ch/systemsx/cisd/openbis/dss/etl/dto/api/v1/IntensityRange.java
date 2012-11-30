@@ -17,42 +17,16 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
 /**
- * The intensity range in a distribution of pixel values for a given symmetric quantile value.
- *
- * @author Bernd Rinn
+ * This class is obsolete, and should not be used. Use
+ * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.IntensityRange} instead
+ * 
+ * @author Jakub Straszewski
  */
-public class IntensityRange
+public class IntensityRange extends ch.systemsx.cisd.openbis.dss.etl.dto.api.IntensityRange
 {
-    final int blackPoint;
-
-    final int whitePoint;
 
     public IntensityRange(int blackPoint, int whitePoint)
     {
-        this.blackPoint = blackPoint;
-        this.whitePoint = whitePoint;
+        super(blackPoint, whitePoint);
     }
-
-    /**
-     * The minimal level (black point).
-     */
-    public int getBlackPoint()
-    {
-        return blackPoint;
-    }
-
-    /**
-     * The maximal level (white point).
-     */
-    public int getWhitePoint()
-    {
-        return whitePoint;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "MinMax [minLevel=" + blackPoint + ", maxLevel=" + whitePoint + "]";
-    }
-
 }

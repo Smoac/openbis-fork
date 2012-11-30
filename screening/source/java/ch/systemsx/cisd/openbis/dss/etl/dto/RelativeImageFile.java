@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto;
 import java.io.Serializable;
 
 import ch.systemsx.cisd.common.reflection.AbstractHashable;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageFileInfo;
 
 /**
  * Points to one image on the file system.

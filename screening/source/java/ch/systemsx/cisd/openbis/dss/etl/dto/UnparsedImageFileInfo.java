@@ -1,7 +1,7 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto;
 
 import ch.systemsx.cisd.common.reflection.AbstractHashable;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageFileInfo;
 
 /**
  * Intermediate DTO containing tokens from which image info {@link ImageFileInfo} can be extracted

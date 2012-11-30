@@ -16,33 +16,19 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails;
 
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
-
 /**
- * @author Pawel Glyzewski
+ * This class is obsolete, and should not be used. Use
+ * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.thumbnails.ZoomLevelBasedThumbnailsConfiguration}
+ * instead
+ * 
+ * @author Jakub Straszewski
  */
-public class ZoomLevelBasedThumbnailsConfiguration extends AbstractThumbnailsConfiguration
+public class ZoomLevelBasedThumbnailsConfiguration extends
+        ch.systemsx.cisd.openbis.dss.etl.dto.api.thumbnails.ZoomLevelBasedThumbnailsConfiguration
 {
-    private final double zoomLevel;
 
-    public ZoomLevelBasedThumbnailsConfiguration(double zoomLevel)
+    private ZoomLevelBasedThumbnailsConfiguration(double zoomLevel)
     {
-        this.zoomLevel = zoomLevel;
-    }
-
-    @Override
-    public ThumbnailsStorageFormat getThumbnailsStorageFormat(SimpleImageDataConfig config)
-    {
-        ThumbnailsStorageFormat thumbnailsStorageFormat = super.getThumbnailsStorageFormat(config);
-        thumbnailsStorageFormat.setZoomLevel(zoomLevel);
-        return thumbnailsStorageFormat;
-    }
-
-    @Override
-    protected String getDefaultFileName()
-    {
-        return String.format("thumbnails_%.0fpct%s.h5ar", zoomLevel * 100.0,
-                getFirstTransformationCode());
+        super(zoomLevel);
     }
 }

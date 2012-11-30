@@ -1,9 +1,10 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
 /**
- * Allowed colors in which channels can be presented.
+ * This class is obsolete, and should not be used. Use
+ * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColor} instead
  * 
- * @author Tomasz Pylak
+ * @author Jakub Straszewski
  */
 public enum ChannelColor
 {
@@ -64,6 +65,27 @@ public enum ChannelColor
                 return new ChannelColorRGB(0, 255, 255);
             case RED_BLUE:
                 return new ChannelColorRGB(255, 0, 255);
+            default:
+                throw new IllegalStateException("unhandled enum " + this);
+        }
+    }
+
+    public ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColor getIndependentChannelColor()
+    {
+        switch (this)
+        {
+            case RED:
+                return ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColor.RED;
+            case GREEN:
+                return ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColor.GREEN;
+            case BLUE:
+                return ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColor.BLUE;
+            case RED_GREEN:
+                return ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColor.RED_GREEN;
+            case GREEN_BLUE:
+                return ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColor.GREEN_BLUE;
+            case RED_BLUE:
+                return ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColor.RED_BLUE;
             default:
                 throw new IllegalStateException("unhandled enum " + this);
         }

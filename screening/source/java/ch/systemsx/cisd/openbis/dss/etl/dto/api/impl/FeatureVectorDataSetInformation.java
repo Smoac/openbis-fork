@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeatureDefinition;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.IFeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;

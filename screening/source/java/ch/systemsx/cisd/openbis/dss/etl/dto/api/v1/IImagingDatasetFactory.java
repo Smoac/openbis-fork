@@ -23,6 +23,8 @@ import java.util.Properties;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.v1.DataSetRegistrationService;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.IFeaturesBuilder;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.SimpleImageDataConfig;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeatureVectorDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ImageDataSetInformation;
 

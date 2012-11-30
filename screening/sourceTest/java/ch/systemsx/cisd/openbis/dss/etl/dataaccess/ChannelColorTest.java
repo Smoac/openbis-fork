@@ -23,7 +23,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.test.AssertionUtil;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColor;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelColor;
 
 /**

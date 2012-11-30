@@ -21,11 +21,11 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorComponent;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageFileInfo;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ImageStorageConfiguraton;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorComponent;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageStorageConfiguraton;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.ThumbnailsStorageFormat;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ToStringUtil;
 
 /**
@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ToStringUtil;
  */
 public class ImageDataSetStructure implements Serializable
 {
-    
+
     private static final long serialVersionUID = 1L;
 
     private List<ImageFileInfo> images;
@@ -122,8 +122,12 @@ public class ImageDataSetStructure implements Serializable
             throw new IllegalArgumentException(
                     "There should be exactly one color component for each channel!");
         }
+
         this.channels = channels;
-        this.channelColorComponentsOrNull = channelColorComponents;
+        // potentially necessary conversion of v1 ChanelColorComponent
+        this.channelColorComponentsOrNull =
+                ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorComponent
+                        .convertToIndependentChannelColorList(channelColorComponents);
     }
 
     /**

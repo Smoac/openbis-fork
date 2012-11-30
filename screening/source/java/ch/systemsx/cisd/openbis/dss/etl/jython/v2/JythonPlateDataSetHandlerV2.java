@@ -23,17 +23,12 @@ import ch.systemsx.cisd.common.jython.PythonInterpreter;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.JythonDataSetRegistrationServiceV2;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.JythonTopLevelDataSetHandlerV2;
-import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
-import ch.systemsx.cisd.etlserver.registrator.v1.DataSetRegistrationService;
-import ch.systemsx.cisd.etlserver.registrator.v1.IDataSetRegistrationDetailsFactory;
-import ch.systemsx.cisd.openbis.dss.etl.jython.ImagingDataSetRegistrationTransaction;
-import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandlerUtils;
-import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDatasetFactory;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.v2.DataSetRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -77,7 +72,7 @@ public class JythonPlateDataSetHandlerV2 extends JythonTopLevelDataSetHandlerV2<
             {
                 @SuppressWarnings("unchecked")
                 @Override
-                protected DataSetRegistrationTransaction<DataSetInformation> createV2DatasetRegistrationTransaction(
+                protected DataSetRegistrationTransaction<DataSetInformation> createTransaction(
                         File rollBackStackParentFolder,
                         File workingDirectory,
                         File stagingDirectory,
@@ -85,14 +80,14 @@ public class JythonPlateDataSetHandlerV2 extends JythonTopLevelDataSetHandlerV2<
                 {
                     return new ImagingDataSetRegistrationTransaction(rollBackStackParentFolder,
                             workingDirectory, stagingDirectory, this, registrationDetailsFactory,
-                            originalDirName, AutoRecoverySettings.USE_AUTO_RECOVERY);
+                            originalDirName);
                 }
             };
     }
 
     @Override
     protected IDataSetRegistrationTransactionV2 wrapTransaction(
-            IDataSetRegistrationTransaction transaction)
+            DataSetRegistrationTransaction<DataSetInformation> transaction)
     {
         return new ImagingDataSetRegistrationTransactionV2Delegate(
                 (ImagingDataSetRegistrationTransaction) transaction);

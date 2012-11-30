@@ -24,9 +24,9 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseHelper.ImagingChannelsCreator;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColor;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorRGB;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColor;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorRGB;
 
 /**
  * Test of {@link ImagingChannelsCreator}

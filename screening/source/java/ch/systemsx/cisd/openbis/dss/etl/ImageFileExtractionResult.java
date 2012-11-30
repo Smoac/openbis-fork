@@ -20,7 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.hcs.Geometry;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel;
 
 /**
  * Class which contains the image extraction process results.

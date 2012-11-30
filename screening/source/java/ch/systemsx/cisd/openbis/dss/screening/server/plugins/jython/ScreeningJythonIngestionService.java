@@ -21,16 +21,15 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
-import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.v2.AbstractOmniscientTopLevelDataSetRegistrator.NoOpDelegate;
 import ch.systemsx.cisd.etlserver.registrator.v2.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IImagingDataSetRegistrationTransactionV2;
-import ch.systemsx.cisd.openbis.dss.etl.jython.ImagingDataSetRegistrationTransaction;
-import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDataSetHandlerUtils;
-import ch.systemsx.cisd.openbis.dss.etl.jython.JythonPlateDatasetFactory;
+import ch.systemsx.cisd.openbis.dss.etl.jython.v2.ImagingDataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.etl.jython.v2.ImagingDataSetRegistrationTransactionV2Delegate;
+import ch.systemsx.cisd.openbis.dss.etl.jython.v2.JythonPlateDataSetHandlerUtils;
+import ch.systemsx.cisd.openbis.dss.etl.jython.v2.JythonPlateDatasetFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.IPluginScriptRunnerFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.JythonIngestionService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -85,8 +84,7 @@ public class ScreeningJythonIngestionService extends JythonIngestionService
                             return new ImagingDataSetRegistrationTransaction(
                                     rollBackStackParentFolder, workingDirectory, stagingDirectory,
                                     this, factory,
-                                    JythonPlateDataSetHandlerUtils.parseOriginalDir(properties),
-                                    AutoRecoverySettings.DO_NOT_USE_AUTO_RECOVERY);
+                                    JythonPlateDataSetHandlerUtils.parseOriginalDir(properties));
                         }
                     };
         return service;

@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v2;
 
 import java.util.Properties;
 
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.IFeaturesBuilder;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeaturesBuilder;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeaturesBuilder;
 
 /**
  * Configuration for creating a feature vector data set.

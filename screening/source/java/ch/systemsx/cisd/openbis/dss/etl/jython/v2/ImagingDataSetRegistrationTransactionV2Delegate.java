@@ -22,34 +22,33 @@ import net.lemnik.eodsql.DynamicTransactionQuery;
 
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentUpdatable;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterial;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IMetaproject;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IVocabulary;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IVocabularyTerm;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IImageDataSet;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetUpdatable;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IExperiment;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IExperimentUpdatable;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IMaterial;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IMetaproject;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IProject;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.ISample;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.ISpace;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IVocabulary;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IVocabularyTerm;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.SimpleImageDataConfig;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.FeatureListDataConfig;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IFeatureVectorDataSet;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IImageDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IImagingDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.SimpleFeatureVectorDataConfig;
-import ch.systemsx.cisd.openbis.dss.etl.jython.ImagingDataSetRegistrationTransaction;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISpaceImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IVocabularyImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.authorization.IAuthorizationService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExternalDataManagementSystemImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IMaterialImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IProjectImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISpaceImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IVocabularyImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.authorization.IAuthorizationService;
 
 /**
  * @author Jakub Straszewski
@@ -148,8 +147,7 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     }
 
     @Override
-    public ISample createNewSampleWithGeneratedCode(String spaceCode,
-            String sampleTypeCode)
+    public ISample createNewSampleWithGeneratedCode(String spaceCode, String sampleTypeCode)
     {
         return transaction.createNewSampleWithGeneratedCode(spaceCode, sampleTypeCode);
     }

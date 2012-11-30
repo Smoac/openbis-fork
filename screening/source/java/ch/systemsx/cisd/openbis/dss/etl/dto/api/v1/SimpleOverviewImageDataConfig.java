@@ -17,35 +17,12 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
 
 /**
- * * Allows to configure extraction of overview images for a plate or microscopy sample.
+ * This class is obsolete, and should not be used. Use
+ * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.SimpleOverviewImageDataConfig} instead
  * 
- * @author Pawel Glyzewski
+ * @author Jakub Straszewski
  */
-public class SimpleOverviewImageDataConfig extends SimpleImageDataConfig
+public class SimpleOverviewImageDataConfig extends
+        ch.systemsx.cisd.openbis.dss.etl.dto.api.SimpleOverviewImageDataConfig
 {
-    private String containerDataSetCode;
-
-    private boolean generateOverviewImagesFromRegisteredImages;
-
-    public String getContainerDataSetCode()
-    {
-        return containerDataSetCode;
-    }
-
-    public void setContainerDataSetCode(String containerDataSetCode)
-    {
-        this.containerDataSetCode = containerDataSetCode;
-    }
-
-    public boolean isGenerateOverviewImagesFromRegisteredImages()
-    {
-        return generateOverviewImagesFromRegisteredImages;
-    }
-
-    public void setGenerateOverviewImagesFromRegisteredImages(
-            boolean generateOverviewImagesFromRegisteredImages)
-    {
-        this.generateOverviewImagesFromRegisteredImages =
-                generateOverviewImagesFromRegisteredImages;
-    }
 }

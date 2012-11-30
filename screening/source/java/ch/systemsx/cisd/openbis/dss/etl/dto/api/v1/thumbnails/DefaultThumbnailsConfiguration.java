@@ -16,16 +16,14 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails;
 
-import ch.systemsx.cisd.openbis.dss.Constants;
-
 /**
- * @author Pawel Glyzewski
+ * This class is obsolete, and should not be used. Use
+ * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.thumbnails.DefaultThumbnailsConfiguration}
+ * instead
+ * 
+ * @author Jakub Straszewski
  */
-public class DefaultThumbnailsConfiguration extends AbstractThumbnailsConfiguration
+public class DefaultThumbnailsConfiguration extends
+        ch.systemsx.cisd.openbis.dss.etl.dto.api.thumbnails.DefaultThumbnailsConfiguration
 {
-    @Override
-    protected String getDefaultFileName()
-    {
-        return Constants.HDF5_CONTAINER_THUMBNAILS_FILE_NAME;
-    }
 }

@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.IFeatureDefinition;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.IFeatureDefinition;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureValuesMap;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;

@@ -16,11 +16,11 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v2;
 
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
 
 /**
  * Extension of {@link IDataSet} specific for feature vector data sets.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IFeatureVectorDataSet extends IDataSet

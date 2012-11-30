@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.impl;
 import java.io.File;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.BasicDataSetInformation;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Channel;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorComponent;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.BasicDataSetInformation;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 

@@ -16,97 +16,14 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.thumbnails;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.SimpleImageDataConfig;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ThumbnailsStorageFormat;
-
 /**
- * @author Pawel Glyzewski
+ * This class is obsolete, and should not be used. Use
+ * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.thumbnails.AbstractThumbnailsConfiguration}
+ * instead
+ * 
+ * @author Jakub Straszewski
  */
-public abstract class AbstractThumbnailsConfiguration implements IThumbnailsConfiguration
+public abstract class AbstractThumbnailsConfiguration extends
+        ch.systemsx.cisd.openbis.dss.etl.dto.api.thumbnails.AbstractThumbnailsConfiguration
 {
-    private String fileName;
-
-    private String fileFormat;
-
-    private Map<String, String> transformations = new HashMap<String, String>();
-
-    @Override
-    public ThumbnailsStorageFormat getThumbnailsStorageFormat(SimpleImageDataConfig config)
-    {
-        ThumbnailsStorageFormat thumbnailsStorageFormat = new ThumbnailsStorageFormat();
-        thumbnailsStorageFormat.setAllowedMachineLoadDuringGeneration(config
-                .getAllowedMachineLoadDuringThumbnailsGeneration());
-        thumbnailsStorageFormat.setThumbnailsFileName(getFileName());
-        thumbnailsStorageFormat.setMaxWidth(config.getMaxThumbnailWidthAndHeight());
-        thumbnailsStorageFormat.setMaxHeight(config.getMaxThumbnailWidthAndHeight());
-        thumbnailsStorageFormat.setGenerateWithImageMagic(config
-                .getGenerateThumbnailsWithImageMagic());
-        thumbnailsStorageFormat.setImageMagicParams(config
-                .getThumbnailsGenerationImageMagicParams());
-        thumbnailsStorageFormat.setHighQuality(config.getGenerateThumbnailsIn8BitHighQuality());
-        setFileFormat(thumbnailsStorageFormat, config.getThumbnailsFileFormat());
-        thumbnailsStorageFormat.setTransformations(transformations);
-        return thumbnailsStorageFormat;
-    }
-
-    protected abstract String getDefaultFileName();
-
-    @Override
-    public void setFileName(String fileName)
-    {
-        this.fileName = fileName;
-    }
-
-    public String getFileName()
-    {
-        if (fileName != null)
-        {
-            return fileName;
-        } else
-        {
-            return getDefaultFileName();
-        }
-    }
-
-    @Override
-    public void setFileFormat(String fileFormat)
-    {
-        this.fileFormat = fileFormat;
-    }
-
-    public String getFileFormat()
-    {
-        return this.fileFormat;
-    }
-
-    private void setFileFormat(ThumbnailsStorageFormat thumbnailsStorageFormat, String defaultValue)
-    {
-        if (fileFormat != null)
-        {
-            thumbnailsStorageFormat.setFileFormat(fileFormat);
-        } else if (defaultValue != null)
-        {
-            thumbnailsStorageFormat.setFileFormat(defaultValue);
-        }
-    }
-
-    @Override
-    public String setTransformation(String channelCode, String transformationCode)
-    {
-        return transformations.put(channelCode.toUpperCase(), transformationCode);
-    }
-
-    protected String getFirstTransformationCode()
-    {
-        if (transformations.size() == 0)
-        {
-            return "";
-        } else
-        {
-            return "_" + transformations.values().iterator().next();
-        }
-    }
 }

@@ -37,4 +37,18 @@ public enum OriginalDataStorageFormat
         return this == OriginalDataStorageFormat.HDF5
                 || this == OriginalDataStorageFormat.HDF5_COMPRESSED;
     }
+
+    public ch.systemsx.cisd.openbis.dss.etl.dto.api.OriginalDataStorageFormat getIndependentOriginalDataStorageFormat()
+    {
+        switch (this)
+        {
+            case HDF5:
+                return ch.systemsx.cisd.openbis.dss.etl.dto.api.OriginalDataStorageFormat.HDF5;
+            case HDF5_COMPRESSED:
+                return ch.systemsx.cisd.openbis.dss.etl.dto.api.OriginalDataStorageFormat.HDF5_COMPRESSED;
+            case UNCHANGED:
+                return ch.systemsx.cisd.openbis.dss.etl.dto.api.OriginalDataStorageFormat.UNCHANGED;
+        }
+        return null; // impossible
+    }
 }

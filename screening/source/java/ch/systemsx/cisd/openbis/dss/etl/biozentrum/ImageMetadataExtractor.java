@@ -27,7 +27,7 @@ import ch.systemsx.cisd.imagereaders.ImageID;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.TileGeometryOracle;
-import ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.Location;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.Location;
 
 /**
  * @author Kaloyan Enimanev
