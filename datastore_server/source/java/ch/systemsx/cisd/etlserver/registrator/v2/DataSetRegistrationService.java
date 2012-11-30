@@ -39,7 +39,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPreStagingBehavior;
 import ch.systemsx.cisd.etlserver.registrator.IEntityOperationService;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
+import ch.systemsx.cisd.etlserver.registrator.api.impl.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.v2.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
+package ch.systemsx.cisd.etlserver.registrator.api.impl;
 
 import java.io.File;
 
@@ -26,31 +26,31 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class MkdirsCommand extends AbstractTransactionalCommand
+public class NewFileCommand extends AbstractTransactionalCommand
 {
     private static final long serialVersionUID = 1L;
 
-    private final String directoryAbsoutePath;
+    private final String fileAbsolutePath;
 
-    public MkdirsCommand(String directoryAbsoutePath)
+    public NewFileCommand(String directoryAbsoutePath)
     {
-        this.directoryAbsoutePath = directoryAbsoutePath;
+        this.fileAbsolutePath = directoryAbsoutePath;
 
     }
 
     @Override
     public void execute()
     {
-        File src = new File(directoryAbsoutePath);
+        File src = new File(fileAbsolutePath);
 
         IFileOperations fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
-        fileOperations.mkdirs(src);
+        fileOperations.createNewFile(src);
     }
 
     @Override
     public void rollback()
     {
-        File src = new File(directoryAbsoutePath);
+        File src = new File(fileAbsolutePath);
 
         if (false == src.exists())
         {
@@ -62,14 +62,15 @@ public class MkdirsCommand extends AbstractTransactionalCommand
         fileOperations.delete(src);
         if (src.exists())
         {
-            getOperationLog().error("Could not delete directory '" + src + "'.");
+            getOperationLog().error("Could not delete file '" + src + "'.");
         }
+
     }
 
     @Override
     public String toString()
     {
-        return "MkdirsCommand [directoryAbsoutePath=" + directoryAbsoutePath + "]";
+        return "NewFileCommand [fileAbsolutePath=" + fileAbsolutePath + "]";
     }
 
 }

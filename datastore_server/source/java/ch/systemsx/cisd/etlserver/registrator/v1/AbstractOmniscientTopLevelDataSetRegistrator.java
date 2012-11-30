@@ -58,7 +58,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPreStagingBehavior;
 import ch.systemsx.cisd.etlserver.registrator.MarkerFileUtility;
 import ch.systemsx.cisd.etlserver.registrator.TopLevelDataSetChecker;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
+import ch.systemsx.cisd.etlserver.registrator.api.impl.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.v1.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;

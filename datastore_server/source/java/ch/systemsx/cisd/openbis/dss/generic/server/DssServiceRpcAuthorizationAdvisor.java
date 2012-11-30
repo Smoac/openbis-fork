@@ -41,9 +41,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DataSetAccessGuard;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationGuardPredicate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IDssSessionAuthorizer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.PrivilegeLevel;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.authorization.IAuthorizationGuardPredicate;
 
 /**
  * The advisor for authorization in the DSS RPC interfaces.

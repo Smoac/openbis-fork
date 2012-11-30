@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.api.v1;
+package ch.systemsx.cisd.etlserver.registrator.api.impl;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
 

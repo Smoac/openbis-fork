@@ -16,17 +16,13 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
-import java.io.File;
-
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.jython.PythonInterpreter;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSetRegistrationTransaction;
-import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.v2.AbstractProgrammableTopLevelDataSetHandler;
-import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -46,20 +42,6 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation> ex
     {
         super(registrator, incomingDataSetFile, userProvidedDataSetInformationOrNull,
                 globalCleanAfterwardsAction, delegate, interpreter, globalState);
-    }
-
-    /**
-     * The method creates a new dataset registration transaction. The
-     * JythonDataSetRegistrationServiceV2 guarantees that this transatcion will be created only
-     * once. To be extended in subclasses.
-     */
-    protected DataSetRegistrationTransaction<T> createV2DatasetRegistrationTransaction(
-            File rollBackStackParentFolder, File workingDir, File stagingDir,
-            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
-    {
-        return new DataSetRegistrationTransaction<T>(rollBackStackParentFolder, workingDir,
-                stagingDir, this, registrationDetailsFactory,
-                AutoRecoverySettings.USE_AUTO_RECOVERY);
     }
 
     public DataSetRegistrationTransaction<T> getTransaction()

@@ -41,10 +41,10 @@ import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataActi
 import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.IRollbackStack;
+import ch.systemsx.cisd.etlserver.registrator.api.impl.MkdirsCommand;
+import ch.systemsx.cisd.etlserver.registrator.api.impl.MoveFileCommand;
+import ch.systemsx.cisd.etlserver.registrator.api.impl.NewFileCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.MkdirsCommand;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.MoveFileCommand;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.NewFileCommand;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStoragePrecommitRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageStoredRecoveryAlgorithm;

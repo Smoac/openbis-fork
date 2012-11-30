@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
-
-import org.apache.log4j.Logger;
-
-import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2;
 
 /**
- * Package-internal class to track and execute progress in the transaction.
- * 
- * @author Chandrasekhar Ramakrishnan
+ * @author Jakub Straszewski
  */
-abstract class AbstractTransactionalCommand implements ITransactionalCommand
+public interface IExternalDataManagementSystemImmutable
 {
-    private static final long serialVersionUID = 1L;
+    String getCode();
 
-    protected Logger getOperationLog()
-    {
-        return DataSetRegistrationTransaction.operationLog;
-    }
+    String getLabel();
 
+    String getUrlTemplate();
+
+    boolean isOpenBIS();
 }

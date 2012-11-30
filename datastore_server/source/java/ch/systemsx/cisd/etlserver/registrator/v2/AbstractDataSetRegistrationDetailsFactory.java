@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.List;
 
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSet;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSet;
 import ch.systemsx.cisd.etlserver.registrator.v2.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;

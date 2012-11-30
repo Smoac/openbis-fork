@@ -19,7 +19,7 @@ package ch.systemsx.cisd.etlserver.registrator.v2;
 import java.io.File;
 
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSet;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSet;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**

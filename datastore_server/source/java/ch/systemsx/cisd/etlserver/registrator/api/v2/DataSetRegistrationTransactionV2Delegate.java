@@ -22,28 +22,17 @@ import net.lemnik.eodsql.DynamicTransactionQuery;
 
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentUpdatable;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IMaterial;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IMetaproject;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IProject;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IVocabulary;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IVocabularyTerm;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSetRegistrationTransaction;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExternalDataManagementSystemImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IMaterialImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IProjectImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISpaceImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IVocabularyImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExternalDataManagementSystemImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IMaterialImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IProjectImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISpaceImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IVocabularyImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.authorization.IAuthorizationService;
 
 /**
  * @author Jakub Straszewski

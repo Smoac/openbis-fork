@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.authorization;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
 
 /**
  * @author Jakub Straszewski
@@ -28,11 +28,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISampleImmuta
 public interface IAuthorizationService
 {
     boolean doesUserHaveRole(String user, String role, String spaceOrNull);
-    
+
     List<ISampleImmutable> filterToVisibleSamples(String user, List<ISampleImmutable> samples);
-    
+
     List<IDataSetImmutable> filterToVisibleDatasets(String user, List<IDataSetImmutable> datasets);
-    
-    List<IExperimentImmutable> filterToVisibleExperiments(String user, List<IExperimentImmutable> experiments);
-    
+
+    List<IExperimentImmutable> filterToVisibleExperiments(String user,
+            List<IExperimentImmutable> experiments);
+
 }
