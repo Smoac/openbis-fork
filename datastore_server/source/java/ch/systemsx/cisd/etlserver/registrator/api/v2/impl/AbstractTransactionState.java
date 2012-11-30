@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
+package ch.systemsx.cisd.etlserver.registrator.api.v2.impl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,10 +47,19 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IVocabularyTerm;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
-import ch.systemsx.cisd.etlserver.registrator.v1.DataSetRegistrationService;
-import ch.systemsx.cisd.etlserver.registrator.v1.DataSetStorageAlgorithm;
-import ch.systemsx.cisd.etlserver.registrator.v1.DataSetStorageAlgorithmRunner;
-import ch.systemsx.cisd.etlserver.registrator.v1.IDataSetRegistrationDetailsFactory;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetUpdatable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ExperimentImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.MaterialImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.MkdirsCommand;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.MoveFileCommand;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.NewFileCommand;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ProjectImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.SampleImmutable;
+import ch.systemsx.cisd.etlserver.registrator.v2.DataSetRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.v2.DataSetStorageAlgorithm;
+import ch.systemsx.cisd.etlserver.registrator.v2.DataSetStorageAlgorithmRunner;
+import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
@@ -106,6 +115,11 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
     }
 
     public boolean isRolledback()
+    {
+        return false;
+    }
+
+    public boolean isRecoveryPending()
     {
         return false;
     }
@@ -1395,4 +1409,18 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         }
     }
 
+    static class RecoveryPendingTransactionState<T extends DataSetInformation> extends
+            AbstractTransactionState<T>
+    {
+        public RecoveryPendingTransactionState(LiveTransactionState<T> liveState)
+        {
+            super(liveState.parent);
+        }
+
+        @Override
+        public boolean isRecoveryPending()
+        {
+            return true;
+        }
+    }
 }

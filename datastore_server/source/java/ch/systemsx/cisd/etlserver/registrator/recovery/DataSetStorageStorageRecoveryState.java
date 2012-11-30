@@ -20,26 +20,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
-import ch.systemsx.cisd.etlserver.registrator.v1.DataSetStorageAlgorithm;
-import ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
 import ch.systemsx.cisd.etlserver.registrator.IRollbackStack;
+import ch.systemsx.cisd.etlserver.registrator.v2.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
+import ch.systemsx.cisd.etlserver.registrator.v2.DataSetStorageAlgorithm;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * 
- *
  * @author jakubs
  */
 public class DataSetStorageStorageRecoveryState<T extends DataSetInformation> extends
-AbstractRecoveryState<T>
+        AbstractRecoveryState<T>
 {
     private static final long serialVersionUID = 1L;
-    
+
     private final List<DataSetStorageStoredRecoveryAlgorithm<T>> dataSetRecoveryStorageAlgorithms;
-    
-    public DataSetStorageStorageRecoveryState(List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
+
+    public DataSetStorageStorageRecoveryState(
+            List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             DssRegistrationLogger logger, IRollbackStack rollbackStack,
             DataSetFile incomingDataSetFile, DataSetRegistrationPersistentMap persistentMap)
     {
@@ -51,7 +50,7 @@ AbstractRecoveryState<T>
             this.dataSetRecoveryStorageAlgorithms.add(algorithm.getStoredRecoveryAlgorithm());
         }
     }
-    
+
     @Override
     public ArrayList<DataSetStorageAlgorithm<T>> getDataSetStorageAlgorithms(
             OmniscientTopLevelDataSetRegistratorState state)

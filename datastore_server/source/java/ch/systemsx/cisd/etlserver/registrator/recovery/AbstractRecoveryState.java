@@ -25,9 +25,9 @@ import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
 import ch.systemsx.cisd.etlserver.registrator.IRollbackStack;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.RollbackStack;
-import ch.systemsx.cisd.etlserver.registrator.v1.DataSetStorageAlgorithm;
-import ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
+import ch.systemsx.cisd.etlserver.registrator.api.impl.RollbackStack;
+import ch.systemsx.cisd.etlserver.registrator.v2.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
+import ch.systemsx.cisd.etlserver.registrator.v2.DataSetStorageAlgorithm;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -43,10 +43,12 @@ public abstract class AbstractRecoveryState<T extends DataSetInformation> implem
 
     private DataSetFile incomingDataSetFile;
 
-    private DataSetRegistrationPersistentMap persistentMap; 
-    
-    public AbstractRecoveryState(){}
-    
+    private DataSetRegistrationPersistentMap persistentMap;
+
+    public AbstractRecoveryState()
+    {
+    }
+
     public AbstractRecoveryState(DssRegistrationLogger logger, IRollbackStack rollbackStack,
             DataSetFile incomingDataSetFile, DataSetRegistrationPersistentMap persistentMap)
     {
@@ -62,7 +64,7 @@ public abstract class AbstractRecoveryState<T extends DataSetInformation> implem
     {
         return incomingDataSetFile;
     }
-    
+
     public DssRegistrationLogger getRegistrationLogger(
             OmniscientTopLevelDataSetRegistratorState state)
     {
@@ -77,7 +79,7 @@ public abstract class AbstractRecoveryState<T extends DataSetInformation> implem
 
     public abstract ArrayList<DataSetStorageAlgorithm<T>> getDataSetStorageAlgorithms(
             OmniscientTopLevelDataSetRegistratorState state);
-    
+
     public RollbackStack getRollbackStack()
     {
         return new RollbackStack(rollbackStackBackingFiles[0], rollbackStackBackingFiles[1]);

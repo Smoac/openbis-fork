@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
+package ch.systemsx.cisd.etlserver.registrator.api.v2.impl;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -40,7 +40,6 @@ import ch.systemsx.cisd.etlserver.registrator.IEntityOperationService;
 import ch.systemsx.cisd.etlserver.registrator.IncomingFileDeletedBeforeRegistrationException;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.RollbackStack;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentUpdatable;
@@ -52,14 +51,25 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IVocabulary;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IVocabularyTerm;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.CommitedTransactionState;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.LiveTransactionState;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionState.RolledbackTransactionState;
-import ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
-import ch.systemsx.cisd.etlserver.registrator.v1.DataSetRegistrationService;
-import ch.systemsx.cisd.etlserver.registrator.v1.DataSetStorageAlgorithmRunner;
-import ch.systemsx.cisd.etlserver.registrator.v1.IDataSetOnErrorActionDecision.ErrorType;
-import ch.systemsx.cisd.etlserver.registrator.v1.IDataSetRegistrationDetailsFactory;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AuthorizationService;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ExperimentImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ExternalDataManagementSystemImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.MaterialImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ProjectImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.SampleImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.SearchService;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.SpaceImmutable;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.AbstractTransactionState.CommitedTransactionState;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.AbstractTransactionState.LiveTransactionState;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.AbstractTransactionState.RecoveryPendingTransactionState;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.AbstractTransactionState.RolledbackTransactionState;
+import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
+import ch.systemsx.cisd.etlserver.registrator.recovery.IDataSetStorageRecoveryManager;
+import ch.systemsx.cisd.etlserver.registrator.v2.DataSetRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.v2.DataSetStorageAlgorithmRunner;
+import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetOnErrorActionDecision.ErrorType;
+import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
@@ -94,7 +104,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  * @author Chandrasekhar Ramakrishnan
  */
 public class DataSetRegistrationTransaction<T extends DataSetInformation> implements
-        IDataSetRegistrationTransaction, DataSetStorageAlgorithmRunner.IRollbackDelegate<T>,
+        IDataSetRegistrationTransactionV2, DataSetStorageAlgorithmRunner.IRollbackDelegate<T>,
         DataSetStorageAlgorithmRunner.IDataSetInApplicationServerRegistrator<T>,
         DataSetRegistrationContext.IHolder
 {
@@ -105,6 +115,8 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     private static final String ROLLBACK_QUEUE2_FILE_NAME_SUFFIX = "rollBackQueue2";
 
     private final static String ROLLBACK_STACK_FILE_NAME_DATE_FORMAT_PATTERN = "yyyyMMddHHmmssSSS";
+
+    private final AutoRecoverySettings autoRecoverySettings;
 
     static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetRegistrationTransaction.class);
@@ -177,7 +189,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                         + "-" + new Random().nextInt(10000) + "-";
         return new RollbackStack(new File(rollBackStackParentFolder, fileNamePrefix
                 + ROLLBACK_QUEUE1_FILE_NAME_SUFFIX), new File(rollBackStackParentFolder,
-                fileNamePrefix + ROLLBACK_QUEUE2_FILE_NAME_SUFFIX), operationLog);
+                fileNamePrefix + ROLLBACK_QUEUE2_FILE_NAME_SUFFIX));
     }
 
     /**
@@ -193,7 +205,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                         - ROLLBACK_QUEUE1_FILE_NAME_SUFFIX.length())
                         + ROLLBACK_QUEUE2_FILE_NAME_SUFFIX;
         return new RollbackStack(rollbackStackQueue1, new File(rollbackStackQueue1.getParentFile(),
-                rollbackStack2FileName), operationLog);
+                rollbackStack2FileName));
     }
 
     private AbstractTransactionState<T> state;
@@ -208,15 +220,17 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     public DataSetRegistrationTransaction(File rollBackStackParentFolder, File workingDirectory,
             File stagingDirectory, DataSetRegistrationService<T> registrationService,
-            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
+            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory,
+            AutoRecoverySettings autoRecoverySettings)
     {
         this(createNewRollbackStack(rollBackStackParentFolder), workingDirectory, stagingDirectory,
-                registrationService, registrationDetailsFactory);
+                registrationService, registrationDetailsFactory, autoRecoverySettings);
     }
 
     DataSetRegistrationTransaction(RollbackStack rollbackStack, File workingDirectory,
             File stagingDirectory, DataSetRegistrationService<T> registrationService,
-            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
+            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory,
+            AutoRecoverySettings autoRecoverySettings)
     {
         state =
                 new LiveTransactionState<T>(this, rollbackStack, workingDirectory,
@@ -228,6 +242,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         this.registrationContext =
                 new DataSetRegistrationContext(new DataSetRegistrationPersistentMap(),
                         this.registrationService.getRegistratorContext().getGlobalState());
+        this.autoRecoverySettings = autoRecoverySettings;
     }
 
     @Override
@@ -575,7 +590,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         boolean commitSucceeded = liveState.commit();
 
         // The attempt to commit the live state could have changed the state to rolledback
-        if (state.isRolledback())
+        if (state.isRolledback() || state.isRecoveryPending())
         {
             return false;
         }
@@ -612,7 +627,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     public void rollback()
     {
         // No need to rollback again
-        if (state.isRolledback())
+        if (state.isRolledback() || state.isRecoveryPending())
         {
             return;
         }
@@ -635,9 +650,25 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             // Don't log if the file was deleted before registration, we already know.
             operationLog.error("The error ", ex);
         }
+        boolean useAutoRecovery = autoRecoverySettings == AutoRecoverySettings.USE_AUTO_RECOVERY;
 
+        IDataSetStorageRecoveryManager storageRecoveryManager =
+                registrationService.getRegistratorContext().getGlobalState()
+                        .getStorageRecoveryManager();
+
+        if (useAutoRecovery)
+        {
+            storageRecoveryManager.removeCheckpoint(algorithm);
+        }
         rollback();
         registrationService.didRollbackTransaction(this, algorithm, ex, errorType);
+    }
+
+    @Override
+    public void markReadyForRecovery(DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex)
+    {
+        registrationService.registerNonFatalError(ex);
+        state = new RecoveryPendingTransactionState<T>(getStateAsLiveState());
     }
 
     /**
@@ -704,6 +735,11 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     public boolean isRolledback()
     {
         return state.isRolledback();
+    }
+
+    public boolean isRecoveryPending()
+    {
+        return state.isRecoveryPending();
     }
 
     /**
@@ -786,10 +822,15 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         }
     }
 
-    @Override
-    public OmniscientTopLevelDataSetRegistratorState getRegistratorContext()
+    public AutoRecoverySettings getAutoRecoverySettings()
     {
-        return registrationService.getRegistratorContext();
+        return autoRecoverySettings;
+    }
+
+    public IDataSetStorageRecoveryManager getStorageRecoveryManager()
+    {
+        return registrationService.getRegistratorContext().getGlobalState()
+                .getStorageRecoveryManager();
     }
 
     public DataSetFile getIncomingDataSetFile()
@@ -806,6 +847,6 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     @Override
     public TopLevelDataSetRegistratorGlobalState getGlobalState()
     {
-        return getRegistratorContext().getGlobalState();
+        return registrationService.getRegistratorContext().getGlobalState();
     }
 }

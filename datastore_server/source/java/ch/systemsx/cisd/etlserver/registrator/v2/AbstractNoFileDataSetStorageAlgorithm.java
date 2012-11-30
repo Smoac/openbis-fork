@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.v1;
+package ch.systemsx.cisd.etlserver.registrator.v2;
 
 import java.io.File;
 
@@ -26,6 +26,9 @@ import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcess
 import ch.systemsx.cisd.etlserver.NullStorageProcessorTransaction;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.IRollbackStack;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStoragePrecommitRecoveryAlgorithm;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryAlgorithm;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageStoredRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
@@ -61,6 +64,16 @@ public abstract class AbstractNoFileDataSetStorageAlgorithm<T extends DataSetInf
         super(incomingDataSetFile, registrationDetails, dataStoreStrategy, storageProcessor,
                 dataSetValidator, dataStoreCode, fileOperations, mailClient, stagingDirectory,
                 precommitDirectory);
+    }
+
+    /**
+     * Creates algorithm from a recovery algorithm.
+     */
+    public AbstractNoFileDataSetStorageAlgorithm(IDataStoreStrategy dataStoreStrategy,
+            IStorageProcessorTransactional storageProcessor, IFileOperations fileOperations,
+            IMailClient mailClient, DataSetStorageRecoveryAlgorithm<T> recoveryAlgorithm)
+    {
+        super(dataStoreStrategy, storageProcessor, fileOperations, mailClient, recoveryAlgorithm);
     }
 
     @Override
@@ -118,7 +131,24 @@ public abstract class AbstractNoFileDataSetStorageAlgorithm<T extends DataSetInf
     public String getFailureRegistrationMessage()
     {
         return "Error trying to register no-file-contents data set '"
-                + getDataSetInformation().toString() + "'.";
+                + getDataSetInformation().toString()
+                + "'.";
+    }
+
+    @Override
+    public DataSetStoragePrecommitRecoveryAlgorithm<T> getPrecommitRecoveryAlgorithm()
+    {
+        return new DataSetStoragePrecommitRecoveryAlgorithm<T>(getDataSetInformation(),
+                getDataStoreStrategy().getKey(), getIncomingDataSetFile(), getStagingDirectory(),
+                getPreCommitDirectory(), getDataStoreCode(), getDataSetKind());
+    }
+
+    @Override
+    public DataSetStorageStoredRecoveryAlgorithm<T> getStoredRecoveryAlgorithm()
+    {
+        return new DataSetStorageStoredRecoveryAlgorithm<T>(getDataSetInformation(),
+                getDataStoreStrategy().getKey(), getIncomingDataSetFile(), getStagingDirectory(),
+                getPreCommitDirectory(), getDataStoreCode(), getDataSetKind());
     }
 
     @Override

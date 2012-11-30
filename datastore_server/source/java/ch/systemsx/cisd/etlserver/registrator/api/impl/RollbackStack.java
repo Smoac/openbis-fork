@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
+package ch.systemsx.cisd.etlserver.registrator.api.impl;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +27,8 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueDecorator;
 import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueFactory;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.registrator.IRollbackStack;
 import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
 
@@ -63,6 +65,8 @@ public class RollbackStack implements IRollbackStack
 
     private final File lockedMarkerFile;
 
+    private final Logger operationLog;
+
     // These are not final because they get swapped around.
     private PersistentExtendedBlockingQueueDecorator<StackElement> liveLifo;
 
@@ -77,8 +81,21 @@ public class RollbackStack implements IRollbackStack
      */
     public RollbackStack(File queue1File, File queue2File)
     {
+        this(queue1File, queue2File, null);
+    }
+
+    public RollbackStack(File queue1File, File queue2File, Logger operationLog)
+    {
         this.queue1File = queue1File;
         this.queue2File = queue2File;
+
+        if (operationLog == null)
+        {
+            this.operationLog = LogFactory.getLogger(LogCategory.OPERATION, RollbackStack.class);
+        } else
+        {
+            this.operationLog = operationLog;
+        }
 
         this.lockedMarkerFile =
                 new File(queue1File.getParentFile(), queue1File.getName() + ".LOCKED");
@@ -167,7 +184,6 @@ public class RollbackStack implements IRollbackStack
             elt.command.rollback();
         } catch (Throwable ex)
         {
-            Logger operationLog = getOperationLog();
             // If any problems happen rolling back a command, log them
             operationLog.error("Encountered error rolling back command " + elt.toString(), ex);
         }
@@ -249,10 +265,11 @@ public class RollbackStack implements IRollbackStack
     {
         if (isLockedState())
         {
-            throw new IllegalStateException("Rollback stack is in the locked state. Triggering rollback forbidden.");
+            throw new IllegalStateException(
+                    "Rollback stack is in the locked state. Triggering rollback forbidden.");
         }
-        
-        getOperationLog().info("Rolling back stack " + this);
+
+        operationLog.info("Rolling back stack " + this);
         // Pop and rollback all
         while (size() > 0)
         {
@@ -266,9 +283,10 @@ public class RollbackStack implements IRollbackStack
      */
     public void discard()
     {
-        if (isLockedState()) 
+        if (isLockedState())
         {
-            throw new IllegalStateException("Discarding of locked rollback stack is illegal. Set locked to false first.");
+            throw new IllegalStateException(
+                    "Discarding of locked rollback stack is illegal. Set locked to false first.");
         }
         // Close the persistent queues
         liveLifo.close();
@@ -313,7 +331,7 @@ public class RollbackStack implements IRollbackStack
 
     private void deleteLockedMarkerFile()
     {
-       lockedMarkerFile.delete();
+        lockedMarkerFile.delete();
     }
 
     private void createLockedMarkerFile()
@@ -323,9 +341,8 @@ public class RollbackStack implements IRollbackStack
             lockedMarkerFile.createNewFile();
         } catch (IOException ex)
         {
-            getOperationLog().fatal(
-                    "Failed to create rollback stack lock marker file "
-                            + lockedMarkerFile.getAbsolutePath());
+            operationLog.fatal("Failed to create rollback stack lock marker file "
+                    + lockedMarkerFile.getAbsolutePath());
         }
     }
 
@@ -391,11 +408,6 @@ public class RollbackStack implements IRollbackStack
     private static boolean bothQueuesAreEmpty(Queue<StackElement> queue1, Queue<StackElement> queue2)
     {
         return queue1.isEmpty() && queue2.isEmpty();
-    }
-
-    private Logger getOperationLog()
-    {
-        return DataSetRegistrationTransaction.operationLog;
     }
 
     @Override

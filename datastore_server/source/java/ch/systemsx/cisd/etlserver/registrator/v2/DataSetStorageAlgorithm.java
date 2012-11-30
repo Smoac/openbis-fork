@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.v1;
+package ch.systemsx.cisd.etlserver.registrator.v2;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -45,6 +45,9 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.MkdirsCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.MoveFileCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.NewFileCommand;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStoragePrecommitRecoveryAlgorithm;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryAlgorithm;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageStoredRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
@@ -167,6 +170,86 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         dataSetValidator.assertValidDataSet(dataSetType, incomingDataSetFile);
 
         state = new InitializedState<T>(this);
+    }
+
+    /**
+     * Creates algorithm in a precommitted state from a recovery algorithm.
+     */
+    public static <T extends DataSetInformation> DataSetStorageAlgorithm<T> createFromPrecommittedRecoveryAlgorithm(
+            IDataStoreStrategy dataStoreStrategy, IStorageProcessorTransactional storageProcessor,
+            IFileOperations fileOperations, IMailClient mailClient,
+            DataSetStoragePrecommitRecoveryAlgorithm<T> recoveryAlgorithm)
+    {
+        DataSetStorageAlgorithm<T> storageAlgorithm =
+                new DataSetStorageAlgorithm<T>(dataStoreStrategy, storageProcessor, fileOperations,
+                        mailClient, recoveryAlgorithm.getRecoveryAlgorithm());
+        storageAlgorithm.state = new PrecommittedState<T>(storageAlgorithm, recoveryAlgorithm);
+        return storageAlgorithm;
+    }
+
+    public static <T extends DataSetInformation> DataSetStorageAlgorithm<T> createFromStoredRecoveryAlgorithm(
+            IDataStoreStrategy dataStoreStrategy, IStorageProcessorTransactional storageProcessor,
+            IFileOperations fileOperations, IMailClient mailClient,
+            DataSetStorageStoredRecoveryAlgorithm<T> recoveryAlgorithm)
+    {
+        DataSetStorageAlgorithm<T> storageAlgorithm =
+                new DataSetStorageAlgorithm<T>(dataStoreStrategy, storageProcessor, fileOperations,
+                        mailClient, recoveryAlgorithm.getRecoveryAlgorithm());
+        storageAlgorithm.state = new StoredState<T>(storageAlgorithm, recoveryAlgorithm);
+        return storageAlgorithm;
+    }
+
+    protected DataSetStorageAlgorithm(IDataStoreStrategy dataStoreStrategy,
+            IStorageProcessorTransactional storageProcessor, IFileOperations fileOperations,
+            IMailClient mailClient, DataSetStorageRecoveryAlgorithm<T> storedRecoveryAlgorithm)
+    {
+        this.incomingDataSetFile = storedRecoveryAlgorithm.getIncomingDataSetFile();
+        this.registrationDetails = null;
+        this.dataSetInformation = storedRecoveryAlgorithm.getDataSetInformation();
+
+        this.dataStoreStrategy = dataStoreStrategy;
+        this.storageProcessor = storageProcessor;
+        this.dataStoreCode = storedRecoveryAlgorithm.getDataStoreCode();
+        this.fileOperations = fileOperations;
+        this.mailClient = mailClient;
+        this.stagingDirectory = storedRecoveryAlgorithm.getStagingDirectory();
+        this.preCommitDirectory = storedRecoveryAlgorithm.getPreCommitDirectory();
+
+        this.storeRoot = storageProcessor.getStoreRootDirectory();
+        this.dataSetType = null;
+    }
+
+    public DataSetStoragePrecommitRecoveryAlgorithm<T> getPrecommitRecoveryAlgorithm()
+    {
+        if (false == state instanceof PrecommittedState<?>)
+        {
+            throw new IllegalStateException(
+                    "Precommit recovery algorithm available only at precommited state");
+        }
+        PrecommittedState<T> precommittedState = (PrecommittedState<T>) state;
+        DataSetStoragePrecommitRecoveryAlgorithm<T> recoveryAlgorithm =
+                new DataSetStoragePrecommitRecoveryAlgorithm<T>(dataSetInformation,
+                        dataStoreStrategy.getKey(), incomingDataSetFile, stagingDirectory,
+                        preCommitDirectory, dataStoreCode, precommittedState.storagePaths,
+                        precommittedState.markerFile, precommittedState.transaction);
+
+        return recoveryAlgorithm;
+    }
+
+    public DataSetStorageStoredRecoveryAlgorithm<T> getStoredRecoveryAlgorithm()
+    {
+        if (false == state instanceof StoredState<?>)
+        {
+            throw new IllegalStateException(
+                    "Stored recovery algorithm available only at stored state");
+        }
+        StoredState<T> storedState = (StoredState<T>) state;
+        DataSetStorageStoredRecoveryAlgorithm<T> recoveryAlgorithm =
+                new DataSetStorageStoredRecoveryAlgorithm<T>(dataSetInformation,
+                        dataStoreStrategy.getKey(), incomingDataSetFile, stagingDirectory,
+                        preCommitDirectory, dataStoreCode, storedState.storagePaths);
+
+        return recoveryAlgorithm;
     }
 
     /**
@@ -526,8 +609,7 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             final File baseParentDirectory = baseDirectory.getParentFile();
             final String processingDirName = baseDirectory.getName();
             markerFile =
-                    new File(baseParentDirectory, FileConstants.PROCESSING_PREFIX
-                            + processingDirName);
+                    new File(baseParentDirectory, FileConstants.PROCESSING_PREFIX + processingDirName);
             try
             {
                 // will throw exception if marker file already exists
@@ -572,6 +654,15 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             this.transaction = oldState.transaction;
             this.markerFile = oldState.markerFile;
             this.storagePaths = oldState.storagePaths;
+        }
+
+        public PrecommittedState(DataSetStorageAlgorithm<T> algorithm,
+                DataSetStoragePrecommitRecoveryAlgorithm<T> recoveryAlgorithm)
+        {
+            super(algorithm);
+            this.transaction = recoveryAlgorithm.getTransaction();
+            this.markerFile = recoveryAlgorithm.getMarkerFile();
+            this.storagePaths = recoveryAlgorithm.getDataSetStoragePaths();
         }
 
         /**
@@ -667,6 +758,13 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
         {
             super(oldState.storageAlgorithm);
             storagePaths = oldState.storagePaths;
+        }
+
+        public StoredState(DataSetStorageAlgorithm<T> algorithm,
+                DataSetStorageStoredRecoveryAlgorithm<T> recoveryAlgorithm)
+        {
+            super(algorithm);
+            this.storagePaths = recoveryAlgorithm.getDataSetStoragePaths();
         }
 
         public void cleanPrecommitDirectory()

@@ -49,7 +49,6 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPreStagingBehavior;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
-import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator;
 import ch.systemsx.cisd.etlserver.registrator.v1.DataSetRegistrationService;
@@ -771,8 +770,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
         createHandler();
         tr =
                 new DataSetRegistrationTransaction<DataSetInformation>(workingDirectory,
-                        workingDirectory, stagingDirectory, service, handler,
-                        AutoRecoverySettings.DO_NOT_USE_AUTO_RECOVERY);
+                        workingDirectory, stagingDirectory, service, handler);
     }
 
 }

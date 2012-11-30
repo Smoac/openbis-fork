@@ -24,7 +24,6 @@ import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
-import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
@@ -49,20 +48,11 @@ public class LinkDataSetStorageAlgorithm<T extends DataSetInformation> extends
                 precommitDirectory);
     }
 
-    public LinkDataSetStorageAlgorithm(IDataStoreStrategy dataStoreStrategy,
-            IStorageProcessorTransactional storageProcessor, IFileOperations fileOperations,
-            IMailClient mailClient, DataSetStorageRecoveryAlgorithm<T> recoveryAlgorithm)
-    {
-        super(dataStoreStrategy, storageProcessor, fileOperations, mailClient, recoveryAlgorithm);
-        // TODO Auto-generated constructor stub
-    }
-
     @Override
     public NewExternalData createExternalData()
     {
         return ConversionUtils
-                .convertToNewLinkDataSet(getRegistrationDetails(),
-                getDataStoreCode());
+                .convertToNewLinkDataSet(getRegistrationDetails(), getDataStoreCode());
     }
 
     @Override

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.v1;
+package ch.systemsx.cisd.etlserver.registrator.v2;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,13 +31,15 @@ import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.IStorageProcess
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
+import ch.systemsx.cisd.etlserver.registrator.DistinctExceptionsCollection;
 import ch.systemsx.cisd.etlserver.registrator.IRollbackStack;
 import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
 import ch.systemsx.cisd.etlserver.registrator.IncomingFileDeletedBeforeRegistrationException;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
+import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.recovery.IDataSetStorageRecoveryManager;
-import ch.systemsx.cisd.etlserver.registrator.v1.IDataSetOnErrorActionDecision.ErrorType;
+import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
@@ -62,6 +64,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
          */
         public void didRollbackStorageAlgorithmRunner(DataSetStorageAlgorithmRunner<T> algorithm,
                 Throwable ex, ErrorType errorType);
+
+        public void markReadyForRecovery(DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex);
     }
 
     /**
@@ -112,7 +116,16 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private final IEncapsulatedOpenBISService openBISService;
 
+    // this is unused because it is only here as the prerequisite for the auto-recovery
+    private final AutoRecoverySettings autoRecoverySettings;
+
+    private final IDataSetStorageRecoveryManager storageRecoveryManager;
+
     private final DataSetFile incomingDataSetFile;
+
+    private final int registrationMaxRetryCount;
+
+    private final int registrationRetryPauseInSec;
 
     public DataSetStorageAlgorithmRunner(List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
             DataSetRegistrationTransaction<T> transaction, IRollbackStack rollbackStack,
@@ -129,7 +142,14 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         this.dssRegistrationLog = dssRegistrationLog;
         this.openBISService = openBISService;
         this.postPreRegistrationHooks = postPreRegistrationHooks;
+        this.autoRecoverySettings = transaction.getAutoRecoverySettings();
+        this.storageRecoveryManager = transaction.getStorageRecoveryManager();
         this.incomingDataSetFile = transaction.getIncomingDataSetFile();
+
+        this.registrationMaxRetryCount =
+                globalState.getThreadParameters().getDataSetRegistrationMaxRetryCount();
+        this.registrationRetryPauseInSec =
+                globalState.getThreadParameters().getDataSetRegistrationPauseInSec();
     }
 
     /**
@@ -153,7 +173,14 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         this.dssRegistrationLog = dssRegistrationLog;
         this.openBISService = openBISService;
         this.postPreRegistrationHooks = postPreRegistrationHooks;
+        this.autoRecoverySettings = AutoRecoverySettings.USE_AUTO_RECOVERY;
+        this.storageRecoveryManager = storageRecoveryManager;
         this.incomingDataSetFile = incomingDataSetFile;
+
+        this.registrationMaxRetryCount =
+                globalState.getThreadParameters().getDataSetRegistrationMaxRetryCount();
+        this.registrationRetryPauseInSec =
+                globalState.getThreadParameters().getDataSetRegistrationPauseInSec();
     }
 
     /**
@@ -234,6 +261,10 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             dssRegistrationLog.log("Storage has been confirmed in openBIS Application Server.");
         } catch (final Exception ex)
         {
+            if (shouldUseAutoRecovery())
+            {
+                rollbackDelegate.markReadyForRecovery(this, ex);
+            }
             operationLog.error("Error during storage confirmation", ex);
             dssRegistrationLog.log(ex, "Error during storage confirmation");
             return false;
@@ -304,6 +335,10 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         }
 
         // PRECOMMITED STATE
+        if (shouldUseAutoRecovery())
+        {
+            storageRecoveryManager.checkpointPrecommittedState(registrationId, this);
+        }
 
         waitUntilApplicationIsReady();
 
@@ -330,6 +365,11 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     {
         executeJythonScriptsForPostRegistration();
 
+        if (shouldUseAutoRecovery())
+        {
+            storageRecoveryManager.checkpointPrecommittedStateAfterPostRegistrationHook(this);
+        }
+
         waitUntilApplicationIsReady();
 
     }
@@ -354,14 +394,14 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             return false;
         }
 
+        if (shouldUseAutoRecovery())
+        {
+            storageRecoveryManager.checkpointStoredStateBeforeStorageConfirmation(this);
+        }
+
         waitUntilApplicationIsReady();
 
         return true;
-    }
-
-    private void waitTheRetryPeriod()
-    {
-        ConcurrencyUtilities.sleep(60 * 1000);
     }
 
     private void waitUntilApplicationIsReady()
@@ -382,7 +422,17 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
         cleanPrecommitDirectory();
 
-        confirmStorageInApplicationServer();
+        boolean confirmStorageSucceeded = confirmStorageInApplicationServer();
+
+        if (shouldUseAutoRecovery())
+        {
+            if (!confirmStorageSucceeded)
+            {
+                return false;
+            }
+
+            storageRecoveryManager.registrationCompleted(this);
+        }
 
         return true;
     }
@@ -406,6 +456,11 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             rollbackDuringMetadataRegistration(t);
             return null;
         }
+    }
+
+    private boolean shouldUseAutoRecovery()
+    {
+        return autoRecoverySettings == AutoRecoverySettings.USE_AUTO_RECOVERY;
     }
 
     private void rollbackDuringStorageProcessorRun(Throwable ex)
@@ -460,6 +515,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             dssRegistrationLog.log("Data has been moved to the final store.");
         } catch (final Throwable throwable)
         {
+            rollbackDelegate.markReadyForRecovery(this, throwable);
+
             dssRegistrationLog.log(throwable, "Error while storing committed datasets.");
             // Something has gone really wrong
             operationLog.error("Error while storing committed datasets", throwable);
@@ -506,7 +563,13 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             // Something has gone really wrong
             operationLog.error("Error while committing storage processors", throwable);
 
-            rollbackAfterStorageProcessorAndMetadataRegistration(throwable);
+            if (shouldUseAutoRecovery())
+            {
+                rollbackDelegate.markReadyForRecovery(this, throwable);
+            } else
+            {
+                rollbackAfterStorageProcessorAndMetadataRegistration(throwable);
+            }
             return false;
         }
         return true;
@@ -515,7 +578,14 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     private boolean registerDataSetsInApplicationServer(TechId registrationId,
             List<DataSetRegistrationInformation<T>> registrationData)
     {
-        boolean result = registerData(registrationId, registrationData);
+        boolean result;
+        if (shouldUseAutoRecovery())
+        {
+            result = registerDataWithRecovery(registrationId, registrationData);
+        } else
+        {
+            result = registerData(registrationId, registrationData);
+        }
         if (result)
         {
             dssRegistrationLog.log("Data has been registered with the openBIS Application Server.");
@@ -540,6 +610,126 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             return false;
         }
         return true;
+    }
+
+    private boolean registerDataWithRecovery(TechId registrationId,
+            List<DataSetRegistrationInformation<T>> registrationData)
+    {
+        DistinctExceptionsCollection exceptionCollection = new DistinctExceptionsCollection();
+
+        EntityOperationsState result = EntityOperationsState.NO_OPERATION;
+
+        Throwable problem = null;
+        int errorCount = 0;
+
+        while (true)
+        {
+            waitUntilApplicationIsReady();
+
+            if (result == EntityOperationsState.NO_OPERATION)
+            {
+                try
+                {
+                    applicationServerRegistrator.registerDataSetsInApplicationServer(
+                            registrationId, registrationData);
+                    return true;
+                } catch (IncomingFileDeletedBeforeRegistrationException e)
+                {
+                    operationLog
+                            .warn("The incoming file was deleted before registration. Nothing was registered in openBIS.");
+                    dssRegistrationLog
+                            .log("The incoming file was deleted before registration. Nothing was registered in openBIS.");
+                    rollbackDuringMetadataRegistration(e);
+                    return false;
+                } catch (final Throwable exception)
+                {
+                    operationLog.error("Error in registrating data in application server",
+                            exception);
+                    dssRegistrationLog.log("Error in registrating data in application server");
+
+                    problem = exception;
+                }
+
+                // how many times has this error already happened?
+                errorCount = exceptionCollection.add(problem);
+
+                if (!storageRecoveryManager.canRecoverFromError(problem))
+                {
+                    rollbackDuringMetadataRegistration(problem);
+                    return false;
+                }
+            }
+            operationLog.debug("Will check the status of registration");
+
+            // check in openbis.registration succeeded
+            result = checkOperationsSucceededNoGiveUp(registrationId);
+
+            operationLog.debug("The registration is in state: " + result);
+
+            switch (result)
+            {
+                case IN_PROGRESS:
+                    operationLog
+                            .debug("The registration is in progress. Will wait until it's done.");
+
+                    waitTheRetryPeriod();
+                    break;
+
+                case NO_OPERATION:
+                    if (errorCount > registrationMaxRetryCount)
+                    {
+                        operationLog.debug("The same error happened " + errorCount
+                                + " times. Will stop registration.");
+                        dssRegistrationLog.log("The same error happened " + errorCount
+                                + " times. Will stop registration.");
+
+                        rollbackDelegate.markReadyForRecovery(this, problem);
+                        return false;
+                    } else
+                    {
+                        operationLog.debug("The same error happened for the " + errorCount
+                                + " time. Will continue retrying after "
+                                + registrationRetryPauseInSec + " seconds");
+                    }
+                    waitTheRetryPeriod();
+                    break;
+
+                case OPERATION_SUCCEEDED:
+                    operationLog
+                            .debug("The registration is in progress. Will wait until it's done.");
+
+                    // the operation has succeeded so we return
+                    return true;
+            }
+
+        }
+    }
+
+    /**
+     * Checks if the operations have succeeded in AS. Never give up if can't connect.
+     */
+    private EntityOperationsState checkOperationsSucceededNoGiveUp(TechId registrationId)
+    {
+        while (true)
+        {
+            try
+            {
+                EntityOperationsState result =
+                        applicationServerRegistrator.didEntityOperationsSucceeded(registrationId);
+                return result;
+            } catch (Exception exception)
+            {
+                operationLog
+                        .debug("Error in checking status of registration. Probably AS is down. Will wait.",
+                                exception);
+                waitTheRetryPeriod();
+            }
+        }
+    }
+
+    private void waitTheRetryPeriod()
+    {
+        ConcurrencyUtilities.sleep(registrationRetryPauseInSec * 1000);
     }
 
     /**

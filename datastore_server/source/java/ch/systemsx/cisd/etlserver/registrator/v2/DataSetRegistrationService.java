@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.v1;
+package ch.systemsx.cisd.etlserver.registrator.v2;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,11 +39,11 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPreStagingBehavior;
 import ch.systemsx.cisd.etlserver.registrator.IEntityOperationService;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
-import ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
-import ch.systemsx.cisd.etlserver.registrator.v1.IDataSetOnErrorActionDecision.ErrorType;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
+import ch.systemsx.cisd.etlserver.registrator.v2.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
+import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * @author Chandrasekhar Ramakrishnan
  */
 public class DataSetRegistrationService<T extends DataSetInformation> implements
-        IDataSetRegistrationService, DataSetStorageAlgorithmRunner.IPrePostRegistrationHook<T>
+        DataSetStorageAlgorithmRunner.IPrePostRegistrationHook<T>
 {
     private final IOmniscientEntityRegistrator<T> registrator;
 
@@ -88,9 +88,9 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     public final ArrayList<Throwable> encounteredErrors = new ArrayList<Throwable>();
 
     /**
-     * All transactions ever created on this service.
+     * The single transaction created on this service.
      */
-    protected final ArrayList<DataSetRegistrationTransaction<T>> transactions;
+    protected DataSetRegistrationTransaction<T> transaction;
 
     /**
      * Create a new DataSetRegistrationService.
@@ -122,7 +122,6 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                         this.registratorContext.getFileOperations());
         this.stagingDirectory = registratorContext.getGlobalState().getStagingDir();
         this.precommitDirectory = registratorContext.getGlobalState().getPreCommitDir();
-        transactions = new ArrayList<DataSetRegistrationTransaction<T>>();
     }
 
     public OmniscientTopLevelDataSetRegistratorState getRegistratorContext()
@@ -130,23 +129,10 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         return registratorContext;
     }
 
-    /**
-     * Create a new transaction that atomically performs file operations and registers entities.
-     */
-    @Override
-    public IDataSetRegistrationTransaction transaction()
+    public DataSetRegistrationTransaction<T> transaction()
     {
         return transaction(incomingDataSetFile.getLogicalIncomingFile(),
                 getDataSetRegistrationDetailsFactory());
-    }
-
-    /**
-     * Create a new transaction that atomically performs file operations and registers entities.
-     */
-    @Override
-    public IDataSetRegistrationTransaction transaction(File dataSetFile)
-    {
-        return transaction(dataSetFile, getDataSetRegistrationDetailsFactory());
     }
 
     /**
@@ -157,22 +143,20 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     {
         File workingDirectory = dataSetFile.getParentFile();
 
-        // Clone this service for the transaction to keep them independent
-        DataSetRegistrationTransaction<T> transaction =
-                createTransaction(registrator.getRollBackStackParentFolder(), workingDirectory,
-                        stagingDirectory, detailsFactory);
+        if (transaction != null)
+        {
+            transaction =
+                    new DataSetRegistrationTransaction<T>(
+                            registrator.getRollBackStackParentFolder(), workingDirectory,
+                            stagingDirectory, this, detailsFactory,
+                            AutoRecoverySettings.USE_AUTO_RECOVERY);
+        } else
+        {
+            throw new IllegalStateException(
+                    "Failed to create transaction. Transaction has already been created before.");
+        }
 
-        transactions.add(transaction);
         return transaction;
-    }
-
-    /** Creates the transaction object. Can be overriden in subclasses. */
-    protected DataSetRegistrationTransaction<T> createTransaction(File rollBackStackParentFolder,
-            File workingDir, File stagingDir,
-            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
-    {
-        return new DataSetRegistrationTransaction<T>(rollBackStackParentFolder, workingDir,
-                stagingDir, this, registrationDetailsFactory);
     }
 
     /**
@@ -183,21 +167,13 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         // If a transaction is hanging around, commit it
         commitExtantTransactions();
 
-        boolean someTransactionsWereRolledback = false;
-        for (DataSetRegistrationTransaction<T> transaction : transactions)
-        {
-            if (transaction.isRolledback())
-            {
-                someTransactionsWereRolledback = true;
-                break;
-            }
-        }
+        boolean transactionWasRolledback = transaction != null && transaction.isRolledback();
 
         logDssRegistrationResult();
 
         // Execute the clean afterwards action as successful only if no errors occurred and we
         // registered data sets
-        executeGlobalCleanAfterwardsAction(false == (didErrorsArise() || someTransactionsWereRolledback));
+        executeGlobalCleanAfterwardsAction(false == (didErrorsArise() || transactionWasRolledback));
     }
 
     /**
@@ -246,7 +222,6 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         }
     }
 
-    @Override
     public File moveIncomingToError(String dataSetTypeCodeOrNull)
     {
         DataSetStorageRollbacker rollbacker =
@@ -419,25 +394,19 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
      */
     private void commitExtantTransactions()
     {
-        for (DataSetRegistrationTransaction<T> transaction : transactions)
+        if (transaction != null && false == transaction.isCommittedOrRolledback())
         {
-            if (false == transaction.isCommittedOrRolledback())
-            {
-                // Commit the existing transaction
-                transaction.commit();
-            }
+            // Commit the existing transaction
+            transaction.commit();
         }
     }
 
     private void rollbackExtantTransactions()
     {
-        for (DataSetRegistrationTransaction<T> transaction : transactions)
+        if (transaction != null && false == transaction.isCommittedOrRolledback())
         {
-            if (false == transaction.isCommittedOrRolledback())
-            {
-                // Rollback the existing transaction
-                transaction.rollback();
-            }
+            // Rollback the existing transaction
+            transaction.rollback();
         }
     }
 

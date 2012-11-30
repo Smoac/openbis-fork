@@ -24,9 +24,9 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.DataStoreStrategyKey;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
-import ch.systemsx.cisd.etlserver.registrator.v1.DataSetStorageAlgorithm;
-import ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
-import ch.systemsx.cisd.etlserver.registrator.v1.DataSetStorageAlgorithm.DataSetStoragePaths;
+import ch.systemsx.cisd.etlserver.registrator.v2.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
+import ch.systemsx.cisd.etlserver.registrator.v2.DataSetStorageAlgorithm;
+import ch.systemsx.cisd.etlserver.registrator.v2.DataSetStorageAlgorithm.DataSetStoragePaths;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 

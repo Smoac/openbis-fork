@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
+package ch.systemsx.cisd.etlserver.registrator.api.impl;
 
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.etlserver.registrator.api.RollbackStack;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTestWithRollbackStack;
+import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionalCommand;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -48,7 +52,7 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
         assertTrue(cmd2.rolledbackBeforePredecessor);
         assertEquals(cmd2.predecessor, cmd1);
     }
-    
+
     @Test
     public void testCantRollbackIfLocked()
     {
@@ -61,35 +65,35 @@ public class RollbackStackTest extends AbstractTestWithRollbackStack
         rollbackStack.pushAndExecuteCommand(cmd2);
         assertEquals(TrackingCommandStatus.EXECUTED, cmd1.status);
         assertEquals(TrackingCommandStatus.EXECUTED, cmd2.status);
-        
+
         assertEquals(
                 "RollbackStack[{StackElement [command=TrackingCommand [status=EXECUTED], order=0],StackElement [command=TrackingCommand [status=EXECUTED], order=1]}]",
                 rollbackStack.toString());
 
         rollbackStack.setLockedState(true);
-        
-        try {
+
+        try
+        {
             rollbackStack.rollbackAll();
             fail("The rollbackAll should fail when the rollback stack is in locked state");
         } catch (Exception ex)
         {
-            //should catch the exception, because the rollback stack is in the locked state
+            // should catch the exception, because the rollback stack is in the locked state
         }
-        
+
         assertEquals(TrackingCommandStatus.EXECUTED, cmd1.status);
         assertEquals(TrackingCommandStatus.EXECUTED, cmd2.status);
-        
+
         rollbackStack.setLockedState(false);
-        
+
         // Rollback and check that the rollback occurred correctly
         rollbackStack.rollbackAll();
-        
+
         assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd1.status);
         assertEquals(TrackingCommandStatus.ROLLEDBACK, cmd2.status);
         assertTrue(cmd2.rolledbackBeforePredecessor);
         assertEquals(cmd2.predecessor, cmd1);
     }
-    
 
     @Test
     public void testResume()

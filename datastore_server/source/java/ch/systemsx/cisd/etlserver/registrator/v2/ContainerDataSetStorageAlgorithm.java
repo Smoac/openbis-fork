@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.v1;
+package ch.systemsx.cisd.etlserver.registrator.v2;
 
 import java.io.File;
 
@@ -24,6 +24,7 @@ import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
@@ -45,6 +46,14 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
         super(incomingDataSetFile, registrationDetails, dataStoreStrategy, storageProcessor,
                 dataSetValidator, dataStoreCode, fileOperations, mailClient, stagingDirectory,
                 precommitDirectory);
+    }
+
+    public ContainerDataSetStorageAlgorithm(IDataStoreStrategy dataStoreStrategy,
+            IStorageProcessorTransactional storageProcessor, IFileOperations fileOperations,
+            IMailClient mailClient, DataSetStorageRecoveryAlgorithm<T> recoveryAlgorithm)
+    {
+        super(dataStoreStrategy, storageProcessor, fileOperations, mailClient, recoveryAlgorithm);
+        // TODO Auto-generated constructor stub
     }
 
     @Override

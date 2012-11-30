@@ -37,8 +37,6 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IJavaDataSetRegistrationDropboxV1;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
-import ch.systemsx.cisd.etlserver.registrator.api.v2.IJavaDataSetRegistrationDropboxV2;
-import ch.systemsx.cisd.etlserver.registrator.api.v2.JythonAsJavaDataSetRegistrationDropboxV2Wrapper;
 import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -360,16 +358,6 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         super.rollback(service, throwable);
     }
 
-    /**
-     * If true than the old methods of jython hook functions will also be used (as a fallbacks in
-     * case of the new methods or missing, or normally)
-     */
-    @Override
-    protected boolean shouldUseOldJythonHookFunctions()
-    {
-        return true;
-    }
-
     protected PyFunction tryJythonFunction(PythonInterpreter interpreter,
             JythonHookFunction functionDefinition)
     {
@@ -505,14 +493,6 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     public boolean shouldNotAddToFaultyPathsOrNull(File storeItem)
     {
         return false;
-    }
-
-    @Override
-    protected IJavaDataSetRegistrationDropboxV2 getV2DropboxProgram(
-            DataSetRegistrationService<T> service)
-    {
-        return new JythonAsJavaDataSetRegistrationDropboxV2Wrapper(
-                getInterpreterFromService(service));
     }
 
     @Override

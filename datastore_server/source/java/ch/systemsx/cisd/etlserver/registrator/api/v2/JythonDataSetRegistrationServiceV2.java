@@ -23,18 +23,17 @@ import ch.systemsx.cisd.common.jython.PythonInterpreter;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
-import ch.systemsx.cisd.etlserver.registrator.v1.AbstractProgrammableTopLevelDataSetHandler;
-import ch.systemsx.cisd.etlserver.registrator.v1.IDataSetRegistrationDetailsFactory;
+import ch.systemsx.cisd.etlserver.registrator.v2.AbstractProgrammableTopLevelDataSetHandler;
+import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * @author jakubs
  */
-public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation>
-        extends
-        ch.systemsx.cisd.etlserver.registrator.v1.JythonTopLevelDataSetHandler.JythonDataSetRegistrationService<T>
+public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation> extends
+        JythonTopLevelDataSetHandlerV2.JythonDataSetRegistrationService<T>
 {
 
     public JythonDataSetRegistrationServiceV2(
@@ -47,23 +46,6 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation>
     {
         super(registrator, incomingDataSetFile, userProvidedDataSetInformationOrNull,
                 globalCleanAfterwardsAction, delegate, interpreter, globalState);
-    }
-
-    /** Creates the transaction object. Can be overriden in subclasses. */
-    @Override
-    protected DataSetRegistrationTransaction<T> createTransaction(File rollBackStackParentFolder,
-            File workingDir, File stagingDir,
-            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
-    {
-        if (transactions.isEmpty())
-        {
-            return createV2DatasetRegistrationTransaction(rollBackStackParentFolder, workingDir,
-                    stagingDir, registrationDetailsFactory);
-        } else
-        {
-            throw new IllegalStateException(
-                    "Failed to create transaction. Transaction has already been created before.");
-        }
     }
 
     /**
@@ -82,17 +64,7 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation>
 
     public DataSetRegistrationTransaction<T> getTransaction()
     {
-        if (transactions.isEmpty())
-        {
-            return null;
-        } else if (transactions.size() > 1)
-        {
-            throw new IllegalStateException(
-                    "This version of DataSetRegistator doesn't allow multiple transactions, but there are some.");
-        } else
-        {
-            return transactions.get(0);
-        }
+        return transaction;
     }
 
     /**
@@ -100,11 +72,11 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation>
      */
     public void rollbackAndForgetTransaction()
     {
-        DataSetRegistrationTransaction<T> transaction = getTransaction();
-
-        transaction.rollback();
-
-        transactions.remove(transaction);
+        if (transaction != null)
+        {
+            transaction.rollback();
+            transaction = null;
+        }
     }
 
     /**
@@ -113,8 +85,6 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation>
     @Override
     public void commit()
     {
-        DataSetRegistrationTransaction<T> transaction = getTransaction();
-
         transaction.commit();
 
         logDssRegistrationResult();
@@ -127,7 +97,6 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation>
     @Override
     protected void logDssRegistrationResult()
     {
-        DataSetRegistrationTransaction<T> transaction = getTransaction();
         // If the transaction is not in recovery pending state, do the normal logging
         if (false == transaction.isRecoveryPending())
         {

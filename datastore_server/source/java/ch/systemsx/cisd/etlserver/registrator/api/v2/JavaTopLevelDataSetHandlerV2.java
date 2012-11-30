@@ -21,15 +21,13 @@ import java.io.File;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IJavaDataSetRegistrationDropboxV1;
 import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
-import ch.systemsx.cisd.etlserver.registrator.v1.AbstractProgrammableTopLevelDataSetHandler;
-import ch.systemsx.cisd.etlserver.registrator.v1.DataSetRegistrationService;
+import ch.systemsx.cisd.etlserver.registrator.v2.AbstractProgrammableTopLevelDataSetHandler;
+import ch.systemsx.cisd.etlserver.registrator.v2.DataSetRegistrationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -135,12 +133,6 @@ public class JavaTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
     }
 
     @Override
-    protected boolean shouldUseOldJythonHookFunctions()
-    {
-        return false;
-    }
-
-    @Override
     protected boolean hasRecoveryMarkerFile(File incoming)
     {
         return getGlobalState().getStorageRecoveryManager().getProcessingMarkerFile(incoming)
@@ -163,10 +155,4 @@ public class JavaTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
         }
     }
 
-    @Override
-    protected IJavaDataSetRegistrationDropboxV1<T> getV1DropboxProgram()
-    {
-        throw new NotImplementedException(
-                "getV1DropboxProgram in not implemented, as this is V2 only handler.");
-    }
 }

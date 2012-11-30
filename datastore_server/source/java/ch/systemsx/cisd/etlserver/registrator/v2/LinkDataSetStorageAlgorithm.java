@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.v1;
+package ch.systemsx.cisd.etlserver.registrator.v2;
 
 import java.io.File;
 
@@ -24,6 +24,7 @@ import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
+import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
@@ -32,10 +33,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 /**
  * @author Jakub Straszewski
  */
-public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> extends
+public class LinkDataSetStorageAlgorithm<T extends DataSetInformation> extends
         AbstractNoFileDataSetStorageAlgorithm<T>
 {
-    public ContainerDataSetStorageAlgorithm(File incomingDataSetFile,
+
+    public LinkDataSetStorageAlgorithm(File incomingDataSetFile,
             DataSetRegistrationDetails<? extends T> registrationDetails,
             IDataStoreStrategy dataStoreStrategy, IStorageProcessorTransactional storageProcessor,
             IDataSetValidator dataSetValidator, String dataStoreCode,
@@ -47,16 +49,25 @@ public class ContainerDataSetStorageAlgorithm<T extends DataSetInformation> exte
                 precommitDirectory);
     }
 
+    public LinkDataSetStorageAlgorithm(IDataStoreStrategy dataStoreStrategy,
+            IStorageProcessorTransactional storageProcessor, IFileOperations fileOperations,
+            IMailClient mailClient, DataSetStorageRecoveryAlgorithm<T> recoveryAlgorithm)
+    {
+        super(dataStoreStrategy, storageProcessor, fileOperations, mailClient, recoveryAlgorithm);
+        // TODO Auto-generated constructor stub
+    }
+
     @Override
     public NewExternalData createExternalData()
     {
-        return ConversionUtils.convertToNewContainerDataSet(getRegistrationDetails(),
+        return ConversionUtils
+                .convertToNewLinkDataSet(getRegistrationDetails(),
                 getDataStoreCode());
     }
 
     @Override
     public DataSetKind getDataSetKind()
     {
-        return DataSetKind.CONTAINER;
+        return DataSetKind.LINK;
     }
 }

@@ -23,7 +23,6 @@ import net.lemnik.eodsql.DynamicTransactionQuery;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperimentUpdatable;
@@ -34,6 +33,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.ISpace;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IVocabulary;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IVocabularyTerm;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
@@ -50,9 +50,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IVocabularyIm
  */
 public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistrationTransactionV2
 {
-    private IDataSetRegistrationTransaction transaction;
+    private DataSetRegistrationTransaction<?> transaction;
 
-    public DataSetRegistrationTransactionV2Delegate(IDataSetRegistrationTransaction transaction)
+    public DataSetRegistrationTransactionV2Delegate(DataSetRegistrationTransaction<?> transaction)
     {
         this.transaction = transaction;
     }

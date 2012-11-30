@@ -20,11 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
-import ch.systemsx.cisd.etlserver.registrator.v1.DataSetStorageAlgorithm;
-import ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPersistentMap;
 import ch.systemsx.cisd.etlserver.registrator.IRollbackStack;
+import ch.systemsx.cisd.etlserver.registrator.v2.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
+import ch.systemsx.cisd.etlserver.registrator.v2.DataSetStorageAlgorithm;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
@@ -39,7 +39,7 @@ public class DataSetStoragePrecommitRecoveryState<T extends DataSetInformation> 
     private final TechId registrationId;
 
     private final List<DataSetStoragePrecommitRecoveryAlgorithm<T>> dataSetRecoveryStorageAlgorithms;
-    
+
     /**
      * @param registrationId - if null then we assume, the registration has been proven succesfull
      */

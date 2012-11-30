@@ -18,7 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator.recovery;
 
 import java.io.File;
 
-import ch.systemsx.cisd.etlserver.registrator.v1.DataSetStorageAlgorithmRunner;
+import ch.systemsx.cisd.etlserver.registrator.v2.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
@@ -42,17 +42,21 @@ public interface IDataSetStorageRecoveryManager
             DataSetStorageAlgorithmRunner<T> runner);
 
     /**
-     * Create a checkpoint at the precommitted state - after the post-registration hook has executed (so after the entity operations registration has succeeded).
+     * Create a checkpoint at the precommitted state - after the post-registration hook has executed
+     * (so after the entity operations registration has succeeded).
      * 
      * @param runner The algorithm object that manages the registration process.
      */
-    <T extends DataSetInformation> void checkpointPrecommittedStateAfterPostRegistrationHook(DataSetStorageAlgorithmRunner<T> runner);
+    <T extends DataSetInformation> void checkpointPrecommittedStateAfterPostRegistrationHook(
+            DataSetStorageAlgorithmRunner<T> runner);
 
     /**
-     * Create a checkpoint after the data has been moved to the store, just before setting the storage confirmed in the application server.
+     * Create a checkpoint after the data has been moved to the store, just before setting the
+     * storage confirmed in the application server.
      */
-    <T extends DataSetInformation> void checkpointStoredStateBeforeStorageConfirmation(DataSetStorageAlgorithmRunner<T> runner);
-    
+    <T extends DataSetInformation> void checkpointStoredStateBeforeStorageConfirmation(
+            DataSetStorageAlgorithmRunner<T> runner);
+
     /**
      * Remove recovery checkpoint.
      */
@@ -90,14 +94,14 @@ public interface IDataSetStorageRecoveryManager
     int getMaximumRertyCount();
 
     void setMaximumRertyCount(int maxRetryCount);
-    
+
     /**
-     * get's the minimum time period that must pass before the next retry will happen. 
+     * get's the minimum time period that must pass before the next retry will happen.
      */
     int getRetryPeriodInSeconds();
-    
+
     /**
-     * set's the minimum time period that must pass before the next retry will happen. 
+     * set's the minimum time period that must pass before the next retry will happen.
      */
     void setRetryPeriodInSeconds(int retryTimeInSeconds);
 }

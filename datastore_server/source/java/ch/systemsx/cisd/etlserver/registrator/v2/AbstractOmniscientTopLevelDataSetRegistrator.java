@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.registrator.v1;
+package ch.systemsx.cisd.etlserver.registrator.v2;
 
 import static ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.STORAGE_PROCESSOR_KEY;
 import static ch.systemsx.cisd.etlserver.ThreadParameters.ON_ERROR_DECISION_KEY;
@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.AssertionCatchingImmutableCopierWrapper;
 import ch.systemsx.cisd.common.filesystem.FastRecursiveHardLinkMaker;
@@ -59,8 +60,8 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPreStagingBehav
 import ch.systemsx.cisd.etlserver.registrator.MarkerFileUtility;
 import ch.systemsx.cisd.etlserver.registrator.TopLevelDataSetChecker;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.SecondaryTransactionFailure;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
-import ch.systemsx.cisd.etlserver.registrator.v1.IDataSetOnErrorActionDecision.ErrorType;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptRunner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -326,6 +327,17 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         return getGlobalState().getDssInternalTempDir();
     }
 
+    protected boolean hasRecoveryMarkerFile(File incoming)
+    {
+        return false;
+    }
+
+    protected void handleRecovery(final File incomingFileOriginal)
+    {
+        throw new NotImplementedException(
+                "Recovery feature is not implemented for this kind of registrator");
+    }
+
     /**
      * A file has arrived in the drop box. Handle it.
      * <p>
@@ -346,6 +358,13 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                         .getIncomingDataSetPathFromMarker(incomingDataSetFileOrIsFinishedFile)
                         : incomingDataSetFileOrIsFinishedFile;
 
+        if (hasRecoveryMarkerFile(incomingDataSetFile))
+        {
+            handleRecovery(incomingDataSetFile);
+            // will handle only the recovery file - don't do anything
+            return;
+        }
+
         final IDelegatedActionWithResult<Boolean> markerFileCleanupAction;
 
         // Figure out what the real incoming data is -- if we use a marker file, it will tell us the
@@ -357,6 +376,10 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                     @Override
                     public Boolean execute(boolean didOperationSucceed)
                     {
+                        if (hasRecoveryMarkerFile(incomingDataSetFile))
+                        {
+                            return true;
+                        }
                         return state.getMarkerFileUtility().deleteAndLogIsFinishedMarkerFile(
                                 incomingDataSetFileOrIsFinishedFile);
                     }
