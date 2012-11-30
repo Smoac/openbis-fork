@@ -379,7 +379,9 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
                     DatabaseModificationKind.createOrDelete(ObjectKind.EXPERIMENT),
                     DatabaseModificationKind.edit(ObjectKind.EXPERIMENT),
                     DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE),
-                    DatabaseModificationKind.edit(ObjectKind.SAMPLE), };
+                    DatabaseModificationKind.edit(ObjectKind.SAMPLE),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.METAPROJECT),
+                    DatabaseModificationKind.edit(ObjectKind.METAPROJECT) };
     }
 
     @Override

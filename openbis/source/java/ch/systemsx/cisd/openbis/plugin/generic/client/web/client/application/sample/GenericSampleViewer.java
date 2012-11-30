@@ -501,7 +501,9 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
                         DatabaseModificationKind
                                 .createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                         DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                        DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM) };
+                        DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM),
+                        DatabaseModificationKind.createOrDelete(ObjectKind.METAPROJECT),
+                        DatabaseModificationKind.edit(ObjectKind.METAPROJECT) };
         }
 
         @Override
