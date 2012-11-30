@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.common.jython;
 
 import org.apache.log4j.Logger;
+import org.python.core.CompileMode;
+import org.python.core.Py;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
 
@@ -90,4 +92,10 @@ public class PythonInterpreter extends org.python.util.PythonInterpreter
         return new PythonInterpreter();
     }
 
+    public void exec(String data, String filename)
+    {
+        setSystemState();
+        Py.exec(Py.compile_flags(data, filename, CompileMode.exec, cflags), getLocals(), null);
+        Py.flushLine();
+    }
 }
