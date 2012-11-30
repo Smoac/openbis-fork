@@ -24,6 +24,9 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.etlserver.registrator.api.impl.MkdirsCommand;
+import ch.systemsx.cisd.etlserver.registrator.api.impl.MoveFileCommand;
+import ch.systemsx.cisd.etlserver.registrator.api.impl.NewFileCommand;
 
 /**
  * @author Chandrasekhar Ramakrishnan

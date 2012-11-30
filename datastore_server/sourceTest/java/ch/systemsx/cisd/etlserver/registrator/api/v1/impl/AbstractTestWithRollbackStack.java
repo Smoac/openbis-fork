@@ -22,7 +22,7 @@ import java.io.IOException;
 import org.testng.annotations.BeforeMethod;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.etlserver.registrator.api.RollbackStack;
+import ch.systemsx.cisd.etlserver.registrator.api.impl.RollbackStack;
 
 /**
  * @author Chandrasekhar Ramakrishnan

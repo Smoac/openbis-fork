@@ -18,9 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.impl;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.etlserver.registrator.api.RollbackStack;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTestWithRollbackStack;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AbstractTransactionalCommand;
 
 /**
  * @author Chandrasekhar Ramakrishnan

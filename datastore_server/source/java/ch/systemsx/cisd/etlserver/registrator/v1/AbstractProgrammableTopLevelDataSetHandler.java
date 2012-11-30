@@ -32,8 +32,8 @@ import ch.systemsx.cisd.etlserver.registrator.api.impl.SecondaryTransactionFailu
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IJavaDataSetRegistrationDropboxV1;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IJavaDataSetRegistrationDropboxV2;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.JythonAsJavaDataSetRegistrationDropboxV2Wrapper;
 import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
-import ch.systemsx.cisd.etlserver.registrator.v1.DataSetStorageAlgorithmRunner.IPrePostRegistrationHook;
 import ch.systemsx.cisd.etlserver.registrator.v1.JythonTopLevelDataSetHandler.ProgrammableDropboxObjectFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -80,23 +80,30 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
             DataSetRegistrationTransaction<T> transaction,
             DataSetStorageAlgorithmRunner<T> algorithmRunner, Throwable ex)
     {
-        IJavaDataSetRegistrationDropboxV1<T> v1Dropbox = getV1DropboxProgram();
-
         try
         {
-            v1Dropbox.rollbackTransaction(service, transaction, algorithmRunner, ex);
-        } catch (NotImplementedException exc)
+            getV2DropboxProgram(service).rollbackPreRegistration(
+                    transaction.getRegistrationContext(), ex);
+        } catch (NotImplementedException e)
         {
+            IJavaDataSetRegistrationDropboxV1<T> v1Dropbox = getV1DropboxProgram();
+
             try
             {
-                // No Rollback transaction function was called, see if the rollback service
-                // function
-                // was
-                // defined, and call it.
-                v1Dropbox.rollbackService(service, ex);
-            } catch (NotImplementedException exception)
+                v1Dropbox.rollbackTransaction(service, transaction, algorithmRunner, ex);
+            } catch (NotImplementedException exc)
             {
-                // silently ignore if function is not implemented
+                try
+                {
+                    // No Rollback transaction function was called, see if the rollback service
+                    // function
+                    // was
+                    // defined, and call it.
+                    v1Dropbox.rollbackService(service, ex);
+                } catch (NotImplementedException exception)
+                {
+                    // silently ignore if function is not implemented
+                }
             }
         }
 
@@ -107,12 +114,19 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
     public void didCommitTransaction(DataSetRegistrationService<T> service,
             DataSetRegistrationTransaction<T> transaction)
     {
+        super.didCommitTransaction(service, transaction);
         try
         {
-            getV1DropboxProgram().commitTransaction(service, transaction);
-        } catch (NotImplementedException ex)
+            getV2DropboxProgram(service).postStorage(transaction.getRegistrationContext());
+        } catch (NotImplementedException e)
         {
-            // silently ignore if function is not implemented
+            try
+            {
+                getV1DropboxProgram().commitTransaction(service, transaction);
+            } catch (NotImplementedException ex)
+            {
+                // silently ignore if function is not implemented
+            }
         }
     }
 
@@ -120,14 +134,30 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
     public void didPreRegistration(DataSetRegistrationService<T> service,
             DataSetRegistrationContext.IHolder registrationContextHolder)
     {
-        // ignore
+        super.didPreRegistration(service, registrationContextHolder);
+        try
+        {
+            getV2DropboxProgram(service).preMetadataRegistration(
+                    registrationContextHolder.getRegistrationContext());
+        } catch (NotImplementedException e)
+        {
+            // ignore
+        }
     }
 
     @Override
     public void didPostRegistration(DataSetRegistrationService<T> service,
             DataSetRegistrationContext.IHolder registrationContextHolder)
     {
-        // ignore
+        super.didPostRegistration(service, registrationContextHolder);
+        try
+        {
+            getV2DropboxProgram(service).postMetadataRegistration(
+                    registrationContextHolder.getRegistrationContext());
+        } catch (NotImplementedException e)
+        {
+            // ignore
+        }
     }
 
     @Override
@@ -135,6 +165,8 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
             DataSetRegistrationTransaction<T> transaction,
             List<SecondaryTransactionFailure> secondaryErrors)
     {
+        super.didEncounterSecondaryTransactionErrors(service, transaction, secondaryErrors);
+
         try
         {
             getV1DropboxProgram().didEncounterSecondaryTransactionErrors(service, transaction,
@@ -144,6 +176,9 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
             // silently ignore if function is not implemented
         }
     }
+
+    abstract protected IJavaDataSetRegistrationDropboxV2 getV2DropboxProgram(
+            DataSetRegistrationService<T> service);
 
     /**
      * Set the factory available to the python script. Subclasses may want to override.
@@ -190,78 +225,11 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
                 cleanAfterwardsAction, delegate);
     }
 
-    protected abstract RecoveryHookAdaptor getRecoveryHookAdaptor(File incoming);
-
     protected abstract IJavaDataSetRegistrationDropboxV1<T> getV1DropboxProgram();
 
     interface IRecoveryCleanupDelegate
     {
         void execute(boolean shouldStopRecovery, boolean shouldIncreaseTryCount);
-    }
-
-    /**
-     * Create an adaptor that offers access to the recovery hook functions.
-     */
-    protected abstract class RecoveryHookAdaptor implements IPrePostRegistrationHook<T>
-    {
-        protected abstract IJavaDataSetRegistrationDropboxV2 getV2DropboxProgramInternal();
-
-        protected final File incoming;
-
-        public RecoveryHookAdaptor(File incoming)
-        {
-            this.incoming = incoming;
-        }
-
-        @Override
-        public void executePreRegistration(
-                DataSetRegistrationContext.IHolder registrationContextHolder)
-        {
-            throw new NotImplementedException("Recovery cannot execute pre-registration hook.");
-        }
-
-        @Override
-        public void executePostRegistration(
-                DataSetRegistrationContext.IHolder registrationContextHolder)
-        {
-            try
-            {
-                getV2DropboxProgramInternal().postMetadataRegistration(
-                        registrationContextHolder.getRegistrationContext());
-            } catch (NotImplementedException e)
-            {
-                // ignore
-            }
-        }
-
-        /**
-         * This method does not belong to the IPrePostRegistrationHook interface. Is called directly
-         * by recovery.
-         */
-        public void executePostStorage(DataSetRegistrationContext.IHolder registrationContextHolder)
-        {
-            try
-            {
-                getV2DropboxProgramInternal().postStorage(
-                        registrationContextHolder.getRegistrationContext());
-            } catch (NotImplementedException e)
-            {
-                // ignore
-            }
-        }
-
-        public void executePreRegistrationRollback(
-                DataSetRegistrationContext.IHolder registrationContextHolder, Throwable throwable)
-        {
-            try
-            {
-                getV2DropboxProgramInternal().rollbackPreRegistration(
-                        registrationContextHolder.getRegistrationContext(), throwable);
-            } catch (NotImplementedException e)
-            {
-                // ignore
-            }
-        }
     }
 
     @Override

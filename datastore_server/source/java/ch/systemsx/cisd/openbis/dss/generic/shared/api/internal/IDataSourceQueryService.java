@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal;
 
 import java.util.Map;
 

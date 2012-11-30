@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
-import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.ISample;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
 
 /**
  * An example dropbox implemented in Java.

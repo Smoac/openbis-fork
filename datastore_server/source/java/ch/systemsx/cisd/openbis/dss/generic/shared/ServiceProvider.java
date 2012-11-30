@@ -26,8 +26,6 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
@@ -106,16 +104,6 @@ public class ServiceProvider
     {
         return ((IGeneralInformationService) getApplicationContext().getBean(
                 "general-information-service"));
-    }
-
-    public static ISearchService getSearchService()
-    {
-        return ((ISearchService) getApplicationContext().getBean("search-service"));
-    }
-
-    public static IAuthorizationService getAuthorizationService()
-    {
-        return (IAuthorizationService) getApplicationContext().getBean("authorization-service");
     }
 
     public static IDataSetPathInfoProvider getDataSetPathInfoProvider()

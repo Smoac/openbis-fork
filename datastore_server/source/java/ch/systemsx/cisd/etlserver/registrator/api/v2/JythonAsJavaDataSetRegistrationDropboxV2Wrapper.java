@@ -28,7 +28,7 @@ import ch.systemsx.cisd.common.jython.PythonInterpreter;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
-import ch.systemsx.cisd.etlserver.registrator.v1.JythonTopLevelDataSetHandler.JythonHookFunction;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.JythonTopLevelDataSetHandlerV2.JythonHookFunction;
 
 /**
  * @author Pawel Glyzewski

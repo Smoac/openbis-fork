@@ -41,7 +41,6 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationPreStagingBehav
 import ch.systemsx.cisd.etlserver.registrator.IEntityOperationService;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSetRegistrationTransaction;
-import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.v2.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -143,13 +142,11 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     {
         File workingDirectory = dataSetFile.getParentFile();
 
-        if (transaction != null)
+        if (transaction == null)
         {
             transaction =
-                    new DataSetRegistrationTransaction<T>(
-                            registrator.getRollBackStackParentFolder(), workingDirectory,
-                            stagingDirectory, this, detailsFactory,
-                            AutoRecoverySettings.USE_AUTO_RECOVERY);
+                    createTransaction(registrator.getRollBackStackParentFolder(), workingDirectory,
+                            stagingDirectory, detailsFactory);
         } else
         {
             throw new IllegalStateException(
@@ -157,6 +154,15 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         }
 
         return transaction;
+    }
+
+    protected DataSetRegistrationTransaction<T> createTransaction(File rollBackStackParentFolder,
+            File workingDirectory, File stagingDir,
+            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
+    {
+        return new DataSetRegistrationTransaction<T>(rollBackStackParentFolder, workingDirectory,
+                stagingDir, this, registrationDetailsFactory);
+
     }
 
     /**

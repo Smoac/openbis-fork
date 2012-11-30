@@ -37,7 +37,6 @@ import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
 import ch.systemsx.cisd.etlserver.registrator.IncomingFileDeletedBeforeRegistrationException;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
-import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.recovery.IDataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -116,9 +115,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private final IEncapsulatedOpenBISService openBISService;
 
-    // this is unused because it is only here as the prerequisite for the auto-recovery
-    private final AutoRecoverySettings autoRecoverySettings;
-
     private final IDataSetStorageRecoveryManager storageRecoveryManager;
 
     private final DataSetFile incomingDataSetFile;
@@ -142,7 +138,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         this.dssRegistrationLog = dssRegistrationLog;
         this.openBISService = openBISService;
         this.postPreRegistrationHooks = postPreRegistrationHooks;
-        this.autoRecoverySettings = transaction.getAutoRecoverySettings();
         this.storageRecoveryManager = transaction.getStorageRecoveryManager();
         this.incomingDataSetFile = transaction.getIncomingDataSetFile();
 
@@ -173,7 +168,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         this.dssRegistrationLog = dssRegistrationLog;
         this.openBISService = openBISService;
         this.postPreRegistrationHooks = postPreRegistrationHooks;
-        this.autoRecoverySettings = AutoRecoverySettings.USE_AUTO_RECOVERY;
         this.storageRecoveryManager = storageRecoveryManager;
         this.incomingDataSetFile = incomingDataSetFile;
 
@@ -261,10 +255,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             dssRegistrationLog.log("Storage has been confirmed in openBIS Application Server.");
         } catch (final Exception ex)
         {
-            if (shouldUseAutoRecovery())
-            {
-                rollbackDelegate.markReadyForRecovery(this, ex);
-            }
+            rollbackDelegate.markReadyForRecovery(this, ex);
             operationLog.error("Error during storage confirmation", ex);
             dssRegistrationLog.log(ex, "Error during storage confirmation");
             return false;
@@ -335,10 +326,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         }
 
         // PRECOMMITED STATE
-        if (shouldUseAutoRecovery())
-        {
-            storageRecoveryManager.checkpointPrecommittedState(registrationId, this);
-        }
+        storageRecoveryManager.checkpointPrecommittedState(registrationId, this);
 
         waitUntilApplicationIsReady();
 
@@ -365,10 +353,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     {
         executeJythonScriptsForPostRegistration();
 
-        if (shouldUseAutoRecovery())
-        {
-            storageRecoveryManager.checkpointPrecommittedStateAfterPostRegistrationHook(this);
-        }
+        storageRecoveryManager.checkpointPrecommittedStateAfterPostRegistrationHook(this);
 
         waitUntilApplicationIsReady();
 
@@ -394,10 +379,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             return false;
         }
 
-        if (shouldUseAutoRecovery())
-        {
-            storageRecoveryManager.checkpointStoredStateBeforeStorageConfirmation(this);
-        }
+        storageRecoveryManager.checkpointStoredStateBeforeStorageConfirmation(this);
 
         waitUntilApplicationIsReady();
 
@@ -424,15 +406,12 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
         boolean confirmStorageSucceeded = confirmStorageInApplicationServer();
 
-        if (shouldUseAutoRecovery())
+        if (!confirmStorageSucceeded)
         {
-            if (!confirmStorageSucceeded)
-            {
-                return false;
-            }
-
-            storageRecoveryManager.registrationCompleted(this);
+            return false;
         }
+
+        storageRecoveryManager.registrationCompleted(this);
 
         return true;
     }
@@ -456,11 +435,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             rollbackDuringMetadataRegistration(t);
             return null;
         }
-    }
-
-    private boolean shouldUseAutoRecovery()
-    {
-        return autoRecoverySettings == AutoRecoverySettings.USE_AUTO_RECOVERY;
     }
 
     private void rollbackDuringStorageProcessorRun(Throwable ex)
@@ -489,14 +463,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         rollbackStorageProcessors(ex);
         rollbackDelegate.didRollbackStorageAlgorithmRunner(this, ex,
                 ErrorType.OPENBIS_REGISTRATION_FAILURE);
-    }
-
-    private void rollbackAfterStorageProcessorAndMetadataRegistration(Throwable ex)
-    {
-        operationLog.error("Failed to complete transaction", ex);
-        rollbackStorageProcessors(ex);
-        rollbackDelegate.didRollbackStorageAlgorithmRunner(this, ex,
-                ErrorType.POST_REGISTRATION_ERROR);
     }
 
     /**
@@ -563,13 +529,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             // Something has gone really wrong
             operationLog.error("Error while committing storage processors", throwable);
 
-            if (shouldUseAutoRecovery())
-            {
-                rollbackDelegate.markReadyForRecovery(this, throwable);
-            } else
-            {
-                rollbackAfterStorageProcessorAndMetadataRegistration(throwable);
-            }
+            rollbackDelegate.markReadyForRecovery(this, throwable);
             return false;
         }
         return true;
@@ -578,38 +538,12 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     private boolean registerDataSetsInApplicationServer(TechId registrationId,
             List<DataSetRegistrationInformation<T>> registrationData)
     {
-        boolean result;
-        if (shouldUseAutoRecovery())
-        {
-            result = registerDataWithRecovery(registrationId, registrationData);
-        } else
-        {
-            result = registerData(registrationId, registrationData);
-        }
+        boolean result = registerDataWithRecovery(registrationId, registrationData);
         if (result)
         {
             dssRegistrationLog.log("Data has been registered with the openBIS Application Server.");
         }
         return result;
-    }
-
-    // TODO: should we have DSARunnerV2 instead of these two methods?
-    private boolean registerData(TechId registrationId,
-            List<DataSetRegistrationInformation<T>> registrationData)
-    {
-        try
-        {
-            applicationServerRegistrator.registerDataSetsInApplicationServer(registrationId,
-                    registrationData);
-
-        } catch (final Throwable throwable)
-        {
-            operationLog.error("Error in registrating data in application server", throwable);
-            dssRegistrationLog.log("Error in registrating data in application server");
-            rollbackDuringMetadataRegistration(throwable);
-            return false;
-        }
-        return true;
     }
 
     private boolean registerDataWithRecovery(TechId registrationId,

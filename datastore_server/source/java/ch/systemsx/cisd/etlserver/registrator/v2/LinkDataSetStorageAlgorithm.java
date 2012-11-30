@@ -23,7 +23,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.ConversionUtils;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -61,8 +61,7 @@ public class LinkDataSetStorageAlgorithm<T extends DataSetInformation> extends
     public NewExternalData createExternalData()
     {
         return ConversionUtils
-                .convertToNewLinkDataSet(getRegistrationDetails(),
-                getDataStoreCode());
+                .convertToNewLinkDataSet(getRegistrationDetails(), getDataStoreCode());
     }
 
     @Override

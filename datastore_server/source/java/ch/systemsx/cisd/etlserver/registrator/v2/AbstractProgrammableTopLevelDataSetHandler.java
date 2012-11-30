@@ -561,7 +561,7 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
      * Set the factory available to the python script. Subclasses may want to override.
      */
     @SuppressWarnings("unchecked")
-    protected IDataSetRegistrationDetailsFactory<T> createObjectFactory(
+    public IDataSetRegistrationDetailsFactory<T> createObjectFactory(
             DataSetInformation userProvidedDataSetInformationOrNull)
     {
         return (IDataSetRegistrationDetailsFactory<T>) new ProgrammableDropboxObjectFactory<DataSetInformation>(

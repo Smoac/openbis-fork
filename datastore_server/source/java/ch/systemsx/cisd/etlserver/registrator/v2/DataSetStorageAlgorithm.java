@@ -44,7 +44,7 @@ import ch.systemsx.cisd.etlserver.registrator.IRollbackStack;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.MkdirsCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.MoveFileCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.NewFileCommand;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.ConversionUtils;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.ConversionUtils;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStoragePrecommitRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryAlgorithm;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageStoredRecoveryAlgorithm;
@@ -609,7 +609,8 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
             final File baseParentDirectory = baseDirectory.getParentFile();
             final String processingDirName = baseDirectory.getName();
             markerFile =
-                    new File(baseParentDirectory, FileConstants.PROCESSING_PREFIX + processingDirName);
+                    new File(baseParentDirectory, FileConstants.PROCESSING_PREFIX
+                            + processingDirName);
             try
             {
                 // will throw exception if marker file already exists

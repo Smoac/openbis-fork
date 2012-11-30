@@ -25,16 +25,13 @@ import org.python.core.PyObject;
 
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.jython.PythonInterpreter;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
-import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
-import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
 import ch.systemsx.cisd.etlserver.registrator.v2.AbstractDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.etlserver.registrator.v2.AbstractProgrammableTopLevelDataSetHandler;
@@ -127,7 +124,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 new JythonAsJavaDataSetRegistrationDropboxV2Wrapper(interpreter);
 
         // Invoke the evaluator
-        interpreter.exec(scriptString);
+        interpreter.exec(scriptString, scriptFile.getPath());
 
         verifyEvaluatorHookFunctions(interpreter);
 
@@ -343,30 +340,6 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                 }
             }
         }
-    }
-
-    @Override
-    protected void rollback(DataSetRegistrationService<T> service, Throwable throwable)
-    {
-        try
-        {
-            JythonDataSetRegistrationServiceV2<T> jythonService =
-                    (JythonDataSetRegistrationServiceV2<T>) service;
-
-            DataSetRegistrationTransaction<T> transaction = jythonService.getTransaction();
-
-            // todo kuba zdecyduj sie czy tutaj powinno byc pusty kontekst czy null
-            DataSetRegistrationContext context =
-                    transaction == null ? new DataSetRegistrationContext(null, null) : transaction
-                            .getRegistrationContext();
-
-            getV2DropboxProgram(service).rollbackPreRegistration(context, throwable);
-        } catch (NotImplementedException ex)
-        {
-            // ignore
-        }
-
-        super.rollback(service, throwable);
     }
 
     protected PyFunction tryJythonFunction(PythonInterpreter interpreter,

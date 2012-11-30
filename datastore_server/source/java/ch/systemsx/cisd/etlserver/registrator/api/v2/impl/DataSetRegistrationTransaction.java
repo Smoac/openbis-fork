@@ -56,7 +56,6 @@ import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.AbstractTransactionSta
 import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.AbstractTransactionState.LiveTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.AbstractTransactionState.RecoveryPendingTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.AbstractTransactionState.RolledbackTransactionState;
-import ch.systemsx.cisd.etlserver.registrator.recovery.AutoRecoverySettings;
 import ch.systemsx.cisd.etlserver.registrator.recovery.IDataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.registrator.v2.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.v2.DataSetStorageAlgorithmRunner;
@@ -107,8 +106,6 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     private static final String ROLLBACK_QUEUE2_FILE_NAME_SUFFIX = "rollBackQueue2";
 
     private final static String ROLLBACK_STACK_FILE_NAME_DATE_FORMAT_PATTERN = "yyyyMMddHHmmssSSS";
-
-    private final AutoRecoverySettings autoRecoverySettings;
 
     static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetRegistrationTransaction.class);
@@ -212,17 +209,15 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     public DataSetRegistrationTransaction(File rollBackStackParentFolder, File workingDirectory,
             File stagingDirectory, DataSetRegistrationService<T> registrationService,
-            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory,
-            AutoRecoverySettings autoRecoverySettings)
+            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
     {
         this(createNewRollbackStack(rollBackStackParentFolder), workingDirectory, stagingDirectory,
-                registrationService, registrationDetailsFactory, autoRecoverySettings);
+                registrationService, registrationDetailsFactory);
     }
 
     DataSetRegistrationTransaction(RollbackStack rollbackStack, File workingDirectory,
             File stagingDirectory, DataSetRegistrationService<T> registrationService,
-            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory,
-            AutoRecoverySettings autoRecoverySettings)
+            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
     {
         state =
                 new LiveTransactionState<T>(this, rollbackStack, workingDirectory,
@@ -234,7 +229,6 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         this.registrationContext =
                 new DataSetRegistrationContext(new DataSetRegistrationPersistentMap(),
                         this.registrationService.getRegistratorContext().getGlobalState());
-        this.autoRecoverySettings = autoRecoverySettings;
     }
 
     @Override
@@ -642,16 +636,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             // Don't log if the file was deleted before registration, we already know.
             operationLog.error("The error ", ex);
         }
-        boolean useAutoRecovery = autoRecoverySettings == AutoRecoverySettings.USE_AUTO_RECOVERY;
-
         IDataSetStorageRecoveryManager storageRecoveryManager =
                 registrationService.getRegistratorContext().getGlobalState()
                         .getStorageRecoveryManager();
 
-        if (useAutoRecovery)
-        {
-            storageRecoveryManager.removeCheckpoint(algorithm);
-        }
+        storageRecoveryManager.removeCheckpoint(algorithm);
+
         rollback();
         registrationService.didRollbackTransaction(this, algorithm, ex, errorType);
     }
@@ -812,11 +802,6 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
             DataSetRegistrationTransaction.operationLog.warn(
                     "Failed to invoke secondary transaction error hook:" + t.getMessage(), t);
         }
-    }
-
-    public AutoRecoverySettings getAutoRecoverySettings()
-    {
-        return autoRecoverySettings;
     }
 
     public IDataSetStorageRecoveryManager getStorageRecoveryManager()

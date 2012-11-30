@@ -30,8 +30,9 @@ import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
-import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.SearchService;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.AuthorizationService;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.SearchService;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IDataSet;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IMailService;
@@ -39,11 +40,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceQueryService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSetContentProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.IDataSourceQueryService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISearchService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.ISessionWorkspaceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1.authorization.IAuthorizationService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IDataSourceQueryService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISessionWorkspaceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
@@ -238,12 +239,12 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 
     protected ISearchService createUnfilteredSearchService()
     {
-        return ServiceProvider.getSearchService();
+        return new SearchService(ServiceProvider.getOpenBISService());
     }
 
     protected IAuthorizationService createAuthorizationService()
     {
-        return ServiceProvider.getAuthorizationService();
+        return new AuthorizationService(ServiceProvider.getOpenBISService());
     }
 
     protected IDataSourceQueryService createDataSourceQueryService()

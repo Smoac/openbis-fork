@@ -36,7 +36,6 @@ import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
 import ch.systemsx.cisd.etlserver.registrator.IncomingFileDeletedBeforeRegistrationException;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
-import ch.systemsx.cisd.etlserver.registrator.recovery.IDataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.registrator.v1.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -130,30 +129,6 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         this.openBISService = openBISService;
         this.postPreRegistrationHooks = postPreRegistrationHooks;
         this.incomingDataSetFile = transaction.getIncomingDataSetFile();
-    }
-
-    /**
-     * Constructor used by the autorecovery infrastructure.
-     */
-    public DataSetStorageAlgorithmRunner(DataSetFile incomingDataSetFile,
-            List<DataSetStorageAlgorithm<T>> dataSetStorageAlgorithms,
-            IRollbackDelegate<T> rollbackDelegate, IRollbackStack rollbackStack,
-            DssRegistrationLogger dssRegistrationLog, IEncapsulatedOpenBISService openBISService,
-            IPrePostRegistrationHook<T> postPreRegistrationHooks,
-            IDataSetStorageRecoveryManager storageRecoveryManager,
-            DataSetRegistrationContext.IHolder registrationContextHolder,
-            TopLevelDataSetRegistratorGlobalState globalState)
-    {
-        this.dataSetStorageAlgorithms =
-                new ArrayList<DataSetStorageAlgorithm<T>>(dataSetStorageAlgorithms);
-        this.rollbackDelegate = rollbackDelegate;
-        this.applicationServerRegistrator = null;
-        this.registrationContextHolder = registrationContextHolder;
-        this.rollbackStack = rollbackStack;
-        this.dssRegistrationLog = dssRegistrationLog;
-        this.openBISService = openBISService;
-        this.postPreRegistrationHooks = postPreRegistrationHooks;
-        this.incomingDataSetFile = incomingDataSetFile;
     }
 
     /**

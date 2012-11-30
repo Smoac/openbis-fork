@@ -37,6 +37,8 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IJavaDataSetRegistrationDropboxV1;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.IJavaDataSetRegistrationDropboxV2;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.JythonAsJavaDataSetRegistrationDropboxV2Wrapper;
 import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -270,7 +272,7 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         configureEvaluator(dataSetFile.getLogicalIncomingFile(), service, interpreter);
 
         // Invoke the evaluator
-        interpreter.exec(scriptString);
+        interpreter.exec(scriptString, scriptFile.getPath());
 
         verifyEvaluatorHookFunctions(interpreter);
     }
@@ -486,6 +488,14 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
         return interpreter;
     }
 
+    @Override
+    protected IJavaDataSetRegistrationDropboxV2 getV2DropboxProgram(
+            DataSetRegistrationService<T> service)
+    {
+        return new JythonAsJavaDataSetRegistrationDropboxV2Wrapper(
+                getInterpreterFromService(service));
+    }
+
     /**
      * V1 registration framework -- any file can go into faulty paths.
      */
@@ -499,12 +509,5 @@ public class JythonTopLevelDataSetHandler<T extends DataSetInformation> extends
     protected IJavaDataSetRegistrationDropboxV1<T> getV1DropboxProgram()
     {
         return v1;
-    }
-
-    @Override
-    protected ch.systemsx.cisd.etlserver.registrator.v1.AbstractProgrammableTopLevelDataSetHandler<T>.RecoveryHookAdaptor getRecoveryHookAdaptor(
-            File incoming)
-    {
-        throw new NotImplementedException();
     }
 }
