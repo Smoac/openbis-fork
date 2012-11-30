@@ -21,7 +21,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -41,15 +40,15 @@ public class MetaprojectDataSetsGrid extends AbstractExternalDataGrid
 
     private TechId metaprojectId;
 
-    public static IDisposableComponent create(final IViewContext<?> viewContext,
+    public static MetaprojectDataSetsGrid create(final IViewContext<?> viewContext,
             TechId metaprojectId)
     {
         MetaprojectDataSetsGrid grid = new MetaprojectDataSetsGrid(viewContext, metaprojectId);
         grid.addEntityOperationsLabel();
-        grid.addTaggingButtons();
+        grid.addTaggingButtons(false);
         grid.addEntityOperationsSeparator();
         grid.allowMultipleSelection();
-        return grid.asDisposableWithoutToolbar();
+        return grid;
     }
 
     private MetaprojectDataSetsGrid(final IViewContext<?> viewContext, TechId metaprojectId)

@@ -20,6 +20,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -46,6 +49,8 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
 {
 
     public static final String ID_SUFFIX = "_metaproject-entities";
+
+    public static final EventType ENTITIES_CHANGED = new EventType();
 
     private IViewContext<?> viewContext;
 
@@ -152,8 +157,17 @@ public class MetaprojectEntities extends LayoutContainer implements IDisposableC
         return sectionsMap.containsKey(entityKind);
     }
 
-    private void addSection(EntityKind entityKind, final DisposableTabContent section)
+    private void addSection(EntityKind entityKind, final MetaprojectEntitySection section)
     {
+        section.addListener(MetaprojectEntitySection.SECTION_CHANGED_EVENT,
+                new Listener<BaseEvent>()
+                    {
+                        @Override
+                        public void handleEvent(BaseEvent be)
+                        {
+                            fireEvent(ENTITIES_CHANGED);
+                        }
+                    });
         sectionsPanel.addSection(section);
         sectionsMap.put(entityKind, section);
         composite.addSubcomponent(new IDisposableComponentProvider()

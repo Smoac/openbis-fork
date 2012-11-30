@@ -20,6 +20,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -158,6 +160,15 @@ public final class MetaprojectViewer extends
                 {
                     final MetaprojectEntities entities =
                             new MetaprojectEntities(viewContext, getId());
+                    entities.addListener(MetaprojectEntities.ENTITIES_CHANGED,
+                            new Listener<BaseEvent>()
+                                {
+                                    @Override
+                                    public void handleEvent(BaseEvent be)
+                                    {
+                                        reloadAllData();
+                                    }
+                                });
                     entities.showEntities(metaprojectId, new IDelegatedAction()
                         {
                             @Override

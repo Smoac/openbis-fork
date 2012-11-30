@@ -250,7 +250,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
         return browserGrid.asDisposableWithoutToolbar();
     }
 
-    public static IDisposableComponent createGridForMetaprojectSamples(
+    public static SampleBrowserGrid createGridForMetaprojectSamples(
             final IViewContext<ICommonClientServiceAsync> viewContext, final TechId metaprojectId,
             final String browserId)
     {
@@ -265,10 +265,10 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
 
         browserGrid.updateCriteriaProviderAndRefresh();
         browserGrid.addEntityOperationsLabel();
-        browserGrid.addTaggingButtons();
+        browserGrid.addTaggingButtons(false);
         browserGrid.addEntityOperationsSeparator();
         browserGrid.allowMultipleSelection();
-        return browserGrid.asDisposableWithoutToolbar();
+        return browserGrid;
     }
 
     private static SampleBrowserGrid createGridAsComponent(

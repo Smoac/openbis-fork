@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.entity;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -28,33 +26,25 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 /**
  * @author pkupczyk
  */
-public class MetaprojectSamplesSection extends DisposableTabContent
+public class MetaprojectSamplesSection extends MetaprojectEntitySection
 {
-    public static final String ID_PREFIX = GenericConstants.ID_PREFIX
-            + "metaproject-samples-section_";
 
-    private final TechId metaprojectId;
+    private static final String SECTION_NAME = "samples";
 
     public MetaprojectSamplesSection(IViewContext<?> viewContext, TechId metaprojectId)
     {
-        super(viewContext.getMessage(Dict.METAPROJECT_ENTITIES_SAMPLES), viewContext, metaprojectId);
-        this.metaprojectId = metaprojectId;
+        super(viewContext, metaprojectId);
         setIds(DisplayTypeIDGenerator.SAMPLES_SECTION);
-    }
-
-    private static String createBrowserId(TechId metaprojectId)
-    {
-        return ID_PREFIX + metaprojectId + "-browser";
+        setHeading(viewContext.getMessage(Dict.METAPROJECT_ENTITIES_SAMPLES));
     }
 
     @Override
     protected IDisposableComponent createDisposableContent()
     {
-        IDisposableComponent disposableComponent =
+        SampleBrowserGrid grid =
                 SampleBrowserGrid.createGridForMetaprojectSamples(
                         viewContext.getCommonViewContext(), metaprojectId,
-                        createBrowserId(metaprojectId));
-        return disposableComponent;
+                        createBrowserId(SECTION_NAME));
+        return createDisposableBrowser(grid);
     }
-
 }

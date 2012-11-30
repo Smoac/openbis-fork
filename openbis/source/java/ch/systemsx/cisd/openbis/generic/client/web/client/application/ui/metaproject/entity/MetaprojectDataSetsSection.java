@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.entity;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -27,25 +25,20 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 /**
  * @author pkupczyk
  */
-public class MetaprojectDataSetsSection extends DisposableTabContent
+public class MetaprojectDataSetsSection extends MetaprojectEntitySection
 {
-    public static final String ID_PREFIX = GenericConstants.ID_PREFIX
-            + "metaproject-data-sets-section_";
-
-    private final TechId metaprojectId;
-
     public MetaprojectDataSetsSection(IViewContext<?> viewContext, TechId metaprojectId)
     {
-        super(viewContext.getMessage(Dict.METAPROJECT_ENTITIES_DATA_SETS), viewContext,
-                metaprojectId);
-        this.metaprojectId = metaprojectId;
+        super(viewContext, metaprojectId);
         setIds(DisplayTypeIDGenerator.DATA_SETS_SECTION);
+        setHeading(viewContext.getMessage(Dict.METAPROJECT_ENTITIES_DATA_SETS));
     }
 
     @Override
     protected IDisposableComponent createDisposableContent()
     {
-        return MetaprojectDataSetsGrid.create(viewContext, metaprojectId);
+        MetaprojectDataSetsGrid grid = MetaprojectDataSetsGrid.create(viewContext, metaprojectId);
+        return createDisposableBrowser(grid);
     }
 
 }

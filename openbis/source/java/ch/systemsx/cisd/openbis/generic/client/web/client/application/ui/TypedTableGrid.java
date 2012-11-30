@@ -662,7 +662,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     /** @return this grid as a disposable component */
-    protected final DisposableEntityChooser<TableModelRowWithObject<T>> asDisposableWithoutToolbar()
+    public final DisposableEntityChooser<TableModelRowWithObject<T>> asDisposableWithoutToolbar()
     {
         return asDisposableEntityChooser(this);
     }
@@ -2241,6 +2241,17 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             }
         }
         return selectedColumnDefs;
+    }
+
+    protected final AbstractAsyncCallback<Void> createEmptyCallback()
+    {
+        return new AbstractAsyncCallback<Void>(viewContext)
+            {
+                @Override
+                protected void process(Void result)
+                {
+                }
+            };
     }
 
     /** Creates callback that refreshes the grid. */

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -33,7 +34,9 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IOnSuccessAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
@@ -63,13 +66,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithProperties & ITaggable & IIsStub>
-        extends
-        TypedTableGrid<E>
+        extends TypedTableGrid<E>
 {
 
     public static final String TAG_BUTTON_ID_SUFFIX = "_tag";
 
     public static final String UNTAG_BUTTON_ID_SUFFIX = "_untag";
+
+    public static final EventType ENTITY_TAGGED_EVENT = new EventType();
+
+    public static final EventType ENTITY_UNTAGGED_EVENT = new EventType();
 
     public AbstractEntityGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             String browserId, boolean refreshAutomatically,
@@ -145,8 +151,7 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
         return suffix;
     }
 
-    private List<String> getMetaProjectsReferencedyByEachOf(
-            List<ITaggable> taggables)
+    private List<String> getMetaProjectsReferencedyByEachOf(List<ITaggable> taggables)
     {
         int itemCount = taggables.size();
         Map<String, Integer> counts = new HashMap<String, Integer>();
@@ -202,6 +207,11 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
 
     protected final void addTaggingButtons()
     {
+        addTaggingButtons(true);
+    }
+
+    protected final void addTaggingButtons(final boolean refresh)
+    {
         final MetaprojectChooserButton tagButton =
                 new MetaprojectChooserButton(viewContext, getId(),
                         new IChosenEntitiesProvider<String>()
@@ -253,9 +263,20 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
                             {
                                 metaProjectIds.add(row.getObjectOrNull().getId());
                             }
+
+                            AbstractAsyncCallback<Void> callback;
+
+                            if (refresh)
+                            {
+                                callback = createRefreshCallback(asActionInvoker());
+                            } else
+                            {
+                                callback = createEmptyCallback();
+                            }
+
                             viewContext.getCommonService().assignEntitiesToMetaProjects(entityKind,
                                     metaProjectIds, entityIds,
-                                    createRefreshCallback(asActionInvoker()));
+                                    fireEventOnSuccess(callback, ENTITY_TAGGED_EVENT));
 
                         }
                     });
@@ -315,10 +336,20 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
                             {
                                 metaProjectIds.add(row.getObjectOrNull().getId());
                             }
-                            viewContext.getCommonService()
-                                    .removeEntitiesFromMetaProjects(entityKind,
-                                            metaProjectIds, entityIds,
-                                            createRefreshCallback(asActionInvoker()));
+
+                            AbstractAsyncCallback<Void> callback;
+
+                            if (refresh)
+                            {
+                                callback = createRefreshCallback(asActionInvoker());
+                            } else
+                            {
+                                callback = createEmptyCallback();
+                            }
+
+                            viewContext.getCommonService().removeEntitiesFromMetaProjects(
+                                    entityKind, metaProjectIds, entityIds,
+                                    fireEventOnSuccess(callback, ENTITY_UNTAGGED_EVENT));
 
                         }
                     });
@@ -329,6 +360,20 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
         enableButtonOnSelectedItems(untagButton);
         addButton(untagButton);
 
+    }
+
+    private <T> AbstractAsyncCallback<T> fireEventOnSuccess(
+            final AbstractAsyncCallback<T> callback, final EventType eventType)
+    {
+        callback.addOnSuccessAction(new IOnSuccessAction<T>()
+            {
+                @Override
+                public void execute(T result)
+                {
+                    fireEvent(eventType);
+                }
+            });
+        return callback;
     }
 
     protected void enableButtonOnSelectedItemsIfNoStubsAreSelected(final Button button)

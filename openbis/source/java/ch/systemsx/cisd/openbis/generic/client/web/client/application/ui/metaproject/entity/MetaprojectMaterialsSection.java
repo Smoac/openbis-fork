@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.entity;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -28,26 +26,22 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 /**
  * @author pkupczyk
  */
-public class MetaprojectMaterialsSection extends DisposableTabContent
+public class MetaprojectMaterialsSection extends MetaprojectEntitySection
 {
-    public static final String ID_PREFIX = GenericConstants.ID_PREFIX
-            + "metaproject-materials-section_";
-
-    private final TechId metaprojectId;
-
     public MetaprojectMaterialsSection(IViewContext<?> viewContext, TechId metaprojectId)
     {
-        super(viewContext.getMessage(Dict.METAPROJECT_ENTITIES_MATERIALS), viewContext,
-                metaprojectId);
-        this.metaprojectId = metaprojectId;
+        super(viewContext, metaprojectId);
         setIds(DisplayTypeIDGenerator.MATERIALS_SECTION);
+        setHeading(viewContext.getMessage(Dict.METAPROJECT_ENTITIES_MATERIALS));
     }
 
     @Override
     protected IDisposableComponent createDisposableContent()
     {
-        return MaterialBrowserGrid.createForMetaproject(viewContext.getCommonViewContext(),
-                metaprojectId);
+        MaterialBrowserGrid grid =
+                MaterialBrowserGrid.createForMetaproject(viewContext.getCommonViewContext(),
+                        metaprojectId);
+        return createDisposableBrowser(grid);
     }
 
 }

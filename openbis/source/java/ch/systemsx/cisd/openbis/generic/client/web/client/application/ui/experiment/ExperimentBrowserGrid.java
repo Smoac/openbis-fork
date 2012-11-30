@@ -132,8 +132,8 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
         return createExperimentBrowser(tree, toolbar, browserGrid, viewContext);
     }
 
-    public static DisposableEntityChooser<TableModelRowWithObject<Experiment>> createForMetaproject(
-            IViewContext<?> viewContext, TechId metaprojectId)
+    public static ExperimentBrowserGrid createForMetaproject(IViewContext<?> viewContext,
+            TechId metaprojectId)
     {
         final ListExperimentsCriteria criteria = new ListExperimentsCriteria();
         criteria.setMetaprojectId(metaprojectId);
@@ -164,10 +164,10 @@ public class ExperimentBrowserGrid extends AbstractEntityGrid<Experiment>
                             }, true);
 
         browserGrid.addEntityOperationsLabel();
-        browserGrid.addTaggingButtons();
+        browserGrid.addTaggingButtons(false);
         browserGrid.addEntityOperationsSeparator();
         browserGrid.allowMultipleSelection();
-        return browserGrid.asDisposableWithoutToolbar();
+        return browserGrid;
     }
 
     private static DisposableEntityChooser<TableModelRowWithObject<Experiment>> createExperimentBrowser(

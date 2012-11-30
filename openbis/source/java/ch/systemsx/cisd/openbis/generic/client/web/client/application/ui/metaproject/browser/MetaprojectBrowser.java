@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metapr
 
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.Component;
@@ -80,6 +82,14 @@ public class MetaprojectBrowser extends ContentPanel implements IDisposableCompo
             };
         tree.getSelectionModel().addSelectionChangedListener(treeListener);
         entities = new MetaprojectEntities(viewContext, getId());
+        entities.addListener(MetaprojectEntities.ENTITIES_CHANGED, new Listener<BaseEvent>()
+            {
+                @Override
+                public void handleEvent(BaseEvent be)
+                {
+                    refresh();
+                }
+            });
 
         composite.addSubcomponent(tree);
         composite.addSubcomponent(entities);

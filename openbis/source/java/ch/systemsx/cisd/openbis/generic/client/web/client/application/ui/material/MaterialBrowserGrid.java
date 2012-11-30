@@ -101,8 +101,8 @@ public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
         return browserGrid.asDisposableWithToolbar(toolbar);
     }
 
-    public static DisposableEntityChooser<TableModelRowWithObject<Material>> createForMetaproject(
-            final IViewContext<?> viewContext, TechId metaprojectId)
+    public static MaterialBrowserGrid createForMetaproject(final IViewContext<?> viewContext,
+            TechId metaprojectId)
     {
         final ListMaterialDisplayCriteria criteria =
                 ListMaterialDisplayCriteria.createForMetaproject(new MetaprojectCriteria(
@@ -132,10 +132,10 @@ public class MaterialBrowserGrid extends AbstractEntityGrid<Material>
         final MaterialBrowserGrid browserGrid =
                 createBrowserGrid(viewContext.getCommonViewContext(), criteriaProvider, true);
         browserGrid.addEntityOperationsLabel();
-        browserGrid.addTaggingButtons();
+        browserGrid.addTaggingButtons(false);
         browserGrid.addEntityOperationsSeparator();
         browserGrid.allowMultipleSelection();
-        return browserGrid.asDisposableWithoutToolbar();
+        return browserGrid;
     }
 
     /**
