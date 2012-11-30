@@ -525,21 +525,21 @@ AppModel.prototype.initializeOd600WithPhenotypesAndPredictionsModel = function(c
 	
 	basynthec.getStrainsPhenotypesAndPredictions(function(strainDataMap){
 		
-		var strainsKnownToOpenbisWithPhenotypesAndPredictions = [];
+		var strainsKnownToOpenbisWithPhenotypesOrPredictions = [];
 		var strainsUnknownToOpenbisWithPhenotypesOrPredictions = [];
 		
 		for(strainName in model.dataSetsByStrain){
 			var strainData = strainDataMap[strainName];
 			var strainDatasets = model.dataSetsByStrain[strainName];
 			
-			var hasPhenotypesAndPredictions = strainData && strainData.hasPhenotypes && strainData.hasPredictions;
+			var hasPhenotypesOrPredictions = strainData && (strainData.hasPhenotypes || strainData.hasPredictions);
 		    var hasOd600Datasets = strainDatasets && strainDatasets.dataSets.some(function(dataset){
 		    	return "OD600" == dataset.dataSetTypeCode;
 		    });
 			
-			if(hasPhenotypesAndPredictions && hasOd600Datasets){
+			if(hasPhenotypesOrPredictions && hasOd600Datasets){
 				strainData.isKnown = true;
-				strainsKnownToOpenbisWithPhenotypesAndPredictions.push(strainData);
+				strainsKnownToOpenbisWithPhenotypesOrPredictions.push(strainData);
 			}
 		}
 		
@@ -559,7 +559,7 @@ AppModel.prototype.initializeOd600WithPhenotypesAndPredictionsModel = function(c
 		model.od600StrainsWithPhenotypesAndPredictionsGroups = [];
 		model.od600StrainsWithPhenotypesAndPredictionsGroups.push({
 			"mainGroupName" : "Strains with data in openBIS",
-			"groups" : createStrainGroups(strainsKnownToOpenbisWithPhenotypesAndPredictions)
+			"groups" : createStrainGroups(strainsKnownToOpenbisWithPhenotypesOrPredictions)
 		});
 		model.od600StrainsWithPhenotypesAndPredictionsGroups.push({
 			"mainGroupName" : "Strains without data in openBIS",
@@ -804,16 +804,12 @@ Od600StrainWithPhenotypesAndPredictionsView.prototype.updateView = function(dura
 			})
 			.text(function(d) { return d.label })
 			.style("color", function(d){
-				if(d.data.isKnown){
-					return "black";
-				}else{
-					if(d.data.hasPhenotypes && d.data.hasPredictions){
-						return "green";
-					}else if(d.data.hasPhenotypes){
-						return "blue";
-					}else if(d.data.hasPredictions){
-						return "red";
-					}
+				if(d.data.hasPhenotypes && d.data.hasPredictions){
+					return "green";
+				}else if(d.data.hasPhenotypes){
+					return "blue";
+				}else if(d.data.hasPredictions){
+					return "red";
 				}
 			})
 	tds.attr("class", function(d){
