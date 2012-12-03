@@ -267,8 +267,7 @@
     if ([CISDOBIpadServiceWillLoginNotification isEqualToString: [note name]]) {
         [self setStatusText: @"Logging in..."];
     } else if ([CISDOBIpadServiceDidLoginNotification isEqualToString: [note name]]) {
-        NSError* errorOrNil =
-            [[note userInfo] valueForKey: NSUnderlyingErrorKey];
+        NSError* errorOrNil = [[note userInfo] valueForKey: NSUnderlyingErrorKey];
         if (errorOrNil) {
             NSString *description = [[errorOrNil userInfo] valueForKey: NSLocalizedDescriptionKey];
             [self setStatusText: description];
@@ -278,7 +277,14 @@
     } else if ([CISDOBIpadServiceWillRetrieveRootLevelEntitiesNotification isEqualToString: [note name]]) {
         [self setStatusText: @"Retrieving root entities..."];
     } else if ([CISDOBIpadServiceDidRetrieveRootLevelEntitiesNotification isEqualToString: [note name]]) {
-        [self clearStatusText];
+        NSError* errorOrNil = [[note userInfo] valueForKey: NSUnderlyingErrorKey];
+        if (errorOrNil) {
+            NSString *description = [[errorOrNil userInfo] valueForKey: NSLocalizedDescriptionKey];
+            NSString *statusText = [NSString stringWithFormat: @"Could not retrieve entities :%@", description];
+            [self setStatusText: statusText];
+        } else {
+            [self clearStatusText];
+        }
     } else if ([CISDOBIpadServiceWillSynchEntitiesNotification isEqualToString: [note name]]) {
         [self setStatusText: @"Synching entities with cache..."];
     } else if ([CISDOBIpadServiceDidSynchEntitiesNotification isEqualToString: [note name]]) {
