@@ -639,6 +639,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         }
 
         final HibernateTemplate template = getHibernateTemplate();
+        lockRelatedEntities(dataset);
         template.save(dataset);
         template.flush();
         scheduleDynamicPropertiesEvaluation(Collections.singletonList(dataset));
@@ -647,6 +648,13 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         {
             operationLog.info(String.format("ADD: data set '%s'.", dataset));
         }
+    }
+
+    private void lockRelatedEntities(DataPE data)
+    {
+        lockEntity(data.getExperiment());
+        lockEntity(data.tryGetSample());
+        lockEntity(data.getContainer());
     }
 
     @Override
@@ -691,6 +699,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
             }
             hibernateTemplate.evict(loaded);
         }
+        lockRelatedEntities(data);
         hibernateTemplate.update(data);
         hibernateTemplate.flush();
         scheduleDynamicPropertiesEvaluation(Collections.singletonList(data));

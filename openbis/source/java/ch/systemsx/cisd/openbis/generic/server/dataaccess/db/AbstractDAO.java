@@ -34,6 +34,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
 import org.hibernate.HibernateException;
+import org.hibernate.LockMode;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -350,6 +351,14 @@ public abstract class AbstractDAO extends HibernateDaoSupport
                             SessionFactoryUtils.getDataSource(getSessionFactory()));
                 }
             });
+    }
+
+    protected void lockEntity(Object entityOrNull)
+    {
+        if (entityOrNull != null)
+        {
+            getHibernateTemplate().lock(entityOrNull, LockMode.PESSIMISTIC_WRITE);
+        }
     }
 
     /**

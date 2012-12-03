@@ -387,6 +387,8 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
     public void createOrUpdateExperiment(ExperimentPE experiment, PersonPE modifier)
     {
         HibernateTemplate template = getHibernateTemplate();
+        lockEntity(experiment.getProject());
+
         internalCreateOrUpdateExperiment(experiment, modifier, template);
         template.flush();
 
