@@ -39,12 +39,15 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
@@ -52,8 +55,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -81,6 +86,8 @@ public class EntityExistenceCheckerTest extends AssertJUnit
 
     private ISampleDAO sampleDAO;
 
+    private IMaterialDAO materialDAO;
+
     private IEntityTypeDAO materialTypeDAO;
 
     private ISampleTypeDAO sampleTypeDAO;
@@ -99,6 +106,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         projectDAO = context.mock(IProjectDAO.class);
         experimentDAO = context.mock(IExperimentDAO.class);
         sampleDAO = context.mock(ISampleDAO.class);
+        materialDAO = context.mock(IMaterialDAO.class);
         materialTypeDAO = context.mock(IEntityTypeDAO.class);
         sampleTypeDAO = context.mock(ISampleTypeDAO.class);
         databaseInstance = new DatabaseInstancePE();
@@ -124,6 +132,9 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                     allowing(daoFactory).getEntityTypeDAO(EntityKind.MATERIAL);
                     will(returnValue(materialTypeDAO));
 
+                    allowing(daoFactory).getMaterialDAO();
+                    will(returnValue(materialDAO));
+
                     allowing(daoFactory).getSampleTypeDAO();
                     will(returnValue(sampleTypeDAO));
                 }
@@ -144,12 +155,13 @@ public class EntityExistenceCheckerTest extends AssertJUnit
     {
         MaterialType type = new MaterialType();
         type.setCode("T1");
-        prepareForAssertMaterialTypeExists(type.getCode(), materialType("ALPHA", "BETA"));
+        prepareForAssertMaterialTypeExists(type.getCode(), materialType(type, "ALPHA", "BETA"));
 
         checker.checkNewMaterials(Arrays.asList(new NewMaterialsWithTypes(type, Arrays.asList(
                 material("A", "alpha:12", "beta:42"), material("B", "BETa:47", "Alpha:11")))));
 
         assertThat(checker.getErrors().size(), is(0));
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -163,6 +175,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                 .asList(material("A", "alpha:12", "beta:42")))));
 
         assertThat(checker.getErrors(), containsExactly("Unknown material type: T1"));
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -170,13 +183,14 @@ public class EntityExistenceCheckerTest extends AssertJUnit
     {
         MaterialType type = new MaterialType();
         type.setCode("T1");
-        prepareForAssertMaterialTypeExists(type.getCode(), materialType("ALPHA"));
+        prepareForAssertMaterialTypeExists(type.getCode(), materialType(type, "ALPHA"));
 
         checker.checkNewMaterials(Arrays.asList(new NewMaterialsWithTypes(type, Arrays
                 .asList(material("A", "alpha:12", "beta:42")))));
 
         assertThat(checker.getErrors(),
                 containsExactly("Material type T1 has no property type BETA assigned."));
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -214,6 +228,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                 sample("/S1/B", "/S1/P1/E1", "/S1/PLATE", "Beta:42")))));
 
         assertThat(checker.getErrors().size(), is(0));
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -248,6 +263,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                 sample("B", "/S1/P1/E1", "/PLATE", "Beta:42")))));
 
         assertThat(checker.getErrors().size(), is(0));
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -285,6 +301,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         checker.checkNewSamples(Arrays.asList(containers, contained));
 
         assertThat(checker.getErrors().size(), is(0));
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -298,6 +315,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                 .asList(sample("/S1/A", null, null, "alpha:12")))));
 
         assertThat(checker.getErrors(), containsExactly("Unknown sample type: T1"));
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -325,6 +343,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                 .asList(sample("A", "/S1/P1/E1", null, "alpha:12")))));
 
         assertThat(checker.getErrors(), containsExactly("Unknown experiment: /S1/P1/E1"));
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -345,6 +364,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
 
         assertThat(checker.getErrors(),
                 containsExactly("Unknown experiment because of unknown project: /S1/P1/E1"));
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -364,6 +384,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                 .asList(sample("A", null, "/S1/PLATE", "alpha:12")))));
 
         assertThat(checker.getErrors(), containsExactly("Unknown space: /S1"));
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -383,6 +404,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                 .asList(sample("A", null, "/PLATE", "alpha:12")))));
 
         assertThat(checker.getErrors(), containsExactly("Unknown sample: /PLATE"));
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -397,6 +419,63 @@ public class EntityExistenceCheckerTest extends AssertJUnit
 
         assertThat(checker.getErrors(),
                 containsExactly("Sample type T1 has no property type ALPHA assigned."));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCheckNewSamplesWithMaterialProperties()
+    {
+        MaterialType type = new MaterialType();
+        type.setCode("M1");
+        MaterialTypePE materialType = materialType(type, "ALPHA");
+        prepareForAssertMaterialTypeExists(type.getCode(), materialType);
+        SampleType sampleType = new SampleType();
+        sampleType.setCode("S1");
+        prepareForAssertSampleTypeExists(sampleType.getCode(), sampleType(materialType, "MATERIAL"));
+        context.checking(new Expectations()
+            {
+                {
+                    one(materialDAO).tryFindMaterial(new MaterialIdentifier("B", "M1"));
+                    will(returnValue(new MaterialPE()));
+                }
+            });
+
+        checker.checkNewMaterials(Arrays.asList(new NewMaterialsWithTypes(type, Arrays
+                .asList(material("A", "alpha:12")))));
+        checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays.asList(
+                sample("/S1/A1", null, null, "material:A"),
+                sample("/S1/A2", null, null, "material:B"),
+                sample("/S1/A3", null, null, "material:B")))));
+
+        assertThat(checker.getErrors(), containsExactly(new String[0]));
+    }
+
+    @Test
+    public void testCheckNewSamplesWithNonExistingMaterialProperties()
+    {
+        MaterialType type = new MaterialType();
+        type.setCode("M1");
+        MaterialTypePE materialType = materialType(type, "ALPHA");
+        prepareForAssertMaterialTypeExists(type.getCode(), materialType);
+        SampleType sampleType = new SampleType();
+        sampleType.setCode("S1");
+        prepareForAssertSampleTypeExists(sampleType.getCode(), sampleType(materialType, "MATERIAL"));
+        context.checking(new Expectations()
+            {
+                {
+                    one(materialDAO).tryFindMaterial(new MaterialIdentifier("B", "M1"));
+                    will(returnValue(null));
+                }
+            });
+
+        checker.checkNewMaterials(Arrays.asList(new NewMaterialsWithTypes(type, Arrays
+                .asList(material("A", "alpha:12")))));
+        checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays.asList(
+                sample("/S1/A1", null, null, "material:A"),
+                sample("/S1/A2", null, null, "material:B"),
+                sample("/S1/A3", null, null, "material:B")))));
+
+        assertThat(checker.getErrors(), containsExactly("Unknown material: B (M1)"));
     }
 
     @Test
@@ -417,13 +496,14 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                 }
             });
 
-        checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays
-                .asList(sample("/S1/A", null, null, "alpha:12"), sample("A", null, "/PLATE",
-                        "alpha:12")))));
+        checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays.asList(
+                sample("/S1/A", null, null, "alpha:12"), sample("A", null, "/PLATE", "alpha:12")))));
 
-        assertThat(checker.getErrors(),
+        assertThat(
+                checker.getErrors(),
                 containsExactly("Sample type T1 has no property type ALPHA assigned.",
                         "Unknown sample: /PLATE"));
+        context.assertIsSatisfied();
     }
 
     private NewMaterial material(String code, String... properties)
@@ -434,7 +514,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         return newMaterial;
     }
 
-    private MaterialTypePE materialType(String... propertyTypes)
+    private MaterialTypePE materialType(MaterialType materialType, String... propertyTypes)
     {
         MaterialTypePE type = new MaterialTypePE();
         List<MaterialTypePropertyTypePE> list = new ArrayList<MaterialTypePropertyTypePE>();
@@ -443,9 +523,13 @@ public class EntityExistenceCheckerTest extends AssertJUnit
             MaterialTypePropertyTypePE materialTypePropertyType = new MaterialTypePropertyTypePE();
             PropertyTypePE propertyTypePE = new PropertyTypePE();
             propertyTypePE.setCode(propertyType);
+            DataTypePE dataType = new DataTypePE();
+            dataType.setCode(DataTypeCode.VARCHAR);
+            propertyTypePE.setType(dataType);
             materialTypePropertyType.setPropertyType(propertyTypePE);
             list.add(materialTypePropertyType);
         }
+        type.setCode(materialType.getCode());
         type.setMaterialTypePropertyTypes(new HashSet<MaterialTypePropertyTypePE>(list));
         return type;
     }
@@ -475,6 +559,17 @@ public class EntityExistenceCheckerTest extends AssertJUnit
 
     private SampleTypePE sampleType(String... propertyTypes)
     {
+        return sampleType(DataTypeCode.VARCHAR, null, propertyTypes);
+    }
+
+    private SampleTypePE sampleType(MaterialTypePE materialType, String... propertyTypes)
+    {
+        return sampleType(DataTypeCode.MATERIAL, materialType, propertyTypes);
+    }
+
+    private SampleTypePE sampleType(DataTypeCode dataTypeCode, MaterialTypePE materialType,
+            String... propertyTypes)
+    {
         SampleTypePE type = new SampleTypePE();
         List<SampleTypePropertyTypePE> list = new ArrayList<SampleTypePropertyTypePE>();
         for (String propertyType : propertyTypes)
@@ -482,6 +577,13 @@ public class EntityExistenceCheckerTest extends AssertJUnit
             SampleTypePropertyTypePE sampleTypePropertyType = new SampleTypePropertyTypePE();
             PropertyTypePE propertyTypePE = new PropertyTypePE();
             propertyTypePE.setCode(propertyType);
+            DataTypePE dataType = new DataTypePE();
+            dataType.setCode(dataTypeCode);
+            if (dataTypeCode.equals(DataTypeCode.MATERIAL))
+            {
+                propertyTypePE.setMaterialType(materialType);
+            }
+            propertyTypePE.setType(dataType);
             sampleTypePropertyType.setPropertyType(propertyTypePE);
             list.add(sampleTypePropertyType);
         }
