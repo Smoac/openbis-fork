@@ -943,27 +943,103 @@ function Od600InspectorView() {
 
 Od600InspectorView.prototype.updateView = function(duration)
 {	
-	var height = 100, width = 100;
+	var GRAPH_SMALL_WIDTH = 160;
+	var GRAPH_SMALL_HEIGHT = 100;
+	
+	var GRAPH_LARGE_WIDTH = 480;
+	var GRAPH_LARGE_HEIGHT = 300;
+	
 	var inspector = inspectors.selectAll("div.od600inspector").data(od600Inspected, function (d) { return d.name });
 	
-	var strainBox = inspector.enter().append("div")
-		.attr("class", "od600inspector")
-		.style("width", width + "px")
-		.style("float", "left")
-		.style("padding", "5px");
-
-	strainBox
+	// create
+	var inspectorEnter = inspector.enter()
+		.append("div")
+			.attr("class", "od600inspector")
+			
+	inspectorEnter
 		.append("div")
 			.text(function(d) { return d.name })
 		.append("span")
 			.attr("class", "close")
 			.on("click", toggleOd600Inspected)
-			.text("x");
+			.text("x")
+			
+	inspectorEnter.append("svg:svg")
+		.attr("width", function(d){
+			return d.graphWidth = GRAPH_SMALL_WIDTH
+		})
+		.attr("height", function(d){
+			return d.graphHeight = GRAPH_SMALL_HEIGHT
+		})
 		
-	strainBox.append("svg:svg")
-		.attr("height", height)
-		.attr("width", width);	
+	inspectorEnter.append("a")
+		.attr("class", "toggle")
+	
+	appendObjectSection({
+		getSectionContainer: function(){
+			return inspectorEnter;
+		},
+		getSectionName: function(){
+			return "Predictions";
+		},
+		getSectionClass: function(){
+			return "predictionSection";
+		},
+		getSectionObjects: function(d){
+			return d.data.predictions ? d.data.predictions : [];
+		},
+		getSectionObjectProperties: function(d){
+			return prediction_props_to_pairs(d);
+		}
+	});
+	
+	appendObjectSection({
+		getSectionContainer: function(){
+			return inspectorEnter;
+		},
+		getSectionName: function(){
+			return "Phenotypes";
+		},
+		getSectionClass: function(){
+			return "phenotypeSection";
+		},
+		getSectionObjects: function(d){
+			return d.data.phenotypes ? d.data.phenotypes : [];
+		},
+		getSectionObjectProperties: function(d){
+			return phenotype_props_to_pairs(d);
+		}
+	});
 
+	// update
+	inspector.select("svg")
+		.attr("width", function(d){
+			return d.graphWidth; 
+		})
+		.attr("height", function(d){
+			return d.graphHeight; 
+		})
+	
+	inspector.select("a.toggle").
+		text(function(d){
+			if(d.graphWidth == GRAPH_SMALL_WIDTH){
+				return "show large graph";
+			}else{
+				return "show small graph";
+			}
+		})
+		.on("click", function(d){
+			if(d.graphWidth == GRAPH_SMALL_WIDTH){
+				d.graphWidth = GRAPH_LARGE_WIDTH;
+				d.graphHeight = GRAPH_LARGE_HEIGHT;
+				od600InspectorView.updateView();
+			}else{
+				d.graphWidth = GRAPH_SMALL_WIDTH;
+				d.graphHeight = GRAPH_SMALL_HEIGHT;
+				od600InspectorView.updateView();
+			}
+		})
+	
 	var dataDisplay = inspector.select("svg").selectAll("g.curve").data(od600DataForStrain);
 	dataDisplay.enter()
 		.append("svg:g")
@@ -980,17 +1056,90 @@ Od600InspectorView.prototype.updateView = function(duration)
 	aCurve.selectAll("line").data(lineData)
 		.enter()
 	.append("svg:line")
-		.attr("x1", function(d, i) { return (i / (this.parentNode.__data__.length)) * width; })
-		.attr("y1", function(d, i) { return height - (d[0] * height); })
-		.attr("x2", function(d, i) { return ((i + 1) / (this.parentNode.__data__.length)) * width;})
-		.attr("y2", function(d) { return height - (d[1] * height); })
-		.style("stroke", function(d) { return this.parentNode.__data__.color;})
+		.attr("x1", function(d, i) {
+			var graph = this.parentNode.parentNode.parentNode.__data__;
+			var lines = this.parentNode.__data__;
+			return (i / (lines.length)) * graph.graphWidth; 
+		})
+		.attr("y1", function(d, i) { 
+			var graph = this.parentNode.parentNode.parentNode.__data__;
+			return graph.graphHeight - (d[0] * graph.graphHeight); 
+		})
+		.attr("x2", function(d, i) { 
+			var graph = this.parentNode.parentNode.parentNode.__data__;
+			var lines = this.parentNode.__data__;
+			return ((i + 1) / (lines.length)) * graph.graphWidth;
+		})
+		.attr("y2", function(d) { 
+			var graph = this.parentNode.parentNode.parentNode.__data__;
+			return graph.graphHeight - (d[1] * graph.graphHeight); 
+		})
+		.style("stroke", function(d) {
+			var lines = this.parentNode.__data__;
+			return lines.color;
+		})
 		.style("stroke-width", "1");
 	
+	// remove
 	inspector.exit().transition()
 		.duration(duration)
 		.style("opacity", "0")
 		.remove();
+}
+
+function appendObjectSection(config){
+	
+	var section = config.getSectionContainer().append("div")
+	.attr("class", config.getSectionClass())
+	.style("display", function(d){ 
+		var objects = config.getSectionObjects(d);
+		if(objects && objects.length > 0){
+			return "block";
+		}else{
+			return "none";
+		}
+	});
+	
+	var header = section.append("h3")
+		.text(function(d){
+			var name = config.getSectionName();
+			var objects = config.getSectionObjects(d);
+			return name + " (" + objects.length + ")";
+		});
+	
+	var toggle = header.append("a")
+		.text("show");
+	
+	var list = section.append("ul")
+		.style("display","none");
+	
+	var items = list.selectAll("li")
+		.data(function(d){ return config.getSectionObjects(d) });
+	
+	var item = items.enter()
+		.append("li").append("table");
+	
+	item.selectAll("tr").data(function(d){ return config.getSectionObjectProperties(d) })
+		.enter()
+			.append("tr")
+			.selectAll("td").data(function(d) { return d } ).enter()
+				.append("td")
+				.attr("class", function(d, i) { return (i == 0) ? "propkey" : "propvalue"})
+				.style("opacity", "0")
+				.text(function(d) { return d })
+			.transition()
+				.style("opacity", "1");
+	
+	toggle.on("click", function(){
+		if(list.style("display") == "none"){
+			list.style("display","block");
+			toggle.text("hide");
+		}else{
+			list.style("display", "none");
+			toggle.text("show");
+		}
+	});
+
 }
 
 /** Removes all nodes from the view, without affecting the model */
@@ -1141,6 +1290,33 @@ function props_to_pairs(d)
 		// Sort in reverse lexicographical
 		return (a[0] < b[0]) ? -1 : 1;
 	});
+	return pairs;
+}
+
+function prediction_props_to_pairs(d){
+	return object_props_to_pairs(d);
+}
+
+function phenotype_props_to_pairs(d){
+	return object_props_to_pairs(d);
+}
+
+function object_props_to_pairs(d){
+	var pairs = [];
+
+	for (var prop in d) {
+		var propValue = d[prop];
+		if (propValue) {
+			var pair = [prop, propValue];
+			pairs.push(pair);
+		}
+	}
+	pairs.sort(function(a, b) { 
+		if (a[0] == b[0]) return 0;
+		// Sort in reverse lexicographical
+		return (a[0] < b[0]) ? -1 : 1;
+	});
+
 	return pairs;
 }
 
