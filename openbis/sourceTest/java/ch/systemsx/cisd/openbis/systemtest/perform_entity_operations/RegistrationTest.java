@@ -26,15 +26,20 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetTechIdId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentTechIdId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialTechIdId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialCodeAndTypeCodeId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -49,15 +54,60 @@ import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 public class RegistrationTest extends SystemTestCase
 {
     @Test
-    public void testRegisterMetaproject()
+    public void testRegistrationOfMetaprojectLinkedToExperimentSampleDataSetAndMaterial()
     {
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
-        NewMetaproject metaProject = new NewMetaproject("RM-TEST", "a test", "test");
-        metaProject.setEntities(Arrays.<IObjectId> asList(new ExperimentTechIdId(2L),
-                new SampleTechIdId(1L), new DataSetTechIdId(4L), new MaterialTechIdId(1L)));
+        String name = "RM-TEST";
+        NewMetaproject metaProject = new NewMetaproject(name, "a test", "test");
+        ExperimentIdentifierId experimentIdentifier = new ExperimentIdentifierId("/CISD/NEMO/EXP1");
+        SampleIdentifierId sampleIdentifier = new SampleIdentifierId("/CISD/CL1");
+        DataSetCodeId dataSetIdentifier = new DataSetCodeId("20081105092159188-3");
+        MaterialCodeAndTypeCodeId materialIdentifier =
+                new MaterialCodeAndTypeCodeId("AD3", "VIRUS");
+        metaProject.setEntities(Arrays.<IObjectId> asList(experimentIdentifier, sampleIdentifier,
+                dataSetIdentifier, materialIdentifier));
         builder.metaProject(metaProject);
+        builder.user("test");
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
+
+        assertEquals(null, findMetaproject(systemSessionToken, name));
+        String sessionToken = logIntoCommonClientService().getSessionID(); // login as 'test'
+        Metaproject metaproject = findMetaproject(sessionToken, name);
+        assertEquals("a test", metaproject.getDescription());
+        List<Experiment> experiments =
+                commonServer.listMetaprojectExperiments(sessionToken, new MetaprojectTechIdId(
+                        metaproject.getId()));
+        assertIdentifiers("[/CISD/NEMO/EXP1]", experiments);
+        assertEquals(name, experiments.get(0).getMetaprojects().iterator().next().getName());
+        List<Sample> samples =
+                commonServer.listMetaprojectSamples(sessionToken, new MetaprojectTechIdId(
+                        metaproject.getId()));
+        assertIdentifiers("[/CISD/CL1]", samples);
+        assertEquals(name, samples.get(0).getMetaprojects().iterator().next().getName());
+        List<ExternalData> dataSets =
+                commonServer.listMetaprojectExternalData(sessionToken, new MetaprojectTechIdId(
+                        metaproject.getId()));
+        assertIdentifiers("[20081105092159188-3]", dataSets);
+        assertEquals(name, dataSets.get(0).getMetaprojects().iterator().next().getName());
+        List<Material> materials =
+                commonServer.listMetaprojectMaterials(sessionToken, new MetaprojectTechIdId(
+                        metaproject.getId()));
+        assertIdentifiers("[AD3 (VIRUS)]", materials);
+        assertEquals(name, materials.get(0).getMetaprojects().iterator().next().getName());
+    }
+
+    private Metaproject findMetaproject(String sessionToken, String code)
+    {
+        List<Metaproject> metaprojects = commonServer.listMetaprojects(sessionToken);
+        for (Metaproject metaproject : metaprojects)
+        {
+            if (metaproject.getCode().equals(code))
+            {
+                return metaproject;
+            }
+        }
+        return null;
     }
 
     @Test
@@ -98,13 +148,19 @@ public class RegistrationTest extends SystemTestCase
     private List<Sample> assertSamples(String expectedSamples, ListSampleCriteria criteria)
     {
         List<Sample> samples = commonServer.listSamples(systemSessionToken, criteria);
+        assertIdentifiers(expectedSamples, samples);
+        return samples;
+    }
+
+    private void assertIdentifiers(String expectedIdentifiers,
+            List<? extends IIdentifierHolder> identifierHolders)
+    {
         List<String> identifiers = new ArrayList<String>();
-        for (Sample sample : samples)
+        for (IIdentifierHolder sample : identifierHolders)
         {
             identifiers.add(sample.getIdentifier());
         }
         Collections.sort(identifiers);
-        assertEquals(expectedSamples, identifiers.toString());
-        return samples;
+        assertEquals(expectedIdentifiers, identifiers.toString());
     }
 }
