@@ -65,6 +65,10 @@ from ch.systemsx.cisd.openbis.dss.client.api.v1 import OpenbisServiceFacadeFacto
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
 
+from java.util import EnumSet
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SampleFetchOption
+
+
 lineending = {'win32':'\r\n', 'linux':'\n', 'mac':'\r'}
 COMMA = ','
 
@@ -321,6 +325,12 @@ def getContainedSampleProperties(containedSamples, service):
 
   for lane in containedSamples:
     parents = getParents (lane.getCode(), service)
+
+    try:
+      assert parents.size() >= 1
+    except AssertionError:
+      print (str(parents.size()) + ' parents found for lane ' + lane.getCode())
+
     samplesPerLaneDict[lane.getCode()[-1]] = len(parents)
 
     for parent in parents:
@@ -452,7 +462,9 @@ def createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCel
       SamplesheetFile = writeSampleSheet(myoptions, logger, sampleSheetDict, laneSeparatedList,
                        fileName=myFileName)
     writeDemultiplexCommandList(logger, demultiplexCommandList,
-                                fileName=myoptions.outdir + 'DemultiplexCommandList.txt')
+                                fileName=myoptions.outdir + flowCellName + '_DemultiplexCommandList.txt')
+    pickleDemultiplexCommandList(logger, demultiplexCommandList,
+                                fileName=myoptions.outdir + flowCellName + '_DemultiplexCommandList.pickle')
   else:
     myFileName = myoptions.outdir + configMap['SampleSheetFileName'] + '_' + \
                    flowCellName + '.csv'
@@ -463,7 +475,7 @@ def createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCel
 def writeDemultiplexCommandList(logger, demultiplexCommandList,
                                 fileName):
   try:
-    with open(fileName, 'w') as demuxFile:
+    with open(fileName, 'wb') as demuxFile:
       for listElement in demultiplexCommandList:
         demuxFile.write(*listElement)
 
@@ -472,6 +484,18 @@ def writeDemultiplexCommandList(logger, demultiplexCommandList,
   except IOError, err:
     logger.error('File error: ' + str(err))
     print ('File error: ' + str(err))
+
+def pickleDemultiplexCommandList(logger, demultiplexCommandList, fileName):
+  import pickle
+
+  try:
+    with open(fileName, 'w') as pickleDemux:
+      pickle.dump(demultiplexCommandList, pickleDemux)
+    logger.info('Writing file ' + fileName)
+  except IOError, err:
+    logger.error('File error: ' + str(err))
+    print ('File error: ' + str(err))
+
 
 
 def writeSampleSheet(myoptions, logger, sampleSheetDict, sortedSampleSheetList, fileName):
@@ -587,9 +611,6 @@ def createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary
                             + separator
                             + key + '_' + flowCellName
                             ]
-  # print headerList
-  # print sampleSheetDict
-
   myFileName = myoptions.outdir + configMap['SampleSheetFileName'] + '_' + \
                    flowCellName + '.csv'
 
@@ -636,19 +657,22 @@ def main ():
                          logger, myoptions)
       break
 
-  for miseq in miseqList:
-    if miseq in runFolderName:
-      logger.info('Detected MiSeq run.')
-      index1Vocabulary = getVocabulary(configMap['index1Name'], service)
-      index2Vocabulary = getVocabulary(configMap['index2Name'], service)
-      SampleSheetFile = createMiSeqSampleSheet(parentDict, flowCellDict, configMap,
-                                    index1Vocabulary, index2Vocabulary, flowCellName, logger, myoptions)
-      break
+  SampleSheetFile = createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCellName, configMap,
+                         logger, myoptions)
+#  for miseq in miseqList:
+#    if miseq in runFolderName:
+#      logger.info('Detected MiSeq run.')
+#      index1Vocabulary = getVocabulary(configMap['index1Name'], service)
+#      index2Vocabulary = getVocabulary(configMap['index2Name'], service)
+#      SampleSheetFile = createMiSeqSampleSheet(parentDict, flowCellDict, configMap,
+#                                    index1Vocabulary, index2Vocabulary, flowCellName, logger, myoptions)
+#      break
 
   if myoptions.maillist:
     sendMail(configMap['mailList'], [SampleSheetFile], flowCellName, configMap, logger)
 
   logout(service, logger)
+
 
 if __name__ == "__main__":
     main()
