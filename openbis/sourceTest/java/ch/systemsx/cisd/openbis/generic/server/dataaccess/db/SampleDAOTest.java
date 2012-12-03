@@ -25,6 +25,8 @@ import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -40,6 +42,7 @@ import ch.systemsx.cisd.common.collection.CollectionStyle;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -134,11 +137,12 @@ public final class SampleDAOTest extends AbstractDAOTest
         containedType.setSubcodeUnique(false);
         final SamplePE container1 = createSample(containerType, "container1");
         final SamplePE container2 = createSample(containerType, "container2");
+        save(container1, container2);
         final SamplePE well1_1 = createContainedSample(containedType, "well1", container1);
         final SamplePE well1_2 = createContainedSample(containedType, "well2", container1);
         final SamplePE well2_1 = createContainedSample(containedType, "well1", container2);
         final SamplePE well2_2 = createContainedSample(containedType, "well2", container2);
-        save(container1, container2, well1_1, well1_2, well2_1, well2_2);
+        save(well1_1, well1_2, well2_1, well2_2);
 
         final Session currentSession = sessionFactory.getCurrentSession();
         currentSession.flush();
@@ -167,8 +171,9 @@ public final class SampleDAOTest extends AbstractDAOTest
         containedType.setSubcodeUnique(true);
         final SamplePE container1 = createSample(containerType, "container1");
         final SamplePE container2 = createSample(containerType, "container2");
+        save(container1, container2);
         final SamplePE well1_1 = createContainedSample(containedType, "well1", container1);
-        save(container1, container2, well1_1);
+        save(well1_1);
 
         final Session currentSession = sessionFactory.getCurrentSession();
         currentSession.flush();
@@ -186,6 +191,69 @@ public final class SampleDAOTest extends AbstractDAOTest
                     + "sample of the same type with the same subcode already exists.",
                     e.getMessage());
         }
+    }
+
+    @Test
+    public void testCreateSamplesForAnExperiment()
+    {
+        ExperimentPE experiment = daoFactory.getExperimentDAO().listExperiments().get(0);
+        SampleTypePE type = getSampleType("CELL_PLATE");
+        SamplePE s1 = createSample(type, "LINKED_SAMPLE1");
+        s1.setExperiment(experiment);
+        SamplePE s2 = createSample(type, "LINKED_SAMPLE2");
+        s2.setExperiment(experiment);
+
+        save(s1, s2);
+
+        // clear session to avoid using samples from first level cache
+        Session currentSession = sessionFactory.getCurrentSession();
+        currentSession.flush();
+        currentSession.clear();
+        ExperimentPE reloadedExperiment =
+                daoFactory.getExperimentDAO().tryGetByPermID(experiment.getPermId());
+        List<SamplePE> samples = reloadedExperiment.getSamples();
+        List<String> identifiers = new ArrayList<String>();
+        for (SamplePE sample : samples)
+        {
+            identifiers.add(sample.getIdentifier());
+        }
+        Collections.sort(identifiers);
+        assertEquals("[/LINKED_SAMPLE1, /LINKED_SAMPLE2]", identifiers.toString());
+    }
+
+    @Test
+    public void testCreateExperimentAndLinkedSamples()
+    {
+        IExperimentDAO experimentDAO = daoFactory.getExperimentDAO();
+        ExperimentPE experiment = experimentDAO.listExperiments().get(0);
+        ExperimentPE newExperiment = new ExperimentPE();
+        newExperiment.setProject(experiment.getProject());
+        newExperiment.setExperimentType(experiment.getExperimentType());
+        newExperiment.setCode(newExperiment.getCode() + "-2");
+        newExperiment.setRegistrator(experiment.getRegistrator());
+        newExperiment.setPermId("abc-2");
+        PersonPE user = getSystemPerson();
+        newExperiment.setModifier(user);
+        newExperiment.setRegistrationDate(new Date());
+        newExperiment.setModificationDate(new Date());
+        experimentDAO.createOrUpdateExperiment(newExperiment, user);
+        SampleTypePE type = getSampleType("CELL_PLATE");
+        SamplePE s1 = createSample(type, "LINKED_SAMPLE1");
+        s1.setExperiment(newExperiment);
+        SamplePE s2 = createSample(type, "LINKED_SAMPLE2");
+        s2.setExperiment(newExperiment);
+
+        save(s1, s2);
+
+        ExperimentPE reloadedExperiment = experimentDAO.tryGetByPermID(newExperiment.getPermId());
+        List<SamplePE> samples = reloadedExperiment.getSamples();
+        List<String> identifiers = new ArrayList<String>();
+        for (SamplePE sample : samples)
+        {
+            identifiers.add(sample.getIdentifier());
+        }
+        Collections.sort(identifiers);
+        assertEquals("[/LINKED_SAMPLE1, /LINKED_SAMPLE2]", identifiers.toString());
     }
 
     @Test

@@ -57,6 +57,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -353,9 +354,9 @@ public abstract class AbstractDAO extends HibernateDaoSupport
             });
     }
 
-    protected void lockEntity(Object entityOrNull)
+    protected void lockEntity(IIdHolder entityOrNull)
     {
-        if (entityOrNull != null)
+        if (entityOrNull != null && entityOrNull.getId() != null)
         {
             getHibernateTemplate().lock(entityOrNull, LockMode.PESSIMISTIC_WRITE);
         }

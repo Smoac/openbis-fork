@@ -789,6 +789,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     /** children of container hierarchy - added only to simplify testing */
     private List<SamplePE> contained = new ArrayList<SamplePE>();
 
+    @OptimisticLock(excluded = true)
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "container")
     public List<SamplePE> getContained()
     {
