@@ -203,7 +203,7 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSDictionary *properties = [self propertiesAtIndexPath: indexPath];
-    NSString *label = [properties valueForKey: @"key"];
+    NSString *label = [properties valueForKey: @"label"];
     NSString *value = [properties valueForKey: @"value"];
 
     // Font and size obtained from the storyboard
@@ -245,7 +245,7 @@
     if (!self.detailItem) return;
     NSDictionary *properties;
     properties = [self propertiesAtIndexPath: indexPath];
-    cell.textLabel.text = [properties valueForKey: @"key"];
+    cell.textLabel.text = [properties valueForKey: @"label"];
     cell.detailTextLabel.text = [properties valueForKey: @"value"];
 }
 
