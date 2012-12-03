@@ -356,7 +356,7 @@ public class RollbackStack implements IRollbackStack
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    private static class StackElement implements Serializable, Comparable<StackElement>
+    protected static class StackElement implements Serializable, Comparable<StackElement>
     {
         private static final long serialVersionUID = 1L;
 
@@ -364,7 +364,7 @@ public class RollbackStack implements IRollbackStack
 
         private final int order;
 
-        private StackElement(ITransactionalCommand command, int order)
+        protected StackElement(ITransactionalCommand command, int order)
         {
             this.command = command;
             this.order = order;
