@@ -27,13 +27,13 @@ public class ResolutionBasedThumbnailsConfiguration extends
         ch.systemsx.cisd.openbis.dss.etl.dto.api.thumbnails.ResolutionBasedThumbnailsConfiguration
 {
 
-    private ResolutionBasedThumbnailsConfiguration(int maxWidth, int maxHeight,
+    public ResolutionBasedThumbnailsConfiguration(int maxWidth, int maxHeight,
             boolean allowEnlarging)
     {
         super(maxWidth, maxHeight, allowEnlarging);
     }
 
-    private ResolutionBasedThumbnailsConfiguration(int maxWidth, int maxHeight)
+    public ResolutionBasedThumbnailsConfiguration(int maxWidth, int maxHeight)
     {
         super(maxWidth, maxHeight);
     }

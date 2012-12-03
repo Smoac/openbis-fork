@@ -27,7 +27,7 @@ public class ZoomLevelBasedThumbnailsConfiguration extends
         ch.systemsx.cisd.openbis.dss.etl.dto.api.thumbnails.ZoomLevelBasedThumbnailsConfiguration
 {
 
-    private ZoomLevelBasedThumbnailsConfiguration(double zoomLevel)
+    public ZoomLevelBasedThumbnailsConfiguration(double zoomLevel)
     {
         super(zoomLevel);
     }

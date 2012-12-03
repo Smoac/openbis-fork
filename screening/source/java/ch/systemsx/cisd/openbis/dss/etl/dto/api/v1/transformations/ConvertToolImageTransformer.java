@@ -29,7 +29,7 @@ public class ConvertToolImageTransformer extends
         ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ConvertToolImageTransformer
 {
 
-    ConvertToolImageTransformer(String arguments, ToolChoice choiceOrNull)
+    public ConvertToolImageTransformer(String arguments, ToolChoice choiceOrNull)
     {
         super(arguments, choiceOrNull);
     }

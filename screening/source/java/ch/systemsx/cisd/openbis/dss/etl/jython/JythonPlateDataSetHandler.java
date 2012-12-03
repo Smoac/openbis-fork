@@ -28,7 +28,7 @@ public class JythonPlateDataSetHandler extends
         ch.systemsx.cisd.openbis.dss.etl.jython.v1.JythonPlateDataSetHandler
 {
 
-    private JythonPlateDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState)
+    public JythonPlateDataSetHandler(TopLevelDataSetRegistratorGlobalState globalState)
     {
         super(globalState);
     }
