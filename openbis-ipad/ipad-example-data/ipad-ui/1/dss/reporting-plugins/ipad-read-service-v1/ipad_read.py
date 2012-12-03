@@ -140,6 +140,20 @@ def image_url_for_compound(material):
 	chemblId =  material.getCode()
 	return 'https://www.ebi.ac.uk/chemblws/compounds/%s/image' % chemblId
 
+def properties_for_entity(entity, property_definitions, prop_names_set):
+	"""Extract the properties, in the correct order, for the entity. Restricting them to those in the prop_names_set, if it is non-empty"""
+	properties = []
+	check_prop_names_set = len(prop_names_set) > 0
+	for propdef in property_definitions:
+		propcode = propdef.getPropertyTypeCode()
+		# Only include the properties we explicitly specify
+		if check_prop_names_set and propcode not in prop_names_set:
+			continue
+		value = entity.getPropertyValue(propcode)
+		prop = {'key' : propcode, 'label' : propdef.getPropertyTypeLabel(), 'value' : value }
+		properties.append(prop)
+	return properties
+
 def navigation_dict(name, children):
 	"""Create a navigational entity"""
 	navigation_dict = {}
@@ -162,7 +176,7 @@ def navigation_dict(name, children):
 	# Need to handle the material links as entity links: "TARGET", "COMPOUND"
 	return navigation_dict
 
-def material_to_dict(material):
+def material_to_dict(material, material_type_properties_definitions):
 	material_dict = {}
 	material_dict['SUMMARY_HEADER'] = material.getCode()
 	material_dict['IDENTIFIER'] = material.getMaterialIdentifier()
@@ -184,13 +198,14 @@ def material_to_dict(material):
 
 	material_dict['CHILDREN'] = json_encoded_value([])
 
-	prop_names = ["NAME", "PROT_NAME", "GENE_NAME", "LENGTH", "CHEMBL", "DESC", "FORMULA", "WEIGHT", "SMILES"]
-	properties = dict((name, material.getPropertyValue(name)) for name in prop_names if material.getPropertyValue(name) is not None)
-	properties['VERY_LONG_PROPERTY_NAME'] = "This is a very long text that should span multiple lines to see if this thing works, you know, the thing that causes the other thing to place text on multiple lines and stuff like that, etc., etc., so on and so forth."
+	prop_names = set(["NAME", "PROT_NAME", "GENE_NAME", "LENGTH", "CHEMBL", "DESC", "FORMULA", "WEIGHT", "SMILES"])
+	property_definitions = material_type_properties_definitions.get(material.getMaterialType(), [])
+	properties = properties_for_entity(material, property_definitions, prop_names)	
+	properties.append({'key' : 'VERY_LONG_PROPERTY_NAME', 'label' : 'Very Long Property Name', 'value' : "This is a very long text that should span multiple lines to see if this thing works, you know, the thing that causes the other thing to place text on multiple lines and stuff like that, etc., etc., so on and so forth."})
 	material_dict['PROPERTIES'] = json_encoded_value(properties)
 	return material_dict
 
-def sample_to_dict(five_ht_sample, material_by_perm_id, data_sets):
+def sample_to_dict(five_ht_sample, material_by_perm_id, data_sets, sample_type_properties_definitions):
 	sample_dict = {}
 	sample_dict['SUMMARY_HEADER'] = five_ht_sample.getCode()
 	sample_dict['SUMMARY'] = five_ht_sample.getPropertyValue("DESC")
@@ -208,8 +223,10 @@ def sample_to_dict(five_ht_sample, material_by_perm_id, data_sets):
 	children = [five_ht_sample.getPropertyValue("TARGET"), five_ht_sample.getPropertyValue("COMPOUND")]
 	sample_dict['CHILDREN'] = json_encoded_value(children)
 
-	prop_names = ["DESC"]
-	properties = dict((name, five_ht_sample.getPropertyValue(name)) for name in prop_names if five_ht_sample.getPropertyValue(name) is not None)
+	prop_names = set(["DESC"])
+	property_definitions = sample_type_properties_definitions.get(five_ht_sample.getSampleType(), [])
+	properties = properties_for_entity(five_ht_sample, property_definitions, prop_names)
+
 	sample_dict['PROPERTIES'] = json_encoded_value(properties)
 	sample_dict['ROOT_LEVEL'] = None
 	# Need to handle the material links as entity links: "TARGET", "COMPOUND"
@@ -239,13 +256,13 @@ def gather_materials(five_ht_samples):
 		add_material_to_collection(sample.getPropertyValue("COMPOUND"), material_identifiers)
 	return material_identifiers
 
-def materials_to_dict(materials):
-	result = [material_to_dict(material) for material in materials]
+def materials_to_dict(materials, material_type_properties_definitions):
+	result = [material_to_dict(material, material_type_properties_definitions) for material in materials]
 	return result
 
-def samples_to_dict(samples, material_by_perm_id):
+def samples_to_dict(samples, material_by_perm_id, sample_type_properties_definitions):
 	data_sets = retrieve_data_sets_for_samples(samples)
-	result = [sample_to_dict(sample, material_by_perm_id, data_sets) for sample in samples]
+	result = [sample_to_dict(sample, material_by_perm_id, data_sets, sample_type_properties_definitions) for sample in samples]
 	return result
 
 def retrieve_samples(sample_perm_ids_and_ref_cons):
@@ -257,6 +274,43 @@ def retrieve_samples(sample_perm_ids_and_ref_cons):
 		code = sample['REFCON']['code']	
 		sc.addMatchClause(sc.MatchClause.createAttributeMatch(sc.MatchClauseAttribute.CODE, code))
 	return searchService.searchForSamples(sc)
+
+def gather_entity_types(entity_perm_ids_and_ref_cons):
+	"""Return a set containing all specified entity types."""
+	entity_types = set()
+	for entity in entity_perm_ids_and_ref_cons:
+		entity_type = entity['REFCON']['entityType']
+		entity_types.add(entity_type)
+	return entity_types
+
+def retrieve_entity_type_properties_definitions(entity_perm_ids_and_ref_cons, search_func):
+	"""Return the property definitions for each of the referenced entity types.
+
+	The definitions are sorted according to display order.
+	"""
+	if not entity_perm_ids_and_ref_cons:
+		return []
+	entityTypes = gather_entity_types(entity_perm_ids_and_ref_cons)
+	definitionsByType = {}
+	for entityType in entityTypes:
+		definitions = list(search_func(entityType))
+		definitions.sort(lambda x, y: cmp(x.getPositionInForms(), y.getPositionInForms()))
+		definitionsByType[entityType] = definitions
+	return definitionsByType
+
+def retrieve_sample_type_properties_definitions(sample_perm_ids_and_ref_cons):
+	"""Return the property definitions for each of the referenced sample types.
+
+	The definitions are sorted according to display order.
+	"""
+	return retrieve_entity_type_properties_definitions(sample_perm_ids_and_ref_cons, searchService.listPropertiesDefinitionsForSampleType)
+
+def retrieve_material_type_properties_definitions(material_perm_ids_and_ref_cons):
+	"""Return the property definitions for each of the referenced material types.
+
+	The definitions are sorted according to display order.
+	"""
+	return retrieve_entity_type_properties_definitions(material_perm_ids_and_ref_cons, searchService.listPropertiesDefinitionsForMaterialType)
 
 def retrieve_data_sets_for_samples(samples):
 	experiment_codes = set()
@@ -275,21 +329,6 @@ def retrieve_data_sets_for_samples(samples):
 	data_set_sc.addSubCriteria(SearchSubCriteria.createExperimentCriteria(sc))
 	return searchService.searchForDataSets(data_set_sc)
 
-class ExampleAllDataRequestHandler(AllDataRequestHandler):
-	"""Handler for the ALLDATA request."""
-
-	def retrieve_data(self):
-		# Get the data and add a row for each data item
-		self.samples = self.searchService.searchForSamples("DESC", "*", "5HT_PROBE")
-		material_identifiers = gather_materials(self.samples)
-		materials = self.searchService.listMaterials(material_identifiers)
-		self.material_dict_array = materials_to_dict(materials)
-		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
-
-	def add_data_rows(self):
-		self.add_rows(self.material_dict_array)
-		self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id))
-
 class ExampleRootRequestHandler(RootRequestHandler):
 	"""Handler for the ROOT request."""
 
@@ -298,7 +337,7 @@ class ExampleRootRequestHandler(RootRequestHandler):
 		self.samples = self.searchService.searchForSamples("DESC", "*", "5HT_PROBE")
 		material_identifiers = gather_materials(self.samples)
 		materials = self.searchService.listMaterials(material_identifiers)
-		self.material_dict_array = materials_to_dict(materials)
+		self.material_dict_array = materials_to_dict(materials, {})
 		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
 
 	def add_navigation_rows(self):
@@ -314,7 +353,7 @@ class ExampleRootRequestHandler(RootRequestHandler):
 	def add_data_rows(self):
 		self.add_navigation_rows()
 		self.add_rows(self.material_dict_array)
-		self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id))
+		self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id, {}))
 
 class ExampleDrillRequestHandler(DrillRequestHandler):
 	"""Handler for the DRILL request."""
@@ -326,12 +365,12 @@ class ExampleDrillRequestHandler(DrillRequestHandler):
 		self.samples = retrieve_samples(drill_samples)
 		material_identifiers = gather_materials(self.samples)
 		materials = self.searchService.listMaterials(material_identifiers)
-		self.material_dict_array = materials_to_dict(materials)
+		self.material_dict_array = materials_to_dict(materials, {})
 		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
 
 	def add_data_rows(self):
 		self.add_rows(self.material_dict_array)
-		self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id))
+		self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id, {}))
 
 class ExampleDetailRequestHandler(DetailRequestHandler):
 	"""Handler for the DETAIL request."""
@@ -343,6 +382,7 @@ class ExampleDetailRequestHandler(DetailRequestHandler):
 		detail_materials = [entity for entity in entities if 'MATERIAL' == entity['REFCON']['entityKind']]
 
 		self.samples = retrieve_samples(detail_samples)
+		self.sample_type_properties_definitions = retrieve_sample_type_properties_definitions(detail_samples)
 
 		# We need to get data for materials explicitly requested as well as those associated
 		# with the samples we have retrieved
@@ -353,13 +393,14 @@ class ExampleDetailRequestHandler(DetailRequestHandler):
 
 		materials = self.searchService.listMaterials(material_identifiers)
 		materials_to_return = [material for material in materials if material.getMaterialIdentifier() in detail_material_identifiers]
+		self.material_type_properties_definitions = retrieve_material_type_properties_definitions(detail_materials)
 		# We internally need more materials, but only return those explicitly asked for
-		self.material_dict_array = materials_to_dict(materials_to_return)
+		self.material_dict_array = materials_to_dict(materials_to_return, self.material_type_properties_definitions)
 		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
 
 	def add_data_rows(self):
 		self.add_rows(self.material_dict_array)
-		self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id))
+		self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id, self.sample_type_properties_definitions))
 
 def aggregate(parameters, builder):
 	request_key = parameters.get('requestKey')
