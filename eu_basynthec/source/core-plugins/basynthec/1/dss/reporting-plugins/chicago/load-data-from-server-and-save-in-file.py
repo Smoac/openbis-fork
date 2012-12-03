@@ -8,8 +8,6 @@ import shutil
 FIELD_ID = 'id'
 FIELD_PREDICTIONS = 'predictions'
 FIELD_PHENOTYPES = 'phenotypes'
-FIELD_HAS_PREDICTIONS = 'hasPredictions'
-FIELD_HAS_PHENOTYPES = 'hasPhenotypes'
 
 def loadDataFromServer(serverUrl):
   url = urllib.urlopen(serverUrl)
