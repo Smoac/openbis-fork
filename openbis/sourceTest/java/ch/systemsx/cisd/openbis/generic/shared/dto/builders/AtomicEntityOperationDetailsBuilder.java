@@ -131,6 +131,12 @@ public class AtomicEntityOperationDetailsBuilder
         return this;
     }
 
+    public AtomicEntityOperationDetailsBuilder metaProject(NewMetaproject metaProject)
+    {
+        metaprojectRegistrations.add(metaProject);
+        return this;
+    }
+
     public AtomicEntityOperationDetailsBuilder metaProjectUpdate(
             MetaprojectUpdatesDTO metaProjectUpdate)
     {

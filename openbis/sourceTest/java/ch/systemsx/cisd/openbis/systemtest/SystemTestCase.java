@@ -193,6 +193,11 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
 
         private List<IEntityProperty> propertis = new ArrayList<IEntityProperty>();
 
+        public NewSample get()
+        {
+            return sample;
+        }
+
         public NewSampleBuilder(String identifier)
         {
             sample.setIdentifier(identifier);
@@ -209,6 +214,12 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
         public NewSampleBuilder experiment(String identifier)
         {
             sample.setExperimentIdentifier(identifier);
+            return this;
+        }
+
+        public NewSampleBuilder container(String identifier)
+        {
+            sample.setContainerIdentifier(identifier);
             return this;
         }
 

@@ -73,6 +73,9 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
 
     private Map<Class<?>, List<Long>> changedEntitiesIds;
 
+    private List<IEntityWithMetaprojects> entitiesWithMetaproject =
+            new ArrayList<IEntityWithMetaprojects>();
+
     private boolean dataChanged;
 
     public MetaprojectBO(final IDAOFactory daoFactory, IExperimentBO experimentBO,
@@ -154,6 +157,10 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
 
         if (dataChanged)
         {
+            for (IEntityWithMetaprojects entity : entitiesWithMetaproject)
+            {
+                entity.addMetaproject(metaproject);
+            }
             try
             {
                 getMetaprojectDAO().createOrUpdateMetaproject(metaproject, findPerson());
@@ -310,7 +317,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
             {
                 throw new IllegalArgumentException("Entity for id: " + entityId + " doesn't exist.");
             }
-            entityPE.addMetaproject(metaproject);
+            entitiesWithMetaproject.add(entityPE);
             addToChangedEntities(entityPE.getClass(), entityPE.getId());
         }
         dataChanged = true;
