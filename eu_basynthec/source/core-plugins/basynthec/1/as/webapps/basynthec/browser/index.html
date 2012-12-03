@@ -38,13 +38,9 @@ function enterAppOrShowLoginError(data) {
 
 
 $(document).ready(function() {
+
 	$("#main").hide();
-	
-	$('#logout-button').click(function() { basynthec.server.logout(function(data) {
-			window.location.reload();
-		})
-	});
-	
+
 	$("#groupradio1").change(function(event){
 		presenter.switchToDataSetTypeView();
 	});
@@ -57,22 +53,36 @@ $(document).ready(function() {
 	$("#groupradio4").change(function(event){
 	  presenter.switchToOD600WithPhenotypesAndPredictionsView();
   });
-	
-	$('#login-form').submit(function() {
-		$("#login-failed").hide();
-		basynthec.server.login(
-			$.trim($('#username').val()), 
-			$.trim($('#password').val()), 
-			function(data) { enterAppOrShowLoginError(data) })
-	});
-	
 	$('#explanation-show-text').click(function() {
 		presenter.showExplanation();
 	});
 
+	var context = new openbisWebAppContext();
 	
-	basynthec.server.ifRestoredSessionActive(function(data) { enterApp() });
- });
+	if(context.getSessionId()){
+			$("#openbis-logo").hide();
+			$("#login-form-div").hide();
+			$("#logout-button").hide();
+			basynthec.server.useSession(context.getSessionId());
+			enterApp();
+	}else{
+			$('#logout-button').click(function() { basynthec.server.logout(function(data) {
+					window.location.reload();
+				})
+			});
+			
+			$('#login-form').submit(function() {
+				$("#login-failed").hide();
+				basynthec.server.login(
+					$.trim($('#username').val()), 
+					$.trim($('#password').val()), 
+					function(data) { enterAppOrShowLoginError(data) })
+			});
+			
+			basynthec.server.ifRestoredSessionActive(function(data) { enterApp() });
+	}
+	
+});
  
  </script>
 </head>

@@ -1170,6 +1170,10 @@ function od600DataForStrain(d) {
 	return data;
 }
 
+function od600DataProperties(d){
+	return d;
+}
+
 function curveData(d, i)
 {
 	if (!d.values) return [];
