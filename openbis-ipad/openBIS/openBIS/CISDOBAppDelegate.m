@@ -142,8 +142,14 @@
     [call start];
 }
 
+// There is a deadlock that happens initializing the cookie storage, so do it now before
+// multiple threads are running. This might only be a problem in the simulator...
+- (void)cookieStorageDeadlockWorkaround { [NSHTTPCookieStorage sharedHTTPCookieStorage]; }
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [self cookieStorageDeadlockWorkaround];
+    
     // Initialize the controller
     [self configureControllers];
     
