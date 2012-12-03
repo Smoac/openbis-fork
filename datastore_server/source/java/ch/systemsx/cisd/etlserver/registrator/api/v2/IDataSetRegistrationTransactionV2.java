@@ -22,6 +22,7 @@ import net.lemnik.eodsql.DynamicTransactionQuery;
 
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.SearchService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExternalDataManagementSystemImmutable;
@@ -59,7 +60,9 @@ public interface IDataSetRegistrationTransactionV2
      * Get a data set from the openBIS AS. Returns null if the data set does not exist.
      * 
      * @return A data set or null
+     * @deprecated Use {@link SearchService#getDataSet(String)}
      */
+    @Deprecated
     IDataSetImmutable getDataSet(String dataSetCode);
 
     /**
@@ -81,7 +84,9 @@ public interface IDataSetRegistrationTransactionV2
      * Get a sample from the openBIS AS. Returns null if the sample does not exist.
      * 
      * @return A sample or null
+     * @deprecated Use {@link SearchService#getSample(String)}
      */
+    @Deprecated
     ISampleImmutable getSample(String sampleIdentifierString);
 
     /**
@@ -118,7 +123,10 @@ public interface IDataSetRegistrationTransactionV2
 
     /**
      * Get an experiment from the openBIS AS.
+     * 
+     * @deprecated Use {@link SearchService#getExperiment(String)}
      */
+    @Deprecated
     IExperimentImmutable getExperiment(String experimentIdentifierString);
 
     /**
@@ -152,7 +160,9 @@ public interface IDataSetRegistrationTransactionV2
      * Get a project from the openBIS AS. Returns null if the project does not exist.
      * 
      * @return A project or null
+     * @deprecated Use {@link SearchService#getProject(String)}
      */
+    @Deprecated
     IProjectImmutable getProject(String projectIdentifier);
 
     /**
@@ -180,7 +190,9 @@ public interface IDataSetRegistrationTransactionV2
      * Get a space from the openBIS AS. Returns null if the space does not exist.
      * 
      * @return A space or null
+     * @deprecated Use {@link SearchService#getSpace(String)}
      */
+    @Deprecated
     ISpaceImmutable getSpace(String spaceCode);
 
     /**
@@ -194,7 +206,9 @@ public interface IDataSetRegistrationTransactionV2
      * Get a material from the openBIS AS. Returns null if the material does not exist.
      * 
      * @return A material or null
+     * @deprecated Use {@link SearchService#getMaterial(String)}
      */
+    @Deprecated
     IMaterialImmutable getMaterial(String identifier);
 
     /**
@@ -243,14 +257,14 @@ public interface IDataSetRegistrationTransactionV2
     /**
      * Only allowed when the user is available.
      * 
-     * @return Read-only metaproject with given name for current user.
+     * @return metaproject with given name for current user.
      */
     IMetaproject getMetaproject(String name);
 
     /**
      * Only allowed when the user is not available.
      * 
-     * @return Read-only metaproject with given name for specified user.
+     * @return metaproject with given name for specified user.
      */
     IMetaproject getMetaproject(String name, String ownerId);
 
@@ -258,7 +272,9 @@ public interface IDataSetRegistrationTransactionV2
      * Get the read-only vocabulary with given code
      * 
      * @returns null if the vocabulary is not found
+     * @deprecated Use {@link SearchService#getVocabulary(String)}
      */
+    @Deprecated
     IVocabularyImmutable getVocabulary(String code);
 
     /**

@@ -821,6 +821,13 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
+    public Metaproject tryGetMetaproject(String name)
+    {
+        throw new UnsupportedOperationException(
+                "Getting metaproject is available only for the user-filtered version of service");
+    }
+
+    @Override
     @ManagedAuthentication
     public MetaprojectAssignments getMetaprojectAssignments(String name)
     {

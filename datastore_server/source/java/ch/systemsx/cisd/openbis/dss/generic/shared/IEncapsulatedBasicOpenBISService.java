@@ -29,12 +29,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * The basic subset of the {@link IEncapsulatedOpenBISService}, that requires only service and a
@@ -45,6 +51,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 public interface IEncapsulatedBasicOpenBISService
 {
     /**
+     * Tries to get the space of specified identifier or <code>null</code> if not found.
+     */
+    @ManagedAuthentication
+    public Space tryGetSpace(SpaceIdentifier spaceIdentifier) throws UserFailureException;
+
+    /**
+     * Tries to get the project of specified identifier or <code>null</code> if not found.
+     */
+    @ManagedAuthentication
+    public Project tryGetProject(ProjectIdentifier projectIdentifier) throws UserFailureException;
+
+    /**
      * Returns the data set type together with assigned property types for the specified data set
      * type code.
      */
@@ -52,10 +70,27 @@ public interface IEncapsulatedBasicOpenBISService
     public DataSetTypeWithVocabularyTerms getDataSetType(String dataSetTypeCode);
 
     /**
+     * Tries to get the data set for the specified data set code, using the ETL server's session
+     * token.
+     */
+    @ManagedAuthentication
+    public ExternalData tryGetDataSet(final String dataSetCode) throws UserFailureException;
+
+    /**
      * {@link IETLLIMSService#searchForSamples(String, SearchCriteria)}
      */
     @ManagedAuthentication
     public List<Sample> searchForSamples(SearchCriteria searchCriteria);
+
+    /**
+     * Gets a sample with the specified identifier. Sample is enriched with properties and the
+     * experiment with properties.
+     * 
+     * @return <code>null</code> if no sample could be found for given <var>sampleIdentifier</var>.
+     */
+    @ManagedAuthentication
+    public Sample tryGetSampleWithExperiment(final SampleIdentifier sampleIdentifier)
+            throws UserFailureException;
 
     /**
      * {@link IETLLIMSService#searchForDataSets(String, SearchCriteria)}
@@ -68,6 +103,13 @@ public interface IEncapsulatedBasicOpenBISService
      */
     @ManagedAuthentication
     public List<Experiment> listExperiments(ProjectIdentifier projectIdentifier);
+
+    /**
+     * Tries to get the experiment of specified identifier or <code>null</code> if not found.
+     */
+    @ManagedAuthentication
+    public Experiment tryGetExperiment(ExperimentIdentifier experimentIdentifier)
+            throws UserFailureException;
 
     /**
      * Lists vocabulary terms.
@@ -91,6 +133,12 @@ public interface IEncapsulatedBasicOpenBISService
     public List<Material> listMaterials(ListMaterialCriteria criteria, boolean withProperties);
 
     /**
+     * For given {@link MaterialIdentifier} returns the corresponding {@link Material}.
+     */
+    @ManagedAuthentication
+    public Material tryGetMaterial(MaterialIdentifier materialIdentifier);
+
+    /**
      * List property definitions for the given entity type
      */
     @ManagedAuthentication
@@ -103,6 +151,12 @@ public interface IEncapsulatedBasicOpenBISService
      */
     @ManagedAuthentication
     public List<Metaproject> listMetaprojects();
+
+    /**
+     * For given (@code name} and current user returns the corresponding {@link Metaproject}
+     */
+    @ManagedAuthentication
+    public Metaproject tryGetMetaproject(String name);
 
     /**
      * List metaproject assignments for given metaproject and current user.

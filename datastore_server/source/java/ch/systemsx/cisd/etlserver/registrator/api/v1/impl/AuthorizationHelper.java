@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -62,9 +63,20 @@ public class AuthorizationHelper
                 String user, List<String> codes);
     }
 
+    /**
+     * Returns null if given entity is not visible, or the entity if it is visible
+     */
+    public static <T> T filterToVisible(IEncapsulatedOpenBISService openBisService, String user,
+            T entity, IMapper<T, String> codeMapper, EntityKind entityKind)
+    {
+        List<String> visible =
+                entityKind.filterToVisible(openBisService, user,
+                        Collections.singletonList(codeMapper.map(entity)));
+        return visible.size() == 1 ? entity : null;
+    }
+
     public static <T> List<T> filterToVisible(IEncapsulatedOpenBISService openBisService,
-            String user, List<T> entities,
-            IMapper<T, String> codeMapper, EntityKind entityKind)
+            String user, List<T> entities, IMapper<T, String> codeMapper, EntityKind entityKind)
     {
         // create a list of codes
         List<String> codes = new LinkedList<String>();

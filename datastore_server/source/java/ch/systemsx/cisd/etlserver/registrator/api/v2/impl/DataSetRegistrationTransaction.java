@@ -78,13 +78,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInform
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * The implementation of a transaction. This class is designed to be used in one thread.
@@ -275,7 +268,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     @Override
     public IDataSetImmutable getDataSet(String dataSetCode)
     {
-        return getStateAsLiveState().getDataSet(dataSetCode);
+        return getSearchServiceUnfiltered().getDataSet(dataSetCode);
     }
 
     @Override
@@ -293,11 +286,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     @Override
     public ISampleImmutable getSample(String sampleIdentifierString)
     {
-        SampleIdentifier sampleIdentifier =
-                new SampleIdentifierFactory(sampleIdentifierString).createIdentifier();
-        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sampleOrNull =
-                openBisService.tryGetSampleWithExperiment(sampleIdentifier);
-        return (null == sampleOrNull) ? null : new SampleImmutable(sampleOrNull);
+        return getSearchServiceUnfiltered().getSample(sampleIdentifierString);
     }
 
     @Override
@@ -339,11 +328,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     @Override
     public IExperimentImmutable getExperiment(String experimentIdentifierString)
     {
-        ExperimentIdentifier experimentIdentifier =
-                new ExperimentIdentifierFactory(experimentIdentifierString).createIdentifier();
-        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experimentOrNull =
-                openBisService.tryGetExperiment(experimentIdentifier);
-        return (null == experimentOrNull) ? null : new ExperimentImmutable(experimentOrNull);
+        return getSearchServiceUnfiltered().getExperiment(experimentIdentifierString);
     }
 
     @Override
@@ -361,13 +346,9 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
-    public IProjectImmutable getProject(String projectIdentifierString)
+    public IProjectImmutable getProject(String projectIdentifier)
     {
-        ProjectIdentifier projectIdentifier =
-                new ProjectIdentifierFactory(projectIdentifierString).createIdentifier();
-        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project projectOrNull =
-                openBisService.tryGetProject(projectIdentifier);
-        return (null == projectOrNull) ? null : new ProjectImmutable(projectOrNull);
+        return getSearchServiceUnfiltered().getProject(projectIdentifier);
     }
 
     @Override
@@ -391,31 +372,19 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     @Override
     public ISpaceImmutable getSpace(String spaceCode)
     {
-        SpaceIdentifier spaceIdentifier = new SpaceIdentifier(spaceCode);
-        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space spaceOrNull =
-                openBisService.tryGetSpace(spaceIdentifier);
-        return (null == spaceOrNull) ? null : new SpaceImmutable(spaceOrNull);
+        return getSearchServiceUnfiltered().getSpace(spaceCode);
     }
 
     @Override
     public IMaterialImmutable getMaterial(String materialCode, String materialType)
     {
-        MaterialIdentifier materialIdentifier = new MaterialIdentifier(materialCode, materialType);
-        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material materialOrNull =
-                openBisService.tryGetMaterial(materialIdentifier);
-        return (null == materialOrNull) ? null : new MaterialImmutable(materialOrNull);
+        return getSearchServiceUnfiltered().getMaterial(materialCode, materialType);
     }
 
     @Override
     public IMaterialImmutable getMaterial(String identifier)
     {
-        MaterialIdentifier materialId = MaterialIdentifier.tryParseIdentifier(identifier);
-        if (materialId == null)
-        {
-            throw new IllegalArgumentException("Incorrect material identifier format " + identifier
-                    + ". Expected code (type)");
-        }
-        return getMaterial(materialId.getCode(), materialId.getTypeCode());
+        return getSearchServiceUnfiltered().getMaterial(identifier);
     }
 
     @Override

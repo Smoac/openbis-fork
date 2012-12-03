@@ -143,6 +143,11 @@ public interface ISearchService
     public List<IMetaprojectImmutable> listMetaprojects();
 
     /**
+     * Get the given metaproject for the current user
+     */
+    IMetaprojectImmutable getMetaproject(String name);
+
+    /**
      * @return the assignments for the given metaproject for current user.
      */
     public IMetaprojectAssignments getMetaprojectAssignments(String name);
@@ -151,4 +156,52 @@ public interface ISearchService
      * @return metaprojects for current user, which are assigned to the given entity
      */
     public List<IMetaprojectImmutable> listMetaprojectsForEntity(IMetaprojectContent entity);
+
+    /**
+     * Get a data set from the openBIS AS. Returns null if the data set does not exist.
+     * 
+     * @return A data set or null
+     */
+    IDataSetImmutable getDataSet(String dataSetCode);
+
+    /**
+     * Get a sample from the openBIS AS. Returns null if the sample does not exist.
+     * 
+     * @return A sample or null
+     */
+    ISampleImmutable getSample(String sampleIdentifierString);
+
+    /**
+     * Get an experiment from the openBIS AS.
+     */
+    IExperimentImmutable getExperiment(String experimentIdentifierString);
+
+    /**
+     * Get a project from the openBIS AS. Returns null if the project does not exist.
+     * 
+     * @return A project or null
+     */
+    IProjectImmutable getProject(String projectIdentifier);
+
+    /**
+     * Get a space from the openBIS AS. Returns null if the space does not exist.
+     * 
+     * @return A space or null
+     */
+    ISpaceImmutable getSpace(String spaceCode);
+
+    /**
+     * Get a material from the openBIS AS. Returns null if the material does not exist.
+     * 
+     * @return A material or null
+     */
+    IMaterialImmutable getMaterial(String materialCode, String materialType);
+
+    /**
+     * Get a material from the openBIS AS. Returns null if the material does not exist.
+     * 
+     * @return A material or null
+     */
+    IMaterialImmutable getMaterial(String identifier);
+
 }

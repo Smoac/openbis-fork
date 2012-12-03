@@ -35,9 +35,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IMaterialImmu
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IMetaprojectAssignments;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IMetaprojectContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IMetaprojectImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IProjectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IPropertyAssignmentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISpaceImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.MaterialIdentifierCollection;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
@@ -54,8 +56,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -68,6 +75,25 @@ public class SearchService implements ISearchService
     public SearchService(IEncapsulatedBasicOpenBISService openBisService)
     {
         this.openBisService = openBisService;
+    }
+
+    @Override
+    public IProjectImmutable getProject(String projectIdentifierString)
+    {
+        ProjectIdentifier projectIdentifier =
+                new ProjectIdentifierFactory(projectIdentifierString).createIdentifier();
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project projectOrNull =
+                openBisService.tryGetProject(projectIdentifier);
+        return (null == projectOrNull) ? null : new ProjectImmutable(projectOrNull);
+    }
+
+    @Override
+    public ISpaceImmutable getSpace(String spaceCode)
+    {
+        SpaceIdentifier spaceIdentifier = new SpaceIdentifier(spaceCode);
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space spaceOrNull =
+                openBisService.tryGetSpace(spaceIdentifier);
+        return (null == spaceOrNull) ? null : new SpaceImmutable(spaceOrNull);
     }
 
     @Override
@@ -291,6 +317,12 @@ public class SearchService implements ISearchService
     }
 
     @Override
+    public IMetaprojectImmutable getMetaproject(String name)
+    {
+        return new MetaprojectImmutable(openBisService.tryGetMetaproject(name));
+    }
+
+    @Override
     public IMetaprojectAssignments getMetaprojectAssignments(String name)
     {
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments assignments =
@@ -304,5 +336,59 @@ public class SearchService implements ISearchService
         List<Metaproject> metaprojects =
                 openBisService.listMetaprojectsForEntity(entity.getEntityId());
         return ConversionUtils.convertToMetaprojectsImmutable(metaprojects);
+    }
+
+    @Override
+    public IDataSetImmutable getDataSet(String dataSetCode)
+    {
+        ExternalData dataSet = openBisService.tryGetDataSet(dataSetCode);
+        if (dataSet == null)
+        {
+            return null;
+        } else
+        {
+            return new DataSetImmutable(dataSet, openBisService);
+        }
+    }
+
+    @Override
+    public IExperimentImmutable getExperiment(String experimentIdentifierString)
+    {
+        ExperimentIdentifier experimentIdentifier =
+                new ExperimentIdentifierFactory(experimentIdentifierString).createIdentifier();
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experimentOrNull =
+                openBisService.tryGetExperiment(experimentIdentifier);
+        return (null == experimentOrNull) ? null : new ExperimentImmutable(experimentOrNull);
+    }
+
+    @Override
+    public ISampleImmutable getSample(String sampleIdentifierString)
+    {
+        SampleIdentifier sampleIdentifier =
+                new SampleIdentifierFactory(sampleIdentifierString).createIdentifier();
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sampleOrNull =
+                openBisService.tryGetSampleWithExperiment(sampleIdentifier);
+        return (null == sampleOrNull) ? null : new SampleImmutable(sampleOrNull);
+    }
+
+    @Override
+    public IMaterialImmutable getMaterial(String materialCode, String materialType)
+    {
+        MaterialIdentifier materialIdentifier = new MaterialIdentifier(materialCode, materialType);
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material materialOrNull =
+                openBisService.tryGetMaterial(materialIdentifier);
+        return (null == materialOrNull) ? null : new MaterialImmutable(materialOrNull);
+    }
+
+    @Override
+    public IMaterialImmutable getMaterial(String identifier)
+    {
+        MaterialIdentifier materialId = MaterialIdentifier.tryParseIdentifier(identifier);
+        if (materialId == null)
+        {
+            throw new IllegalArgumentException("Incorrect material identifier format " + identifier
+                    + ". Expected code (type)");
+        }
+        return getMaterial(materialId.getCode(), materialId.getTypeCode());
     }
 }

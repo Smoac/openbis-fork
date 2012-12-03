@@ -29,15 +29,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -46,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
@@ -58,8 +54,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -88,13 +82,6 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     @ManagedAuthentication
     public IDatasetLocationNode tryGetDataSetLocation(final String dataSetCode)
             throws UserFailureException;
-
-    /**
-     * Tries to get the data set for the specified data set code, using the ETL server's session
-     * token.
-     */
-    @ManagedAuthentication
-    public ExternalData tryGetDataSet(final String dataSetCode) throws UserFailureException;
 
     /**
      * Tries to get the data set for the specified data set code and specified session.
@@ -133,39 +120,10 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
             throws UserFailureException;
 
     /**
-     * Tries to get the experiment of specified identifier or <code>null</code> if not found.
-     */
-    @ManagedAuthentication
-    public Experiment tryGetExperiment(ExperimentIdentifier experimentIdentifier)
-            throws UserFailureException;
-
-    /**
-     * Tries to get the space of specified identifier or <code>null</code> if not found.
-     */
-    @ManagedAuthentication
-    public Space tryGetSpace(SpaceIdentifier spaceIdentifier) throws UserFailureException;
-
-    /**
-     * Tries to get the project of specified identifier or <code>null</code> if not found.
-     */
-    @ManagedAuthentication
-    public Project tryGetProject(ProjectIdentifier projectIdentifier) throws UserFailureException;
-
-    /**
      * Gets all sample in accordance to the specified criteria.
      */
     @ManagedAuthentication
     public List<Sample> listSamples(final ListSampleCriteria criteria) throws UserFailureException;
-
-    /**
-     * Gets a sample with the specified identifier. Sample is enriched with properties and the
-     * experiment with properties.
-     * 
-     * @return <code>null</code> if no sample could be found for given <var>sampleIdentifier</var>.
-     */
-    @ManagedAuthentication
-    public Sample tryGetSampleWithExperiment(final SampleIdentifier sampleIdentifier)
-            throws UserFailureException;
 
     /**
      * Tries to get the sample identifier for the sample with specified permanent ID.
@@ -173,14 +131,7 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      * @return <code>null</code> if nothing found.
      */
     @ManagedAuthentication
-    public SampleIdentifier tryGetSampleIdentifier(String samplePermID)
-            throws UserFailureException;
-
-    /**
-     * For given {@link MaterialIdentifier} returns the corresponding {@link Material}.
-     */
-    @ManagedAuthentication
-    public Material tryGetMaterial(MaterialIdentifier materialIdentifier);
+    public SampleIdentifier tryGetSampleIdentifier(String samplePermID) throws UserFailureException;
 
     /**
      * For given (@code name} and {@code ownerId} returns the corresponding {@link Metaproject}
@@ -276,8 +227,8 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      *         sample is found with no properties.
      */
     @ManagedAuthentication
-    public IEntityProperty[] tryGetPropertiesOfTopSample(
-            final SampleIdentifier sampleIdentifier) throws UserFailureException;
+    public IEntityProperty[] tryGetPropertiesOfTopSample(final SampleIdentifier sampleIdentifier)
+            throws UserFailureException;
 
     /**
      * Tries to return the properties of the sample with given <var>sampleIdentifier</var>.. If
@@ -288,8 +239,8 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      *         sample found with no properties.
      */
     @ManagedAuthentication
-    public IEntityProperty[] tryGetPropertiesOfSample(
-            final SampleIdentifier sampleIdentifier) throws UserFailureException;
+    public IEntityProperty[] tryGetPropertiesOfSample(final SampleIdentifier sampleIdentifier)
+            throws UserFailureException;
 
     /** See {@link IETLLIMSService#listSamplesByCriteria(String, ListSamplesByPropertyCriteria)} */
     @ManagedAuthentication

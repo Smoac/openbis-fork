@@ -35,13 +35,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -71,6 +77,47 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
         this.userName = userName;
     }
 
+    private final static IMapper<ExternalData, String> externalDataCodeMapper =
+            new IMapper<ExternalData, String>()
+                {
+                    @Override
+                    public String map(ExternalData item)
+                    {
+                        return item.getCode();
+                    }
+                };
+
+    private final static IMapper<Sample, String> sampleIdMapper = new IMapper<Sample, String>()
+        {
+            @Override
+            public String map(Sample item)
+            {
+                return item.getIdentifier();
+            }
+        };
+
+    private final static IMapper<Experiment, String> experimentIdMapper =
+            new IMapper<Experiment, String>()
+                {
+                    @Override
+                    public String map(Experiment item)
+                    {
+                        return item.getIdentifier();
+                    }
+                };
+
+    @Override
+    public Project tryGetProject(ProjectIdentifier projectIdentifier) throws UserFailureException
+    {
+        return encapsulatedService.tryGetProject(projectIdentifier);
+    }
+
+    @Override
+    public Space tryGetSpace(SpaceIdentifier spaceIdentifier) throws UserFailureException
+    {
+        return encapsulatedService.tryGetSpace(spaceIdentifier);
+    }
+
     @Override
     public DataSetTypeWithVocabularyTerms getDataSetType(String dataSetTypeCode)
     {
@@ -81,58 +128,52 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
     @Override
     public List<Sample> searchForSamples(SearchCriteria searchCriteria)
     {
-        IMapper<Sample, String> idMapper = new IMapper<Sample, String>()
-            {
-                @Override
-                public String map(Sample item)
-                {
-                    return item.getIdentifier();
-                }
-            };
 
         List<Sample> samples = etlService.searchForSamples(systemSessionToken, searchCriteria);
 
         return AuthorizationHelper.filterToVisible(encapsulatedService, userName, samples,
-                idMapper, AuthorizationHelper.EntityKind.SAMPLE);
+                sampleIdMapper, AuthorizationHelper.EntityKind.SAMPLE);
+    }
 
+    @Override
+    @ManagedAuthentication
+    public Sample tryGetSampleWithExperiment(SampleIdentifier sampleIdentifier)
+            throws UserFailureException
+    {
+        Sample sample = encapsulatedService.tryGetSampleWithExperiment(sampleIdentifier);
+        return AuthorizationHelper.filterToVisible(encapsulatedService, userName, sample,
+                sampleIdMapper, AuthorizationHelper.EntityKind.SAMPLE);
     }
 
     @Override
     public List<ExternalData> searchForDataSets(SearchCriteria searchCriteria)
     {
-        IMapper<ExternalData, String> codeMapper = new IMapper<ExternalData, String>()
-            {
-                @Override
-                public String map(ExternalData item)
-                {
-                    return item.getCode();
-                }
-            };
-
         List<ExternalData> datasets =
                 etlService.searchForDataSets(systemSessionToken, searchCriteria);
 
         return AuthorizationHelper.filterToVisible(encapsulatedService, userName, datasets,
-                codeMapper, AuthorizationHelper.EntityKind.DATA_SET);
+                externalDataCodeMapper, AuthorizationHelper.EntityKind.DATA_SET);
     }
 
     @Override
     public List<Experiment> listExperiments(ProjectIdentifier projectIdentifier)
     {
-        IMapper<Experiment, String> codeMapper = new IMapper<Experiment, String>()
-            {
-                @Override
-                public String map(Experiment item)
-                {
-                    return item.getIdentifier();
-                }
-            };
 
-        List<Experiment> datasets =
+        List<Experiment> experiments =
                 etlService.listExperiments(systemSessionToken, projectIdentifier);
 
-        return AuthorizationHelper.filterToVisible(encapsulatedService, userName, datasets,
-                codeMapper, AuthorizationHelper.EntityKind.EXPERIMENT);
+        return AuthorizationHelper.filterToVisible(encapsulatedService, userName, experiments,
+                experimentIdMapper, AuthorizationHelper.EntityKind.EXPERIMENT);
+    }
+
+    @Override
+    @ManagedAuthentication
+    public Experiment tryGetExperiment(ExperimentIdentifier experimentIdentifier)
+            throws UserFailureException
+    {
+        Experiment experiment = encapsulatedService.tryGetExperiment(experimentIdentifier);
+        return AuthorizationHelper.filterToVisible(encapsulatedService, userName, experiment,
+                experimentIdMapper, AuthorizationHelper.EntityKind.EXPERIMENT);
     }
 
     @Override
@@ -155,6 +196,13 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
     }
 
     @Override
+    @ManagedAuthentication
+    public Material tryGetMaterial(MaterialIdentifier materialIdentifier)
+    {
+        return encapsulatedService.tryGetMaterial(materialIdentifier);
+    }
+
+    @Override
     public List<? extends EntityTypePropertyType<?>> listPropertyDefinitionsForEntityType(
             String code, EntityKind entityKind)
     {
@@ -168,7 +216,12 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
     }
 
     @Override
-    @ManagedAuthentication
+    public Metaproject tryGetMetaproject(String name)
+    {
+        return etlService.tryGetMetaproject(systemSessionToken, name, userName);
+    }
+
+    @Override
     public MetaprojectAssignments getMetaprojectAssignments(String name)
     {
         return etlService.getMetaprojectAssignments(systemSessionToken, name, userName,
@@ -176,9 +229,16 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
     }
 
     @Override
-    @ManagedAuthentication
     public List<Metaproject> listMetaprojectsForEntity(IObjectId entityId)
     {
         return etlService.listMetaprojectsForEntity(systemSessionToken, userName, entityId);
+    }
+
+    @Override
+    public ExternalData tryGetDataSet(String dataSetCode) throws UserFailureException
+    {
+        ExternalData data = encapsulatedService.tryGetDataSet(dataSetCode);
+        return AuthorizationHelper.filterToVisible(encapsulatedService, userName, data,
+                externalDataCodeMapper, AuthorizationHelper.EntityKind.DATA_SET);
     }
 }

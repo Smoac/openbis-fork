@@ -407,18 +407,6 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             }
         }
 
-        public IDataSetImmutable getDataSet(String dataSetCode)
-        {
-            ExternalData dataSet = openBisService.tryGetDataSet(dataSetCode);
-            if (dataSet == null)
-            {
-                return null;
-            } else
-            {
-                return new DataSetImmutable(dataSet, openBisService);
-            }
-        }
-
         public IDataSetUpdatable getDataSetForUpdate(String dataSetCode)
         {
             // See if we already have an updatable version of the data set
