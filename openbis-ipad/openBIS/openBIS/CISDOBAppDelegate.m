@@ -63,7 +63,10 @@
 - (void)verifyLoginURL:(NSURL *)openbisUrl username:(NSString *)username password:(NSString *)password sender:(CISDOBLoginViewController *)controller
 {
     NSError *error;
-    [self initializeServiceManager: openbisUrl error: &error];
+    if (![self initializeServiceManager: openbisUrl error: &error]) {
+        [controller showError: error];
+        return;
+    }
     
     CISDOBMasterViewController *masterViewController = [self masterViewController];
 
@@ -203,8 +206,7 @@
     NSURL *openbisUrl = [self openbisUrl];
     
     NSError *error;
-    [self initializeServiceManager: openbisUrl error: &error];
-    if (!_serviceManager) {
+    if (![self initializeServiceManager: openbisUrl error: &error]) {
         // TODO Implement error handling
         NSLog(@"Unresolved error -- could not create service manager %@, %@", error, [error userInfo]);
         abort();
@@ -213,7 +215,7 @@
     return _serviceManager;
 }
 
-- (void)initializeServiceManager:(NSURL *)openbisUrl error:(NSError **)error
+- (BOOL)initializeServiceManager:(NSURL *)openbisUrl error:(NSError **)error
 {
     
     NSURL *storeUrl = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"openBISData.sqlite"];
@@ -229,7 +231,10 @@
         _serviceManager =
             [[CISDOBIpadServiceManager alloc]
                 initWithStoreUrl: storeUrl openbisUrl: openbisUrl trusted: YES error: error];
+        if (!_serviceManager) return NO;
     }
+    
+    return YES;
 }
 
 - (CISDOBOpenBisModel *)rootOpenBisModel
