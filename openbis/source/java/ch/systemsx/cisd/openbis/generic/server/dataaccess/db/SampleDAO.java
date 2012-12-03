@@ -86,8 +86,6 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         {
             sample.setModificationDate(new Date());
         }
-        lockEntity(sample.getDatabaseInstance());
-        lockEntity(sample.getSpace());
         lockEntity(sample.getExperiment());
         lockEntity(sample.getContainer());
         hibernateTemplate.saveOrUpdate(sample);
