@@ -969,21 +969,13 @@ Od600InspectorView.prototype.updateView = function(duration)
 			
 	inspectorEnter.append("svg:svg")
 		.attr("width", function(d){
-			return d.graphWidth = GRAPH_SMALL_WIDTH
+			d.showSmall = true;
+			return GRAPH_SMALL_WIDTH
 		})
-		.attr("height", function(d){
-			return d.graphHeight = GRAPH_SMALL_HEIGHT
-		})
+		.attr("height", GRAPH_SMALL_HEIGHT)
 		.on("click", function(d){
-			if(d.graphWidth == GRAPH_SMALL_WIDTH){
-				d.graphWidth = GRAPH_LARGE_WIDTH;
-				d.graphHeight = GRAPH_LARGE_HEIGHT;
-				od600InspectorView.updateView();
-			}else{
-				d.graphWidth = GRAPH_SMALL_WIDTH;
-				d.graphHeight = GRAPH_SMALL_HEIGHT;
-				od600InspectorView.updateView();
-			}
+			d.showSmall = !d.showSmall;
+			od600InspectorView.updateView();
 		});
 	
 	appendObjectSection({
@@ -1022,14 +1014,13 @@ Od600InspectorView.prototype.updateView = function(duration)
 		}
 	});
 
+	function graphWidth(d) { return d.showSmall ? GRAPH_SMALL_WIDTH : GRAPH_LARGE_WIDTH }
+	function graphHeight(d) { return d.showSmall ? GRAPH_SMALL_HEIGHT : GRAPH_LARGE_HEIGHT }
+
 	// update
 	inspector.select("svg").transition().duration(duration)
-		.attr("width", function(d){
-			return d.graphWidth; 
-		})
-		.attr("height", function(d){
-			return d.graphHeight; 
-		})
+		.attr("width", graphWidth)
+		.attr("height", graphHeight);
 	
 	var dataDisplay = inspector.select("svg").selectAll("g.curve").data(od600DataForStrain);
 	dataDisplay.enter()
@@ -1037,6 +1028,18 @@ Od600InspectorView.prototype.updateView = function(duration)
 			.attr("class", "curve");
 	// Reinitialize the variable
 	dataDisplay = inspector.select("svg").selectAll("g.curve").data(od600DataForStrain);
+
+	function x1(d, i) {
+		var graph = this.parentNode.parentNode.parentNode.__data__;
+		var lines = this.parentNode.__data__;
+		return (i / (lines.length)) * graphWidth(graph);
+	};
+
+	function x2(d, i) {
+		var graph = this.parentNode.parentNode.parentNode.__data__;
+		var lines = this.parentNode.__data__;
+		return ((i + 1) / (lines.length)) * graphWidth(graph);
+	};
 
 	// Draw the curves
 	var aCurve = dataDisplay.selectAll("g.lines").data(curveData);
@@ -1048,26 +1051,19 @@ Od600InspectorView.prototype.updateView = function(duration)
 		.style("stroke", function(d) {
 			var lines = this.parentNode.__data__;
 			return lines.color;
-		});
+		})
+		.attr("x1", x1).attr("y1", "0").attr("x2", x2).attr("y2", "0");
 
 	line.transition().duration(duration)
-		.attr("x1", function(d, i) {
-			var graph = this.parentNode.parentNode.parentNode.__data__;
-			var lines = this.parentNode.__data__;
-			return (i / (lines.length)) * graph.graphWidth; 
-		})
+		.attr("x1", x1)
 		.attr("y1", function(d, i) { 
 			var graph = this.parentNode.parentNode.parentNode.__data__;
-			return graph.graphHeight - (d[0] * graph.graphHeight); 
+			return graphHeight(graph) - (d[0] * graphHeight(graph));
 		})
-		.attr("x2", function(d, i) { 
-			var graph = this.parentNode.parentNode.parentNode.__data__;
-			var lines = this.parentNode.__data__;
-			return ((i + 1) / (lines.length)) * graph.graphWidth;
-		})
+		.attr("x2", x2)
 		.attr("y2", function(d) { 
 			var graph = this.parentNode.parentNode.parentNode.__data__;
-			return graph.graphHeight - (d[1] * graph.graphHeight); 
+			return graphHeight(graph) - (d[1] * graphHeight(graph));
 		})
 		.style("stroke", function(d) {
 			var lines = this.parentNode.__data__;
