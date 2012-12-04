@@ -168,6 +168,18 @@ id ObjectFromJsonData(NSString *jsonDataString, NSError **error)
     if (rawEntity.children) self.childrenPermIdsJson = rawEntity.children;
     if (rawEntity.identifier) self.identifier = rawEntity.identifier;
     if (rawEntity.imageUrl) self.imageUrlString = rawEntity.imageUrl;
+    if (rawEntity.images) {
+        NSError *error;
+        NSDictionary *imageSpecs = ObjectFromJsonData(rawEntity.images, &error);
+        if (!imageSpecs) {
+            NSLog(@"Could not parse images %@", error);
+        } else {
+            NSDictionary *marqueeImage = [imageSpecs objectForKey: @"MARQUEE"];
+            if (marqueeImage) {
+                self.imageUrlString = [marqueeImage objectForKey: @"URL"];
+            }
+        }
+    }
     if (rawEntity.properties) self.propertiesJson = rawEntity.properties;
     if (rawEntity.rootLevel) {
         BOOL rootLevel = [rawEntity.rootLevel length] > 0;

@@ -87,7 +87,8 @@ enum CISOBIpadServiceErrorCode {
 @property(readonly) NSString *summary;
 @property(readonly) NSString *children;     //<! The permIds of the children as a JSON string
 @property(readonly) NSString *identifier;
-@property(readonly) NSString *imageUrl;
+@property(readonly) NSString *images;       //<! The image specifications as a JSON string
+@property(readonly) NSString *imageUrl;     //<! Deprecated
 @property(readonly) NSString *properties;   //<! The properties as a JSON string.
 @property(readonly) NSString *rootLevel;
 

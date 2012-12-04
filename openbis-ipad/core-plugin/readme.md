@@ -100,11 +100,19 @@ The iPad data model tracks information for displaying and navigating between ent
 			<td>Shown in detail views.</td>
 			<td>openBIS identifier</td>
 		</tr>
+<!--
 		<tr>
-			<td>IMAGE_URL</td>
+			<td>IMAGE_URL (deprecated)</td>
 			<td>A url for an image associated with this entity. If None or empty, no image is shown.</td>
 			<td>Shown in detail views.</td>
 			<td>An image from the DSS. An external image.</td>
+		</tr>
+-->
+		<tr>
+			<td>IMAGES</td>
+			<td>A hash map containing image specifications (described below). Two keys are possible: MARQUEE, a single image specification shown in a prominant location; TILED, many image specification shown in a tiled display.</td>
+			<td>Shown in detail views.</td>
+			<td>An image from the DSS or an external image from the web.</td>
 		</tr>
 		<tr>
 			<td>PROPERTIES</td>
@@ -125,6 +133,30 @@ The iPad data model tracks information for displaying and navigating between ent
 There are two fields in the data model that have a purpose beyond the UI. These are the `PERM_ID` field and the `REFCON` field. The `PERM_ID` field is assumed to be a stable identifier for the iPad entity and, thus, cannot change. The `PERM_ID` field is used by the iPad app to associate information from the server to the correct entity on the app.
 
 The `REFCON` field is a field that is not touched by the iPad app at all. The server is free to place whatever information it wishes in this field. The content of the `REFCON` is sent back to the server when the iPad makes requests for more data for an existing entity. The server can thus use the `REFCON` to keep track for itself how several openBIS entities are merged into one iPad entity, for example. The `REFCON` is updated on every request, so the service can modify this value if it is appropriate.
+
+Image Specification
+-------------------
+
+Image specifications describe images. They may contain either a URL for the image or the data for the image itself.
+
+<table>
+	<thead>
+		<tr>
+			<th>Key</th>
+			<th>Value</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>URL</td>
+			<td>A url to the image. The url may refer to the DSS or somewhere in the Internet.</td>
+		</tr>
+		<tr>
+			<td>DATA</td>
+			<td>A map containing the data for the image. The format has not yet been finalized, but we expect it to include the following keys: 'BASE64' (base-64 coded data for the image), 'FORMAT' (the image format, e.g., PNG, JPG, etc.).</td>
+		</tr>
+	</tbody>
+</table>
 
 Communication
 -------------
@@ -164,7 +196,7 @@ The communication model between the iPad and the service has been designed to tr
 			<td>entities : List of {"PERM_ID" : String, REFCON : String}</td>
 			<td>Return detail information for the specified entities.</td>
 			<td>Display the entity in the detail view. This should return all information necessary to show the entity</td>
-			<td>PERM_ID, REFCON, SUMMARY_HEADER, SUMMARY, IDENTIFIER, IMAGE_URL, PROPERTIES</td>
+			<td>PERM_ID, REFCON, SUMMARY_HEADER, SUMMARY, IDENTIFIER, IMAGES, PROPERTIES</td>
 		</tr>
 	</tbody>
 </table>

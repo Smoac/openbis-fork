@@ -66,8 +66,9 @@ class RequestHandler:
 			SUMMARY : A potentially longer summary of the entity.
 			CHILDREN : The permIds of the children of this entity. Transmitted as JSON.
 			IDENTIFIER : An identifier for the object.
-			IMAGE_URL : A url for an image associated with this entity. If None or empty, no
-				image is shown.
+			IMAGES : A map with keys coming from the set 'MARQUEE', 'TILED'. The values are image specs or lists of image specs.
+				Image specs are maps with the keys: 'URL' (a URL for the iamge) or 'DATA'. The data key contains a map that
+				includes the image data and may include some image metadata as well. This format has not yet been specified.
 			PROPERTIES : Properties (metadata) that should be displayed for this entity. Transmitted as JSON.
 			ROOT_LEVEL : True if the entity should be shown on the root level.
 
@@ -100,7 +101,7 @@ class AllDataRequestHandler(RequestHandler):
 	"""Abstract Handler for the ALLDATA request."""
 
 	def optional_headers(self):
-		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "CHILDREN", "IDENTIFIER", "IMAGE_URL", "PROPERTIES"]
+		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "CHILDREN", "IDENTIFIER", "IMAGES", "PROPERTIES"]
 
 class EmptyDataRequestHandler(RequestHandler):
 	"""Return nothing to the caller."""
@@ -124,7 +125,7 @@ class DetailRequestHandler(RequestHandler):
 	"""Abstract Handler for the DETAIL request."""
 
 	def optional_headers(self):
-		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "IDENTIFIER", "IMAGE_URL", "PROPERTIES"]
+		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "IDENTIFIER", "IMAGES", "PROPERTIES"]
 
 #
 # END Infrastructure
@@ -153,6 +154,9 @@ def properties_for_entity(entity, property_definitions, prop_names_set):
 		prop = {'key' : propcode, 'label' : propdef.getPropertyTypeLabel(), 'value' : value }
 		properties.append(prop)
 	return properties
+
+def marquee_image_spec_for_url(image_url):
+	return { 'MARQUEE' : { 'URL' : image_url } }
 
 def navigation_dict(name, children):
 	"""Create a navigational entity"""
@@ -190,10 +194,10 @@ def material_to_dict(material, material_type_properties_definitions):
 	material_dict['CATEGORY'] = material.getMaterialType()
 	if material.getMaterialType() == '5HT_COMPOUND':
 		material_dict['SUMMARY'] = material.getPropertyValue("FORMULA")
-		material_dict['IMAGE_URL'] = image_url_for_compound(material)
+		material_dict['IMAGES'] = json_encoded_value(marquee_image_spec_for_url(image_url_for_compound(material)))
 	else:
 		material_dict['SUMMARY'] = material.getPropertyValue("DESC")
-		material_dict['IMAGE_URL'] = ""
+		material_dict['IMAGES'] = []
 		material_dict['ROOT_LEVEL'] = None
 
 	material_dict['CHILDREN'] = json_encoded_value([])
@@ -218,7 +222,7 @@ def sample_to_dict(five_ht_sample, material_by_perm_id, data_sets, sample_type_p
 	sample_dict['REFCON'] = json_encoded_value(refcon)
 	sample_dict['CATEGORY'] = five_ht_sample.getSampleType()
 	compound = material_by_perm_id[five_ht_sample.getPropertyValue("COMPOUND")]
-	sample_dict['IMAGE_URL'] = image_url_for_sample(five_ht_sample, data_sets, compound)
+	sample_dict['IMAGES'] = json_encoded_value(marquee_image_spec_for_url(image_url_for_sample(five_ht_sample, data_sets, compound)))
 
 	children = [five_ht_sample.getPropertyValue("TARGET"), five_ht_sample.getPropertyValue("COMPOUND")]
 	sample_dict['CHILDREN'] = json_encoded_value(children)

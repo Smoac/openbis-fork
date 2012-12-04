@@ -285,6 +285,7 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 - (NSString *)summary { return [self stringContentValueAtName: @"SUMMARY"]; }
 - (NSString *)children { return [self stringContentValueAtName: @"CHILDREN"]; }
 - (NSString *)identifier { return [self stringContentValueAtName: @"IDENTIFIER"]; }
+- (NSString *)images { return [self stringContentValueAtName: @"IMAGES"]; }
 - (NSString *)imageUrl { return [self stringContentValueAtName: @"IMAGE_URL"]; }
 - (NSString *)properties { return [self stringContentValueAtName: @"PROPERTIES"]; }
 - (NSString *)rootLevel { return [self stringContentValueAtName: @"ROOT_LEVEL"]; }
