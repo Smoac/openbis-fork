@@ -998,41 +998,65 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     @Override
     public IDatasetLocationNode listLocationsByDatasetCode(String datasetCode)
     {
-        DataIterator<DatasetLocationNodeRecord> queryResult =
-                query.listLocationsByDatasetCode(datasetCode);
+        TableMap<Long, DatasetLocationNodeRecord> records = loadRawLocationData(datasetCode);
 
         Map<Long, DatasetLocationNode> nodeMap = new HashMap<Long, DatasetLocationNode>();
         DatasetLocationNode rootNode = null;
-
-        while (queryResult.hasNext())
+        for (DatasetLocationNodeRecord record : records)
         {
-            DatasetLocationNodeRecord record = queryResult.next();
-
             DatasetLocation location = new DatasetLocation();
             location.setDatasetCode(record.code);
             location.setDataSetLocation(record.location);
             location.setDataStoreCode(record.data_store_code);
             location.setDataStoreUrl(record.data_store_url);
-
             DatasetLocationNode node = new DatasetLocationNode(location);
-
-            if (record.ctnr_id != null)
-            {
-                DatasetLocationNode parentNode = nodeMap.get(record.ctnr_id);
-                if (parentNode != null)
-                {
-                    parentNode.addContained(node);
-                }
-            }
-
-            nodeMap.put(record.id, node);
-
-            if (rootNode == null)
+            if (datasetCode.equals(record.code))
             {
                 rootNode = node;
             }
+            nodeMap.put(record.id, node);
         }
 
+        linkContainedData(records, nodeMap);
+
         return rootNode;
+    }
+
+    private void linkContainedData(TableMap<Long, DatasetLocationNodeRecord> records,
+            Map<Long, DatasetLocationNode> nodeMap)
+    {
+        Set<Entry<Long, DatasetLocationNode>> entrySet = nodeMap.entrySet();
+        for (Entry<Long, DatasetLocationNode> entry : entrySet)
+        {
+            Long id = entry.getKey();
+            DatasetLocationNode node = entry.getValue();
+            Long containerId = records.tryGet(id).ctnr_id;
+            if (containerId != null)
+            {
+                DatasetLocationNode containerNode = nodeMap.get(containerId);
+                if (containerNode != null)
+                {
+                    containerNode.addContained(node);
+                }
+            }
+        }
+    }
+
+    private TableMap<Long, DatasetLocationNodeRecord> loadRawLocationData(String datasetCode)
+    {
+        DataIterator<DatasetLocationNodeRecord> queryResult =
+                query.listLocationsByDatasetCode(datasetCode);
+        TableMap<Long, DatasetLocationNodeRecord> records =
+                new TableMap<Long, DatasetLocationNodeRecord>(queryResult,
+                        new IKeyExtractor<Long, DatasetLocationNodeRecord>()
+                            {
+                                @Override
+                                public Long getKey(DatasetLocationNodeRecord r)
+                                {
+                                    return r.id;
+                                }
+                            });
+        queryResult.close();
+        return records;
     }
 }
