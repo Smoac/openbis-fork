@@ -168,7 +168,7 @@ id ObjectFromJsonData(NSString *jsonDataString, NSError **error)
     if (rawEntity.children) self.childrenPermIdsJson = rawEntity.children;
     if (rawEntity.identifier) self.identifier = rawEntity.identifier;
     if (rawEntity.imageUrl) self.imageUrlString = rawEntity.imageUrl;
-    if (rawEntity.images) {
+    if (rawEntity.images && [rawEntity.images length] > 0) {
         NSError *error;
         NSDictionary *imageSpecs = ObjectFromJsonData(rawEntity.images, &error);
         if (!imageSpecs) {
