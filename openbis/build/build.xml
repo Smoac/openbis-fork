@@ -528,7 +528,10 @@
       <fileset dir="${lib}/lucene-memory">
         <include name="lucene-memory.jar" />
       </fileset>
-      <fileset dir="${lib}/cisd-args4j">
+      <fileset dir="${lib}/lucene-queries">
+        <include name="lucene-queries.jar" />
+      </fileset>
+    	<fileset dir="${lib}/cisd-args4j">
         <include name="cisd-args4j.jar" />
       </fileset>
       <fileset dir="${lib}/jython">
@@ -844,7 +847,10 @@
       <lib dir="${lib}/lucene-memory">
         <include name="lucene-memory.jar" />
       </lib>
-      <lib dir="${lib}/cisd-args4j">
+      <lib dir="${lib}/lucene-queries">
+        <include name="lucene-queries.jar" />
+      </lib>
+    	<lib dir="${lib}/cisd-args4j">
         <include name="cisd-args4j.jar" />
       </lib>
       <lib dir="${lib}/jython">

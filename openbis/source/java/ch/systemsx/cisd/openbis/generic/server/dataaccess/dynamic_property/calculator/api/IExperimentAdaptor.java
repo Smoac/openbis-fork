@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api;
 
-import java.util.List;
 
 /**
  * @author Jakub Straszewski
@@ -24,8 +23,12 @@ import java.util.List;
 public interface IExperimentAdaptor
 {
     /** Return the samples belonging to this experiment */
-    List<ISampleAdaptor> samples();
+    Iterable<ISampleAdaptor> samples();
+
+    Iterable<ISampleAdaptor> samplesOfType(String typeCodeRegexp);
 
     /** Return the datasets belonging to this experiment */
-    List<IDataAdaptor> dataSets();
+    Iterable<IDataAdaptor> dataSets();
+
+    Iterable<IDataAdaptor> dataSetsOfType(String typeCodeRegexp);
 }

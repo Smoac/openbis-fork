@@ -140,7 +140,7 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
 
         // create sample with all properties created above and evaluate dynamic properties
         final SamplePE sample = createSample("s1", properties);
-        evaluator.evaluateProperties(sample);
+        evaluator.evaluateProperties(sample, null);
 
         // check if evaluated values are correct
         final String expectedDp1Value = String.format("%s %s", p1.getValue(), p2.getValue());
@@ -200,7 +200,7 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
 
         // create sample with all properties created above and evaluate dynamic properties
         final SamplePE sample = createSample("s1", properties);
-        evaluator.evaluateProperties(sample);
+        evaluator.evaluateProperties(sample, null);
 
         // check if evaluated values are correct
         assertEquals(term2.getCode(), dpVarchar.getValue());
@@ -298,7 +298,7 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
 
         // create sample with all properties created above and evaluate dynamic properties
         final SamplePE sample = createSample("s1", properties);
-        evaluator.evaluateProperties(sample);
+        evaluator.evaluateProperties(sample, null);
 
         // check if evaluated values are correct
         final String materialIdentifier =
@@ -350,7 +350,7 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
         properties.add(dp2);
         properties.add(dp3);
         SamplePE sample = createSample("s1", properties);
-        evaluator.evaluateProperties(sample);
+        evaluator.evaluateProperties(sample, null);
         // all values should be equal to value of p1
         assertEquals(p1.getValue(), dp1.getValue());
         assertEquals(p1.getValue(), dp2.getValue());
@@ -363,7 +363,7 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
         properties.add(p1);
         properties.add(dp1);
         sample = createSample("s1", properties);
-        evaluator.evaluateProperties(sample);
+        evaluator.evaluateProperties(sample, null);
         // cyclic dependency should be found
         assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp1), dp1.getValue());
 
@@ -375,7 +375,7 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
         properties.add(dp1);
         properties.add(dp2);
         sample = createSample("s1", properties);
-        evaluator.evaluateProperties(sample);
+        evaluator.evaluateProperties(sample, null);
         // cyclic dependency should be found
         assertEquals(expectedCyclicDependencyErrorMessage(dp2, dp1, dp2), dp1.getValue());
         assertEquals(expectedCyclicDependencyErrorMessage(dp2, dp1, dp2), dp2.getValue());
@@ -390,7 +390,7 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
         properties.add(dp2);
         properties.add(dp3);
         sample = createSample("s1", properties);
-        evaluator.evaluateProperties(sample);
+        evaluator.evaluateProperties(sample, null);
         // cyclic dependency should be found
         assertEquals(expectedCyclicDependencyErrorMessage(dp2, dp3, dp1, dp2), dp1.getValue());
         assertEquals(expectedCyclicDependencyErrorMessage(dp2, dp3, dp1, dp2), dp2.getValue());

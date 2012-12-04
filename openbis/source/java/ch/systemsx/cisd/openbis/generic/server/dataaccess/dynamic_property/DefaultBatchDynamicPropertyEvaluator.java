@@ -213,7 +213,7 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
     {
         for (T entity : entities)
         {
-            evaluator.evaluateProperties(entity);
+            evaluator.evaluateProperties(entity, session);
         }
         session.flush();
         session.clear();

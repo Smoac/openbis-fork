@@ -81,5 +81,6 @@
 	<classpathentry kind="lib" path="/libraries/poi/poi.jar"/>
 	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-deploy.jar"/>
 	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-webapp.jar"/>
+	<classpathentry kind="lib" path="/libraries/lucene-queries/lucene-queries.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>

@@ -27,9 +27,9 @@ import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
 import org.hibernate.type.Type;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.conversation.context.ServiceConversationsThreadContext;
 import ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.DynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
@@ -253,7 +253,9 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         EntityValidationCalculator calculator =
                 EntityValidationCalculator.create(script.getScript(), this);
         IDynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator(daoFactory, null);
-        IEntityAdaptor adaptor = EntityAdaptorFactory.create(entity, evaluator);
+        IEntityAdaptor adaptor =
+                EntityAdaptorFactory.create(entity, evaluator, daoFactory.getSessionFactory()
+                        .getCurrentSession());
         calculator.setEntity(adaptor);
         calculator.setIsNewEntity(isNewEntity);
         return calculator.evalAsString();

@@ -20,6 +20,19 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.regex.RegexQuery;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
+import org.hibernate.search.FullTextQuery;
+import org.hibernate.search.FullTextSession;
+import org.hibernate.search.Search;
+
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityPropertyAdaptor;
@@ -29,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
  * Abstract {@link IEntityAdaptor} implementation.
@@ -43,6 +57,9 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
     private final String code;
 
     protected final IDynamicPropertyEvaluator evaluator;
+
+    protected static String ENTITY_TYPE_CODE_FIELD = SearchFieldConstants.PREFIX_ENTITY_TYPE
+            + SearchFieldConstants.CODE;
 
     public AbstractEntityAdaptor(String code)
     {
@@ -135,4 +152,32 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
         return propertiesByCode.values();
     }
 
+    protected Query regexpConstraint(String field, String value)
+    {
+        return new RegexQuery(new Term(field, value.toLowerCase()));
+    }
+
+    protected Query constraint(String field, String value)
+    {
+        return LuceneQueryBuilder.parseQuery(field, value, LuceneQueryBuilder
+                .createSearchAnalyzer());
+    }
+
+    protected Query and(Query... queries)
+    {
+        BooleanQuery query = new BooleanQuery();
+        for (Query subquery : queries)
+        {
+            query.add(subquery, BooleanClause.Occur.MUST);
+        }
+        return query;
+    }
+
+    protected ScrollableResults execute(Query query, Class<?> resultClass, Session session)
+    {
+        FullTextSession fullTextSession = Search.getFullTextSession(session);
+        FullTextQuery ftQuery = fullTextSession.createFullTextQuery(query, resultClass);
+        ftQuery.setFetchSize(10);
+        return ftQuery.scroll(ScrollMode.FORWARD_ONLY);
+    }
 }

@@ -3190,7 +3190,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     DynamicPropertyCalculator.create(info.getScript());
             IDynamicPropertyEvaluator evaluator =
                     new DynamicPropertyEvaluator(getDAOFactory(), null);
-            IEntityAdaptor adaptor = EntityAdaptorFactory.create(entity, evaluator);
+            IEntityAdaptor adaptor =
+                    EntityAdaptorFactory.create(entity, evaluator, getDAOFactory()
+                            .getSessionFactory().getCurrentSession());
             calculator.setEntity(adaptor);
             return calculator.evalAsString();
         } catch (Throwable e)
@@ -3228,7 +3230,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                                 });
             IDynamicPropertyEvaluator evaluator =
                     new DynamicPropertyEvaluator(getDAOFactory(), null);
-            IEntityAdaptor adaptor = EntityAdaptorFactory.create(entity, evaluator);
+            IEntityAdaptor adaptor =
+                    EntityAdaptorFactory.create(entity, evaluator, getDAOFactory()
+                            .getSessionFactory().getCurrentSession());
             calculator.setEntity(adaptor);
             calculator.setIsNewEntity(info.isNew());
             String result = calculator.evalAsString();

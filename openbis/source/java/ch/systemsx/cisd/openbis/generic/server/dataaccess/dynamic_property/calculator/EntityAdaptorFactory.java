@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator;
 
+import org.hibernate.Session;
+
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDataAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
@@ -35,19 +37,23 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  */
 public class EntityAdaptorFactory
 {
-    /** Returns an adaptor for specified entity based on its kind. */
+    /**
+     * Returns an adaptor for specified entity based on its kind.
+     * 
+     * @param session
+     */
     public static IEntityAdaptor create(IEntityInformationWithPropertiesHolder entity,
-            IDynamicPropertyEvaluator evaluator)
+            IDynamicPropertyEvaluator evaluator, Session session)
     {
 
         switch (entity.getEntityKind())
         {
             case SAMPLE:
-                return new SampleAdaptor((SamplePE) entity, evaluator);
+                return new SampleAdaptor((SamplePE) entity, evaluator, session);
             case EXPERIMENT:
-                return new ExperimentAdaptor((ExperimentPE) entity, evaluator);
+                return new ExperimentAdaptor((ExperimentPE) entity, evaluator, session);
             case DATA_SET:
-                return new ExternalDataAdaptor((DataPE) entity, evaluator);
+                return new ExternalDataAdaptor((DataPE) entity, evaluator, session);
             case MATERIAL:
                 return new MaterialAdaptor((MaterialPE) entity, evaluator);
             default:
@@ -55,19 +61,22 @@ public class EntityAdaptorFactory
         }
     }
 
-    public static IExperimentAdaptor create(ExperimentPE entity, IDynamicPropertyEvaluator evaluator)
+    public static IExperimentAdaptor create(ExperimentPE entity,
+            IDynamicPropertyEvaluator evaluator, Session session)
     {
-        return new ExperimentAdaptor(entity, evaluator);
+        return new ExperimentAdaptor(entity, evaluator, session);
     }
 
-    public static ISampleAdaptor create(SamplePE entity, IDynamicPropertyEvaluator evaluator)
+    public static ISampleAdaptor create(SamplePE entity, IDynamicPropertyEvaluator evaluator,
+            Session session)
     {
-        return new SampleAdaptor(entity, evaluator);
+        return new SampleAdaptor(entity, evaluator, session);
     }
 
-    public static IDataAdaptor create(DataPE entity, IDynamicPropertyEvaluator evaluator)
+    public static IDataAdaptor create(DataPE entity, IDynamicPropertyEvaluator evaluator,
+            Session session)
     {
-        return new ExternalDataAdaptor(entity, evaluator);
+        return new ExternalDataAdaptor(entity, evaluator, session);
     }
 
     public static IMaterialAdaptor create(MaterialPE entity, IDynamicPropertyEvaluator evaluator)

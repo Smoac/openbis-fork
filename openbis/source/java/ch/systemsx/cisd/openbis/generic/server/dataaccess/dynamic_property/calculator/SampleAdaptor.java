@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calc
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Session;
+
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IExperimentAdaptor;
@@ -36,9 +38,12 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
 {
     private final SamplePE samplePE;
 
-    public SampleAdaptor(SamplePE samplePE, IDynamicPropertyEvaluator evaluator)
+    private final Session session;
+
+    public SampleAdaptor(SamplePE samplePE, IDynamicPropertyEvaluator evaluator, Session session)
     {
         super(samplePE.getCode(), evaluator);
+        this.session = session;
         initProperties(samplePE);
         this.samplePE = samplePE;
     }
@@ -57,7 +62,7 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
     @Override
     public IExperimentAdaptor experiment()
     {
-        return EntityAdaptorFactory.create(samplePE.getExperiment(), evaluator);
+        return EntityAdaptorFactory.create(samplePE.getExperiment(), evaluator, session);
     }
 
     @Override
@@ -66,7 +71,7 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
         List<ISampleAdaptor> list = new ArrayList<ISampleAdaptor>();
         for (SamplePE parent : samplePE.getParents())
         {
-            list.add(EntityAdaptorFactory.create(parent, evaluator));
+            list.add(EntityAdaptorFactory.create(parent, evaluator, session));
         }
         return list;
     }
@@ -78,7 +83,7 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
         for (SampleRelationshipPE relationship : samplePE.getChildRelationships())
         {
             SamplePE child = relationship.getChildSample();
-            list.add(EntityAdaptorFactory.create(child, evaluator));
+            list.add(EntityAdaptorFactory.create(child, evaluator, session));
         }
         return list;
     }
@@ -89,7 +94,7 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
         List<ISampleAdaptor> list = new ArrayList<ISampleAdaptor>();
         for (SamplePE contained : samplePE.getContained())
         {
-            list.add(EntityAdaptorFactory.create(contained, evaluator));
+            list.add(EntityAdaptorFactory.create(contained, evaluator, session));
         }
         return list;
     }
@@ -100,7 +105,7 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
         SamplePE container = samplePE.getContainer();
         if (container != null)
         {
-            return EntityAdaptorFactory.create(container, evaluator);
+            return EntityAdaptorFactory.create(container, evaluator, session);
         } else
         {
             return null;

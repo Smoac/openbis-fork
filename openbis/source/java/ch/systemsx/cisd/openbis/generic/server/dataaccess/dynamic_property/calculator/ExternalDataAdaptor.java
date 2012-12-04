@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calc
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Session;
+
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDataAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
@@ -37,9 +39,13 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
 {
     private final DataPE externalDataPE;
 
-    public ExternalDataAdaptor(DataPE externalDataPE, IDynamicPropertyEvaluator evaluator)
+    private final Session session;
+
+    public ExternalDataAdaptor(DataPE externalDataPE, IDynamicPropertyEvaluator evaluator,
+            Session session)
     {
         super(externalDataPE.getCode(), evaluator);
+        this.session = session;
         initProperties(externalDataPE);
         this.externalDataPE = externalDataPE;
     }
@@ -58,7 +64,7 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
     @Override
     public IExperimentAdaptor experiment()
     {
-        return EntityAdaptorFactory.create(externalDataPE.getExperiment(), evaluator);
+        return EntityAdaptorFactory.create(externalDataPE.getExperiment(), evaluator, session);
     }
 
     @Override
@@ -68,7 +74,7 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
         for (DataSetRelationshipPE relationship : externalDataPE.getParentRelationships())
         {
             DataPE parent = relationship.getParentDataSet();
-            list.add(EntityAdaptorFactory.create(parent, evaluator));
+            list.add(EntityAdaptorFactory.create(parent, evaluator, session));
         }
         return list;
     }
@@ -80,7 +86,7 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
         for (DataSetRelationshipPE relationship : externalDataPE.getChildRelationships())
         {
             DataPE child = relationship.getChildDataSet();
-            list.add(EntityAdaptorFactory.create(child, evaluator));
+            list.add(EntityAdaptorFactory.create(child, evaluator, session));
         }
         return list;
     }
@@ -91,7 +97,7 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
         List<IDataAdaptor> list = new ArrayList<IDataAdaptor>();
         for (DataPE contained : externalDataPE.getContainedDataSets())
         {
-            list.add(EntityAdaptorFactory.create(contained, evaluator));
+            list.add(EntityAdaptorFactory.create(contained, evaluator, session));
         }
         return list;
     }
@@ -102,7 +108,7 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
         DataPE container = externalDataPE.getContainer();
         if (container != null)
         {
-            return EntityAdaptorFactory.create(container, evaluator);
+            return EntityAdaptorFactory.create(container, evaluator, session);
         } else
         {
             return null;

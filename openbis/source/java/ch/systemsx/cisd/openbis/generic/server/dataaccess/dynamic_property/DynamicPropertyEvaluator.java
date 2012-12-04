@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -92,14 +93,16 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
     }
 
     @Override
-    public <T extends IEntityInformationWithPropertiesHolder> void evaluateProperties(T entity)
+    public <T extends IEntityInformationWithPropertiesHolder> void evaluateProperties(T entity,
+            Session session)
     {
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("Evaluating dynamic properties of entity '%s'.",
                     entity));
         }
-        final IEntityAdaptor entityAdaptor = EntityAdaptorFactory.create(entity, this);
+        final IEntityAdaptor entityAdaptor =
+                EntityAdaptorFactory.create(entity, this, session);
 
         Set<EntityPropertyPE> propertiesToRemove = new HashSet<EntityPropertyPE>();
         for (EntityPropertyPE property : entity.getProperties())

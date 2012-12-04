@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -34,7 +36,8 @@ public interface IDynamicPropertyEvaluator
      * Evaluates all dynamic properties of specified entity. Replaces placeholders with evaluated
      * values.
      */
-    public <T extends IEntityInformationWithPropertiesHolder> void evaluateProperties(T entity);
+    public <T extends IEntityInformationWithPropertiesHolder> void evaluateProperties(T entity,
+            Session session);
 
     /**
      * Evaluates value of specified dynamic property on specified entity.
