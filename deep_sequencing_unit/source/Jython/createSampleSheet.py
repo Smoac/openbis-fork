@@ -65,10 +65,6 @@ from ch.systemsx.cisd.openbis.dss.client.api.v1 import OpenbisServiceFacadeFacto
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
 
-from java.util import EnumSet
-from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SampleFetchOption
-
-
 lineending = {'win32':'\r\n', 'linux':'\n', 'mac':'\r'}
 COMMA = ','
 
@@ -437,7 +433,7 @@ def createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCel
                             + control + COMMA
                             + endType + '_' + cycles + COMMA
                             + configMap['facilityInstitution'] + COMMA
-                            + flowCellName + '_' + lane
+                            + key.split('_', 3)[-1]
                             ]
 
       sampleEndType = 'DUALINDEX' if dualIndex else 'SINGLEINDEX'
@@ -650,12 +646,12 @@ def main ():
 
   runFolderName = flowCellDict['Name']
 
-  for hiseq in hiseqList:
-    if hiseq in runFolderName:
-      logger.info('Detected HiSeq run.')
-      SampleSheetFile = createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCellName, configMap,
-                         logger, myoptions)
-      break
+#  for hiseq in hiseqList:
+#    if hiseq in runFolderName:
+#      logger.info('Detected HiSeq run.')
+#      SampleSheetFile = createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCellName, configMap,
+#                         logger, myoptions)
+#      break
 
   SampleSheetFile = createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCellName, configMap,
                          logger, myoptions)
