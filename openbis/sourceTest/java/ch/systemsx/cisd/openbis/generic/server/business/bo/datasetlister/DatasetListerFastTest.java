@@ -34,6 +34,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
@@ -41,6 +42,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 /**
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses =
+    { IDatasetListingQuery.class })
 public class DatasetListerFastTest extends AssertJUnit
 {
     private static final String DSS_URL = "dss-url";
