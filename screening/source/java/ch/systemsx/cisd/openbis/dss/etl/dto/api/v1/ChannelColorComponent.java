@@ -52,6 +52,11 @@ public enum ChannelColorComponent
     public static List<ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorComponent> convertToIndependentChannelColorList(
             List<?> inputList)
     {
+        if (inputList == null)
+        {
+            return null;
+        }
+
         List<ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorComponent> results =
                 new LinkedList<ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorComponent>();
         for (Object o : inputList)
