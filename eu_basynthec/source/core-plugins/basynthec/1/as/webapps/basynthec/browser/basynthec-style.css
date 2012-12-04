@@ -42,6 +42,8 @@ h3 { font: 12px; }
 	font-size: 12px;
 }
 
+.scale { font-size: 9px;}
+
 .datasetsummarytable tr:hover {
 	background-color: steelblue;
 	color: white;
