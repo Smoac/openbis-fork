@@ -27,9 +27,13 @@ import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -43,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleModelComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
@@ -68,7 +73,8 @@ public class ChannelChooserPanel extends LayoutContainer
      */
     public static interface ChannelSelectionListener
     {
-        void selectionChanged(List<String> channels, String imageTransformationCodeOrNull);
+        void selectionChanged(List<String> channels, String imageTransformationCodeOrNull,
+                IntensityRange rangeOrNull);
     }
 
     public static final String DEFAULT_TRANSFORMATION_CODE = "$DEFAULT$";
@@ -79,6 +85,11 @@ public class ChannelChooserPanel extends LayoutContainer
                     "Optimal (image)",
                     "Grayscale images with color depth higher then 8 bits are transformed in the optimal way for a single image. Otherwise no filter is applied.",
                     "", false));
+
+    public static final LabeledItem<InternalImageTransformationInfo> USER_DEFINED_RESCALING_TRANSFORMATION =
+            convertToLabeledItem(new InternalImageTransformationInfo(
+                    ScreeningConstants.USER_DEFINED_RESCALING_CODE, "User defined",
+                    "User defined intensity rescaling", "", false));
 
     private final IMessageProvider messageProvider;
 
@@ -91,6 +102,11 @@ public class ChannelChooserPanel extends LayoutContainer
     private SimpleModelComboBox<InternalImageTransformationInfo> transformationsComboBox;
 
     private LabelField adjustLabel = new LabelField("Filter:");
+
+    private Button userDefinedTransformationSettingsButton = new Button("Settings");
+
+    private AdapterField userDefinedTransformationSettingsButtonField = new AdapterField(
+            userDefinedTransformationSettingsButton);
 
     private Map<String, Set<InternalImageTransformationInfo>> transformationsForChannels =
             new HashMap<String, Set<InternalImageTransformationInfo>>();
@@ -105,7 +121,6 @@ public class ChannelChooserPanel extends LayoutContainer
             {
                 selectionChanged();
             }
-
         };
 
     private final Listener<BaseEvent> transformationSelection = new Listener<BaseEvent>()
@@ -113,11 +128,15 @@ public class ChannelChooserPanel extends LayoutContainer
             @Override
             public void handleEvent(BaseEvent be)
             {
+                String transformationCode =
+                        transformationsComboBox.getSimpleValue().getItem().getCode();
                 defaultChannelState.setDefaultTransformation(getSelectedValues().get(0),
-                        transformationsComboBox.getSimpleValue().getItem().getCode());
-                notifySelectionListeners(getSelectedValues(), tryGetSelectedTransformationCode());
+                        transformationCode);
+                changeTransformationSettingsButtonVisibility(true, false);
+                notifySelectionListeners(getSelectedValues(),
+                        tryGetSelectedTransformationCode(false),
+                        defaultChannelState.tryGetIntensityRange(getSelectedValues().get(0)));
             }
-
         };
 
     public ChannelChooserPanel(IMessageProvider messageProvider,
@@ -126,7 +145,7 @@ public class ChannelChooserPanel extends LayoutContainer
         this(messageProvider, defChannelState, Collections.<String> emptyList(), null);
     }
 
-    public ChannelChooserPanel(IMessageProvider messageProvider,
+    public ChannelChooserPanel(final IMessageProvider messageProvider,
             IDefaultChannelState defChannelState, List<String> selectedChannelsOrNull,
             ImageDatasetParameters imageDatasetParameters)
     {
@@ -147,6 +166,21 @@ public class ChannelChooserPanel extends LayoutContainer
         group.add(channelsComboBox);
         group.add(adjustLabel);
         group.add(transformationsComboBox);
+        group.add(userDefinedTransformationSettingsButtonField);
+
+        userDefinedTransformationSettingsButton
+                .addSelectionListener(new SelectionListener<ButtonEvent>()
+                    {
+                        @Override
+                        public void componentSelected(ButtonEvent ce)
+                        {
+                            UserDefinedRescalingSettingsDialog dialog =
+                                    new UserDefinedRescalingSettingsDialog(messageProvider,
+                                            defaultChannelState, getSelectedValues().get(0));
+                            dialog.addListener(Events.Hide, transformationSelection);
+                            dialog.show();
+                        }
+                    });
 
         add(group);
 
@@ -357,34 +391,49 @@ public class ChannelChooserPanel extends LayoutContainer
         ensureAtLeastOneCheckboxChecked();
         updateTransformationComboBox();
 
-        notifySelectionListeners(selection, tryGetSelectedTransformationCode());
+        notifySelectionListeners(selection, tryGetSelectedTransformationCode(false),
+                defaultChannelState.tryGetIntensityRange(selectedComboValue));
     }
 
-    public String tryGetSelectedTransformationCode()
+    public String tryGetSelectedTransformationCode(boolean force)
     {
-        if (transformationsComboBox.isVisible())
-        {
-            String code =
-                    transformationsComboBox.getSelection().get(0).getValue().getItem().getCode();
+        String code = null;
 
-            if (DEFAULT_TRANSFORMATION_CODE.equals(code))
-            {
-                return null;
-            } else
-            {
-                return code;
-            }
+        if (force || transformationsComboBox.isVisible(false))
+        {
+            code = transformationsComboBox.getSelection().get(0).getValue().getItem().getCode();
+        } else if (transformationsComboBox.getStore().getModels().size() == 1)
+        {
+            code =
+                    transformationsComboBox.getStore().getModels().get(0).getValue().getItem()
+                            .getCode();
         }
 
-        return null;
+        return transformCode(code);
+    }
+
+    public IntensityRange tryGetSelectedIntensityRange()
+    {
+        return defaultChannelState.tryGetIntensityRange(getSelectedValues().get(0));
+    }
+
+    private static String transformCode(String code)
+    {
+        if (code == null || DEFAULT_TRANSFORMATION_CODE.equals(code))
+        {
+            return null;
+        } else
+        {
+            return code;
+        }
     }
 
     private void notifySelectionListeners(List<String> selection,
-            String imageTransformationCodeOrNull)
+            String imageTransformationCodeOrNull, IntensityRange rangeOrNull)
     {
         for (ChannelSelectionListener listener : channelSelectionListeners)
         {
-            listener.selectionChanged(selection, imageTransformationCodeOrNull);
+            listener.selectionChanged(selection, imageTransformationCodeOrNull, rangeOrNull);
         }
     }
 
@@ -490,15 +539,28 @@ public class ChannelChooserPanel extends LayoutContainer
             {
                 transformationsComboBox.setVisible(false);
                 adjustLabel.setVisible(false);
+                userDefinedTransformationSettingsButtonField.setVisible(false);
                 return;
             }
             transformationsComboBox.add(model);
-            setTransformationsVisible(true);
 
             selectTransformation(selectedValues.get(0));
         } else
         {
             setTransformationsVisible(false);
+        }
+    }
+
+    private void changeTransformationSettingsButtonVisibility(boolean visible, boolean force)
+    {
+        if (visible
+                && ScreeningConstants.USER_DEFINED_RESCALING_CODE
+                        .equals(tryGetSelectedTransformationCode(force)))
+        {
+            userDefinedTransformationSettingsButtonField.setVisible(true);
+        } else
+        {
+            userDefinedTransformationSettingsButtonField.setVisible(false);
         }
     }
 
@@ -518,6 +580,7 @@ public class ChannelChooserPanel extends LayoutContainer
     {
         transformationsComboBox.setVisible(visible);
         adjustLabel.setVisible(visible);
+        changeTransformationSettingsButtonVisibility(visible, false);
     }
 
     private void selectTransformation(String channelCode)
@@ -546,6 +609,8 @@ public class ChannelChooserPanel extends LayoutContainer
             transformationsComboBox.setSelection(Collections.singletonList(transformationsComboBox
                     .getStore().getModels().get(0)));
         }
+
+        changeTransformationSettingsButtonVisibility(true, true);
     }
 
     private boolean setSelectedValue(String code,
@@ -553,8 +618,8 @@ public class ChannelChooserPanel extends LayoutContainer
     {
         if (code != null)
         {
-            for (SimpleComboValue<LabeledItem<InternalImageTransformationInfo>> info : combobox.getStore()
-                    .getModels())
+            for (SimpleComboValue<LabeledItem<InternalImageTransformationInfo>> info : combobox
+                    .getStore().getModels())
             {
                 if (info.getValue().getItem().getCode().equals(code))
                 {

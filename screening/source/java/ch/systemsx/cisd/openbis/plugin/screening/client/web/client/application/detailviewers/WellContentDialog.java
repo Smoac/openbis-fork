@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -170,7 +171,7 @@ public class WellContentDialog extends ImageDialog
     public static Widget createImageViewerForChannel(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
             final WellContent wellImage, int imageSizePx, List<String> channels,
-            String imageTransformationCodeOrNull)
+            String imageTransformationCodeOrNull, IntensityRange rangeOrNull)
     {
         final ImageDatasetEnrichedReference imageDataset = tryGetImageDataset(wellImage);
         if (imageDataset == null)
@@ -208,7 +209,7 @@ public class WellContentDialog extends ImageDialog
                 new LogicalImageReference(imageDataset, locationOrNull);
         LogicalImageChannelsReference channelReferences =
                 LogicalImageChannelsReference.createWithoutOverlays(wellImages, channels,
-                        imageTransformationCodeOrNull);
+                        imageTransformationCodeOrNull, rangeOrNull);
         LayoutContainer staticTilesGrid =
                 LogicalImageViewer.createTilesGrid(channelReferences, sessionId, imageSizePx,
                         clickHandler, null);

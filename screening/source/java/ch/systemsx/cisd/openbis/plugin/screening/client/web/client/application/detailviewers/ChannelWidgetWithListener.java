@@ -22,10 +22,12 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
 
 /**
  * Allows to create a {@link Widget} ({@link #asWidget()}) containing channel view and allows to
- * manually update visible channel via the ({@link #selectionChanged(List, String)}) method.
+ * manually update visible channel via the ({@link #selectionChanged(List, String, IntensityRange)})
+ * method.
  * 
  * @author Izabela Adamczyk
  */
@@ -37,7 +39,8 @@ public class ChannelWidgetWithListener implements ChannelChooserPanel.ChannelSel
 
     interface ISimpleChanneledViewerFactory
     {
-        Widget create(List<String> channelCodes, String imageTransformationCodeOrNull);
+        Widget create(List<String> channelCodes, String imageTransformationCodeOrNull,
+                IntensityRange rangeOrNull);
     }
 
     public ChannelWidgetWithListener(final ISimpleChanneledViewerFactory viewerFactory)
@@ -52,12 +55,13 @@ public class ChannelWidgetWithListener implements ChannelChooserPanel.ChannelSel
     }
 
     @Override
-    public void selectionChanged(List<String> channelNames, String imageTransformationCodeOrNull)
+    public void selectionChanged(List<String> channelNames, String imageTransformationCodeOrNull,
+            IntensityRange rangeOrNull)
     {
         if (channelNames != null)
         {
             GuiUtils.replaceLastItem(container,
-                    viewerFactory.create(channelNames, imageTransformationCodeOrNull));
+                    viewerFactory.create(channelNames, imageTransformationCodeOrNull, rangeOrNull));
         }
     }
 }

@@ -3,6 +3,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
 
 /**
  * Allows to get and set the channels chosen by default when images are shown in a specific context.
@@ -23,4 +24,7 @@ public interface IDefaultChannelState
 
     public void setDefaultResolution(ImageResolution resolution);
 
+    public void setIntensityRange(String channel, IntensityRange intensityRange);
+
+    public IntensityRange tryGetIntensityRange(String channel);
 }

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.ImageDatasetChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.ImageServletUrlParameters;
 
@@ -61,8 +62,20 @@ public class Image extends LayoutContainer
 
         if (getInitializer().getChannelReferences().tryGetImageTransformationCode() != null)
         {
+            String suffix = "";
+            if (ScreeningConstants.USER_DEFINED_RESCALING_CODE.equalsIgnoreCase(getInitializer()
+                    .getChannelReferences().tryGetImageTransformationCode()))
+            {
+                IntensityRange range =
+                        getInitializer().getChannelReferences().tryGetIntensityRange();
+                if (range != null)
+                {
+                    suffix = "(" + range.getBlackPoint() + "," + range.getWhitePoint() + ")";
+                }
+            }
             url.addParameter(ImageServletUrlParameters.SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM,
-                    getInitializer().getChannelReferences().tryGetImageTransformationCode());
+                    getInitializer().getChannelReferences().tryGetImageTransformationCode()
+                            + suffix);
         }
 
         addImageTransformerSignature(url, getInitializer().getChannelReferences());

@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.IRangeType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.RangeType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningDisplaySettings;
 
@@ -148,7 +149,7 @@ public class ScreeningDisplaySettingsManager
         }
         delays.put(displayTypeId, delay);
     }
-    
+
     public IRangeType getHeatMapRangeType(String featureCode)
     {
         Map<String, IRangeType> featureRangeTypes = screeningSettings.getDefaultFeatureRangeTypes();
@@ -162,7 +163,7 @@ public class ScreeningDisplaySettingsManager
         }
         return RangeType.MIN_MAX;
     }
-    
+
     public void setHeatMapRangeType(String featureCode, IRangeType rangeType)
     {
         Map<String, IRangeType> featureRangeTypes = screeningSettings.getDefaultFeatureRangeTypes();
@@ -174,4 +175,19 @@ public class ScreeningDisplaySettingsManager
         featureRangeTypes.put(featureCode, rangeType);
     }
 
+    @SuppressWarnings("deprecation")
+    public Map<String, IntensityRange> getIntensityRangesForChannels(String displayTypeId)
+    {
+        Map<String, IntensityRange> intensityRangesForChannels =
+                screeningSettings.getIntensityRangesForChannels().get(displayTypeId);
+
+        if (intensityRangesForChannels == null)
+        {
+            intensityRangesForChannels = new HashMap<String, IntensityRange>();
+            screeningSettings.getIntensityRangesForChannels().put(displayTypeId,
+                    intensityRangesForChannels);
+        }
+
+        return intensityRangesForChannels;
+    }
 }

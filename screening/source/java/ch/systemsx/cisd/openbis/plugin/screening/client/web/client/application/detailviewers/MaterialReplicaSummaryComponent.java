@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
 
 /**
  * Component which for a specified material and experiment presents 1. feature vectors (detailed and
@@ -345,15 +346,18 @@ public class MaterialReplicaSummaryComponent
         final ISimpleChanneledViewerFactory viewerFactory = new ISimpleChanneledViewerFactory()
             {
                 @Override
-                public Widget create(List<String> channels, String imageTransformationCodeOrNull)
+                public Widget create(List<String> channels, String imageTransformationCodeOrNull,
+                        IntensityRange rangeOrNull)
                 {
                     return WellContentDialog.createImageViewerForChannel(screeningViewContext,
-                            image, oneImageSizeFactorPx, channels, imageTransformationCodeOrNull);
+                            image, oneImageSizeFactorPx, channels, imageTransformationCodeOrNull,
+                            rangeOrNull);
                 }
             };
         ChannelWidgetWithListener widgetWithListener = new ChannelWidgetWithListener(viewerFactory);
         widgetWithListener.selectionChanged(channelChooser.getSelectedValues(),
-                channelChooser.tryGetSelectedTransformationCode());
+                channelChooser.tryGetSelectedTransformationCode(false),
+                channelChooser.tryGetSelectedIntensityRange());
 
         ImageDatasetParameters imageParameters = image.tryGetImageDataset().getImageParameters();
         channelChooser.addSelectionChangedListener(widgetWithListener);

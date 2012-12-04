@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplaySettingsManager;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
 
 /**
  * @author Kaloyan Enimanev
@@ -85,4 +86,20 @@ public class DefaultChannelState implements IDefaultChannelState
         getDisplaySettingManager().setDefaultResolution(displayTypeId, resolution);
     }
 
+    @Override
+    public void setIntensityRange(String channel, IntensityRange intensityRange)
+    {
+        getIntensityRange().put(channel, intensityRange);
+    }
+
+    @Override
+    public IntensityRange tryGetIntensityRange(String channel)
+    {
+        return getIntensityRange().get(channel);
+    }
+
+    private Map<String, IntensityRange> getIntensityRange()
+    {
+        return getDisplaySettingManager().getIntensityRangesForChannels(displayTypeId);
+    }
 }

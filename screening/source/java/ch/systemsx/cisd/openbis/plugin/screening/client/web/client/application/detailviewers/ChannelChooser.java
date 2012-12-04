@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesR
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetOverlayImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
@@ -94,6 +95,8 @@ class ChannelChooser
 
     private String imageTransformationCodeOrNull;
 
+    private IntensityRange rangeOrNull;
+
     public ChannelChooser(LogicalImageReference basicImage, IChanneledViewerFactory viewerFactory,
             IDefaultChannelState defaultChannelState)
     {
@@ -106,6 +109,7 @@ class ChannelChooser
         this.imageTransformationCodeOrNull =
                 tryGetInitialImageTransformationCode(defaultChannelState, basicChannelCodes,
                         basicImage.getImagetParameters());
+        this.rangeOrNull = tryGetInitialIntensityRange(defaultChannelState, basicChannelCodes);
         this.defaultChannelState = defaultChannelState;
         this.selectedOverlayChannels = new HashSet<ImageDatasetChannel>();
     }
@@ -122,7 +126,7 @@ class ChannelChooser
     {
         LogicalImageChannelsReference state =
                 new LogicalImageChannelsReference(basicImage, basicChannelCodes,
-                        imageTransformationCodeOrNull, selectedOverlayChannels);
+                        imageTransformationCodeOrNull, rangeOrNull, selectedOverlayChannels);
 
         LayoutContainer view =
                 viewerFactory.create(state,
@@ -137,7 +141,9 @@ class ChannelChooser
             final IViewContext<IScreeningClientServiceAsync> context,
             final AsyncCallback<Void> callback)
     {
-        final Widget loading = new Text(context.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.LOAD_IN_PROGRESS));
+        final Widget loading =
+                new Text(
+                        context.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.LOAD_IN_PROGRESS));
         container.add(loading);
 
         context.getService().getImageDatasetResolutions(basicImage.getDatasetCode(),
@@ -330,11 +336,13 @@ class ChannelChooser
                         @Override
                         public void selectionChanged(List<String> newlySelectedChannels,
                                 @SuppressWarnings("hiding")
-                                String imageTransformationCodeOrNull)
+                                String imageTransformationCodeOrNull, @SuppressWarnings("hiding")
+                                IntensityRange rangeOrNull)
                         {
                             basicChannelCodes = newlySelectedChannels;
                             ChannelChooser.this.imageTransformationCodeOrNull =
                                     imageTransformationCodeOrNull;
+                            ChannelChooser.this.rangeOrNull = rangeOrNull;
                             refresh();
                         }
                     });
@@ -404,6 +412,20 @@ class ChannelChooser
             }
 
             return defaultSelection;
+        }
+
+        return null;
+    }
+
+    private static IntensityRange tryGetInitialIntensityRange(
+            IDefaultChannelState defaultChannelState, List<String> channels)
+    {
+        if (channels.size() == 1)
+        {
+            String channel = channels.get(0);
+            IntensityRange rangeOrNull = defaultChannelState.tryGetIntensityRange(channel);
+
+            return rangeOrNull;
         }
 
         return null;

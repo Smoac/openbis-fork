@@ -72,6 +72,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
@@ -637,17 +638,19 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
                                 {
                                     @Override
                                     public Widget create(List<String> channels,
-                                            String imageTransformationCodeOrNull)
+                                            String imageTransformationCodeOrNull,
+                                            IntensityRange rangeOrNull)
                                     {
                                         return WellContentDialog.createImageViewerForChannel(
                                                 getViewContext(), entity, IMAGE_SIZE_PX, channels,
-                                                imageTransformationCodeOrNull);
+                                                imageTransformationCodeOrNull, rangeOrNull);
                                     }
                                 };
                     ChannelWidgetWithListener widgetWithListener =
                             new ChannelWidgetWithListener(viewerFactory);
                     widgetWithListener.selectionChanged(channelChooser.getSelectedValues(),
-                            channelChooser.tryGetSelectedTransformationCode());
+                            channelChooser.tryGetSelectedTransformationCode(false),
+                            channelChooser.tryGetSelectedIntensityRange());
 
                     ImageDatasetParameters imageParameters = images.getImageParameters();
                     channelChooser.addSelectionChangedListener(widgetWithListener);

@@ -40,10 +40,13 @@ public class ScreeningDisplaySettings implements Serializable
     private Map<String, ImageResolution> defaultResolutions;
 
     private Map<String, Integer> defaultMovieDelays;
-    
+
     private Map<String, IRangeType> defaultFeatureRangeTypes;
 
     private String defaultAnalysisProcedure;
+
+    private Map<String, Map<String, IntensityRange>> intensityRangesForChannels =
+            new HashMap<String, Map<String, IntensityRange>>();
 
     /** @deprecated Should be used only by ScreeningDisplaySettingsManager. */
     @Deprecated
@@ -116,6 +119,24 @@ public class ScreeningDisplaySettings implements Serializable
     public void setDefaultMovieDelays(Map<String, Integer> defaultMovieDelays)
     {
         this.defaultMovieDelays = defaultMovieDelays;
+    }
+
+    /** @deprecated Should be used only by ScreeningDisplaySettingsManager. */
+    @Deprecated
+    public Map<String, Map<String, IntensityRange>> getIntensityRangesForChannels()
+    {
+        if (intensityRangesForChannels == null)
+        {
+            intensityRangesForChannels = new HashMap<String, Map<String, IntensityRange>>();
+        }
+        return intensityRangesForChannels;
+    }
+
+    @SuppressWarnings("unused")
+    private void setIntensityRangesForChannels(
+            Map<String, Map<String, IntensityRange>> intensityRangesForChannels)
+    {
+        this.intensityRangesForChannels = intensityRangesForChannels;
     }
 
     public Map<String, IRangeType> getDefaultFeatureRangeTypes()

@@ -20,6 +20,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
+
 /**
  * Channels of the basic images and overlay images.
  * 
@@ -29,10 +31,10 @@ public class LogicalImageChannelsReference
 {
     public static LogicalImageChannelsReference createWithoutOverlays(
             LogicalImageReference basicImage, List<String> channels,
-            String imageTransformationCodeOrNull)
+            String imageTransformationCodeOrNull, IntensityRange rangeOrNull)
     {
         return new LogicalImageChannelsReference(basicImage, channels,
-                imageTransformationCodeOrNull, new HashSet<ImageDatasetChannel>());
+                imageTransformationCodeOrNull, rangeOrNull, new HashSet<ImageDatasetChannel>());
     }
 
     // ----
@@ -43,14 +45,18 @@ public class LogicalImageChannelsReference
 
     private final String imageTransformationCodeOrNull;
 
+    private final IntensityRange rangeOrNull;
+
     private final Set<ImageDatasetChannel> overlayChannels;
 
     public LogicalImageChannelsReference(LogicalImageReference basicImage, List<String> channels,
-            String imageTransformationCodeOrNull, Set<ImageDatasetChannel> overlayChannels)
+            String imageTransformationCodeOrNull, IntensityRange rangeOrNull,
+            Set<ImageDatasetChannel> overlayChannels)
     {
         this.basicImage = basicImage;
         this.channels = channels;
         this.imageTransformationCodeOrNull = imageTransformationCodeOrNull;
+        this.rangeOrNull = rangeOrNull;
         this.overlayChannels = overlayChannels;
     }
 
@@ -72,5 +78,10 @@ public class LogicalImageChannelsReference
     public String tryGetImageTransformationCode()
     {
         return imageTransformationCodeOrNull;
+    }
+
+    public IntensityRange tryGetIntensityRange()
+    {
+        return rangeOrNull;
     }
 }

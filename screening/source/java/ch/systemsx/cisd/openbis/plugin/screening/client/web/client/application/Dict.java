@@ -132,31 +132,36 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
     public static final String RESOLUTION_CHOOSER_DEFAULT = "RESOLUTION_CHOOSER_DEFAULT";
 
     public static final String RESOLUTION_CHOOSER_RESOLUTION = "RESOLUTION_CHOOSER_RESOLUTION";
-    
-    public static final String HEAT_MAP_RANGE_CHOOSER_BUTTON =
-            "heat_map_range_chooser_button";
 
-    public static final String HEAT_MAP_RANGE_CHOOSER_TITLE =
-            "heat_map_range_chooser_title";
-    
+    public static final String HEAT_MAP_RANGE_CHOOSER_BUTTON = "heat_map_range_chooser_button";
+
+    public static final String TITLE_USER_DEFINED_RESCALING_DIALOG =
+            "TITLE_USER_DEFINED_RESCALING_DIALOG";
+
+    public static final String RESCALING_DIALOG_MIN = "RESCALING_DIALOG_MIN";
+
+    public static final String RESCALING_DIALOG_MAX = "RESCALING_DIALOG_MAX";
+
+    public static final String HEAT_MAP_RANGE_CHOOSER_TITLE = "heat_map_range_chooser_title";
+
     public static final String HEAT_MAP_RANGE_CHOOSER_TYPE_LABEL_PREFIX =
             "heat_map_range_chooser_type_label_";
-    
+
     public static final String HEAT_MAP_RANGE_CHOOSER_TYPE_TOOLTIP_PREFIX =
             "heat_map_range_chooser_type_tooltip_";
 
     public static final String HEAT_MAP_RANGE_CHOOSER_FIXED_TYPE_LABEL =
             "heat_map_range_chooser_type_fixed_type_label";
-    
+
     public static final String HEAT_MAP_RANGE_CHOOSER_FIXED_TYPE_LOWEST_SCALE_LABEL =
             "heat_map_range_chooser_type_fixed_type_lowest_scale_label";
-    
+
     public static final String HEAT_MAP_RANGE_CHOOSER_FIXED_TYPE_HIGHEST_SCALE_LABEL =
             "heat_map_range_chooser_type_fixed_type_highest_scale_label";
-    
+
     public static final String HEAT_MAP_RANGE_CHOOSER_FIXED_TYPE_SAME_VALUE_VALIDATION_MSG =
             "heat_map_range_chooser_type_fixed_type_same_value_validation_message";
-    
+
     private Dict()
     {
         // Can not be instantiated.

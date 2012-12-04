@@ -141,6 +141,10 @@ RESOLUTION_CHOOSER_LABEL: "Resolution:",
 RESOLUTION_CHOOSER_DEFAULT: "Default",
 RESOLUTION_CHOOSER_RESOLUTION: "{0}x{1}",
 
+TITLE_USER_DEFINED_RESCALING_DIALOG: "Set rescaling parameters",
+RESCALING_DIALOG_MIN: "black point: ",
+RESCALING_DIALOG_MAX: "white point: ",
+
 // LAST LINE: KEEP IT AT THE END
 lastline: "" // we need a line without a comma
 };

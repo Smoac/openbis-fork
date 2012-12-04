@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.dss.etl.dto;
 import java.util.Map;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.IntensityRangeImageTransformerFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * Stores transformations defined for the image on different levels.
@@ -48,6 +50,12 @@ public class ImageTransfomationFactories
         {
             return defaultTransformationOrNull;
         }
+        if (transformationCodeOrNull.toLowerCase().startsWith(
+                ScreeningConstants.USER_DEFINED_RESCALING_CODE.toLowerCase()))
+        {
+            return getUserDefinedTransformationOrDefault(transformationCodeOrNull);
+        }
+
         return singleChannelMap.get(transformationCodeOrNull);
     }
 
@@ -87,5 +95,28 @@ public class ImageTransfomationFactories
     public String tryGetDefaultTransformationCode()
     {
         return defaultTransformationCodeOrNull;
+    }
+
+    private IImageTransformerFactory getUserDefinedTransformationOrDefault(
+            String userDefinedTransformation)
+    {
+        String[] parameters =
+                userDefinedTransformation.replaceAll(
+                        "^.*\\(\\s*([0-9]+)\\s*,\\s*([0-9]+)\\s*\\)\\s*$", "$1,$2").split(",");
+
+        if (parameters.length == 2)
+        {
+            try
+            {
+                int blackPoint = Integer.parseInt(parameters[0]);
+                int whitePoint = Integer.parseInt(parameters[1]);
+
+                return new IntensityRangeImageTransformerFactory(blackPoint, whitePoint);
+            } catch (NumberFormatException ex)
+            {
+            }
+        }
+
+        return defaultTransformationOrNull;
     }
 }

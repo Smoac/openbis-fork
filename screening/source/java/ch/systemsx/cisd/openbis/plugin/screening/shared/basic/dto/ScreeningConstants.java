@@ -257,4 +257,5 @@ public class ScreeningConstants
         public final static String TILE_COL_PARAM = "tileCol";
     }
 
+    public static final String USER_DEFINED_RESCALING_CODE = "$USER_DEFINED_RESCALING$";
 }
