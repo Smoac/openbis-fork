@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooserPanel;
 
 /**
  * Describes the images in the dataset: tiles geometry, channels, dataset code and plate geometry if
@@ -132,7 +131,9 @@ public class ImageDatasetParameters implements Serializable
     {
         List<InternalImageTransformationInfo> result =
                 new ArrayList<InternalImageTransformationInfo>();
-        result.add(ChannelChooserPanel.USER_DEFINED_RESCALING_TRANSFORMATION.getItem());
+        result.add(new InternalImageTransformationInfo(
+                ScreeningConstants.USER_DEFINED_RESCALING_CODE, "User defined",
+                "User defined intensity rescaling", "", false));
 
         for (InternalImageChannel channel : channels)
         {

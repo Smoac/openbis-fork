@@ -86,11 +86,6 @@ public class ChannelChooserPanel extends LayoutContainer
                     "Grayscale images with color depth higher then 8 bits are transformed in the optimal way for a single image. Otherwise no filter is applied.",
                     "", false));
 
-    public static final LabeledItem<InternalImageTransformationInfo> USER_DEFINED_RESCALING_TRANSFORMATION =
-            convertToLabeledItem(new InternalImageTransformationInfo(
-                    ScreeningConstants.USER_DEFINED_RESCALING_CODE, "User defined",
-                    "User defined intensity rescaling", "", false));
-
     private final IMessageProvider messageProvider;
 
     private IDefaultChannelState defaultChannelState;
