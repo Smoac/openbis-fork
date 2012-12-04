@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.openbis.systemtest.perform_entity_operations;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -79,22 +81,38 @@ public class RegistrationTest extends SystemTestCase
                 commonServer.listMetaprojectExperiments(sessionToken, new MetaprojectTechIdId(
                         metaproject.getId()));
         assertIdentifiers("[/CISD/NEMO/EXP1]", experiments);
-        assertEquals(name, experiments.get(0).getMetaprojects().iterator().next().getName());
+        assertContainsMetaproject(experiments.get(0).getMetaprojects(), name);
         List<Sample> samples =
                 commonServer.listMetaprojectSamples(sessionToken, new MetaprojectTechIdId(
                         metaproject.getId()));
         assertIdentifiers("[/CISD/CL1]", samples);
-        assertEquals(name, samples.get(0).getMetaprojects().iterator().next().getName());
+        assertContainsMetaproject(samples.get(0).getMetaprojects(), name);
         List<ExternalData> dataSets =
                 commonServer.listMetaprojectExternalData(sessionToken, new MetaprojectTechIdId(
                         metaproject.getId()));
         assertIdentifiers("[20081105092159188-3]", dataSets);
-        assertEquals(name, dataSets.get(0).getMetaprojects().iterator().next().getName());
+        assertContainsMetaproject(dataSets.get(0).getMetaprojects(), name);
         List<Material> materials =
                 commonServer.listMetaprojectMaterials(sessionToken, new MetaprojectTechIdId(
                         metaproject.getId()));
         assertIdentifiers("[AD3 (VIRUS)]", materials);
-        assertEquals(name, materials.get(0).getMetaprojects().iterator().next().getName());
+        assertContainsMetaproject(materials.get(0).getMetaprojects(), name);
+    }
+
+    private void assertContainsMetaproject(Collection<Metaproject> metaprojects,
+            String metaprojectName)
+    {
+        List<String> metaprojectNames = new ArrayList<String>();
+        for (Metaproject metaproject : metaprojects)
+        {
+            String name = metaproject.getName();
+            if (name.equals(metaprojectName))
+            {
+                return;
+            }
+            metaprojectNames.add(name);
+        }
+        fail("Unknown metaproject '" + metaprojectName + "': " + metaprojectNames);
     }
 
     private Metaproject findMetaproject(String sessionToken, String code)
