@@ -948,6 +948,9 @@ Od600InspectorView.prototype.updateView = function(duration)
 	
 	var GRAPH_LARGE_WIDTH = 480;
 	var GRAPH_LARGE_HEIGHT = 300;
+
+	// Give duration a default
+	duration = duration ? duration : 1000;
 	
 	var inspector = inspectors.selectAll("div.od600inspector").data(od600Inspected, function (d) { return d.name });
 	
@@ -971,9 +974,17 @@ Od600InspectorView.prototype.updateView = function(duration)
 		.attr("height", function(d){
 			return d.graphHeight = GRAPH_SMALL_HEIGHT
 		})
-		
-	inspectorEnter.append("a")
-		.attr("class", "toggle")
+		.on("click", function(d){
+			if(d.graphWidth == GRAPH_SMALL_WIDTH){
+				d.graphWidth = GRAPH_LARGE_WIDTH;
+				d.graphHeight = GRAPH_LARGE_HEIGHT;
+				od600InspectorView.updateView();
+			}else{
+				d.graphWidth = GRAPH_SMALL_WIDTH;
+				d.graphHeight = GRAPH_SMALL_HEIGHT;
+				od600InspectorView.updateView();
+			}
+		});
 	
 	appendObjectSection({
 		getSectionContainer: function(){
@@ -1012,32 +1023,12 @@ Od600InspectorView.prototype.updateView = function(duration)
 	});
 
 	// update
-	inspector.select("svg")
+	inspector.select("svg").transition().duration(duration)
 		.attr("width", function(d){
 			return d.graphWidth; 
 		})
 		.attr("height", function(d){
 			return d.graphHeight; 
-		})
-	
-	inspector.select("a.toggle").
-		text(function(d){
-			if(d.graphWidth == GRAPH_SMALL_WIDTH){
-				return "show large graph";
-			}else{
-				return "show small graph";
-			}
-		})
-		.on("click", function(d){
-			if(d.graphWidth == GRAPH_SMALL_WIDTH){
-				d.graphWidth = GRAPH_LARGE_WIDTH;
-				d.graphHeight = GRAPH_LARGE_HEIGHT;
-				od600InspectorView.updateView();
-			}else{
-				d.graphWidth = GRAPH_SMALL_WIDTH;
-				d.graphHeight = GRAPH_SMALL_HEIGHT;
-				od600InspectorView.updateView();
-			}
 		})
 	
 	var dataDisplay = inspector.select("svg").selectAll("g.curve").data(od600DataForStrain);
@@ -1046,16 +1037,20 @@ Od600InspectorView.prototype.updateView = function(duration)
 			.attr("class", "curve");
 	// Reinitialize the variable
 	dataDisplay = inspector.select("svg").selectAll("g.curve").data(od600DataForStrain);
-	var aCurve = dataDisplay.selectAll("g.lines").data(curveData)
-				.enter()
-			.append("svg:g")
-				.attr("class", "lines");
-	// Reinitialize the variable
-	aCurve = dataDisplay.selectAll("g.lines").data(curveData);
+
+	// Draw the curves
+	var aCurve = dataDisplay.selectAll("g.lines").data(curveData);
+	aCurve.enter().append("svg:g").attr("class", "lines");
 		// The first two columns of data are the strain name and human-readable desc
-	aCurve.selectAll("line").data(lineData)
-		.enter()
-	.append("svg:line")
+	var line = aCurve.selectAll("line").data(lineData);
+	line.enter().append("svg:line")
+		.style("stroke-width", "1")
+		.style("stroke", function(d) {
+			var lines = this.parentNode.__data__;
+			return lines.color;
+		});
+
+	line.transition().duration(duration)
 		.attr("x1", function(d, i) {
 			var graph = this.parentNode.parentNode.parentNode.__data__;
 			var lines = this.parentNode.__data__;
@@ -1078,7 +1073,6 @@ Od600InspectorView.prototype.updateView = function(duration)
 			var lines = this.parentNode.__data__;
 			return lines.color;
 		})
-		.style("stroke-width", "1");
 	
 	// remove
 	inspector.exit().transition()
