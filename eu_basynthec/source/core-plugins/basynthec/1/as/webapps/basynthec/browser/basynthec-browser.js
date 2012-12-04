@@ -1068,7 +1068,29 @@ Od600InspectorView.prototype.updateView = function(duration)
 		.style("stroke", function(d) {
 			var lines = this.parentNode.__data__;
 			return lines.color;
+		});
+
+	// Draw the scale
+	var scaleg = dataDisplay.selectAll("g.scale").data(curveData);
+	scaleg.enter().append("svg:g").attr("class", "scale");
+		// The first two columns of data are the strain name and human-readable desc
+	var scale = scaleg.selectAll("line").data([[1,0], [0,1]]);
+	scale.enter().append("svg:line")
+		.style("stroke-width", "1")
+		.style("stroke", "black")
+		.attr("x1", "0")
+		.attr("y1", function(d) { return graphHeight(this.parentNode.parentNode.parentNode.__data__)})
+		.attr("x2", "0")
+		.attr("y2", function(d) { return graphHeight(this.parentNode.parentNode.parentNode.__data__)});
+	scale
+		.attr("x2", function(d) {
+			var graph = this.parentNode.parentNode.parentNode.__data__;
+			return d[0] * graphWidth(graph)
 		})
+		.attr("y2", function(d) {
+			var graph = this.parentNode.parentNode.parentNode.__data__;
+			return graphHeight(graph) - (d[1] * graphHeight(graph))
+		});
 	
 	// remove
 	inspector.exit().transition()
@@ -1154,7 +1176,7 @@ function od600DataForStrain(d) {
 		if (null == strainData) return {};
 		strainData.map(function(curve) {
 			idx = idx + 1;
-			data.push({ strain: d, index: idx, values: curve });
+			data.push({ strain: d, index: idx, values: curve, timepoints : ds.od600Timepoints});
 		});
 	})
 	return data;
@@ -1170,7 +1192,7 @@ function curveData(d, i)
 	var color = curveColors(d.index);	
 	// Don't normalize -- use 2 as the global max value
 	// var maxValue = (0 == d.values.length) ? 0 : d3.max(d.values);
-	return [{length : d.values.length, max : 2, values: d.values, color : color}]
+	return [{length : d.values.length, max : 2, values: d.values, color : color, timeoints : d.timepoints}]
 }
 
 function lineData(d)
