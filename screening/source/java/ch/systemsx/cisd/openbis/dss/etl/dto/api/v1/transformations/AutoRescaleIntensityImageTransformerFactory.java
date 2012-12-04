@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
  * This class is obsolete, and should not be used. Use
  * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.AutoRescaleIntensityImageTransformerFactory}
@@ -23,6 +25,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations;
  * 
  * @author Jakub Straszewski
  */
+@JsonObject("AutoRescaleIntensityImageTransformerFactory_obsolete")
 public class AutoRescaleIntensityImageTransformerFactory
         extends
         ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.AutoRescaleIntensityImageTransformerFactory
