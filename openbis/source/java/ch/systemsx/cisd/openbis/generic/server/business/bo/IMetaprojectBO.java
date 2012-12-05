@@ -37,7 +37,7 @@ public interface IMetaprojectBO extends IEntityBusinessObject
 
     void loadByMetaprojectId(IMetaprojectId metaprojectId);
 
-    void define(IMetaprojectRegistration registration);
+    void define(String ownerId, IMetaprojectRegistration registration);
 
     void update(IMetaprojectUpdates updates);
 

@@ -1194,7 +1194,8 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(boFactory).createMetaprojectBO(userSession);
                     will(returnValue(metaprojectBO));
 
-                    one(metaprojectBO).define(with(any(IMetaprojectRegistration.class)));
+                    one(metaprojectBO).define(with(newMetaproject.getOwnerId()),
+                            with(any(IMetaprojectRegistration.class)));
                     one(metaprojectBO).addSamples(null);
                     one(metaprojectBO).addDataSets(null);
                     one(metaprojectBO).addExperiments(null);

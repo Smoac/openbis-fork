@@ -1803,7 +1803,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         Metaproject registration = new Metaproject();
         registration.setName(metaproject.getName());
         registration.setDescription(metaproject.getDescription());
-        metaprojectBO.define(registration);
+        metaprojectBO.define(metaproject.getOwnerId(), registration);
 
         metaprojectBO.addSamples(metaproject.getSamples());
         metaprojectBO.addExperiments(metaproject.getExperiments());

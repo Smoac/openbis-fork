@@ -208,7 +208,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
     }
 
     @Override
-    public void define(IMetaprojectRegistration registration)
+    public void define(String ownerId, IMetaprojectRegistration registration)
     {
         if (registration == null)
         {
@@ -222,7 +222,7 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
         metaproject = new MetaprojectPE();
         metaproject.setName(registration.getName());
         metaproject.setDescription(registration.getDescription());
-        metaproject.setOwner(findPerson());
+        metaproject.setOwner(getPersonDAO().tryFindPersonByUserId(ownerId));
         metaproject.setPrivate(true);
 
         initChangedEntities();

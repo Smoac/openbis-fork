@@ -3995,7 +3995,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Session session = getSession(sessionToken);
 
         IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
-        metaprojectBO.define(registration);
+        metaprojectBO.define(session.tryGetPerson().getUserId(), registration);
         metaprojectBO.save();
 
         return MetaprojectTranslator.translate(metaprojectBO.getMetaproject());
