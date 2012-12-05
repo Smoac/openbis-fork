@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations;
 
-import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ConvertToolImageTransformerFactory.ToolChoice;
 
 /**
@@ -26,7 +25,6 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ConvertToolImage
  * 
  * @author Jakub Straszewski
  */
-@JsonObject(value="ConvertToolImageTransformer_obsolete")
 public class ConvertToolImageTransformer extends
         ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ConvertToolImageTransformer
 {

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.base.image.IStreamingImageTransformerFactory;
 
 /**
@@ -28,6 +29,7 @@ import ch.systemsx.cisd.base.image.IStreamingImageTransformerFactory;
  * 
  * @author Kaloyan Enimanev
  */
+@JsonObject(value="ConvertToolImageTransformerFactory")
 public class ConvertToolImageTransformerFactory implements IStreamingImageTransformerFactory
 {
     private static final long serialVersionUID = 1L;
