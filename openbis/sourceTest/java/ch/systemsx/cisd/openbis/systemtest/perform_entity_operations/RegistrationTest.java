@@ -69,7 +69,6 @@ public class RegistrationTest extends SystemTestCase
         metaProject.setEntities(Arrays.<IObjectId> asList(experimentIdentifier, sampleIdentifier,
                 dataSetIdentifier, materialIdentifier));
         builder.metaProject(metaProject);
-        builder.user("test");
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
