@@ -354,6 +354,18 @@ public abstract class AbstractDAO extends HibernateDaoSupport
             });
     }
 
+    protected void lockEntities(Collection<? extends IIdHolder> entitiesOrNull)
+    {
+        if (entitiesOrNull == null)
+        {
+            return;
+        }
+        for (IIdHolder entity : entitiesOrNull)
+        {
+            lockEntity(entity);
+        }
+    }
+
     protected void lockEntity(IIdHolder entityOrNull)
     {
         if (entityOrNull != null && entityOrNull.getId() != null)
