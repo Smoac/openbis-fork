@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.base.image;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 
 /**
@@ -24,6 +25,7 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
  * 
  * @author Bernd Rinn
  */
+@JsonObject(value="IStreamingImageTransformerFactory")
 public interface IStreamingImageTransformerFactory extends IImageTransformerFactory
 {
     /**

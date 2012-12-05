@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.image.IStreamingImageTransformer;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
@@ -55,6 +56,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
  * 
  * @author Kaloyan Enimanev
  */
+@JsonObject(value="ConvertToolImageTransformer")
 public class ConvertToolImageTransformer implements IStreamingImageTransformer
 {
 
