@@ -398,9 +398,7 @@ abstract public class SimpleImageDataConfig
             List<ChannelColorComponent> channelColorComponents)
     {
         this.channels = channels;
-        channelColorComponentsOrNull =
-                ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorComponent
-                        .convertToIndependentChannelColorList(channelColorComponents);
+        channelColorComponentsOrNull = channelColorComponents;
     }
 
     /** should thumbnails be generated? False by default. */

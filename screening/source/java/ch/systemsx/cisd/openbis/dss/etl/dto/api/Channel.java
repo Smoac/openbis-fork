@@ -50,15 +50,6 @@ public class Channel extends AbstractHashable implements Serializable
     }
 
     /**
-     * Version of method for v1 channel color to keep backwards compatibility
-     */
-    public Channel(String code, String label,
-            ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColor channelColorOrNull)
-    {
-        this(code, label, channelColorOrNull.getIndependentChannelColor());
-    }
-
-    /**
      * Constructs a channel with a specified code and label. The channel will be presented in a
      * specified color.
      */
@@ -154,13 +145,6 @@ public class Channel extends AbstractHashable implements Serializable
     public void setChannelColor(ChannelColor channelColor)
     {
         this.channelColorOrNull = convertColor(channelColor);
-    }
-
-    /** version of method for v1 ChannelColor kept for backwards compatibility */
-    public void setChannelColor(
-            ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColor channelColor)
-    {
-        setChannelColor(channelColor.getIndependentChannelColor());
     }
 
     /** Sets RGB color in which this channel will be displayed. */

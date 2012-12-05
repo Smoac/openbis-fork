@@ -7,18 +7,15 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorRGB;
  * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel} instead
  * 
  * @author Jakub Straszewski
+ * @deprecated
  */
+@Deprecated
 public final class Channel extends ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel
 {
     private static final long serialVersionUID = 1L;
 
     public Channel(String code, String label,
             ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColor channelColorOrNull)
-    {
-        super(code, label, channelColorOrNull);
-    }
-
-    public Channel(String code, String label, ChannelColor channelColorOrNull)
     {
         super(code, label, channelColorOrNull);
     }

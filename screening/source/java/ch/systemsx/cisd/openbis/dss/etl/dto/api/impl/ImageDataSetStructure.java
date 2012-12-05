@@ -124,10 +124,7 @@ public class ImageDataSetStructure implements Serializable
         }
 
         this.channels = channels;
-        // potentially necessary conversion of v1 ChanelColorComponent
-        this.channelColorComponentsOrNull =
-                ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.ChannelColorComponent
-                        .convertToIndependentChannelColorList(channelColorComponents);
+        this.channelColorComponentsOrNull = channelColorComponents;
     }
 
     /**

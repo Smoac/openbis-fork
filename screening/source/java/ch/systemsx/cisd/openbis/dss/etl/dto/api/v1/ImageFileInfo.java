@@ -5,7 +5,9 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
  * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageFileInfo} instead
  * 
  * @author Jakub Straszewski
+ * @deprecated
  */
+@Deprecated
 public final class ImageFileInfo extends ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageFileInfo
 {
 

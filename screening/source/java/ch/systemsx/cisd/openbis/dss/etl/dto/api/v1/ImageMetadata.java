@@ -5,7 +5,9 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
  * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageMetadata} instead
  * 
  * @author Jakub Straszewski
+ * @deprecated
  */
+@Deprecated
 public class ImageMetadata extends ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageMetadata
 {
 }

@@ -21,7 +21,9 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1;
  * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.SimpleImageContainerDataConfig} instead
  * 
  * @author Jakub Straszewski
+ * @deprecated
  */
+@Deprecated
 public class SimpleImageContainerDataConfig extends
         ch.systemsx.cisd.openbis.dss.etl.dto.api.SimpleImageContainerDataConfig
 {
