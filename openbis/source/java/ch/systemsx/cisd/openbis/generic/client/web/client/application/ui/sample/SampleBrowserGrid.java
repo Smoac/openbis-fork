@@ -531,15 +531,15 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         ICriteriaProvider<ListSampleDisplayCriteria> criteriaProvider = getCriteriaProvider();
+        criteriaProvider.update(observedModifications, new IDataRefreshCallback()
+            {
+                @Override
+                public void postRefresh(boolean wasSuccessful)
+                {
+                }
+            });
         if (criteriaProvider.tryGetCriteria() != null)
         {
-            criteriaProvider.update(observedModifications, new IDataRefreshCallback()
-                {
-                    @Override
-                    public void postRefresh(boolean wasSuccessful)
-                    {
-                    }
-                });
             super.update(observedModifications);
         }
     }
