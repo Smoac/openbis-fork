@@ -25,12 +25,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.reflections.Reflections;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.google.common.base.Predicate;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.common.api.server.json.JsonUniqueCheckIgnore;
@@ -53,26 +51,33 @@ public class JsonAnnotationTest
 {
     private Collection<Class<?>> allJsonClasses = new HashSet<Class<?>>();
 
-    private Reflections reflections = new Reflections("");
-
     private Collection<Class<?>> empty = Collections.emptySet();
 
     private Map<String, Collection<Class<?>>> emptyMap =
             new HashMap<String, Collection<Class<?>>>();
 
     // Used by TestNG
+    @SuppressWarnings("unused")
     @BeforeClass
     private void findAllClassesUsedByJsonRpcApi()
     {
         Class<?>[] jsonRpcInterfaces =
-                    { IDssServiceRpcGeneric.class, IScreeningApiServer.class,
-                            IGeneralInformationChangingService.class,
-                            IGeneralInformationService.class, IWebInformationService.class,
-                            IQueryApiServer.class, IDssServiceRpcScreening.class };
+            { IDssServiceRpcGeneric.class, IScreeningApiServer.class,
+                    IGeneralInformationChangingService.class,
+                    IGeneralInformationService.class, IWebInformationService.class,
+                    IQueryApiServer.class, IDssServiceRpcScreening.class };
 
         for (Class<?> jsonClass : jsonRpcInterfaces)
         {
-            allJsonClasses.addAll(ClassReferences.search(jsonClass));
+            allJsonClasses.addAll(ClassReferences.search(jsonClass, new Predicate<Class<?>>()
+                {
+                    @Override
+                    public boolean apply(Class<?> clazz)
+                    {
+                        return (clazz.getPackage().getName().startsWith(
+                                "ch.systemsx.sybit.imageviewer") == false);
+                    }
+                }));
         }
     }
 
@@ -87,7 +92,7 @@ public class JsonAnnotationTest
     public void jsonTypeNamesAreUnique()
     {
         Map<String, Collection<Class<?>>> names = new HashMap<String, Collection<Class<?>>>();
-        for (Class<?> clazz : reflections.getTypesAnnotatedWith(JsonObject.class))
+        for (Class<?> clazz : ClassReferences.ref.getTypesAnnotatedWith(JsonObject.class))
         {
             if (clazz.getAnnotation(JsonUniqueCheckIgnore.class) != null)
             {
@@ -101,50 +106,11 @@ public class JsonAnnotationTest
         assertThat(duplicatedValuesIn(names), is(emptyMap));
     }
 
-    @Test(enabled = false)
-    public void jsonClassesWithSubClassesAreAnnotatedWithJsonSubTypes()
-    {
-        Collection<Class<?>> classesWithoutAnnotation = new HashSet<Class<?>>();
-        for (Class<?> clazz : allJsonClasses)
-        {
-            if (clazz.isEnum() == false && reflections.getSubTypesOf(clazz).isEmpty() == false)
-            {
-                if (clazz.getAnnotation(JsonSubTypes.class) == null)
-                {
-                    classesWithoutAnnotation.add(clazz);
-                }
-            }
-        }
-        assertThat(classesWithoutAnnotation, is(empty));
-    }
-
-    @Test(enabled = false)
-    public void jsonSubTypesAnnotationsContainAllDirectSubClasses()
-    {
-        Map<String, Collection<Class<?>>> missingSubtypeAnnotations =
-                new PrettyPrintingCollectionMap<String, Collection<Class<?>>>();
-        for (Class<?> main : reflections.getTypesAnnotatedWith(JsonSubTypes.class))
-        {
-            Collection<Class<?>> annotatedSubtypes = getAnnotatedSubTypes(main);
-
-            for (Class<?> subtype : reflections.getSubTypesOf(main))
-            {
-                if (subtypeIsMissing(main, subtype, annotatedSubtypes))
-                {
-                    addValueToCollectionMap(missingSubtypeAnnotations, main.getCanonicalName(),
-                            subtype);
-                }
-            }
-        }
-
-        assertThat(missingSubtypeAnnotations, is(emptyMap));
-    }
-
     private static class PrettyPrintingCollectionMap<K, V extends Collection<?>> extends
             HashMap<K, V>
     {
 
-        private static final long serialVersionUID = 2615134692782526120L;
+        private static final long serialVersionUID = 1L;
 
         @Override
         public String toString()
@@ -161,40 +127,6 @@ public class JsonAnnotationTest
             }
             return value;
         }
-    }
-
-    private static boolean subtypeIsMissing(Class<?> main, Class<?> subtype,
-            Collection<Class<?>> classes)
-    {
-
-        if (subtype.isAnonymousClass())
-        {
-            return false;
-        }
-
-        if (classes.contains(subtype))
-        {
-            return false;
-        }
-
-        if (subtype.isInterface())
-        {
-            return true;
-        } else
-        {
-            return subtype.getSuperclass().equals(main);
-        }
-    }
-
-    private static Collection<Class<?>> getAnnotatedSubTypes(Class<?> clazz)
-    {
-        Collection<Class<?>> annotated = new HashSet<Class<?>>();
-        JsonSubTypes types = clazz.getAnnotation(JsonSubTypes.class);
-        for (Type type : types.value())
-        {
-            annotated.add(type.value());
-        }
-        return annotated;
     }
 
     private Collection<Class<?>> getAllJsonRpcClassesWithoutJsonObject()

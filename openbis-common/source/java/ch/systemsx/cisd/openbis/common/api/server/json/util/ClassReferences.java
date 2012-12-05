@@ -28,41 +28,50 @@ import java.util.Set;
 
 import org.reflections.Reflections;
 
+import com.google.common.base.Predicate;
+
 /**
- * A utility class that searches for classes and interfaces that are potentially converted in
- * JSON form.
+ * A utility class that searches for classes and interfaces that are potentially converted in JSON
+ * form.
  * 
  * @author anttil
  */
 public class ClassReferences
 {
 
-    private static Reflections ref = new Reflections("");
+    public static Reflections ref = new Reflections("ch");
 
     /**
      * Returns all the classes and interfaces that are referenced by the public methods declared by
-     * the given class. 
-     *
-     * A class considered to be referenced by a method if either of the following holds 
-     * 1) The class or its superclass or an interface it implements is mentioned in the signature of 
-     *    the method as an argument or as a return type either directly or as a type of an array
-     *    or a collection.
-     * 2) The class or its superclass or an interface it implements is used as a return type of a
-     *    getter method in a class referenced (note recursion here) by a method.
-     * 
-     *  However, the following kind of classes never considered to be referenced:
-     *  1) Anonymous classes
-     *  2) Classes that are not defined within package "ch."
+     * the given class. A class considered to be referenced by a method if either of the following
+     * holds 1) The class or its superclass or an interface it implements is mentioned in the
+     * signature of the method as an argument or as a return type either directly or as a type of an
+     * array or a collection. 2) The class or its superclass or an interface it implements is used
+     * as a return type of a getter method in a class referenced (note recursion here) by a method.
+     * However, the following kind of classes never considered to be referenced: 1) Anonymous
+     * classes 2) Classes that are not defined within package "ch."
      * 
      * @param clazz class whose references should be searched.
      * @returns referenced classes
      */
-    public static Collection<Class<?>> search(Class<?> clazz)
+    public static Collection<Class<?>> search(Class<?> clazz, Predicate<Class<?>> filter)
     {
         Set<Class<?>> results = new HashSet<Class<?>>();
         for (Method method : clazz.getDeclaredMethods())
         {
             searchIfMethodIsPublic(method, results);
+        }
+        if (filter != null)
+        {
+            Set<Class<?>> filteredResults = new HashSet<Class<?>>();
+            for (Class<?> result : results)
+            {
+                if (filter.apply(result))
+                {
+                    filteredResults.add(result);
+                }
+            }
+            results = filteredResults;
         }
         return results;
     }

@@ -25,102 +25,126 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.google.common.base.Predicate;
+
 import ch.systemsx.cisd.openbis.common.api.server.json.util.ClassReferences;
 
 public class ClassReferenceSearchTest
 {
 
-    public class BaseClass 
-    {
-    }
-    public interface BaseInterface 
-    {
-    }
-    public class SimpleClass extends BaseClass 
-    {
-    }
-    public class AnotherSimpleClass implements BaseInterface 
-    {
-    }
-    public class NotExtendedSimpleClass 
-    {
-    }
-    
+    private static Predicate<Class<?>> noFilter = new Predicate<Class<?>>()
+        {
+            @Override
+            public boolean apply(Class<?> arg0)
+            {
+                return true;
+            }
+        };
 
-    public interface SimpleInterface 
+    public class BaseClass
+    {
+    }
+
+    public interface BaseInterface
+    {
+    }
+
+    public class SimpleClass extends BaseClass
+    {
+    }
+
+    public class AnotherSimpleClass implements BaseInterface
+    {
+    }
+
+    public class NotExtendedSimpleClass
+    {
+    }
+
+    public interface SimpleInterface
     {
         public AnotherSimpleClass getSimple(SimpleClass argument);
     }
+
     @Test
-    public void findsDirectSimpleReferences() 
+    public void findsDirectSimpleReferences()
     {
-        Class<?>[] expected = {SimpleClass.class, AnotherSimpleClass.class};
-        Collection<Class<?>> result = ClassReferences.search(SimpleInterface.class);
-        assertThat(result, hasItems(expected));
-        assertThat(result.size(), is(expected.length));
-    }
- 
-    
-    public interface CollectionInterface 
-    {
-        Collection<SimpleClass> getCollection(List<AnotherSimpleClass> argument);
-    }
-    @Test
-    public void findsReferencesInCollections() 
-    {
-        Class<?>[] expected = {SimpleClass.class, AnotherSimpleClass.class};
-        Collection<Class<?>> result = ClassReferences.search(CollectionInterface.class);
+        Class<?>[] expected =
+            { SimpleClass.class, AnotherSimpleClass.class };
+        Collection<Class<?>> result = ClassReferences.search(SimpleInterface.class, noFilter);
         assertThat(result, hasItems(expected));
         assertThat(result.size(), is(expected.length));
     }
 
-    
-    public interface ArrayInterface 
+    public interface CollectionInterface
+    {
+        Collection<SimpleClass> getCollection(List<AnotherSimpleClass> argument);
+    }
+
+    @Test
+    public void findsReferencesInCollections()
+    {
+        Class<?>[] expected =
+            { SimpleClass.class, AnotherSimpleClass.class };
+        Collection<Class<?>> result = ClassReferences.search(CollectionInterface.class, noFilter);
+        assertThat(result, hasItems(expected));
+        assertThat(result.size(), is(expected.length));
+    }
+
+    public interface ArrayInterface
     {
         SimpleClass[] getArray(AnotherSimpleClass[] argument);
     }
+
     @Test
-    public void findsReferencesInArrays() 
+    public void findsReferencesInArrays()
     {
-        Class<?>[] expected = {SimpleClass.class, AnotherSimpleClass.class};
-        Collection<Class<?>> result = ClassReferences.search(ArrayInterface.class);
+        Class<?>[] expected =
+            { SimpleClass.class, AnotherSimpleClass.class };
+        Collection<Class<?>> result = ClassReferences.search(ArrayInterface.class, noFilter);
         assertThat(result, hasItems(expected));
         assertThat(result.size(), is(expected.length));
     }
-    
-    public interface SubTypeInterface 
+
+    public interface SubTypeInterface
     {
-       public BaseClass getBaseclass(BaseInterface argument); 
+        public BaseClass getBaseclass(BaseInterface argument);
     }
+
     @Test
-    public void findsSubTypesOfReferencedClassesAndInterfaces() 
+    public void findsSubTypesOfReferencedClassesAndInterfaces()
     {
-        Class<?>[] expected = {SimpleClass.class, 
-                               AnotherSimpleClass.class,
-                               BaseClass.class,
-                               BaseInterface.class};
-        Collection<Class<?>> result = ClassReferences.search(SubTypeInterface.class);
+        Class<?>[] expected =
+            { SimpleClass.class,
+                    AnotherSimpleClass.class,
+                    BaseClass.class,
+                    BaseInterface.class };
+        Collection<Class<?>> result = ClassReferences.search(SubTypeInterface.class, noFilter);
         assertThat(result, hasItems(expected));
         assertThat(result.size(), is(expected.length));
     }
-    
-    
-    public interface GetterInterface 
+
+    public interface GetterInterface
     {
         public void method(InterfaceWithOneGetter argument);
     }
-    public interface InterfaceWithOneGetter 
+
+    public interface InterfaceWithOneGetter
     {
         public BaseClass doSomething();
+
         public BaseInterface getCalculatedValue(BaseInterface argument);
+
         public NotExtendedSimpleClass getSimpleClass();
     }
+
     @Test
-    public void searchesOnlyGettersOfReferencedClasses() 
+    public void searchesOnlyGettersOfReferencedClasses()
     {
-        Class<?>[] expected = {InterfaceWithOneGetter.class, 
-                               NotExtendedSimpleClass.class};
-        Collection<Class<?>> result = ClassReferences.search(GetterInterface.class);
+        Class<?>[] expected =
+            { InterfaceWithOneGetter.class,
+                    NotExtendedSimpleClass.class };
+        Collection<Class<?>> result = ClassReferences.search(GetterInterface.class, noFilter);
         assertThat(result, hasItems(expected));
         assertThat(result.size(), is(expected.length));
     }
