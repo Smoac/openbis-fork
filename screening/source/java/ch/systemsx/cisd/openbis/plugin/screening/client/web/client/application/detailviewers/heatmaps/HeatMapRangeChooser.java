@@ -60,9 +60,9 @@ public class HeatMapRangeChooser extends Dialog
 {
     private final Map<CheckBoxField, RangeType> checkBoxToType =
             new HashMap<CheckBoxField, RangeType>();
-    
+
     private final ScreeningViewContext viewContext;
-    
+
     private Component checkedComponent;
 
     private FieldSet fieldSet;
@@ -132,8 +132,9 @@ public class HeatMapRangeChooser extends Dialog
         untilField =
                 createNumberField(Dict.HEAT_MAP_RANGE_CHOOSER_FIXED_TYPE_HIGHEST_SCALE_LABEL,
                         validator);
-        fieldSet.add(fromField);
+        // The scale is ordered top to bottom, use the same order for the input fields
         fieldSet.add(untilField);
+        fieldSet.add(fromField);
         formPanel.add(fieldSet);
     }
 
@@ -209,7 +210,8 @@ public class HeatMapRangeChooser extends Dialog
                     }
                 }
             }));
-        addButton(new Button( viewContext
+        addButton(new Button(
+                viewContext
                         .getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_CANCEL),
                 new SelectionListener<ButtonEvent>()
                     {
@@ -220,7 +222,7 @@ public class HeatMapRangeChooser extends Dialog
                         }
                     }));
     }
-    
+
     private void initComponents(IRangeType rangeType)
     {
         Set<Entry<CheckBoxField, RangeType>> entrySet = checkBoxToType.entrySet();
@@ -270,6 +272,9 @@ public class HeatMapRangeChooser extends Dialog
 
     private void buttonPressed(Component component)
     {
+        if (component == checkedComponent)
+            return;
+
         if (checkedComponent != null)
         {
             if (checkedComponent instanceof CheckBox)
@@ -282,9 +287,10 @@ public class HeatMapRangeChooser extends Dialog
                 fSet.collapse();
             }
         }
+
         checkedComponent = component;
     }
-    
+
     private IRangeType getRangeType()
     {
         if (checkedComponent == null)
