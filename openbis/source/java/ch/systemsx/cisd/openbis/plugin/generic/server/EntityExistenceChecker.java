@@ -228,10 +228,7 @@ class EntityExistenceChecker
         for (NewMaterialsWithTypes newMaterialsWithTypes : newMaterialsWithType)
         {
             MaterialType materialType = newMaterialsWithTypes.getEntityType();
-            if (assertMaterialTypeExists(materialType) == false)
-            {
-                continue;
-            }
+            assertMaterialTypeExists(materialType);
             List<NewMaterial> newMaterials = newMaterialsWithTypes.getNewEntities();
             for (NewMaterial newMaterial : newMaterials)
             {
@@ -243,7 +240,7 @@ class EntityExistenceChecker
         }
     }
 
-    private boolean assertMaterialTypeExists(MaterialType materialType)
+    private void assertMaterialTypeExists(MaterialType materialType)
     {
         String materialTypeCode = materialType.getCode();
         if (materialTypeToPropertyTypesMap.containsKey(materialTypeCode) == false)
@@ -254,12 +251,11 @@ class EntityExistenceChecker
             if (type == null)
             {
                 errors.add("Unknown material type: " + materialTypeCode);
-                return false;
+                return;
             }
             addPropertyTypesTo(materialTypeToPropertyTypesMap, materialTypeCode,
                     type.getMaterialTypePropertyTypes());
         }
-        return true;
     }
 
     /**
@@ -278,11 +274,7 @@ class EntityExistenceChecker
         for (NewSamplesWithTypes newSamplesWithTypes : newSamplesWithType)
         {
             SampleType sampleType = newSamplesWithTypes.getEntityType();
-            if (assertSampleTypeExists(sampleType) == false)
-            {
-                continue;
-            }
-
+            assertSampleTypeExists(sampleType);
             List<NewSample> newSamples = newSamplesWithTypes.getNewEntities();
             for (NewSample newSample : newSamples)
             {
@@ -310,7 +302,7 @@ class EntityExistenceChecker
         }
     }
 
-    private boolean assertSampleTypeExists(SampleType sampleType)
+    private void assertSampleTypeExists(SampleType sampleType)
     {
         String sampleTypeCode = sampleType.getCode();
         if (sampleTypeToPropertyTypesMap.containsKey(sampleTypeCode) == false)
@@ -320,12 +312,11 @@ class EntityExistenceChecker
             if (type == null)
             {
                 errors.add("Unknown sample type: " + sampleTypeCode);
-                return false;
+                return;
             }
             addPropertyTypesTo(sampleTypeToPropertyTypesMap, sampleTypeCode,
                     type.getSampleTypePropertyTypes());
         }
-        return true;
     }
 
     private void addPropertyTypesTo(
@@ -348,6 +339,10 @@ class EntityExistenceChecker
         String entityTypeCode = entityType.getCode();
         Map<String, PropertyTypePE> propertyTypes =
                 entityTypeToPropertyTypesMap.get(entityTypeCode);
+        if (propertyTypes == null)
+        {
+            return;
+        }
         for (IEntityProperty property : properties)
         {
             PropertyType propertyType = property.getPropertyType();
