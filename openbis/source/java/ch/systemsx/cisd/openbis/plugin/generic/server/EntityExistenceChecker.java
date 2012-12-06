@@ -291,10 +291,7 @@ class EntityExistenceChecker
                         extractor.getExperimentIdentifierOrNull();
                 if (experimentIdentifier != null)
                 {
-                    if (experimentExistenceManager.exists(experimentIdentifier) == false)
-                    {
-                        continue;
-                    }
+                    experimentExistenceManager.exists(experimentIdentifier);
                 }
                 String containerIdentifier = newSample.getContainerIdentifierForNewSample();
                 if (containerIdentifier != null)
@@ -304,10 +301,7 @@ class EntityExistenceChecker
                             SampleIdentifierFactory.parse(containerIdentifier,
                                     defaultSpaceIdentifier);
 
-                    if (sampleExistenceManager.exists(sampleIdentifier) == false)
-                    {
-                        continue;
-                    }
+                    sampleExistenceManager.exists(sampleIdentifier);
                 }
                 sampleExistenceManager.add(extractor.getNewSampleIdentifier());
                 IEntityProperty[] properties = newSample.getProperties();
