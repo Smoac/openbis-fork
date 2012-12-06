@@ -15,6 +15,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
  */
 class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
 {
+    static final String LESS_THAN_EQUAL = "\u2264";
+    static final String GREATER_THAN_EQUAL = "\u2265";
+    
     private final float step;
 
     private final List<Color> colors;
@@ -50,13 +53,23 @@ class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
         }
         if (step > 0)
         {
-            scaleTop = round(Math.max(until, minMaxRange.getMax()));
-            scaleBottom = round(Math.min(from, minMaxRange.getMin()));
+            scaleTop = createScaleEndLabel(until, minMaxRange.getMax(), minMaxRange.getMin());
+            scaleBottom = createScaleEndLabel(from, minMaxRange.getMin(), minMaxRange.getMax());
         } else
         {
-            scaleTop = round(Math.min(until, minMaxRange.getMin()));
-            scaleBottom = round(Math.max(from, minMaxRange.getMax()));
+            scaleTop = createScaleEndLabel(until, minMaxRange.getMin(), minMaxRange.getMax());
+            scaleBottom = createScaleEndLabel(from, minMaxRange.getMax(), minMaxRange.getMin());
         }
+    }
+    
+    private String createScaleEndLabel(float scaleEnd, float dataEnd, float otherDataEnd)
+    {
+        String scaleNumber = round(scaleEnd);
+        if ((dataEnd - scaleEnd) * (scaleEnd - otherDataEnd) > 0)
+        {
+            scaleNumber = (scaleEnd < dataEnd ? GREATER_THAN_EQUAL : LESS_THAN_EQUAL) + " " + scaleNumber;
+        }
+        return scaleNumber;
     }
 
     @Override

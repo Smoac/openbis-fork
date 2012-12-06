@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps;
 
+import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.NumberHeatmapRenderer.GREATER_THAN_EQUAL;
+import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.NumberHeatmapRenderer.LESS_THAN_EQUAL;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
@@ -173,8 +175,8 @@ public class NumberHeatmapRendererTest
         String firstLabel = renderer.tryGetFirstLabel();
         List<HeatmapScaleElement> scale = renderer.calculateScale();
 
-        assertEquals("[3.0:#111, 2.0:#222, 0.0:#333]", scale.toString());
-        assertEquals("5.0", firstLabel);
+        assertEquals("[3.0:#111, 2.0:#222, " + LESS_THAN_EQUAL + " 1.0:#333]", scale.toString());
+        assertEquals(GREATER_THAN_EQUAL + " 4.0", firstLabel);
     }
     
     @Test
@@ -203,8 +205,8 @@ public class NumberHeatmapRendererTest
         String firstLabel = renderer.tryGetFirstLabel();
         List<HeatmapScaleElement> scale = renderer.calculateScale();
         
-        assertEquals("[2.0:#111, 3.0:#222, 5.0:#333]", scale.toString());
-        assertEquals("0.0", firstLabel);
+        assertEquals("[2.0:#111, 3.0:#222, " + GREATER_THAN_EQUAL + " 4.0:#333" + "]", scale.toString());
+        assertEquals(LESS_THAN_EQUAL + " 1.0", firstLabel);
     }
     
     @Test
