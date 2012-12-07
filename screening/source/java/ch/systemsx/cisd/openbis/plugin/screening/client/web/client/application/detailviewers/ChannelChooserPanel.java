@@ -540,6 +540,7 @@ public class ChannelChooserPanel extends LayoutContainer
             transformationsComboBox.add(model);
 
             selectTransformation(selectedValues.get(0));
+            setTransformationsVisible(true);
         } else
         {
             setTransformationsVisible(false);
@@ -575,7 +576,7 @@ public class ChannelChooserPanel extends LayoutContainer
     {
         transformationsComboBox.setVisible(visible);
         adjustLabel.setVisible(visible);
-        changeTransformationSettingsButtonVisibility(visible, false);
+        changeTransformationSettingsButtonVisibility(visible, true);
     }
 
     private void selectTransformation(String channelCode)
