@@ -123,14 +123,30 @@ public class ChannelChooserPanel extends LayoutContainer
             @Override
             public void handleEvent(BaseEvent be)
             {
-                String transformationCode =
-                        transformationsComboBox.getSimpleValue().getItem().getCode();
+                InternalImageTransformationInfo selectedTransformation =
+                        transformationsComboBox.getSimpleValue().getItem();
+                String transformationCode = selectedTransformation.getCode();
                 defaultChannelState.setDefaultTransformation(getSelectedValues().get(0),
                         transformationCode);
                 changeTransformationSettingsButtonVisibility(true, false);
+
+                IntensityRange intensityRange =
+                        defaultChannelState.tryGetIntensityRange(getSelectedValues().get(0));
                 notifySelectionListeners(getSelectedValues(),
-                        tryGetSelectedTransformationCode(false),
-                        defaultChannelState.tryGetIntensityRange(getSelectedValues().get(0)));
+                        tryGetSelectedTransformationCode(false), intensityRange);
+
+                String updatedTooltip = selectedTransformation.getLabel();
+                if (ScreeningConstants.USER_DEFINED_RESCALING_CODE
+                        .equalsIgnoreCase(transformationCode))
+                {
+                    updatedTooltip +=
+                            " ["
+                                    + (intensityRange == null ? "undefined" : intensityRange
+                                            .getBlackPoint()
+                                            + " - "
+                                            + intensityRange.getWhitePoint()) + "]";
+                }
+                transformationsComboBox.setToolTip(updatedTooltip);
             }
         };
 
