@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.DOM;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
@@ -37,47 +39,80 @@ public class PopupDialogBasedInfoHandler extends Dialog implements IInfoHandler
 
     private IMessageProvider messageProvider;
 
+    private InfoType type;
+
+    private String text;
+
     private Label label;
+
+    private TextArea textArea;
 
     public PopupDialogBasedInfoHandler(IMessageProvider messageProvider)
     {
         this.messageProvider = messageProvider;
-        this.label = new Label();
+
+        textArea = new TextArea();
+        textArea.setReadOnly(true);
+
+        label = new Label();
+        label.setVisible(false);
 
         setBodyStyle("padding: 10px");
         setSize(WIDTH, HEIGHT);
-        setScrollMode(Scroll.AUTOY);
+        setScrollMode(Scroll.NONE);
         setButtons(Dialog.CLOSE);
         setHideOnButtonClick(true);
         setModal(true);
         setLayout(new FitLayout());
+        add(textArea);
         add(label);
     }
 
     @Override
-    public void displayInfo(String text)
+    public void displayInfo(String aText)
     {
         display(InfoType.INFO, text);
     }
 
     @Override
-    public void displayError(String text)
+    public void displayError(String aText)
     {
         display(InfoType.ERROR, text);
     }
 
     @Override
-    public void displayProgress(String text)
+    public void displayProgress(String aText)
     {
         display(InfoType.PROGRESS, text);
     }
 
-    public void display(InfoType type, String text)
+    public void display(InfoType aType, String aText)
     {
-        setHeading(messageProvider.getMessage(type.getMessageKey()));
-        label.setText(text);
-        layout();
+        this.type = aType;
+        this.text = aText;
         show();
+    }
+
+    @Override
+    protected void onAttach()
+    {
+        super.onAttach();
+
+        setHeading(messageProvider.getMessage(type.getMessageKey()));
+
+        // The requested text may contain some HTML tags, e.g. "<b>some text</b><br>more text".
+        // Because a text area does not interpret HTML code and displays it as a plain text we
+        // have to get rid of all the tags. As we want to keep the line breaks untouched we replace
+        // all <br> tags with new line characters. We do all this in the onAttach method because
+        // the trick with setInnerHTML and getInnerText requires the label element to be already
+        // rendered.
+
+        String textWithNewLines = text.replace("<br>", "\n");
+        label.setText(textWithNewLines);
+        String textWithoutTags = DOM.getInnerText(label.getElement());
+        textArea.setValue(textWithoutTags);
+
+        layout();
     }
 
 }
