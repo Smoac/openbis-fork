@@ -22,7 +22,7 @@ var COLUMNS = [
 	{ type : "MULTIPLEX", label : "Multiplex", width : 300 },
 	{ type : "LIBRARY", label : "Library", width : 240 },
 	{ type : "ALIQUOT", label : "Aliquot", width : 400 },
-	{ type : "SAMPLE", label : "Sample", width : 300 }
+	{ type : "SAMPLE", label : "Sample", width : 400 }
 ];
 
 // The height of each line in the display
@@ -160,8 +160,8 @@ FlowcellGraphModel.prototype.coalesceGraphData = function(data, callback) {
 	function convertSampleToNode(sample) {
 		// This is just a nodeId, it will be converted elsewhere
 		if (isPureId(sample)) return;
-
-		sample.parents.forEach(convertSampleToNode);
+		// This has already been converted
+		if (nodesById[sample.nodeId]) return;
 
 		var node = new SampleGraphNode(sample);
 		nodesById[node.nodeId] = node;
@@ -170,6 +170,9 @@ FlowcellGraphModel.prototype.coalesceGraphData = function(data, callback) {
 			node.arrayIndex = sampleTypeArray.length;
 			sampleTypeArray.push(node);
 		}
+
+		if (sample.parents) sample.parents.forEach(convertSampleToNode);
+		if (sample.children) sample.children.forEach(convertSampleToNode);
 	}
 
 	function resolveParents(sample) {
@@ -180,11 +183,21 @@ FlowcellGraphModel.prototype.coalesceGraphData = function(data, callback) {
 
 		var node = nodeForSample(sample);
 		node.parents = sample.parents.map(nodeForSample);
-		node.parents.forEach(function(c) { c.children.push(node)} );
+	}
+
+	function resolveChildren(sample) {
+		// This is just a nodeId, it will be resolved elsewhere
+		if (isPureId(sample)) return;
+
+		sample.children.forEach(resolveChildren);
+
+		var node = nodeForSample(sample);
+		node.children = sample.children.map(nodeForSample);
 	}
 
 	samples.forEach(convertSampleToNode);
 	samples.forEach(resolveParents);
+	samples.forEach(resolveChildren);
 
 	// The parents of the flowlanes should become the parents of the flow cell
 	var flowcell = this.samplesByType[FLOWCELL_SAMPLE_TYPE][0];
@@ -265,6 +278,7 @@ SampleGraphPresenter.prototype.calcuateVisibleColumnOffsets = function() {
 		seenQuerySampleType = seenQuerySampleType || atQuerySampleType;
 	})
 
+	if (!bottomUpMode) visibleColumns = visibleColumns.reverse();
 	this.visibleColumns = visibleColumns;
 	this.visibleColumns.forEach(function(column) { column.xOffset = xOffset; xOffset += column.width });
 	this.vizWidth = xOffset;
@@ -340,6 +354,7 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 			var connectedNodesWithMultipleEdges = outEdges.filter(function(c) { return outEdgesGetter(c).length > 1 });
 			var oneToOne = oneEdgeOrLess && connectedNodesWithMultipleEdges.length == 0;
 			sampleData.color = (!oneToOne) ? colors(row) : oneToOneColor;
+			sampleData.userEdgesVisible = null;
 			sampleData.edgesVisible = col + 1 < FIRST_COLLAPSED_COLUMN;
 		}
 	}
@@ -417,6 +432,7 @@ SampleGraphPresenter.prototype.draw = function()
 	// Columns
 	this.columns = this.viz.selectAll("g").data(function(d) { return d });
 	this.columns.enter().append("svg:g").attr("class", "column");
+	this.columns.exit().remove();
 	var lexicalParent = this;
 	this.columns.attr("transform", function(d, i) { return "translate(" + lexicalParent.visibleColumns[i].xOffset + ", 0)"});
 	this.drawHeaders();
@@ -473,9 +489,6 @@ SampleGraphPresenter.prototype.drawNodes = function()
 		.attr("r", 0)
 		.style("cursor", "pointer")
 		.style("stroke-width", "2px")
-		.transition()
-			.style("opacity", function(d) { return outEdgesGetter(d).length > 0 ? 1 : 0 })
-			.attr("r", 5);
 	ring.exit()
 		.transition()
 			.style("opacity", 0).remove();
@@ -485,6 +498,10 @@ SampleGraphPresenter.prototype.drawNodes = function()
 		.style("fill", function(d) { return d.edgesVisible ? "none" : d.color})
 		.style("stroke", function(d) { return d.color})
 		.on("click", function(d) { presenter.toggleExpand(this, d) });
+	ring
+		.transition()
+			.style("opacity", function(d) { return outEdgesGetter(d).length > 0 ? 1 : 0 })
+			.attr("r", 5);
 }
 
 /**
@@ -519,6 +536,31 @@ SampleGraphPresenter.prototype.openSample = function(svgNode, d) {
 	window.open(url, '_blank');
 }
 
+function displayActiveMode(active, inactive) {
+	active.parent().addClass("active");
+	inactive.parent().removeClass("active");
+}
+
+function clickedBottomUp() {
+	if (presenter.bottomUpMode) return;
+
+	displayActiveMode($('#bottom-up'), $('#top-down'));
+	presenter.useBottomUpMode();
+	presenter.initializeGraphSamples();
+	presenter.draw();
+}
+
+function clickedTopDown() {
+	if (!presenter.bottomUpMode) return;
+
+	displayActiveMode($('#top-down'), $('#bottom-up'));
+	presenter.useTopDownMode();
+	presenter.initializeGraphSamples();
+	presenter.draw();
+}
+
+
+
 /// The model that manages state and implements the operations
 var model;
 model = new FlowcellGraphModel();
@@ -529,6 +571,8 @@ var presenter;
 
 function enterApp(data)
 {
+	$('#bottom-up').click(clickedBottomUp);
+	$('#top-down').click(clickedTopDown);
 	presenter = new SampleGraphPresenter(model);
 	presenter.useBottomUpMode()
     model.requestGraphData(function() { presenter.initializeGraphSamples(); presenter.draw() });
