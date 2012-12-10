@@ -337,7 +337,7 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 			var parentsWithMultipleChildren = sampleData.parents.filter(function(c) { return c.parents.length > 1 });
 			var oneToOne = oneParentOrLess && parentsWithMultipleChildren.length == 0;
 			sampleData.color = (!oneToOne) ? colors(row) : oneToOneColor;
-			sampleData.childrenVisible = col + 1 < FIRST_COLLAPSED_COLUMN;
+			sampleData.edgesVisible = col + 1 < FIRST_COLLAPSED_COLUMN;
 		}
 	}
 	this.allNodes = nodes;
@@ -353,14 +353,14 @@ SampleGraphPresenter.prototype.updateVisibility = function() {
 	// Figure out if the nodes should be visible
 	this.allNodes.forEach(function(samps) {
 		samps.forEach(function(sample) {
-			if (null != sample.userChildrenVisible) sample.childrenVisible = sample.userChildrenVisible;
-			var showChildren = sample.visible && sample.childrenVisible;
+			if (null != sample.userEdgesVisible) sample.edgesVisible = sample.userEdgesVisible;
+			var showChildren = sample.visible && sample.edgesVisible;
 			if (!showChildren) return;
 			sample.parents.forEach(function(c) {
 				c.visible = true;
 				// Nodes with only one parent should show their parents as well, unless the user requests otherwise
 				if (c.parents.length == 1) {
-					c.childrenVisible = (null == c.userChildrenVisible) ? true : c.userChildrenVisible;
+					c.edgesVisible = (null == c.userEdgesVisible) ? true : c.userEdgesVisible;
 				}
 			});
 		})
@@ -476,7 +476,7 @@ SampleGraphPresenter.prototype.drawNodes = function()
 	ring
 		.attr("cx", function(d) { return textBBoxForNode(d).width + 7 })
 		.attr("cy", function(d, i) { return LINE_HEIGHT * (i+2) - yLinkOffset})
-		.style("fill", function(d) { return d.childrenVisible ? "none" : d.color})
+		.style("fill", function(d) { return d.edgesVisible ? "none" : d.color})
 		.style("stroke", function(d) { return d.color})
 		.on("click", function(d) { presenter.toggleExpand(this, d) });
 }
@@ -504,7 +504,7 @@ SampleGraphPresenter.prototype.drawLinks = function()
 
 SampleGraphPresenter.prototype.toggleExpand = function(svgNode, d) {
 	// toggle visiblity
-	d.userChildrenVisible = (null == d.userChildrenVisible) ? !d.childrenVisible :!d.userChildrenVisible;
+	d.userEdgesVisible = (null == d.userEdgesVisible) ? !d.edgesVisible :!d.userEdgesVisible;
 	this.draw();
 }
 
