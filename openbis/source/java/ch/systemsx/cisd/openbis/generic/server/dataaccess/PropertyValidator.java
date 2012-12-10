@@ -42,9 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.XmlUtils;
  */
 public final class PropertyValidator implements IPropertyValueValidator
 {
-    private final static Map<DataTypeCode, IDataTypeValidator> dataTypeValidators =
-            createDataTypeValidators();
-
     private final static SimplePropertyValidator simplePropertyValidator =
             new SimplePropertyValidator();
 
@@ -76,7 +73,7 @@ public final class PropertyValidator implements IPropertyValueValidator
         {
             return simplePropertyValidator.validatePropertyValue(entityDataType, value);
         }
-        final IDataTypeValidator dataTypeValidator = dataTypeValidators.get(entityDataType);
+        final IDataTypeValidator dataTypeValidator = createDataTypeValidators().get(entityDataType);
         assert dataTypeValidator != null : String.format("No IDataTypeValidator implementation "
                 + "specified for '%s'.", entityDataType);
         switch (entityDataType)
