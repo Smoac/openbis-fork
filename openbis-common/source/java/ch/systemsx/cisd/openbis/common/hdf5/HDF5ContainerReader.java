@@ -18,7 +18,12 @@ package ch.systemsx.cisd.openbis.common.hdf5;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import ch.systemsx.cisd.hdf5.h5ar.ArchiveEntry;
 import ch.systemsx.cisd.hdf5.h5ar.HDF5ArchiverFactory;
@@ -32,41 +37,128 @@ import ch.systemsx.cisd.hdf5.h5ar.ListParameters;
  */
 final class HDF5ContainerReader implements IHDF5ContainerReader
 {
-    private final IHDF5ArchiveReader archiveReader;
+    private static final long CACHE_CLEANER_INTERVAL_MILLIS = 60000L;
+
+    /**
+     * A container for reader which stores last access time and current reference count.
+     */
+    private static class Reader
+    {
+        private final static long RETENTION_TIME_MILLIS = 5 * 60 * 1000L; // 5 minutes
+
+        private final IHDF5ArchiveReader archiveReader;
+
+        private long lastAccessed;
+
+        private int referenceCount;
+
+        Reader(IHDF5ArchiveReader archiveReader)
+        {
+            this.archiveReader = archiveReader;
+            this.lastAccessed = System.currentTimeMillis();
+            this.referenceCount = 1;
+        }
+
+        IHDF5ArchiveReader getArchiveReader()
+        {
+            this.lastAccessed = System.currentTimeMillis();
+            return archiveReader;
+        }
+
+        void incCount()
+        {
+            ++referenceCount;
+        }
+
+        void decCount()
+        {
+            --referenceCount;
+        }
+
+        boolean isExpired()
+        {
+            return (referenceCount == 0 && (System.currentTimeMillis() - lastAccessed) > RETENTION_TIME_MILLIS);
+        }
+    }
+    
+    static
+    {
+        final Timer t = new Timer("HDF5ContainerReader - Cache Cleaner", true);
+        t.schedule(new TimerTask() {
+            @Override
+            public void run()
+            {
+                synchronized (fileToReaderMap)
+                {
+                    final Iterator<Reader> it = fileToReaderMap.values().iterator();
+                    while (it.hasNext())
+                    {
+                        final Reader container = it.next();
+                        if (container.isExpired())
+                        {
+                            it.remove();
+                        }
+                    }
+                }
+            } } , CACHE_CLEANER_INTERVAL_MILLIS, CACHE_CLEANER_INTERVAL_MILLIS);
+    }
+
+    private static final Map<File, Reader> fileToReaderMap =
+            new HashMap<File, HDF5ContainerReader.Reader>();
+    
+    private static Reader openReader(File hdf5Container)
+    {
+        Reader entryOrNull;
+        synchronized (fileToReaderMap)
+        {
+            entryOrNull = fileToReaderMap.get(hdf5Container);
+            if (entryOrNull == null)
+            {
+                entryOrNull = new Reader(HDF5ArchiverFactory.openForReading(hdf5Container));
+                fileToReaderMap.put(hdf5Container, entryOrNull);
+            } else
+            {
+                entryOrNull.incCount();
+            }
+        }
+        return entryOrNull;
+    }
+
+    private final Reader reader;
 
     HDF5ContainerReader(final File hdf5Container)
     {
-        this.archiveReader = HDF5ArchiverFactory.openForReading(hdf5Container);
+        this.reader = openReader(hdf5Container);
     }
 
     @Override
     public void close()
     {
-        archiveReader.close();
+        reader.decCount();
     }
 
     @Override
     public boolean exists(String objectPath)
     {
-        return archiveReader.exists(objectPath);
+        return reader.getArchiveReader().exists(objectPath);
     }
 
     @Override
     public ArchiveEntry tryGetEntry(String path)
     {
-        return archiveReader.tryGetResolvedEntry(path, true);
+        return reader.getArchiveReader().tryGetResolvedEntry(path, true);
     }
 
     @Override
     public List<ArchiveEntry> getGroupMembers(String groupPath)
     {
-        return archiveReader.list(groupPath, ListParameters.build().nonRecursive()
+        return reader.getArchiveReader().list(groupPath, ListParameters.build().nonRecursive()
                 .resolveSymbolicLinks().get());
     }
 
     @Override
     public void readFromHDF5Container(String objectPath, OutputStream ostream)
     {
-        archiveReader.extractFile(objectPath, ostream);
-  }
+        reader.getArchiveReader().extractFile(objectPath, ostream);
+    }
 }
