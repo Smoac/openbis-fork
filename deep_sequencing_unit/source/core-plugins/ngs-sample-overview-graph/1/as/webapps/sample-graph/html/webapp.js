@@ -187,20 +187,21 @@ FlowcellGraphModel.prototype.coalesceGraphData = function(data, callback) {
 
 		sample.parents.forEach(resolveParents);
 
-		// Sample parents become node children
 		var node = nodeForSample(sample);
-		node.children = sample.parents.map(nodeForSample);
-		node.children.forEach(function(c) { c.parents.push(node)} );
+		node.parents = sample.parents.map(nodeForSample);
+		node.parents.forEach(function(c) { c.children.push(node)} );
 	}
 
 	samples.forEach(convertSampleToNode);
 	samples.forEach(resolveParents);
 
-	// Make the contained samples the children of the flow cell
-	var flowlaneChildren = []
-	this.samplesByType[FLOWLANE_SAMPLE_TYPE].forEach(function(d) { flowlaneChildren = flowlaneChildren.concat(d.children); });
-	if (this.samplesByType[FLOWCELL_SAMPLE_TYPE][0]) {
-		this.samplesByType[FLOWCELL_SAMPLE_TYPE][0].children = flowlaneChildren;
+	// The parents of the flowlanes should become the parents of the flow cell
+	var flowcell = this.samplesByType[FLOWCELL_SAMPLE_TYPE][0];
+	if (flowcell) {
+		var flowlaneParents = []
+		this.samplesByType[FLOWLANE_SAMPLE_TYPE].forEach(function(d) { flowlaneParents = flowlaneParents.concat(d.parents); });
+		this.samplesByType[FLOWCELL_SAMPLE_TYPE][0].parents = flowlaneParents;
+		this.samplesByType[FLOWLANE_SAMPLE_TYPE].forEach(function(d) { d.parents = [flowcell]});
 	}
 }
 
@@ -332,9 +333,9 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 			sampleData.col = col;
 			sampleData.row = row;
 			sampleData.colOffset = xOffset;
-			var oneChildOrLess = sampleData.children.length < 2;
-			var childrenWithMultipleParents = sampleData.children.filter(function(c) { return c.parents.length > 1 });
-			var oneToOne = oneChildOrLess && childrenWithMultipleParents.length == 0;
+			var oneParentOrLess = sampleData.parents.length < 2;
+			var parentsWithMultipleChildren = sampleData.parents.filter(function(c) { return c.parents.length > 1 });
+			var oneToOne = oneParentOrLess && parentsWithMultipleChildren.length == 0;
 			sampleData.color = (!oneToOne) ? colors(row) : oneToOneColor;
 			sampleData.childrenVisible = col + 1 < FIRST_COLLAPSED_COLUMN;
 		}
@@ -355,10 +356,10 @@ SampleGraphPresenter.prototype.updateVisibility = function() {
 			if (null != sample.userChildrenVisible) sample.childrenVisible = sample.userChildrenVisible;
 			var showChildren = sample.visible && sample.childrenVisible;
 			if (!showChildren) return;
-			sample.children.forEach(function(c) { 
+			sample.parents.forEach(function(c) {
 				c.visible = true;
-				// Nodes with only one child should show their children as well, unless the user requests otherwise
-				if (c.children.length == 1) {
+				// Nodes with only one parent should show their parents as well, unless the user requests otherwise
+				if (c.parents.length == 1) {
 					c.childrenVisible = (null == c.userChildrenVisible) ? true : c.userChildrenVisible;
 				}
 			});
@@ -371,7 +372,7 @@ SampleGraphPresenter.prototype.updateLinks = function() {
 	this.allNodes.forEach(function(samps) {
 		samps.forEach(function(d) { 
 			if (!d.visible) return;
-			d.children.forEach(function(c) { if (c.visible) links.push(new SampleGraphLink(d, c))});
+			d.parents.forEach(function(c) { if (c.visible) links.push(new SampleGraphLink(d, c))});
 		})
 	});
 
@@ -467,7 +468,7 @@ SampleGraphPresenter.prototype.drawNodes = function()
 		.style("cursor", "pointer")
 		.style("stroke-width", "2px")
 		.transition()
-			.style("opacity", function(d) { return d.children.length > 0 ? 1 : 0 })
+			.style("opacity", function(d) { return d.parents.length > 0 ? 1 : 0 })
 			.attr("r", 5);
 	ring.exit()
 		.transition()
