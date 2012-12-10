@@ -775,10 +775,13 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<DataSet> dataSets =
                 generalInformationService.listDataSetsForSample(sessionToken, sample, true);
 
+        sortDataSets(dataSets);
         assertDataSets("[20081105092159111-1, 20110509092359990-10]", dataSets);
+        List<DataSet> containedDataSets = dataSets.get(1).getContainedDataSets();
+        sortDataSets(containedDataSets);
         assertEquals("[DataSet[20110509092359990-11,<null>,<null>,HCS_IMAGE,{}], "
-                + "DataSet[20110509092359990-12,<null>,<null>,HCS_IMAGE,{}]]", dataSets.get(1)
-                .getContainedDataSets().toString());
+                + "DataSet[20110509092359990-12,<null>,<null>,HCS_IMAGE,{}]]",
+                containedDataSets.toString());
 
         loginAsObserver();
         try
@@ -1574,6 +1577,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertTrue(metaprojectAssignments.getExperiments().get(0).toString().contains("STUB"));
     }
 
+    @Test
     public void testGetMetaprojectReturnsMetaprojectForNameWithDifferentCase()
     {
         MetaprojectAssignments metaprojectAssignments =
@@ -1582,6 +1586,18 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals("/test/TEST_METAPROJECTS", metaprojectAssignments.getMetaproject()
                 .getIdentifier());
         assertEquals("TEST_METAPROJECTS", metaprojectAssignments.getMetaproject().getName());
+    }
+
+    private void sortDataSets(List<DataSet> dataSets)
+    {
+        Collections.sort(dataSets, new Comparator<DataSet>()
+            {
+                @Override
+                public int compare(DataSet d1, DataSet d2)
+                {
+                    return d1.getCode().compareTo(d2.getCode());
+                }
+            });
     }
 
     private static class MaterialToCode implements IToStringDelegate<Material>
