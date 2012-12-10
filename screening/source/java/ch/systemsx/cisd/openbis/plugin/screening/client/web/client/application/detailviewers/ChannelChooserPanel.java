@@ -109,6 +109,9 @@ public class ChannelChooserPanel extends LayoutContainer
     private List<ChannelSelectionListener> channelSelectionListeners =
             new ArrayList<ChannelSelectionListener>();
 
+    private Map<String, IntensityRange> intensitiesPerChannel =
+            new HashMap<String, IntensityRange>();
+
     private final Listener<BaseEvent> selectionChangeListener = new Listener<BaseEvent>()
         {
             @Override
@@ -123,15 +126,15 @@ public class ChannelChooserPanel extends LayoutContainer
             @Override
             public void handleEvent(BaseEvent be)
             {
+                String channelCode = getSelectedValues().get(0);
                 InternalImageTransformationInfo selectedTransformation =
                         transformationsComboBox.getSimpleValue().getItem();
                 String transformationCode = selectedTransformation.getCode();
-                defaultChannelState.setDefaultTransformation(getSelectedValues().get(0),
-                        transformationCode);
+                defaultChannelState.setDefaultTransformation(channelCode, transformationCode);
                 changeTransformationSettingsButtonVisibility(true, false);
 
                 IntensityRange intensityRange =
-                        defaultChannelState.tryGetIntensityRange(getSelectedValues().get(0));
+                        defaultChannelState.tryGetIntensityRange(channelCode);
                 notifySelectionListeners(getSelectedValues(),
                         tryGetSelectedTransformationCode(false), intensityRange);
 
@@ -145,6 +148,7 @@ public class ChannelChooserPanel extends LayoutContainer
                                             .getBlackPoint()
                                             + " - "
                                             + intensityRange.getWhitePoint()) + "]";
+                    ChannelChooserPanel.this.intensitiesPerChannel.put(channelCode, intensityRange);
                 }
                 transformationsComboBox.setToolTip(updatedTooltip);
             }
@@ -187,8 +191,9 @@ public class ChannelChooserPanel extends LayoutContainer
                         {
                             UserDefinedRescalingSettingsDialog dialog =
                                     new UserDefinedRescalingSettingsDialog(messageProvider,
-                                            defaultChannelState, getSelectedValues().get(0));
-                            dialog.addListener(Events.Hide, transformationSelection);
+                                            intensitiesPerChannel, defaultChannelState,
+                                            getSelectedValues().get(0));
+                            dialog.addListener(Events.OnChange, transformationSelection);
                             dialog.show();
                         }
                     });
@@ -403,7 +408,7 @@ public class ChannelChooserPanel extends LayoutContainer
         updateTransformationComboBox();
 
         notifySelectionListeners(selection, tryGetSelectedTransformationCode(false),
-                defaultChannelState.tryGetIntensityRange(selectedComboValue));
+                tryGetSelectedIntensityRange());
     }
 
     public String tryGetSelectedTransformationCode(boolean force)
@@ -425,7 +430,7 @@ public class ChannelChooserPanel extends LayoutContainer
 
     public IntensityRange tryGetSelectedIntensityRange()
     {
-        return defaultChannelState.tryGetIntensityRange(getSelectedValues().get(0));
+        return intensitiesPerChannel.get(getSelectedValues().get(0));
     }
 
     private static String transformCode(String code)

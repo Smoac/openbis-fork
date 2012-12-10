@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import java.util.Map;
+
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -49,6 +51,7 @@ public class UserDefinedRescalingSettingsDialog extends Dialog
     private final String channelCode;
 
     public UserDefinedRescalingSettingsDialog(IMessageProvider messageProvider,
+            Map<String, IntensityRange> intensitiesPerChannel,
             IDefaultChannelState defaultChannelState, String channelCode)
     {
         super();
@@ -66,7 +69,7 @@ public class UserDefinedRescalingSettingsDialog extends Dialog
         maxTextField =
                 new IntegerField(messageProvider.getMessage(Dict.RESCALING_DIALOG_MAX), true);
 
-        setInitialValues();
+        setInitialValues(intensitiesPerChannel);
 
         Grid grid = new Grid(2, 2);
         grid.setWidget(0, 0, labelMin);
@@ -89,12 +92,12 @@ public class UserDefinedRescalingSettingsDialog extends Dialog
             });
     }
 
-    private void setInitialValues()
+    private void setInitialValues(Map<String, IntensityRange> intensitiesPerChannel)
     {
         minTextField.setValue(0);
-        maxTextField.setValue(255);
+        maxTextField.setValue(65535);
 
-        IntensityRange range = defaultChannelState.tryGetIntensityRange(channelCode);
+        IntensityRange range = intensitiesPerChannel.get(channelCode);
         if (range != null)
         {
             minTextField.setValue(range.getBlackPoint());
@@ -112,7 +115,7 @@ public class UserDefinedRescalingSettingsDialog extends Dialog
             {
                 super.onButtonPressed(button);
                 updateIntensityRescaling();
-
+                fireEvent(Events.OnChange);
                 hide();
             } else
             {
