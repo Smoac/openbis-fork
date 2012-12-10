@@ -12,10 +12,12 @@
 // The following parameters must be configured for the webapp
 
 var FLOWCELL_SAMPLE_TYPE = "FLOWCELL";
+var FLOWLANE_SAMPLE_TYPE = "FLOWLANE";
 
 // The view is organized in columns that correspond to a sample type. The columns are defined here.
+// The order of the sample types here matches the bottom-up order of the sample types.
 var COLUMNS = [
-	{ type : "FLOWLANE", label : "Flowlane", width : 200 },
+	{ type : FLOWLANE_SAMPLE_TYPE, label : "Flowlane", width : 200 },
 	{ type : FLOWCELL_SAMPLE_TYPE, label : "Flowcell", width : 200 },
 	{ type : "MULTIPLEX", label : "Multiplex", width : 300 },
 	{ type : "LIBRARY", label : "Library", width : 240 },
@@ -80,7 +82,6 @@ function SampleGraphLink(sourceNode, targetNode) {
 	this.targetNode = targetNode;
 }
 
-
 /**
  * The model that manages state and implements the operations for the sample graph. This model is specific to the Flowcell type.
  */
@@ -91,8 +92,13 @@ function FlowcellGraphModel() {
 FlowcellGraphModel.prototype.initializeModel = function() {
 	this.sampleIdentifier = webappContext.getEntityIdentifier();
 	var identifierTokens = this.sampleIdentifier.split("/");
-	this.sampleSpace = identifierTokens[1];	
-	this.sampleCode = identifierTokens[2];
+	if (identifierTokens.length > 2) {
+		this.sampleSpace = identifierTokens[1];
+		this.sampleCode = identifierTokens[2];
+	} else {
+		this.sampleSpace = null;
+		this.sampleCode = identifierTokens[1];
+	}
 	this.samplePermId = webappContext.getEntityPermId();
 	this.sampleType = webappContext.getEntityType();
 	var samplesByType = {};
@@ -110,26 +116,32 @@ FlowcellGraphModel.prototype.requestGraphData = function(callback)
 			[ {"@type" : "AttributeMatchClause",
 				fieldType : "ATTRIBUTE",			
 				attribute : "CODE",
-				desiredValue : this.sampleCode 
+				desiredValue : this.sampleCode
 			}, {"@type" : "AttributeMatchClause",
 				fieldType : "ATTRIBUTE",			
 				attribute : "SPACE",
-				desiredValue : this.sampleSpace 
+				desiredValue : this.sampleSpace
 			} ],
 		operator : "MATCH_ALL_CLAUSES"		
 	};
 
+	var matchClauses = [ {"@type" : "AttributeMatchClause",
+		fieldType : "ATTRIBUTE",
+		attribute : "CODE",
+		desiredValue : this.sampleCode + "*"
+	}];
+
+	if (this.sampleSpace) {
+		matchClauses.push({"@type" : "AttributeMatchClause",
+			fieldType : "ATTRIBUTE",
+			attribute : "SPACE",
+			desiredValue : this.sampleSpace
+		})
+	}
+
+
 	var sampleCriteria = {
-		matchClauses : 
-			[ {"@type" : "AttributeMatchClause",
-				fieldType : "ATTRIBUTE",			
-				attribute : "CODE",
-				desiredValue : this.sampleCode + "*"
-			}, {"@type" : "AttributeMatchClause",
-				fieldType : "ATTRIBUTE",			
-				attribute : "SPACE",
-				desiredValue : this.sampleSpace 
-			} ],
+		matchClauses : matchClauses,
 		operator : "MATCH_ALL_CLAUSES"
 	};
 
@@ -186,9 +198,10 @@ FlowcellGraphModel.prototype.coalesceGraphData = function(data, callback) {
 
 	// Make the contained samples the children of the flow cell
 	var flowlaneChildren = []
-	this.samplesByType["FLOWLANE"].forEach(function(d) { flowlaneChildren = flowlaneChildren.concat(d.children); });
-	this.samplesByType[FLOWCELL_SAMPLE_TYPE][0].children = flowlaneChildren;
-	this.rootSample = this.samplesByType[FLOWCELL_SAMPLE_TYPE][0];
+	this.samplesByType[FLOWLANE_SAMPLE_TYPE].forEach(function(d) { flowlaneChildren = flowlaneChildren.concat(d.children); });
+	if (this.samplesByType[FLOWCELL_SAMPLE_TYPE][0]) {
+		this.samplesByType[FLOWCELL_SAMPLE_TYPE][0].children = flowlaneChildren;
+	}
 }
 
 
@@ -328,7 +341,7 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 	}
 	this.allNodes = nodes;
 
-	this.vizHeight = d3.max(nodes, function(d) { return d.length}) * LINE_HEIGHT
+	this.vizHeight = (d3.max(nodes, function(d) { return d.length}) + 1) * LINE_HEIGHT + 5;
 }
 
 SampleGraphPresenter.prototype.updateVisibility = function() {
