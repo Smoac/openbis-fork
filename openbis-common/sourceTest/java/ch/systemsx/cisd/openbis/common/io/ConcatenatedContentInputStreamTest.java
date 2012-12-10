@@ -23,11 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
+import ch.systemsx.cisd.openbis.common.hdf5.HDF5Container;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
@@ -37,6 +39,12 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
  */
 public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCase
 {
+    @BeforeTest
+    public void disableHDF5ContainerCaching()
+    {
+        HDF5Container.disableCaching();
+    }
+    
     @Test
     public void testNoFiles() throws IOException
     {

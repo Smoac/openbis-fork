@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
@@ -34,6 +35,12 @@ public class HierarchicalStructureDuplicatorFileToHDF5Test extends AbstractFileS
 
     private HDF5Container container;
 
+    @BeforeTest
+    public void disableHDF5ContainerCaching()
+    {
+        HDF5Container.disableCaching();
+    }
+    
     @BeforeMethod
     @Override
     public void setUp() throws IOException

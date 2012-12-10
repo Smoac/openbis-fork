@@ -29,6 +29,15 @@ import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
  */
 public class HDF5Container
 {
+    /**
+     * Disable caching for unit testing where the same file name is reused but the file content
+     * changes between tests.
+     */
+    public static void disableCaching()
+    {
+        HDF5ContainerReader.disableCaching();
+    }
+
     private final File hdf5Container;
 
     /**

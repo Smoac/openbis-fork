@@ -48,12 +48,15 @@ final class HDF5ContainerReader implements IHDF5ContainerReader
 
         private final IHDF5ArchiveReader archiveReader;
 
+        private final File archiveFile;
+
         private long lastAccessed;
 
         private int referenceCount;
 
-        Reader(IHDF5ArchiveReader archiveReader)
+        Reader(File archiveFile, IHDF5ArchiveReader archiveReader)
         {
+            this.archiveFile = archiveFile;
             this.archiveReader = archiveReader;
             this.lastAccessed = System.currentTimeMillis();
             this.referenceCount = 1;
@@ -63,6 +66,11 @@ final class HDF5ContainerReader implements IHDF5ContainerReader
         {
             this.lastAccessed = System.currentTimeMillis();
             return archiveReader;
+        }
+
+        File getArchiveFile()
+        {
+            return archiveFile;
         }
 
         void incCount()
@@ -75,37 +83,64 @@ final class HDF5ContainerReader implements IHDF5ContainerReader
             --referenceCount;
         }
 
+        boolean isUnreferenced()
+        {
+            return referenceCount == 0;
+        }
+
         boolean isExpired()
         {
             return (referenceCount == 0 && (System.currentTimeMillis() - lastAccessed) > RETENTION_TIME_MILLIS);
         }
     }
-    
+
     static
     {
         final Timer t = new Timer("HDF5ContainerReader - Cache Cleaner", true);
-        t.schedule(new TimerTask() {
-            @Override
-            public void run()
+        t.schedule(new TimerTask()
             {
-                synchronized (fileToReaderMap)
+                @Override
+                public void run()
                 {
-                    final Iterator<Reader> it = fileToReaderMap.values().iterator();
-                    while (it.hasNext())
+                    synchronized (fileToReaderMap)
                     {
-                        final Reader container = it.next();
-                        if (container.isExpired())
+                        final Iterator<Reader> it = fileToReaderMap.values().iterator();
+                        while (it.hasNext())
                         {
-                            it.remove();
+                            final Reader container = it.next();
+                            if (container.isExpired())
+                            {
+                                container.getArchiveReader().close();
+                                it.remove();
+                            }
                         }
                     }
                 }
-            } } , CACHE_CLEANER_INTERVAL_MILLIS, CACHE_CLEANER_INTERVAL_MILLIS);
+            }, CACHE_CLEANER_INTERVAL_MILLIS, CACHE_CLEANER_INTERVAL_MILLIS);
     }
 
     private static final Map<File, Reader> fileToReaderMap =
             new HashMap<File, HDF5ContainerReader.Reader>();
-    
+
+    private static boolean noCaching = false;
+
+    /**
+     * Disable caching for unit testing where the same file name is reused but the file content
+     * changes between tests.
+     */
+    static void disableCaching()
+    {
+        noCaching = true;
+        synchronized (fileToReaderMap)
+        {
+            for (Reader r : fileToReaderMap.values())
+            {
+                r.getArchiveReader().close();
+            }
+            fileToReaderMap.clear();
+        }
+    }
+
     private static Reader openReader(File hdf5Container)
     {
         Reader entryOrNull;
@@ -114,7 +149,8 @@ final class HDF5ContainerReader implements IHDF5ContainerReader
             entryOrNull = fileToReaderMap.get(hdf5Container);
             if (entryOrNull == null)
             {
-                entryOrNull = new Reader(HDF5ArchiverFactory.openForReading(hdf5Container));
+                entryOrNull =
+                        new Reader(hdf5Container, HDF5ArchiverFactory.openForReading(hdf5Container));
                 fileToReaderMap.put(hdf5Container, entryOrNull);
             } else
             {
@@ -135,6 +171,14 @@ final class HDF5ContainerReader implements IHDF5ContainerReader
     public void close()
     {
         reader.decCount();
+        if (noCaching && reader.isUnreferenced())
+        {
+            synchronized (fileToReaderMap)
+            {
+                reader.getArchiveReader().close();
+                fileToReaderMap.remove(reader.getArchiveFile());
+            }
+        }
     }
 
     @Override

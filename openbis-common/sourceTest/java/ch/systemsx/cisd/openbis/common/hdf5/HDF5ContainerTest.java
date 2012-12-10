@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
@@ -35,6 +36,12 @@ public class HDF5ContainerTest extends AbstractFileSystemTestCase
 {
     private final static int KB = 1024;
 
+    @BeforeTest
+    public void disableHDF5ContainerCaching()
+    {
+        HDF5Container.disableCaching();
+    }
+    
     @Override
     @BeforeMethod
     public void setUp() throws IOException

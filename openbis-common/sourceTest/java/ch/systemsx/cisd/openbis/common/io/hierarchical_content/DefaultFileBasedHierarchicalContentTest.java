@@ -29,6 +29,7 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -76,6 +77,12 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
 
     private IDelegatedAction onCloseAction;
 
+    @BeforeTest
+    public void disableHDF5ContainerCaching()
+    {
+        HDF5Container.disableCaching();
+    }
+    
     @BeforeMethod
     public void beforeMethod() throws Exception
     {
