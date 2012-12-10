@@ -30,6 +30,10 @@ var LINE_HEIGHT = 20;
 // N probably should not be less than 2 and certainly should not be less than 1.
 var FIRST_COLLAPSED_COLUMN = 2;
 
+// The colors used for the different samples. The colors are used when one sample has multiple parents or children to disambiguate.
+//var sampleColors = d3.scale.category10();
+var sampleColors = d3.scale.ordinal().range(['#ccc']);
+
 // END CONFIGURATION PARAMTERS
 
 /// The openbisServer we use for our data
@@ -257,7 +261,7 @@ SampleGraphPresenter.prototype.useLineLinkPath = function(source, target) {
  */
 SampleGraphPresenter.prototype.initializeGraphSamples = function()
 {
-	var colors = d3.scale.category10();
+	var colors = sampleColors;
 	var nodes = COLUMNS.map(function(c) { return model.samplesByType[c.type] });
 	// Compute the x/y coordinates for each sample
 	for (var col = 0; col < nodes.length; ++col) {
