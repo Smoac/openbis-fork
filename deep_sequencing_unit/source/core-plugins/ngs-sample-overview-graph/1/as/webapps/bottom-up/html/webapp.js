@@ -15,8 +15,8 @@ var FLOWCELL_SAMPLE_TYPE = "FLOWCELL";
 
 // The view is organized in columns that correspond to a sample type. The columns are defined here.
 var COLUMNS = [
-	{ type : FLOWCELL_SAMPLE_TYPE, label : "Flowcell", width : 200 },
 	{ type : "FLOWLANE", label : "Flowlane", width : 200 },
+	{ type : FLOWCELL_SAMPLE_TYPE, label : "Flowcell", width : 200 },
 	{ type : "MULTIPLEX", label : "Multiplex", width : 300 },
 	{ type : "LIBRARY", label : "Library", width : 240 },
 	{ type : "ALIQUOT", label : "Aliquot", width : 400 },
@@ -32,7 +32,10 @@ var FIRST_COLLAPSED_COLUMN = 2;
 
 // The colors used for the different samples. The colors are used when one sample has multiple parents or children to disambiguate.
 //var sampleColors = d3.scale.category10();
-var sampleColors = d3.scale.ordinal().range(['#ccc']);
+var sampleColors = d3.scale.ordinal().range(['#999']);
+
+// The color used when the connection between two samples is unambiguous
+var oneToOneColor = "#999"
 
 // END CONFIGURATION PARAMTERS
 
@@ -91,6 +94,7 @@ FlowcellGraphModel.prototype.initializeModel = function() {
 	this.sampleSpace = identifierTokens[1];	
 	this.sampleCode = identifierTokens[2];
 	this.samplePermId = webappContext.getEntityPermId();
+	this.sampleType = webappContext.getEntityType();
 	var samplesByType = {};
 	COLUMNS.forEach(function(column) { samplesByType[column.type] = [] });
 	this.samplesByType = samplesByType;
@@ -181,7 +185,10 @@ FlowcellGraphModel.prototype.coalesceGraphData = function(data, callback) {
 	samples.forEach(resolveParents);
 
 	// Make the contained samples the children of the flow cell
-	this.samplesByType[FLOWCELL_SAMPLE_TYPE][0].children = this.samplesByType["FLOWLANE"];
+	var flowlaneChildren = []
+	this.samplesByType["FLOWLANE"].forEach(function(d) { flowlaneChildren = flowlaneChildren.concat(d.children); });
+	this.samplesByType[FLOWCELL_SAMPLE_TYPE][0].children = flowlaneChildren;
+	this.rootSample = this.samplesByType[FLOWCELL_SAMPLE_TYPE][0];
 }
 
 
@@ -191,6 +198,7 @@ FlowcellGraphModel.prototype.coalesceGraphData = function(data, callback) {
 function SampleGraphPresenter(model) {
 	this.model = model;
 	this.didCreateVis = false;
+	this.useBottomUpMode();
 	this.initializePresenter();
 }
 
@@ -215,11 +223,6 @@ SampleGraphPresenter.prototype.initializePresenter = function()
 	this.rootLabel = d3.select("#root-label");
 	this.rootLabel.text(this.model.sampleIdentifier);
 
-	// Calculate the offsets for the columns -- only need to do this once
-	var xOffset = 0;
-	COLUMNS.forEach(function(column) { column.xOffset = xOffset; xOffset += column.width });
-	this.vizWidth = xOffset;
-
 	// Function used to draw paths between elements
 	function source(d) {
 		// Find the associated text node in the DOM and use that as a basis for creating the links
@@ -234,6 +237,49 @@ SampleGraphPresenter.prototype.initializePresenter = function()
 	this.useLineLinkPath(source, target);
 	this.didCreateVis = true;
 }
+
+SampleGraphPresenter.prototype.calcuateVisibleColumnOffsets = function() {
+	// Calculate the offsets for the columns -- only need to do this once
+	var xOffset = 0;
+
+	// Depending on whether or not we are viewing top down or bottom up, the visible columns are those
+	// before and including the selected sample type, or those after and including the sample type, respectively.
+	var querySampleType = model.sampleType;
+	var seenQuerySampleType = false;
+	var bottomUpMode = this.bottomUpMode;
+	var visibleColumns = [];
+	COLUMNS.forEach(function(col, i) {
+		var atQuerySampleType = col.type == querySampleType;
+		if (atQuerySampleType) {
+			visibleColumns.push(col);
+		} else {
+			var includeCol = seenQuerySampleType && bottomUpMode;
+			includeCol = includeCol || !seenQuerySampleType && !bottomUpMode;
+			if (includeCol) visibleColumns.push(col)
+		}
+		seenQuerySampleType = seenQuerySampleType || atQuerySampleType;
+	})
+
+	this.visibleColumns = visibleColumns;
+	this.visibleColumns.forEach(function(column) { column.xOffset = xOffset; xOffset += column.width });
+	this.vizWidth = xOffset;
+};
+
+/**
+ * Put the presenter in the bottom-up display mode (compared to top-down)
+ */
+SampleGraphPresenter.prototype.useBottomUpMode = function() {
+	this.bottomUpMode = true;
+	this.calcuateVisibleColumnOffsets();
+};
+
+/**
+ * Put the presenter in the top-down display mode (compared to bottom-up)
+ */
+SampleGraphPresenter.prototype.useTopDownMode = function() {
+	this.bottomUpMode = false;
+	this.calcuateVisibleColumnOffsets();
+};
 
 /**
  * Draw links using the diagonal function
@@ -262,12 +308,12 @@ SampleGraphPresenter.prototype.useLineLinkPath = function(source, target) {
 SampleGraphPresenter.prototype.initializeGraphSamples = function()
 {
 	var colors = sampleColors;
-	var nodes = COLUMNS.map(function(c) { return model.samplesByType[c.type] });
+	var nodes = this.visibleColumns.map(function(c) { return model.samplesByType[c.type] });
 	// Compute the x/y coordinates for each sample
 	for (var col = 0; col < nodes.length; ++col) {
 		var colData = nodes[col];
-		var xOffset = COLUMNS[col].xOffset;
-		var width = COLUMNS[col].width;
+		var xOffset = this.visibleColumns[col].xOffset;
+		var width = this.visibleColumns[col].width;
 		for (row = 0; row < colData.length; ++row) {
 			var sampleData = colData[row];
 			sampleData.col = col;
@@ -276,7 +322,7 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 			var oneChildOrLess = sampleData.children.length < 2;
 			var childrenWithMultipleParents = sampleData.children.filter(function(c) { return c.parents.length > 1 });
 			var oneToOne = oneChildOrLess && childrenWithMultipleParents.length == 0;
-			sampleData.color = (!oneToOne) ? colors(row) : "#ccc";
+			sampleData.color = (!oneToOne) ? colors(row) : oneToOneColor;
 			sampleData.childrenVisible = col + 1 < FIRST_COLLAPSED_COLUMN;
 		}
 	}
@@ -352,7 +398,8 @@ SampleGraphPresenter.prototype.draw = function()
 	// Columns
 	this.columns = this.viz.selectAll("g").data(function(d) { return d });
 	this.columns.enter().append("svg:g").attr("class", "column");
-	this.columns.attr("transform", function(d, i) { return "translate(" + COLUMNS[i].xOffset + ", 0)"});
+	var lexicalParent = this;
+	this.columns.attr("transform", function(d, i) { return "translate(" + lexicalParent.visibleColumns[i].xOffset + ", 0)"});
 	this.drawHeaders();
 	this.drawNodes();
 	this.drawLinks();
@@ -363,7 +410,8 @@ SampleGraphPresenter.prototype.draw = function()
  */
 SampleGraphPresenter.prototype.drawHeaders = function()
 {
-	var header = this.columns.selectAll("text.header").data(function(d, i) { return [COLUMNS[i]] });
+	var lexicalParent = this;
+	var header = this.columns.selectAll("text.header").data(function(d, i) { return [lexicalParent.visibleColumns[i]] });
 	header.enter().append("svg:text")
 		.attr("class", "header")
 		.attr("x", "0")
@@ -462,5 +510,6 @@ var presenter;
 function enterApp(data)
 {
 	presenter = new SampleGraphPresenter(model);
+	presenter.useBottomUpMode()
     model.requestGraphData(function() { presenter.initializeGraphSamples(); presenter.draw() });
 }
