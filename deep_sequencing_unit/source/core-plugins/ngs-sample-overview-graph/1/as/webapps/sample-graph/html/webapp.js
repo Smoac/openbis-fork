@@ -48,15 +48,6 @@ var webappContext = new openbisWebAppContext();
 openbisServer = new openbis('/openbis/openbis', '/datastore_server');
 openbisServer.useSession(webappContext.getSessionId());
 
-function getAppHeight(){
-	return Math.max($(window).height() - 50, getVisibleLeafsCountForNode(root) * 30);
-}
-
-function getAppWidth(){
-	return $(window).width();
-}
-
-
 function parseJson(jsonString) { return eval('(' + jsonString + ')'); }
 
 /**
@@ -317,12 +308,23 @@ SampleGraphPresenter.prototype.useLineLinkPath = function(source, target) {
 }
 
 /**
+ * Return a function that gives the outgoing edges for a sample.
+ *
+ * The outgoing edges depends on whether the view is top-down or bottom-up
+ */
+SampleGraphPresenter.prototype.outEdgesFunction = function() {
+	var bottomUpMode = this.bottomUpMode;
+	return function(samp) { return bottomUpMode ? samp.parents : samp.children }
+}
+
+/**
  * Initialize the sample nodes
  */
 SampleGraphPresenter.prototype.initializeGraphSamples = function()
 {
 	var colors = sampleColors;
 	var nodes = this.visibleColumns.map(function(c) { return model.samplesByType[c.type] });
+	var outEdgesGetter = this.outEdgesFunction();
 	// Compute the x/y coordinates for each sample
 	for (var col = 0; col < nodes.length; ++col) {
 		var colData = nodes[col];
@@ -333,9 +335,10 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 			sampleData.col = col;
 			sampleData.row = row;
 			sampleData.colOffset = xOffset;
-			var oneParentOrLess = sampleData.parents.length < 2;
-			var parentsWithMultipleChildren = sampleData.parents.filter(function(c) { return c.parents.length > 1 });
-			var oneToOne = oneParentOrLess && parentsWithMultipleChildren.length == 0;
+			var outEdges = outEdgesGetter(sampleData);
+			var oneEdgeOrLess = outEdges.length < 2;
+			var connectedNodesWithMultipleEdges = outEdges.filter(function(c) { return outEdgesGetter(c).length > 1 });
+			var oneToOne = oneEdgeOrLess && connectedNodesWithMultipleEdges.length == 0;
 			sampleData.color = (!oneToOne) ? colors(row) : oneToOneColor;
 			sampleData.edgesVisible = col + 1 < FIRST_COLLAPSED_COLUMN;
 		}
@@ -350,16 +353,17 @@ SampleGraphPresenter.prototype.updateVisibility = function() {
 	this.allNodes.forEach(function(samps, i) { 
 		samps.forEach(function(s) { s.visible = (i > 0) ? false : true })
 	});
+	var outEdgesGetter = this.outEdgesFunction();
 	// Figure out if the nodes should be visible
 	this.allNodes.forEach(function(samps) {
 		samps.forEach(function(sample) {
 			if (null != sample.userEdgesVisible) sample.edgesVisible = sample.userEdgesVisible;
 			var showChildren = sample.visible && sample.edgesVisible;
 			if (!showChildren) return;
-			sample.parents.forEach(function(c) {
+			outEdgesGetter(sample).forEach(function(c) {
 				c.visible = true;
-				// Nodes with only one parent should show their parents as well, unless the user requests otherwise
-				if (c.parents.length == 1) {
+				// Nodes with only one outgoing edge should show their connected node as well, unless the user requests otherwise
+				if (outEdgesGetter(c).length == 1) {
 					c.edgesVisible = (null == c.userEdgesVisible) ? true : c.userEdgesVisible;
 				}
 			});
@@ -369,10 +373,11 @@ SampleGraphPresenter.prototype.updateVisibility = function() {
 
 SampleGraphPresenter.prototype.updateLinks = function() {
 	var links = [];
+	var outEdgesGetter = this.outEdgesFunction();
 	this.allNodes.forEach(function(samps) {
 		samps.forEach(function(d) { 
 			if (!d.visible) return;
-			d.parents.forEach(function(c) { if (c.visible) links.push(new SampleGraphLink(d, c))});
+			outEdgesGetter(d).forEach(function(c) { if (c.visible) links.push(new SampleGraphLink(d, c))});
 		})
 	});
 
@@ -441,6 +446,7 @@ SampleGraphPresenter.prototype.drawHeaders = function()
  */
 SampleGraphPresenter.prototype.drawNodes = function()
 {
+	var outEdgesGetter = this.outEdgesFunction();
 	var sample = this.columns.selectAll("text.sample").data(function(d) { return d });
 	sample.enter().append("svg:text")
 		.attr("class", "sample")
@@ -468,7 +474,7 @@ SampleGraphPresenter.prototype.drawNodes = function()
 		.style("cursor", "pointer")
 		.style("stroke-width", "2px")
 		.transition()
-			.style("opacity", function(d) { return d.parents.length > 0 ? 1 : 0 })
+			.style("opacity", function(d) { return outEdgesGetter(d).length > 0 ? 1 : 0 })
 			.attr("r", 5);
 	ring.exit()
 		.transition()
