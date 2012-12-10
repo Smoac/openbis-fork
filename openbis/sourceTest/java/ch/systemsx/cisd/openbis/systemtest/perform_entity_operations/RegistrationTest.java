@@ -35,6 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.Metapro
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -42,12 +44,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SampleUpdatesDTOBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
 /**
@@ -55,6 +62,102 @@ import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
  */
 public class RegistrationTest extends SystemTestCase
 {
+    @Test
+    public void testCreateSampleWithTwoAttachments()
+    {
+        AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
+        NewSample newSample = new NewSample();
+        SampleType sampleType = new SampleType();
+        sampleType.setCode("CELL_PLATE");
+        newSample.setSampleType(sampleType);
+        newSample.setIdentifier("/TEST-SPACE/S_2_ATT");
+        NewAttachment attachment1 = new NewAttachment("a/b/1", "Title 1", "Attachment 1");
+        attachment1.setContent("hello attachment one".getBytes());
+        NewAttachment attachment2 = new NewAttachment("a/b/2", "Title 2", "Attachment 2");
+        attachment2.setContent("hello attachment two".getBytes());
+        List<NewAttachment> attachments = Arrays.asList(attachment1, attachment2);
+        newSample.setAttachments(attachments);
+        builder.sample(newSample);
+
+        etlService.performEntityOperations(systemSessionToken, builder.getDetails());
+
+        Sample sample =
+                etlService.tryGetSampleWithExperiment(systemSessionToken,
+                        SampleIdentifierFactory.parse(newSample));
+        AttachmentWithContent a1 =
+                genericServer.getSampleFileAttachment(systemSessionToken, new TechId(sample), "1",
+                        null);
+        assertEquals("hello attachment one", new String(a1.getContent()));
+    }
+
+    @Test
+    public void testCreateSampleWithOneAttachment()
+    {
+        AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
+        NewSample newSample = new NewSample();
+        SampleType sampleType = new SampleType();
+        sampleType.setCode("CELL_PLATE");
+        newSample.setSampleType(sampleType);
+        newSample.setIdentifier("/TEST-SPACE/S_2_ATT");
+        NewAttachment attachment1 = new NewAttachment("a/b/1", "Title 1", "Attachment 1");
+        attachment1.setContent("hello attachment one".getBytes());
+        List<NewAttachment> attachments = Arrays.asList(attachment1);
+        newSample.setAttachments(attachments);
+        builder.sample(newSample);
+
+        etlService.performEntityOperations(systemSessionToken, builder.getDetails());
+
+        Sample sample =
+                etlService.tryGetSampleWithExperiment(systemSessionToken,
+                        SampleIdentifierFactory.parse(newSample));
+        List<Attachment> loadedAttachments =
+                commonServer.listSampleAttachments(systemSessionToken, new TechId(sample));
+        assertEquals("Title 1", loadedAttachments.get(0).getTitle());
+        assertEquals("1", loadedAttachments.get(0).getFileName());
+        assertEquals(1, loadedAttachments.size());
+        AttachmentWithContent a1 =
+                genericServer.getSampleFileAttachment(systemSessionToken, new TechId(sample), "1",
+                        null);
+        assertEquals("hello attachment one", new String(a1.getContent()));
+    }
+
+    @Test
+    public void testAddOneAttachmentToAnExistingSample()
+    {
+        AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
+        SampleUpdatesDTOBuilder updateBuilder = new SampleUpdatesDTOBuilder(1);
+        NewAttachment attachment1 = new NewAttachment("a/b/1", "Title 1", "Attachment 1");
+        attachment1.setContent("hello attachment one".getBytes());
+        updateBuilder.attachment(attachment1);
+        builder.sampleUpdate(updateBuilder.get());
+
+        etlService.performEntityOperations(systemSessionToken, builder.getDetails());
+
+        AttachmentWithContent a1 =
+                genericServer.getSampleFileAttachment(systemSessionToken, new TechId(1), "1", null);
+        assertEquals("hello attachment one", new String(a1.getContent()));
+    }
+
+    @Test
+    public void testAddTwoAttachmentsToAnExistingSample()
+    {
+        AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
+        SampleUpdatesDTOBuilder updateBuilder = new SampleUpdatesDTOBuilder(1);
+        NewAttachment attachment1 = new NewAttachment("a/b/1", "Title 1", "Attachment 1");
+        attachment1.setContent("hello attachment one".getBytes());
+        NewAttachment attachment2 = new NewAttachment("a/b/2", "Title 2", "Attachment 2");
+        attachment2.setContent("hello attachment two".getBytes());
+        updateBuilder.attachment(attachment1);
+        updateBuilder.attachment(attachment2);
+        builder.sampleUpdate(updateBuilder.get());
+
+        etlService.performEntityOperations(systemSessionToken, builder.getDetails());
+
+        AttachmentWithContent a1 =
+                genericServer.getSampleFileAttachment(systemSessionToken, new TechId(1), "1", null);
+        assertEquals("hello attachment one", new String(a1.getContent()));
+    }
+
     @Test
     public void testRegistrationOfMetaprojectLinkedToExperimentSampleDataSetAndMaterial()
     {

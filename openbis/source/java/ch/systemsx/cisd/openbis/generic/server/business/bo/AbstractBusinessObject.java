@@ -627,20 +627,20 @@ abstract class AbstractBusinessObject implements IDAOFactory
         {
             return;
         }
+        AttachmentHolderPE actualAttachmentHolder = attachmentHolder;
         final IAttachmentDAO dao = getAttachmentDAO();
         for (final AttachmentPE attachment : attachments)
         {
             try
             {
-                dao.createAttachment(attachment, attachmentHolder);
+                actualAttachmentHolder = dao.createAttachment(attachment, actualAttachmentHolder);
             } catch (final DataAccessException e)
             {
                 final String fileName = attachment.getFileName();
                 throwException(
                         e,
                         String.format("Filename '%s' for %s '%s'", fileName,
-                                attachmentHolder.getHolderName(),
-                                attachmentHolder.getIdentifier()));
+                                attachmentHolder.getHolderName(), attachmentHolder.getIdentifier()));
             }
         }
         attachments.clear();

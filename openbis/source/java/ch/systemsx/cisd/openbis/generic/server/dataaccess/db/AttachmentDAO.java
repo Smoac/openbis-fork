@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -75,9 +76,8 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
     //
 
     @Override
-    public final void createAttachment(final AttachmentPE attachment,
-            final AttachmentHolderPE ownerParam)
-            throws DataAccessException
+    public final AttachmentHolderPE createAttachment(final AttachmentPE attachment,
+            final AttachmentHolderPE ownerParam) throws DataAccessException
     {
         assert attachment != null : "Unspecified attachment";
         assert attachment.getAttachmentContent() != null : "Unspecified attachment content.";
@@ -89,9 +89,10 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         fillAttachmentData(attachment, previousAttachmentVersionOrNull);
 
         final HibernateTemplate template = getHibernateTemplate();
-        if (getSession().contains(owner) == false)
+        Session session = getSession();
+        if (session.contains(owner) == false)
         {
-            owner = (AttachmentHolderPE) getSession().merge(owner);
+            owner = (AttachmentHolderPE) session.merge(owner);
         }
         owner.addAttachment(attachment);
         validatePE(attachment);
@@ -102,6 +103,7 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
         {
             operationLog.info(String.format("ADD: file attachment '%s'.", attachment));
         }
+        return owner;
     }
 
     private void fillAttachmentData(AttachmentPE attachment,

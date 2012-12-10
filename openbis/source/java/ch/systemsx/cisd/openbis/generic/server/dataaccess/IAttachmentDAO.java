@@ -44,8 +44,10 @@ public interface IAttachmentDAO extends IGenericDAO<AttachmentPE>
      * 
      * @param attachment The property to register.
      * @param owner Owner of the attachment. Should be a persistent object.
+     * @return the actual owner object to whom the attachment is attached. This either
+     *         <code>owner</code> itself or a copy of it.
      */
-    public void createAttachment(AttachmentPE attachment, AttachmentHolderPE owner)
+    public AttachmentHolderPE createAttachment(AttachmentPE attachment, AttachmentHolderPE owner)
             throws DataAccessException;
 
     /**
