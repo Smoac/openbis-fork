@@ -15,6 +15,7 @@ var FLOWCELL_SAMPLE_TYPE = "FLOWCELL";
 
 // The view is organized in columns that correspond to a sample type. The columns are defined here.
 var COLUMNS = [
+	{ type : FLOWCELL_SAMPLE_TYPE, label : "Flowcell", width : 200 },
 	{ type : "FLOWLANE", label : "Flowlane", width : 200 },
 	{ type : "MULTIPLEX", label : "Multiplex", width : 300 },
 	{ type : "LIBRARY", label : "Library", width : 240 },
@@ -74,13 +75,13 @@ function SampleGraphLink(sourceNode, targetNode) {
 
 
 /**
- * The model that manages state and implements the operations for the bottom-up sample graph.
+ * The model that manages state and implements the operations for the sample graph. This model is specific to the Flowcell type.
  */
-function SampleGraphModel() {
+function FlowcellGraphModel() {
 	this.initializeModel();
 }
 
-SampleGraphModel.prototype.initializeModel = function() {
+FlowcellGraphModel.prototype.initializeModel = function() {
 	this.sampleIdentifier = webappContext.getEntityIdentifier();
 	var identifierTokens = this.sampleIdentifier.split("/");
 	this.sampleSpace = identifierTokens[1];	
@@ -94,15 +95,11 @@ SampleGraphModel.prototype.initializeModel = function() {
 /**
  * Request the data necessary to display the graph.
  */
-SampleGraphModel.prototype.requestGraphData = function(callback)
+FlowcellGraphModel.prototype.requestGraphData = function(callback)
 {
 	var containerCriteria = {
 		matchClauses : 
 			[ {"@type" : "AttributeMatchClause",
-				fieldType : "ATTRIBUTE",			
-				attribute : "TYPE",
-				desiredValue : FLOWCELL_SAMPLE_TYPE 
-			}, {"@type" : "AttributeMatchClause",
 				fieldType : "ATTRIBUTE",			
 				attribute : "CODE",
 				desiredValue : this.sampleCode 
@@ -115,11 +112,17 @@ SampleGraphModel.prototype.requestGraphData = function(callback)
 	};
 
 	var sampleCriteria = {
-		subCriterias : 
-		[ {"@type" : "SearchSubCriteria",
-		 	criteria : containerCriteria,
-		 	targetEntityKind : "SAMPLE_CONTAINER"
-		} ]
+		matchClauses : 
+			[ {"@type" : "AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "CODE",
+				desiredValue : this.sampleCode + "*"
+			}, {"@type" : "AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "SPACE",
+				desiredValue : this.sampleSpace 
+			} ],
+		operator : "MATCH_ALL_CLAUSES"
 	};
 
 	var lexicalParent = this;
@@ -134,7 +137,7 @@ SampleGraphModel.prototype.requestGraphData = function(callback)
 /**
  * Request the data necessary to display the graph.
  */
-SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
+FlowcellGraphModel.prototype.coalesceGraphData = function(data, callback) {
 	var samples = data.result;
 	var nodesById = {};
 
@@ -172,6 +175,9 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
 
 	samples.forEach(convertSampleToNode);
 	samples.forEach(resolveParents);
+
+	// Make the contained samples the children of the flow cell
+	this.samplesByType[FLOWCELL_SAMPLE_TYPE][0].children = this.samplesByType["FLOWLANE"];
 }
 
 
@@ -443,7 +449,7 @@ SampleGraphPresenter.prototype.openSample = function(svgNode, d) {
 
 /// The model that manages state and implements the operations
 var model;
-model = new SampleGraphModel();
+model = new FlowcellGraphModel();
 
 // The presenter tranlsates the model into visual elements
 var presenter;
