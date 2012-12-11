@@ -65,12 +65,16 @@ function SampleGraphNode(sample) {
 	this.arrayIndex = -1;
 }
 
+SampleGraphNode.prototype.toString = function() {
+	return "[" + this.sampleType + ", " + this.identifier + ", " + this.permId + "]";
+};
+
 /**
  * The link stores the information necessary for drawing connections between nodes
  */
-function SampleGraphLink(sourceNode, targetNode) {
-	this.sourceNode = sourceNode;
-	this.targetNode = targetNode;
+function SampleGraphEdge(source, target) {
+	this.source = source;
+	this.target = target;
 }
 
 /** Break an identifier into a code and space */
@@ -271,19 +275,11 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
  */
 function SampleGraphPresenter(model) {
 	this.model = model;
+	this.renderer = new SimpleGraphRenderer();
 	this.didCreateVis = false;
 	this.useBottomUpMode();
 	this.initializePresenter();
 }
-
-function textBBoxForNode(node) { 
-	var bbox = presenter.columns.selectAll("text.sample")[node.col][node.visibleIndex].getBBox();
-	// Correct for the column
-	bbox.x += node.colOffset;
-	return bbox;
-}
-
-var yLinkOffset = LINE_HEIGHT * 0.33;
 
 /**
  * Create the DOM elements to store the visualization (tree + inspectors)
@@ -296,19 +292,6 @@ SampleGraphPresenter.prototype.initializePresenter = function()
 	this.root = d3.select("#root");
 	this.rootLabel = d3.select("#root-label");
 	this.rootLabel.text(this.model.sampleIdentifier);
-
-	// Function used to draw paths between elements
-	function source(d) {
-		// Find the associated text node in the DOM and use that as a basis for creating the links
-		var bbox = textBBoxForNode(d.sourceNode);
-		return { x : bbox.x + bbox.width + 7, y  : bbox.y + yLinkOffset };
-	}
-	function target(d) {
-		var bbox = textBBoxForNode(d.targetNode);
-		return { x : bbox.x, y  : bbox.y + yLinkOffset }
-	}
-
-	this.useLineLinkPath(source, target);
 	this.didCreateVis = true;
 }
 
@@ -357,27 +340,6 @@ SampleGraphPresenter.prototype.useTopDownMode = function() {
 };
 
 /**
- * Draw links using the diagonal function
- */
-SampleGraphPresenter.prototype.useDiagonalLinkPath = function(source, target) {
-	var diagonal = d3.svg.diagonal();
-	diagonal.source(source);
-	diagonal.target(target);	
-	this.path = diagonal;
-}
-
-/**
- * Draw links using the line function
- */
-SampleGraphPresenter.prototype.useLineLinkPath = function(source, target) {
-	var line = d3.svg.line();
-	this.path = function(d) {
-		var src = source(d);
-		var dst = target(d);
-		return line([[src.x, src.y], [dst.x, dst.y]]); }
-}
-
-/**
  * Return a function that gives the outgoing edges for a sample.
  *
  * The outgoing edges depends on whether the view is top-down or bottom-up
@@ -412,6 +374,8 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 			sampleData.color = (!oneToOne) ? colors(row) : oneToOneColor;
 			sampleData.userEdgesVisible = null;
 			sampleData.edgesVisible = col + 1 < FIRST_COLLAPSED_COLUMN;
+			sampleData.width = width;
+			sampleData.height = LINE_HEIGHT;
 		}
 	}
 	this.allNodes = nodes;
@@ -448,7 +412,7 @@ SampleGraphPresenter.prototype.updateLinks = function() {
 	this.allNodes.forEach(function(samps) {
 		samps.forEach(function(d) { 
 			if (!d.visible) return;
-			outEdgesGetter(d).forEach(function(c) { if (c.visible) links.push(new SampleGraphLink(d, c))});
+			outEdgesGetter(d).forEach(function(c) { if (c.visible) links.push(new SampleGraphEdge(d, c))});
 		})
 	});
 
@@ -474,13 +438,106 @@ SampleGraphPresenter.prototype.updateState = function()
  */
 SampleGraphPresenter.prototype.draw = function()
 {
-	this.updateState();
-	var nodes = this.nodes;
-	var vizWidth = this.vizWidth;
-	var vizHeight = this.vizHeight;
+	this.renderer.draw();
+}
+
+
+SampleGraphPresenter.prototype.toggleExpand = function(svgNode, d) {
+	// toggle visiblity
+	d.userEdgesVisible = (null == d.userEdgesVisible) ? !d.edgesVisible :!d.userEdgesVisible;
+	this.draw();
+}
+
+SampleGraphPresenter.prototype.openSample = function(svgNode, d) {
+	var url = "/openbis/index.html?viewMode=SIMPLE#entity=SAMPLE&permId=" + d.permId;
+	window.open(url, '_blank');
+}
+
+function displayActiveMode(active, inactive) {
+	active.parent().addClass("active");
+	inactive.parent().removeClass("active");
+}
+
+function clickedBottomUp() {
+	if (presenter.bottomUpMode) return;
+
+	displayActiveMode($('#bottom-up'), $('#top-down'));
+	presenter.useBottomUpMode();
+	presenter.initializeGraphSamples();
+	presenter.draw();
+}
+
+function clickedTopDown() {
+	if (!presenter.bottomUpMode) return;
+
+	displayActiveMode($('#top-down'), $('#bottom-up'));
+	presenter.useTopDownMode();
+	presenter.initializeGraphSamples();
+	presenter.draw();
+}
+
+
+function textBBoxForNode(node) {
+	var bbox = presenter.renderer.columns.selectAll("text.sample")[node.col][node.visibleIndex].getBBox();
+	// Correct for the column
+	bbox.x += node.colOffset;
+	return bbox;
+}
+
+var yLinkOffset = LINE_HEIGHT * 0.33;
+
+
+/**
+ * A class that renders the graph
+ */
+function SimpleGraphRenderer(presenter) {
+	// Function used to draw paths between elements
+	function source(d) {
+		// Find the associated text node in the DOM and use that as a basis for creating the links
+		var bbox = textBBoxForNode(d.source);
+		return { x : bbox.x + bbox.width + 7, y  : bbox.y + yLinkOffset };
+	}
+	function target(d) {
+		var bbox = textBBoxForNode(d.target);
+		return { x : bbox.x, y  : bbox.y + yLinkOffset }
+	}
+
+	this.useLineLinkPath(source, target);
+}
+
+/**
+ * Draw links using the diagonal function
+ */
+SimpleGraphRenderer.prototype.useDiagonalLinkPath = function(source, target) {
+	var diagonal = d3.svg.diagonal();
+	diagonal.source(source);
+	diagonal.target(target);
+	this.path = diagonal;
+}
+
+/**
+ * Draw links using the line function
+ */
+SimpleGraphRenderer.prototype.useLineLinkPath = function(source, target) {
+	var line = d3.svg.line();
+	this.path = function(d) {
+		var src = source(d);
+		var dst = target(d);
+		return line([[src.x, src.y], [dst.x, dst.y]]); }
+}
+
+/**
+ * Display the sample nodes.
+ */
+SimpleGraphRenderer.prototype.draw = function()
+{
+	presenter.updateState();
+	var nodes = presenter.nodes;
+	var vizWidth = presenter.vizWidth;
+	var vizHeight = presenter.vizHeight;
 
 	// Display the graph in an SVG element
-	this.viz = this.root.selectAll("svg").data([nodes]);
+	this.viz = presenter.root.selectAll("svg").data([nodes]);
 	// Code under enter is run if there is no HTML element for a data element	
 	this.viz.enter().append("svg:svg").attr("class", "viz");
 	this.viz.attr("width", vizWidth);
@@ -489,8 +546,7 @@ SampleGraphPresenter.prototype.draw = function()
 	this.columns = this.viz.selectAll("g").data(function(d) { return d });
 	this.columns.enter().append("svg:g").attr("class", "column");
 	this.columns.exit().remove();
-	var lexicalParent = this;
-	this.columns.attr("transform", function(d, i) { return "translate(" + lexicalParent.visibleColumns[i].xOffset + ", 0)"});
+	this.columns.attr("transform", function(d, i) { return "translate(" + presenter.visibleColumns[i].xOffset + ", 0)"});
 	this.drawHeaders();
 	this.drawNodes();
 	this.drawLinks();
@@ -499,10 +555,9 @@ SampleGraphPresenter.prototype.draw = function()
 /**
  * Draw the headers
  */
-SampleGraphPresenter.prototype.drawHeaders = function()
+SimpleGraphRenderer.prototype.drawHeaders = function()
 {
-	var lexicalParent = this;
-	var header = this.columns.selectAll("text.header").data(function(d, i) { return [lexicalParent.visibleColumns[i]] });
+	var header = this.columns.selectAll("text.header").data(function(d, i) { return [presenter.visibleColumns[i]] });
 	header.enter().append("svg:text")
 		.attr("class", "header")
 		.attr("x", "0")
@@ -516,9 +571,9 @@ SampleGraphPresenter.prototype.drawHeaders = function()
 /**
  * Draw the nodes
  */
-SampleGraphPresenter.prototype.drawNodes = function()
+SimpleGraphRenderer.prototype.drawNodes = function()
 {
-	var outEdgesGetter = this.outEdgesFunction();
+	var outEdgesGetter = presenter.outEdgesFunction();
 	var sample = this.columns.selectAll("text.sample").data(function(d) { return d });
 	sample.enter().append("svg:text")
 		.attr("class", "sample")
@@ -563,9 +618,9 @@ SampleGraphPresenter.prototype.drawNodes = function()
 /**
  * Draw the links
  */
-SampleGraphPresenter.prototype.drawLinks = function()
+SimpleGraphRenderer.prototype.drawLinks = function()
 {
-	var link = this.viz.selectAll("path.link").data(this.links);
+	var link = this.viz.selectAll("path.link").data(presenter.links);
 	link.enter().append("svg:path")
 		.attr("class", "link")
 		.attr("pointer-events", "none")
@@ -577,42 +632,171 @@ SampleGraphPresenter.prototype.drawLinks = function()
 		.transition()
 			.style("opacity", 0).remove();
 	link
-		.style("stroke", function(d) { return d.sourceNode.color})
+		.style("stroke", function(d) { return d.source.color})
 		.attr("d", this.path);
 }
 
-SampleGraphPresenter.prototype.toggleExpand = function(svgNode, d) {
-	// toggle visiblity
-	d.userEdgesVisible = (null == d.userEdgesVisible) ? !d.edgesVisible :!d.userEdgesVisible;
-	this.draw();
+/**
+ * A class that renders the graph using dagre.
+ */
+function DagreGraphRenderer(presenter) {
+	// Function used to draw paths between elements
+	function source(d) {
+		// Find the associated text node in the DOM and use that as a basis for creating the links
+		var bbox = textBBoxForNode(d.source);
+		return { x : bbox.x + bbox.width + 7, y  : bbox.y + yLinkOffset };
+	}
+	function target(d) {
+		var bbox = textBBoxForNode(d.target);
+		return { x : bbox.x, y  : bbox.y + yLinkOffset }
+	}
+
+	this.useLineLinkPath(source, target);
 }
 
-SampleGraphPresenter.prototype.openSample = function(svgNode, d) {
-	var url = "/openbis/index.html?viewMode=SIMPLE#entity=SAMPLE&permId=" + d.permId;
-	window.open(url, '_blank');
+/**
+ * Draw links using the diagonal function
+ */
+DagreGraphRenderer.prototype.useDiagonalLinkPath = function(source, target) {
+	var diagonal = d3.svg.diagonal();
+	diagonal.source(source);
+	diagonal.target(target);
+	this.path = diagonal;
 }
 
-function displayActiveMode(active, inactive) {
-	active.parent().addClass("active");
-	inactive.parent().removeClass("active");
+/**
+ * Draw links using the line function
+ */
+DagreGraphRenderer.prototype.useLineLinkPath = function(source, target) {
+	var line = d3.svg.line();
+	this.path = function(d) {
+		var src = source(d);
+		var dst = target(d);
+		return line([[src.x, src.y], [dst.x, dst.y]]); }
 }
 
-function clickedBottomUp() {
-	if (presenter.bottomUpMode) return;
+/**
+ * Display the sample nodes.
+ */
+DagreGraphRenderer.prototype.draw = function()
+{
+	presenter.updateState();
 
-	displayActiveMode($('#bottom-up'), $('#top-down'));
-	presenter.useBottomUpMode();
-	presenter.initializeGraphSamples();
-	presenter.draw();
+	var dagreNodes = []
+	this.nodes.forEach(function(nodeGroup) { nodeGroup.forEach(function(d) { dagreNodes = dagreNodes.concat(d) }) });
+
+	dagre.layout()
+		.nodeSep(50)
+		.edgeSep(10)
+		.rankSep(50)
+		.nodes(dagreNodes)
+		.edges(this.links)
+	    .debugLevel(1)
+	    .run();
+	console.log(dagreNodes);
+
+	var nodes = presenter.nodes;
+	var vizWidth = presenter.vizWidth;
+	var vizHeight = presenter.vizHeight;
+
+	// Display the graph in an SVG element
+	this.viz = presenter.root.selectAll("svg").data([nodes]);
+	// Code under enter is run if there is no HTML element for a data element	
+	this.viz.enter().append("svg:svg").attr("class", "viz");
+	this.viz.attr("width", vizWidth);
+	this.viz.attr("height", vizHeight);
+	// Columns
+	this.columns = this.viz.selectAll("g").data(function(d) { return d });
+	this.columns.enter().append("svg:g").attr("class", "column");
+	this.columns.exit().remove();
+	this.columns.attr("transform", function(d, i) { return "translate(" + presenter.visibleColumns[i].xOffset + ", 0)"});
+	this.drawHeaders();
+	this.drawNodes();
+	this.drawLinks();
 }
 
-function clickedTopDown() {
-	if (!presenter.bottomUpMode) return;
+/**
+ * Draw the headers
+ */
+DagreGraphRenderer.prototype.drawHeaders = function()
+{
+	var header = this.columns.selectAll("text.header").data(function(d, i) { return [presenter.visibleColumns[i]] });
+	header.enter().append("svg:text")
+		.attr("class", "header")
+		.attr("x", "0")
+		.attr("y", LINE_HEIGHT)
+		.attr("text-anchor", "begin")
+		.style("font-weight", "bold");
+	header
+		.text(function(d) { return d.label });
+}
 
-	displayActiveMode($('#top-down'), $('#bottom-up'));
-	presenter.useTopDownMode();
-	presenter.initializeGraphSamples();
-	presenter.draw();
+/**
+ * Draw the nodes
+ */
+DagreGraphRenderer.prototype.drawNodes = function()
+{
+	var outEdgesGetter = presenter.outEdgesFunction();
+	var sample = this.columns.selectAll("text.sample").data(function(d) { return d });
+	sample.enter().append("svg:text")
+		.attr("class", "sample")
+		.attr("x", "0")
+		.attr("y", LINE_HEIGHT)
+		.attr("text-anchor", "begin")
+		.style("cursor", "pointer")
+		.on("click", function(d) { presenter.openSample(this, d) })
+		.transition()
+			.style("opacity", 1);
+	sample.exit()
+		.transition()
+			.style("opacity", 0).remove();
+	sample
+		.attr("x", "0")
+		.attr("y", function(d, i) { return LINE_HEIGHT * (i+2)})
+
+		.text(function(d) { return d.identifier });
+
+	var ring = this.columns.selectAll("circle.ring").data(function(d) { return d });
+	ring.enter().append("svg:circle")
+		.attr("class", "ring")
+		.attr("pointer-events", "all")
+		.attr("r", 0)
+		.style("cursor", "pointer")
+		.style("stroke-width", "2px")
+	ring.exit()
+		.transition()
+			.style("opacity", 0).remove();
+	ring
+		.attr("cx", function(d) { return textBBoxForNode(d).width + 7 })
+		.attr("cy", function(d, i) { return LINE_HEIGHT * (i+2) - yLinkOffset})
+		.style("fill", function(d) { return d.edgesVisible ? "none" : d.color})
+		.style("stroke", function(d) { return d.color})
+		.on("click", function(d) { presenter.toggleExpand(this, d) });
+	ring
+		.transition()
+			.style("opacity", function(d) { return outEdgesGetter(d).length > 0 ? 1 : 0 })
+			.attr("r", 5);
+}
+
+/**
+ * Draw the links
+ */
+DagreGraphRenderer.prototype.drawLinks = function()
+{
+	var link = this.viz.selectAll("path.link").data(presenter.links);
+	link.enter().append("svg:path")
+		.attr("class", "link")
+		.attr("pointer-events", "none")
+		.style("fill", "none")
+		.style("stroke-width", "1.5px")
+		.transition()
+			.style("opacity", 1);
+	link.exit()
+		.transition()
+			.style("opacity", 0).remove();
+	link
+		.style("stroke", function(d) { return d.source.color})
+		.attr("d", this.path);
 }
 
 
