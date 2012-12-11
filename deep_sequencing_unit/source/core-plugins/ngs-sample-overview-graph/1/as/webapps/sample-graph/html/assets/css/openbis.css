@@ -2,3 +2,11 @@ div#login {
   position: relative;
   top: 60px;
 }
+
+.nav li {
+	cursor: pointer;
+}
+
+.brand {
+	cursor: default;
+}
