@@ -314,7 +314,9 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
         if (zoomLevelLists.isEmpty())
         {
-            operationLog.warn("No zoom-level found for the original image of specified dataset");
+            operationLog
+                    .warn("No zoom-level entry found for the original image of specified dataset "
+                            + dataset.getPermId());
             return getOriginalImageSizeFetchingImage(dataset, imageAccessor);
         }
 
@@ -323,7 +325,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         if (first == null || first.getWidth() == null || first.getHeight() == null)
         {
             operationLog
-                    .warn("Image dimensions not found for the zoom level of the original image of specified dataset");
+                    .warn("Image dimensions not found for the zoom level of the original image of specified dataset "
+                            + dataset.getPermId());
             return getOriginalImageSizeFetchingImage(dataset, imageAccessor);
         }
 
@@ -342,7 +345,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 transformerDAO.listThumbImageZoomLevelsByPermId(dataset.getPermId());
         if (zoomLevelLists.isEmpty())
         {
-            operationLog.warn("No zoom-level found for the thumbnail of specified dataset");
+            operationLog.warn("No zoom-level entry found for the thumbnail of specified dataset "
+                    + dataset.getPermId());
             return getThumbnailImageSizeFetchingImage(dataset, imageAccessor);
         }
 
@@ -351,7 +355,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         if (first == null || first.getWidth() == null || first.getHeight() == null)
         {
             operationLog
-                    .warn("Image dimensions not found for the zoom level of the thumbnail of specified dataset");
+                    .warn("Image dimensions not found for the zoom level of the thumbnail of specified dataset "
+                            + dataset.getPermId());
             return getThumbnailImageSizeFetchingImage(dataset, imageAccessor);
         }
 
