@@ -101,6 +101,7 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
         // (resource/test-data/TransformedImageRepresentationsTest/data-set-handler.py)
         PlateIdentifier plate = new PlateIdentifier("TRANSFORMED-THUMB-PLATE", "TEST", null);
         List<ImageDatasetReference> imageDataSets = screeningFacade.listRawImageDatasets(Arrays.asList(plate));
+        System.out.println("Raw image data sets: " + imageDataSets);
         List<DatasetImageRepresentationFormats> representationFormats = screeningFacade.listAvailableImageRepresentationFormats(imageDataSets);
         assertEquals(1, representationFormats.size());
         List<ImageRepresentationFormat> formats = representationFormats.get(0).getImageRepresentationFormats();
