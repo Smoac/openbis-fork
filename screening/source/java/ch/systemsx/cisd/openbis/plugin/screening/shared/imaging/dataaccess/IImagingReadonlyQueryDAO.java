@@ -293,10 +293,16 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     public List<ImgImageZoomLevelTransformationEnrichedDTO> findImageZoomLevelTransformations(
             long datasetId, long channelId, String transformationCode);
 
-    @Select(sql = "select * from IMAGE_ZOOM_LEVELS zoom where zoom.physical_dataset_perm_id = ?{1} and zoom.is_original")
+    @Select(sql = "  select * from IMAGE_ZOOM_LEVELS zoom where zoom.physical_dataset_perm_id = ?{1} and zoom.is_original "
+            + "UNION ALL"
+            + "  select zoom.* from IMAGE_ZOOM_LEVELS zoom left join image_data_sets data on data.id = zoom.container_dataset_id"
+            + "     where data.perm_id = ?{1} and zoom.is_original")
     public List<ImgImageZoomLevelDTO> listOriginalImageZoomLevelsByPermId(String datasetPermId);
 
-    @Select(sql = "select * from IMAGE_ZOOM_LEVELS zoom where zoom.physical_dataset_perm_id = ?{1} and not zoom.is_original")
+    @Select(sql = "select * from IMAGE_ZOOM_LEVELS zoom where zoom.physical_dataset_perm_id = ?{1} and not zoom.is_original "
+            + "UNION ALL"
+            + "  select zoom.* from IMAGE_ZOOM_LEVELS zoom left join image_data_sets data on data.id = zoom.container_dataset_id"
+            + "     where data.perm_id = ?{1} and not zoom.is_original")
     public List<ImgImageZoomLevelDTO> listThumbImageZoomLevelsByPermId(String datasetPermId);
 
     @Select(sql = "select * from ANALYSIS_DATA_SETS where PERM_ID = any(?{1})", parameterBindings =
