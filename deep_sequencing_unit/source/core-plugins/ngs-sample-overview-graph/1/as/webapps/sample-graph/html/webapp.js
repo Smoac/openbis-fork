@@ -73,53 +73,50 @@ function SampleGraphLink(sourceNode, targetNode) {
 	this.targetNode = targetNode;
 }
 
+/** Break an identifier into a code and space */
+function codeAndSpaceFromIdentifier(identifier) {
+	var identifierTokens = identifier.split("/");
+	var space, code;
+	if (identifierTokens.length > 2) {
+		space = identifierTokens[1];
+		code = identifierTokens[2];
+	} else {
+		space = null;
+		code = identifierTokens[1];
+	}
+	return {space : space, code : code};
+}
+
+
 /**
- * The model that manages state and implements the operations for the sample graph. This model is specific to the Flowcell type.
+ * The model that manages state and implements the operations for the sample graph.
  */
-function FlowcellGraphModel() {
+function SampleGraphModel() {
 	this.initializeModel();
 }
 
-FlowcellGraphModel.prototype.initializeModel = function() {
+SampleGraphModel.prototype.initializeModel = function() {
 	this.sampleIdentifier = webappContext.getEntityIdentifier();
-	var identifierTokens = this.sampleIdentifier.split("/");
-	if (identifierTokens.length > 2) {
-		this.sampleSpace = identifierTokens[1];
-		this.sampleCode = identifierTokens[2];
-	} else {
-		this.sampleSpace = null;
-		this.sampleCode = identifierTokens[1];
-	}
+	var codeAndSpace = codeAndSpaceFromIdentifier(this.sampleIdentifier);
+	this.sampleSpace = codeAndSpace.space;
+	this.sampleCode = codeAndSpace.code;
 	this.samplePermId = webappContext.getEntityPermId();
 	this.sampleType = webappContext.getEntityType();
 	var samplesByType = {};
 	COLUMNS.forEach(function(column) { samplesByType[column.type] = [] });
 	this.samplesByType = samplesByType;
+	this.flowcellsByIdentifier = {};
 }
 
 /**
  * Request the data necessary to display the graph.
  */
-FlowcellGraphModel.prototype.requestGraphData = function(callback)
+SampleGraphModel.prototype.requestGraphData = function(callback)
 {
-	var containerCriteria = {
-		matchClauses : 
-			[ {"@type" : "AttributeMatchClause",
-				fieldType : "ATTRIBUTE",			
-				attribute : "CODE",
-				desiredValue : this.sampleCode
-			}, {"@type" : "AttributeMatchClause",
-				fieldType : "ATTRIBUTE",			
-				attribute : "SPACE",
-				desiredValue : this.sampleSpace
-			} ],
-		operator : "MATCH_ALL_CLAUSES"		
-	};
-
 	var matchClauses = [ {"@type" : "AttributeMatchClause",
 		fieldType : "ATTRIBUTE",
 		attribute : "CODE",
-		desiredValue : this.sampleCode + "*"
+		desiredValue : (FLOWCELL_SAMPLE_TYPE == this.sampleType) ? this.sampleCode + "*" : this.sampleCode
 	}];
 
 	if (this.sampleSpace) {
@@ -139,16 +136,58 @@ FlowcellGraphModel.prototype.requestGraphData = function(callback)
 	var lexicalParent = this;
 	function coalesceResult(data) {
 		lexicalParent.coalesceGraphData(data);
-		callback();
+		lexicalParent.requestFlowcellData(callback)
 	}
 
 	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], coalesceResult);
 }
 
 /**
+ * In most cases, we need an additional server request to get the flowcell data. Make that call here.
+ */
+SampleGraphModel.prototype.requestFlowcellData = function(callback) {
+	if (FLOWCELL_SAMPLE_TYPE == this.sampleType) {
+		callback();
+		return;
+	}
+
+	// Collect the Flowcell code and spaces
+	var flowlaneIds = [];
+	this.samplesByType[FLOWLANE_SAMPLE_TYPE].forEach(function(flowlane) {
+		var flowcellId = flowlane.identifier.split(":")[0];
+		var codeAndSpace = codeAndSpaceFromIdentifier(flowcellId);
+		flowlaneIds.push(codeAndSpace);
+	});
+
+	var matchClauses = [];
+	flowlaneIds.forEach(function(cs) {
+		matchClauses.push({"@type" : "AttributeMatchClause",
+			fieldType : "ATTRIBUTE",
+			attribute : "CODE",
+			desiredValue : cs.code
+		})
+	})
+
+	var sampleCriteria = {
+		matchClauses : matchClauses,
+		operator : "MATCH_ANY_CLAUSES"
+	};
+
+	var lexicalParent = this;
+	function coalesceResult(data) {
+		lexicalParent.coalesceGraphData(data);
+		callback();
+	}
+
+	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], coalesceResult);
+
+};
+
+
+/**
  * Request the data necessary to display the graph.
  */
-FlowcellGraphModel.prototype.coalesceGraphData = function(data, callback) {
+SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
 	var samples = data.result;
 	var nodesById = {};
 
@@ -170,6 +209,9 @@ FlowcellGraphModel.prototype.coalesceGraphData = function(data, callback) {
 			node.arrayIndex = sampleTypeArray.length;
 			sampleTypeArray.push(node);
 		}
+		if (FLOWCELL_SAMPLE_TYPE == node.sampleType) {
+			lexicalParent.flowcellsByIdentifier[node.identifier] = node;
+		}
 
 		if (sample.parents) sample.parents.forEach(convertSampleToNode);
 		if (sample.children) sample.children.forEach(convertSampleToNode);
@@ -178,35 +220,49 @@ FlowcellGraphModel.prototype.coalesceGraphData = function(data, callback) {
 	function resolveParents(sample) {
 		// This is just a nodeId, it will be resolved elsewhere
 		if (isPureId(sample)) return;
+		if (!sample.parents) return;
 
 		sample.parents.forEach(resolveParents);
 
 		var node = nodeForSample(sample);
 		node.parents = sample.parents.map(nodeForSample);
+		node.parents.forEach(function(p) { p.children = [node]});
 	}
 
 	function resolveChildren(sample) {
 		// This is just a nodeId, it will be resolved elsewhere
 		if (isPureId(sample)) return;
+		if (!sample.children) return;
 
 		sample.children.forEach(resolveChildren);
 
 		var node = nodeForSample(sample);
 		node.children = sample.children.map(nodeForSample);
+		node.children.forEach(function(p) { p.parents = [node]});
 	}
 
 	samples.forEach(convertSampleToNode);
 	samples.forEach(resolveParents);
 	samples.forEach(resolveChildren);
 
-	// The parents of the flowlanes should become the parents of the flow cell
-	var flowcell = this.samplesByType[FLOWCELL_SAMPLE_TYPE][0];
-	if (flowcell) {
-		var flowlaneParents = []
-		this.samplesByType[FLOWLANE_SAMPLE_TYPE].forEach(function(d) { flowlaneParents = flowlaneParents.concat(d.parents); });
-		this.samplesByType[FLOWCELL_SAMPLE_TYPE][0].parents = flowlaneParents;
-		this.samplesByType[FLOWLANE_SAMPLE_TYPE].forEach(function(d) { d.parents = [flowcell]});
-	}
+	// The parents of the flowlanes should become the parents of the flowcell and the
+	// flowcell should become the parent of the flowlanes.
+	var flowcellsByIdentifier = this.flowcellsByIdentifier;
+	this.samplesByType[FLOWLANE_SAMPLE_TYPE].forEach(function(flowlane) {
+		var flowcellId = flowlane.identifier.split(":")[0];
+		var flowcell = flowcellsByIdentifier[flowcellId];
+		if (flowcell) {
+			var parents = flowcell.parents;
+			parents = parents.concat(flowlane.parents);
+			flowcell.parents = parents;
+			flowcell.children.push(flowlane);
+			flowlane.parents.forEach(function(parent) {
+				var children = parent.children;
+				children.splice(children.indexOf(flowlane), 1, flowcell);
+			})
+			flowlane.parents = [flowcell];
+		}
+	});
 }
 
 
@@ -563,7 +619,7 @@ function clickedTopDown() {
 
 /// The model that manages state and implements the operations
 var model;
-model = new FlowcellGraphModel();
+model = new SampleGraphModel();
 
 // The presenter tranlsates the model into visual elements
 var presenter;
