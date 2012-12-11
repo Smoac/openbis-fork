@@ -64,7 +64,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
@@ -1291,17 +1290,6 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         generalInformationService.logout(sessionToken);
         sessionToken = generalInformationService.tryToAuthenticateForAllServices("observer", "a");
-    }
-
-    private void assertEntities(String expectedEntities, List<? extends IIdentifierHolder> entities)
-    {
-        List<String> identifiers = new ArrayList<String>();
-        for (IIdentifierHolder entity : entities)
-        {
-            identifiers.add(entity.getIdentifier());
-        }
-        // Collections.sort(identifiers);
-        assertEquals(expectedEntities, identifiers.toString());
     }
 
     private interface IToStringDelegate<T>

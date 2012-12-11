@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
@@ -372,6 +373,18 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
             propertyCodes.add(code);
         }
         AssertJUnit.fail("No property " + key + " found in " + propertyCodes);
+    }
+
+    protected void assertEntities(String expectedEntities,
+            List<? extends IIdentifierHolder> entities)
+    {
+        List<String> identifiers = new ArrayList<String>();
+        for (IIdentifierHolder entity : entities)
+        {
+            identifiers.add(entity.getIdentifier());
+        }
+        Collections.sort(identifiers);
+        assertEquals(expectedEntities, identifiers.toString());
     }
 
     protected List<PropertyHistory> getMaterialPropertiesHistory(long materialID)

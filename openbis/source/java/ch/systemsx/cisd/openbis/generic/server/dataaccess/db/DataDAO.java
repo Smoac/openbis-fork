@@ -655,6 +655,8 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         lockEntity(data.getExperiment());
         lockEntity(data.tryGetSample());
         lockEntity(data.getContainer());
+        lockEntities(data.getParents());
+        lockEntities(data.getChildren());
     }
 
     @Override

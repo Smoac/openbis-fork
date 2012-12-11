@@ -368,7 +368,8 @@ public abstract class AbstractDAO extends HibernateDaoSupport
 
     protected void lockEntity(IIdHolder entityOrNull)
     {
-        if (entityOrNull != null && entityOrNull.getId() != null)
+        if (entityOrNull != null && entityOrNull.getId() != null
+                && getSession().contains(entityOrNull))
         {
             getHibernateTemplate().lock(entityOrNull, LockMode.PESSIMISTIC_WRITE);
         }

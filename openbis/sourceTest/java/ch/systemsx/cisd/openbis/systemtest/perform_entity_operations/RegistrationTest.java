@@ -63,6 +63,37 @@ import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 public class RegistrationTest extends SystemTestCase
 {
     @Test
+    public void testCreateChildrenForAnExistingSampleWithBatchSize1()
+    {
+        Sample parentSample =
+                genericServer.getSampleInfo(systemSessionToken, new TechId(1)).getParent();
+        AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
+        SampleType sampleType = new SampleType();
+        sampleType.setCode("CELL_PLATE");
+        parentSample.setSampleType(sampleType);
+        NewSample childSample1 = new NewSample();
+        childSample1.setIdentifier("/TEST-SPACE/PARENT_OF_TWO_CHILD_1");
+        childSample1.setSampleType(sampleType);
+        childSample1.setParents(parentSample.getIdentifier());
+        builder.sample(childSample1);
+        NewSample childSample2 = new NewSample();
+        childSample2.setIdentifier("/TEST-SPACE/PARENT_OF_TWO_CHILD_2");
+        childSample2.setSampleType(sampleType);
+        childSample2.setParents(parentSample.getIdentifier());
+        builder.sample(childSample2);
+        builder.batchSize(1);
+
+        etlService.performEntityOperations(systemSessionToken, builder.getDetails());
+
+        List<Sample> children =
+                commonServer.listSamples(systemSessionToken,
+                        ListSampleCriteria.createForParent(new TechId(parentSample)));
+
+        assertEntities("[/TEST-SPACE/PARENT_OF_TWO_CHILD_1, /TEST-SPACE/PARENT_OF_TWO_CHILD_2]",
+                children);
+    }
+
+    @Test
     public void testCreateSampleWithTwoAttachments()
     {
         AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
