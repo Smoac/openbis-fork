@@ -44,6 +44,7 @@ import javax.validation.constraints.Pattern;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
@@ -281,7 +282,7 @@ public class ExperimentPE extends AttachmentHolderPE implements
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity", orphanRemoval = true)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROPERTIES)
-    @Fetch(FetchMode.SUBSELECT)
+    @BatchSize(size = 100)
     private Set<ExperimentPropertyPE> getExperimentProperties()
     {
         return properties;

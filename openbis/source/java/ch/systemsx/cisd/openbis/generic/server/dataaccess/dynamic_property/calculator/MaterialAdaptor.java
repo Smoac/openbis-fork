@@ -33,8 +33,7 @@ public class MaterialAdaptor extends AbstractEntityAdaptor implements IMaterialA
 
     public MaterialAdaptor(MaterialPE MaterialPE, IDynamicPropertyEvaluator evaluator)
     {
-        super(MaterialPE.getCode(), evaluator);
-        initProperties(MaterialPE);
+        super(MaterialPE, evaluator);
         this.MaterialPE = MaterialPE;
     }
 

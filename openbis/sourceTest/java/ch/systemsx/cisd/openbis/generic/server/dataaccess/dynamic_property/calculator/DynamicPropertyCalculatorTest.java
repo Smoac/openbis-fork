@@ -23,10 +23,6 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.AbstractEntityAdaptor;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.BasicPropertyAdaptor;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.XmlPropertyAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityPropertyAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -152,15 +148,7 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
     private static IEntityAdaptor createEntity(final String code,
             final Collection<IEntityPropertyAdaptor> properties)
     {
-        final AbstractEntityAdaptor result = new AbstractEntityAdaptor(code);
-        if (properties != null)
-        {
-            for (IEntityPropertyAdaptor property : properties)
-            {
-                result.addProperty(property);
-            }
-        }
-        return result;
+        return new AbstractEntityAdaptor(code, properties);
     }
 
     private static IEntityPropertyAdaptor createProperty(final String propertyTypeCode,

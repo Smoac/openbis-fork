@@ -44,9 +44,8 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
     public ExternalDataAdaptor(DataPE externalDataPE, IDynamicPropertyEvaluator evaluator,
             Session session)
     {
-        super(externalDataPE.getCode(), evaluator);
+        super(externalDataPE, evaluator);
         this.session = session;
-        initProperties(externalDataPE);
         this.externalDataPE = externalDataPE;
     }
 

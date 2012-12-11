@@ -522,15 +522,7 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
     private static IEntityAdaptor createEntity(final String code,
             final Collection<IEntityPropertyAdaptor> properties)
     {
-        final AbstractEntityAdaptor result = new AbstractEntityAdaptor(code);
-        if (properties != null)
-        {
-            for (IEntityPropertyAdaptor property : properties)
-            {
-                result.addProperty(property);
-            }
-        }
-        return result;
+        return new AbstractEntityAdaptor(code, properties);
     }
 
     private static IEntityPropertyAdaptor createProperty(final String propertyTypeCode,

@@ -51,34 +51,48 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  */
 public class AbstractEntityAdaptor implements IEntityAdaptor
 {
-    protected final Map<String, IEntityPropertyAdaptor> propertiesByCode =
-            new HashMap<String, IEntityPropertyAdaptor>();
-
     private final String code;
+
+    protected final IEntityPropertiesHolder propertiesHolder;
+
+    protected Map<String, IEntityPropertyAdaptor> propertiesByCode;
 
     protected final IDynamicPropertyEvaluator evaluator;
 
     protected static String ENTITY_TYPE_CODE_FIELD = SearchFieldConstants.PREFIX_ENTITY_TYPE
             + SearchFieldConstants.CODE;
 
-    public AbstractEntityAdaptor(String code)
-    {
-        this(code, null);
-    }
-
-    public AbstractEntityAdaptor(String code, IDynamicPropertyEvaluator evaluator)
+    public AbstractEntityAdaptor(String code, Collection<IEntityPropertyAdaptor> properties)
     {
         this.code = code;
-        this.evaluator = evaluator;
+        this.propertiesHolder = null;
+        this.evaluator = null;
+        initPropertiesMap(properties);
     }
 
-    protected void initProperties(IEntityPropertiesHolder propertiesHolder)
+    public AbstractEntityAdaptor(IEntityPropertiesHolder propertiesHolder,
+            IDynamicPropertyEvaluator propertyEvaluator)
     {
+        this.code = propertiesHolder.getCode();
+        this.propertiesHolder = propertiesHolder;
+        this.evaluator = propertyEvaluator;
+    }
+
+    private void initPropertiesMap()
+    {
+        if (propertiesHolder == null)
+        {
+            throw new IllegalStateException(
+                    "Couldn't init properties if the properties holder has not been set");
+        }
         if (evaluator == null)
         {
             throw new IllegalStateException(
-                    "Couldn't init properties if the evaluator has not been set");
+                    "Couldn't init properties if the property evaluator has not been set");
         }
+
+        propertiesByCode = new HashMap<String, IEntityPropertyAdaptor>();
+
         for (EntityPropertyPE property : propertiesHolder.getProperties())
         {
             EntityTypePropertyTypePE etpt = property.getEntityTypePropertyType();
@@ -115,9 +129,32 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
         }
     }
 
-    public void addProperty(IEntityPropertyAdaptor property)
+    private void initPropertiesMap(Collection<IEntityPropertyAdaptor> properties)
     {
-        propertiesByCode.put(property.propertyTypeCode().toUpperCase(), property);
+        propertiesByCode = new HashMap<String, IEntityPropertyAdaptor>();
+
+        if (properties != null)
+        {
+            for (IEntityPropertyAdaptor property : properties)
+            {
+                addProperty(property);
+            }
+        }
+    }
+
+    private Map<String, IEntityPropertyAdaptor> propertiesMap()
+    {
+        if (propertiesByCode == null)
+        {
+            initPropertiesMap();
+        }
+
+        return propertiesByCode;
+    }
+
+    private void addProperty(IEntityPropertyAdaptor property)
+    {
+        propertiesMap().put(property.propertyTypeCode().toUpperCase(), property);
     }
 
     @Override
@@ -129,7 +166,7 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
     @Override
     public IEntityPropertyAdaptor property(String propertyTypeCode)
     {
-        return propertiesByCode.get(propertyTypeCode.toUpperCase());
+        return propertiesMap().get(propertyTypeCode.toUpperCase());
     }
 
     @Override
@@ -149,7 +186,7 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
     @Override
     public Collection<IEntityPropertyAdaptor> properties()
     {
-        return propertiesByCode.values();
+        return propertiesMap().values();
     }
 
     protected Query regexpConstraint(String field, String value)
@@ -159,8 +196,8 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
 
     protected Query constraint(String field, String value)
     {
-        return LuceneQueryBuilder.parseQuery(field, value, LuceneQueryBuilder
-                .createSearchAnalyzer());
+        return LuceneQueryBuilder.parseQuery(field, value,
+                LuceneQueryBuilder.createSearchAnalyzer());
     }
 
     protected Query and(Query... queries)

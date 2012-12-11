@@ -42,9 +42,8 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
 
     public SampleAdaptor(SamplePE samplePE, IDynamicPropertyEvaluator evaluator, Session session)
     {
-        super(samplePE.getCode(), evaluator);
+        super(samplePE, evaluator);
         this.session = session;
-        initProperties(samplePE);
         this.samplePE = samplePE;
     }
 

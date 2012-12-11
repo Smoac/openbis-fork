@@ -45,9 +45,8 @@ public class ExperimentAdaptor extends AbstractEntityAdaptor implements IExperim
     public ExperimentAdaptor(ExperimentPE experimentPE, IDynamicPropertyEvaluator evaluator,
             Session session)
     {
-        super(experimentPE.getCode(), evaluator);
+        super(experimentPE, evaluator);
         this.session = session;
-        initProperties(experimentPE);
         this.experimentPE = experimentPE;
     }
 
@@ -71,8 +70,7 @@ public class ExperimentAdaptor extends AbstractEntityAdaptor implements IExperim
     @Override
     public Iterable<ISampleAdaptor> samplesOfType(String typeRegexp)
     {
-        Query typeConstraint =
-                regexpConstraint(ENTITY_TYPE_CODE_FIELD, typeRegexp.toLowerCase());
+        Query typeConstraint = regexpConstraint(ENTITY_TYPE_CODE_FIELD, typeRegexp.toLowerCase());
         Query experimentCodeConstraint =
                 constraint(SearchFieldConstants.EXPERIMENT_ID, Long.toString(experimentPE.getId()));
         Query query = and(typeConstraint, experimentCodeConstraint);
@@ -90,8 +88,7 @@ public class ExperimentAdaptor extends AbstractEntityAdaptor implements IExperim
     @Override
     public Iterable<IDataAdaptor> dataSetsOfType(String typeRegexp)
     {
-        Query typeConstraint =
-                regexpConstraint(ENTITY_TYPE_CODE_FIELD, typeRegexp.toLowerCase());
+        Query typeConstraint = regexpConstraint(ENTITY_TYPE_CODE_FIELD, typeRegexp.toLowerCase());
         Query experimentCodeConstraint =
                 constraint(SearchFieldConstants.EXPERIMENT_ID, Long.toString(experimentPE.getId()));
         Query query = and(typeConstraint, experimentCodeConstraint);
