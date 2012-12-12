@@ -401,7 +401,7 @@ SampleGraphPresenter.prototype.updateVisibility = function() {
 	});
 }
 
-SampleGraphPresenter.prototype.updateLinks = function() {
+SampleGraphPresenter.prototype.updateEdges = function() {
 	var edges = [];
 	var outEdgesGetter = this.outEdgesFunction();
 	this.allNodes.forEach(function(samps) {
@@ -425,7 +425,7 @@ SampleGraphPresenter.prototype.updateState = function()
 	// These need to be done in this order
 	this.updateVisibility();
 	this.updateNodes();
-	this.updateLinks();
+	this.updateEdges();
 }
 
 /**
@@ -550,7 +550,7 @@ SimpleGraphRenderer.prototype.draw = function()
 	this.columns.attr("transform", function(d, i) { return "translate(" + presenter.visibleColumns[i].xOffset + ", 0)"});
 	this.drawHeaders();
 	this.drawNodes();
-	this.drawLinks();
+	this.drawEdges();
 
 	var vizHeight = (d3.max(nodes, function(d) { return d.length}) + 1) * LINE_HEIGHT + 5;
 	var vizWidth = d3.sum(presenter.visibleColumns, function(column) { return column.width });
@@ -624,7 +624,7 @@ SimpleGraphRenderer.prototype.drawNodes = function()
 /**
  * Draw the edges
  */
-SimpleGraphRenderer.prototype.drawLinks = function()
+SimpleGraphRenderer.prototype.drawEdges = function()
 {
 	var link = this.viz.selectAll("path.link").data(presenter.edges);
 	link.enter().append("svg:path")
@@ -728,7 +728,7 @@ DagreGraphRenderer.prototype.draw = function()
 	    .run();
 	this.redrawNodes();
 	this.drawHeaders();
-	this.drawLinks();
+	this.drawEdges();
 
 	var vizWidth = d3.max(dagreNodes, function(d) {	return d.dagre.x + d.dagre.width; })
 	var vizHeight = d3.max(dagreNodes, function(d) { return d.dagre.y + d.dagre.height; })
@@ -754,12 +754,14 @@ DagreGraphRenderer.prototype.drawHeaders = function()
 		.attr("y", function(d, i) {
 			var nodesAtLevel = sampleNodeGroup[i];
 			if (nodesAtLevel.length < 1) return 0;
+			if (!nodesAtLevel[0]) return 0;
 			var dagre = nodesAtLevel[0].__data__.dagre;
 			return dagre.y + dagre.height - 1;
 		})
 		.attr("opacity", function(d, i) {
 			var nodesAtLevel = sampleNodeGroup[i];
 			if (nodesAtLevel.length < 1) return 0;
+			if (!nodesAtLevel[0]) return 0;
 			return 1;
 		})
 		.text(function(d) { return d.label });
@@ -832,7 +834,7 @@ DagreGraphRenderer.prototype.redrawNodes = function()
 /**
  * Draw the edges
  */
-DagreGraphRenderer.prototype.drawLinks = function()
+DagreGraphRenderer.prototype.drawEdges = function()
 {
 	var link = this.viz.selectAll("path.link").data(presenter.edges);
 	link.enter().append("svg:path")
