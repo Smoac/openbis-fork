@@ -19,6 +19,10 @@
 	<property name="dist.createsamplesheet-nov" value="${dist}/createsamplesheet" />
 	<property name="dist.createsamplesheet-nov.lib" value="${dist.createsamplesheet}/lib" />
 	<property name="createsamplesheet-nov.original.dist" value="createsamplesheet/dist" />
+
+	<property name="dist.createInvoices" value="${dist}/createInvoices" />
+	<property name="dist.createInvoices.lib" value="${dist.createInvoices}/lib" />
+	<property name="createInvoices.original.dist" value="createInvoices/dist" />
 	
 	<target name="compile" depends="build-common.compile, clean" />
 
@@ -114,9 +118,35 @@
 					<zipfileset file="${createsamplesheet-nov.original.dist}/createSampleSheet_nov.sh" filemode="755" />
 				</zip>
 			  <delete dir="${dist.createsamplesheet}" />
-		
 	</target>
 
+	<target name="createInvoices-dist">
+		<copy file="source/Jython/create_QGF_Invoices_simplified.py" todir="${dist.createInvoices}" />
+	
+		<copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.createInvoices.lib}" />
+		<copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.createInvoices.lib}" />
+		<copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.createInvoices.lib}" />
+		<copy file="${lib}/openbis-apis/dss/dss_client.jar" todir="${dist.createInvoices.lib}" />
+		<copy file="${lib}/jython/jython.jar" todir="${dist.createInvoices.lib}" />
+		<copy file="${lib}/spring/spring.jar" todir="${dist.createInvoices.lib}" />
+		<copy file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar" todir="${dist.createInvoices.lib}" />
+		<copy file="${lib}/poi/poi.jar" todir="${dist.createInvoices.lib}" />
+		<copy file="${lib}/poi/poi-ooxml.jar" todir="${dist.createInvoices.lib}" />
+		<copy file="${lib}/poi/poi-ooxml-schemas.jar" todir="${dist.createInvoices.lib}" />
+		<copy file="${lib}/poi/ooxml-lib/xmlbeans-2.3.0.jar" todir="${dist.createInvoices.lib}" />
+		<copy file="${lib}/poi/ooxml-lib/dom4j-1.6.1.jar" todir="${dist.createInvoices.lib}" />
+		<copy file="${lib}/poi/ooxml-lib/geronimo-stax-api_1.0_spec-1.0.jar" todir="${dist.createInvoices.lib}" />
+		<copy file="${lib}/openbis-apis/query/openbis-query-api.jar" todir="${dist.createInvoices.lib}" />
+		
+		<property name="createInvoices.dist.file" value="openbis-createInvoices-${version.number}-r${revision.number}.zip" />
+				<zip basedir="${dist.createInvoices}" destfile="${dist}/${createInvoices.dist.file}" excludes="*.zip *.jar">
+					<zipfileset dir="${createInvoices.original.dist}" excludes="**/*.sh" />
+					<zipfileset file="${createInvoices.original.dist}/createInvoices.sh" filemode="755" />
+
+				</zip>
+			  <delete dir="${dist.createInvoices}" />
+	</target>
+	
 	
 	<target name="jar" depends="compile">
 		<mkdir dir="${dist}" />
@@ -146,7 +176,7 @@
 	<!--
         // Task for creating distributions
         -->
-	<target name="dist" depends="jar, datastore_server.make-plugin-dist, tracking-dist, createsamplesheet-dist, createsamplesheet-nov-dist" />
+	<target name="dist" depends="jar, datastore_server.make-plugin-dist, tracking-dist, createsamplesheet-dist, createsamplesheet-nov-dist,createInvoices-dist" />
 
 	<!--
         // Task for continuous integration server.
