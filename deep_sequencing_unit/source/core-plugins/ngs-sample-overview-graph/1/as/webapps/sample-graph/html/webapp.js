@@ -694,7 +694,20 @@ DagreGraphRenderer.prototype.draw = function()
 	viz = presenter.root.selectAll("svg").data([nodes]);
 	this.viz = viz;
 	// Code under enter is run if there is no HTML element for a data element
-	viz.enter().append("svg:svg").attr("class", "viz");
+	viz.enter().append("svg:svg")
+		.attr("class", "viz")
+		// Create an arrowhead to put to the lines
+		.append("svg:defs").append("svg:marker")
+			.attr("id", "arrowhead")
+			.attr("viewBox", "0 0 10 10")
+			.attr("refX", "8")
+			.attr("refY", "5")
+			.attr("markerUnits", "strokeWidth")
+			.attr("markerHeight", "5")
+			.attr("orient", "auto")
+			.style("fill", "#333")
+			.append("svg:path").attr("d", "M 0 0 L 10 5 L 0 10 z");
+
 	// Columns
 	this.columns = this.viz.selectAll("g.column").data(function(d) { return d });
 	this.columns.enter().append("svg:g").attr("class", "column");
@@ -827,6 +840,7 @@ DagreGraphRenderer.prototype.drawLinks = function()
 		.attr("pointer-events", "none")
 		.style("fill", "none")
 		.style("stroke-width", "1.5px")
+		.attr("marker-end", "url(#arrowhead)")
 		.transition()
 			.style("opacity", 1);
 	link.exit()
