@@ -101,7 +101,6 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
         // (resource/test-data/TransformedImageRepresentationsTest/data-set-handler.py)
         PlateIdentifier plate = new PlateIdentifier("TRANSFORMED-THUMB-PLATE", "TEST", null);
         List<ImageDatasetReference> imageDataSets = screeningFacade.listRawImageDatasets(Arrays.asList(plate));
-        System.out.println("Raw image data sets: " + imageDataSets);
         List<DatasetImageRepresentationFormats> representationFormats = screeningFacade.listAvailableImageRepresentationFormats(imageDataSets);
         assertEquals(1, representationFormats.size());
         List<ImageRepresentationFormat> formats = representationFormats.get(0).getImageRepresentationFormats();
@@ -157,11 +156,8 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
     @Override
     protected boolean checkLogContentForFinishedDataSetRegistration(String logContent)
     {
-        String pattern = "Post registration of ([0-9]*)\\. of \\1 data sets";
-        // matches "Post registration of n. of n data sets"
-        Pattern p = Pattern.compile(pattern);
-        Matcher m = p.matcher(logContent);
-        return m.find();
+        return super.checkLogContentForFinishedDataSetRegistration(logContent)
+                && checkForFinalPostRegistrationLogEntry(logContent);
     }
 
 }
