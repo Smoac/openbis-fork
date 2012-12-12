@@ -75,7 +75,7 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
         return image_tokens
     
     def getTileGeometry(self, imageTokens, maxTileNumber):
-        return Geometry.createFromRowColDimensions(maxTileNumber / 3, 3)    
+        return Geometry.createFromRowColDimensions((maxTileNumber - 1) / 3 + 1, 3)    
  
 if incoming.isDirectory():
     imageDataset = MyImageDataSetConfig()
