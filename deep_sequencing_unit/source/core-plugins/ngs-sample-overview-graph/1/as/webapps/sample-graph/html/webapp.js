@@ -741,9 +741,17 @@ DagreGraphRenderer.prototype.draw = function()
 
 	// If the user clicked on a node, scroll to make it visible
 	if (presenter.selectedNode) {
-		var root = $("#root");
-		var left = $(presenter.selectedNode).position().left + root.scrollLeft() - 50;
-		root.scrollLeft(left);
+		// Figure out which element we need to scroll
+		var scrollWindow = (d3.select("#root").style("overflow") == "visible")
+		if (scrollWindow) {
+			var scrolledElt = $(window);
+			var left = $(presenter.selectedNode).position().left - 50;
+			scrolledElt.scrollLeft(left);
+		} else {
+			var scrolledElt = $("#root");
+			var left = $(presenter.selectedNode).position().left + scrolledElt.scrollLeft() - 50;
+			scrolledElt.scrollLeft(left);
+		}
 
 		// WebKit only
 		// presenter.selectedNode.scrollIntoViewIfNeeded(true);

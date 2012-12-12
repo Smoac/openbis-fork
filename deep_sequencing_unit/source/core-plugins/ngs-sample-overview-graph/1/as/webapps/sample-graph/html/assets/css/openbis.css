@@ -10,3 +10,7 @@ div#login {
 .brand {
 	cursor: default;
 }
+
+@media print {
+	@page { size: landscape }
+}
