@@ -276,6 +276,7 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
 function SampleGraphPresenter(model) {
 	this.model = model;
 	this.renderer = new DagreGraphRenderer();
+	this.selectedNode = null;
 	this.didCreateVis = false;
 	this.useBottomUpMode();
 	this.initializePresenter();
@@ -440,6 +441,7 @@ SampleGraphPresenter.prototype.draw = function()
 SampleGraphPresenter.prototype.toggleExpand = function(svgNode, d) {
 	// toggle visiblity
 	d.userEdgesVisible = (null == d.userEdgesVisible) ? !d.edgesVisible :!d.userEdgesVisible;
+	this.selectedNode = svgNode.parentNode;
 	this.draw();
 }
 
@@ -736,6 +738,17 @@ DagreGraphRenderer.prototype.draw = function()
 	// Resize the visualization
 	viz.attr("width", vizWidth + 20); // add space for the ring at the end
 	viz.attr("height", vizHeight + LINE_HEIGHT); // add a space to make it look less cramped
+
+	// If the user clicked on a node, scroll to make it visible
+	if (presenter.selectedNode) {
+		var root = $("#root");
+		var left = $(presenter.selectedNode).position().left + root.scrollLeft() - 50;
+		root.scrollLeft(left);
+
+		// WebKit only
+		// presenter.selectedNode.scrollIntoViewIfNeeded(true);
+
+	}
 }
 
 /**
