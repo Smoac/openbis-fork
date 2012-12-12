@@ -62,6 +62,8 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
     protected static String ENTITY_TYPE_CODE_FIELD = SearchFieldConstants.PREFIX_ENTITY_TYPE
             + SearchFieldConstants.CODE;
 
+    protected static String ENTITY_TYPE_ANY_CODE_REGEXP = ".*";
+
     public AbstractEntityAdaptor(String code, Collection<IEntityPropertyAdaptor> properties)
     {
         this.code = code;

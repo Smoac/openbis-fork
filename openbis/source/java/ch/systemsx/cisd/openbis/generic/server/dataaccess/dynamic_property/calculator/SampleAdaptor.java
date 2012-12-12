@@ -19,14 +19,19 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calc
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.lucene.search.Query;
+import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDataAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IExperimentAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.ISampleAdaptor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
  * {@link IEntityAdaptor} implementation for {@link SamplePE}.
@@ -65,7 +70,7 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
     }
 
     @Override
-    public List<ISampleAdaptor> parents()
+    public Iterable<ISampleAdaptor> parents()
     {
         List<ISampleAdaptor> list = new ArrayList<ISampleAdaptor>();
         for (SamplePE parent : samplePE.getParents())
@@ -76,24 +81,13 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
     }
 
     @Override
-    public List<ISampleAdaptor> children()
+    public Iterable<ISampleAdaptor> children()
     {
         List<ISampleAdaptor> list = new ArrayList<ISampleAdaptor>();
         for (SampleRelationshipPE relationship : samplePE.getChildRelationships())
         {
             SamplePE child = relationship.getChildSample();
             list.add(EntityAdaptorFactory.create(child, evaluator, session));
-        }
-        return list;
-    }
-
-    @Override
-    public List<ISampleAdaptor> contained()
-    {
-        List<ISampleAdaptor> list = new ArrayList<ISampleAdaptor>();
-        for (SamplePE contained : samplePE.getContained())
-        {
-            list.add(EntityAdaptorFactory.create(contained, evaluator, session));
         }
         return list;
     }
@@ -109,6 +103,44 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
         {
             return null;
         }
+    }
+
+    @Override
+    public Iterable<ISampleAdaptor> contained()
+    {
+        return containedOfType(ENTITY_TYPE_ANY_CODE_REGEXP);
+    }
+
+    @Override
+    public Iterable<ISampleAdaptor> containedOfType(String typeCodeRegexp)
+    {
+        Query typeConstraint =
+                regexpConstraint(ENTITY_TYPE_CODE_FIELD, typeCodeRegexp.toLowerCase());
+        Query containerConstraint =
+                constraint(SearchFieldConstants.CONTAINER_ID, Long.toString(samplePE.getId()));
+        Query query = and(typeConstraint, containerConstraint);
+
+        ScrollableResults results = execute(query, SamplePE.class, session);
+        return new EntityAdaptorIterator<ISampleAdaptor>(results, evaluator, session);
+    }
+
+    @Override
+    public Iterable<IDataAdaptor> dataSets()
+    {
+        return dataSetsOfType(ENTITY_TYPE_ANY_CODE_REGEXP);
+    }
+
+    @Override
+    public Iterable<IDataAdaptor> dataSetsOfType(String typeCodeRegexp)
+    {
+        Query typeConstraint =
+                regexpConstraint(ENTITY_TYPE_CODE_FIELD, typeCodeRegexp.toLowerCase());
+        Query sampleConstraint =
+                constraint(SearchFieldConstants.SAMPLE_ID, Long.toString(samplePE.getId()));
+        Query query = and(typeConstraint, sampleConstraint);
+
+        ScrollableResults results = execute(query, DataPE.class, session);
+        return new EntityAdaptorIterator<IDataAdaptor>(results, evaluator, session);
     }
 
 }

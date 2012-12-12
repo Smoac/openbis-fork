@@ -19,15 +19,20 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calc
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.lucene.search.Query;
+import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDataAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IExperimentAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.ISampleAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
  * {@link IEntityAdaptor} implementation for {@link ExternalDataPE}.
@@ -67,7 +72,20 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
     }
 
     @Override
-    public List<IDataAdaptor> parents()
+    public ISampleAdaptor sample()
+    {
+        SamplePE sample = externalDataPE.tryGetSample();
+        if (sample != null)
+        {
+            return EntityAdaptorFactory.create(sample, evaluator, session);
+        } else
+        {
+            return null;
+        }
+    }
+
+    @Override
+    public Iterable<IDataAdaptor> parents()
     {
         List<IDataAdaptor> list = new ArrayList<IDataAdaptor>();
         for (DataSetRelationshipPE relationship : externalDataPE.getParentRelationships())
@@ -79,24 +97,13 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
     }
 
     @Override
-    public List<IDataAdaptor> children()
+    public Iterable<IDataAdaptor> children()
     {
         List<IDataAdaptor> list = new ArrayList<IDataAdaptor>();
         for (DataSetRelationshipPE relationship : externalDataPE.getChildRelationships())
         {
             DataPE child = relationship.getChildDataSet();
             list.add(EntityAdaptorFactory.create(child, evaluator, session));
-        }
-        return list;
-    }
-
-    @Override
-    public List<IDataAdaptor> contained()
-    {
-        List<IDataAdaptor> list = new ArrayList<IDataAdaptor>();
-        for (DataPE contained : externalDataPE.getContainedDataSets())
-        {
-            list.add(EntityAdaptorFactory.create(contained, evaluator, session));
         }
         return list;
     }
@@ -113,4 +120,24 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
             return null;
         }
     }
+
+    @Override
+    public Iterable<IDataAdaptor> contained()
+    {
+        return containedOfType(ENTITY_TYPE_ANY_CODE_REGEXP);
+    }
+
+    @Override
+    public Iterable<IDataAdaptor> containedOfType(String typeCodeRegexp)
+    {
+        Query typeConstraint =
+                regexpConstraint(ENTITY_TYPE_CODE_FIELD, typeCodeRegexp.toLowerCase());
+        Query containerConstraint =
+                constraint(SearchFieldConstants.CONTAINER_ID, Long.toString(externalDataPE.getId()));
+        Query query = and(typeConstraint, containerConstraint);
+
+        ScrollableResults results = execute(query, DataPE.class, session);
+        return new EntityAdaptorIterator<IDataAdaptor>(results, evaluator, session);
+    }
+
 }

@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api;
 
-import java.util.List;
-
 /**
  * @author Jakub Straszewski
  */
@@ -26,26 +24,43 @@ public interface ISampleAdaptor extends IEntityAdaptor
     /**
      * Returns the experiment of this sample, or null if not exists.
      */
-    IExperimentAdaptor experiment();
+    public IExperimentAdaptor experiment();
 
     /**
-     * Returns the list of all parent samples.
+     * Returns all parent samples.
      */
-    public List<ISampleAdaptor> parents();
+    public Iterable<ISampleAdaptor> parents();
 
     /**
-     * Returns the list of all child samples.
+     * Returns all child samples.
      */
-    public List<ISampleAdaptor> children();
+    public Iterable<ISampleAdaptor> children();
 
     /**
-     * Returns the list of contained samples.
-     */
-    public List<ISampleAdaptor> contained();
-
-    /**
-     * Returs the container sample, or null if not exists.
+     * Returns the container sample, or null if not exists.
      */
     public ISampleAdaptor container();
+
+    /**
+     * Returns contained samples of this sample.
+     */
+    public Iterable<ISampleAdaptor> contained();
+
+    /**
+     * Returns contained samples of this sample. Types of the returned contained samples must match
+     * the specified regular expression.
+     */
+    public Iterable<ISampleAdaptor> containedOfType(String typeCodeRegexp);
+
+    /**
+     * Returns data sets of this sample.
+     */
+    public Iterable<IDataAdaptor> dataSets();
+
+    /**
+     * Returns data sets of this sample. Types of the returned data sets must match the specified
+     * regular expression.
+     */
+    public Iterable<IDataAdaptor> dataSetsOfType(String typeCodeRegexp);
 
 }

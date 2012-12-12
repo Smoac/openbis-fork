@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api;
 
-import java.util.List;
-
 /**
  * @author Jakub Straszewski
  */
@@ -26,25 +24,37 @@ public interface IDataAdaptor
     /**
      * Returns the experiment of this data set, or null if not exists.
      */
-    IExperimentAdaptor experiment();
+    public IExperimentAdaptor experiment();
 
     /**
-     * Returns the list of all parent data sets.
+     * Returns the sample of this data set, or null if not exists.
      */
-    public List<IDataAdaptor> parents();
+    public ISampleAdaptor sample();
 
     /**
-     * Returns the list of all child data sets.
+     * Returns all parent data sets.
      */
-    public List<IDataAdaptor> children();
+    public Iterable<IDataAdaptor> parents();
 
     /**
-     * Returns the list of contained data sets.
+     * Returns all child data sets.
      */
-    public List<IDataAdaptor> contained();
+    public Iterable<IDataAdaptor> children();
 
     /**
-     * Returs the container data set, or null if not exists.
+     * Returns the container data set, or null if not exists.
      */
     public IDataAdaptor container();
+
+    /**
+     * Returns contained data sets of this data set.
+     */
+    public Iterable<IDataAdaptor> contained();
+
+    /**
+     * Returns contained data sets of this data set. Types of the returned contained data sets must
+     * match the specified regular expression.
+     */
+    public Iterable<IDataAdaptor> containedOfType(String typeCodeRegexp);
+
 }

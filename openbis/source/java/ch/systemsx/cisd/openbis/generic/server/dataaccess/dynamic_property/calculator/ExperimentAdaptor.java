@@ -64,7 +64,7 @@ public class ExperimentAdaptor extends AbstractEntityAdaptor implements IExperim
     @Override
     public Iterable<ISampleAdaptor> samples()
     {
-        return samplesOfType(".*");
+        return samplesOfType(ENTITY_TYPE_ANY_CODE_REGEXP);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class ExperimentAdaptor extends AbstractEntityAdaptor implements IExperim
     @Override
     public Iterable<IDataAdaptor> dataSets()
     {
-        return dataSetsOfType(".*");
+        return dataSetsOfType(ENTITY_TYPE_ANY_CODE_REGEXP);
     }
 
     @Override
