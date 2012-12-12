@@ -275,7 +275,7 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
  */
 function SampleGraphPresenter(model) {
 	this.model = model;
-	this.renderer = new SimpleGraphRenderer();
+	this.renderer = new DagreGraphRenderer();
 	this.didCreateVis = false;
 	this.useBottomUpMode();
 	this.initializePresenter();
@@ -320,7 +320,6 @@ SampleGraphPresenter.prototype.calcuateVisibleColumnOffsets = function() {
 	if (!bottomUpMode) visibleColumns = visibleColumns.reverse();
 	this.visibleColumns = visibleColumns;
 	this.visibleColumns.forEach(function(column) { column.xOffset = xOffset; xOffset += column.width });
-	this.vizWidth = xOffset;
 };
 
 /**
@@ -374,13 +373,9 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 			sampleData.color = (!oneToOne) ? colors(row) : oneToOneColor;
 			sampleData.userEdgesVisible = null;
 			sampleData.edgesVisible = col + 1 < FIRST_COLLAPSED_COLUMN;
-			sampleData.width = width;
-			sampleData.height = LINE_HEIGHT;
 		}
 	}
 	this.allNodes = nodes;
-
-	this.vizHeight = (d3.max(nodes, function(d) { return d.length}) + 1) * LINE_HEIGHT + 5;
 }
 
 SampleGraphPresenter.prototype.updateVisibility = function() {
@@ -407,16 +402,16 @@ SampleGraphPresenter.prototype.updateVisibility = function() {
 }
 
 SampleGraphPresenter.prototype.updateLinks = function() {
-	var links = [];
+	var edges = [];
 	var outEdgesGetter = this.outEdgesFunction();
 	this.allNodes.forEach(function(samps) {
 		samps.forEach(function(d) { 
 			if (!d.visible) return;
-			outEdgesGetter(d).forEach(function(c) { if (c.visible) links.push(new SampleGraphEdge(d, c))});
+			outEdgesGetter(d).forEach(function(c) { if (c.visible) edges.push(new SampleGraphEdge(d, c))});
 		})
 	});
 
-	this.links = links;
+	this.edges = edges;
 }
 
 SampleGraphPresenter.prototype.updateNodes = function() {
@@ -477,11 +472,20 @@ function clickedTopDown() {
 }
 
 
-function textBBoxForNode(node) {
+function textBBoxForGraphNode(node) {
 	var bbox = presenter.renderer.columns.selectAll("text.sample")[node.col][node.visibleIndex].getBBox();
 	// Correct for the column
 	bbox.x += node.colOffset;
 	return bbox;
+}
+
+function textBBoxForDomNode(node) {
+	var bbox = node.parentNode.childNodes[0].getBBox();
+	return bbox;
+}
+
+function translate(x, y) {
+	return "translate(" + x + "," + y + ")";
 }
 
 var yLinkOffset = LINE_HEIGHT * 0.33;
@@ -490,15 +494,15 @@ var yLinkOffset = LINE_HEIGHT * 0.33;
 /**
  * A class that renders the graph
  */
-function SimpleGraphRenderer(presenter) {
+function SimpleGraphRenderer() {
 	// Function used to draw paths between elements
 	function source(d) {
-		// Find the associated text node in the DOM and use that as a basis for creating the links
-		var bbox = textBBoxForNode(d.source);
+		// Find the associated text node in the DOM and use that as a basis for creating the edges
+		var bbox = textBBoxForGraphNode(d.source);
 		return { x : bbox.x + bbox.width + 7, y  : bbox.y + yLinkOffset };
 	}
 	function target(d) {
-		var bbox = textBBoxForNode(d.target);
+		var bbox = textBBoxForGraphNode(d.target);
 		return { x : bbox.x, y  : bbox.y + yLinkOffset }
 	}
 
@@ -506,7 +510,7 @@ function SimpleGraphRenderer(presenter) {
 }
 
 /**
- * Draw links using the diagonal function
+ * Draw edges using the diagonal function
  */
 SimpleGraphRenderer.prototype.useDiagonalLinkPath = function(source, target) {
 	var diagonal = d3.svg.diagonal();
@@ -516,7 +520,7 @@ SimpleGraphRenderer.prototype.useDiagonalLinkPath = function(source, target) {
 }
 
 /**
- * Draw links using the line function
+ * Draw edges using the line function
  */
 SimpleGraphRenderer.prototype.useLineLinkPath = function(source, target) {
 	var line = d3.svg.line();
@@ -533,15 +537,12 @@ SimpleGraphRenderer.prototype.draw = function()
 {
 	presenter.updateState();
 	var nodes = presenter.nodes;
-	var vizWidth = presenter.vizWidth;
-	var vizHeight = presenter.vizHeight;
 
 	// Display the graph in an SVG element
 	this.viz = presenter.root.selectAll("svg").data([nodes]);
 	// Code under enter is run if there is no HTML element for a data element	
 	this.viz.enter().append("svg:svg").attr("class", "viz");
-	this.viz.attr("width", vizWidth);
-	this.viz.attr("height", vizHeight);
+
 	// Columns
 	this.columns = this.viz.selectAll("g").data(function(d) { return d });
 	this.columns.enter().append("svg:g").attr("class", "column");
@@ -550,6 +551,11 @@ SimpleGraphRenderer.prototype.draw = function()
 	this.drawHeaders();
 	this.drawNodes();
 	this.drawLinks();
+
+	var vizHeight = (d3.max(nodes, function(d) { return d.length}) + 1) * LINE_HEIGHT + 5;
+	var vizWidth = d3.sum(presenter.visibleColumns, function(column) { return column.width });
+	this.viz.attr("width", vizWidth);
+	this.viz.attr("height", vizHeight);
 }
 
 /**
@@ -604,7 +610,7 @@ SimpleGraphRenderer.prototype.drawNodes = function()
 		.transition()
 			.style("opacity", 0).remove();
 	ring
-		.attr("cx", function(d) { return textBBoxForNode(d).width + 7 })
+		.attr("cx", function(d) { return textBBoxForGraphNode(d).width + 7 })
 		.attr("cy", function(d, i) { return LINE_HEIGHT * (i+2) - yLinkOffset})
 		.style("fill", function(d) { return d.edgesVisible ? "none" : d.color})
 		.style("stroke", function(d) { return d.color})
@@ -616,11 +622,11 @@ SimpleGraphRenderer.prototype.drawNodes = function()
 }
 
 /**
- * Draw the links
+ * Draw the edges
  */
 SimpleGraphRenderer.prototype.drawLinks = function()
 {
-	var link = this.viz.selectAll("path.link").data(presenter.links);
+	var link = this.viz.selectAll("path.link").data(presenter.edges);
 	link.enter().append("svg:path")
 		.attr("class", "link")
 		.attr("pointer-events", "none")
@@ -639,23 +645,22 @@ SimpleGraphRenderer.prototype.drawLinks = function()
 /**
  * A class that renders the graph using dagre.
  */
-function DagreGraphRenderer(presenter) {
+function DagreGraphRenderer() {
 	// Function used to draw paths between elements
 	function source(d) {
-		// Find the associated text node in the DOM and use that as a basis for creating the links
-		var bbox = textBBoxForNode(d.source);
-		return { x : bbox.x + bbox.width + 7, y  : bbox.y + yLinkOffset };
+		var dagre = d.source.dagre;
+		return { x : dagre.x + (dagre.width / 2), y  : dagre.y + dagre.height + 5};
 	}
 	function target(d) {
-		var bbox = textBBoxForNode(d.target);
-		return { x : bbox.x, y  : bbox.y + yLinkOffset }
+		var dagre = d.target.dagre;
+		return { x : dagre.x + (dagre.width / 2), y  : dagre.y };
 	}
 
 	this.useLineLinkPath(source, target);
 }
 
 /**
- * Draw links using the diagonal function
+ * Draw edges using the diagonal function
  */
 DagreGraphRenderer.prototype.useDiagonalLinkPath = function(source, target) {
 	var diagonal = d3.svg.diagonal();
@@ -665,7 +670,7 @@ DagreGraphRenderer.prototype.useDiagonalLinkPath = function(source, target) {
 }
 
 /**
- * Draw links using the line function
+ * Draw edges using the line function
  */
 DagreGraphRenderer.prototype.useLineLinkPath = function(source, target) {
 	var line = d3.svg.line();
@@ -675,44 +680,49 @@ DagreGraphRenderer.prototype.useLineLinkPath = function(source, target) {
 		return line([[src.x, src.y], [dst.x, dst.y]]); }
 }
 
+var RANK_SEPARATION = 30;
 /**
  * Display the sample nodes.
  */
 DagreGraphRenderer.prototype.draw = function()
 {
 	presenter.updateState();
-
-	var dagreNodes = []
-	this.nodes.forEach(function(nodeGroup) { nodeGroup.forEach(function(d) { dagreNodes = dagreNodes.concat(d) }) });
-
-	dagre.layout()
-		.nodeSep(50)
-		.edgeSep(10)
-		.rankSep(50)
-		.nodes(dagreNodes)
-		.edges(this.links)
-	    .debugLevel(1)
-	    .run();
-	console.log(dagreNodes);
-
 	var nodes = presenter.nodes;
-	var vizWidth = presenter.vizWidth;
-	var vizHeight = presenter.vizHeight;
 
+	var viz;
 	// Display the graph in an SVG element
-	this.viz = presenter.root.selectAll("svg").data([nodes]);
-	// Code under enter is run if there is no HTML element for a data element	
-	this.viz.enter().append("svg:svg").attr("class", "viz");
-	this.viz.attr("width", vizWidth);
-	this.viz.attr("height", vizHeight);
+	viz = presenter.root.selectAll("svg").data([nodes]);
+	this.viz = viz;
+	// Code under enter is run if there is no HTML element for a data element
+	viz.enter().append("svg:svg").attr("class", "viz");
 	// Columns
-	this.columns = this.viz.selectAll("g").data(function(d) { return d });
+	this.columns = this.viz.selectAll("g.column").data(function(d) { return d });
 	this.columns.enter().append("svg:g").attr("class", "column");
 	this.columns.exit().remove();
-	this.columns.attr("transform", function(d, i) { return "translate(" + presenter.visibleColumns[i].xOffset + ", 0)"});
+
+	// Draw the nodes so we get the bounding boxes for the nodes
+	this.initialDrawNodes();
+
+	var dagreNodes = []
+	presenter.nodes.forEach(function(nodeGroup) { nodeGroup.forEach(function(d) { dagreNodes = dagreNodes.concat(d) }) });
+
+	dagre.layout()
+		.nodeSep(RANK_SEPARATION)
+		.edgeSep(10)
+		.rankSep(RANK_SEPARATION)
+		.nodes(dagreNodes)
+		.edges(presenter.edges)
+	    .run();
+	this.redrawNodes();
 	this.drawHeaders();
-	this.drawNodes();
 	this.drawLinks();
+
+	var vizWidth = d3.max(dagreNodes, function(d) {	return d.dagre.x + d.dagre.width; })
+	var vizHeight = d3.max(dagreNodes, function(d) { return d.dagre.y + d.dagre.height; })
+
+	// Resize the visualization
+	viz.attr("width", vizWidth + 20); // add space for the ring at the end
+	viz.attr("height", vizHeight + LINE_HEIGHT); // add a space to make it look less cramped
 }
 
 /**
@@ -720,24 +730,44 @@ DagreGraphRenderer.prototype.draw = function()
  */
 DagreGraphRenderer.prototype.drawHeaders = function()
 {
-	var header = this.columns.selectAll("text.header").data(function(d, i) { return [presenter.visibleColumns[i]] });
+	var sampleNodeGroup = this.columns.selectAll("g.sample").data(function(d) { return d });
+	var header = this.viz.selectAll("text.header").data(function(d, i) { return presenter.visibleColumns });
 	header.enter().append("svg:text")
 		.attr("class", "header")
 		.attr("x", "0")
-		.attr("y", LINE_HEIGHT)
 		.attr("text-anchor", "begin")
 		.style("font-weight", "bold");
 	header
+		.attr("y", function(d, i) {
+			var nodesAtLevel = sampleNodeGroup[i];
+			if (nodesAtLevel.length < 1) return 0;
+			var dagre = nodesAtLevel[0].__data__.dagre;
+			return dagre.y + dagre.height - 1;
+		})
+		.attr("opacity", function(d, i) {
+			var nodesAtLevel = sampleNodeGroup[i];
+			if (nodesAtLevel.length < 1) return 0;
+			return 1;
+		})
 		.text(function(d) { return d.label });
 }
 
 /**
  * Draw the nodes
  */
-DagreGraphRenderer.prototype.drawNodes = function()
+DagreGraphRenderer.prototype.initialDrawNodes = function()
 {
 	var outEdgesGetter = presenter.outEdgesFunction();
-	var sample = this.columns.selectAll("text.sample").data(function(d) { return d });
+	var sampleNodeGroup = this.columns.selectAll("g.sample").data(function(d) { return d });
+	sampleNodeGroup.enter().append("svg:g")
+		.attr("class", "sample")
+	sampleNodeGroup
+		sampleNodeGroup.attr("transform", function(d, i) { return translate(0, LINE_HEIGHT * (i+1)) });
+	sampleNodeGroup.exit()
+		.transition()
+			.style("opacity", 0).remove();
+
+	var sample = sampleNodeGroup.selectAll("text.sample").data(function(d) { return [d] });
 	sample.enter().append("svg:text")
 		.attr("class", "sample")
 		.attr("x", "0")
@@ -747,28 +777,19 @@ DagreGraphRenderer.prototype.drawNodes = function()
 		.on("click", function(d) { presenter.openSample(this, d) })
 		.transition()
 			.style("opacity", 1);
-	sample.exit()
-		.transition()
-			.style("opacity", 0).remove();
 	sample
-		.attr("x", "0")
-		.attr("y", function(d, i) { return LINE_HEIGHT * (i+2)})
-
 		.text(function(d) { return d.identifier });
 
-	var ring = this.columns.selectAll("circle.ring").data(function(d) { return d });
+	var ring = sampleNodeGroup.selectAll("circle.ring").data(function(d) { return [d] });
 	ring.enter().append("svg:circle")
 		.attr("class", "ring")
 		.attr("pointer-events", "all")
 		.attr("r", 0)
 		.style("cursor", "pointer")
 		.style("stroke-width", "2px")
-	ring.exit()
-		.transition()
-			.style("opacity", 0).remove();
 	ring
-		.attr("cx", function(d) { return textBBoxForNode(d).width + 7 })
-		.attr("cy", function(d, i) { return LINE_HEIGHT * (i+2) - yLinkOffset})
+		.attr("cx", function(d, i) { return textBBoxForDomNode(this).width + 7 })
+		.attr("cy", function(d, i) { return textBBoxForDomNode(this).height - 1 })
 		.style("fill", function(d) { return d.edgesVisible ? "none" : d.color})
 		.style("stroke", function(d) { return d.color})
 		.on("click", function(d) { presenter.toggleExpand(this, d) });
@@ -776,14 +797,31 @@ DagreGraphRenderer.prototype.drawNodes = function()
 		.transition()
 			.style("opacity", function(d) { return outEdgesGetter(d).length > 0 ? 1 : 0 })
 			.attr("r", 5);
+
+	// Update the bounding boxes
+	sampleNodeGroup.each(function(d) {
+		var bbox = this.getBBox();
+		d.width = bbox.width;
+		d.height = bbox.height;
+	});
 }
 
 /**
- * Draw the links
+ * Move the nodes in their new positions.
+ */
+DagreGraphRenderer.prototype.redrawNodes = function()
+{
+	var sampleNodeGroup = this.columns.selectAll("g.sample").data(function(d) { return d });
+	sampleNodeGroup
+		sampleNodeGroup.attr("transform", function(d, i) { return translate(d.dagre.x, d.dagre.y) });
+}
+
+/**
+ * Draw the edges
  */
 DagreGraphRenderer.prototype.drawLinks = function()
 {
-	var link = this.viz.selectAll("path.link").data(presenter.links);
+	var link = this.viz.selectAll("path.link").data(presenter.edges);
 	link.enter().append("svg:path")
 		.attr("class", "link")
 		.attr("pointer-events", "none")
