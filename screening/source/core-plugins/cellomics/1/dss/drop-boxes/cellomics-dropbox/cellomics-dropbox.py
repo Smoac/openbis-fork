@@ -1,7 +1,9 @@
 import os
+import glob
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import ImageMetadata
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
+from ch.systemsx.cisd.openbis.dss.shared import CellomicsMDBMetadataReader
 
 SPACE_CODE = "TEST"
 PROJECT_CODE = "TEST-PROJECT"
@@ -58,12 +60,12 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
      
         basename = os.path.splitext(imagePath)[0]        
         value = basename.split("_")[2]
-	plate = basename.split("_")[1]
-	well = value[0:3]
-	tile = value[4:6]
-	tile = int(tile) + 1
-	channelCode = value[6:8]     
-         
+        plate = basename.split("_")[1]
+        well = value[0:3]
+        tile = value[4:6]
+        tile = int(tile) + 1
+        channelCode = value[6:8]     
+        
         image_tokens = ImageMetadata()
         image_tokens.well = well
         try:
@@ -76,8 +78,16 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
     
     def getTileGeometry(self, imageTokens, maxTileNumber):
         return Geometry.createFromRowColDimensions((maxTileNumber - 1) / 3 + 1, 3)    
- 
+
+def extractMetadataFromMDBFile(incoming):
+    mdbFiles = glob.glob("%s/*.mdb" % incoming.getAbsoluteFile())
+    
+    if (len(mdbFiles) > 0):
+        mdbReader = CellomicsMDBMetadataReader(mdbFiles[0])
+        mdbReader.writeAllMetadata(incoming)
+
 if incoming.isDirectory():
+    extractMetadataFromMDBFile(incoming)
     imageDataset = MyImageDataSetConfig()
     imageDataset.setRawImageDatasetType()
     imageDataset.setGenerateThumbnails(True)

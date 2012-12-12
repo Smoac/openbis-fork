@@ -75,5 +75,6 @@
 	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/hdf5-macosx-intel.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/hdf5-windows-intel.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jackcess/jackcess.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>
