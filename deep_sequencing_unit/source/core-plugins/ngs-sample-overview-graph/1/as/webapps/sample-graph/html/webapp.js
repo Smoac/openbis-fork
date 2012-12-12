@@ -682,7 +682,7 @@ DagreGraphRenderer.prototype.useLineLinkPath = function(source, target) {
 		return line([[src.x, src.y], [dst.x, dst.y]]); }
 }
 
-var RANK_SEPARATION = 30;
+var RANK_SEPARATION = 50;
 /**
  * Display the sample nodes.
  */
