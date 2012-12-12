@@ -548,7 +548,6 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         prepareLockDataSet(DATASET_CODE, DATASET_CODE);
         prepareAssetDataSetsAreAccessible(DATASET_CODE, DATASET_CODE);
         DatasetIdentifier id1 = new DatasetIdentifier(DATASET_CODE, URL1);
-        prepareGetExperimentPermIDs(id1);
         PlateImageReference plateRef1 = new PlateImageReference(1, 1, 0, CHANNEL_CODE, id1);
         PlateImageReference plateRef2 = new PlateImageReference(1, 2, 1, CHANNEL_CODE, id1);
         context.checking(new Expectations()

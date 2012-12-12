@@ -38,16 +38,16 @@ import com.googlecode.jsonrpc4j.Base64;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
-import ch.systemsx.cisd.openbis.common.api.server.RpcServiceNameServer;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.common.io.ConcatenatedContentInputStream;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
+import ch.systemsx.cisd.hcs.Location;
+import ch.systemsx.cisd.openbis.common.api.server.RpcServiceNameServer;
+import ch.systemsx.cisd.openbis.common.io.ConcatenatedContentInputStream;
 import ch.systemsx.cisd.openbis.common.io.HierarchicalContentNodeBasedHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
-import ch.systemsx.cisd.hcs.Location;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
@@ -1422,17 +1422,24 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         {
             if (imageDatasetsMap.containsKey(imageReference.getDatasetCode()) == false)
             {
-                ExternalData imageDataset =
-                        tryFindImageDataset(sessionToken, imageReference.getDatasetCode());
-                if (imageDataset != null)
+                IImagingDatasetLoader imageAccessor =
+                        tryCreateImageLoader(imageReference.getDatasetCode());
+                if (imageAccessor == null) // Check whether this is a feature vector data set
                 {
-                    IImagingDatasetLoader imageAccessor = createImageLoader(imageDataset.getCode());
-                    imageDatasetsMap.put(imageReference.getDatasetCode(), imageAccessor);
-                } else
-                {
-                    throw UserFailureException.fromTemplate(
-                            "Cannot find an image dataset for the reference: %s", imageReference);
+                    final ExternalData imageDataset =
+                            tryFindImageDataset(sessionToken, imageReference.getDatasetCode());
+                    if (imageDataset != null)
+                    {
+                        imageAccessor =
+                                createImageLoader(imageDataset.getCode());
+                    } else
+                    {
+                        throw UserFailureException.fromTemplate(
+                                "Cannot find an image dataset for the reference: %s",
+                                imageReference);
+                    }
                 }
+                imageDatasetsMap.put(imageReference.getDatasetCode(), imageAccessor);
             }
         }
         return imageDatasetsMap;
@@ -1510,6 +1517,12 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return new Size(thumbnailSizeOrNull.getWidth(), thumbnailSizeOrNull.getHeight());
     }
 
+    private IImagingDatasetLoader tryCreateImageLoader(String datasetCode)
+    {
+        final IHierarchicalContent content = getHierarchicalContent(datasetCode);
+        return tryCreateImageLoader(datasetCode, content, false);
+    }
+
     private IImagingDatasetLoader createImageLoader(String datasetCode)
     {
         final IHierarchicalContent content = getHierarchicalContent(datasetCode);
@@ -1518,8 +1531,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
     IImagingDatasetLoader createImageLoader(String dataSetCode, IHierarchicalContent content)
     {
+        return tryCreateImageLoader(dataSetCode, content, true);
+    }
+
+    IImagingDatasetLoader tryCreateImageLoader(String dataSetCode, IHierarchicalContent content,
+            boolean check)
+    {
         IImagingDatasetLoader loader = HCSImageDatasetLoaderFactory.tryCreate(content, dataSetCode);
-        if (loader == null)
+        if (check && loader == null)
         {
             throw new IllegalStateException(String.format(
                     "Dataset '%s' not found in the imaging database.", dataSetCode));
