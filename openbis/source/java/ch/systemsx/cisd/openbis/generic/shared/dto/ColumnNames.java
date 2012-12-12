@@ -154,6 +154,8 @@ public final class ColumnNames
 
     public static final String IS_ARCHIVER_CONFIGURED = "is_archiver_configured";
 
+    public static final String DATA_SOURCE_DEFINITIONS = "data_source_definitions";
+
     public static final String IS_ORIGINAL_SOURCE_COLUMN = "is_original_source";
 
     public static final String IS_PLACEHOLDER_COLUMN = "is_placeholder";

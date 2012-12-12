@@ -81,6 +81,8 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
 
     private Set<DataStoreServicePE> services = new HashSet<DataStoreServicePE>();
 
+    private String serializedDataSourceDefinitions;
+
     public final void setId(final Long id)
     {
         this.id = id;
@@ -174,6 +176,17 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
     public void setArchiverConfigured(final boolean archiverConfigured)
     {
         this.archiverConfigured = archiverConfigured;
+    }
+
+    @Column(name = ColumnNames.DATA_SOURCE_DEFINITIONS, updatable = true)
+    public String getSerializedDataSourceDefinitions()
+    {
+        return serializedDataSourceDefinitions;
+    }
+
+    public void setSerializedDataSourceDefinitions(String serializedDataSourceDefinitions)
+    {
+        this.serializedDataSourceDefinitions = serializedDataSourceDefinitions;
     }
 
     //
