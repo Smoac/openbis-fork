@@ -214,8 +214,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                         streamRepository, shareIdManager, contentProvider, false)
                     {
                         @Override
-                        IImagingDatasetLoader createImageLoader(String datasetCode,
-                                IHierarchicalContent content)
+                        IImagingDatasetLoader tryCreateImageLoader(String dataSetCode,
+                                IHierarchicalContent content, boolean check)
                         {
                             return imageLoader;
                         }
