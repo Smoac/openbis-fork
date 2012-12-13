@@ -430,7 +430,14 @@ public class ChannelChooserPanel extends LayoutContainer
 
     public IntensityRange tryGetSelectedIntensityRange()
     {
-        return intensitiesPerChannel.get(getSelectedValues().get(0));
+        List<String> selectedValues = getSelectedValues();
+        if (selectedValues != null && selectedValues.size() > 0)
+        {
+            return intensitiesPerChannel.get(getSelectedValues().get(0));
+        } else
+        {
+            return null;
+        }
     }
 
     private static String transformCode(String code)
