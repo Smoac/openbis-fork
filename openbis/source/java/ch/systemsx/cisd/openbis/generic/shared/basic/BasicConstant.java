@@ -121,7 +121,10 @@ public class BasicConstant
 
     public static final String LOCATOR_ACTION_PARAMETER = "action";
 
-    public static final String PARENT_CHILD_INTERNAL_RELATIONSHIP = "$PARENT_CHILD";
+    public static final String PARENT_CHILD_DB_RELATIONSHIP = "PARENT_CHILD";
+
+    public static final String PARENT_CHILD_INTERNAL_RELATIONSHIP = INTERNAL_NAMESPACE_PREFIX
+            + PARENT_CHILD_DB_RELATIONSHIP;
 
     public static final String SERVER_URL_PARAMETER = "server-url";
 

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest.server;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import junit.framework.Assert;
@@ -185,8 +186,8 @@ public class CommonServerTest extends SystemTestCase
     {
         try
         {
-            return IOUtils.toString(getClass().getResourceAsStream(
-                    "CommonServerTestResources" + File.separator + fileName));
+            return IOUtils.toString(new FileInputStream(new File("sourceTest/java/"
+                    + getClass().getName().replace(".", "/") + "Resources" + "/" + fileName)));
         } catch (IOException ex)
         {
             throw new RuntimeException(ex);

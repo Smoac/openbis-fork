@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.lucene.search.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
@@ -30,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calcu
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.ISampleAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
@@ -72,24 +68,27 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
     @Override
     public Iterable<ISampleAdaptor> parents()
     {
-        List<ISampleAdaptor> list = new ArrayList<ISampleAdaptor>();
-        for (SamplePE parent : samplePE.getParents())
-        {
-            list.add(EntityAdaptorFactory.create(parent, evaluator, session));
-        }
-        return list;
+        return parentsOfType(ENTITY_TYPE_ANY_CODE_REGEXP);
+    }
+
+    @Override
+    public Iterable<ISampleAdaptor> parentsOfType(String typeCodeRegexp)
+    {
+        return new SampleAdaptorRelationsLoader(samplePE, evaluator, session)
+                .parentsOfType(typeCodeRegexp);
     }
 
     @Override
     public Iterable<ISampleAdaptor> children()
     {
-        List<ISampleAdaptor> list = new ArrayList<ISampleAdaptor>();
-        for (SampleRelationshipPE relationship : samplePE.getChildRelationships())
-        {
-            SamplePE child = relationship.getChildSample();
-            list.add(EntityAdaptorFactory.create(child, evaluator, session));
-        }
-        return list;
+        return childrenOfType(ENTITY_TYPE_ANY_CODE_REGEXP);
+    }
+
+    @Override
+    public Iterable<ISampleAdaptor> childrenOfType(String typeCodeRegexp)
+    {
+        return new SampleAdaptorRelationsLoader(samplePE, evaluator, session)
+                .childrenOfType(typeCodeRegexp);
     }
 
     @Override

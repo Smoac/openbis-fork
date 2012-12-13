@@ -32,14 +32,26 @@ public interface IDataAdaptor
     public ISampleAdaptor sample();
 
     /**
-     * Returns all parent data sets.
+     * Returns parent data sets of this data set.
      */
     public Iterable<IDataAdaptor> parents();
 
     /**
-     * Returns all child data sets.
+     * Returns parent data sets of this data set. Types of the returned parent data sets must match
+     * the specified regular expression.
+     */
+    public Iterable<IDataAdaptor> parentsOfType(String typeCodeRegexp);
+
+    /**
+     * Returns child data sets of this data set.
      */
     public Iterable<IDataAdaptor> children();
+
+    /**
+     * Returns child data sets of this data set. Types of the returned child data sets must match
+     * the specified regular expression.
+     */
+    public Iterable<IDataAdaptor> childrenOfType(String typeCodeRegexp);
 
     /**
      * Returns the container data set, or null if not exists.

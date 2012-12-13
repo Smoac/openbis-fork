@@ -27,14 +27,26 @@ public interface ISampleAdaptor extends IEntityAdaptor
     public IExperimentAdaptor experiment();
 
     /**
-     * Returns all parent samples.
+     * Returns parent samples of this sample.
      */
     public Iterable<ISampleAdaptor> parents();
 
     /**
-     * Returns all child samples.
+     * Returns parent samples of this sample. Types of the returned parent samples must match the
+     * specified regular expression.
+     */
+    public Iterable<ISampleAdaptor> parentsOfType(String typeCodeRegexp);
+
+    /**
+     * Returns child samples of this sample.
      */
     public Iterable<ISampleAdaptor> children();
+
+    /**
+     * Returns child samples of this sample. Types of the returned child samples must match the
+     * specified regular expression.
+     */
+    public Iterable<ISampleAdaptor> childrenOfType(String typeCodeRegexp);
 
     /**
      * Returns the container sample, or null if not exists.

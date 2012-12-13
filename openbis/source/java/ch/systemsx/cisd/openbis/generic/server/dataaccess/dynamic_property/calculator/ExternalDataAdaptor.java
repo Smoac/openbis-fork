@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.lucene.search.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
@@ -29,7 +26,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calcu
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IExperimentAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.ISampleAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
@@ -87,25 +83,27 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
     @Override
     public Iterable<IDataAdaptor> parents()
     {
-        List<IDataAdaptor> list = new ArrayList<IDataAdaptor>();
-        for (DataSetRelationshipPE relationship : externalDataPE.getParentRelationships())
-        {
-            DataPE parent = relationship.getParentDataSet();
-            list.add(EntityAdaptorFactory.create(parent, evaluator, session));
-        }
-        return list;
+        return parentsOfType(ENTITY_TYPE_ANY_CODE_REGEXP);
+    }
+
+    @Override
+    public Iterable<IDataAdaptor> parentsOfType(String typeCodeRegexp)
+    {
+        return new ExternalDataAdaptorRelationsLoader(externalDataPE, evaluator, session)
+                .parentsOfType(typeCodeRegexp);
     }
 
     @Override
     public Iterable<IDataAdaptor> children()
     {
-        List<IDataAdaptor> list = new ArrayList<IDataAdaptor>();
-        for (DataSetRelationshipPE relationship : externalDataPE.getChildRelationships())
-        {
-            DataPE child = relationship.getChildDataSet();
-            list.add(EntityAdaptorFactory.create(child, evaluator, session));
-        }
-        return list;
+        return childrenOfType(ENTITY_TYPE_ANY_CODE_REGEXP);
+    }
+
+    @Override
+    public Iterable<IDataAdaptor> childrenOfType(String typeCodeRegexp)
+    {
+        return new ExternalDataAdaptorRelationsLoader(externalDataPE, evaluator, session)
+                .childrenOfType(typeCodeRegexp);
     }
 
     @Override
