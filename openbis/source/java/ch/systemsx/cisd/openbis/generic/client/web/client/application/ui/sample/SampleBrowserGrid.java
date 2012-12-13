@@ -49,9 +49,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IB
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -75,7 +72,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -302,54 +298,12 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
      */
     protected static class SampleCriteriaProvider implements ISampleCriteriaProvider
     {
-        private final ICriteriaProvider<PropertyTypesCriteria> propertyTypeProvider;
-
         private final ListSampleDisplayCriteria criteria;
-
-        // Set of entity types which are currently shown in this grid.
-        // Used to decide which property columns should be shown.
-        // Note: content depends on the current grid content.
-        private Set<SampleType> shownEntityTypesOrNull;
 
         public SampleCriteriaProvider(IViewContext<?> viewContext,
                 ListSampleDisplayCriteria criteria)
         {
-            this.propertyTypeProvider =
-                    createPropertyTypesCriteriaProvider(viewContext, EntityKind.SAMPLE);
             this.criteria = criteria;
-        }
-
-        /*
-         * Provides property types which should be shown as the grid columns. Takes into account
-         * what types of entities are displayed and does not show property types which are not
-         * assigned to any of those types.
-         */
-        private ICriteriaProvider<PropertyTypesCriteria> createPropertyTypesCriteriaProvider(
-                IViewContext<?> viewContext, final EntityKind entityKind)
-        {
-            return new PropertyTypesCriteriaProvider(viewContext, entityKind)
-                {
-                    @Override
-                    public PropertyTypesCriteria tryGetCriteria()
-                    {
-                        PropertyTypesCriteria propertyTypesCriteria = super.tryGetCriteria();
-                        return PropertyTypesFilterUtil.filterPropertyTypesForEntityTypes(
-                                propertyTypesCriteria, entityKind, shownEntityTypesOrNull);
-                    }
-                };
-        }
-
-        @Override
-        public List<PropertyType> tryGetPropertyTypes()
-        {
-            PropertyTypesCriteria propertyTypesCriteria = propertyTypeProvider.tryGetCriteria();
-            if (propertyTypesCriteria != null)
-            {
-                return propertyTypesCriteria.tryGetPropertyTypes();
-            } else
-            {
-                return null;
-            }
         }
 
         @Override
@@ -362,20 +316,12 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
         public void update(Set<DatabaseModificationKind> observedModifications,
                 IDataRefreshCallback dataRefreshCallback)
         {
-            propertyTypeProvider.update(observedModifications, dataRefreshCallback);
         }
 
         @Override
         public DatabaseModificationKind[] getRelevantModifications()
         {
-            return propertyTypeProvider.getRelevantModifications();
-        }
-
-        @Override
-        public void setEntityTypes(Set<SampleType> entityTypes)
-        {
-            criteria.setAllSampleType(SampleType.createAllSampleType(entityTypes, false));
-            this.shownEntityTypesOrNull = entityTypes;
+            return DatabaseModificationKind.any(ObjectKind.PROPERTY_TYPE_ASSIGNMENT);
         }
 
     }

@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
-import java.util.List;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -38,14 +37,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Samp
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SpaceModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
@@ -147,17 +144,6 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         return selectSampleTypeCombo.tryGetSelectedSampleType();
     }
 
-    @Override
-    public List<PropertyType> tryGetPropertyTypes()
-    {
-        final SampleType selectedType = tryGetSelectedSampleType();
-        if (selectedType == null)
-        {
-            return null;
-        }
-        return PropertyTypesFilterUtil.extractPropertyTypes(selectedType);
-    }
-
     public void setCriteriaChangedListeners(final IDelegatedAction action)
     {
         selectSpaceCombo.addSelectionChangedListener(new SelectionChangedListener<SpaceModel>()
@@ -237,14 +223,6 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
     {
         return observedModifications.contains(createOrDelete(objectKind))
                 || observedModifications.contains(edit(objectKind));
-    }
-
-    @Override
-    public void setEntityTypes(Set<SampleType> availableEntityTypes)
-    {
-        // TODO 2009-08-27, Tomasz Pylak: use this info to narrow properties when displaying "all"
-        // types of samples. The method tryGetPropertyTypes would have to be rewritten and an
-        // artificial SampleType for displaying all samples should not be used.
     }
 
 }
