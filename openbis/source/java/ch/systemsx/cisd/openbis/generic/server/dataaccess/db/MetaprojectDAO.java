@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
@@ -124,6 +125,11 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
         criteria.createAlias("metaproject", "m");
         criteria.add(Restrictions.eq("m.owner", owner));
         criteria.add(Restrictions.eq(entity.getEntityKind().getLabel(), entity));
+        criteria.setFetchMode("experiment", FetchMode.SELECT);
+        criteria.setFetchMode("dataSet", FetchMode.SELECT);
+        criteria.setFetchMode("material", FetchMode.SELECT);
+        criteria.setFetchMode("sample", FetchMode.SELECT);
+
         final List<MetaprojectAssignmentPE> assignments =
                 cast(getHibernateTemplate().findByCriteria(criteria));
 

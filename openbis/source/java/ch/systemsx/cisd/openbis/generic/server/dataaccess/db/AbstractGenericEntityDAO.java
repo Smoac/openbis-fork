@@ -107,7 +107,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         criteria.add(Restrictions.eq("id", techId.getId()));
         for (String connection : connections)
         {
-            criteria.setFetchMode(connection, FetchMode.JOIN);
+            criteria.setFetchMode(connection, FetchMode.SELECT);
         }
         final T result = tryGetEntity(criteria.uniqueResult());
         if (operationLog.isDebugEnabled())
