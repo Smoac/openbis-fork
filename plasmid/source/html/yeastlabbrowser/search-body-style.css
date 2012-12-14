@@ -29,9 +29,10 @@ div.inspector {
 	width: 100%;	
 }
 
+
 .properties td:nth-child(odd) {
-  background-color: #ffe5cc;
-  width:50%;
+  background-color:	#FFFFCC;
+  width:30%;
 }
 
 .properties td:nth-child(even) {
@@ -70,6 +71,7 @@ table.downloads {
 }
 */
 
+
 .downloads tr {
 	padding: 0px;
 }
@@ -88,44 +90,39 @@ input:focus{
 background-color: white;
 }
 
-/* Table */
 
 
-.plasmid-table-data-cell {
+
+.eachsample-table-data-cell {
 	overflow: hidden;
-	
+		
 }
 
-
-#plasmid-table tr:nth-child(odd) td{
-  background-color:#ffe5cc;
+#eachsample-table tr:nth-child(odd) td{
+   background-color:	#FFFFCC;
 }
 
-
-#plasmid-table tr:nth-child(even) td{
+#eachsample-table tr:nth-child(even) td{
   background-color:#F7F7F7;
 }
 
-#plasmid-table tr.plasmid-table-data:hover {
-   font-weight: bold;
-  
+
+#eachsample-table tr.eachsample-table-data:hover {
+  font-weight: bold;
 }
 
-#plasmid-table td{
 
+
+#eachsample-table td{
 padding:5px;
 }
 
-#plasmid-table tr.plasmid-table-header {
+#eachsample-table tr.eachsample-table-header {
+ 
   font-size:18px;
   font-weight: bold;
-  color:#000000;
-  background-color:#ffcb99;	
-  
- 
-  
+  color:black;
+  background-color:	#FFFF99;
+
 }
-
-
-
 

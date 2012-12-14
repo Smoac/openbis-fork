@@ -431,21 +431,39 @@ function visualize(codeFilterText, targetFilterText, directionFilterText, enzyme
 /**
  * Request samples matching some criteria from the server and show them in the Page.
  */
-function showMatchingSamples()
+ 
+ function showMatchingSamples()
 {
-	var sampleCriteria = 
-	{
-		matchClauses : 
-			[ {"@type":"AttributeMatchClause",
+  var matchClauses = [ {"@type":"AttributeMatchClause",
 				fieldType : "ATTRIBUTE",			
 				attribute : "TYPE",
 				desiredValue : "OLIGO" 
-			} ],
+			}
+	]
+	
+	var selectedYeastCode = getQueryParameter('code');
+	if(selectedYeastCode){
+	  matchClauses.push(
+      {"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "CODE",
+				desiredValue : selectedYeastCode 
+			}		
+	  );
+	}
+
+	var sampleCriteria = 
+	{
+		matchClauses : matchClauses,
 		operator : "MATCH_ALL_CLAUSES"
 	};
 
 	openbisServer.searchForSamples(sampleCriteria, displayReturnedSamples);
+
 }
+ 
+ 
+
 
 
 function enterApp(data)

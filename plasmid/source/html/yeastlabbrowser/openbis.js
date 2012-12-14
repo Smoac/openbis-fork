@@ -70,8 +70,8 @@ openbis.prototype.login = function(username, password, action) {
 				openbisObj.rememberSession();
 				action(data)
 			},
-		error: function() {
-		  alert("Login failed")
+		error: function(request, status, thrown) {
+		  alert("Login failed : " + status)
 		}
 	 });
 }
@@ -242,5 +242,14 @@ actionDeferrer.prototype.dependencyCompleted = function(key) {
 	}
 	if (shouldExecute) {
 		this.pendingAction();
+	}
+}
+
+getQueryParameter = function(parameterName){
+	var match = location.search.match(RegExp("[?|&]"+parameterName+'=(.+?)(&|$)'));
+	if(match && match[1]){
+		return decodeURIComponent(match[1].replace(/\+/g,' '));
+	}else{
+		return null;
 	}
 }

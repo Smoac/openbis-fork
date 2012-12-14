@@ -332,7 +332,7 @@ function initializeSyntheticProperties(sample)
 				
 				sample.properties.SOLUTIONS_BUFFERS_PARENTS.push(SOLUTIONS_BUFFERS_PARENTS);
 				
-				console.log(sample.properties.SOLUTIONS_BUFFERS_PARENTS)
+				
 			}	  
 			
 			   
@@ -386,21 +386,38 @@ function initializeSyntheticProperties(sample)
 				
 				sample.properties.GENERAL_PROTOCOL_PARENTS.push(GENERAL_PROTOCOL_PARENTS);
 				
-				console.log(sample.properties.GENERAL_PROTOCOL_PARENTS)
+				
 			}	  
 			
 			   
 }									
-			
+	
+
 	
 };
 
+function reformatString(sample)
+{
 
 
+  		sample.properties.WHAT_FOR = [];
+  		console.log(sample.properties.FOR_WHAT)
+ 	
+			if (sample.properties.FOR_WHAT != "undefined") {
+				newArray = sample.properties.FOR_WHAT.split(/\d/);
+				for(i=0; i<newArray.length; i++) {
+   				WHAT_FOR = i+' '+newArray[i]+ "\n";
+   				sample.properties.WHAT_FOR.push(WHAT_FOR)
+   				
+				}
+				
+			console.log(sample.properties.WHAT_FOR)
+			//sample.properties.WHAT_FOR.push(sample.properties.WHAT_FOR)
+			}
+			
+			
 
-
-
-
+}
 
 
 
@@ -572,7 +589,7 @@ function initializeprotocols(result)
 
 	// Split the protocols into two groups, the ones that start with FRP in their sample name and the other ones.
 	var frpprotocols = [], otherprotocols = [];
-	var frpRegex = /^FRP[0-9]+/;
+	var frpRegex = /^FRPROT[0-9]+/;
 	frpRegex.compile(frpRegex);
 	result.forEach(function(sampleOrId) {
 		var theSample = sampleOrId;
@@ -595,6 +612,7 @@ function initializeprotocols(result)
 			otherprotocols.push(theSample);
 		}
 		initializeSyntheticProperties(theSample);
+		reformatString(theSample);
 		
 	});
 	
@@ -605,8 +623,8 @@ function initializeprotocols(result)
 	
 	frpprotocols.sort(function(a, b) {
 		// Sort based on the FRP number
-		var frpNumberA = parseInt(a.code.substring(3));
-		var frpNumberB = parseInt(b.code.substring(3));
+		var frpNumberA = parseInt(a.code.substring(6));
+		var frpNumberB = parseInt(b.code.substring(6));
 		return (frpNumberA < frpNumberB) ? -1 : 1;
 	});
 	
@@ -824,13 +842,15 @@ function displayReturnedSamples(data)
 	var selection = d3.select("#vis").select("#protocol-table").selectAll("tr.protocol-table-data").data(protocols);
 		// Code under enter is run if there is no HTML element for a data element
 	
+	
+	
 	selection
 		.enter()
 		.append("tr")
 		.attr("class", "protocol-table-data")
 		.style("cursor", "pointer")
 		.on("click", inspectprotocol)
-		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.NAME, sample.properties.STORAGE, sample.properties.FOR_WHAT, sample.properties.ORGANISM]; })
+		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.NAME, sample.properties.WHAT_FOR, sample.properties.PROTOCOL_TYPE, sample.properties.PUBLICATION]; })
 			.enter()
 			.append("td")
 			.append("div")
@@ -926,19 +946,34 @@ function visualize(ownerFilterText, ownerNumFilterText, antibodyNameFilterText, 
  */
 function showMatchingSamples()
 {
-	var sampleCriteria = 
-	{
-		matchClauses : 
-			[ {"@type":"AttributeMatchClause",
+  var matchClauses = [ {"@type":"AttributeMatchClause",
 				fieldType : "ATTRIBUTE",			
 				attribute : "TYPE",
 				desiredValue : "GENERAL_PROTOCOL" 
-			} ],
+			}
+	]
+	
+	var selectedYeastCode = getQueryParameter('code');
+	if(selectedYeastCode){
+	  matchClauses.push(
+      {"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "CODE",
+				desiredValue : selectedYeastCode 
+			}		
+	  );
+	}
+
+	var sampleCriteria = 
+	{
+		matchClauses : matchClauses,
 		operator : "MATCH_ALL_CLAUSES"
 	};
 
 	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], displayReturnedSamples);
+
 }
+
 
 
 function enterApp(data)

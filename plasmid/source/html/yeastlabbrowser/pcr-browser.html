@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 <head>
-	<title>Media Browser</title>
+	<title>PCR Browser</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<link type="text/css" rel="stylesheet" href="media-body-style.css" />
+	<link type="text/css" rel="stylesheet" href="pcr-body-style.css" />
 	<link type="text/css" rel="stylesheet" href="button.css" />
 	<script type="text/javascript" src="d3.js"></script>
 	<script type="text/javascript" src="d3.layout.js"></script>
@@ -28,7 +28,7 @@
 	</div>
 
 	<div id="main">
-	  <div id = "title" style="padding-top:20px"> MEDIA </div>
+	  <div id = "title" style="padding-top:20px"> PCR </div>
 		<div id="button-group">	
 			<button id="logout-button" style="position: absolute; right:10px;;top:10px">Logout</button>
 		</div>
@@ -79,9 +79,9 @@
 	
     
 		<div id="vis">
-  	 	<div style="position:absolute; left:200px; height: 500px; top: 100px; overflow: auto">
-		  <table id="media-table" style="float: left">
-			  <tr class="media-table-header"><th>Media Code</th><th>Name</th><th>Storage</th><th>For What</th><th>Organism</th></tr>
+  	 	<div style="position:absolute; left:200px; width: 1000px; height: 500px; top: 100px; overflow: auto">
+		  <table id="pcr-table" style="float: left">
+			  <tr class="pcr-table-header"><th>Code</th><th>Name</th><th>For What</th><th>Template</th><th>Publication</th></tr>
 				</table>
 			</div>
 			<span id="inspectorsContainer"></span>
@@ -98,11 +98,11 @@ openbisServer = new openbis('https://openbis-csb.ethz.ch/openbis/openbis', 'http
 
 // Some global variables we refer to
 
-/// All media
-var medias = null;
+/// All pcr
+var pcrs = null;
 
-/// The media that are currently being inspected
-var inspectedMedias = [];
+/// The pcr that are currently being inspected
+var inspectedpcrs = [];
 
 /// The width of the inspectors section
 var inspectorsWidth = 450;
@@ -332,14 +332,40 @@ function initializeSyntheticProperties(sample)
 				
 				sample.properties.SOLUTIONS_BUFFERS_PARENTS.push(SOLUTIONS_BUFFERS_PARENTS);
 				
-				console.log(sample.properties.SOLUTIONS_BUFFERS_PARENTS)
+				
 			}	  
 			
 			   
 }								
-			
+	
+	
+
+
 	
 };
+
+function reformatString(sample)
+{
+
+
+  		sample.properties.WHAT_FOR = [];
+  		console.log(sample.properties.FOR_WHAT)
+ 	
+			if (sample.properties.FOR_WHAT != "undefined") {
+				newArray = sample.properties.FOR_WHAT.split(/\d/);
+				for(i=0; i<newArray.length; i++) {
+   				WHAT_FOR = i+' '+newArray[i]+ "\n";
+   				sample.properties.WHAT_FOR.push(WHAT_FOR)
+   				
+				}
+				
+			console.log(sample.properties.WHAT_FOR)
+			//sample.properties.WHAT_FOR.push(sample.properties.WHAT_FOR)
+			}
+			
+			
+
+}
 
 
 
@@ -358,7 +384,7 @@ function props_to_pairs1(data)
 	}
 	
 
-	order1 = ["NAME", "FOR_WHAT", "SUPPLIER", "ARTICLE_NUMBER", "LOCAL_ID",  "STORAGE", "STOCK_CONCENTRATION", "STERILIZATION"]
+	order1 = ["NAME", "FOR_WHAT", "SUPPLIER", "ARTICLE_NUMBER", "LOCAL_ID",  "STORAGE", "STOCK_CONCENTRATION", "STERILIZATION", "MATERIALS", "ORGANISM"]
 	new_list1 = []
 	for (var i in order1) {
 	  for (var j in pairs) {
@@ -385,7 +411,7 @@ function props_to_pairs2(data)
 	}
 	
 	
-	order2 = ["DETAILS",  "COMMENTS",  "PUBLICATION"]
+	order2 = ["PROCEDURE",  "pcr_EVALUATION", "DETAILS", "COMMENTS", "PUBLICATION"]
 	new_list2 = []
 	for (var i in order2) {
 		for (var j in pairs) {
@@ -409,7 +435,7 @@ function props_to_pairs3(data)
 		pairs.push(pair);
 	}
 	
-	order3 = ["CHEMICALS_PARENTS","MEDIA_PARENTS","SOLUTIONS_BUFFERS_PARENTS" ]
+	order3 = ["CHEMICALS_PARENTS","MEDIA_PARENTS","SOLUTIONS_BUFFERS_PARENTS", "GENERAL_pcr_PARENTS" ]
 	new_list3 = []
 	for (var i in order3) {
 		for (var j in pairs) {
@@ -435,7 +461,7 @@ function props_to_pairs4(data)
 	
 	pairs.push(["REGISTRATION_DATE", new Date(data.registrationDetails.registrationDate)]);
 
-	order4 = [ "XMLCOMMENTS","REGISTRATION_DATE"]
+	order4 = [ "XMLCOMMENTS","SUGGESTIONS", "pcr_MODIFICATIONS", "REGISTRATION_DATE"]
 	new_list4 = []
 	for (var i in order4) {
 		for (var j in pairs) {
@@ -452,12 +478,12 @@ function props_to_pairs4(data)
 
 function resolveObjectReference(objectOrId) {
   if (isNaN(objectOrId)) {
-    media = objectOrId;
+    pcr = objectOrId;
   } else {
-  	media = mediasById[objectOrId];
+  	pcr = pcrsById[objectOrId];
   }
   
-  return media;
+  return pcr;
 }
 
 function get_parents(data)
@@ -503,21 +529,21 @@ function get_children(data)
 }
 
 
-/** Initialize the medias variable */
-function initializeMedias(result)
+/** Initialize the pcrs variable */
+function initializepcrs(result)
 {
-      // Construct a map of all medias by id
-  mediasById = {};
+      // Construct a map of all pcrs by id
+  pcrsById = {};
 
-	// Split the medias into two groups, the ones that start with FRP in their sample name and the other ones.
-	var frpMedias = [], otherMedias = [];
-	var frpRegex = /^FRM[0-9]+/;
+	// Split the pcrs into two groups, the ones that start with FRP in their sample name and the other ones.
+	var frppcrs = [], otherpcrs = [];
+	var frpRegex = /^FRPROT[0-9]+/;
 	frpRegex.compile(frpRegex);
 	result.forEach(function(sampleOrId) {
 		var theSample = sampleOrId;
 		function storeSamplesById(referredSample) {
       if (isNaN(referredSample)) {
-        mediasById[referredSample["@id"]] = referredSample;
+        pcrsById[referredSample["@id"]] = referredSample;
         if (referredSample.parents) referredSample.parents.forEach(storeSamplesById);
         if (referredSample.children) referredSample.children.forEach(storeSamplesById);
       }
@@ -525,39 +551,40 @@ function initializeMedias(result)
 	  if (isNaN(theSample)) {
 	  	storeSamplesById(theSample);
     } else {
-	    // This is referring to an object in the mediasById map
-	    theSample = mediasById[sampleOrId];
+	    // This is referring to an object in the pcrsById map
+	    theSample = pcrsById[sampleOrId];
 		}       
  		if (frpRegex.test(theSample.code)) {
-			frpMedias.push(theSample);
+			frppcrs.push(theSample);
 		} else {
-			otherMedias.push(theSample);
+			otherpcrs.push(theSample);
 		}
 		initializeSyntheticProperties(theSample);
+		reformatString(theSample);
 		
 	});
 	
 	// Sort each of the groups
-	otherMedias.sort(function(a, b) { 
+	otherpcrs.sort(function(a, b) { 
 		return (a.code < b.code) ? -1 : 1; 
 	});
 	
-	frpMedias.sort(function(a, b) {
+	frppcrs.sort(function(a, b) {
 		// Sort based on the FRP number
-		var frpNumberA = parseInt(a.code.substring(3));
-		var frpNumberB = parseInt(b.code.substring(3));
+		var frpNumberA = parseInt(a.code.substring(6));
+		var frpNumberB = parseInt(b.code.substring(6));
 		return (frpNumberA < frpNumberB) ? -1 : 1;
 	});
 	
-	// Combine the two groups back together to produce the full collection of medias
-	medias = frpMedias.concat(otherMedias);
+	// Combine the two groups back together to produce the full collection of pcrs
+	pcrs = frppcrs.concat(otherpcrs);
 }
 
 
 
 
-/** Set the size of the media-table based on whether or not inspectors are visible */
-function resizeMediaTable()
+/** Set the size of the pcr-table based on whether or not inspectors are visible */
+function resizepcrTable()
 {
 	var cellWidth;
 	var areInspectorsVisible;
@@ -565,8 +592,8 @@ function resizeMediaTable()
 	cellWidth = "100%";
 	areInspectorsVisible = true;
 	
-	var mediaTableTransition = d3.selectAll('div.media-table-data-cell');
-	mediaTableTransition.style('width', cellWidth);
+	var pcrTableTransition = d3.selectAll('div.pcr-table-data-cell');
+	pcrTableTransition.style('width', cellWidth);
 	if (areInspectorsVisible) {
 		$("#inspectorsContainer").show();
 	} else {
@@ -574,31 +601,31 @@ function resizeMediaTable()
 	}
 }
 
-function inspectMedia(media)
+function inspectpcr(pcr)
 {
-	if (inspectedMedias.indexOf(media) < 0) {
-		inspectedMedias.push(media);
+	if (inspectedpcrs.indexOf(pcr) < 0) {
+		inspectedpcrs.push(pcr);
 		
 		// When requesting information about the sample, we don't need parents
 		// and children, so send a copy of the saple without that information.
-		var mediaToSend = $.extend({}, media);
-		delete mediaToSend.parents;
-		delete mediaToSend.children;
+		var pcrToSend = $.extend({}, pcr);
+		delete pcrToSend.parents;
+		delete pcrToSend.children;
 	
 	}
-	resizeMediaTable();
+	resizepcrTable();
 	updateInspectors(1000);
 }
 
-function closeInspector(media)
+function closeInspector(pcr)
 {
-	var index = inspectedMedias.indexOf(media);
+	var index = inspectedpcrs.indexOf(pcr);
 	if (index < 0) {
 		return;
 	}
 	
-	inspectedMedias.splice(index, 1);
-	resizeMediaTable();
+	inspectedpcrs.splice(index, 1);
+	resizepcrTable();
 	updateInspectors(1000);
 }
 
@@ -611,7 +638,7 @@ function closeInspector(media)
 function updateInspectors(duration)
 {		
 		// Draw / update the inspectors	
-	var inspector = inspectors.selectAll("div.inspector").data(inspectedMedias, function (d) { return d.code });
+	var inspector = inspectors.selectAll("div.inspector").data(inspectedpcrs, function (d) { return d.code });
 		
 	var box = inspector
 			.enter()
@@ -649,7 +676,7 @@ function updateInspectors(duration)
 	propsTableParents.selectAll("tr").data(function(d) { return get_parents(d) })
 		.enter()
 			.append("tr")
-			.on("click", function(trData) { inspectMedia(trData[1]) } )
+			.on("click", function(trData) { inspectpcr(trData[1]) } )
      	.style("cursor", "pointer")
 			.selectAll("td").data(function(d) { return d }).enter()
 				.append("td")
@@ -671,7 +698,7 @@ function updateInspectors(duration)
 	propsTableChildren.selectAll("tr").data(function(d) { return get_children(d) })
 		.enter()
 			.append("tr")
-			.on("click", function(trData) { inspectMedia(trData[1]) } )
+			.on("click", function(trData) { inspectpcr(trData[1]) } )
      	.style("cursor", "pointer")
 			.selectAll("td").data(function(d) { return d }).enter()
 				.append("td")
@@ -751,34 +778,36 @@ function displayReturnedSamples(data)
 		return;
 	}
 	
-	initializeMedias(data.result);
+	initializepcrs(data.result);
 	
 	// This will show the object in the log -- helpful for debugging
 	// console.log(data.result);
-	if (medias.length < 1) {
+	if (pcrs.length < 1) {
 		vis.append("p").text("No data found.");
 		return;
 	}
 
-	var selection = d3.select("#vis").select("#media-table").selectAll("tr.media-table-data").data(medias);
+	var selection = d3.select("#vis").select("#pcr-table").selectAll("tr.pcr-table-data").data(pcrs);
 		// Code under enter is run if there is no HTML element for a data element
+	
+	
 	
 	selection
 		.enter()
 		.append("tr")
-		.attr("class", "media-table-data")
+		.attr("class", "pcr-table-data")
 		.style("cursor", "pointer")
-		.on("click", inspectMedia)
-		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.NAME, sample.properties.STORAGE, sample.properties.FOR_WHAT, sample.properties.ORGANISM]; })
+		.on("click", inspectpcr)
+		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.NAME, sample.properties.WHAT_FOR, sample.properties.pcr_TYPE, sample.properties.PUBLICATION]; })
 			.enter()
 			.append("td")
 			.append("div")
-			.attr("class", "media-table-data-cell")
+			.attr("class", "pcr-table-data-cell")
 			.text(String)
 
 }
 
-function mediaFilter(filter, property, element, index, array) {
+function pcrFilter(filter, property, element, index, array) {
 
 	
 	filter = filter.toLowerCase();
@@ -843,14 +872,14 @@ function visualize(ownerFilterText, ownerNumFilterText, antibodyNameFilterText, 
 	
 
 
-	var selection2 = d3.select("#vis").select("#media-table").selectAll("tr.media-table-data").data(medias);
+	var selection2 = d3.select("#vis").select("#pcr-table").selectAll("tr.pcr-table-data").data(pcrs);
 		// Code under enter is run if there is no HTML element for a data element
 	
 
 
 		selection2.style("display", 
 			function(data) {
-				if ($.inArray(data, displayedMedias) != -1) {
+				if ($.inArray(data, displayedpcrs) != -1) {
 					return "table-row"
 				} else {
 					return  "none"
@@ -868,7 +897,7 @@ function showMatchingSamples()
   var matchClauses = [ {"@type":"AttributeMatchClause",
 				fieldType : "ATTRIBUTE",			
 				attribute : "TYPE",
-				desiredValue : "MEDIA" 
+				desiredValue : "PCR" 
 			}
 	]
 	
@@ -892,6 +921,7 @@ function showMatchingSamples()
 	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], displayReturnedSamples);
 
 }
+
 
 function enterApp(data)
 {

@@ -4,7 +4,7 @@ h1 { font: 16px; }
 h3 { font: 12px; }
 
 div#vis { 
-	
+	padding-top: 10px;
 	font: 12px "Verdana", sans-serif; }	
 }
 div#vis div { padding-top: 2px;}
@@ -19,14 +19,15 @@ div.inspector {
 	font-weight: bold;
 }
 
-.properties {
+.property {
   font-size: 10px;
   font-weight: normal;
-  padding-top:10px;
-	width: 100%;
-
 }
 
+.properties {
+  padding-top:10px;
+	width: 100%;	
+}
 
 
 .properties td:nth-child(odd) {
@@ -91,20 +92,17 @@ background-color: white;
 
 
 
-/**#yeast-table{ position:absolute; left:200px; width: 100px; height: 100px; top: 100px; overflow: auto;}**/
-
-yeast.table { counter-reset: line-number; }
 
 .yeast-table-data-cell {
 	overflow: hidden;
 		
 }
 
-#yeast-table tr:nth-of-type(odd) {
+#yeast-table tr:nth-child(odd) td{
    background-color:	#FFFFCC;
 }
 
-#yeast-table tr:nth-of-type(even) {
+#yeast-table tr:nth-child(even) td{
   background-color:#F7F7F7;
 }
 
@@ -114,13 +112,6 @@ yeast.table { counter-reset: line-number; }
 }
 
 
-#yeast-table tr.yeast-table-data td {
-  padding: 5px;
-}
-
-#yeast-table tr.yeast-table-data:hover td {
-  padding: 5px 2px;
-}
 
 #yeast-table td{
 padding:5px;
@@ -130,27 +121,8 @@ padding:5px;
  
   font-size:18px;
   font-weight: bold;
-  color:#fff;
-  background-color:#CCCC99;
+  color:black;
+  background-color:	#FFFF99;
 
 }
-
-#yeast-table th {
-  padding-left:5px;
-  padding-right:5px;
-}
-
-
-
-#theaders td {
- 
-  font-size:14px;
-  font-weight: bold;
-  color:#fff;
-  background-color:#5C5C1F;
-
-}
-
-
-
 

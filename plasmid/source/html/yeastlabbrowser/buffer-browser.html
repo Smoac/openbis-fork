@@ -509,7 +509,7 @@ function initializebuffers(result)
 
 	// Split the buffers into two groups, the ones that start with FRP in their sample name and the other ones.
 	var frpbuffers = [], otherbuffers = [];
-	var frpRegex = /^FRP[0-9]+/;
+	var frpRegex = /^FRSOB[0-9]+/;
 	frpRegex.compile(frpRegex);
 	result.forEach(function(sampleOrId) {
 		var theSample = sampleOrId;
@@ -541,8 +541,8 @@ function initializebuffers(result)
 	
 	frpbuffers.sort(function(a, b) {
 		// Sort based on the FRP number
-		var frpNumberA = parseInt(a.code.substring(3));
-		var frpNumberB = parseInt(b.code.substring(3));
+		var frpNumberA = parseInt(a.code.substring(5));
+		var frpNumberB = parseInt(b.code.substring(5));
 		return (frpNumberA < frpNumberB) ? -1 : 1;
 	});
 	
@@ -903,18 +903,32 @@ function visualize(ownerFilterText, ownerNumFilterText, bufferNameFilterText, ba
  */
 function showMatchingSamples()
 {
-	var sampleCriteria = 
-	{
-		matchClauses : 
-			[ {"@type":"AttributeMatchClause",
+  var matchClauses = [ {"@type":"AttributeMatchClause",
 				fieldType : "ATTRIBUTE",			
 				attribute : "TYPE",
-				desiredValue : "SOLUTIONS_BUFFERS" 
-			} ],
+				desiredValue : "SOLUTION_BUFFERS" 
+			}
+	]
+	
+	var selectedYeastCode = getQueryParameter('code');
+	if(selectedYeastCode){
+	  matchClauses.push(
+      {"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "CODE",
+				desiredValue : selectedYeastCode 
+			}		
+	  );
+	}
+
+	var sampleCriteria = 
+	{
+		matchClauses : matchClauses,
 		operator : "MATCH_ALL_CLAUSES"
 	};
 
 	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], displayReturnedSamples);
+
 }
 
 

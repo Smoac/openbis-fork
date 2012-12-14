@@ -638,7 +638,7 @@ function displayReturnedSamples(data)
 		.attr("class", "plasmid-table-data")
 		.style("cursor", "pointer")
 		.on("click", inspectPlasmid)
-		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.OWNER.split('_'), sample.properties.OWNER_NUMBER, sample.properties.PLASMID_NAME, sample.properties.BACKBONE.split('_').join(' '), sample.properties.BACTERIAL_ANTIBIOTIC_RESISTANCE,sample.properties.YEAST_MARKER]; })
+		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.OWNER.split('_').join(" "), sample.properties.OWNER_NUMBER, sample.properties.PLASMID_NAME, sample.properties.BACKBONE.split('_').join(' '), sample.properties.BACTERIAL_ANTIBIOTIC_RESISTANCE,sample.properties.YEAST_MARKER]; })
 			.enter()
 			.append("td")
 			.append("div")
@@ -734,19 +734,34 @@ function visualize(ownerFilterText, ownerNumFilterText, plasmidNameFilterText, b
  */
 function showMatchingSamples()
 {
-	var sampleCriteria = 
-	{
-		matchClauses : 
-			[ {"@type":"AttributeMatchClause",
+  var matchClauses = [ {"@type":"AttributeMatchClause",
 				fieldType : "ATTRIBUTE",			
 				attribute : "TYPE",
 				desiredValue : "PLASMID" 
-			} ],
+			}
+	]
+	
+	var selectedYeastCode = getQueryParameter('code');
+	if(selectedYeastCode){
+	  matchClauses.push(
+      {"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "CODE",
+				desiredValue : selectedYeastCode 
+			}		
+	  );
+	}
+
+	var sampleCriteria = 
+	{
+		matchClauses : matchClauses,
 		operator : "MATCH_ALL_CLAUSES"
 	};
 
 	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], displayReturnedSamples);
+
 }
+
 
 
 function enterApp(data)
