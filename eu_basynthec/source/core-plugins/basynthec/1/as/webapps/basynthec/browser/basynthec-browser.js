@@ -245,9 +245,14 @@ AppPresenter.prototype.createVis = function()
 	
 	od600StrainWithPhenotypesAndPredictionsVis = tableRoot.append("div").style("display", "none");
 	od600StrainWithPhenotypesAndPredictionsVis.style("width", w + "px");
-	od600StrainWithPhenotypesAndPredictionsVis.style("height",w + "px");
-	od600StrainWithPhenotypesAndPredictionsVis.style("overflow-y", "scroll");
 	od600StrainWithPhenotypesAndPredictionsVis.style("opacity", "0");
+	
+	od600StrainWithPhenotypesAndPredictionsVisScroll = od600StrainWithPhenotypesAndPredictionsVis.append("div");
+	od600StrainWithPhenotypesAndPredictionsVisScroll.style("height", w + "px");
+	od600StrainWithPhenotypesAndPredictionsVisScroll.style("overflow-y", "scroll");
+	
+	od600StrainWithPhenotypesAndPredictionsVisLegend = od600StrainWithPhenotypesAndPredictionsVis.append("div");
+	
 	od600StrainWithPhenotypesAndPredictionsView = new Od600StrainWithPhenotypesAndPredictionsView();
 	
 	this.visualizationContainers = [dataSetTypeVis, strainVis, od600StrainVis, od600StrainWithPhenotypesAndPredictionsVis];
@@ -768,7 +773,7 @@ function Od600StrainWithPhenotypesAndPredictionsView(){
 
 Od600StrainWithPhenotypesAndPredictionsView.prototype.updateView = function(duration)
 {
-	var mainGroupDiv = od600StrainWithPhenotypesAndPredictionsVis.selectAll("div.strainsMainGroup").data(model.od600StrainsWithPhenotypesAndPredictionsGroups);
+	var mainGroupDiv = od600StrainWithPhenotypesAndPredictionsVisScroll.selectAll("div.strainsMainGroup").data(model.od600StrainsWithPhenotypesAndPredictionsGroups);
 	mainGroupDiv.enter().append("div").attr("class", "strainsMainGroup").append("h2").text(function(d) { 
 		return d.mainGroupName 
 	});	
@@ -825,7 +830,7 @@ Od600StrainWithPhenotypesAndPredictionsView.prototype.updateView = function(dura
 		return classes.join(" ");
 	})
 	
-	var legend = od600StrainWithPhenotypesAndPredictionsVis.selectAll("div.legend").data([model.od600StrainsWithPhenotypesAndPredictionsGroups]);
+	var legend = od600StrainWithPhenotypesAndPredictionsVisLegend.selectAll("div.legend").data([model.od600StrainsWithPhenotypesAndPredictionsGroups]);
 	legend.enter().append("div").attr("class","legend").append("h3").style("font-style","italic").text("Legend");
 	var legendList = legend.selectAll("ul").data(function(d){ return [d] }).enter().append("ul");
 	legendList.append("li").append("span").text("strain with phenotypes and predictions").style("color","green");
