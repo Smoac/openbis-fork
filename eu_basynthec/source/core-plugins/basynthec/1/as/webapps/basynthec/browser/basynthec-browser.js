@@ -577,7 +577,8 @@ AppModel.prototype.initializeOd600WithPhenotypesAndPredictionsModel = function(c
 }
 
 AppModel.prototype.od600DataSets = function() {
-	return this.dataSetsByType["OD600"];
+    var ds = this.dataSetsByType["OD600"];
+    return ds ? ds : [];
 }
 
 /**
