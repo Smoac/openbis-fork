@@ -248,7 +248,7 @@ AppPresenter.prototype.createVis = function()
 	od600StrainWithPhenotypesAndPredictionsVis.style("opacity", "0");
 	
 	od600StrainWithPhenotypesAndPredictionsVisScroll = od600StrainWithPhenotypesAndPredictionsVis.append("div");
-	od600StrainWithPhenotypesAndPredictionsVisScroll.style("height", w + "px");
+	od600StrainWithPhenotypesAndPredictionsVisScroll.style("height", ($(window).height() - 250) + "px");
 	od600StrainWithPhenotypesAndPredictionsVisScroll.style("overflow-y", "scroll");
 	
 	od600StrainWithPhenotypesAndPredictionsVisLegend = od600StrainWithPhenotypesAndPredictionsVis.append("div");
