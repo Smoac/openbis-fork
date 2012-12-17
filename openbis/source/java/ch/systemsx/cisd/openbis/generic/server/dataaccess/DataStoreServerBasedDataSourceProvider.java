@@ -200,13 +200,11 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
             setProperty(props, DRIVER_KEY, driverClassName);
             setProperty(props, USER_KEY, definitionOrNull.getUsername());
             setProperty(props, PASSWORD_KEY, definitionOrNull.getPassword());
-            String hostPart = definitionOrNull.getHostPart();
             String sid = definitionOrNull.getSid();
-            if (properties.getProperty(URL_KEY) == null && driverClassName != null
-                    && hostPart != null && sid != null)
+            if (properties.getProperty(URL_KEY) == null && driverClassName != null && sid != null)
             {
                 DatabaseEngine engine = DatabaseEngine.getEngineForDriverClass(driverClassName);
-                String url = engine.getURL(hostPart, sid);
+                String url = engine.getURL(definitionOrNull.getHostPart(), sid);
                 props.setProperty(URL_KEY, url);
             }
         }
@@ -264,10 +262,8 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
                                     + ".");
                         } else
                         {
-                            operationLog
-                                    .warn("Couldn't close data source for database "
-                                            + definition.getSid() + " on "
-                                            + definition.getHostPart() + ".");
+                            operationLog.warn("Couldn't close data source for database "
+                                    + definition.getSid() + " on " + dataStoreCode + ".");
                         }
                     }
                 }
@@ -289,10 +285,6 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
             {
                 builder.append("code");
             }
-            if (StringUtils.isBlank(definition.getHostPart()))
-            {
-                builder.append("hostPart");
-            }
             if (StringUtils.isBlank(definition.getSid()))
             {
                 builder.append("sid");
@@ -306,7 +298,7 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
             String error = builder.toString();
             if (error.length() > 0)
             {
-                errors.append("\n").append(error).append("[").append(definition).append("]");
+                errors.append("\n").append(error).append("\n[").append(definition).append("]");
             }
         }
         if (errors.length() > 0)
