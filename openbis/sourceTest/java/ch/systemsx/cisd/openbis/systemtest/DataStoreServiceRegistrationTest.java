@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetTypeBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSourceDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 
@@ -100,6 +101,7 @@ public class DataStoreServiceRegistrationTest extends SystemTestCase
                     { "H.*", "C.*" }, DATASTORE_CODE);
         dataStoreServerInfo.setServicesDescriptions(new DatastoreServiceDescriptions(Arrays
                 .asList(r1), Arrays.asList(p1)));
+        dataStoreServerInfo.setDataSourceDefinitions(Arrays.<DataSourceDefinition> asList());
 
         // 1. register DSS
         etlService.registerDataStoreServer(systemSessionToken, dataStoreServerInfo);
