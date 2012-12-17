@@ -39,6 +39,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
@@ -55,6 +56,11 @@ import ch.systemsx.cisd.openbis.generic.shared.util.IDataSourceFactory;
  */
 public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSystemTestCase
 {
+    private static final String HEADER_LINE_OF_ERROR_MESSAGE =
+            "Error(s) in mapping file targets/unit-test-wd/"
+                    + DataStoreServerBasedDataSourceProviderTest.class.getName()
+                    + "/mapping.txt:\n";
+
     private static final String PLUGIN_KEY = "key";
 
     private static final String DRIVER_CLASS = DatabaseEngine.POSTGRESQL.getDriverClass();
@@ -167,6 +173,37 @@ public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSyst
     }
 
     @Test
+    public void testMappingFileWithInvalidType()
+    {
+        assertFailedMappingFile("Line 1: Unknown type 'CONFIG', possible values are: "
+                + "host-part, username, password, sid, config, data-source-code",
+                "*.*.CONFIG = DSS\n");
+    }
+
+    @Test
+    public void testMappingFileWithMissingValue()
+    {
+        assertFailedMappingFile("Line 3: Missing '='", "# example\n\n" + "alpha.beta*.sid\n");
+    }
+
+    @Test
+    public void testMappingFileWithInvalidMappingDescription()
+    {
+        assertFailedMappingFile(
+                "Line 1: Mapping description should have three parts separated by '.'", "a.b = c\n");
+        assertFailedMappingFile(
+                "Line 1: Mapping description should have three parts separated by '.'",
+                "a.b.c.d = c\n");
+    }
+
+    @Test
+    public void testMappingFileWithInvalidDataStoreCodePattern()
+    {
+        assertFailedMappingFile("Line 1: Unclosed group near index 3\n" + "A(B\n" + "   ^",
+                "a(b.a.sid=b\n");
+    }
+
+    @Test
     public void testMappingFileWithUnspecifiedDataSourceCodeAndConfigMappingAllOnOne()
     {
         DataSourceConfigBuilder builder = new DataSourceConfigBuilder();
@@ -216,7 +253,7 @@ public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSyst
     @Test
     public void testMappingOnFixedDataStoreCode()
     {
-        FileUtilities.writeToFile(mappingFile, "*.*.config = DSS2[*]\n");
+        FileUtilities.writeToFile(mappingFile, "*.*.config = dSS2[*]\n");
         prepareListDataStores();
         DataStoreServerBasedDataSourceProvider dataSourceProvider = createDataSourceProvider();
 
@@ -387,7 +424,7 @@ public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSyst
         props = builder.get();
         FileUtilities.writeToFile(mappingFile, "# example mapping file\n"
                 + "*.proteomics.config = all[proteomics]\n"
-                + "*.proteomics.data-source-code = proteomics_db\n"
+                + "*.proteomics.data-source-code = proteomics_db\n" + "  \n"
                 + "*.screening.config = all[screening]\n"
                 + "*.screening.data-source-code = imaging_db\n"
                 + "*.screening.host-part = localhost:1234\n" + "*.screening.username = openbis\n"
@@ -446,6 +483,20 @@ public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSyst
                 }
             });
         assertEquals(expectedProps, sortedProps.toString());
+    }
+
+    private void assertFailedMappingFile(String expectedErrorMessage, String mappingFileContent)
+    {
+        FileUtilities.writeToFile(mappingFile, mappingFileContent);
+        try
+        {
+            createDataSourceProvider();
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException e)
+        {
+            assertEquals(HEADER_LINE_OF_ERROR_MESSAGE + expectedErrorMessage, e.getMessage());
+        }
+        context.assertIsSatisfied();
     }
 
     private void prepareListDataStores(final DataStorePE... dataStores)
