@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import static ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext.PASSWORD_KEY;
+import static ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext.USER_KEY;
 import static ch.systemsx.cisd.openbis.generic.server.dataaccess.DataStoreServerBasedDataSourceProvider.DATA_STORE_SERVERS_KEY;
 
 import java.io.File;
@@ -55,6 +57,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.IDataSourceFactory;
  */
 public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSystemTestCase
 {
+    private static final String PLUGIN_KEY = "key";
+
     private static final String DRIVER_CLASS = DatabaseEngine.POSTGRESQL.getDriverClass();
 
     private static class MockDataSource extends MonitoringDataSource
@@ -93,6 +97,7 @@ public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSyst
         daofactory = context.mock(IDAOFactory.class);
         dataStoreDAO = context.mock(IDataStoreDAO.class);
         mappingFile = new File(workingDirectory, "mapping.txt");
+        mappingFile.delete();
         context.checking(new Expectations()
             {
                 {
@@ -163,6 +168,142 @@ public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSyst
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testRestartDSS2WithChangedDatabase()
+    {
+        DataSourceConfigBuilder builder = new DataSourceConfigBuilder();
+        builder.plugin("DSS", null).property(PLUGIN_KEY, "DSS");
+        props = builder.get();
+        FileUtilities.writeToFile(mappingFile, "*.*.config = DSS\n"
+                + "*.screening.data-source-code = imaging_db\n");
+        DataStorePE dss1 =
+                dataStore("DSS1", new DataSourceDefinitionBuilder().code("imaging_db")
+                        .driverClassName(DRIVER_CLASS).hostPart("ab").sid("imaging_dev").get());
+        DataStorePE dss2 =
+                dataStore("DSS2", new DataSourceDefinitionBuilder().code("imaging_db")
+                        .driverClassName(DRIVER_CLASS).hostPart("abc").sid("imaging_dev").get());
+        prepareListDataStores(dss1, dss2);
+        DataStoreServerBasedDataSourceProvider dataSourceProvider = createDataSourceProvider();
+        DataSource ds1 = dataSourceProvider.getDataSourceByDataStoreServerCode("dss1", "screening");
+        assertSame(ds1, dataSourceProvider.getDataSourceByDataStoreServerCode("dss1", "screening"));
+        assertSame(ds1, dataSourceProvider.getDataSourceByDataStoreServerCode("dss1", "screening"));
+        assertDataSourceProps("[database-driver=org.postgresql.Driver, "
+                + "database-url=jdbc:postgresql://ab/imaging_dev, key=DSS]", ds1);
+        DataSource ds2 = dataSourceProvider.getDataSourceByDataStoreServerCode("dss2", "screening");
+        assertSame(ds2, dataSourceProvider.getDataSourceByDataStoreServerCode("dss2", "screening"));
+        final DataStorePE dataStore2 = dataStore("DSS2");
+        prepareLoadAndUpdateDataStore(dataStore2);
+
+        dataSourceProvider.handle(
+                "DSS2",
+                Arrays.asList(new DataSourceDefinitionBuilder().code("imaging_db")
+                        .driverClassName(DRIVER_CLASS).hostPart("ab").sid("imaging_dev").get()));
+
+        assertSame(ds1, dataSourceProvider.getDataSourceByDataStoreServerCode("dss1", "screening"));
+        assertEquals(false, ((MockDataSource) ds1).closed);
+        assertEquals(true, ((MockDataSource) ds2).closed);
+        DataSource ds22 =
+                dataSourceProvider.getDataSourceByDataStoreServerCode("dss2", "screening");
+        assertDataSourceProps("[database-driver=org.postgresql.Driver, "
+                + "database-url=jdbc:postgresql://ab/imaging_dev, key=DSS]", ds22);
+        assertNotSame(ds2, ds22);
+        assertEquals(
+                "code=imaging_db\tdriverClassName=org.postgresql.Driver\thostPart=ab\tsid=imaging_dev\t\n",
+                dataStore2.getSerializedDataSourceDefinitions());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testRestartDSS2WithUnchangedDatabase()
+    {
+        DataSourceConfigBuilder builder = new DataSourceConfigBuilder();
+        builder.plugin("DSS", null).property(PLUGIN_KEY, "DSS");
+        props = builder.get();
+        FileUtilities.writeToFile(mappingFile, "*.*.config = DSS\n"
+                + "*.screening.data-source-code = imaging_db\n");
+        DataStorePE dss1 =
+                dataStore("DSS1", new DataSourceDefinitionBuilder().code("imaging_db")
+                        .driverClassName(DRIVER_CLASS).hostPart("abc").sid("imaging_dev").get());
+        DataStorePE dss2 =
+                dataStore("DSS2", new DataSourceDefinitionBuilder().code("imaging_db")
+                        .driverClassName(DRIVER_CLASS).hostPart("abc").sid("imaging_dev").get());
+        prepareListDataStores(dss1, dss2);
+        DataStoreServerBasedDataSourceProvider dataSourceProvider = createDataSourceProvider();
+        DataSource ds1 = dataSourceProvider.getDataSourceByDataStoreServerCode("dss1", "screening");
+        assertDataSourceProps("[database-driver=org.postgresql.Driver, "
+                + "database-url=jdbc:postgresql://abc/imaging_dev, key=DSS]", ds1);
+        assertSame(ds1, dataSourceProvider.getDataSourceByDataStoreServerCode("dss2", "screening"));
+        assertSame(ds1, dataSourceProvider.getDataSourceByDataStoreServerCode("dss2", "screening"));
+        final DataStorePE dataStore2 = dataStore("DSS2");
+        prepareLoadAndUpdateDataStore(dataStore2);
+
+        dataSourceProvider.handle(
+                "DSS2",
+                Arrays.asList(new DataSourceDefinitionBuilder().code("imaging_db")
+                        .driverClassName(DRIVER_CLASS).hostPart("abc").sid("imaging_dev").get()));
+
+        assertSame(ds1, dataSourceProvider.getDataSourceByDataStoreServerCode("dss1", "screening"));
+        assertSame(ds1, dataSourceProvider.getDataSourceByDataStoreServerCode("dss2", "screening"));
+        assertEquals(
+                "code=imaging_db\tdriverClassName=org.postgresql.Driver\thostPart=abc\tsid=imaging_dev\t\n",
+                dataStore2.getSerializedDataSourceDefinitions());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testKeepUsernameAndPasswordOfASCorePluginIgnoreDSSSettings()
+    {
+        DataSourceConfigBuilder builder = new DataSourceConfigBuilder();
+        builder.plugin("DSS", null).property(PLUGIN_KEY, "DSS").property(USER_KEY, "einstein")
+                .property(PASSWORD_KEY, "c is constant");
+        props = builder.get();
+        FileUtilities.writeToFile(mappingFile, "*.*.config = DSS\n"
+                + "*.screening.data-source-code = imaging_db\n");
+        DataStorePE dss1 =
+                dataStore(
+                        "DSS1",
+                        new DataSourceDefinitionBuilder().code("imaging_db")
+                                .driverClassName(DRIVER_CLASS).hostPart("abc").sid("imaging_dev")
+                                .username("newton").password("no limits").get());
+        prepareListDataStores(dss1);
+        DataStoreServerBasedDataSourceProvider dataSourceProvider = createDataSourceProvider();
+
+        DataSource ds1 = dataSourceProvider.getDataSourceByDataStoreServerCode("dss1", "screening");
+
+        assertDataSourceProps("[database-driver=org.postgresql.Driver, "
+                + "database-password=c is constant, "
+                + "database-url=jdbc:postgresql://abc/imaging_dev, "
+                + "database-username=einstein, key=DSS]", ds1);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testKeepUsernameAndPasswordOfASCorePluginIgnoreMappingFile()
+    {
+        DataSourceConfigBuilder builder = new DataSourceConfigBuilder();
+        builder.plugin("DSS", null).property(PLUGIN_KEY, "DSS").property(USER_KEY, "einstein")
+                .property(PASSWORD_KEY, "c is constant");
+        props = builder.get();
+        FileUtilities.writeToFile(mappingFile, "*.*.config = DSS\n"
+                + "*.screening.data-source-code = imaging_db\n" + "*.screening.username = bohr\n");
+        DataStorePE dss1 =
+                dataStore(
+                        "DSS1",
+                        new DataSourceDefinitionBuilder().code("imaging_db")
+                                .driverClassName(DRIVER_CLASS).hostPart("abc").sid("imaging_dev")
+                                .username("newton").password("no limits").get());
+        prepareListDataStores(dss1);
+        DataStoreServerBasedDataSourceProvider dataSourceProvider = createDataSourceProvider();
+
+        DataSource ds1 = dataSourceProvider.getDataSourceByDataStoreServerCode("dss1", "screening");
+
+        assertDataSourceProps("[database-driver=org.postgresql.Driver, "
+                + "database-password=c is constant, "
+                + "database-url=jdbc:postgresql://abc/imaging_dev, "
+                + "database-username=einstein, key=DSS]", ds1);
+        context.assertIsSatisfied();
+    }
+
     /**
      * This use case simulates the following use case:
      * <ol>
@@ -176,7 +317,7 @@ public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSyst
     public void testThreeDssDBOneAtDSSTwoOnAS()
     {
         DataSourceConfigBuilder builder = new DataSourceConfigBuilder();
-        builder.plugin("all", "screening").property("key", "all[screening]");
+        builder.plugin("all", "screening").property(PLUGIN_KEY, "all[screening]");
         props = builder.get();
         FileUtilities.writeToFile(mappingFile, "# example mapping file\n"
                 + "*.proteomics.config = all[proteomics]\n"
@@ -248,6 +389,19 @@ public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSyst
                 {
                     one(dataStoreDAO).listDataStores();
                     will(returnValue(Arrays.asList(dataStores)));
+                }
+            });
+    }
+
+    private void prepareLoadAndUpdateDataStore(final DataStorePE dataStore)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataStoreDAO).tryToFindDataStoreByCode(dataStore.getCode());
+                    will(returnValue(dataStore));
+
+                    one(dataStoreDAO).createOrUpdateDataStore(dataStore);
                 }
             });
     }

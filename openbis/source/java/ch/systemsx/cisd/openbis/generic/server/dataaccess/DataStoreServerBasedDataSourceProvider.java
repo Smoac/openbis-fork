@@ -196,29 +196,29 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
         Properties props = ExtendedProperties.createWith(properties);
         if (definitionOrNull != null)
         {
-            if (properties.getProperty(DRIVER_KEY) == null)
+            String driverClassName = definitionOrNull.getDriverClassName();
+            setProperty(props, DRIVER_KEY, driverClassName);
+            setProperty(props, USER_KEY, definitionOrNull.getUsername());
+            setProperty(props, PASSWORD_KEY, definitionOrNull.getPassword());
+            String hostPart = definitionOrNull.getHostPart();
+            String sid = definitionOrNull.getSid();
+            if (properties.getProperty(URL_KEY) == null && driverClassName != null
+                    && hostPart != null && sid != null)
             {
-                props.setProperty(DRIVER_KEY, definitionOrNull.getDriverClassName());
-            }
-            if (properties.getProperty(USER_KEY) == null)
-            {
-                props.setProperty(USER_KEY, definitionOrNull.getUsername());
-            }
-            if (properties.getProperty(PASSWORD_KEY) == null)
-            {
-                props.setProperty(PASSWORD_KEY, definitionOrNull.getPassword());
-            }
-            if (properties.getProperty(URL_KEY) == null)
-            {
-                DatabaseEngine engine =
-                        DatabaseEngine.getEngineForDriverClass(definitionOrNull
-                                .getDriverClassName());
-                String url =
-                        engine.getURL(definitionOrNull.getHostPart(), definitionOrNull.getSid());
+                DatabaseEngine engine = DatabaseEngine.getEngineForDriverClass(driverClassName);
+                String url = engine.getURL(hostPart, sid);
                 props.setProperty(URL_KEY, url);
             }
         }
         return props;
+    }
+
+    private void setProperty(Properties properties, String key, String valueOrNull)
+    {
+        if (properties.getProperty(key) == null && valueOrNull != null)
+        {
+            properties.setProperty(key, valueOrNull);
+        }
     }
 
     @Override
