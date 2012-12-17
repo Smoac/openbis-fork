@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator;
 
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
+import ch.systemsx.cisd.common.jython.evaluator.EvaluatorCache;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.calculator.AbstractCalculator;
 
@@ -54,7 +55,8 @@ public class DynamicPropertyCalculator extends AbstractCalculator
             initialScript += expression;
             calculatedExpression = INVOKE_CALCULATE_EXPR;
         }
-        return new DynamicPropertyCalculator(new Evaluator(calculatedExpression, Math.class,
+        return new DynamicPropertyCalculator(EvaluatorCache.getEvaluator(calculatedExpression,
+                Math.class,
                 initialScript));
     }
 

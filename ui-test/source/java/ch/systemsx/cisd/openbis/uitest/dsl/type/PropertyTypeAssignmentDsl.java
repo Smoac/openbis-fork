@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.uitest.dsl.type;
 import ch.systemsx.cisd.openbis.uitest.type.EntityType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
+import ch.systemsx.cisd.openbis.uitest.type.Script;
 
 /**
  * @author anttil
@@ -34,13 +35,16 @@ class PropertyTypeAssignmentDsl extends PropertyTypeAssignment
 
     private String initialValue;
 
+    private Script script;
+
     public PropertyTypeAssignmentDsl(PropertyType propertyType, EntityType entityType,
-            boolean mandatory, String initialValue)
+            boolean mandatory, String initialValue, Script script)
     {
         this.entityType = entityType;
         this.propertyType = propertyType;
         this.mandatory = mandatory;
         this.initialValue = initialValue;
+        this.script = script;
     }
 
     @Override
@@ -65,6 +69,12 @@ class PropertyTypeAssignmentDsl extends PropertyTypeAssignment
     public String getInitialValue()
     {
         return initialValue;
+    }
+
+    @Override
+    public Script getScript()
+    {
+        return script;
     }
 
     @Override

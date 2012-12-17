@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.type.Script;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**
@@ -41,6 +42,8 @@ public class PropertyTypeAssignmentBuilder implements Builder<PropertyTypeAssign
     private String initialValue;
 
     private UidGenerator uid;
+
+    private Script script;
 
     public PropertyTypeAssignmentBuilder(UidGenerator uid)
     {
@@ -69,6 +72,12 @@ public class PropertyTypeAssignmentBuilder implements Builder<PropertyTypeAssign
         return this;
     }
 
+    public PropertyTypeAssignmentBuilder handledBy(Script script)
+    {
+        this.script = script;
+        return this;
+    }
+
     public PropertyTypeAssignmentBuilder havingInitialValueOf(String value)
     {
         this.initialValue = value;
@@ -90,7 +99,8 @@ public class PropertyTypeAssignmentBuilder implements Builder<PropertyTypeAssign
         }
 
         PropertyTypeAssignment assignment =
-                new PropertyTypeAssignmentDsl(propertyType, entityType, mandatory, initialValue);
+                new PropertyTypeAssignmentDsl(propertyType, entityType, mandatory, initialValue,
+                        script);
         if (Ui.WEB.equals(ui))
         {
             assignment = openbis.execute(new CreatePropertyTypeAssignmentGui(assignment));

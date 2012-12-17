@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.uitest.gui.CreateSampleTypeGui;
 import ch.systemsx.cisd.openbis.uitest.rmi.CreateSampleTypeRmi;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.type.Script;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**
@@ -53,6 +54,8 @@ public class SampleTypeBuilder implements Builder<SampleType>
     private String generatedCodePrefix;
 
     private Collection<PropertyTypeAssignment> propertyTypeAssignments;
+
+    private Script validationScript;
 
     public SampleTypeBuilder(UidGenerator uid)
     {
@@ -104,13 +107,19 @@ public class SampleTypeBuilder implements Builder<SampleType>
         return this;
     }
 
+    public SampleTypeBuilder validatedBy(Script script)
+    {
+        this.validationScript = script;
+        return this;
+    }
+
     @Override
     public SampleType build(Application openbis, Ui ui)
     {
         SampleType type =
                 new SampleTypeDsl(code, description, listable, showsContainer, showsParents,
                         hasUniqueSubcodes, generatesCodes, showsParentMetadata,
-                        generatedCodePrefix, propertyTypeAssignments);
+                        generatedCodePrefix, propertyTypeAssignments, validationScript);
         if (Ui.WEB.equals(ui))
         {
             return openbis.execute(new CreateSampleTypeGui(type));

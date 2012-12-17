@@ -22,6 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.type.Script;
 
 /**
  * @author anttil
@@ -127,5 +128,11 @@ public class SampleTypeLazy extends SampleType
     public Collection<PropertyTypeAssignment> getPropertyTypeAssignments()
     {
         throw new UnsupportedOperationException("to be implemented");
+    }
+
+    @Override
+    public Script getValidationScript()
+    {
+        throw new UnsupportedOperationException();
     }
 }

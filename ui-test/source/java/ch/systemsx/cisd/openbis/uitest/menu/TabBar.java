@@ -30,6 +30,17 @@ public class TabBar
     @Locate("openbis_main-tab-panel")
     private WebElement context;
 
+    public void closeTab(String label)
+    {
+        for (WebElement link : getTabLinks())
+        {
+            if (link.getText().equals(label))
+            {
+                link.findElement(By.xpath("a")).click();
+            }
+        }
+    }
+
     public boolean selectTab(String label)
     {
         if (label == null)

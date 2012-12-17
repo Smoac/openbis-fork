@@ -375,6 +375,12 @@ public abstract class SeleniumTest
         return assumePage(location.getPage());
     }
 
+    public void closeTab(Location<?> location)
+    {
+        TabBar bar = assumePage(TabBar.class);
+        bar.closeTab(location.getTabName());
+    }
+
     protected SampleBrowserLocation sampleBrowser()
     {
         return new SampleBrowserLocation();
@@ -826,6 +832,11 @@ public abstract class SeleniumTest
     public List<Material> listMaterials(MaterialIdentifier first, MaterialIdentifier... rest)
     {
         return openbis.execute(new ListMaterialsRmi(first, rest));
+    }
+
+    public <T extends Command<U>, U> U execute(T command)
+    {
+        return openbis.execute(command);
     }
 
     public DataSetSearchCommandBuilder dataSets()

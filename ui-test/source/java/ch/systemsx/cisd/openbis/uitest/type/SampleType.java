@@ -44,6 +44,8 @@ public abstract class SampleType implements EntityType
 
     public abstract Collection<PropertyTypeAssignment> getPropertyTypeAssignments();
 
+    public abstract Script getValidationScript();
+
     @Override
     public final boolean equals(Object o)
     {

@@ -30,6 +30,8 @@ public abstract class PropertyTypeAssignment
 
     public abstract String getInitialValue();
 
+    public abstract Script getScript();
+
     @Override
     public final boolean equals(Object o)
     {

@@ -16,6 +16,13 @@
 
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
 import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
 import ch.systemsx.cisd.openbis.uitest.gui.CreateScriptGui;
@@ -56,6 +63,12 @@ public class ScriptBuilder implements Builder<Script>
         return this;
     }
 
+    public ScriptBuilder withImplentation(String fileName)
+    {
+        this.content = readFile(fileName);
+        return this;
+    }
+
     @Override
     public Script build(Application openbis, Ui ui)
     {
@@ -63,8 +76,31 @@ public class ScriptBuilder implements Builder<Script>
         if (Ui.WEB.equals(ui))
         {
             return openbis.execute(new CreateScriptGui(script));
+        } else if (Ui.DUMMY.equals(ui))
+        {
+            return script;
         }
         throw new UnsupportedOperationException();
 
+    }
+
+    private static String readFile(String path)
+    {
+        try
+        {
+            FileInputStream stream = new FileInputStream(new File("resource/scripts/" + path));
+            try
+            {
+                FileChannel fc = stream.getChannel();
+                MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+                return Charset.defaultCharset().decode(bb).toString();
+            } finally
+            {
+                stream.close();
+            }
+        } catch (IOException e)
+        {
+            throw new IllegalArgumentException("Could not read file " + path);
+        }
     }
 }

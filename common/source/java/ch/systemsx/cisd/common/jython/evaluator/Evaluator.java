@@ -18,7 +18,10 @@ package ch.systemsx.cisd.common.jython.evaluator;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.python.core.CompileMode;
@@ -127,7 +130,6 @@ public final class Evaluator
         }
         this.interpreter = PythonInterpreter.createIsolatedPythonInterpreter();
         // Security: do not allow file access.
-
         try
         {
             if (blockFileAccess)
@@ -143,6 +145,7 @@ public final class Evaluator
                 interpreter.exec(initialScriptOrNull);
             }
             this.expression = expression;
+
             this.compiledExpression = doCompile(expression);
         } catch (PyException ex)
         {
@@ -503,6 +506,17 @@ public final class Evaluator
     public void releaseResources()
     {
         interpreter.releaseResources();
+    }
+
+    public Collection<String> getGlobalVariables()
+    {
+        Set<String> results = new HashSet<String>();
+        PyStringMap locals = (PyStringMap) interpreter.getLocals();
+        for (Object key : locals.keys())
+        {
+            results.add(key.toString());
+        }
+        return results;
     }
 
 }

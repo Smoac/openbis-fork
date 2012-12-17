@@ -43,5 +43,6 @@
 	<classpathentry kind="lib" path="/libraries/poi/poi-ooxml-schemas.jar"/>
 	<classpathentry kind="lib" path="/libraries/poi/poi-ooxml.jar"/>
 	<classpathentry kind="lib" path="/libraries/poi/poi.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-integration.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
+import ch.systemsx.cisd.common.jython.evaluator.EvaluatorCache;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -118,7 +119,8 @@ public class ManagedPropertyEvaluator
 
     public ManagedPropertyEvaluator(String scriptExpression)
     {
-        evaluator = new Evaluator("", ManagedPropertyFunctions.class, scriptExpression);
+        evaluator =
+                EvaluatorCache.getEvaluator("", ManagedPropertyFunctions.class, scriptExpression);
         updateFromBatchFunctionDefined = evaluator.hasFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION);
         updateFromRegistrationFormFunctionDefined =
                 evaluator.hasFunction(UPDATE_FROM_REGISTRATION_FORM_FUNCTION);

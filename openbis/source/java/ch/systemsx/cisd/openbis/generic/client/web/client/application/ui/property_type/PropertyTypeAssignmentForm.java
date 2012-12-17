@@ -202,6 +202,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         ScriptChooserField field =
                 ScriptChooserField.create(viewContext.getMessage(Dict.SCRIPT), true, null,
                         viewContext, scriptTypeProvider, entityKindOrNull);
+        field.setId(ID_PREFIX + "script_chooser");
         FieldUtil.setVisibility(false, field);
         return field;
     }
@@ -229,7 +230,9 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         result.setVisible(false);
         result.setOrientation(Orientation.HORIZONTAL);
         scriptTypeManaged = createRadio(ScriptType.MANAGED_PROPERTY.getDescription());
+        scriptTypeManaged.setId(ID_PREFIX + "managed_radio");
         scriptTypeDynamic = createRadio(ScriptType.DYNAMIC_PROPERTY.getDescription());
+        scriptTypeDynamic.setId(ID_PREFIX + "dynamic_radio");
         result.add(scriptTypeManaged);
         result.add(scriptTypeDynamic);
         FieldUtil.setValueWithoutEvents(result, scriptTypeManaged);
@@ -404,6 +407,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                         updateVisibilityOfScriptRelatedFields();
                     }
                 });
+            scriptableCheckbox.setId(ID_PREFIX + "scriptable_checkbox");
         }
         return scriptableCheckbox;
     }

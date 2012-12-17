@@ -14,32 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.layout;
+package ch.systemsx.cisd.openbis.uitest.widget;
 
-import ch.systemsx.cisd.openbis.uitest.page.RegisterScript;
-import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
+import org.openqa.selenium.WebElement;
+
+import ch.systemsx.cisd.openbis.uitest.webdriver.Contextual;
 
 /**
  * @author anttil
  */
-public class RegisterScriptLocation implements Location<RegisterScript>
+public class RadioButton implements Widget
 {
+    @Contextual("./descendant-or-self::input")
+    private WebElement radio;
 
-    @Override
-    public void moveTo(Pages pages)
+    public void select()
     {
-        pages.goTo(new ScriptBrowserLocation()).add();
-    }
-
-    @Override
-    public String getTabName()
-    {
-        return "Script Registration";
-    }
-
-    @Override
-    public Class<RegisterScript> getPage()
-    {
-        return RegisterScript.class;
+        radio.click();
     }
 }

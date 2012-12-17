@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.type.Script;
 
 /**
  * @author anttil
@@ -47,10 +48,12 @@ class SampleTypeDsl extends SampleType
 
     private Collection<PropertyTypeAssignment> propertyTypeAssignments;
 
+    private Script validationScript;
+
     SampleTypeDsl(String code, String description, boolean listable, boolean showContainer,
             boolean showParents, boolean uniqueSubcodes, boolean generateCodes,
             boolean showParentMetadata, String generatedCodePrefix,
-            Collection<PropertyTypeAssignment> propertyTypeAssignments)
+            Collection<PropertyTypeAssignment> propertyTypeAssignments, Script validationScript)
     {
         this.code = code;
         this.description = description;
@@ -62,6 +65,7 @@ class SampleTypeDsl extends SampleType
         this.showParentMetadata = showParentMetadata;
         this.generatedCodePrefix = generatedCodePrefix;
         this.propertyTypeAssignments = propertyTypeAssignments;
+        this.validationScript = validationScript;
     }
 
     @Override
@@ -124,6 +128,12 @@ class SampleTypeDsl extends SampleType
         return propertyTypeAssignments;
     }
 
+    @Override
+    public Script getValidationScript()
+    {
+        return validationScript;
+    }
+
     void setDescription(String description)
     {
         this.description = description;
@@ -167,5 +177,10 @@ class SampleTypeDsl extends SampleType
     void setPropertyTypeAssignments(Collection<PropertyTypeAssignment> propertyTypeAssignments)
     {
         this.propertyTypeAssignments = propertyTypeAssignments;
+    }
+
+    void setValidationScript(Script validationScript)
+    {
+        this.validationScript = validationScript;
     }
 }

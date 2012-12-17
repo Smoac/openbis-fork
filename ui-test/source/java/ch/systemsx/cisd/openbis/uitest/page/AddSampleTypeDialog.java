@@ -54,6 +54,9 @@ public class AddSampleTypeDialog
     @Locate("openbis_add-type-dialog-generated-code-prefix")
     private Text generatedCodePrefix;
 
+    @Locate("openbis_add-SAMPLE-type-dialog-script-chooser")
+    private Text scriptName;
+
     @Locate("openbis_dialog-save-button")
     private Button save;
 
@@ -90,12 +93,21 @@ public class AddSampleTypeDialog
         showParents.set(checked);
     }
 
+    public void setScriptName(String name)
+    {
+        scriptName.write(name);
+    }
+
     public void fillWith(SampleType sampleType)
     {
         setCode(sampleType.getCode());
         setListable(sampleType.isListable());
         setShowContainer(sampleType.isShowContainer());
         setShowParents(sampleType.isShowParents());
+        if (sampleType.getValidationScript() != null)
+        {
+            setScriptName(sampleType.getValidationScript().getName());
+        }
     }
 
 }

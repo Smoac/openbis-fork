@@ -43,7 +43,6 @@ public abstract class AddEntityTypeDialog<T extends EntityType> extends AddTypeD
             final IDelegatedAction postRegistrationCallback, T newEntityType, EntityKind entityKind)
     {
         super(viewContext, title, postRegistrationCallback, newEntityType);
-
         scriptChooser =
                 createScriptChooserField(viewContext, null, true,
                         ScriptType.ENTITY_VALIDATION, entityKind);
@@ -69,7 +68,7 @@ public abstract class AddEntityTypeDialog<T extends EntityType> extends AddTypeD
                         initialValue,
                         viewContext, scriptTypeOrNull, entityKindOrNull);
         FieldUtil.setVisibility(visible, field);
+        field.setId("openbis_add-" + entityKindOrNull + "-type-dialog-script-chooser");
         return field;
     }
-
 }
