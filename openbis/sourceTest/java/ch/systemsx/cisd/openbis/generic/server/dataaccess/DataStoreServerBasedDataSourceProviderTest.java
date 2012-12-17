@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
-import static ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext.PASSWORD_KEY;
-import static ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext.USER_KEY;
 import static ch.systemsx.cisd.openbis.generic.server.dataaccess.DataStoreServerBasedDataSourceProvider.DATA_STORE_SERVERS_KEY;
 
 import java.io.File;
@@ -65,7 +63,7 @@ public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSyst
     {
         private final Properties properties;
 
-        private boolean closed;
+        private boolean hasBeenClosed;
 
         MockDataSource(Properties properties)
         {
@@ -75,7 +73,7 @@ public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSyst
         @Override
         public synchronized void close() throws SQLException
         {
-            closed = true;
+            hasBeenClosed = true;
         }
     }
 
@@ -169,6 +167,74 @@ public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSyst
     }
 
     @Test
+    public void testMappingFileWithUnspecifiedDataSourceCodeAndConfigMappingAllOnOne()
+    {
+        DataSourceConfigBuilder builder = new DataSourceConfigBuilder();
+        builder.plugin("DSS", null).property(PLUGIN_KEY, "DSS");
+        props = builder.get();
+        FileUtilities.writeToFile(mappingFile, "*.*.config = DSS\n");
+        DataSourceDefinition dataSourceDefinition =
+                new DataSourceDefinitionBuilder().code("my_db").driverClassName(DRIVER_CLASS)
+                        .hostPart("ab").sid("mydb_dev").username("answer").password("42").get();
+        DataStorePE dss1 = dataStore("DSS1", dataSourceDefinition);
+        DataStorePE dss2 = dataStore("DSS2", dataSourceDefinition.clone());
+        prepareListDataStores(dss1, dss2);
+        DataStoreServerBasedDataSourceProvider dataSourceProvider = createDataSourceProvider();
+
+        DataSource ds1 =
+                dataSourceProvider.getDataSourceByDataStoreServerCode("Dss1", "proteomics");
+        DataSource ds2 = dataSourceProvider.getDataSourceByDataStoreServerCode("Dss2", "screening");
+
+        assertDataSourceProps("[database-driver=org.postgresql.Driver, "
+                + "database-password=42, database-url=jdbc:postgresql://ab/mydb_dev, "
+                + "database-username=answer, key=DSS]", ds1);
+        assertSame(ds1, ds2);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testMappingOnFixedModuleCode()
+    {
+        DataSourceConfigBuilder builder = new DataSourceConfigBuilder();
+        builder.plugin("DSS2", null).user("alpha").property(PLUGIN_KEY, "DSS2");
+        builder.plugin("DSS3", null).user("beta").property(PLUGIN_KEY, "DSS3");
+        props = builder.get();
+        FileUtilities.writeToFile(mappingFile, "*.*.config = *\n");
+        prepareListDataStores();
+        DataStoreServerBasedDataSourceProvider dataSourceProvider = createDataSourceProvider();
+
+        DataSource ds1 = dataSourceProvider.getDataSourceByDataStoreServerCode("dss2", "m1");
+        DataSource ds2 = dataSourceProvider.getDataSourceByDataStoreServerCode("dss2", "m2");
+        DataSource ds3 = dataSourceProvider.getDataSourceByDataStoreServerCode("dss3", "m2");
+
+        assertDataSourceProps("[database-username=alpha, key=DSS2]", ds1);
+        assertDataSourceProps("[database-username=beta, key=DSS3]", ds3);
+        assertSame(ds1, ds2);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testMappingOnFixedDataStoreCode()
+    {
+        FileUtilities.writeToFile(mappingFile, "*.*.config = DSS2[*]\n");
+        prepareListDataStores();
+        DataStoreServerBasedDataSourceProvider dataSourceProvider = createDataSourceProvider();
+
+        DataSource ds1 = dataSourceProvider.getDataSourceByDataStoreServerCode("dss2", "tech1");
+        DataSource ds2 = dataSourceProvider.getDataSourceByDataStoreServerCode("dss2", "tech2");
+        DataSource ds3 = dataSourceProvider.getDataSourceByDataStoreServerCode("dss3", "tech2");
+        DataSource ds4 = dataSourceProvider.getDataSourceByDataStoreServerCode("dss4", "tech1");
+
+        assertDataSourceProps("[database-driver=org.postgresql.Driver, "
+                + "database-url=jdbc:postgresql://localhost/db21]", ds1);
+        assertDataSourceProps("[database-driver=org.postgresql.Driver, "
+                + "database-url=jdbc:postgresql://localhost/db22]", ds2);
+        assertSame(ds2, ds3);
+        assertSame(ds1, ds4);
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testRestartDSS2WithChangedDatabase()
     {
         DataSourceConfigBuilder builder = new DataSourceConfigBuilder();
@@ -200,8 +266,8 @@ public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSyst
                         .driverClassName(DRIVER_CLASS).hostPart("ab").sid("imaging_dev").get()));
 
         assertSame(ds1, dataSourceProvider.getDataSourceByDataStoreServerCode("dss1", "screening"));
-        assertEquals(false, ((MockDataSource) ds1).closed);
-        assertEquals(true, ((MockDataSource) ds2).closed);
+        assertEquals(false, ((MockDataSource) ds1).hasBeenClosed);
+        assertEquals(true, ((MockDataSource) ds2).hasBeenClosed);
         DataSource ds22 =
                 dataSourceProvider.getDataSourceByDataStoreServerCode("dss2", "screening");
         assertDataSourceProps("[database-driver=org.postgresql.Driver, "
@@ -254,8 +320,8 @@ public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSyst
     public void testKeepUsernameAndPasswordOfASCorePluginIgnoreDSSSettings()
     {
         DataSourceConfigBuilder builder = new DataSourceConfigBuilder();
-        builder.plugin("DSS", null).property(PLUGIN_KEY, "DSS").property(USER_KEY, "einstein")
-                .property(PASSWORD_KEY, "c is constant");
+        builder.plugin("DSS", null).property(PLUGIN_KEY, "DSS").user("einstein")
+                .password("c is constant");
         props = builder.get();
         FileUtilities.writeToFile(mappingFile, "*.*.config = DSS\n"
                 + "*.screening.data-source-code = imaging_db\n");
@@ -281,8 +347,8 @@ public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSyst
     public void testKeepUsernameAndPasswordOfASCorePluginIgnoreMappingFile()
     {
         DataSourceConfigBuilder builder = new DataSourceConfigBuilder();
-        builder.plugin("DSS", null).property(PLUGIN_KEY, "DSS").property(USER_KEY, "einstein")
-                .property(PASSWORD_KEY, "c is constant");
+        builder.plugin("DSS", null).property(PLUGIN_KEY, "DSS").user("einstein")
+                .password("c is constant");
         props = builder.get();
         FileUtilities.writeToFile(mappingFile, "*.*.config = DSS\n"
                 + "*.screening.data-source-code = imaging_db\n" + "*.screening.username = bohr\n");

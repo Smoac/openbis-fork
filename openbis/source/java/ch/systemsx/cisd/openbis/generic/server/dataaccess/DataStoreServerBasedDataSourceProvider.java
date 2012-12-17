@@ -432,10 +432,6 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
         private DataSourceDefinition getDefinitionsOrNull(String dataStoreCode,
                 String dataSourceCode, Map<Type, String> replacementsByType)
         {
-            if (dataSourceCode == null)
-            {
-                return null;
-            }
             Map<String, DataSourceDefinition> definitionsByCode =
                     dataSourceDefinitionsByCodes.get(dataStoreCode);
             if (definitionsByCode == null)
@@ -443,6 +439,10 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
                 return null;
             }
             DataSourceDefinition definition = definitionsByCode.get(dataSourceCode);
+            if (definition == null && definitionsByCode.size() == 1)
+            {
+                definition = definitionsByCode.values().iterator().next();
+            }
             if (definition != null)
             {
                 definition = definition.clone();
