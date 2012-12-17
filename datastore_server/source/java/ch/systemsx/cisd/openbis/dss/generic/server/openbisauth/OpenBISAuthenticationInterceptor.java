@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters;
 import ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ManagedAuthentication;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -87,10 +88,13 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
 
     private final IETLLIMSService service;
 
+    private final IDataSourceProvider dataSourceProvider;
+
     public OpenBISAuthenticationInterceptor(SessionTokenManager sessionTokenManager,
             IETLLIMSService service, IPluginTaskInfoProvider pluginTaskParameters,
-            OpenBISSessionHolder sessionHolder)
+            IDataSourceProvider dataSourceProvider, OpenBISSessionHolder sessionHolder)
     {
+        this.dataSourceProvider = dataSourceProvider;
         assert sessionTokenManager != null : "Unspecified session token manager.";
         assert service != null : "Given IETLLIMSService implementation can not be null.";
         assert pluginTaskParameters != null : "Unspecified plugin tasks";
@@ -156,6 +160,8 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
         dataStoreServerInfo.setServicesDescriptions(pluginTaskDescriptions);
         dataStoreServerInfo.setArchiverConfigured(archiverConfigured);
         dataStoreServerInfo.setTimeoutInMinutes(timeoutInMinutes);
+        dataStoreServerInfo.setDataSourceDefinitions(dataSourceProvider.getAllDataSourceDefinitions());
+        
         service.registerDataStoreServer(sessionToken, dataStoreServerInfo);
     }
 

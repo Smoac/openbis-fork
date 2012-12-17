@@ -100,6 +100,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDataSourceManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
@@ -261,6 +262,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     private final IDataStoreServiceRegistrator dataStoreServiceRegistrator;
 
+    private final IDataStoreDataSourceManager dataSourceManager;
+
     private IServiceConversationClientManagerLocal conversationClient;
 
     private IServiceConversationServerManagerLocal conversationServer;
@@ -270,11 +273,12 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory,
             TrustedCrossOriginDomainsProvider trustedOriginDomainProvider,
             IETLEntityOperationChecker entityOperationChecker,
-            IDataStoreServiceRegistrator dataStoreServiceRegistrator)
+            IDataStoreServiceRegistrator dataStoreServiceRegistrator,
+            IDataStoreDataSourceManager dataSourceManager)
     {
         this(authenticationService, sessionManager, daoFactory, null, boFactory, dssFactory,
                 trustedOriginDomainProvider, entityOperationChecker, dataStoreServiceRegistrator,
-                new DefaultSessionManager<Session>(new SessionFactory(),
+                dataSourceManager, new DefaultSessionManager<Session>(new SessionFactory(),
                         new LogMessagePrefixGenerator(), new DummyAuthenticationService(),
                         new RequestContextProviderAdapter(new IRequestContextProvider()
                             {
@@ -293,6 +297,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             TrustedCrossOriginDomainsProvider trustedOriginDomainProvider,
             IETLEntityOperationChecker entityOperationChecker,
             IDataStoreServiceRegistrator dataStoreServiceRegistrator,
+            IDataStoreDataSourceManager dataSourceManager,
             ISessionManager<Session> sessionManagerForEntityOperation)
     {
         super(authenticationService, sessionManager, daoFactory, propertiesBatchManager, boFactory);
@@ -301,6 +306,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         this.trustedOriginDomainProvider = trustedOriginDomainProvider;
         this.entityOperationChecker = entityOperationChecker;
         this.dataStoreServiceRegistrator = dataStoreServiceRegistrator;
+        this.dataSourceManager = dataSourceManager;
         this.sessionManagerForEntityOperation = sessionManagerForEntityOperation;
     }
 
@@ -354,6 +360,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         dataStoreDAO.createOrUpdateDataStore(dataStore);
         dataStoreServiceRegistrator.setServiceDescriptions(dataStore,
                 info.getServicesDescriptions());
+        dataSourceManager.handle(info.getDataStoreCode(), info.getDataSourceDefinitions());
 
         conversationClient.setDataStoreInformation(dssURL, info.getTimeoutInMinutes());
         conversationServer.setDataStoreInformation(info.getDataStoreCode(), dssURL,

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.openbisauth;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.hamcrest.BaseMatcher;
@@ -32,9 +33,11 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSourceDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
@@ -66,18 +69,23 @@ public class OpenBISAuthenticationInterceptorTest
 
     private OpenBISSessionHolder sessionHolder;
 
+    private IDataSourceProvider dataSourceProvider;
+
     @BeforeMethod
     public void setUp()
     {
         context = new Mockery();
         limsService = context.mock(IETLLIMSService.class);
         methodInvocation = context.mock(MethodInvocation.class);
+        dataSourceProvider = context.mock(IDataSourceProvider.class);
         
         sessionHolder = new OpenBISSessionHolder();
         sessionHolder.setDataStoreCode(DATA_STORE_CODE);
 
-        interceptor = new OpenBISAuthenticationInterceptor(new SessionTokenManager(), limsService, 
-                        PluginUtilTest.createPluginTaskProviders(new File(".")), sessionHolder);
+        interceptor =
+                new OpenBISAuthenticationInterceptor(new SessionTokenManager(), limsService,
+                        PluginUtilTest.createPluginTaskProviders(new File(".")),
+                        dataSourceProvider, sessionHolder);
 
         interceptor.setUsername(LIMS_USER);
         interceptor.setPassword(LIMS_PASSWORD);
@@ -103,6 +111,9 @@ public class OpenBISAuthenticationInterceptorTest
                     will(throwException(new InvalidSessionException("error")));
                     setUpAuthenticationExpectations(this);
                     one(methodInvocation).proceed();
+                    
+                    one(dataSourceProvider).getAllDataSourceDefinitions();
+                    will(returnValue(Arrays.asList(DataSourceDefinition.fromString("code=a"))));
                 }
             });
 
@@ -121,6 +132,9 @@ public class OpenBISAuthenticationInterceptorTest
                 {
                     setUpAuthenticationExpectations(this);
                     one(methodInvocation).proceed();
+                    
+                    one(dataSourceProvider).getAllDataSourceDefinitions();
+                    will(returnValue(Arrays.asList(DataSourceDefinition.fromString("code=a"))));
                 }
             });
 
@@ -171,7 +185,8 @@ public class OpenBISAuthenticationInterceptorTest
                                 && info.getServicesDescriptions()
                                         .getProcessingServiceDescriptions().size() == 0
                                 && info.getServicesDescriptions().getReportingServiceDescriptions()
-                                        .size() == 0;
+                                        .size() == 0
+                                && info.getDataSourceDefinitions().toString().equals("[code=a\t]");
                     }
                     return false;
                 }

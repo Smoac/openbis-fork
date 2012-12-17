@@ -29,15 +29,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 public interface IDataSourceProvider
 {
     /**
-     * Returns an appropriated data source for specified data set code and technology.
-     * 
-     * @throws IllegalArgumentException if getting data source by data set code isn't supported for
-     *             the specified technology.
-     * @throws UserFailureException if the specified data set doesn't exist.
-     */
-    public DataSource getDataSourceByDataSetCode(String dataSetCode, String technology);
-
-    /**
      * Returns an appropriated data source for specified data store server code and technology.
      * 
      * @throws IllegalArgumentException if getting data source by data store server code isn't

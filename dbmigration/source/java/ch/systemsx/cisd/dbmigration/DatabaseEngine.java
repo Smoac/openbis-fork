@@ -47,6 +47,8 @@ public enum DatabaseEngine
             "jdbc:h2:{0}{1};DB_CLOSE_DELAY=-1", "file:db/", "sa", null);
 
     private static Map<String, DatabaseEngine> engines = initEngineMap();
+    
+    private static Map<String, DatabaseEngine> enginesByDriverClass = initEnginesByDriverClassMap();
 
     private final String code;
 
@@ -197,6 +199,30 @@ public enum DatabaseEngine
         }
         return engine;
     }
+    
+    /**
+     * Returns the database engine for specified driver class.
+     * 
+     * @throws IllegalArgumentException if no engine could be found.
+     */
+    public static DatabaseEngine getEngineForDriverClass(String driverClassName)
+    {
+        final DatabaseEngine engine = enginesByDriverClass.get(driverClassName);
+        if (engine == null)
+        {
+            throw new IllegalArgumentException("No database engine with driver class "
+                    + driverClassName + " found.");
+        }
+        return engine;
+    }
+    
+    /**
+     * Returns <code>true</code> if a {@link DatabaseEngine} for specified driver class exists.
+     */
+    public static boolean hasEngineForDriverClass(String driverClassName)
+    {
+        return enginesByDriverClass.get(driverClassName) != null;
+    }
 
     private static Map<String, DatabaseEngine> initEngineMap()
     {
@@ -208,4 +234,14 @@ public enum DatabaseEngine
         return map;
     }
 
+    private static Map<String, DatabaseEngine> initEnginesByDriverClassMap()
+    {
+        final Map<String, DatabaseEngine> map = new HashMap<String, DatabaseEngine>();
+        for (DatabaseEngine engine : values())
+        {
+            map.put(engine.driverClass, engine);
+        }
+        return map;
+    }
+    
 }

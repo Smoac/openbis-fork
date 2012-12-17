@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -32,6 +34,9 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSourceDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSourceWithDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.util.IDataSourceFactory;
 
 /**
  * Stores and provides access to data sources defined in properties file.
@@ -75,14 +80,17 @@ public class DataSourceProvider implements IDataSourceProvider
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DataSourceProvider.class);
 
-    private final Map<String, DataSource> dataSources;
+    private final Map<String, DataSourceWithDefinition> dataSources;
+    
+    private final List<DataSourceDefinition> dataSourceDefinitions =
+            new ArrayList<DataSourceDefinition>();
 
     public static final String DATA_SOURCE_KEY = "data-source";
 
     private DataSourceProvider()
     {
         Properties properties = DssPropertyParametersUtil.loadServiceProperties();
-        dataSources = new HashMap<String, DataSource>();
+        dataSources = new HashMap<String, DataSourceWithDefinition>();
         SectionProperties[] props =
                 PropertyParametersUtil
                         .extractSectionProperties(properties, Constants.DATA_SOURCES_KEY, false);
@@ -97,7 +105,13 @@ public class DataSourceProvider implements IDataSourceProvider
             {
                 IDataSourceFactory factory =
                         ClassUtils.create(IDataSourceFactory.class, dataSourceFactoryClass);
-                DataSource dataSource = factory.create(dataSourceProperties);
+                DataSourceWithDefinition dataSource = factory.create(dataSourceProperties);
+                DataSourceDefinition definition = dataSource.getDefinitionOrNull();
+                if (definition != null)
+                {
+                    definition.setCode(dataSourceName);
+                    dataSourceDefinitions.add(definition);
+                }
                 dataSources.put(dataSourceName, dataSource);
                 if (operationLog.isInfoEnabled())
                 {
@@ -124,14 +138,14 @@ public class DataSourceProvider implements IDataSourceProvider
     @Override
     public DataSource getDataSource(String name) throws IllegalArgumentException
     {
-        DataSource result = dataSources.get(name);
+        DataSourceWithDefinition result = dataSources.get(name);
         if (result == null)
         {
             String message = "Data source '" + name + "' has not been configured.";
             throw new IllegalArgumentException(message);
         } else
         {
-            return result;
+            return result.getDataSource();
         }
     }
 
@@ -143,6 +157,12 @@ public class DataSourceProvider implements IDataSourceProvider
     public DataSource getDataSource(Properties properties)
     {
         return getDataSource(extractDataSourceName(properties));
+    }
+
+    @Override
+    public List<DataSourceDefinition> getAllDataSourceDefinitions()
+    {
+        return dataSourceDefinitions;
     }
 
     /**

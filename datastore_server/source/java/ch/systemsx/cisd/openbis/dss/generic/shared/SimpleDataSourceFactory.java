@@ -21,6 +21,8 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSourceWithDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.util.IDataSourceFactory;
 
 /**
  * Creates a commons-dbcp {@link DataSource} using its standard properties.
@@ -31,11 +33,11 @@ public class SimpleDataSourceFactory implements IDataSourceFactory
 {
 
     @Override
-    public DataSource create(Properties dbProps)
+    public DataSourceWithDefinition create(Properties dbProps)
     {
         SimpleDatabaseConfigurationContext context =
                 new SimpleDatabaseConfigurationContext(dbProps);
 
-        return context.getDataSource();
+        return new DataSourceWithDefinition(context.getDataSource(), null);
     }
 }

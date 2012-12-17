@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -53,6 +54,8 @@ public class DataStoreServerInfo implements Serializable
     private String sessionToken;
 
     private DatastoreServiceDescriptions servicesDescriptions;
+
+    private List<DataSourceDefinition> dataSourceDefinitions;
 
     private boolean archiverConfigured;
 
@@ -140,6 +143,16 @@ public class DataStoreServerInfo implements Serializable
     public void setTimeoutInMinutes(int timeoutInMinutes)
     {
         this.timeoutInMinutes = timeoutInMinutes;
+    }
+
+    public List<DataSourceDefinition> getDataSourceDefinitions()
+    {
+        return dataSourceDefinitions;
+    }
+
+    public void setDataSourceDefinitions(List<DataSourceDefinition> dataSourceDefinitions)
+    {
+        this.dataSourceDefinitions = dataSourceDefinitions;
     }
 
 }

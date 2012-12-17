@@ -47,13 +47,13 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, SimpleDatabaseConfigurationContext.class);
 
-    static final String DRIVER_KEY = "database-driver";
+    public static final String DRIVER_KEY = "database-driver";
 
-    static final String URL_KEY = "database-url";
+    public static final String URL_KEY = "database-url";
 
-    static final String USER_KEY = "database-username";
+    public static final String USER_KEY = "database-username";
 
-    static final String PASSWORD_KEY = "database-password";
+    public static final String PASSWORD_KEY = "database-password";
 
     static final String MAX_IDLE_KEY = "database-max-idle-connections";
 

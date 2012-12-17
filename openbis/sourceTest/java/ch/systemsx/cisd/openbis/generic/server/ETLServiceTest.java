@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationServerManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDataSourceManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
@@ -95,6 +96,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSourceDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -167,6 +169,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private PersonPE sessionPerson;
 
+    private IDataStoreDataSourceManager dataSourceManager;
+
     @Override
     @BeforeMethod
     @SuppressWarnings("unchecked")
@@ -178,6 +182,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         dataStoreService = context.mock(IDataStoreService.class);
         entityOperationChecker = context.mock(IETLEntityOperationChecker.class);
         dataStoreServiceRegistrator = context.mock(IDataStoreServiceRegistrator.class);
+        dataSourceManager = context.mock(IDataStoreDataSourceManager.class);
         conversationClient = context.mock(IServiceConversationClientManagerLocal.class);
         conversationServer = context.mock(IServiceConversationServerManagerLocal.class);
         sessionManagerForEntityOperations =
@@ -307,6 +312,8 @@ public class ETLServiceTest extends AbstractServerTestCase
                     will(returnValue(IDataStoreService.VERSION));
 
                     allowing(dataStoreDAO).createOrUpdateDataStore(with(dataStoreRecordingMatcher));
+
+                    one(dataSourceManager).handle(DSS_CODE, info.getDataSourceDefinitions());
                 }
             });
 
@@ -374,6 +381,8 @@ public class ETLServiceTest extends AbstractServerTestCase
                     will(returnValue(IDataStoreService.VERSION));
 
                     allowing(dataStoreDAO).createOrUpdateDataStore(with(dataStoreRecordingMatcher));
+
+                    one(dataSourceManager).handle(DSS_CODE, info.getDataSourceDefinitions());
                 }
             });
 
@@ -1510,7 +1519,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         ETLService etlService =
                 new ETLService(authenticationService, sessionManager, daoFactory,
                         propertiesBatchManager, boFactory, dssfactory, null,
-                        entityOperationChecker, dataStoreServiceRegistrator,
+                        entityOperationChecker, dataStoreServiceRegistrator, dataSourceManager,
                         sessionManagerForEntityOperations);
         etlService.setConversationClient(conversationClient);
         etlService.setConversationServer(conversationServer);
@@ -1534,6 +1543,10 @@ public class ETLServiceTest extends AbstractServerTestCase
         DatastoreServiceDescriptions services =
                 new DatastoreServiceDescriptions(reporting, processing);
         info.setServicesDescriptions(services);
+        DataSourceDefinition dataSourceDefinition = new DataSourceDefinition();
+        dataSourceDefinition.setCode("my_db");
+        dataSourceDefinition.setDriverClassName("my.class");
+        info.setDataSourceDefinitions(Arrays.asList(dataSourceDefinition));
         return info;
     }
 

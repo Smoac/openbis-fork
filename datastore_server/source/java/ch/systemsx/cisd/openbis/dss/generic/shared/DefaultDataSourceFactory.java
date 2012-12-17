@@ -25,6 +25,9 @@ import ch.systemsx.cisd.common.reflection.BeanUtils;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSourceDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSourceWithDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.util.IDataSourceFactory;
 
 /**
  * Creates a {@link DataSource} using {@link DatabaseConfigurationContext} and given properties. The
@@ -39,7 +42,7 @@ public class DefaultDataSourceFactory implements IDataSourceFactory
     public static final String VERSION_HOLDER_CLASS_KEY = "version-holder-class";
 
     @Override
-    public DataSource create(Properties dbProps)
+    public DataSourceWithDefinition create(Properties dbProps)
     {
         DatabaseConfigurationContext context =
                 BeanUtils.createBean(DatabaseConfigurationContext.class, dbProps);
@@ -59,6 +62,7 @@ public class DefaultDataSourceFactory implements IDataSourceFactory
             String version = versionHolder.getDatabaseVersion();
             DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, version);
         }
-        return context.getDataSource();
+        return new DataSourceWithDefinition(context.getDataSource(),
+                DataSourceDefinition.createFromContext(context));
     }
 }

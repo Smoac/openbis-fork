@@ -13,13 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.systemsx.cisd.openbis.dss.generic.shared;
+package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import java.util.Properties;
 
-import javax.sql.DataSource;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSourceWithDefinition;
 
-interface IDataSourceFactory
+/**
+ * Factory of a {@link DataSourceWithDefinition}.
+ * 
+ * @author Franz-Josef Elmer
+ */
+public interface IDataSourceFactory
 {
-    DataSource create(Properties dbProps);
+    /**
+     * Creates a data source optional definition from specified properties. Note, that if the
+     * definition is provided its code attribute might be undefined.
+     */
+    public DataSourceWithDefinition create(Properties dbProps);
 }

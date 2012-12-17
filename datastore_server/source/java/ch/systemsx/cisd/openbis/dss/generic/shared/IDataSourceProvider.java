@@ -16,9 +16,12 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
+import java.util.List;
 import java.util.Properties;
 
 import javax.sql.DataSource;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSourceDefinition;
 
 /**
  * A provider for data sources.
@@ -39,5 +42,10 @@ public interface IDataSourceProvider
      * source by calling {@link #getDataSource(String)}.
      */
     public DataSource getDataSource(Properties properties);
+    
+    /**
+     * Returns all data source definitions. Note, that not all data sources have a definition.
+     */
+    public List<DataSourceDefinition> getAllDataSourceDefinitions();
 
 }

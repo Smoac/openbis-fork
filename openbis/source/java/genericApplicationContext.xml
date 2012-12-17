@@ -117,7 +117,13 @@
           class="ch.systemsx.cisd.openbis.generic.server.DataStoreServiceRegistrator">
         <constructor-arg ref="dao-factory" />
     </bean>
-          
+
+    <bean id="dss-based-data-source-provider" 
+          class="ch.systemsx.cisd.openbis.generic.server.dataaccess.DataStoreServerBasedDataSourceProvider">
+        <constructor-arg ref="dao-factory" />
+        <constructor-arg value="etc/dss-datasource-mapping" />
+    </bean>
+    
     <!-- 
         // Common
     -->
@@ -198,6 +204,7 @@
         <constructor-arg ref="trusted-origin-domain-provider" />
         <constructor-arg ref="etl-entity-operation-checker" />
         <constructor-arg ref="data-store-service-registrator" />
+        <constructor-arg ref="dss-based-data-source-provider" />
         <property name="conversationClient" ref="service-conversation-client-manager" />
         <property name="conversationServer" ref="service-conversation-server-manager" />
     </bean>

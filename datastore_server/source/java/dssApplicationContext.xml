@@ -61,6 +61,7 @@
 	        <constructor-arg ref="etl-lims-service"/>
 	        <constructor-arg ref="plugin-tasks" />
 	        <constructor-arg ref="sessionHolder" />
+	        <constructor-arg ref="data-source-provider" />
 	        <property name="username" value="${username}"/>
 	        <property name="password" value="${password}"/>
 	        <property name="port" value="${port}"/>
