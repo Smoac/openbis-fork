@@ -34,49 +34,11 @@ var eachsamples = null;
 /// The eachsamples that are currently being inspected
 var inspectedEachsamples = [];
 
-/// The width of the inspectors section
-var inspectorsWidth = 450;
 
-//var appWidth = 200;
-
-function getAppHeight(){
-	return Math.max($(window).height() - 50, getVisibleLeafsCountForNode(root) * 30);
-}
-
-function getAppWidth(){
-	return $(window).width();
-}
-
-
-var didCreateVis = false;
-
-/// The visualization, referenced by functions that display content
-var vis;
-
-/// The inspectors, referenced by functions that show or hide inspectors
-var inspectors;
 
 /**
  * Create the DOM elements to store the visualization (tree + inspectors)
  */
-function createVis()
-{ 
-	if (didCreateVis) return;
-	
-	// Create a div to house the tree visualization and the inspectors
-	vis = d3.select("#vis");
-	
-	// An element for the inspectors.
-	inspectors = d3.select("#inspectorsContainer")
-		.style("width", + inspectorsWidth + "px")
-		.style("position", "absolute")
-		.style("overflow", "auto")
-		.style("left", "1250px")
-		.style("top", "100px")
-		.style("display", "none");
-
-	didCreateVis = true;
-}
 
 function translateSrc(d)
 {
@@ -100,290 +62,6 @@ function translateDst(d)
 	
 	return translate;
 }
-
-
-
-xmlValueRegex = /^<root>.*/;
-xmlValueRegex.compile(xmlValueRegex);
-xmlParser = new DOMParser();
-
-/** Initialize properties that are not stored in the database */
-function initializeSyntheticProperties(sample)
-{
-	var plasmidValue = sample.properties.PLASMIDS;
-  sample.properties.PLASMIDS_PARENTS = [];
-	
-	if (!xmlValueRegex.test(plasmidValue))
-		return;
-
-  globalValue = plasmidValue;
-	var plasmidXml = xmlParser.parseFromString(plasmidValue, "text/xml");
-	
-	
-	for (i=1; i < plasmidXml.childNodes.item(0).childNodes.length; i+=2 ) {
-	   
-				var sampleNode = plasmidXml.childNodes.item(0).childNodes.item(i);
-	
-				if (sampleNode.attributes.getNamedItem("code") != null) {
-	  	  		
-	  	  		var code = sampleNode.attributes.getNamedItem("code").value;
-	 		   		
-						if (sampleNode.attributes.getNamedItem("annotation") != null)  {
-	 	  				 var annotation = sampleNode.attributes.getNamedItem("annotation").value;
-						}	 		   		
-						else{
-								var annotation = "";
-						}
-						if (sampleNode.attributes.getNamedItem("rel") != null) {
-								var relationship = sampleNode.attributes.getNamedItem("rel").value;
-						}	
-						else{
-								var relationship = "";
-						}  	  		
-				 }
-			
-			  var PLASMIDS_PARENTS = null;
-			
-				if (relationship == "INT"){
-				  PLASMIDS_PARENTS = " " + code + "::" + annotation;
-				}
-				if (relationship == "MOD"){
-			   	PLASMIDS_PARENTS = " " + code + "_" + annotation;
-				}
-				if (relationship == "DEL"){
-			  	 PLASMIDS_PARENTS = " " + code + "_D_" + annotation;
-				}
-				if (relationship == "") {
-						PLASMIDS_PARENTS = code;
-				}
-				
-				sample.properties.PLASMIDS_PARENTS.push(PLASMIDS_PARENTS);
-	
-}			
-			
-			
-			var eachsampleParentsValue = sample.properties.YEAST_PARENTS;
- 	   sample.properties.YEASTS_PARENTS = [];
-  
-	
-	if (!xmlValueRegex.test(eachsampleParentsValue))
-		return;
-
- 		 globalValue2 = eachsampleParentsValue;
-		 var eachsampleParentsXml = xmlParser.parseFromString(eachsampleParentsValue, "text/xml");
-	
-		for (i=1; i < eachsampleParentsXml.childNodes.item(0).childNodes.length; i+=2 ) {
-	
-			var sampleEachsampleNode = eachsampleParentsXml.childNodes.item(0).childNodes.item(i);
-			
- 		  var eachsamplesDisplay = null;
-  
-			if (sampleEachsampleNode.attributes.getNamedItem("code") != null ) {
-					var eachsampleCode = sampleEachsampleNode.attributes.getNamedItem("code").value;
-			}
-			
-	eachsamplesDisplay = eachsampleCode;
-		
-	sample.properties.YEASTS_PARENTS.push(eachsamplesDisplay);
-
-	}
-	
-};
-
-
-/**
- * Convert properties to pairs
- */
-function props_to_pairs1(data)
-{
-
-	d = data.properties;
-	
-	var pairs = [];
-	for (var prop in d) {
-		var pair = [prop, d[prop]];
-		pairs.push(pair);
-	}
-	
-
-	order1 = ["OWNER", "OWNER_NUMBER", "YEAST_STRAIN_NAME", "COMMENTS", "PROJECT",  "PLASMIDS_PARENTS", "PLASMID_NAME",  "BACKBONE", "BACTERIAL_ANTIBIOTIC_RESISTANCE",  "YEAST_MARKER",  "OTHER_MARKER",  "FLANKING_RESTRICTION_ENZYME",  "COMMENTS"]
-	new_list1 = []
-	for (var i in order1) {
-		for (var j in pairs) {
-			if (pairs[j][0] == order1[i]) {
-				new_list1.push(pairs[j]);
-				break;
-			}
-		}
-	}
-	return new_list1;
-}
-
-
-function props_to_pairs5(data)
-{
-
-	d = data.properties;
-	
-	var pairs = [];
-	for (var prop in d) {
-		var pair = [prop, d[prop]];
-		pairs.push(pair);
-	}
-	
-
-	order5 = ["YEASTS_PARENTS"]
-	new_list5 = []
-	for (var i in order5) {
-		for (var j in pairs) {
-			if (pairs[j][0] == order5[i]) {
-				new_list5.push(pairs[j]);
-				break;
-			}
-		}
-	}
-	
-		return new_list5;
-}
-
-
-function props_to_pairs2(data)
-{
-
-	d = data.properties;
-	
-	var pairs = [];
-	for (var prop in d) {
-		var pair = [prop, d[prop]];
-		pairs.push(pair);
-	}
-	
-	
-	order2 = ["GENETIC_BACKGROUND",  "MATING_TYPE",  "BACKGROUND_SPECIFIC_MARKERS", "COMMON_MARKERS", "ENDOGENOUS_PLASMID"]
-	new_list2 = []
-	for (var i in order2) {
-		for (var j in pairs) {
-			if (pairs[j][0] == order2[i]) {
-				new_list2.push(pairs[j]);
-				break;
-			}
-		}
-	}
-	return new_list2;
-}
-
-function props_to_pairs3(data)
-{
-
-	d = data.properties;
-	
-	var pairs = [];
-	for (var prop in d) {
-		var pair = [prop, d[prop]];
-		pairs.push(pair);
-	}
-	
-	order3 = ["SOURCE","ORIGIN","STRAIN_CHECK"]
-	new_list3 = []
-	for (var i in order3) {
-		for (var j in pairs) {
-			if (pairs[j][0] == order3[i]) {
-				new_list3.push(pairs[j]);
-				break;
-			}
-		}
-	}
-	return new_list3;
-}
-
-function props_to_pairs4(data)
-{
-
-	d = data.properties;
-	
-	var pairs = [];
-	for (var prop in d) {
-		var pair = [prop, d[prop]];
-		pairs.push(pair);
-	}
-	
-	pairs.push(["REGISTRATION_DATE", new Date(data.registrationDetails.registrationDate)]);
-
-	order4 = [ "BOX_NUMBER","ROW","COLUMN","REGISTRATION_DATE"]
-	new_list4 = []
-	for (var i in order4) {
-		for (var j in pairs) {
-			if (pairs[j][0] == order4[i]) {
-				new_list4.push(pairs[j]);
-				break;
-			}
-		}
-	}
-	return new_list4;
-}
-
-
-function resolveObjectReference(objectOrId) {
-  if (isNaN(objectOrId)) {
-    eachsample = objectOrId;
-  
-  } else {
-  	eachsample = eachsamplesById[objectOrId];
-  
-  }
-  
- 
-  return eachsample;
-}
-
-
-
-function get_parents(data)
-{
-
-	d = data.properties;
-
-	new_list5=[]	
-	
-	if (data.parents != null) {
-		var i = 1;
-	  data.parents.forEach(function(parentOrId) {
-      parentLabel = "PARENT "+ i;
-      parent = resolveObjectReference(parentOrId);
-      new_list5.push([parentLabel, parent ]);
-			i++;	  
-		});
-	  
-	}
-	
-	return new_list5;
-}
-
-
-function get_children(data)
-{
-	d = data.properties;
-
-	new_list6=[]	
-	
-	if (data.children != null) {
-		var i = 1;
-		data.children.forEach(function(childOrId) {
-      childLabel = "CHILD "+ i;
-      child = resolveObjectReference(childOrId);
-      new_list6.push([childLabel, child ]);
-			i++;	  
-		});
-	  
-	}
-	
-	return new_list6;
-}
-
-
-
-
-
 
 
 /** Initialize the eachsamples variable */
@@ -417,7 +95,7 @@ function initializeEachsamples(result)
 		} else {
 			otherEachsamples.push(theSample);
 		}
-		initializeSyntheticProperties(theSample);
+		
 	});
 	
 	// Sort each of the groups
@@ -437,27 +115,14 @@ function initializeEachsamples(result)
 	
 	// Combine the two groups back together to produce the full collection of eachsamples
 	eachsamples = fryEachsamples.concat(otherEachsamples);
+	
+	
 }
 
 
 
 /** Set the size of the eachsample-table based on whether or not inspectors are visible */
-function resizeEachsampleTable()
-{
-	var cellWidth;
-	var areInspectorsVisible;
-	var padding = 20;
-	cellWidth = "100%";
-	areInspectorsVisible = true;
-	
-	var eachsampleTableTransition = d3.selectAll('div.eachsample-table-data-cell');
-	eachsampleTableTransition.style('width', cellWidth);
-	if (areInspectorsVisible) {
-		$("#inspectorsContainer").show();
-	} else {
-		$("#inspectorsContainer").hide();
-	}
-}
+
 
 function inspectEachsample(eachsample)
 {
@@ -466,12 +131,9 @@ function inspectEachsample(eachsample)
   	return;
   }
  
- 
-
-
-
-  
-  window.open("plasmid-browser.html?code=" + eachsample.code, "_blank");
+ console.log(eachsample.properties)
+	 
+  window.open(eachsample.sampleTypeCode +"-browser.html?code=" + eachsample.code, "_blank");
   
 /*
 	if (inspectedEachsamples.indexOf(eachsample) < 0) {
@@ -496,172 +158,10 @@ function closeInspector(eachsample)
 
 
 /**
- * Draw / update node inspectors
- */
-function updateInspectors(duration)
-{		
-		// Draw / update the inspectors	
-	var inspector = inspectors.selectAll("div.inspector").data(inspectedEachsamples, function (d) { return d.code });
-		
-	var box = inspector
-			.enter()
-		.append("div")
-		.attr("class", "inspector")
-		.attr("id", function(d) {return d.code+"_INSPECTOR"})
-		.text(function(d) { return d.code });
-		
-	box.append("span")
-		.attr("class", "close")
-		.on("click", closeInspector)
-		.text("x");
-	
-	inspector
-		.exit()
-	.transition()
-	.duration(duration)
-	.style("opacity", "0")
-	.remove();
-	
-
-	var propsTable = box.append("table").attr("class", "properties");
-	propsTable.selectAll("tr").data(function(d) { return props_to_pairs1(d) })
-		.enter()
-			.append("tr")
-			.selectAll("td").data(function(d) { return d }).enter()
-				.append("td")
-				.attr("class", "property")
-				.style("opacity", "0")
-				.text(function(d) { return d })
-			.transition()
-				.duration(duration)
-				.style("opacity", "1");	
-
-				
-				var propsTable5 = box.append("table").attr("class", "properties");
-	      propsTable5.selectAll("tr").data(function(d) { return props_to_pairs5(d) })
-	   	.enter()
-			.append("tr")
-			.selectAll("td").data(function(d) { return d }).enter()
-				.append("td")
-				.attr("class", "property")
-				.style("opacity", "0")
-				.text(function(d) { return d })
-			.transition()
-				.duration(duration)
-				.style("opacity", "1");			
-	
-				
-	var propsTableParents = box.append("table").attr("class", "properties");
-	propsTableParents.selectAll("tr").data(function(d) { return get_parents(d) })
-		.enter()
-			.append("tr")
-			//.on("click", inspectEachsample)
-      .on("click", function(trData) { inspectEachsample(trData[1]) } )
-     	.style("cursor", "pointer")
-			.selectAll("td").data(function(d) { return d }).enter()
-				.append("td")
-				.attr("class", "property")
-				.style("opacity", "0")
-				.text(function(d) { 
-					if (null == d.identifier) {
-						return d;
-					} else { 
-					 	return d.identifier.slice(11,50);
-					 	
-					} 
-				})
-			.transition()
-				.duration(duration)
-				.style("opacity", "1");			
-
-
-
-
-
-	var propsTableChildren = box.append("table").attr("class", "properties");
-	propsTableChildren.selectAll("tr").data(function(d) { return get_children(d) })
-		.enter()
-			.append("tr")
-			//.on("click", inspectEachsample)
-      .on("click", function(trData) { inspectEachsample(trData[1]) } )
-     	.style("cursor", "pointer")
-			.selectAll("td").data(function(d) { return d }).enter()
-				.append("td")
-				.attr("class", "property")
-				.style("opacity", "0")
-				.text(function(d) { 
-					if (null == d.identifier) {
-						return d;
-					} else { 
-					 	return d.identifier.slice(11,50);
-					} 
-				})
-			.transition()
-				.duration(duration)
-				.style("opacity", "1");			
-
-	var propsTable2 = box.append("table").attr("class", "properties");
-	propsTable2.selectAll("tr").data(function(d) { return props_to_pairs2(d) })
-		.enter()
-			.append("tr")
-			.selectAll("td").data(function(d) { return d }).enter()
-				.append("td")
-				.attr("class", "property")
-				.style("opacity", "0")
-				.text(function(d) { return d })
-			.transition()
-				.duration(duration)
-				.style("opacity", "1");	
-
-
-	var propsTable3 = box.append("table").attr("class", "properties");
-	propsTable3.selectAll("tr").data(function(d) { return props_to_pairs3(d) })
-		.enter()
-			.append("tr")
-			.selectAll("td").data(function(d) { return d }).enter()
-				.append("td")
-				.attr("class", "property")
-				.style("opacity", "0")
-				.text(function(d) { return d })
-			.transition()
-				.duration(duration)
-				.style("opacity", "1");	
-				
-				
-	var propsTable4 = box.append("table").attr("class", "properties");
-	propsTable4.selectAll("tr").data(function(d) { return props_to_pairs4(d) })
-		.enter()
-			.append("tr")
-			.selectAll("td").data(function(d) { return d }).enter()
-				.append("td")
-				.attr("class", "property")
-				.style("opacity", "0")
-				.text(function(d) { return d })
-			.transition()
-				.duration(duration)
-				.style("opacity", "1");			
-	
-	
-
-	var downloadTable = inspector.selectAll("table.downloads").data(function(d) { return [d] });
-	
-	downloadTable
-		.enter()
-			.append("table")
-				.attr("width", "100%")
-				.attr("class", "downloads");
-	
-	
-
-}
-
-
-
-/**
  * Display the samples returned by the server
  */
 function displayReturnedSamples(data)
-{
+{ 
 	if (data.error) {
 		console.log(data.error);
 		vis.append("p").text("Could not retrieve data.");
@@ -670,18 +170,6 @@ function displayReturnedSamples(data)
 	
 	initializeEachsamples(data.result);
 	
-// This will show the object in the log -- helpful for debugging
- //console.log(data.result);
-
-
-/*
-	if (eachsamples.length < 1) {
-		//vis.append("p").text("No data found.");
-		console.log(eachsamples)
-		//return;
-	}
-*/
-	
 	
 
  
@@ -689,19 +177,38 @@ function displayReturnedSamples(data)
 	var selection = d3.select("#vis").select("#eachsample-table").selectAll("tr.eachsample-table-data").data(eachsamples);
 		// Code under enter is run if there is no HTML element for a data element
 
-		
+
+var searchText = $('#search').val();
+var searchRegexpText = ("*" + searchText + "*").replace(/\*/g, ".*");
+var searchRegexp = new RegExp(searchRegexpText, "i");
+
 selection
 	  .enter()
 		.append("tr")	  
 	 	.attr("class", "eachsample-table-data")
 		.style("cursor", "pointer")
 		.on("click", inspectEachsample)
-		.selectAll("td").data(function(sample) { return [sample.sampleTypeCode, sample.identifier.slice(11,50) ]; })
+		.selectAll("td").data(function(sample) { return [sample.sampleTypeCode, sample.identifier.slice(11,50), sample.properties ]; })
 			.enter()
 			.append("td")
 			.append("div")
 			.attr("class", "eachsample-table-data-cell")
-			.text(String)
+			.text(function(d, index){
+			  if(index == 2){
+			    if(searchText && searchText.length > 0 && d){
+				    for(propertyName in d){
+				        var propertyValue = d[propertyName];
+				        if(propertyValue && searchRegexp.test(propertyValue)){
+							    return propertyValue;
+							  }			    
+				    }
+					}	    
+			  }else{
+			    return d;
+			  }
+			  
+			  return "" 
+			})
 			
 }
 
@@ -720,13 +227,13 @@ function showSearchedSamples()
    matchClauses : 
             [ {"@type":"AnyFieldMatchClause",
                 fieldType : "ANY_FIELD",
-                desiredValue : $("#search").val()
+                desiredValue : "*" + $("#search").val() + "*"
             }
             ],
         operator : "MATCH_ANY_CLAUSES"
 };
 	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], displayReturnedSamples);
-
+	
 }
 
 
@@ -767,10 +274,7 @@ function enterApp(data)
 	
 	$('#openbis-logo').height(30);
 	
-	createVis();
 	
-	//showChildrenSamples();
-
 	showMatchingSamples();
 }
 
@@ -826,25 +330,6 @@ $(document).ready(function() {
 });
 
 
-
-
-
-
-/**
- * Show and Hide the filters when clicking on the Filters button 
- */
-function ShowHide(divId)
-{
-	if(document.getElementById(divId).style.display == 'none')
-	{
-		document.getElementById(divId).style.display='block';
-	}
-	else
-	{
-	document.getElementById(divId).style.display = 'none';
-	}
-}
-    
   
 </script>
 
@@ -866,7 +351,7 @@ function ShowHide(divId)
 			<button id="logout-button" style="position: absolute; right:10px;;top:10px">Logout</button>
 		</div>
 		<div id="chemical_browser"	style="position: absolute; left:10px; top:100px">
-		  <a href="chemicals-browser.html">Chemicals</a> 
+		  <a href="chemical-browser.html">Chemicals</a> 
 		</div>   
 		<div id="antibody_browser" style="position: absolute; left:10px; top:150px">
 		 	<a href="antibody-browser.html">Antibodies</a>  
@@ -875,7 +360,7 @@ function ShowHide(divId)
 		 	<a href="media-browser.html">Media</a>  
 		</div>						
 		<div id="buffer_browser" style="position: absolute; left:10px; top:250px">
-		 	<a href="buffer-browser.html">Solutions Buffers</a>  
+		 	<a href="solutions_buffers-browser.html">Solutions Buffers</a>  
 		</div>		
 		<div id="oligo_browser"	style="position: absolute; left:10px; top:300px">
 		  <a href="oligo-browser.html">Oligos</a>  
@@ -887,12 +372,12 @@ function ShowHide(divId)
 		 	<a href="yeast-browser.html">Yeasts</a>  
 		</div>		
 		<div id="protocol_browser" style="position: absolute; left:10px; top:450px">
-		 	<a href="protocol-browser.html">General Protocols</a>  
+		 	<a href="general_protocol-browser.html">General Protocols</a>  
 		</div>		
 		<div id="pcr_browser" style="position: absolute; left:10px; top:500px">
 		 	<a href="pcr-browser.html">PCR</a>  
 		</div>				
-			<div id="search_browser" style="position: absolute; left:10px; top:550px">
+			<div id="search_browser" style="position: absolute; left:10px;;top:50px">
 		 	<a href="search-browser.html">Search</a>  
 		</div>					
 
@@ -915,10 +400,7 @@ function ShowHide(divId)
 			</table>
 	 		</div>
 	 		
-	 		
-	 		
-			<div id="inspectorsContainer" style="float:right "></div>
-		</div>
+			
 	</div>
 </body>
 </html>

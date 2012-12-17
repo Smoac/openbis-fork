@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 <head>
-	<title>Genereal Protocol Browser</title>
+	<title>Solutions Buffers Browser</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<link type="text/css" rel="stylesheet" href="protocol-body-style.css" />
+	<link type="text/css" rel="stylesheet" href="buffer-body-style.css" />
 	<link type="text/css" rel="stylesheet" href="button.css" />
 	<script type="text/javascript" src="d3.js"></script>
 	<script type="text/javascript" src="d3.layout.js"></script>
@@ -27,61 +27,63 @@
 		</form>
 	</div>
 
-	<div id="main">
-	  <div id = "title" style="padding-top:20px"> General Protocols </div>
+<div id="main">
+	  <div id = "title" style="padding-top:20px"> Solutions Buffers </div>
 		<div id="button-group">	
 			<button id="logout-button" style="position: absolute; right:10px;;top:10px">Logout</button>
 		</div>
 		<div id="chemical_browser"	style="position: absolute; left:10px; top:100px">
-		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a> 
+		  <a href="chemical-browser.html">Chemicals</a> 
 		</div>   
 		<div id="antibody_browser" style="position: absolute; left:10px; top:150px">
-		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/antibody-browser.html">Antibodies</a>  
+		 	<a href="antibody-browser.html">Antibodies</a>  
 		</div>		
 		<div id="media_browser" style="position: absolute; left:10px; top:200px">
-		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/media-browser.html">Media</a>  
+		 	<a href="media-browser.html">Media</a>  
 		</div>						
 		<div id="buffer_browser" style="position: absolute; left:10px; top:250px">
-		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/buffer-browser.html">Solutions Buffers</a>  
+		 	<a href="solutions_buffers-browser.html">Solutions Buffers</a>  
 		</div>		
 		<div id="oligo_browser"	style="position: absolute; left:10px; top:300px">
-		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/oligo-browser.html">Oligos</a>  
+		  <a href="oligo-browser.html">Oligos</a>  
 		</div>		
 		<div id="plasmid_browser"	style="position: absolute; left:10px; top:350px">
-		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/plasmid-browser.html">Plasmids</a>  
+		  <a href="plasmid-browser.html">Plasmids</a>  
 		</div>		
 		<div id="yeast_browser" style="position: absolute; left:10px; top:400px">
-		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/yeast-browser.html">Yeasts</a>  
+		 	<a href="yeast-browser.html">Yeasts</a>  
 		</div>		
 		<div id="protocol_browser" style="position: absolute; left:10px; top:450px">
-		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/protocol-browser.html">General Protocols</a>  
+		 	<a href="general_protocol-browser.html">General Protocols</a>  
 		</div>		
 		<div id="pcr_browser" style="position: absolute; left:10px; top:500px">
-		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/pcr-browser.html">PCR</a>  
+		 	<a href="pcr-browser.html">PCR</a>  
 		</div>				
-	
-<!--  
-		<div id="filter-button"	style="padding-left:200px; padding-top: 570px; font-weight:bold; padding-bottom:30px;">
+			<div id="search_browser" style="position: absolute; left:10px; top:550px">
+		 	<a href="search-browser.html">Search</a>  
+		</div>					
+
+<!-- 		<div id="filter-button"	style="padding-left:200px; padding-top: 570px; font-weight:bold; padding-bottom:30px;">
 		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
 		</div> 		
 	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
 		<table>
 			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Owner</td><td><input style="width: 200px" id="owner_filter" type="text"></td></tr> 		
 			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Owner Number</td><td><input style="width: 200px" id="ownerNum_filter" type="text"></td></tr>
-				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Antibody Name</td><td> <input style="width: 200px" id="antibodyName_filter" type="text"></td></tr> 		
+				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">buffer Name</td><td> <input style="width: 200px" id="bufferName_filter" type="text"></td></tr> 		
       	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Backbone</td><td> <input style="width: 200px" id="backbone_filter" type="text"></td></tr> 		
    	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Bacterial Antibitioc Resistance</td><td> <input style="width: 200px" id="antibiotic_filter" type="text"></td></tr> 		
    	  	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">(Yeast) Marker</td><td> <input style="width: 200px" id="marker_filter" type="text"></td></tr> 		
    	  </table> 		
     </div>	
-	-->	
+-->		
 		
 	
     
 		<div id="vis">
-  	 	<div style="position:absolute; left:200px; width: 1000px; height: 500px; top: 100px; overflow: auto">
-		  <table id="protocol-table" style="float: left">
-			  <tr class="protocol-table-header"><th>Protocol Code</th><th>Name</th><th>For What</th><th>Protocol Type</th><th>Publication</th></tr>
+  	 	<div style="position:absolute; left:200px; height: 500px; top: 100px; overflow: auto">
+		  <table id="buffer-table" style="float: left">
+			  <tr class="buffer-table-header"><th>Solutions Buffers Code</th><th>Name</th><th>Storage</th><th>For What</th></tr>
 				</table>
 			</div>
 			<span id="inspectorsContainer"></span>
@@ -95,14 +97,13 @@ openbisServer = new openbis('https://openbis-csb.ethz.ch/openbis/openbis', 'http
 
 
 
-
 // Some global variables we refer to
 
-/// All protocol
-var protocols = null;
+/// All buffers
+var buffers = null;
 
-/// The protocol that are currently being inspected
-var inspectedprotocols = [];
+/// The buffers that are currently being inspected
+var inspectedbuffers = [];
 
 /// The width of the inspectors section
 var inspectorsWidth = 450;
@@ -142,7 +143,6 @@ function createVis()
 		.style("left", "1250px")
 		.style("top", "100px")
 		.style("display", "none");
-
 	didCreateVis = true;
 }
 
@@ -332,92 +332,14 @@ function initializeSyntheticProperties(sample)
 				
 				sample.properties.SOLUTIONS_BUFFERS_PARENTS.push(SOLUTIONS_BUFFERS_PARENTS);
 				
-				
+				console.log(sample.properties.SOLUTIONS_BUFFERS_PARENTS)
 			}	  
 			
 			   
 }								
-	
-	
-		var protocolValue = sample.properties.GENERAL_PROTOCOL;
-  	sample.properties.GENERAL_PROTOCOL_PARENTS = [];
-	
-		if (!xmlValueRegex.test(protocolValue))
-		return;
-
- 	  globalValue =protocolValue;
-		var protocolXml = xmlParser.parseFromString(protocolValue, "text/xml");
-	
-	
-		for (i=1; i < protocolXml.childNodes.item(0).childNodes.length; i+=2 ) {
-	   
-				var sampleNode = protocolXml.childNodes.item(0).childNodes.item(i);
-	
-				if (sampleNode.attributes.getNamedItem("code") != null) {
-	  	  		
-	  	  		var code = sampleNode.attributes.getNamedItem("code").value;
-	  	  		
-	 		   		
-						if (sampleNode.attributes.getNamedItem("quantity") != null)  {
-	 	  				 var quantity = sampleNode.attributes.getNamedItem("quantity").value;
-						}	 		   		
-						else{
-								var quantity = "n.a.";
-						}
-						if (sampleNode.attributes.getNamedItem("name") != null) {
-								var name = sampleNode.attributes.getNamedItem("name").value;
-						}	
-						else{
-								var name = "n.a.";
-						}  	  		
-				 }
-				 
-				 
 			
-				if (code !=null){		
-				
-							
-			  var GENERAL_PROTOCOL_PARENTS = null;
-			
-				
-				GENERAL_PROTOCOL_PARENTS = "\n\n    " +code  +  "(" + name + ")" + quantity ;
-				
-				
-				
-				sample.properties.GENERAL_PROTOCOL_PARENTS.push(GENERAL_PROTOCOL_PARENTS);
-				
-				
-			}	  
-			
-			   
-}									
-	
-
 	
 };
-
-function reformatString(sample)
-{
-
-
-  		sample.properties.WHAT_FOR = [];
-  		console.log(sample.properties.FOR_WHAT)
- 	
-			if (sample.properties.FOR_WHAT != "undefined") {
-				newArray = sample.properties.FOR_WHAT.split(/\d/);
-				for(i=0; i<newArray.length; i++) {
-   				WHAT_FOR = i+' '+newArray[i]+ "\n";
-   				sample.properties.WHAT_FOR.push(WHAT_FOR)
-   				
-				}
-				
-			console.log(sample.properties.WHAT_FOR)
-			//sample.properties.WHAT_FOR.push(sample.properties.WHAT_FOR)
-			}
-			
-			
-
-}
 
 
 
@@ -436,7 +358,7 @@ function props_to_pairs1(data)
 	}
 	
 
-	order1 = ["NAME", "FOR_WHAT", "SUPPLIER", "ARTICLE_NUMBER", "LOCAL_ID",  "STORAGE", "STOCK_CONCENTRATION", "STERILIZATION", "MATERIALS", "ORGANISM"]
+	order1 = ["NAME", "FOR_WHAT", "ORGANISM", "SUPPLIER", "ARTICLE_NUMBER", "LOCAL_ID",  "STORAGE","STOCK_CONCENTRATION", "STERILIZATION" ]
 	new_list1 = []
 	for (var i in order1) {
 	  for (var j in pairs) {
@@ -463,7 +385,7 @@ function props_to_pairs2(data)
 	}
 	
 	
-	order2 = ["PROCEDURE",  "PROTOCOL_EVALUATION", "DETAILS", "COMMENTS", "PUBLICATION"]
+	order2 = ["DETAILS",  "COMMENTS",  "PUBLICATION"   ]
 	new_list2 = []
 	for (var i in order2) {
 		for (var j in pairs) {
@@ -487,7 +409,7 @@ function props_to_pairs3(data)
 		pairs.push(pair);
 	}
 	
-	order3 = ["CHEMICALS_PARENTS","MEDIA_PARENTS","SOLUTIONS_BUFFERS_PARENTS", "GENERAL_PROTOCOL_PARENTS" ]
+	order3 = ["CHEMICALS_PARENTS","MEDIA_PARENTS","SOLUTIONS_BUFFERS_PARENTS" ]
 	new_list3 = []
 	for (var i in order3) {
 		for (var j in pairs) {
@@ -513,7 +435,7 @@ function props_to_pairs4(data)
 	
 	pairs.push(["REGISTRATION_DATE", new Date(data.registrationDetails.registrationDate)]);
 
-	order4 = [ "XMLCOMMENTS","SUGGESTIONS", "PROTOCOL_MODIFICATIONS", "REGISTRATION_DATE"]
+	order4 = [ "XMLCOMMENTS","REGISTRATION_DATE"]
 	new_list4 = []
 	for (var i in order4) {
 		for (var j in pairs) {
@@ -528,14 +450,15 @@ function props_to_pairs4(data)
 
 
 
+
 function resolveObjectReference(objectOrId) {
   if (isNaN(objectOrId)) {
-    protocol = objectOrId;
+    buffer = objectOrId;
   } else {
-  	protocol = protocolsById[objectOrId];
+  	buffer = buffersById[objectOrId];
   }
   
-  return protocol;
+  return buffer;
 }
 
 function get_parents(data)
@@ -581,21 +504,21 @@ function get_children(data)
 }
 
 
-/** Initialize the protocols variable */
-function initializeprotocols(result)
+/** Initialize the buffers variable */
+function initializebuffers(result)
 {
-      // Construct a map of all protocols by id
-  protocolsById = {};
+      // Construct a map of all buffers by id
+  buffersById = {};
 
-	// Split the protocols into two groups, the ones that start with FRP in their sample name and the other ones.
-	var frpprotocols = [], otherprotocols = [];
-	var frpRegex = /^FRPROT[0-9]+/;
+	// Split the buffers into two groups, the ones that start with FRP in their sample name and the other ones.
+	var frpbuffers = [], otherbuffers = [];
+	var frpRegex = /^FRSOB[0-9]+/;
 	frpRegex.compile(frpRegex);
 	result.forEach(function(sampleOrId) {
 		var theSample = sampleOrId;
 		function storeSamplesById(referredSample) {
       if (isNaN(referredSample)) {
-        protocolsById[referredSample["@id"]] = referredSample;
+        buffersById[referredSample["@id"]] = referredSample;
         if (referredSample.parents) referredSample.parents.forEach(storeSamplesById);
         if (referredSample.children) referredSample.children.forEach(storeSamplesById);
       }
@@ -603,40 +526,37 @@ function initializeprotocols(result)
 	  if (isNaN(theSample)) {
 	  	storeSamplesById(theSample);
     } else {
-	    // This is referring to an object in the protocolsById map
-	    theSample = protocolsById[sampleOrId];
+	    // This is referring to an object in the buffersById map
+	    theSample = buffersById[sampleOrId];
 		}       
  		if (frpRegex.test(theSample.code)) {
-			frpprotocols.push(theSample);
+			frpbuffers.push(theSample);
 		} else {
-			otherprotocols.push(theSample);
+			otherbuffers.push(theSample);
 		}
 		initializeSyntheticProperties(theSample);
-		reformatString(theSample);
-		
 	});
 	
 	// Sort each of the groups
-	otherprotocols.sort(function(a, b) { 
+	otherbuffers.sort(function(a, b) { 
 		return (a.code < b.code) ? -1 : 1; 
 	});
 	
-	frpprotocols.sort(function(a, b) {
+	frpbuffers.sort(function(a, b) {
 		// Sort based on the FRP number
-		var frpNumberA = parseInt(a.code.substring(6));
-		var frpNumberB = parseInt(b.code.substring(6));
+		var frpNumberA = parseInt(a.code.substring(5));
+		var frpNumberB = parseInt(b.code.substring(5));
 		return (frpNumberA < frpNumberB) ? -1 : 1;
 	});
 	
-	// Combine the two groups back together to produce the full collection of protocols
-	protocols = frpprotocols.concat(otherprotocols);
+	// Combine the two groups back together to produce the full collection of buffers
+	buffers = frpbuffers.concat(otherbuffers);
 }
 
 
 
-
-/** Set the size of the protocol-table based on whether or not inspectors are visible */
-function resizeprotocolTable()
+/** Set the size of the buffer-table based on whether or not inspectors are visible */
+function resizebufferTable()
 {
 	var cellWidth;
 	var areInspectorsVisible;
@@ -644,8 +564,8 @@ function resizeprotocolTable()
 	cellWidth = "100%";
 	areInspectorsVisible = true;
 	
-	var protocolTableTransition = d3.selectAll('div.protocol-table-data-cell');
-	protocolTableTransition.style('width', cellWidth);
+	var bufferTableTransition = d3.selectAll('div.buffer-table-data-cell');
+	bufferTableTransition.style('width', cellWidth);
 	if (areInspectorsVisible) {
 		$("#inspectorsContainer").show();
 	} else {
@@ -653,35 +573,65 @@ function resizeprotocolTable()
 	}
 }
 
-function inspectprotocol(protocol)
+function inspectbuffer(buffer)
 {
-	if (inspectedprotocols.indexOf(protocol) < 0) {
-		inspectedprotocols.push(protocol);
+	if (inspectedbuffers.indexOf(buffer) < 0) {
+		inspectedbuffers.push(buffer);
 		
 		// When requesting information about the sample, we don't need parents
 		// and children, so send a copy of the saple without that information.
-		var protocolToSend = $.extend({}, protocol);
-		delete protocolToSend.parents;
-		delete protocolToSend.children;
-	
+		var bufferToSend = $.extend({}, buffer);
+		delete bufferToSend.parents;
+		delete bufferToSend.children;
+		openbisServer.listDataSetsForSample(bufferToSend, true, dataset.curry(buffer));
 	}
-	resizeprotocolTable();
+	resizebufferTable();
 	updateInspectors(1000);
 }
 
-function closeInspector(protocol)
+function closeInspector(buffer)
 {
-	var index = inspectedprotocols.indexOf(protocol);
+	var index = inspectedbuffers.indexOf(buffer);
 	if (index < 0) {
 		return;
 	}
 	
-	inspectedprotocols.splice(index, 1);
-	resizeprotocolTable();
+	inspectedbuffers.splice(index, 1);
+	resizebufferTable();
 	updateInspectors(1000);
 }
 
+function dataset(buffer, data) {
+	for (var i in data.result) {
+	  console.log(data.result)
+		openbisServer.listFilesForDataSet(data.result[i].code, "/", true, filelist.curry(buffer, data.result[i]));
+	}
+}
 
+function filelist(buffer, dataset, files) {
+	for (var i in files.result) {
+		if (!files.result[i].isDirectory) {
+			var inspector = inspectors.select("#"+buffer.code+"_INSPECTOR");
+			var pathInDataSet = files.result[i].pathInDataSet;
+			var downloadUrl = 'https://openbis-csb.ethz.ch:443/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
+			
+			inspector.select("td.data_sets").append("a").attr("href", downloadUrl).text(pathInDataSet)
+			inspector.select("td.data_sets").append("br");
+			
+			if (/\.svg$/.test(pathInDataSet)) {
+					// Retrieve the svg file and inject it into the DOM
+					d3.xml(downloadUrl, "image/svg+xml", function(xml) {
+						var importedNode = document.importNode(xml.documentElement, true);
+						d3.select(importedNode)
+							.attr("width", inspectorsWidth - 20)
+							.attr("height", inspectorsWidth - 20)
+							.attr("viewBox", "200 200 650 650");
+						inspector.node().appendChild(importedNode);
+					});
+			}
+		}
+	}
+}
 
 
 /**
@@ -690,7 +640,7 @@ function closeInspector(protocol)
 function updateInspectors(duration)
 {		
 		// Draw / update the inspectors	
-	var inspector = inspectors.selectAll("div.inspector").data(inspectedprotocols, function (d) { return d.code });
+	var inspector = inspectors.selectAll("div.inspector").data(inspectedbuffers, function (d) { return d.code });
 		
 	var box = inspector
 			.enter()
@@ -728,7 +678,7 @@ function updateInspectors(duration)
 	propsTableParents.selectAll("tr").data(function(d) { return get_parents(d) })
 		.enter()
 			.append("tr")
-			.on("click", function(trData) { inspectprotocol(trData[1]) } )
+			.on("click", function(trData) { inspectbuffer(trData[1]) } )
      	.style("cursor", "pointer")
 			.selectAll("td").data(function(d) { return d }).enter()
 				.append("td")
@@ -750,7 +700,7 @@ function updateInspectors(duration)
 	propsTableChildren.selectAll("tr").data(function(d) { return get_children(d) })
 		.enter()
 			.append("tr")
-			.on("click", function(trData) { inspectprotocol(trData[1]) } )
+			.on("click", function(trData) { inspectbuffer(trData[1]) } )
      	.style("cursor", "pointer")
 			.selectAll("td").data(function(d) { return d }).enter()
 				.append("td")
@@ -795,7 +745,6 @@ function updateInspectors(duration)
 				.duration(duration)
 				.style("opacity", "1");	
 				
-				
 	var propsTable4 = box.append("table").attr("class", "properties");
 	propsTable4.selectAll("tr").data(function(d) { return props_to_pairs4(d) })
 		.enter()
@@ -808,6 +757,8 @@ function updateInspectors(duration)
 			.transition()
 				.duration(duration)
 				.style("opacity", "1");			
+							
+	
 			
 				
 	var downloadTable = inspector.selectAll("table.downloads").data(function(d) { return [d] });
@@ -817,6 +768,17 @@ function updateInspectors(duration)
 				.attr("width", "100%")
 				.attr("class", "downloads");
 	
+	// Add table row for data sets
+//	var dataSetRow = box.select("table.properties").append("tr");
+//	dataSetRow
+//				.append("td")
+//					.attr("class", "property")
+//					.text("DATA_SETS");
+//	dataSetRow
+//				.append("td")
+//					.attr("class", "data_sets");
+	
+
 }
 
 /**
@@ -830,36 +792,34 @@ function displayReturnedSamples(data)
 		return;
 	}
 	
-	initializeprotocols(data.result);
+	initializebuffers(data.result);
 	
 	// This will show the object in the log -- helpful for debugging
 	// console.log(data.result);
-	if (protocols.length < 1) {
+	if (buffers.length < 1) {
 		vis.append("p").text("No data found.");
 		return;
 	}
 
-	var selection = d3.select("#vis").select("#protocol-table").selectAll("tr.protocol-table-data").data(protocols);
+	var selection = d3.select("#vis").select("#buffer-table").selectAll("tr.buffer-table-data").data(buffers);
 		// Code under enter is run if there is no HTML element for a data element
-	
-	
 	
 	selection
 		.enter()
 		.append("tr")
-		.attr("class", "protocol-table-data")
+		.attr("class", "buffer-table-data")
 		.style("cursor", "pointer")
-		.on("click", inspectprotocol)
-		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.NAME, sample.properties.WHAT_FOR, sample.properties.PROTOCOL_TYPE, sample.properties.PUBLICATION]; })
+		.on("click", inspectbuffer)
+		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.NAME, sample.properties.STORAGE, sample.properties.FOR_WHAT]; })
 			.enter()
 			.append("td")
 			.append("div")
-			.attr("class", "protocol-table-data-cell")
+			.attr("class", "buffer-table-data-cell")
 			.text(String)
 
 }
 
-function protocolFilter(filter, property, element, index, array) {
+function bufferFilter(filter, property, element, index, array) {
 
 	
 	filter = filter.toLowerCase();
@@ -883,7 +843,7 @@ function protocolFilter(filter, property, element, index, array) {
 }
 
 
-function visualize(ownerFilterText, ownerNumFilterText, antibodyNameFilterText, backboneFilterText, antibioticFilterText, markerFilterText )
+function visualize(ownerFilterText, ownerNumFilterText, bufferNameFilterText, backboneFilterText, antibioticFilterText, markerFilterText )
 {
 	if (ownerFilterText == undefined) 
 	{
@@ -895,9 +855,9 @@ function visualize(ownerFilterText, ownerNumFilterText, antibodyNameFilterText, 
 		ownerNumFilterText = "";
 	}
 	
-	if (antibodyNameFilterText == undefined) 
+	if (bufferNameFilterText == undefined) 
 	{
-		antibodyNameFilterText = "";
+		bufferNameFilterText = "";
 	}
 
 	if (backboneFilterText == undefined) 
@@ -915,23 +875,23 @@ function visualize(ownerFilterText, ownerNumFilterText, antibodyNameFilterText, 
 		markerFilterText = "";
 	}
 	
-	var displayedAntibodys = antibodys.filter(antibodyFilter.curry(ownerFilterText, "OWNER"));
-	displayedAntibodys = displayedAntibodys.filter(antibodyFilter.curry(ownerNumFilterText, "OWNER_NUMBER"));
-	displayedAntibodys = displayedAntibodys.filter(antibodyFilter.curry(antibodyNameFilterText, "ANTIBODY_NAME"));
-	displayedAntibodys = displayedAntibodys.filter(antibodyFilter.curry(backboneFilterText, "BACKBONE"));
-	displayedAntibodys = displayedAntibodys.filter(antibodyFilter.curry(antibioticFilterText, "BACTERIAL_ANTIBIOTIC_RESISTANCE"));
-	displayedAntibodys = displayedAntibodys.filter(antibodyFilter.curry(markerFilterText, "YEAST_MARKER"));
+	var displayedbuffers = buffers.filter(bufferFilter.curry(ownerFilterText, "OWNER"));
+	displayedbuffers = displayedbuffers.filter(bufferFilter.curry(ownerNumFilterText, "OWNER_NUMBER"));
+	displayedbuffers = displayedbuffers.filter(bufferFilter.curry(bufferNameFilterText, "buffer_NAME"));
+	displayedbuffers = displayedbuffers.filter(bufferFilter.curry(backboneFilterText, "BACKBONE"));
+	displayedbuffers = displayedbuffers.filter(bufferFilter.curry(antibioticFilterText, "BACTERIAL_ANTIBIOTIC_RESISTANCE"));
+	displayedbuffers = displayedbuffers.filter(bufferFilter.curry(markerFilterText, "YEAST_MARKER"));
 	
 
 
-	var selection2 = d3.select("#vis").select("#protocol-table").selectAll("tr.protocol-table-data").data(protocols);
+	var selection2 = d3.select("#vis").select("#buffer-table").selectAll("tr.buffer-table-data").data(buffers);
 		// Code under enter is run if there is no HTML element for a data element
 	
 
 
 		selection2.style("display", 
 			function(data) {
-				if ($.inArray(data, displayedprotocols) != -1) {
+				if ($.inArray(data, displayedbuffers) != -1) {
 					return "table-row"
 				} else {
 					return  "none"
@@ -949,7 +909,7 @@ function showMatchingSamples()
   var matchClauses = [ {"@type":"AttributeMatchClause",
 				fieldType : "ATTRIBUTE",			
 				attribute : "TYPE",
-				desiredValue : "GENERAL_PROTOCOL" 
+				desiredValue : "SOLUTIONS_BUFFERS" 
 			}
 	]
 	
@@ -973,7 +933,6 @@ function showMatchingSamples()
 	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], displayReturnedSamples);
 
 }
-
 
 
 function enterApp(data)
@@ -1018,27 +977,27 @@ $(document).ready(function() {
 	});
 	
 	$('#owner_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#antibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#bufferName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});	
 		
 	$('#ownerNum_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#antibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#bufferName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 
-  $('#antibodyName_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#antibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+  $('#bufferName_filter').keyup(function() {
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#bufferName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 	
 	$('#backbone_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#antibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#bufferName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 	
 	$('#antibiotic_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#antibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#bufferName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 	
 	$('#marker_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#antibodyName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#bufferName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 	
 	
