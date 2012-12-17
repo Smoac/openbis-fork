@@ -40,6 +40,7 @@ copyIfExists $CONF/.keystore $ROOT/openBIS-server/jetty/etc/openBIS.keystore
 copyIfExists $CONF/passwd $ROOT/openBIS-server/jetty/etc/
 copyIfExists $CONF/web-client.properties $ROOT/openBIS-server/jetty/etc/
 copyIfExists $CONF/capabilities $ROOT/openBIS-server/jetty/etc/
+copyIfExists $CONF/dss-datasource-mapping $ROOT/openBIS-server/jetty/etc/
 
 # -- DSS
 cp $CONF/dss-service.properties $ROOT/datastore_server/etc/service.properties

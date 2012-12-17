@@ -30,6 +30,7 @@ ROOT=$BASE/../servers
 copyFileIfExists $ROOT/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/service.properties $CONF/
 copyFileIfExists $ROOT/openBIS-server/jetty/etc/service.properties $CONF/
 copyFileIfExists $ROOT/openBIS-server/jetty/etc/capabilities $CONF/
+copyFileIfExists $ROOT/openBIS-server/jetty/etc/dss-datasource-mapping $CONF/
 copyFileIfExists $ROOT/openBIS-server/jetty/etc/log.xml $CONF/
 copyFileIfExists $ROOT/openBIS-server/jetty/bin/openbis.conf $CONF/
 copyFileIfExists $ROOT/openBIS-server/jetty/etc/openbis.conf $CONF/
