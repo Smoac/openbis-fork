@@ -422,6 +422,9 @@ public final class ClassUtils
             } catch (final ClassNotFoundException ex)
             {
                 throw new CheckedExceptionTunnel(ex);
+            } catch (Throwable ex)
+            {
+                throw new IllegalArgumentException("Couldn't load class " + className + ": " + ex, ex); 
             }
         }
         return classes;
