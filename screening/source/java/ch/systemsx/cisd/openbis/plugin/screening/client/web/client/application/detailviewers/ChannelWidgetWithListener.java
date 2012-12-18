@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.user.client.ui.Widget;
@@ -40,7 +41,7 @@ public class ChannelWidgetWithListener implements ChannelChooserPanel.ChannelSel
     interface ISimpleChanneledViewerFactory
     {
         Widget create(List<String> channelCodes, String imageTransformationCodeOrNull,
-                IntensityRange rangeOrNull);
+                Map<String, IntensityRange> rangesOrNull);
     }
 
     public ChannelWidgetWithListener(final ISimpleChanneledViewerFactory viewerFactory)
@@ -56,12 +57,12 @@ public class ChannelWidgetWithListener implements ChannelChooserPanel.ChannelSel
 
     @Override
     public void selectionChanged(List<String> channelNames, String imageTransformationCodeOrNull,
-            IntensityRange rangeOrNull)
+            Map<String, IntensityRange> rangesOrNull)
     {
         if (channelNames != null)
         {
             GuiUtils.replaceLastItem(container,
-                    viewerFactory.create(channelNames, imageTransformationCodeOrNull, rangeOrNull));
+                    viewerFactory.create(channelNames, imageTransformationCodeOrNull, rangesOrNull));
         }
     }
 }

@@ -27,11 +27,13 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.hcs.Location;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageGenerationDescription;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.ImageServletUrlParameters;
 
 /**
@@ -83,9 +85,44 @@ class ImageGenerationDescriptionFactory
 
         String singleChannelTransformationCodeOrNull =
                 request.getParameter(ImageServletUrlParameters.SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM);
+
+        Map<String, String> transformationsPerChannel = extractTransformationsPerChannel(request);
+
         return new ImageGenerationDescription(channelsToMerge,
-                singleChannelTransformationCodeOrNull, overlayChannels, sessionId,
-                thumbnailSizeOrNull);
+                singleChannelTransformationCodeOrNull, transformationsPerChannel, overlayChannels,
+                sessionId, thumbnailSizeOrNull);
+    }
+
+    private static Map<String, String> extractTransformationsPerChannel(HttpServletRequest request)
+    {
+        Map<String, String> transformationsPerChannel = new HashMap<String, String>();
+
+        Enumeration<?> params = request.getParameterNames();
+        while (params.hasMoreElements())
+        {
+            String paramName = (String) params.nextElement();
+            if (paramName
+                    .startsWith(ScreeningConstants.ImageServletUrlParameters.SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM))
+            {
+                if (paramName
+                        .equals(ScreeningConstants.ImageServletUrlParameters.SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM))
+                {
+                    continue;
+                }
+
+                String channelCode =
+                        paramName
+                                .substring(ScreeningConstants.ImageServletUrlParameters.SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM
+                                        .length());
+                String transformationCode = request.getParameter(paramName);
+                if (StringUtils.isNotBlank(transformationCode))
+                {
+                    transformationsPerChannel.put(channelCode, transformationCode);
+                }
+            }
+        }
+
+        return transformationsPerChannel;
     }
 
     private static List<DatasetAcquiredImagesReference> getOverlayChannels(

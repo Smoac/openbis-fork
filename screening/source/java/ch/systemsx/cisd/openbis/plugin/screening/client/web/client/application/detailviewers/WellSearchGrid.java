@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -639,18 +640,18 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
                                     @Override
                                     public Widget create(List<String> channels,
                                             String imageTransformationCodeOrNull,
-                                            IntensityRange rangeOrNull)
+                                            Map<String, IntensityRange> rangesOrNull)
                                     {
                                         return WellContentDialog.createImageViewerForChannel(
                                                 getViewContext(), entity, IMAGE_SIZE_PX, channels,
-                                                imageTransformationCodeOrNull, rangeOrNull);
+                                                imageTransformationCodeOrNull, rangesOrNull);
                                     }
                                 };
                     ChannelWidgetWithListener widgetWithListener =
                             new ChannelWidgetWithListener(viewerFactory);
                     widgetWithListener.selectionChanged(channelChooser.getSelectedValues(),
                             channelChooser.tryGetSelectedTransformationCode(false),
-                            channelChooser.tryGetSelectedIntensityRange());
+                            channelChooser.tryGetSelectedIntensityRanges());
 
                     ImageDatasetParameters imageParameters = images.getImageParameters();
                     channelChooser.addSelectionChangedListener(widgetWithListener);

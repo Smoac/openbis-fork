@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -172,7 +173,7 @@ public class WellContentDialog extends ImageDialog
     public static Widget createImageViewerForChannel(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
             final WellContent wellImage, int imageSizePx, List<String> channels,
-            String imageTransformationCodeOrNull, IntensityRange rangeOrNull)
+            String imageTransformationCodeOrNull, Map<String, IntensityRange> rangesOrNull)
     {
         final ImageDatasetEnrichedReference imageDataset = tryGetImageDataset(wellImage);
         if (imageDataset == null)
@@ -210,7 +211,7 @@ public class WellContentDialog extends ImageDialog
                 new LogicalImageReference(imageDataset, locationOrNull);
         LogicalImageChannelsReference channelReferences =
                 LogicalImageChannelsReference.createWithoutOverlays(wellImages, channels,
-                        imageTransformationCodeOrNull, rangeOrNull);
+                        imageTransformationCodeOrNull, rangesOrNull);
         LayoutContainer staticTilesGrid =
                 LogicalImageViewer.createTilesGrid(channelReferences, sessionId, imageSizePx,
                         clickHandler, null);

@@ -74,7 +74,7 @@ public class ChannelChooserPanel extends LayoutContainer
     public static interface ChannelSelectionListener
     {
         void selectionChanged(List<String> channels, String imageTransformationCodeOrNull,
-                IntensityRange rangeOrNull);
+                Map<String, IntensityRange> rangesOrNull);
     }
 
     public static final String DEFAULT_TRANSFORMATION_CODE = "$DEFAULT$";
@@ -126,29 +126,37 @@ public class ChannelChooserPanel extends LayoutContainer
             @Override
             public void handleEvent(BaseEvent be)
             {
-                String channelCode = getSelectedValues().get(0);
+                List<LabeledItem<String>> channelCodes = getSelectedLabeledValues();
                 InternalImageTransformationInfo selectedTransformation =
                         transformationsComboBox.getSimpleValue().getItem();
                 String transformationCode = selectedTransformation.getCode();
-                defaultChannelState.setDefaultTransformation(channelCode, transformationCode);
+                defaultChannelState.setDefaultTransformation(getChannelCode(channelCodes),
+                        transformationCode);
                 changeTransformationSettingsButtonVisibility(true, false);
 
-                IntensityRange intensityRange =
-                        defaultChannelState.tryGetIntensityRange(channelCode);
+                Map<String, IntensityRange> intensityRanges = new HashMap<String, IntensityRange>();
+                for (LabeledItem<String> channelCode : channelCodes)
+                {
+                    intensityRanges.put(channelCode.getItem(),
+                            defaultChannelState.tryGetIntensityRange(channelCode.getItem()));
+                }
                 notifySelectionListeners(getSelectedValues(),
-                        tryGetSelectedTransformationCode(false), intensityRange);
+                        tryGetSelectedTransformationCode(false), intensityRanges);
 
                 String updatedTooltip = selectedTransformation.getLabel();
                 if (ScreeningConstants.USER_DEFINED_RESCALING_CODE
                         .equalsIgnoreCase(transformationCode))
                 {
-                    updatedTooltip +=
-                            " ["
-                                    + (intensityRange == null ? "undefined" : intensityRange
-                                            .getBlackPoint()
-                                            + " - "
-                                            + intensityRange.getWhitePoint()) + "]";
-                    ChannelChooserPanel.this.intensitiesPerChannel.put(channelCode, intensityRange);
+                    /*
+                     * TODO updatedTooltip += " [" + (intensityRange == null ? "undefined" :
+                     * intensityRange .getBlackPoint() + " - " + intensityRange.getWhitePoint()) +
+                     * "]";
+                     */
+                    for (Map.Entry<String, IntensityRange> rangeEntry : intensityRanges.entrySet())
+                    {
+                        ChannelChooserPanel.this.intensitiesPerChannel.put(rangeEntry.getKey(),
+                                rangeEntry.getValue());
+                    }
                 }
                 transformationsComboBox.setToolTip(updatedTooltip);
             }
@@ -192,7 +200,7 @@ public class ChannelChooserPanel extends LayoutContainer
                             UserDefinedRescalingSettingsDialog dialog =
                                     new UserDefinedRescalingSettingsDialog(messageProvider,
                                             intensitiesPerChannel, defaultChannelState,
-                                            getSelectedValues().get(0));
+                                            getSelectedLabeledValues());
                             dialog.addListener(Events.OnChange, transformationSelection);
                             dialog.show();
                         }
@@ -205,6 +213,16 @@ public class ChannelChooserPanel extends LayoutContainer
 
         addChannels(imageDatasetParameters);
         updateChannelSelection(selectedChannelsOrNull);
+    }
+
+    private final static String getChannelCode(List<LabeledItem<String>> selection)
+    {
+        if (selection.size() == 1)
+        {
+            return selection.get(0).getItem();
+        }
+
+        return ScreeningConstants.MERGED_CHANNELS;
     }
 
     private SimpleModelComboBox<String> createChannelsComboBox()
@@ -287,6 +305,50 @@ public class ChannelChooserPanel extends LayoutContainer
         return channels;
     }
 
+    /**
+     * @return the current channel selection. If all channels are selected, returns whole list of
+     *         channels.
+     */
+    public List<LabeledItem<String>> getSelectedLabeledValues()
+    {
+        LabeledItem<String> comboBoxValue;
+        if (channelsComboBox.getSelectedIndex() == -1)
+        {
+            comboBoxValue = null;
+        } else
+        {
+            comboBoxValue = channelsComboBox.getSimpleValue();
+        }
+
+        if (comboBoxValue == null)
+        {
+            return Collections.<LabeledItem<String>> emptyList();
+        }
+        if (ScreeningConstants.MERGED_CHANNELS.equals(comboBoxValue.getItem()))
+        {
+            // multiple channel selection
+            return getMergedChannelLabeledSelection();
+        } else
+        {
+            // single channel selection
+            return Collections.singletonList(comboBoxValue);
+        }
+    }
+
+    private List<LabeledItem<String>> getMergedChannelLabeledSelection()
+    {
+        List<LabeledItem<String>> channels = new ArrayList<LabeledItem<String>>();
+        for (CheckBox cb : getAllCheckBoxes())
+        {
+            if (cb.getValue() == true)
+            {
+                channels.add(new LabeledItem<String>(cb.getValueAttribute(), cb.getBoxLabel()));
+            }
+        }
+
+        return channels;
+    }
+
     private void addChannelsForParameters(ImageDatasetParameters imageParameters)
     {
         addChannelToComboBox(new LabeledItem<String>(MERGED_CHANNELS, MERGED_CHANNELS));
@@ -311,6 +373,8 @@ public class ChannelChooserPanel extends LayoutContainer
             }
             transformationsForChannel.addAll(imageParameters
                     .getAvailableImageTransformationsFor(code));
+
+            intensitiesPerChannel.put(code, defaultChannelState.tryGetIntensityRange(code));
 
             if (codeAdded)
             {
@@ -408,7 +472,7 @@ public class ChannelChooserPanel extends LayoutContainer
         updateTransformationComboBox();
 
         notifySelectionListeners(selection, tryGetSelectedTransformationCode(false),
-                tryGetSelectedIntensityRange());
+                tryGetSelectedIntensityRanges());
     }
 
     public String tryGetSelectedTransformationCode(boolean force)
@@ -428,16 +492,21 @@ public class ChannelChooserPanel extends LayoutContainer
         return transformCode(code);
     }
 
-    public IntensityRange tryGetSelectedIntensityRange()
+    public Map<String, IntensityRange> tryGetSelectedIntensityRanges()
     {
-        List<String> selectedValues = getSelectedValues();
-        if (selectedValues != null && selectedValues.size() > 0)
+        List<LabeledItem<String>> selectedValues = getSelectedLabeledValues();
+        if (selectedValues != null)
         {
-            return intensitiesPerChannel.get(getSelectedValues().get(0));
-        } else
-        {
-            return null;
+            Map<String, IntensityRange> ranges = new HashMap<String, IntensityRange>();
+            for (LabeledItem<String> channelCode : selectedValues)
+            {
+                ranges.put(channelCode.getItem(), intensitiesPerChannel.get(channelCode.getItem()));
+            }
+
+            return ranges;
         }
+
+        return null;
     }
 
     private static String transformCode(String code)
@@ -452,11 +521,11 @@ public class ChannelChooserPanel extends LayoutContainer
     }
 
     private void notifySelectionListeners(List<String> selection,
-            String imageTransformationCodeOrNull, IntensityRange rangeOrNull)
+            String imageTransformationCodeOrNull, Map<String, IntensityRange> rangesOrNull)
     {
         for (ChannelSelectionListener listener : channelSelectionListeners)
         {
-            listener.selectionChanged(selection, imageTransformationCodeOrNull, rangeOrNull);
+            listener.selectionChanged(selection, imageTransformationCodeOrNull, rangesOrNull);
         }
     }
 
@@ -568,6 +637,15 @@ public class ChannelChooserPanel extends LayoutContainer
             transformationsComboBox.add(model);
 
             selectTransformation(selectedValues.get(0));
+            setTransformationsVisible(true);
+        } else if (selectedValues.size() > 0)
+        {
+            model.add(DEFAULT_TRANSFORMATION);
+            model.add(convertToLabeledItem(new InternalImageTransformationInfo(
+                    ScreeningConstants.USER_DEFINED_RESCALING_CODE, "User defined",
+                    "User defined intensity rescaling", "", false)));
+            transformationsComboBox.add(model);
+            selectTransformation(ScreeningConstants.MERGED_CHANNELS);
             setTransformationsVisible(true);
         } else
         {

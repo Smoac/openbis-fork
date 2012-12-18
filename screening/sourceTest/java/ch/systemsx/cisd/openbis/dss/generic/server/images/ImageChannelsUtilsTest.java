@@ -38,10 +38,10 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.openbis.common.io.FileBasedContentNode;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReadersTestHelper;
+import ch.systemsx.cisd.openbis.common.io.FileBasedContentNode;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.etl.ImagingLoaderStrategyFactory;
@@ -136,7 +136,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
 
     private ImageTransformationParams createSingleChannelTransformationParams()
     {
-        return new ImageTransformationParams(true, false, null);
+        return new ImageTransformationParams(true, false, null, new HashMap<String, String>());
     }
 
     @Test
@@ -226,8 +226,10 @@ public class ImageChannelsUtilsTest extends AssertJUnit
             });
 
         BufferedImage image =
-                createImageChannelsUtils(null).calculateBufferedImage(imageRef,
-                        new ImageTransformationParams(true, false, transformationCode));
+                createImageChannelsUtils(null).calculateBufferedImage(
+                        imageRef,
+                        new ImageTransformationParams(true, false, transformationCode,
+                                new HashMap<String, String>()));
         assertEquals("e00 f00 f00 e00\n" + "f00 c00 c00 f00\n" + "f00 c00 c00 f00\n"
                 + "e00 f00 f00 e00\n", getImageContentDescription(image));
 
@@ -247,7 +249,8 @@ public class ImageChannelsUtilsTest extends AssertJUnit
             RequestedImageSize imageSize)
     {
         return new AbsoluteImageReference(image(fileName), "id42", null, null, imageSize,
-                new ChannelColorRGB(0, 0, 255), new ImageTransfomationFactories(), null, null);
+                new ChannelColorRGB(0, 0, 255), new ImageTransfomationFactories(), null, null,
+                "ch2");
     }
 
     private ImageChannelsUtils createImageChannelsUtils(Size thumbnailSizeOrNull)

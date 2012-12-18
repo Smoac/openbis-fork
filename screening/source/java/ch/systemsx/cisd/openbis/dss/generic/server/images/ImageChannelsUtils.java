@@ -23,7 +23,9 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -119,8 +121,8 @@ public class ImageChannelsUtils
             RequestedImageSize imageSize = new RequestedImageSize(thumbnailSizeOrNull, false);
             image =
                     calculateBufferedImage(imageChannels,
-                            params.tryGetSingleChannelTransformationCode(), contentProvider,
-                            imageSize);
+                            params.tryGetSingleChannelTransformationCode(),
+                            params.tryGetTransformationsPerChannel(), contentProvider, imageSize);
         }
 
         RequestedImageSize overlaySize = calcOverlaySize(image, thumbnailSizeOrNull);
@@ -158,11 +160,13 @@ public class ImageChannelsUtils
                 createImageChannelsUtils(imagesReference, contentProvider, imageSize,
                         singleChannelTransformationCodeOrNull);
         boolean mergeAllChannels = utils.isMergeAllChannels(imagesReference);
-        List<AbsoluteImageReference> imageContents =
-                utils.fetchImageContents(imagesReference, mergeAllChannels, true);
         ImageTransformationParams transformationInfo =
-                new ImageTransformationParams(true, mergeAllChannels, null);
-        return calculateSingleImagesForDisplay(imageContents, transformationInfo, 0.0f);
+                new ImageTransformationParams(true, mergeAllChannels, null,
+                        new HashMap<String, String>());
+        List<AbsoluteImageReference> imageContents =
+                utils.fetchImageContents(imagesReference, mergeAllChannels, true,
+                        transformationInfo);
+        return calculateSingleImagesForDisplay(imageContents, transformationInfo, 0.0f, null);
     }
 
     private static RequestedImageSize getSize(BufferedImage img, boolean highQuality)
@@ -203,6 +207,7 @@ public class ImageChannelsUtils
     private static BufferedImage calculateBufferedImage(
             DatasetAcquiredImagesReference imageChannels,
             String singleChannelTransformationCodeOrNull,
+            Map<String, String> transformationsPerChannels,
             IHierarchicalContentProvider contentProvider, RequestedImageSize imageSizeLimit)
     {
         ImageChannelsUtils imageChannelsUtils =
@@ -212,7 +217,7 @@ public class ImageChannelsUtils
                 imageChannelsUtils.isMergeAllChannels(imageChannels);
         ImageTransformationParams transformationInfo =
                 new ImageTransformationParams(true, useMergedChannelsTransformation,
-                        singleChannelTransformationCodeOrNull);
+                        singleChannelTransformationCodeOrNull, transformationsPerChannels);
 
         return imageChannelsUtils.calculateBufferedImage(imageChannels, transformationInfo);
     }
@@ -234,7 +239,7 @@ public class ImageChannelsUtils
     {
         boolean mergeAllChannels = isMergeAllChannels(imageChannels);
         List<AbsoluteImageReference> imageContents =
-                fetchImageContents(imageChannels, mergeAllChannels, false);
+                fetchImageContents(imageChannels, mergeAllChannels, false, transformationInfo);
         return calculateBufferedImage(imageContents, transformationInfo);
     }
 
@@ -247,10 +252,11 @@ public class ImageChannelsUtils
      * @param skipNonExisting if true references to non-existing images are ignored, otherwise an
      *            exception is thrown
      * @param mergeAllChannels true if all existing channel images should be merged
+     * @param transformationInfo
      */
     private List<AbsoluteImageReference> fetchImageContents(
             DatasetAcquiredImagesReference imagesReference, boolean mergeAllChannels,
-            boolean skipNonExisting)
+            boolean skipNonExisting, ImageTransformationParams transformationInfo)
     {
         List<String> channelCodes = imagesReference.getChannelCodes(getAllChannelCodes());
         List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
@@ -272,7 +278,8 @@ public class ImageChannelsUtils
         }
 
         // Optimization for a case where all channels are on one image
-        if (mergeAllChannels)
+        if (mergeAllChannels
+                && (false == shouldApplySingleChannelsTransformations(transformationInfo)))
         {
             AbsoluteImageReference allChannelsImageReference =
                     tryCreateAllChannelsImageReference(images);
@@ -283,6 +290,19 @@ public class ImageChannelsUtils
             }
         }
         return images;
+    }
+
+    private boolean shouldApplySingleChannelsTransformations(
+            ImageTransformationParams transformationInfo)
+    {
+        if (transformationInfo == null
+                || transformationInfo.tryGetTransformationCodeForChannels() == null
+                || transformationInfo.tryGetTransformationCodeForChannels().size() == 0)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private static IImagingDatasetLoader createImageAccessor(
@@ -309,7 +329,7 @@ public class ImageChannelsUtils
                         .getRepresentativeImageReferences(wellLocationOrNull);
         BufferedImage image =
                 calculateBufferedImage(imageReferences, new ImageTransformationParams(true, true,
-                        null));
+                        null, new HashMap<String, String>()));
         String name = createFileName(datasetCode, wellLocationOrNull, imageSizeLimitOrNull);
         return createResponseContentStream(image, name);
     }
@@ -369,17 +389,19 @@ public class ImageChannelsUtils
                 new ImageChannelsUtils(imageLoaderStrategy, imageSizeLimitOrNull,
                         singleChannelImageTransformationCodeOrNull);
         boolean mergeAllChannels = imageChannelsUtils.isMergeAllChannels(imagesReference);
+        ImageTransformationParams transformationInfo =
+                new ImageTransformationParams(transform, mergeAllChannels,
+                        singleChannelImageTransformationCodeOrNull, new HashMap<String, String>());
+
         List<AbsoluteImageReference> imageContents =
-                imageChannelsUtils.fetchImageContents(imagesReference, mergeAllChannels, false);
+                imageChannelsUtils.fetchImageContents(imagesReference, mergeAllChannels, false,
+                        transformationInfo);
 
         IHierarchicalContentNode contentNode = tryGetRawContent(convertToPng, imageContents);
         if (contentNode != null)
         {
             return contentNode;
         }
-        ImageTransformationParams transformationInfo =
-                new ImageTransformationParams(transform, mergeAllChannels,
-                        singleChannelImageTransformationCodeOrNull);
         BufferedImage image = calculateBufferedImage(imageContents, transformationInfo);
         return createPngContent(image, null);
     }
@@ -541,7 +563,7 @@ public class ImageChannelsUtils
     {
         // We do not transform single images here.
         List<ImageWithReference> images =
-                calculateSingleImagesForDisplay(imageReferences, null, null);
+                calculateSingleImagesForDisplay(imageReferences, null, null, transformationInfo);
         BufferedImage mergedImage = mergeImages(images);
         // NOTE: even if we are not merging all the channels but just few of them we use the
         // merged-channel transformation
@@ -626,10 +648,12 @@ public class ImageChannelsUtils
     /**
      * @param transformationInfoOrNull if null all transformations (including image-level) will be
      *            skipped
+     * @param transformationInfo
      */
     private static List<ImageWithReference> calculateSingleImagesForDisplay(
             List<AbsoluteImageReference> imageReferences,
-            ImageTransformationParams transformationInfoOrNull, Float threshold)
+            ImageTransformationParams transformationInfoOrNull, Float threshold,
+            ImageTransformationParams transformationInfoForMergingOrNull)
     {
         List<ImageWithReference> images = new ArrayList<ImageWithReference>();
         for (AbsoluteImageReference imageRef : imageReferences)
@@ -640,6 +664,19 @@ public class ImageChannelsUtils
                 image =
                         calculateAndTransformSingleImageForDisplay(imageRef,
                                 transformationInfoOrNull, threshold);
+            } else if (transformationInfoForMergingOrNull != null
+                    && null != transformationInfoForMergingOrNull
+                            .tryGetTransformationCodeForChannel(imageRef.tryGetChannelCode()))
+            {
+                String transformationCode =
+                        transformationInfoForMergingOrNull
+                                .tryGetTransformationCodeForChannel(imageRef.tryGetChannelCode());
+                image =
+                        calculateAndTransformSingleImageForDisplay(
+                                imageRef,
+                                new ImageTransformationParams(transformationInfoForMergingOrNull
+                                        .isApplyNonImageLevelTransformation(), false,
+                                        transformationCode, null), threshold);
             } else
             {
                 // NOTE: here we skip image level transformations as well

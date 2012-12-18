@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
@@ -31,10 +32,10 @@ public class LogicalImageChannelsReference
 {
     public static LogicalImageChannelsReference createWithoutOverlays(
             LogicalImageReference basicImage, List<String> channels,
-            String imageTransformationCodeOrNull, IntensityRange rangeOrNull)
+            String imageTransformationCodeOrNull, Map<String, IntensityRange> rangesOrNull)
     {
         return new LogicalImageChannelsReference(basicImage, channels,
-                imageTransformationCodeOrNull, rangeOrNull, new HashSet<ImageDatasetChannel>());
+                imageTransformationCodeOrNull, rangesOrNull, new HashSet<ImageDatasetChannel>());
     }
 
     // ----
@@ -45,18 +46,18 @@ public class LogicalImageChannelsReference
 
     private final String imageTransformationCodeOrNull;
 
-    private final IntensityRange rangeOrNull;
+    private final Map<String, IntensityRange> rangesOrNull;
 
     private final Set<ImageDatasetChannel> overlayChannels;
 
     public LogicalImageChannelsReference(LogicalImageReference basicImage, List<String> channels,
-            String imageTransformationCodeOrNull, IntensityRange rangeOrNull,
+            String imageTransformationCodeOrNull, Map<String, IntensityRange> rangesOrNull,
             Set<ImageDatasetChannel> overlayChannels)
     {
         this.basicImage = basicImage;
         this.channels = channels;
         this.imageTransformationCodeOrNull = imageTransformationCodeOrNull;
-        this.rangeOrNull = rangeOrNull;
+        this.rangesOrNull = rangesOrNull;
         this.overlayChannels = overlayChannels;
     }
 
@@ -80,8 +81,8 @@ public class LogicalImageChannelsReference
         return imageTransformationCodeOrNull;
     }
 
-    public IntensityRange tryGetIntensityRange()
+    public Map<String, IntensityRange> tryGetIntensityRanges()
     {
-        return rangeOrNull;
+        return rangesOrNull;
     }
 }

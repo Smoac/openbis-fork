@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -27,6 +30,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.ui.Grid;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IntegerField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
@@ -36,46 +40,77 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange
  */
 public class UserDefinedRescalingSettingsDialog extends Dialog
 {
-    private final Label labelMin;
+    private static class SingleChannelIntesityRange
+    {
+        private final LabeledItem<String> channelCode;
 
-    private final Label labelMax;
+        private final Label labelMin;
 
-    private final IntegerField minTextField;
+        private final Label labelMax;
 
-    private final IntegerField maxTextField;
+        private final IntegerField minTextField;
+
+        private final IntegerField maxTextField;
+
+        public SingleChannelIntesityRange(IMessageProvider messageProvider,
+                LabeledItem<String> channelCode)
+        {
+            this.channelCode = channelCode;
+            labelMin =
+                    new Label(messageProvider.getMessage(Dict.RESCALING_DIALOG_MIN,
+                            channelCode.getLabel()));
+            labelMax =
+                    new Label(messageProvider.getMessage(Dict.RESCALING_DIALOG_MAX,
+                            channelCode.getLabel()));
+            minTextField =
+                    new IntegerField(messageProvider.getMessage(Dict.RESCALING_DIALOG_MIN,
+                            channelCode), true);
+            maxTextField =
+                    new IntegerField(messageProvider.getMessage(Dict.RESCALING_DIALOG_MAX,
+                            channelCode), true);
+        }
+    }
+
+    private final List<SingleChannelIntesityRange> intensitiesPerChannel;
 
     private final IMessageProvider messageProvider;
 
     private final IDefaultChannelState defaultChannelState;
 
-    private final String channelCode;
+    private final List<LabeledItem<String>> channelCodes;
 
     public UserDefinedRescalingSettingsDialog(IMessageProvider messageProvider,
             Map<String, IntensityRange> intensitiesPerChannel,
-            IDefaultChannelState defaultChannelState, String channelCode)
+            IDefaultChannelState defaultChannelState, List<LabeledItem<String>> channelCodes)
     {
         super();
 
         this.messageProvider = messageProvider;
         this.defaultChannelState = defaultChannelState;
-        this.channelCode = channelCode;
+        this.channelCodes = channelCodes;
 
         setHeading(this.messageProvider.getMessage(Dict.TITLE_USER_DEFINED_RESCALING_DIALOG));
         setButtons(Dialog.OKCANCEL);
-        labelMin = new Label(this.messageProvider.getMessage(Dict.RESCALING_DIALOG_MIN));
-        labelMax = new Label(this.messageProvider.getMessage(Dict.RESCALING_DIALOG_MAX));
-        minTextField =
-                new IntegerField(messageProvider.getMessage(Dict.RESCALING_DIALOG_MIN), true);
-        maxTextField =
-                new IntegerField(messageProvider.getMessage(Dict.RESCALING_DIALOG_MAX), true);
+
+        this.intensitiesPerChannel = new ArrayList<SingleChannelIntesityRange>(channelCodes.size());
+        for (LabeledItem<String> channelCode : channelCodes)
+        {
+            this.intensitiesPerChannel.add(new SingleChannelIntesityRange(messageProvider,
+                    channelCode));
+        }
 
         setInitialValues(intensitiesPerChannel);
 
-        Grid grid = new Grid(2, 2);
-        grid.setWidget(0, 0, labelMin);
-        grid.setWidget(0, 1, minTextField);
-        grid.setWidget(1, 0, labelMax);
-        grid.setWidget(1, 1, maxTextField);
+        Grid grid = new Grid(channelCodes.size() * 2, 2);
+        int counter = 0;
+        for (SingleChannelIntesityRange scir : this.intensitiesPerChannel)
+        {
+            grid.setWidget(2 * counter, 0, scir.labelMin);
+            grid.setWidget(2 * counter, 1, scir.minTextField);
+            grid.setWidget(2 * counter + 1, 0, scir.labelMax);
+            grid.setWidget(2 * counter + 1, 1, scir.maxTextField);
+            counter++;
+        }
 
         add(grid);
 
@@ -94,14 +129,17 @@ public class UserDefinedRescalingSettingsDialog extends Dialog
 
     private void setInitialValues(Map<String, IntensityRange> intensitiesPerChannel)
     {
-        minTextField.setValue(0);
-        maxTextField.setValue(65535);
-
-        IntensityRange range = intensitiesPerChannel.get(channelCode);
-        if (range != null)
+        for (SingleChannelIntesityRange scir : this.intensitiesPerChannel)
         {
-            minTextField.setValue(range.getBlackPoint());
-            maxTextField.setValue(range.getWhitePoint());
+            scir.minTextField.setValue(0);
+            scir.maxTextField.setValue(65535);
+
+            IntensityRange range = intensitiesPerChannel.get(scir.channelCode.getItem());
+            if (range != null)
+            {
+                scir.minTextField.setValue(range.getBlackPoint());
+                scir.maxTextField.setValue(range.getWhitePoint());
+            }
         }
     }
 
@@ -111,7 +149,7 @@ public class UserDefinedRescalingSettingsDialog extends Dialog
         if (button.getItemId().equals(Dialog.OK))
         {
             button.disable();
-            if (minTextField.isValid() && maxTextField.isValid())
+            if (areIntensitiesValid())
             {
                 super.onButtonPressed(button);
                 updateIntensityRescaling();
@@ -128,23 +166,40 @@ public class UserDefinedRescalingSettingsDialog extends Dialog
         }
     }
 
+    private boolean areIntensitiesValid()
+    {
+        for (SingleChannelIntesityRange scir : intensitiesPerChannel)
+        {
+            if ((false == scir.minTextField.isValid()) || (false == scir.maxTextField.isValid()))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public void updateIntensityRescaling()
     {
-        IntensityRange result = null;
+        Map<String, IntensityRange> result = new HashMap<String, IntensityRange>();
 
         try
         {
-            int min = Integer.parseInt(minTextField.getValue().toString());
-            int max = Integer.parseInt(maxTextField.getValue().toString());
+            for (SingleChannelIntesityRange scir : intensitiesPerChannel)
+            {
+                int min = Integer.parseInt(scir.minTextField.getValue().toString());
+                int max = Integer.parseInt(scir.maxTextField.getValue().toString());
 
-            result = new IntensityRange(min, max);
+                result.put(scir.channelCode.getItem(), new IntensityRange(min, max));
+            }
+
+            for (LabeledItem<String> channelCode : channelCodes)
+            {
+                defaultChannelState.setIntensityRange(channelCode.getItem(),
+                        result.get(channelCode.getItem()));
+            }
         } catch (NumberFormatException e)
         {
-        }
-
-        if (result != null)
-        {
-            defaultChannelState.setIntensityRange(channelCode, result);
         }
     }
 }

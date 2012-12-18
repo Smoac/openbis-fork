@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.images.dto;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.hcs.Location;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference.HCSChannelStackByLocationReference;
@@ -34,6 +35,8 @@ public class ImageGenerationDescription
 
     private final String singleChannelTransformationCodeOrNull;
 
+    private final Map<String, String> transformationsPerChannelOrNull;
+
     private final List<DatasetAcquiredImagesReference> overlayChannels;
 
     private final String sessionId;
@@ -43,11 +46,13 @@ public class ImageGenerationDescription
 
     public ImageGenerationDescription(DatasetAcquiredImagesReference imageChannelsOrNull,
             String singleChannelTransformationCodeOrNull,
+            Map<String, String> transformationsPerChannelOrNull,
             List<DatasetAcquiredImagesReference> overlayChannels, String sessionId,
             Size thumbnailSizeOrNull)
     {
         this.imageChannelsOrNull = imageChannelsOrNull;
         this.singleChannelTransformationCodeOrNull = singleChannelTransformationCodeOrNull;
+        this.transformationsPerChannelOrNull = transformationsPerChannelOrNull;
         this.overlayChannels = overlayChannels;
         this.sessionId = sessionId;
         this.thumbnailSizeOrNull = thumbnailSizeOrNull;
@@ -61,6 +66,11 @@ public class ImageGenerationDescription
     public String tryGetSingleChannelTransformationCode()
     {
         return singleChannelTransformationCodeOrNull;
+    }
+
+    public Map<String, String> tryGetTransformationsPerChannel()
+    {
+        return transformationsPerChannelOrNull;
     }
 
     public List<DatasetAcquiredImagesReference> getOverlayChannels()

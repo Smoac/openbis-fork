@@ -456,14 +456,14 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                                     new Location(1, 1)), thumbnailSize, null);
                     will(returnValue(new AbsoluteImageReference(image("img1.jpg"), "img1", null,
                             null, thumbnailSize, createBlueColor(),
-                            new ImageTransfomationFactories(), null, null)));
+                            new ImageTransfomationFactories(), null, null, CHANNEL_CODE)));
                     one(imageLoader).tryGetImage(
                             CHANNEL_CODE,
                             ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
                                     new Location(2, 1)), thumbnailSize, null);
                     will(returnValue(new AbsoluteImageReference(image("img1.gif"), "img1", null,
                             null, thumbnailSize, createBlueColor(),
-                            new ImageTransfomationFactories(), null, null)));
+                            new ImageTransfomationFactories(), null, null, CHANNEL_CODE)));
                 }
             });
     }
@@ -590,7 +590,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                                     new Location(1, 1)), thumbnailSize, null);
                     will(returnValue(new AbsoluteImageReference(image("img1.jpg"), "img1", null,
                             null, thumbnailSize, createBlueColor(),
-                            new ImageTransfomationFactories(), null, null)));
+                            new ImageTransfomationFactories(), null, null, CHANNEL_CODE)));
 
                     one(imageLoader).tryGetImage(
                             CHANNEL_CODE,
@@ -598,7 +598,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                                     new Location(2, 1)), thumbnailSize, null);
                     will(returnValue(new AbsoluteImageReference(image("img1.png"), "img1", null,
                             null, thumbnailSize, createBlueColor(),
-                            new ImageTransfomationFactories(), null, null)));
+                            new ImageTransfomationFactories(), null, null, CHANNEL_CODE)));
 
                 }
             });

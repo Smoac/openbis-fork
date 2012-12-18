@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.image;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -62,20 +63,46 @@ public class Image extends LayoutContainer
 
         if (getInitializer().getChannelReferences().tryGetImageTransformationCode() != null)
         {
-            String suffix = "";
             if (ScreeningConstants.USER_DEFINED_RESCALING_CODE.equalsIgnoreCase(getInitializer()
                     .getChannelReferences().tryGetImageTransformationCode()))
             {
-                IntensityRange range =
-                        getInitializer().getChannelReferences().tryGetIntensityRange();
-                if (range != null)
+                Map<String, IntensityRange> rangesOrNull =
+                        getInitializer().getChannelReferences().tryGetIntensityRanges();
+                if (rangesOrNull != null)
                 {
-                    suffix = "(" + range.getBlackPoint() + "," + range.getWhitePoint() + ")";
+                    for (Map.Entry<String, IntensityRange> range : rangesOrNull.entrySet())
+                    {
+                        String suffix = "";
+                        if (range.getValue() != null)
+                        {
+                            suffix =
+                                    "(" + range.getValue().getBlackPoint() + ","
+                                            + range.getValue().getWhitePoint() + ")";
+                        }
+
+                        if (rangesOrNull.size() == 1)
+                        {
+                            url.addParameter(
+                                    ImageServletUrlParameters.SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM,
+                                    getInitializer().getChannelReferences()
+                                            .tryGetImageTransformationCode() + suffix);
+                        } else
+                        {
+                            url.addParameter(
+                                    ImageServletUrlParameters.SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM
+                                            + range.getKey(), getInitializer()
+                                            .getChannelReferences().tryGetImageTransformationCode()
+                                            + suffix);
+                        }
+
+                    }
                 }
+            } else
+            {
+                url.addParameter(
+                        ImageServletUrlParameters.SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM,
+                        getInitializer().getChannelReferences().tryGetImageTransformationCode());
             }
-            url.addParameter(ImageServletUrlParameters.SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM,
-                    getInitializer().getChannelReferences().tryGetImageTransformationCode()
-                            + suffix);
         }
 
         addImageTransformerSignature(url, getInitializer().getChannelReferences());

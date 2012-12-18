@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.images.dto;
 
+import java.util.Map;
+
 /**
  * Describes which image transformations should be applied. Note that image-level transformation is
  * always applied for single channels.
@@ -35,12 +37,16 @@ public class ImageTransformationParams
      */
     private final String singleChannelTransformationCodeOrNull;
 
+    private Map<String, String> transformationsPerChannel;
+
     public ImageTransformationParams(boolean applyNonImageLevelTransformation,
-            boolean useMergedChannelsTransformation, String singleChannelTransformationCodeOrNull)
+            boolean useMergedChannelsTransformation, String singleChannelTransformationCodeOrNull,
+            Map<String, String> transformationsPerChannel)
     {
         this.applyNonImageLevelTransformation = applyNonImageLevelTransformation;
         this.useMergedChannelsTransformation = useMergedChannelsTransformation;
         this.singleChannelTransformationCodeOrNull = singleChannelTransformationCodeOrNull;
+        this.transformationsPerChannel = transformationsPerChannel;
     }
 
     public boolean isApplyNonImageLevelTransformation()
@@ -56,5 +62,23 @@ public class ImageTransformationParams
     public String tryGetSingleChannelTransformationCode()
     {
         return singleChannelTransformationCodeOrNull;
+    }
+
+    public String tryGetTransformationCodeForChannel(String channelCode)
+    {
+        if (channelCode == null || transformationsPerChannel == null)
+        {
+            return null;
+        }
+        return transformationsPerChannel.get(channelCode);
+    }
+
+    public Map<String, String> tryGetTransformationCodeForChannels()
+    {
+        if (transformationsPerChannel == null)
+        {
+            return null;
+        }
+        return transformationsPerChannel;
     }
 }

@@ -177,7 +177,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         ImageLibraryInfo imageLibrary = tryGetImageLibrary(dataset, useNativeImageLibrary);
         return new AbsoluteImageReference(contentNode, path, image.getImageID(), colorComponent,
                 imageSize, getColor(channel), imageTransfomationFactories, imageLibrary,
-                image.tryGetSingleChannelTransformationCode());
+                image.tryGetSingleChannelTransformationCode(), channel.getCode());
     }
 
     private static ChannelColorRGB getColor(ImgChannelDTO channel)

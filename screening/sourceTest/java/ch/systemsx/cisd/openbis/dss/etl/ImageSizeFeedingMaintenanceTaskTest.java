@@ -28,9 +28,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
@@ -57,7 +57,7 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
         public MockAbsoluteImageReference(int width, int height)
         {
             super(null, null, null, null, new RequestedImageSize(null, false), null,
-                    new ImageTransfomationFactories(), null, null);
+                    new ImageTransfomationFactories(), null, null, null);
             this.width = width;
             this.height = height;
         }

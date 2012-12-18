@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolutio
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageChannel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageTransformationInfo;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 
 /**
@@ -95,7 +97,7 @@ class ChannelChooser
 
     private String imageTransformationCodeOrNull;
 
-    private IntensityRange rangeOrNull;
+    private Map<String, IntensityRange> rangesOrNull;
 
     public ChannelChooser(LogicalImageReference basicImage, IChanneledViewerFactory viewerFactory,
             IDefaultChannelState defaultChannelState)
@@ -109,7 +111,7 @@ class ChannelChooser
         this.imageTransformationCodeOrNull =
                 tryGetInitialImageTransformationCode(defaultChannelState, basicChannelCodes,
                         basicImage.getImagetParameters());
-        this.rangeOrNull = tryGetInitialIntensityRange(defaultChannelState, basicChannelCodes);
+        this.rangesOrNull = tryGetInitialIntensityRange(defaultChannelState, basicChannelCodes);
         this.defaultChannelState = defaultChannelState;
         this.selectedOverlayChannels = new HashSet<ImageDatasetChannel>();
     }
@@ -126,7 +128,7 @@ class ChannelChooser
     {
         LogicalImageChannelsReference state =
                 new LogicalImageChannelsReference(basicImage, basicChannelCodes,
-                        imageTransformationCodeOrNull, rangeOrNull, selectedOverlayChannels);
+                        imageTransformationCodeOrNull, rangesOrNull, selectedOverlayChannels);
 
         LayoutContainer view =
                 viewerFactory.create(state,
@@ -337,12 +339,12 @@ class ChannelChooser
                         public void selectionChanged(List<String> newlySelectedChannels,
                                 @SuppressWarnings("hiding")
                                 String imageTransformationCodeOrNull, @SuppressWarnings("hiding")
-                                IntensityRange rangeOrNull)
+                                Map<String, IntensityRange> rangesOrNull)
                         {
                             basicChannelCodes = newlySelectedChannels;
                             ChannelChooser.this.imageTransformationCodeOrNull =
                                     imageTransformationCodeOrNull;
-                            ChannelChooser.this.rangeOrNull = rangeOrNull;
+                            ChannelChooser.this.rangesOrNull = rangesOrNull;
                             refresh();
                         }
                     });
@@ -387,9 +389,10 @@ class ChannelChooser
             IDefaultChannelState defaultChannelState, List<String> channels,
             ImageDatasetParameters imageParameters)
     {
-        if (imageParameters != null && channels.size() == 1)
+        if (imageParameters != null)
         {
-            String channel = channels.get(0);
+            String channel =
+                    channels.size() == 1 ? channels.get(0) : ScreeningConstants.MERGED_CHANNELS;
             String initialTransformation = defaultChannelState.tryGetDefaultTransformation(channel);
             if (ChannelChooserPanel.DEFAULT_TRANSFORMATION_CODE.equals(initialTransformation))
             {
@@ -417,17 +420,17 @@ class ChannelChooser
         return null;
     }
 
-    private static IntensityRange tryGetInitialIntensityRange(
+    private static Map<String, IntensityRange> tryGetInitialIntensityRange(
             IDefaultChannelState defaultChannelState, List<String> channels)
     {
-        if (channels.size() == 1)
-        {
-            String channel = channels.get(0);
-            IntensityRange rangeOrNull = defaultChannelState.tryGetIntensityRange(channel);
+        Map<String, IntensityRange> ranges = new HashMap<String, IntensityRange>();
 
-            return rangeOrNull;
+        for (String channel : channels)
+        {
+            IntensityRange rangeOrNull = defaultChannelState.tryGetIntensityRange(channel);
+            ranges.put(channel, rangeOrNull);
         }
 
-        return null;
+        return ranges;
     }
 }

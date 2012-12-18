@@ -59,11 +59,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.utils.PropertiesUtil;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReplicaImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.IntensityRange;
 
 /**
  * Component which for a specified material and experiment presents 1. feature vectors (detailed and
@@ -347,17 +347,17 @@ public class MaterialReplicaSummaryComponent
             {
                 @Override
                 public Widget create(List<String> channels, String imageTransformationCodeOrNull,
-                        IntensityRange rangeOrNull)
+                        Map<String, IntensityRange> rangesOrNull)
                 {
                     return WellContentDialog.createImageViewerForChannel(screeningViewContext,
                             image, oneImageSizeFactorPx, channels, imageTransformationCodeOrNull,
-                            rangeOrNull);
+                            rangesOrNull);
                 }
             };
         ChannelWidgetWithListener widgetWithListener = new ChannelWidgetWithListener(viewerFactory);
         widgetWithListener.selectionChanged(channelChooser.getSelectedValues(),
                 channelChooser.tryGetSelectedTransformationCode(false),
-                channelChooser.tryGetSelectedIntensityRange());
+                channelChooser.tryGetSelectedIntensityRanges());
 
         ImageDatasetParameters imageParameters = image.tryGetImageDataset().getImageParameters();
         channelChooser.addSelectionChangedListener(widgetWithListener);

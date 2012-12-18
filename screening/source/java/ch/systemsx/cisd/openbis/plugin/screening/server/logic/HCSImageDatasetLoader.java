@@ -303,6 +303,7 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
         DataStore dataStore = externalData.getDataStore();
         DataSetType dataSetType = externalData.getDataSetType();
         String dataSetTypeCodeOrNull = dataSetType == null ? null : dataSetType.getCode();
+
         return new ImageDatasetReference(externalData.getCode(), dataSetTypeCodeOrNull,
                 getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(externalData),
                 createExperimentIdentifier(externalData), extractPlateGeometry(externalData),
