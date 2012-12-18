@@ -316,6 +316,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
         public void update(Set<DatabaseModificationKind> observedModifications,
                 IDataRefreshCallback dataRefreshCallback)
         {
+            dataRefreshCallback.postRefresh(true);
         }
 
         @Override
