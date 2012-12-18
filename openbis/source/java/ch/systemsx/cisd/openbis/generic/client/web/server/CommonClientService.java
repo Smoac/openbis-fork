@@ -690,6 +690,12 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
+    public List<EntityTypePropertyType<?>> listPropertyTypeAssignments(EntityType entityType)
+    {
+        return commonServer.listEntityTypePropertyTypes(getSessionToken(), entityType);
+    }
+
+    @Override
     public TypedTableResultSet<Space> listSpaces(
             DefaultResultSetConfig<String, TableModelRowWithObject<Space>> criteria)
     {
@@ -2750,8 +2756,7 @@ public final class CommonClientService extends AbstractClientService implements
         for (Long metaProjectId : metaProjectIds)
         {
             commonServer.addToMetaproject(getSessionToken(),
-                    new MetaprojectTechIdId(metaProjectId),
-                    ids);
+                    new MetaprojectTechIdId(metaProjectId), ids);
         }
     }
 
@@ -2766,9 +2771,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
         for (Long metaProjectId : metaProjectIds)
         {
-            commonServer.removeFromMetaproject(getSessionToken(),
-                    new MetaprojectTechIdId(metaProjectId),
-                    ids);
+            commonServer.removeFromMetaproject(getSessionToken(), new MetaprojectTechIdId(
+                    metaProjectId), ids);
         }
     }
 

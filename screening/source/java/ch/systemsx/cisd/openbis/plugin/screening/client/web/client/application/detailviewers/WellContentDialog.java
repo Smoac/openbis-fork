@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -119,7 +120,7 @@ public class WellContentDialog extends ImageDialog
                     @Override
                     public void onRefresh()
                     {
-                        contentDialog.autosize(grid.getElement());
+                        WindowUtils.resize(contentDialog, grid.getElement());
                     }
                 });
             viewer.setLogicalImageClickHandler(new LogicalImageClickHandler()

@@ -425,6 +425,12 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Returns a property types assignment list for the given entity type.
+     */
+    public List<EntityTypePropertyType<?>> listPropertyTypeAssignments(EntityType entityType)
+            throws UserFailureException;
+
+    /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for property types assignments.
      */
     public String prepareExportPropertyTypeAssignments(
@@ -1256,6 +1262,5 @@ public interface ICommonClientService extends IClientService
      * Register a new metaproject by given name. Throws exception if metaproject by this name
      * already exists.
      */
-    public void registerMetaProject(String name)
-            throws UserFailureException;
+    public void registerMetaProject(String name) throws UserFailureException;
 }

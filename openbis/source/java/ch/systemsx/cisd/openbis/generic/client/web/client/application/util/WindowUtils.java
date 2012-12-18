@@ -16,9 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
+import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Controller;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents.OpenUrlEvent;
@@ -52,6 +55,21 @@ public class WindowUtils
     public static Controller createOpenUrlController()
     {
         return new BrowserUrlController();
+    }
+
+    public static void resize(Window window, Element windowContent)
+    {
+        int preferedWidth = windowContent.getOffsetWidth() + window.getFrameWidth() + 20;
+        int preferedHeight = windowContent.getOffsetHeight() + window.getFrameHeight() + 20;
+
+        int maxWidth = (9 * XDOM.getBody().getOffsetWidth()) / 10;
+        int maxHeight = (9 * XDOM.getBody().getOffsetHeight()) / 10;
+
+        int w = Math.min(maxWidth, preferedWidth);
+        int h = Math.min(maxHeight, preferedHeight);
+
+        window.setSize(w, h);
+        window.center();
     }
 
     private static class BrowserUrlController extends Controller

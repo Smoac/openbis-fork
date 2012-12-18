@@ -841,7 +841,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public List<EntityTypePropertyType<?>> listEntityTypePropertyTypes(final String sessionToken)
     {
         List<PropertyType> propertyTypes = listPropertyTypes(sessionToken, true);
-        return extractAssignments(propertyTypes);
+        return extractAssignments(null, propertyTypes);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<EntityTypePropertyType<?>> listEntityTypePropertyTypes(final String sessionToken,
+            final EntityType entityType)
+    {
+        List<PropertyType> propertyTypes = listPropertyTypes(sessionToken, true);
+        return extractAssignments(entityType, propertyTypes);
     }
 
     @Override
@@ -857,36 +866,53 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return EntityHistoryTranslator.translate(result, session.getBaseIndexURL());
     }
 
-    private static List<EntityTypePropertyType<?>> extractAssignments(
+    private static List<EntityTypePropertyType<?>> extractAssignments(EntityType entityTypeOrNull,
             List<PropertyType> listPropertyTypes)
     {
         List<EntityTypePropertyType<?>> result = new ArrayList<EntityTypePropertyType<?>>();
         for (PropertyType propertyType : listPropertyTypes)
         {
-            extractAssignments(result, propertyType);
+            extractAssignments(result, entityTypeOrNull, propertyType);
         }
         Collections.sort(result);
         return result;
     }
 
     private static void extractAssignments(List<EntityTypePropertyType<?>> result,
-            final PropertyType propertyType)
+            EntityType entityTypeOrNull, final PropertyType propertyType)
     {
+        List<EntityTypePropertyType<?>> allTypes = new ArrayList<EntityTypePropertyType<?>>();
+
         for (ExperimentTypePropertyType etpt : propertyType.getExperimentTypePropertyTypes())
         {
-            result.add(etpt);
+            allTypes.add(etpt);
         }
         for (SampleTypePropertyType etpt : propertyType.getSampleTypePropertyTypes())
         {
-            result.add(etpt);
+            allTypes.add(etpt);
         }
         for (MaterialTypePropertyType etpt : propertyType.getMaterialTypePropertyTypes())
         {
-            result.add(etpt);
+            allTypes.add(etpt);
         }
         for (DataSetTypePropertyType etpt : propertyType.getDataSetTypePropertyTypes())
         {
-            result.add(etpt);
+            allTypes.add(etpt);
+        }
+
+        if (entityTypeOrNull == null)
+        {
+            result.addAll(allTypes);
+        } else
+        {
+            for (EntityTypePropertyType<?> type : allTypes)
+            {
+                if (entityTypeOrNull.isEntityKind(type.getEntityKind())
+                        && entityTypeOrNull.equals(type.getEntityType()))
+                {
+                    result.add(type);
+                }
+            }
         }
     }
 

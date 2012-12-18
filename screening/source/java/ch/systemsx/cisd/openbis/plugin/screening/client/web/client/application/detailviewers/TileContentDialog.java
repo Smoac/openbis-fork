@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.google.gwt.user.client.ui.Grid;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
@@ -58,7 +59,7 @@ public class TileContentDialog extends ImageDialog
                 @Override
                 public void onRefresh()
                 {
-                    autosize(grid.getElement());
+                    WindowUtils.resize(TileContentDialog.this, grid.getElement());
                 }
             });
 

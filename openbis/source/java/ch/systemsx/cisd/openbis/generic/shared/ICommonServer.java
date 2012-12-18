@@ -440,6 +440,15 @@ public interface ICommonServer extends IServer
     public List<EntityTypePropertyType<?>> listEntityTypePropertyTypes(final String sessionToken);
 
     /**
+     * List property assigments for the given entity type.
+     * 
+     * @return a sorted list of {@link PropertyType}.
+     */
+    @Transactional(readOnly = true)
+    public List<EntityTypePropertyType<?>> listEntityTypePropertyTypes(final String sessionToken,
+            final EntityType entityType);
+
+    /**
      * Lists data types.
      * 
      * @return a sorted list of {@link DataType}.

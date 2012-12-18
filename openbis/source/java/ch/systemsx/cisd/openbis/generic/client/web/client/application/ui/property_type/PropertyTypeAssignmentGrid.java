@@ -18,15 +18,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.proper
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -54,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -61,7 +61,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
@@ -190,9 +189,6 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
     private final IDelegatedAction postRegistrationCallback;
 
-    // < entity type, list of etpts assigned to this entity type >
-    private Map<EntityType, List<EntityTypePropertyType<?>>> entityTypePropertyTypes;
-
     private PropertyTypeAssignmentGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, true,
@@ -283,22 +279,45 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
                 Script script = etpt.getScript();
 
-                private final boolean originalIsMandatory;
+                private boolean originalIsMandatory;
 
-                private final SectionSelectionWidget sectionSelectionWidget;
+                private SectionSelectionWidget sectionSelectionWidget;
 
-                private final EntityTypePropertyTypeSelectionWidget etptSelectionWidget;
+                private EntityTypePropertyTypeSelectionWidget etptSelectionWidget;
 
-                private final CheckBox mandatoryCheckbox;
+                private CheckBox mandatoryCheckbox;
 
-                private final Field<?> defaultValueField;
+                private Field<?> defaultValueField;
 
-                private final ScriptChooserField scriptChooser;
+                private ScriptChooserField scriptChooser;
 
-                private final CheckBox shownInEditViewCheckBox;
+                private CheckBox shownInEditViewCheckBox;
 
-                private final CheckBox showRawValuesCheckBox;
+                private CheckBox showRawValuesCheckBox;
 
+                private Label loading;
+
+                private boolean isLoaded = false;
+
+                {
+                    loading = new Label(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
+                    addField(loading);
+
+                    viewContext.getCommonService().listPropertyTypeAssignments(
+                            etpt.getEntityType(),
+                            new AbstractAsyncCallback<List<EntityTypePropertyType<?>>>(viewContext)
+                                {
+                                    @Override
+                                    protected void process(List<EntityTypePropertyType<?>> etpts)
+                                    {
+                                        form.remove(loading);
+                                        initFields(etpts);
+                                        isLoaded = true;
+                                    }
+                                });
+                }
+
+                private void initFields(List<EntityTypePropertyType<?>> etpts)
                 {
                     originalIsMandatory = etpt.isMandatory();
 
@@ -365,9 +384,6 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                         defaultValueField = null;
                     }
 
-                    final List<EntityTypePropertyType<?>> etpts =
-                            getEntityTypePropertyTypes(etpt.getEntityType());
-
                     sectionSelectionWidget = createSectionSelectionWidget(etpts);
                     sectionSelectionWidget.setSimpleValue(etpt.getSection());
                     addField(sectionSelectionWidget);
@@ -377,6 +393,9 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
                     DialogWithOnlineHelpUtils.addHelpButton(viewContext, this,
                             createHelpPageIdentifier());
+
+                    layout();
+                    WindowUtils.resize(this, form.getElement());
                 }
 
                 private SectionSelectionWidget createSectionSelectionWidget(
@@ -488,14 +507,16 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                 @Override
                 protected void register(AsyncCallback<Void> registrationCallback)
                 {
-                    viewContext.getService()
-                            .updatePropertyTypeAssignment(
-                                    new NewETPTAssignment(entityKind, propertyTypeCode,
-                                            entityTypeCode, getMandatoryValue(), getDefaultValue(),
-                                            getSectionValue(), getPreviousETPTOrdinal(),
-                                            etpt.isDynamic(), etpt.isManaged(),
-                                            tryGetScriptNameValue(), isShownInEditView(),
-                                            getShowRawValue()), registrationCallback);
+                    if (isLoaded)
+                    {
+                        viewContext.getService().updatePropertyTypeAssignment(
+                                new NewETPTAssignment(entityKind, propertyTypeCode, entityTypeCode,
+                                        getMandatoryValue(), getDefaultValue(), getSectionValue(),
+                                        getPreviousETPTOrdinal(), etpt.isDynamic(),
+                                        etpt.isManaged(), tryGetScriptNameValue(),
+                                        isShownInEditView(), getShowRawValue()),
+                                registrationCallback);
+                    }
                 }
 
                 private HelpPageIdentifier createHelpPageIdentifier()
@@ -542,28 +563,6 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                 PropertyTypeAssignmentGridColumnIDs.TYPE_OF);
     }
 
-    private List<EntityTypePropertyType<?>> getEntityTypePropertyTypes(EntityType entityType)
-    {
-        return entityTypePropertyTypes.get(entityType);
-    }
-
-    private void extractETPTs(List<TableModelRowWithObject<EntityTypePropertyType<?>>> etpts)
-    {
-        entityTypePropertyTypes = new HashMap<EntityType, List<EntityTypePropertyType<?>>>();
-        for (TableModelRowWithObject<EntityTypePropertyType<?>> row : etpts)
-        {
-            EntityTypePropertyType<?> etpt = row.getObjectOrNull();
-            List<EntityTypePropertyType<?>> list =
-                    entityTypePropertyTypes.get(etpt.getEntityType());
-            if (list == null)
-            {
-                list = new ArrayList<EntityTypePropertyType<?>>();
-                entityTypePropertyTypes.put(etpt.getEntityType(), list);
-            }
-            list.add(etpt);
-        }
-    }
-
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> resultSetConfig,
@@ -576,7 +575,6 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                         @Override
                         protected void process(TypedTableResultSet<EntityTypePropertyType<?>> result)
                         {
-                            extractETPTs(result.getResultSet().getList().extractOriginalObjects());
                             callback.onSuccess(result);
                         }
 

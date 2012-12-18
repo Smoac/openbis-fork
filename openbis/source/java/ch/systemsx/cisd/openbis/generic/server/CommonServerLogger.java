@@ -1470,6 +1470,15 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
+    public List<EntityTypePropertyType<?>> listEntityTypePropertyTypes(String sessionToken,
+            EntityType entityType)
+    {
+        logTracking(sessionToken, "listEntityTypePropertyTypes", "ENTITY_TYPE(%s)",
+                entityType != null ? entityType.getCode() : null);
+        return null;
+    }
+
+    @Override
     public void registerPlugin(String sessionToken, CorePlugin plugin,
             ICorePluginResourceLoader resourceLoader)
     {

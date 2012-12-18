@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Dialog;
-import com.google.gwt.dom.client.Element;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 
 /**
  * @author pkupczyk
@@ -36,23 +36,9 @@ public class ImageDialog extends Dialog
                 @Override
                 public void handleEvent(BaseEvent be)
                 {
-                    autosize(getElement());
+                    WindowUtils.resize(ImageDialog.this, getElement());
                 }
             });
-    }
-
-    protected void autosize(Element element)
-    {
-        int preferedWidth = element.getOffsetWidth() + getFrameWidth() + 20;
-        int preferedHeight = element.getOffsetHeight() + getFrameHeight() + 20;
-
-        int maxWidth = (9 * XDOM.getBody().getOffsetWidth()) / 10;
-        int maxHeight = (9 * XDOM.getBody().getOffsetHeight()) / 10;
-
-        int w = Math.min(maxWidth, preferedWidth);
-        int h = Math.min(maxHeight, preferedHeight);
-        setSize(w, h);
-        center();
     }
 
 }
