@@ -18,12 +18,20 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil.OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Level;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
@@ -55,6 +63,8 @@ import ch.systemsx.cisd.openbis.generic.shared.Constants;
  */
 public abstract class SystemTestCase extends AssertJUnit
 {
+    private static final Pattern PATTERN = Pattern.compile("::(\\d+-\\d+);.*");
+
     private static final String SOURCE_TEST_CORE_PLUGINS = "sourceTest/core-plugins";
 
     public static final int SYSTEM_TEST_CASE_SERVER_PORT = 8888;
@@ -226,7 +236,7 @@ public abstract class SystemTestCase extends AssertJUnit
         final int maxLoops = dataSetImportWaitDurationInSeconds();
         if (logAppender == null)
         {
-            logAppender = new BufferedAppender();
+            logAppender = new BufferedAppender("%t: %c - %m%n", Level.INFO);
         }
         for (int loops = 0; loops < maxLoops && dataSetImported == false; loops++)
         {
@@ -254,6 +264,47 @@ public abstract class SystemTestCase extends AssertJUnit
         return logContent.contains(DATA_SET_IMPORTED_LOG_MARKER)
                 || logContent.contains(REGISTRATION_FINISHED_LOG_MARKER);
     }
+    
+    protected Set<String> getSuccessfullyRegisteredDataSets(String logContent)
+    {
+        BufferedReader reader = new BufferedReader(new StringReader(logContent));
+        Set<String> codes = new TreeSet<String>();
+        try
+        {
+            String line;
+            String simpleClassName = getClass().getSimpleName();
+            while ((line = reader.readLine()) != null)
+            {
+                int indexOfSignature = line.indexOf(DATA_SET_IMPORTED_LOG_MARKER);
+                if (line.startsWith(simpleClassName) && indexOfSignature > 0)
+                {
+                    codes.addAll(extractDataSetCodes(line.substring(indexOfSignature)));
+                }
+            }
+            return codes;
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(reader);
+        }
+    }
+    
+    private Set<String> extractDataSetCodes(String logLineExtract)
+    {
+        Set<String> result = new HashSet<String>();
+        String[] splittedExtract = logLineExtract.split("Data Set Code");
+        for (String term : splittedExtract)
+        {
+            Matcher matcher = PATTERN.matcher(term);
+            if (matcher.matches())
+            {
+                result.add(matcher.group(1));
+            }
+        }
+        return result;
+    }
 
     /**
      * Time to wait to determine if a data set has been registered or not. Subclasses may override.
@@ -268,17 +319,28 @@ public abstract class SystemTestCase extends AssertJUnit
         FileUtils.moveDirectoryToDirectory(exampleDataSet, getIncomingDirectory(), false);
     }
 
-    protected boolean checkForFinalPostRegistrationLogEntry(String logContent)
+    protected boolean checkForFinalPostRegistrationLogEntry(String logContent, Set<String> registeredDataSets)
     {
-        Pattern pattern = Pattern.compile(".*Post registration of (\\d*). of \\1 data sets.*");
+        Pattern pattern = Pattern.compile(".*Post registration of (\\d*). of \\1 data sets: (.*)");
         String[] lines = logContent.split("\\n");
         for (String line : lines)
         {
-            if (pattern.matcher(line).matches())
+            Matcher matcher = pattern.matcher(line);
+            if (matcher.matches() && registeredDataSets.contains(matcher.group(2)))
             {
                 return true;
             }
         }
         return false;
+    }
+
+    protected boolean checkOnFinishedPostRegistration(String logContent)
+    {
+        Set<String> dataSets = getSuccessfullyRegisteredDataSets(logContent);
+        if (dataSets.size() < 1)
+        {
+            return false;
+        }
+        return checkForFinalPostRegistrationLogEntry(logContent, dataSets);
     }
 }

@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -156,8 +154,6 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
     @Override
     protected boolean checkLogContentForFinishedDataSetRegistration(String logContent)
     {
-        return super.checkLogContentForFinishedDataSetRegistration(logContent)
-                && checkForFinalPostRegistrationLogEntry(logContent);
+        return checkOnFinishedPostRegistration(logContent);
     }
-
 }
