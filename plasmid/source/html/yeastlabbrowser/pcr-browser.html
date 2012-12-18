@@ -32,36 +32,46 @@
 		<div id="button-group">	
 			<button id="logout-button" style="position: absolute; right:10px;;top:10px">Logout</button>
 		</div>
-		<div id="chemical_browser"	style="position: absolute; left:10px; top:100px">
+		<div id="bacteria_browser"	style="position: absolute; left:10px; top:100px">
+		  <a href="bacteria-browser.html">Bacteria</a> 
+		</div>   
+		<div id="chemical_browser"	style="position: absolute; left:10px; top:150px">
 		  <a href="chemical-browser.html">Chemicals</a> 
 		</div>   
-		<div id="antibody_browser" style="position: absolute; left:10px; top:150px">
+		<div id="antibody_browser" style="position: absolute; left:10px; top:200px">
 		 	<a href="antibody-browser.html">Antibodies</a>  
 		</div>		
-		<div id="media_browser" style="position: absolute; left:10px; top:200px">
+		<div id="media_browser" style="position: absolute; left:10px; top:250px">
 		 	<a href="media-browser.html">Media</a>  
 		</div>						
-		<div id="buffer_browser" style="position: absolute; left:10px; top:250px">
+		<div id="buffer_browser" style="position: absolute; left:10px; top:300px">
 		 	<a href="solutions_buffers-browser.html">Solutions Buffers</a>  
 		</div>		
-		<div id="oligo_browser"	style="position: absolute; left:10px; top:300px">
+		<div id="enzyme_browser" style="position: absolute; left:10px; top:350px">
+		 	<a href="enzyme-browser.html">Enzymes</a>  
+		</div>				
+		<div id="oligo_browser"	style="position: absolute; left:10px; top:400px">
 		  <a href="oligo-browser.html">Oligos</a>  
 		</div>		
-		<div id="plasmid_browser"	style="position: absolute; left:10px; top:350px">
+		<div id="plasmid_browser"	style="position: absolute; left:10px; top:450px">
 		  <a href="plasmid-browser.html">Plasmids</a>  
 		</div>		
-		<div id="yeast_browser" style="position: absolute; left:10px; top:400px">
+		<div id="yeast_browser" style="position: absolute; left:10px; top:500px">
 		 	<a href="yeast-browser.html">Yeasts</a>  
 		</div>		
-		<div id="protocol_browser" style="position: absolute; left:10px; top:450px">
+		<div id="protocol_browser" style="position: absolute; left:10px; top:550px">
 		 	<a href="general_protocol-browser.html">General Protocols</a>  
 		</div>		
-		<div id="pcr_browser" style="position: absolute; left:10px; top:500px">
+		<div id="pcr_browser" style="position: absolute; left:10px; top:600px">
 		 	<a href="pcr-browser.html">PCR</a>  
-		</div>				
-			<div id="search_browser" style="position: absolute; left:10px; top:550px">
+		</div>		
+			<div id="western_blotting_browser" style="position: absolute; left:10px; top:650px">
+		 	<a href="western_blotting-browser.html">Western Blotting</a>  
+		</div>					
+			<div id="search_browser" style="position: absolute; left:200px; padding-top:570px">
 		 	<a href="search-browser.html">Search</a>  
 		</div>					
+
 
 	
 <!--  
@@ -802,7 +812,7 @@ function displayReturnedSamples(data)
 		.attr("class", "pcr-table-data")
 		.style("cursor", "pointer")
 		.on("click", inspectpcr)
-		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.NAME, sample.properties.WHAT_FOR, sample.properties.pcr_TYPE, sample.properties.PUBLICATION]; })
+		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.NAME, sample.properties.WHAT_FOR, sample.properties.TEMPLATE, sample.properties.PUBLICATION]; })
 			.enter()
 			.append("td")
 			.append("div")

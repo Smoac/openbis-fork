@@ -544,59 +544,69 @@ function ShowHide(divId)
 		<div id="button-group">	
 			<button id="logout-button" style="position: absolute; right:10px;;top:10px">Logout</button>
 		</div>
-		<div id="chemical_browser"	style="position: absolute; left:10px; top:100px">
+		<div id="bacteria_browser"	style="position: absolute; left:10px; top:100px">
+		  <a href="bacteria-browser.html">Bacteria</a> 
+		</div>   
+		<div id="chemical_browser"	style="position: absolute; left:10px; top:150px">
 		  <a href="chemical-browser.html">Chemicals</a> 
 		</div>   
-		<div id="antibody_browser" style="position: absolute; left:10px; top:150px">
+		<div id="antibody_browser" style="position: absolute; left:10px; top:200px">
 		 	<a href="antibody-browser.html">Antibodies</a>  
 		</div>		
-		<div id="media_browser" style="position: absolute; left:10px; top:200px">
+		<div id="media_browser" style="position: absolute; left:10px; top:250px">
 		 	<a href="media-browser.html">Media</a>  
 		</div>						
-		<div id="buffer_browser" style="position: absolute; left:10px; top:250px">
+		<div id="buffer_browser" style="position: absolute; left:10px; top:300px">
 		 	<a href="solutions_buffers-browser.html">Solutions Buffers</a>  
 		</div>		
-		<div id="oligo_browser"	style="position: absolute; left:10px; top:300px">
+		<div id="enzyme_browser" style="position: absolute; left:10px; top:350px">
+		 	<a href="enzyme-browser.html">Enzymes</a>  
+		</div>				
+		<div id="oligo_browser"	style="position: absolute; left:10px; top:400px">
 		  <a href="oligo-browser.html">Oligos</a>  
 		</div>		
-		<div id="plasmid_browser"	style="position: absolute; left:10px; top:350px">
+		<div id="plasmid_browser"	style="position: absolute; left:10px; top:450px">
 		  <a href="plasmid-browser.html">Plasmids</a>  
 		</div>		
-		<div id="yeast_browser" style="position: absolute; left:10px; top:400px">
+		<div id="yeast_browser" style="position: absolute; left:10px; top:500px">
 		 	<a href="yeast-browser.html">Yeasts</a>  
 		</div>		
-		<div id="protocol_browser" style="position: absolute; left:10px; top:450px">
+		<div id="protocol_browser" style="position: absolute; left:10px; top:550px">
 		 	<a href="general_protocol-browser.html">General Protocols</a>  
 		</div>		
-		<div id="pcr_browser" style="position: absolute; left:10px; top:500px">
+		<div id="pcr_browser" style="position: absolute; left:10px; top:600px">
 		 	<a href="pcr-browser.html">PCR</a>  
-		</div>				
-			<div id="search_browser" style="position: absolute; left:10px; top:550px">
+		</div>		
+			<div id="western_blotting_browser" style="position: absolute; left:10px; top:650px">
+		 	<a href="western_blotting-browser.html">Western Blotting</a>  
+		</div>					
+			<div id="search_browser" style="position: absolute; left:200px; padding-top:570px">
 		 	<a href="search-browser.html">Search</a>  
 		</div>					
+
 
 			
 	
 	
-		<div id="filter-button"	style="padding-left:200px; padding-top: 570px; font-weight:bold; padding-bottom:30px;">
+		<div id="filter-button"	style="padding-left:400px; padding-top: 570px; font-weight:bold; padding-bottom:30px;">
 		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
 		</div> 		
 	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
 		<table>
-			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Chemical Name</td><td><input style="width: 200px" id="name_filter" type="text"></td></tr> 		
-			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Supplier</td><td><input style="width: 200px" id="supplier_filter" type="text"></td></tr>
-				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Art. Number</td><td> <input style="width: 200px" id="artnum_filter" type="text"></td></tr> 		
-      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Local ID</td><td> <input style="width: 200px" id="locid_filter" type="text"></td></tr> 		
-   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Storage</td><td> <input style="width: 200px" id="storage_filter" type="text"></td></tr> 		
+			  <tr style="position:absolute; top: 680px; left: 400px"><td style="font-weight: bold; width: 200px">Chemical Name</td><td><input style="width: 200px" id="name_filter" type="text"></td></tr> 		
+			  <tr style="position:absolute; top: 720px; left: 400px"><td style="font-weight: bold;  width: 200px">Supplier</td><td><input style="width: 200px" id="supplier_filter" type="text"></td></tr>
+				<tr style="position:absolute; top: 760px; left: 400px"><td style="font-weight: bold;  width: 200px">Art. Number</td><td> <input style="width: 200px" id="artnum_filter" type="text"></td></tr> 		
+      	<tr style="position:absolute; top: 800px; left: 400px"><td style="font-weight: bold;  width: 200px">Local ID</td><td> <input style="width: 200px" id="locid_filter" type="text"></td></tr> 		
+   	  	<tr style="position:absolute; top: 840px; left: 400px"><td style="font-weight: bold;  width: 200px">Storage</td><td> <input style="width: 200px" id="storage_filter" type="text"></td></tr> 		
    	  </table> 		
     </div>	
 		
     
 		<div id="vis">
-  	 	<div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
+  	 	<div style="position:absolute; left:200px; height: 500px; top: 100px; overflow: auto">
 		  <table cellspacing="10" cellpadding="20">
 			<table id="chemical-table" style="float: left">
-			  <tr class="chemical-table-header"><th>Chemical Code</th><th>Chemical Name</th><th>Supplier</th><th>Art. Number</th><th>Local ID</th><th>Storage</th></tr>
+			  <tr class="chemical-table-header"><th>Code</th><th>Name</th><th>Supplier</th><th>Art. Number</th><th>Local ID</th><th>Storage</th></tr>
 			</table>
 			</div>
 			<span id="inspectorsContainer"></span>

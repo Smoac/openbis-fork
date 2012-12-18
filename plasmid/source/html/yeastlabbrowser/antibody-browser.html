@@ -32,36 +32,46 @@
 		<div id="button-group">	
 			<button id="logout-button" style="position: absolute; right:10px;;top:10px">Logout</button>
 		</div>
-		<div id="chemical_browser"	style="position: absolute; left:10px; top:100px">
+		<div id="bacteria_browser"	style="position: absolute; left:10px; top:100px">
+		  <a href="bacteria-browser.html">Bacteria</a> 
+		</div>   
+		<div id="chemical_browser"	style="position: absolute; left:10px; top:150px">
 		  <a href="chemical-browser.html">Chemicals</a> 
 		</div>   
-		<div id="antibody_browser" style="position: absolute; left:10px; top:150px">
+		<div id="antibody_browser" style="position: absolute; left:10px; top:200px">
 		 	<a href="antibody-browser.html">Antibodies</a>  
 		</div>		
-		<div id="media_browser" style="position: absolute; left:10px; top:200px">
+		<div id="media_browser" style="position: absolute; left:10px; top:250px">
 		 	<a href="media-browser.html">Media</a>  
 		</div>						
-		<div id="buffer_browser" style="position: absolute; left:10px; top:250px">
+		<div id="buffer_browser" style="position: absolute; left:10px; top:300px">
 		 	<a href="solutions_buffers-browser.html">Solutions Buffers</a>  
 		</div>		
-		<div id="oligo_browser"	style="position: absolute; left:10px; top:300px">
+		<div id="enzyme_browser" style="position: absolute; left:10px; top:350px">
+		 	<a href="enzyme-browser.html">Enzymes</a>  
+		</div>				
+		<div id="oligo_browser"	style="position: absolute; left:10px; top:400px">
 		  <a href="oligo-browser.html">Oligos</a>  
 		</div>		
-		<div id="plasmid_browser"	style="position: absolute; left:10px; top:350px">
+		<div id="plasmid_browser"	style="position: absolute; left:10px; top:450px">
 		  <a href="plasmid-browser.html">Plasmids</a>  
 		</div>		
-		<div id="yeast_browser" style="position: absolute; left:10px; top:400px">
+		<div id="yeast_browser" style="position: absolute; left:10px; top:500px">
 		 	<a href="yeast-browser.html">Yeasts</a>  
 		</div>		
-		<div id="protocol_browser" style="position: absolute; left:10px; top:450px">
+		<div id="protocol_browser" style="position: absolute; left:10px; top:550px">
 		 	<a href="general_protocol-browser.html">General Protocols</a>  
 		</div>		
-		<div id="pcr_browser" style="position: absolute; left:10px; top:500px">
+		<div id="pcr_browser" style="position: absolute; left:10px; top:600px">
 		 	<a href="pcr-browser.html">PCR</a>  
-		</div>				
-			<div id="search_browser" style="position: absolute; left:10px; top:550px">
+		</div>		
+			<div id="western_blotting_browser" style="position: absolute; left:10px; top:650px">
+		 	<a href="western_blotting-browser.html">Western Blotting</a>  
+		</div>					
+			<div id="search_browser" style="position: absolute; left:200px; padding-top:570px">
 		 	<a href="search-browser.html">Search</a>  
 		</div>					
+
 
 	
 <!-- 		<div id="filter-button"	style="padding-left:200px; padding-top: 570px; font-weight:bold; padding-bottom:30px;">
@@ -84,7 +94,7 @@
 		<div id="vis">
   	 	<div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
 		  <table id="antibody-table" style="float: left">
-			  <tr class="antibody-table-header"><th>Antibody Code</th><th>Name</th><th>Storage</th><th>Host</th><th>For What</th></tr>
+			  <tr class="antibody-table-header"><th>Code</th><th>Name</th><th>Storage</th><th>Host</th><th>For What</th></tr>
 				</table>
 			</div>
 			<span id="inspectorsContainer"></span>
@@ -185,7 +195,7 @@ function props_to_pairs1(data)
 	}
 	
 
-	order1 = ["STOCK_CONCENTRATION" ]
+	order1 = ["NAME", "FOR_WHAT", "ORGANISM", "SUPPLIER", "ARTICLE_NUMBER", "LOCAL_ID",  "STORAGE","STOCK_CONCENTRATION", "STERILIZATION", "KIT", "MATERIALS" ]
 	new_list1 = []
 	for (var i in order1) {
 	  for (var j in pairs) {
@@ -212,7 +222,7 @@ function props_to_pairs2(data)
 	}
 	
 	
-	order2 = ["SUPPLIER",  "ARTICLE_NUMBER",  "EPITOPE", "CLONALITY", "ISOTYPE","COMMENTS", "PUBLICATION"   ]
+	order2 = ["PROCEDURE",  "PROTOCOL_EVALUATION","DETAILS", "EPITOPE",  "CLONALITY", "ISOTYPE", "COMMENTS",  "PUBLICATION"   ]
 	new_list2 = []
 	for (var i in order2) {
 		for (var j in pairs) {
@@ -235,9 +245,8 @@ function props_to_pairs3(data)
 		var pair = [prop, d[prop]];
 		pairs.push(pair);
 	}
-	pairs.push(["REGISTRATION_DATE", new Date(data.registrationDetails.registrationDate)]);
 	
-	order3 = ["REGISTRATION_DATE"]
+	order3 = ["CHEMICALS_PARENTS","MEDIA_PARENTS","SOLUTIONS_BUFFERS_PARENTS" ]
 	new_list3 = []
 	for (var i in order3) {
 		for (var j in pairs) {
@@ -248,6 +257,56 @@ function props_to_pairs3(data)
 		}
 	}
 	return new_list3;
+}
+
+function props_to_pairs4(data)
+{
+
+	d = data.properties;
+	
+	var pairs = [];
+	for (var prop in d) {
+		var pair = [prop, d[prop]];
+		pairs.push(pair);
+	}
+	
+	order4 = ["MEMBRANE","ANTIBODY_DILUTION","ANTIBODY_SOLUTION", "COMMENTS" ]
+	new_list4 = []
+	for (var i in order4) {
+		for (var j in pairs) {
+			if (pairs[j][0] == order4[i]) {
+				new_list4.push(pairs[j]);
+				break;
+			}
+		}
+	}
+	return new_list4;
+}
+
+function props_to_pairs5(data)
+{
+
+	d = data.properties;
+	
+	var pairs = [];
+	for (var prop in d) {
+		var pair = [prop, d[prop]];
+		pairs.push(pair);
+	}
+	
+	pairs.push(["REGISTRATION_DATE", new Date(data.registrationDetails.registrationDate)]);
+
+	order5 = [ "XMLCOMMENTS","SUGGESTIONS", "PROTOCOL_MODIFICATIONS", "REGISTRATION_DATE"]
+	new_list5 = []
+	for (var i in order5) {
+		for (var j in pairs) {
+			if (pairs[j][0] == order5[i]) {
+				new_list5.push(pairs[j]);
+				break;
+			}
+		}
+	}
+	return new_list5;
 }
 
 
@@ -546,8 +605,34 @@ function updateInspectors(duration)
 				.duration(duration)
 				.style("opacity", "1");	
 				
+			
+			var propsTable4 = box.append("table").attr("class", "properties");
+	propsTable4.selectAll("tr").data(function(d) { return props_to_pairs4(d) })
+		.enter()
+			.append("tr")
+			.selectAll("td").data(function(d) { return d }).enter()
+				.append("td")
+				.attr("class", "property")
+				.style("opacity", "0")
+				.text(function(d) { return d })
+			.transition()
+				.duration(duration)
+				.style("opacity", "1");	
+							
+			
+			var propsTable5 = box.append("table").attr("class", "properties");
+	propsTable5.selectAll("tr").data(function(d) { return props_to_pairs5(d) })
+		.enter()
+			.append("tr")
+			.selectAll("td").data(function(d) { return d }).enter()
+				.append("td")
+				.attr("class", "property")
+				.style("opacity", "0")
+				.text(function(d) { return d })
+			.transition()
+				.duration(duration)
+				.style("opacity", "1");	
 				
-	
 			
 				
 	var downloadTable = inspector.selectAll("table.downloads").data(function(d) { return [d] });

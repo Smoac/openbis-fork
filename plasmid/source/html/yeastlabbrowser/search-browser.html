@@ -131,17 +131,11 @@ function inspectEachsample(eachsample)
   	return;
   }
  
- console.log(eachsample.properties)
+ 
 	 
   window.open(eachsample.sampleTypeCode +"-browser.html?code=" + eachsample.code, "_blank");
   
-/*
-	if (inspectedEachsamples.indexOf(eachsample) < 0) {
-		inspectedEachsamples.push(eachsample);
-	}
-	resizeEachsampleTable();
-	updateInspectors(1000);
-*/
+
 }
 
 function closeInspector(eachsample)
@@ -200,6 +194,8 @@ selection
 				        var propertyValue = d[propertyName];
 				        if(propertyValue && searchRegexp.test(propertyValue)){
 							    return propertyValue;
+							    console.log(propertyValue)
+							    console.log(propertyName)
 							  }			    
 				    }
 					}	    
@@ -346,40 +342,47 @@ $(document).ready(function() {
 	</div>
 
 	<div id="main">
-	  <div id = "title" style="padding-top:20px"> All Sample Types </div>
+	  <div id = "title" style="padding-top:20px"> ALL SAMPLE TYPES </div>
 		<div id="button-group">	
 			<button id="logout-button" style="position: absolute; right:10px;;top:10px">Logout</button>
 		</div>
-		<div id="chemical_browser"	style="position: absolute; left:10px; top:100px">
+		<div id="bacteria_browser"	style="position: absolute; left:10px; top:100px">
+		  <a href="bacteria-browser.html">Bacteria</a> 
+		</div>   
+		<div id="chemical_browser"	style="position: absolute; left:10px; top:150px">
 		  <a href="chemical-browser.html">Chemicals</a> 
 		</div>   
-		<div id="antibody_browser" style="position: absolute; left:10px; top:150px">
+		<div id="antibody_browser" style="position: absolute; left:10px; top:200px">
 		 	<a href="antibody-browser.html">Antibodies</a>  
 		</div>		
-		<div id="media_browser" style="position: absolute; left:10px; top:200px">
+		<div id="media_browser" style="position: absolute; left:10px; top:250px">
 		 	<a href="media-browser.html">Media</a>  
 		</div>						
-		<div id="buffer_browser" style="position: absolute; left:10px; top:250px">
+		<div id="buffer_browser" style="position: absolute; left:10px; top:300px">
 		 	<a href="solutions_buffers-browser.html">Solutions Buffers</a>  
 		</div>		
-		<div id="oligo_browser"	style="position: absolute; left:10px; top:300px">
+		<div id="enzyme_browser" style="position: absolute; left:10px; top:350px">
+		 	<a href="enzyme-browser.html">Enzymes</a>  
+		</div>				
+		<div id="oligo_browser"	style="position: absolute; left:10px; top:400px">
 		  <a href="oligo-browser.html">Oligos</a>  
 		</div>		
-		<div id="plasmid_browser"	style="position: absolute; left:10px; top:350px">
+		<div id="plasmid_browser"	style="position: absolute; left:10px; top:450px">
 		  <a href="plasmid-browser.html">Plasmids</a>  
 		</div>		
-		<div id="yeast_browser" style="position: absolute; left:10px; top:400px">
+		<div id="yeast_browser" style="position: absolute; left:10px; top:500px">
 		 	<a href="yeast-browser.html">Yeasts</a>  
 		</div>		
-		<div id="protocol_browser" style="position: absolute; left:10px; top:450px">
+		<div id="protocol_browser" style="position: absolute; left:10px; top:550px">
 		 	<a href="general_protocol-browser.html">General Protocols</a>  
 		</div>		
-		<div id="pcr_browser" style="position: absolute; left:10px; top:500px">
+		<div id="pcr_browser" style="position: absolute; left:10px; top:600px">
 		 	<a href="pcr-browser.html">PCR</a>  
-		</div>				
-			<div id="search_browser" style="position: absolute; left:10px;;top:50px">
-		 	<a href="search-browser.html">Search</a>  
+		</div>		
+			<div id="western_blotting_browser" style="position: absolute; left:10px; top:650px">
+		 	<a href="western_blotting-browser.html">Western Blotting</a>  
 		</div>					
+							
 
 
 	    
@@ -394,7 +397,7 @@ $(document).ready(function() {
  		   <div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
   	 	  <table id="eachsample-table" cellpadding="0" cellspacing="0" border="1" bordercolor="white" class="display" width="100%">
 			  <thead >
-					<tr class="eachsample-table-header"><th>Sample Type</th><th>Code</th><th>Match Text</th></tr>
+					<tr class="eachsample-table-header"><th>Sample Type</th><th>Code</th><th>Matched Text</th></tr>
 				</thead> 
 				<tbody></tbody>
 			</table>

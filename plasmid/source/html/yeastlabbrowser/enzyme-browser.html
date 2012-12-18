@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 <head>
-	<title>Plasmid Browser</title>
+	<title>enzyme Browser</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<link type="text/css" rel="stylesheet" href="plasmid-body-style.css" />
+	<link type="text/css" rel="stylesheet" href="enzyme-body-style.css" />
 	<link type="text/css" rel="stylesheet" href="button.css" />
 	<script type="text/javascript" src="d3.js"></script>
 	<script type="text/javascript" src="d3.layout.js"></script>
@@ -16,7 +16,7 @@
 	<!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
 </head>
 
-<body >
+<body>
 	<img id="openbis-logo" src="images/openBIS_Logo.png" alt="openBIS" style="position: absolute; left: 10px; height: 100px;"/>
 	<div id="login-form-div"style="position: absolute; left: 300px; top: 200px;">
 		<h1>openBIS YeastLab</h1>
@@ -27,45 +27,73 @@
 		</form>
 	</div>
 
-	<div id="main">
+<div id="main">
+	  <div id = "title" style="padding-top:20px"> ENZYMES </div>
 		<div id="button-group">	
-			<button id="logout-button" style="position: absolute; right:10px;">Logout</button>
+			<button id="logout-button" style="position: absolute; right:10px;;top:10px">Logout</button>
 		</div>
-		<div id="yeast_browser" style="position: absolute; left:800px; top:15px">
-		 	<a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/yeast-browser.html">Yeasts</a>  
-		</div>
-		<div id="plasmid_browser"	style="position: absolute; left:600px; top:15px">
-		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/plasmid-browser.html">Plasmids</a>  
-		</div>
-		<div id="oligo_browser"	style="position: absolute; left:400px; top:15px">
-		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/oligo-browser.html">Oligos</a>  
-		</div>
-		<div id="chemical_browser"	style="position: absolute; left:200px; top:15px">
-		  <a href="file:///Users/barillac/workspace/plasmid/source/html/yeastlabbrowser/chemicals-browser.html">Chemicals</a>  
-		</div>
-		
-	<div id="filter-button"	style="padding-left:20px; padding-top:70px; font-weight:bold; padding-bottom:30px;">
+			<div id="bacteria_browser"	style="position: absolute; left:10px; top:100px">
+		  <a href="bacteria-browser.html">Bacteria</a> 
+		</div>   
+		<div id="chemical_browser"	style="position: absolute; left:10px; top:150px">
+		  <a href="chemical-browser.html">Chemicals</a> 
+		</div>   
+		<div id="antibody_browser" style="position: absolute; left:10px; top:200px">
+		 	<a href="antibody-browser.html">Antibodies</a>  
+		</div>		
+		<div id="media_browser" style="position: absolute; left:10px; top:250px">
+		 	<a href="media-browser.html">Media</a>  
+		</div>						
+		<div id="buffer_browser" style="position: absolute; left:10px; top:300px">
+		 	<a href="solutions_buffers-browser.html">Solutions Buffers</a>  
+		</div>		
+		<div id="enzyme_browser" style="position: absolute; left:10px; top:350px">
+		 	<a href="enzyme-browser.html">Enzymes</a>  
+		</div>				
+		<div id="oligo_browser"	style="position: absolute; left:10px; top:400px">
+		  <a href="oligo-browser.html">Oligos</a>  
+		</div>		
+		<div id="plasmid_browser"	style="position: absolute; left:10px; top:450px">
+		  <a href="plasmid-browser.html">Plasmids</a>  
+		</div>		
+		<div id="yeast_browser" style="position: absolute; left:10px; top:500px">
+		 	<a href="yeast-browser.html">Yeasts</a>  
+		</div>		
+		<div id="protocol_browser" style="position: absolute; left:10px; top:550px">
+		 	<a href="general_protocol-browser.html">General Protocols</a>  
+		</div>		
+		<div id="pcr_browser" style="position: absolute; left:10px; top:600px">
+		 	<a href="pcr-browser.html">PCR</a>  
+		</div>		
+			<div id="western_blotting_browser" style="position: absolute; left:10px; top:650px">
+		 	<a href="western_blotting-browser.html">Western Blotting</a>  
+		</div>					
+			<div id="search_browser" style="position: absolute; left:200px; padding-top:570px">
+		 	<a href="search-browser.html">Search</a>  
+		</div>					
+
+	
+<!-- 		<div id="filter-button"	style="padding-left:200px; padding-top: 570px; font-weight:bold; padding-bottom:30px;">
 		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
 		</div> 		
 	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
 		<table>
-			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Owner</td><td><input style="width: 200px" id="owner_filter" type="text"></td></tr> 		
-			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Owner Number</td><td><input style="width: 200px" id="ownerNum_filter" type="text"></td></tr>
-				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Plasmid Name</td><td> <input style="width: 200px" id="plasmidName_filter" type="text"></td></tr> 		
-      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">Backbone</td><td> <input style="width: 200px" id="backbone_filter" type="text"></td></tr> 		
-   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 100px">Bacterial Antibitioc Resistance</td><td> <input style="width: 200px" id="antibiotic_filter" type="text"></td></tr> 		
-   	  	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 100px">(Yeast) Marker</td><td> <input style="width: 200px" id="marker_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Owner</td><td><input style="width: 200px" id="owner_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Owner Number</td><td><input style="width: 200px" id="ownerNum_filter" type="text"></td></tr>
+				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">enzyme Name</td><td> <input style="width: 200px" id="enzymeName_filter" type="text"></td></tr> 		
+      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Backbone</td><td> <input style="width: 200px" id="backbone_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Bacterial Antibitioc Resistance</td><td> <input style="width: 200px" id="antibiotic_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">(Yeast) Marker</td><td> <input style="width: 200px" id="marker_filter" type="text"></td></tr> 		
    	  </table> 		
     </div>	
-		
+-->		
 		
 	
     
 		<div id="vis">
-		  <table id="plasmid-table" style="float: left">
-			<!--   <tr class="plasmid-table-header"><th>Plasmid Code</th><th>Owner</th><th>Owner Number</th><th>Plasmid Name</th><th>Backbone</th><th>Bacterial Antibiotic Resistance</th><th>(Yeast) Marker</th></tr> -->
-				<thead></thead>
-				<tbody></tbody>
+  	 	<div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
+		  <table id="enzyme-table" style="float: left">
+			  <tr class="enzyme-table-header"><th>Code</th><th>Name</th><th>Supplier</th><th>Art. Number</th><th>Kit Including</th></tr>
 				</table>
 			</div>
 			<span id="inspectorsContainer"></span>
@@ -77,16 +105,15 @@
 /// The openbisServer we use for our data
 openbisServer = new openbis('https://openbis-csb.ethz.ch/openbis/openbis', 'https://openbis-csb.ethz.ch:443/datastore_server');
 
-//openbisServer = new openbis('https://localhost:8443/openbis/openbis', 'https://bs-mbp156.ethz.ch:8443/datastore_server');
 
 
 // Some global variables we refer to
 
-/// All plasmids
-var plasmids = null;
+/// All enzymes
+var enzymes = null;
 
-/// The plasmids that are currently being inspected
-var inspectedPlasmids = [];
+/// The enzymes that are currently being inspected
+var inspectedenzymes = [];
 
 /// The width of the inspectors section
 var inspectorsWidth = 450;
@@ -121,12 +148,11 @@ function createVis()
 	// An element for the inspectors.
 	inspectors = d3.select("#inspectorsContainer")
 		.style("width", + inspectorsWidth + "px")
-		.style("position", "relative")
+		.style("position", "absolute")
 		.style("overflow", "auto")
-		.style("float", "right")
-		.style("top", "20px")		
+		.style("left", "1250px")
+		.style("top", "100px")
 		.style("display", "none");
-
 	didCreateVis = true;
 }
 
@@ -168,16 +194,17 @@ function props_to_pairs1(data)
 	}
 	
 
-	order1 = ["OWNER", "OWNER_NUMBER", "YEAST_STRAIN_NAME", "COMMENTS", "PROJECT",  "PLASMIDS", "YEAST_PARENTS", "PLASMID_NAME",  "BACKBONE", "BACTERIAL_ANTIBIOTIC_RESISTANCE",  "YEAST_MARKER",  "OTHER_MARKER",  "FLANKING_RESTRICTION_ENZYME",  "COMMENTS"]
+	order1 = ["NAME", "FOR_WHAT", "ORGANISM", "SUPPLIER", "ARTICLE_NUMBER", "LOCAL_ID",  "STORAGE","STOCK_CONCENTRATION", "STERILIZATION", "KIT" ]
 	new_list1 = []
 	for (var i in order1) {
-		for (var j in pairs) {
+	  for (var j in pairs) {
 			if (pairs[j][0] == order1[i]) {
 				new_list1.push(pairs[j]);
 				break;
 			}
 		}
 	}
+	
 	return new_list1;
 }
 
@@ -194,7 +221,7 @@ function props_to_pairs2(data)
 	}
 	
 	
-	order2 = ["GENETIC_BACKGROUND",  "MATING_TYPE",  "BACKGROUND_SPECIFIC_MARKERS", "COMMON_MARKERS", "ENDOGENOUS_PLASMID"]
+	order2 = ["DETAILS",  "COMMENTS",  "PUBLICATION"   ]
 	new_list2 = []
 	for (var i in order2) {
 		for (var j in pairs) {
@@ -218,7 +245,7 @@ function props_to_pairs3(data)
 		pairs.push(pair);
 	}
 	
-	order3 = ["SOURCE","ORIGIN","STRAIN_CHECK"]
+	order3 = ["CHEMICALS_PARENTS","MEDIA_PARENTS","SOLUTIONS_BUFFERS_PARENTS" ]
 	new_list3 = []
 	for (var i in order3) {
 		for (var j in pairs) {
@@ -244,7 +271,7 @@ function props_to_pairs4(data)
 	
 	pairs.push(["REGISTRATION_DATE", new Date(data.registrationDetails.registrationDate)]);
 
-	order4 = [ "BOX_NUMBER","ROW","COLUMN","REGISTRATION_DATE"]
+	order4 = [ "XMLCOMMENTS","REGISTRATION_DATE"]
 	new_list4 = []
 	for (var i in order4) {
 		for (var j in pairs) {
@@ -258,14 +285,16 @@ function props_to_pairs4(data)
 }
 
 
+
+
 function resolveObjectReference(objectOrId) {
   if (isNaN(objectOrId)) {
-    plasmid = objectOrId;
+    enzyme = objectOrId;
   } else {
-  	plasmid = plasmidsById[objectOrId];
+  	enzyme = enzymesById[objectOrId];
   }
   
-  return plasmid;
+  return enzyme;
 }
 
 function get_parents(data)
@@ -311,21 +340,21 @@ function get_children(data)
 }
 
 
-/** Initialize the plasmids variable */
-function initializePlasmids(result)
+/** Initialize the enzymes variable */
+function initializeenzymes(result)
 {
-      // Construct a map of all plasmids by id
-  plasmidsById = {};
+      // Construct a map of all enzymes by id
+  enzymesById = {};
 
-	// Split the plasmids into two groups, the ones that start with FRP in their sample name and the other ones.
-	var frpPlasmids = [], otherPlasmids = [];
-	var frpRegex = /^FRP[0-9]+/;
+	// Split the enzymes into two groups, the ones that start with FRP in their sample name and the other ones.
+	var frpenzymes = [], otherenzymes = [];
+	var frpRegex = /^FRE[0-9]+/;
 	frpRegex.compile(frpRegex);
 	result.forEach(function(sampleOrId) {
 		var theSample = sampleOrId;
 		function storeSamplesById(referredSample) {
       if (isNaN(referredSample)) {
-        plasmidsById[referredSample["@id"]] = referredSample;
+        enzymesById[referredSample["@id"]] = referredSample;
         if (referredSample.parents) referredSample.parents.forEach(storeSamplesById);
         if (referredSample.children) referredSample.children.forEach(storeSamplesById);
       }
@@ -333,47 +362,45 @@ function initializePlasmids(result)
 	  if (isNaN(theSample)) {
 	  	storeSamplesById(theSample);
     } else {
-	    // This is referring to an object in the plasmidsById map
-	    theSample = plasmidsById[sampleOrId];
+	    // This is referring to an object in the enzymesById map
+	    theSample = enzymesById[sampleOrId];
 		}       
  		if (frpRegex.test(theSample.code)) {
-			frpPlasmids.push(theSample);
+			frpenzymes.push(theSample);
 		} else {
-			otherPlasmids.push(theSample);
+			otherenzymes.push(theSample);
 		}
 	});
 	
 	// Sort each of the groups
-	otherPlasmids.sort(function(a, b) { 
+	otherenzymes.sort(function(a, b) { 
 		return (a.code < b.code) ? -1 : 1; 
 	});
 	
-	frpPlasmids.sort(function(a, b) {
+	frpenzymes.sort(function(a, b) {
 		// Sort based on the FRP number
-		var frpNumberA = parseInt(a.code.substring(3));
-		var frpNumberB = parseInt(b.code.substring(3));
+		var frpNumberA = parseInt(a.code.substring(4));
+		var frpNumberB = parseInt(b.code.substring(4));
 		return (frpNumberA < frpNumberB) ? -1 : 1;
 	});
 	
-	// Combine the two groups back together to produce the full collection of plasmids
-	plasmids = frpPlasmids.concat(otherPlasmids);
+	// Combine the two groups back together to produce the full collection of enzymes
+	enzymes = frpenzymes.concat(otherenzymes);
 }
 
-/** Set the size of the plasmid-table based on whether or not inspectors are visible */
-function resizePlasmidTable()
+
+
+/** Set the size of the enzyme-table based on whether or not inspectors are visible */
+function resizeenzymeTable()
 {
 	var cellWidth;
 	var areInspectorsVisible;
 	var padding = 10;
-	if (inspectedPlasmids.length > 0) {
-		cellWidth = ((getAppWidth() - inspectorsWidth) / 9) - padding + "px";
-		areInspectorsVisible = true;
-	} else {
-		cellWidth = "100%";
-		areInspectorsVisible = false;
-	}
-	var plasmidTableTransition = d3.selectAll('div.plasmid-table-data-cell');
-	plasmidTableTransition.style('width', cellWidth);
+	cellWidth = "100%";
+	areInspectorsVisible = true;
+	
+	var enzymeTableTransition = d3.selectAll('div.enzyme-table-data-cell');
+	enzymeTableTransition.style('width', cellWidth);
 	if (areInspectorsVisible) {
 		$("#inspectorsContainer").show();
 	} else {
@@ -381,45 +408,45 @@ function resizePlasmidTable()
 	}
 }
 
-function inspectPlasmid(plasmid)
+function inspectenzyme(enzyme)
 {
-	if (inspectedPlasmids.indexOf(plasmid) < 0) {
-		inspectedPlasmids.push(plasmid);
+	if (inspectedenzymes.indexOf(enzyme) < 0) {
+		inspectedenzymes.push(enzyme);
 		
 		// When requesting information about the sample, we don't need parents
 		// and children, so send a copy of the saple without that information.
-		var plasmidToSend = $.extend({}, plasmid);
-		delete plasmidToSend.parents;
-		delete plasmidToSend.children;
-		openbisServer.listDataSetsForSample(plasmidToSend, true, dataset.curry(plasmid));
+		var enzymeToSend = $.extend({}, enzyme);
+		delete enzymeToSend.parents;
+		delete enzymeToSend.children;
+		openbisServer.listDataSetsForSample(enzymeToSend, true, dataset.curry(enzyme));
 	}
-	resizePlasmidTable();
+	resizeenzymeTable();
 	updateInspectors(1000);
 }
 
-function closeInspector(plasmid)
+function closeInspector(enzyme)
 {
-	var index = inspectedPlasmids.indexOf(plasmid);
+	var index = inspectedenzymes.indexOf(enzyme);
 	if (index < 0) {
 		return;
 	}
 	
-	inspectedPlasmids.splice(index, 1);
-	resizePlasmidTable();
+	inspectedenzymes.splice(index, 1);
+	resizeenzymeTable();
 	updateInspectors(1000);
 }
 
-function dataset(plasmid, data) {
+function dataset(enzyme, data) {
 	for (var i in data.result) {
 	  console.log(data.result)
-		openbisServer.listFilesForDataSet(data.result[i].code, "/", true, filelist.curry(plasmid, data.result[i]));
+		openbisServer.listFilesForDataSet(data.result[i].code, "/", true, filelist.curry(enzyme, data.result[i]));
 	}
 }
 
-function filelist(plasmid, dataset, files) {
+function filelist(enzyme, dataset, files) {
 	for (var i in files.result) {
 		if (!files.result[i].isDirectory) {
-			var inspector = inspectors.select("#"+plasmid.code+"_INSPECTOR");
+			var inspector = inspectors.select("#"+enzyme.code+"_INSPECTOR");
 			var pathInDataSet = files.result[i].pathInDataSet;
 			var downloadUrl = 'https://openbis-csb.ethz.ch:443/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
 			
@@ -448,7 +475,7 @@ function filelist(plasmid, dataset, files) {
 function updateInspectors(duration)
 {		
 		// Draw / update the inspectors	
-	var inspector = inspectors.selectAll("div.inspector").data(inspectedPlasmids, function (d) { return d.code });
+	var inspector = inspectors.selectAll("div.inspector").data(inspectedenzymes, function (d) { return d.code });
 		
 	var box = inspector
 			.enter()
@@ -486,7 +513,7 @@ function updateInspectors(duration)
 	propsTableParents.selectAll("tr").data(function(d) { return get_parents(d) })
 		.enter()
 			.append("tr")
-			.on("click", function(trData) { inspectPlasmid(trData[1]) } )
+			.on("click", function(trData) { inspectenzyme(trData[1]) } )
      	.style("cursor", "pointer")
 			.selectAll("td").data(function(d) { return d }).enter()
 				.append("td")
@@ -496,7 +523,7 @@ function updateInspectors(duration)
 					if (null == d.identifier) {
 						return d;
 					} else { 
-					 	return d.identifier;
+					 	return d.identifier.slice(11,50);
 					} 
 				})
 			.transition()
@@ -508,7 +535,7 @@ function updateInspectors(duration)
 	propsTableChildren.selectAll("tr").data(function(d) { return get_children(d) })
 		.enter()
 			.append("tr")
-			.on("click", function(trData) { inspectPlasmid(trData[1]) } )
+			.on("click", function(trData) { inspectenzyme(trData[1]) } )
      	.style("cursor", "pointer")
 			.selectAll("td").data(function(d) { return d }).enter()
 				.append("td")
@@ -518,7 +545,7 @@ function updateInspectors(duration)
 					if (null == d.identifier) {
 						return d;
 					} else { 
-					 	return d.identifier;
+					 	return d.identifier.slice(11,50);
 					} 
 				})
 			.transition()
@@ -538,8 +565,9 @@ function updateInspectors(duration)
 			.transition()
 				.duration(duration)
 				.style("opacity", "1");		
-	
-		var propsTable3 = box.append("table").attr("class", "properties");
+		
+		
+			var propsTable3 = box.append("table").attr("class", "properties");
 	propsTable3.selectAll("tr").data(function(d) { return props_to_pairs3(d) })
 		.enter()
 			.append("tr")
@@ -553,19 +581,8 @@ function updateInspectors(duration)
 				.style("opacity", "1");	
 				
 				
-	var propsTable4 = box.append("table").attr("class", "properties");
-	propsTable4.selectAll("tr").data(function(d) { return props_to_pairs4(d) })
-		.enter()
-			.append("tr")
-			.selectAll("td").data(function(d) { return d }).enter()
-				.append("td")
-				.attr("class", "property")
-				.style("opacity", "0")
-				.text(function(d) { return d })
-			.transition()
-				.duration(duration)
-				.style("opacity", "1");			
-				
+	
+			
 				
 	var downloadTable = inspector.selectAll("table.downloads").data(function(d) { return [d] });
 	downloadTable
@@ -598,84 +615,34 @@ function displayReturnedSamples(data)
 		return;
 	}
 	
-	initializePlasmids(data.result);
+	initializeenzymes(data.result);
 	
 	// This will show the object in the log -- helpful for debugging
 	// console.log(data.result);
-	if (plasmids.length < 1) {
+	if (enzymes.length < 1) {
 		vis.append("p").text("No data found.");
 		return;
 	}
 
-  function transform(attrName) {
-      d3.select("tbody").selectAll("tr").remove();
-
-// Header
-    var th = d3.select("thead").selectAll("th")
-            .data(jsonToArray(data[0]))
-          .enter().append("th")
-            .attr("onclick", function (d, i) { return "transform('" + d[0] + "');";})
-            .text(function(d) { return d[0]; })
-
-// Rows
-    var tr =  d3.select("#vis").select("#plasmid-table").select("tbody").selectAll("tr.plasmid-table-data")
-            .data(plasmids)
-          .enter().append("tr")
-            .sort(function (a, b) { return a == null || b == null ? 0 : stringCompare(a[attrName], b[attrName]); });
-
-// Cells
-    var td = tr.selectAll("td")
-            .data(function(d) { return jsonToArray(d); })
-          .enter().append("td")
-            .attr("onclick", function (d, i) { return "transform('" + d[0] + "');";})
-            .text(function(d) { return d[1]; });
-
-}
-
-function jsonKeyValueToArray(k, v) {return [k, v];}
-
-function jsonToArray(json) {
-    var ret = new Array();
-    var key;
-    for (key in json) {
-        if (json.hasOwnProperty(key)) {
-            ret.push(jsonKeyValueToArray(key, json[key]));
-        }
-    }
-    return ret;
-};
-
-
-	var selection = d3.select("#vis").select("#plasmid-table").selectAll("tr.plasmid-table-data").data(plasmids);
+	var selection = d3.select("#vis").select("#enzyme-table").selectAll("tr.enzyme-table-data").data(enzymes);
 		// Code under enter is run if there is no HTML element for a data element
 	
-//Headers
-
-
-//Rows	
 	selection
 		.enter()
 		.append("tr")
-		.attr("class", "plasmid-table-data")
+		.attr("class", "enzyme-table-data")
 		.style("cursor", "pointer")
-		.on("click", inspectPlasmid)
-
-//Cells		
-	selection	
-		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.OWNER, sample.properties.OWNER_NUMBER, sample.properties.PLASMID_NAME, sample.properties.BACKBONE, sample.properties.BACTERIAL_ANTIBIOTIC_RESISTANCE,sample.properties.YEAST_MARKER]; })
+		.on("click", inspectenzyme)
+		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.NAME, sample.properties.SUPPLIER, sample.properties.ARTICLE_NUMBER, sample.properties.KIT]; })
 			.enter()
 			.append("td")
 			.append("div")
-			.attr("class", "plasmid-table-data-cell")
+			.attr("class", "enzyme-table-data-cell")
 			.text(String)
-
-
-
-
 
 }
 
-function plasmidFilter(filter, property, element, index, array) {
+function enzymeFilter(filter, property, element, index, array) {
 
 	
 	filter = filter.toLowerCase();
@@ -699,7 +666,7 @@ function plasmidFilter(filter, property, element, index, array) {
 }
 
 
-function visualize(ownerFilterText, ownerNumFilterText, plasmidNameFilterText, backboneFilterText, antibioticFilterText, markerFilterText )
+function visualize(ownerFilterText, ownerNumFilterText, enzymeNameFilterText, backboneFilterText, antibioticFilterText, markerFilterText )
 {
 	if (ownerFilterText == undefined) 
 	{
@@ -711,9 +678,9 @@ function visualize(ownerFilterText, ownerNumFilterText, plasmidNameFilterText, b
 		ownerNumFilterText = "";
 	}
 	
-	if (plasmidNameFilterText == undefined) 
+	if (enzymeNameFilterText == undefined) 
 	{
-		plasmidNameFilterText = "";
+		enzymeNameFilterText = "";
 	}
 
 	if (backboneFilterText == undefined) 
@@ -731,23 +698,23 @@ function visualize(ownerFilterText, ownerNumFilterText, plasmidNameFilterText, b
 		markerFilterText = "";
 	}
 	
-	var displayedPlasmids = plasmids.filter(plasmidFilter.curry(ownerFilterText, "OWNER"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(ownerNumFilterText, "OWNER_NUMBER"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(plasmidNameFilterText, "PLASMID_NAME"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(backboneFilterText, "BACKBONE"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(antibioticFilterText, "BACTERIAL_ANTIBIOTIC_RESISTANCE"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(markerFilterText, "YEAST_MARKER"));
+	var displayedenzymes = enzymes.filter(enzymeFilter.curry(ownerFilterText, "OWNER"));
+	displayedenzymes = displayedenzymes.filter(enzymeFilter.curry(ownerNumFilterText, "OWNER_NUMBER"));
+	displayedenzymes = displayedenzymes.filter(enzymeFilter.curry(enzymeNameFilterText, "ENZYME_NAME"));
+	displayedenzymes = displayedenzymes.filter(enzymeFilter.curry(backboneFilterText, "BACKBONE"));
+	displayedenzymes = displayedenzymes.filter(enzymeFilter.curry(antibioticFilterText, "BACTERIAL_ANTIBIOTIC_RESISTANCE"));
+	displayedenzymes = displayedenzymes.filter(enzymeFilter.curry(markerFilterText, "YEAST_MARKER"));
 	
 
 
-	var selection2 = d3.select("#vis").select("#plasmid-table").selectAll("tr.plasmid-table-data").data(plasmids);
+	var selection2 = d3.select("#vis").select("#enzyme-table").selectAll("tr.enzyme-table-data").data(enzymes);
 		// Code under enter is run if there is no HTML element for a data element
 	
 
 
 		selection2.style("display", 
 			function(data) {
-				if ($.inArray(data, displayedPlasmids) != -1) {
+				if ($.inArray(data, displayedenzymes) != -1) {
 					return "table-row"
 				} else {
 					return  "none"
@@ -762,18 +729,32 @@ function visualize(ownerFilterText, ownerNumFilterText, plasmidNameFilterText, b
  */
 function showMatchingSamples()
 {
-	var sampleCriteria = 
-	{
-		matchClauses : 
-			[ {"@type":"AttributeMatchClause",
+  var matchClauses = [ {"@type":"AttributeMatchClause",
 				fieldType : "ATTRIBUTE",			
 				attribute : "TYPE",
-				desiredValue : "PLASMID" 
-			} ],
+				desiredValue : "ENZYME" 
+			}
+	]
+	
+	var selectedYeastCode = getQueryParameter('code');
+	if(selectedYeastCode){
+	  matchClauses.push(
+      {"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "CODE",
+				desiredValue : selectedYeastCode 
+			}		
+	  );
+	}
+
+	var sampleCriteria = 
+	{
+		matchClauses : matchClauses,
 		operator : "MATCH_ALL_CLAUSES"
 	};
 
-	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "PARENTS", "CHILDREN"], displayReturnedSamples);
+	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], displayReturnedSamples);
+
 }
 
 
@@ -819,27 +800,27 @@ $(document).ready(function() {
 	});
 	
 	$('#owner_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#enzymeName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});	
 		
 	$('#ownerNum_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#enzymeName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 
-  $('#plasmidName_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+  $('#enzymeName_filter').keyup(function() {
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#enzymeName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 	
 	$('#backbone_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#enzymeName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 	
 	$('#antibiotic_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#enzymeName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 	
 	$('#marker_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#enzymeName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 	
 	

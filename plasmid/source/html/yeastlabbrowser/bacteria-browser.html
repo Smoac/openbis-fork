@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 <head>
-	<title>Plasmid Browser</title>
+	<title>bacteria Browser</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<link type="text/css" rel="stylesheet" href="plasmid-body-style.css" />
+	<link type="text/css" rel="stylesheet" href="bacteria-body-style.css" />
 	<link type="text/css" rel="stylesheet" href="button.css" />
 	<script type="text/javascript" src="d3.js"></script>
 	<script type="text/javascript" src="d3.layout.js"></script>
@@ -28,11 +28,11 @@
 	</div>
 
 <div id="main">
-	  <div id = "title" style="padding-top:20px"> PLASMIDS </div>
+	  <div id = "title" style="padding-top:20px"> BACTERIA </div>
 		<div id="button-group">	
 			<button id="logout-button" style="position: absolute; right:10px;;top:10px">Logout</button>
 		</div>
-		<div id="bacteria_browser"	style="position: absolute; left:10px; top:100px">
+			<div id="bacteria_browser"	style="position: absolute; left:10px; top:100px">
 		  <a href="bacteria-browser.html">Bacteria</a> 
 		</div>   
 		<div id="chemical_browser"	style="position: absolute; left:10px; top:150px">
@@ -72,25 +72,27 @@
 		 	<a href="search-browser.html">Search</a>  
 		</div>					
 
-		<div id="filter-button"	style="position:absolute; padding-top: 570px; left: 400px; font-weight:bold; padding-bottom:30px;">
+<!-- 		<div id="filter-button"	style="padding-left:200px; padding-top: 570px; font-weight:bold; padding-bottom:30px;">
 		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
 		</div> 		
 	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
 		<table>
-			  <tr style="position:absolute; top: 680px; left: 400px"><td style="font-weight: bold; width: 200px">Owner</td><td><input style="width: 200px" id="owner_filter" type="text"></td></tr> 		
-			  <tr style="position:absolute; top: 720px; left: 400px"><td style="font-weight: bold; width: 200px">Owner Number</td><td><input style="width: 200px" id="ownerNum_filter" type="text"></td></tr>
-				<tr style="position:absolute; top: 760px; left: 400px"><td style="font-weight: bold; width: 200px">Plasmid Name</td><td> <input style="width: 200px" id="plasmidName_filter" type="text"></td></tr> 		
-      	<tr style="position:absolute; top: 800px; left: 400px"><td style="font-weight: bold; width: 200px">Backbone</td><td> <input style="width: 200px" id="backbone_filter" type="text"></td></tr> 		
-   	  	<tr style="position:absolute; top: 840px; left: 400px"><td style="font-weight: bold; width: 200px">Bacterial Antibitioc Resistance</td><td> <input style="width: 200px" id="antibiotic_filter" type="text"></td></tr> 		
-   	  	<tr style="position:absolute; top: 880px; left: 400px"><td style="font-weight: bold; width: 200px">(Yeast) Marker</td><td> <input style="width: 200px" id="marker_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Owner</td><td><input style="width: 200px" id="owner_filter" type="text"></td></tr> 		
+			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Owner Number</td><td><input style="width: 200px" id="ownerNum_filter" type="text"></td></tr>
+				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">bacteria Name</td><td> <input style="width: 200px" id="bacteriaName_filter" type="text"></td></tr> 		
+      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Backbone</td><td> <input style="width: 200px" id="backbone_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Bacterial Antibitioc Resistance</td><td> <input style="width: 200px" id="antibiotic_filter" type="text"></td></tr> 		
+   	  	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">(Yeast) Marker</td><td> <input style="width: 200px" id="marker_filter" type="text"></td></tr> 		
    	  </table> 		
     </div>	
+-->		
 		
+	
     
 		<div id="vis">
   	 	<div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
-		  <table id="plasmid-table" >
-			  <tr class="plasmid-table-header"><th>Code</th><th>Owner</th><th>Owner Number</th><th>Plasmid Name</th><th>Backbone</th><th>Bacterial Antibiotic Resistance</th><th>(Yeast) Marker</th></tr>
+		  <table id="bacteria-table" style="float: left">
+			  <tr class="bacteria-table-header"><th>Code</th><th>Bacteria Strain Name</th><th>Bacteria Genotype</th><th>For What</th><th>Supplier</th><th>Art. Number</th><th>Comments</th></tr>
 				</table>
 			</div>
 			<span id="inspectorsContainer"></span>
@@ -102,16 +104,15 @@
 /// The openbisServer we use for our data
 openbisServer = new openbis('https://openbis-csb.ethz.ch/openbis/openbis', 'https://openbis-csb.ethz.ch:443/datastore_server');
 
-//openbisServer = new openbis('https://localhost:8443/openbis/openbis', 'https://bs-mbp156.ethz.ch:8443/datastore_server');
 
 
 // Some global variables we refer to
 
-/// All plasmids
-var plasmids = null;
+/// All bacterias
+var bacterias = null;
 
-/// The plasmids that are currently being inspected
-var inspectedPlasmids = [];
+/// The bacterias that are currently being inspected
+var inspectedbacterias = [];
 
 /// The width of the inspectors section
 var inspectorsWidth = 450;
@@ -149,10 +150,8 @@ function createVis()
 		.style("position", "absolute")
 		.style("overflow", "auto")
 		.style("left", "1250px")
-		//.style("float", "right")
 		.style("top", "100px")
 		.style("display", "none");
-
 	didCreateVis = true;
 }
 
@@ -194,7 +193,7 @@ function props_to_pairs1(data)
 	}
 	
 
-	order1 = ["OWNER", "OWNER_NUMBER", "YEAST_STRAIN_NAME", "COMMENTS", "PROJECT",  "PLASMIDS", "YEAST_PARENTS", "PLASMID_NAME",  "BACKBONE", "BACTERIAL_ANTIBIOTIC_RESISTANCE",  "YEAST_MARKER",  "OTHER_MARKER",  "FLANKING_RESTRICTION_ENZYME",  "COMMENTS"]
+	order1 = ["NAME", "FOR_WHAT", "ORGANISM", "SUPPLIER", "ARTICLE_NUMBER", "LOCAL_ID",  "STORAGE","STOCK_CONCENTRATION", "STERILIZATION", "KIT" ]
 	new_list1 = []
 	for (var i in order1) {
 	  for (var j in pairs) {
@@ -221,7 +220,7 @@ function props_to_pairs2(data)
 	}
 	
 	
-	order2 = ["GENETIC_BACKGROUND",  "MATING_TYPE",  "BACKGROUND_SPECIFIC_MARKERS", "COMMON_MARKERS", "ENDOGENOUS_PLASMID"]
+	order2 = ["DETAILS",  "COMMENTS",  "PUBLICATION"   ]
 	new_list2 = []
 	for (var i in order2) {
 		for (var j in pairs) {
@@ -245,7 +244,7 @@ function props_to_pairs3(data)
 		pairs.push(pair);
 	}
 	
-	order3 = ["SOURCE","ORIGIN","STRAIN_CHECK"]
+	order3 = ["BOX_NUMBER", "ROW", "COLUMN"]
 	new_list3 = []
 	for (var i in order3) {
 		for (var j in pairs) {
@@ -269,10 +268,8 @@ function props_to_pairs4(data)
 		pairs.push(pair);
 	}
 	
-	pairs.push(["REGISTRATION_DATE", new Date(data.registrationDetails.registrationDate)]);
-
-	order4 = [ "BOX_NUMBER","ROW","COLUMN","REGISTRATION_DATE"]
-	new_list4 = []
+	order4 = ["CHEMICALS_PARENTS","MEDIA_PARENTS","SOLUTIONS_BUFFERS_PARENTS" ]
+	new_lis4 = []
 	for (var i in order4) {
 		for (var j in pairs) {
 			if (pairs[j][0] == order4[i]) {
@@ -286,14 +283,43 @@ function props_to_pairs4(data)
 
 
 
+function props_to_pairs5(data)
+{
+
+	d = data.properties;
+	
+	var pairs = [];
+	for (var prop in d) {
+		var pair = [prop, d[prop]];
+		pairs.push(pair);
+	}
+	
+	pairs.push(["REGISTRATION_DATE", new Date(data.registrationDetails.registrationDate)]);
+
+	order5 = [ "XMLCOMMENTS","REGISTRATION_DATE"]
+	new_list5 = []
+	for (var i in order5) {
+		for (var j in pairs) {
+			if (pairs[j][0] == order5[i]) {
+				new_list5.push(pairs[j]);
+				break;
+			}
+		}
+	}
+	return new_list5;
+}
+
+
+
+
 function resolveObjectReference(objectOrId) {
   if (isNaN(objectOrId)) {
-    plasmid = objectOrId;
+    bacteria = objectOrId;
   } else {
-  	plasmid = plasmidsById[objectOrId];
+  	bacteria = bacteriasById[objectOrId];
   }
   
-  return plasmid;
+  return bacteria;
 }
 
 function get_parents(data)
@@ -339,21 +365,21 @@ function get_children(data)
 }
 
 
-/** Initialize the plasmids variable */
-function initializePlasmids(result)
+/** Initialize the bacterias variable */
+function initializebacterias(result)
 {
-      // Construct a map of all plasmids by id
-  plasmidsById = {};
+      // Construct a map of all bacterias by id
+  bacteriasById = {};
 
-	// Split the plasmids into two groups, the ones that start with FRP in their sample name and the other ones.
-	var frpPlasmids = [], otherPlasmids = [];
-	var frpRegex = /^FRP[0-9]+/;
+	// Split the bacterias into two groups, the ones that start with FRP in their sample name and the other ones.
+	var frpbacterias = [], otherbacterias = [];
+	var frpRegex = /^FRE[0-9]+/;
 	frpRegex.compile(frpRegex);
 	result.forEach(function(sampleOrId) {
 		var theSample = sampleOrId;
 		function storeSamplesById(referredSample) {
       if (isNaN(referredSample)) {
-        plasmidsById[referredSample["@id"]] = referredSample;
+        bacteriasById[referredSample["@id"]] = referredSample;
         if (referredSample.parents) referredSample.parents.forEach(storeSamplesById);
         if (referredSample.children) referredSample.children.forEach(storeSamplesById);
       }
@@ -361,51 +387,45 @@ function initializePlasmids(result)
 	  if (isNaN(theSample)) {
 	  	storeSamplesById(theSample);
     } else {
-	    // This is referring to an object in the plasmidsById map
-	    theSample = plasmidsById[sampleOrId];
+	    // This is referring to an object in the bacteriasById map
+	    theSample = bacteriasById[sampleOrId];
 		}       
  		if (frpRegex.test(theSample.code)) {
-			frpPlasmids.push(theSample);
+			frpbacterias.push(theSample);
 		} else {
-			otherPlasmids.push(theSample);
+			otherbacterias.push(theSample);
 		}
 	});
 	
 	// Sort each of the groups
-	otherPlasmids.sort(function(a, b) { 
+	otherbacterias.sort(function(a, b) { 
 		return (a.code < b.code) ? -1 : 1; 
 	});
 	
-	frpPlasmids.sort(function(a, b) {
+	frpbacterias.sort(function(a, b) {
 		// Sort based on the FRP number
-		var frpNumberA = parseInt(a.code.substring(3));
-		var frpNumberB = parseInt(b.code.substring(3));
+		var frpNumberA = parseInt(a.code.substring(4));
+		var frpNumberB = parseInt(b.code.substring(4));
 		return (frpNumberA < frpNumberB) ? -1 : 1;
 	});
 	
-	// Combine the two groups back together to produce the full collection of plasmids
-	plasmids = frpPlasmids.concat(otherPlasmids);
+	// Combine the two groups back together to produce the full collection of bacterias
+	bacterias = frpbacterias.concat(otherbacterias);
 }
 
 
 
-
-/** Set the size of the plasmid-table based on whether or not inspectors are visible */
-function resizePlasmidTable()
+/** Set the size of the bacteria-table based on whether or not inspectors are visible */
+function resizebacteriaTable()
 {
 	var cellWidth;
 	var areInspectorsVisible;
 	var padding = 10;
-	if (inspectedPlasmids.length > 0) {
-		cellWidth = ((getAppWidth() - inspectorsWidth) / 9) - padding + "px";
-		console.log(cellWidth)
-		areInspectorsVisible = true;
-	} else {
-		cellWidth = "100%";
-		areInspectorsVisible = false;
-	}
-	var plasmidTableTransition = d3.selectAll('div.plasmid-table-data-cell');
-	plasmidTableTransition.style('width', cellWidth);
+	cellWidth = "100%";
+	areInspectorsVisible = true;
+	
+	var bacteriaTableTransition = d3.selectAll('div.bacteria-table-data-cell');
+	bacteriaTableTransition.style('width', cellWidth);
 	if (areInspectorsVisible) {
 		$("#inspectorsContainer").show();
 	} else {
@@ -413,45 +433,45 @@ function resizePlasmidTable()
 	}
 }
 
-function inspectPlasmid(plasmid)
+function inspectbacteria(bacteria)
 {
-	if (inspectedPlasmids.indexOf(plasmid) < 0) {
-		inspectedPlasmids.push(plasmid);
+	if (inspectedbacterias.indexOf(bacteria) < 0) {
+		inspectedbacterias.push(bacteria);
 		
 		// When requesting information about the sample, we don't need parents
 		// and children, so send a copy of the saple without that information.
-		var plasmidToSend = $.extend({}, plasmid);
-		delete plasmidToSend.parents;
-		delete plasmidToSend.children;
-		openbisServer.listDataSetsForSample(plasmidToSend, true, dataset.curry(plasmid));
+		var bacteriaToSend = $.extend({}, bacteria);
+		delete bacteriaToSend.parents;
+		delete bacteriaToSend.children;
+		openbisServer.listDataSetsForSample(bacteriaToSend, true, dataset.curry(bacteria));
 	}
-	resizePlasmidTable();
+	resizebacteriaTable();
 	updateInspectors(1000);
 }
 
-function closeInspector(plasmid)
+function closeInspector(bacteria)
 {
-	var index = inspectedPlasmids.indexOf(plasmid);
+	var index = inspectedbacterias.indexOf(bacteria);
 	if (index < 0) {
 		return;
 	}
 	
-	inspectedPlasmids.splice(index, 1);
-	resizePlasmidTable();
+	inspectedbacterias.splice(index, 1);
+	resizebacteriaTable();
 	updateInspectors(1000);
 }
 
-function dataset(plasmid, data) {
+function dataset(bacteria, data) {
 	for (var i in data.result) {
 	  console.log(data.result)
-		openbisServer.listFilesForDataSet(data.result[i].code, "/", true, filelist.curry(plasmid, data.result[i]));
+		openbisServer.listFilesForDataSet(data.result[i].code, "/", true, filelist.curry(bacteria, data.result[i]));
 	}
 }
 
-function filelist(plasmid, dataset, files) {
+function filelist(bacteria, dataset, files) {
 	for (var i in files.result) {
 		if (!files.result[i].isDirectory) {
-			var inspector = inspectors.select("#"+plasmid.code+"_INSPECTOR");
+			var inspector = inspectors.select("#"+bacteria.code+"_INSPECTOR");
 			var pathInDataSet = files.result[i].pathInDataSet;
 			var downloadUrl = 'https://openbis-csb.ethz.ch:443/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
 			
@@ -480,7 +500,7 @@ function filelist(plasmid, dataset, files) {
 function updateInspectors(duration)
 {		
 		// Draw / update the inspectors	
-	var inspector = inspectors.selectAll("div.inspector").data(inspectedPlasmids, function (d) { return d.code });
+	var inspector = inspectors.selectAll("div.inspector").data(inspectedbacterias, function (d) { return d.code });
 		
 	var box = inspector
 			.enter()
@@ -518,7 +538,7 @@ function updateInspectors(duration)
 	propsTableParents.selectAll("tr").data(function(d) { return get_parents(d) })
 		.enter()
 			.append("tr")
-			.on("click", function(trData) { inspectPlasmid(trData[1]) } )
+			.on("click", function(trData) { inspectbacteria(trData[1]) } )
      	.style("cursor", "pointer")
 			.selectAll("td").data(function(d) { return d }).enter()
 				.append("td")
@@ -540,7 +560,7 @@ function updateInspectors(duration)
 	propsTableChildren.selectAll("tr").data(function(d) { return get_children(d) })
 		.enter()
 			.append("tr")
-			.on("click", function(trData) { inspectPlasmid(trData[1]) } )
+			.on("click", function(trData) { inspectbacteria(trData[1]) } )
      	.style("cursor", "pointer")
 			.selectAll("td").data(function(d) { return d }).enter()
 				.append("td")
@@ -585,8 +605,7 @@ function updateInspectors(duration)
 				.duration(duration)
 				.style("opacity", "1");	
 				
-				
-	var propsTable4 = box.append("table").attr("class", "properties");
+				var propsTable4 = box.append("table").attr("class", "properties");
 	propsTable4.selectAll("tr").data(function(d) { return props_to_pairs4(d) })
 		.enter()
 			.append("tr")
@@ -598,7 +617,19 @@ function updateInspectors(duration)
 			.transition()
 				.duration(duration)
 				.style("opacity", "1");			
-			
+	
+			var propsTable5 = box.append("table").attr("class", "properties");
+	propsTable5.selectAll("tr").data(function(d) { return props_to_pairs5(d) })
+		.enter()
+			.append("tr")
+			.selectAll("td").data(function(d) { return d }).enter()
+				.append("td")
+				.attr("class", "property")
+				.style("opacity", "0")
+				.text(function(d) { return d })
+			.transition()
+				.duration(duration)
+				.style("opacity", "1");					
 				
 	var downloadTable = inspector.selectAll("table.downloads").data(function(d) { return [d] });
 	downloadTable
@@ -631,34 +662,34 @@ function displayReturnedSamples(data)
 		return;
 	}
 	
-	initializePlasmids(data.result);
+	initializebacterias(data.result);
 	
 	// This will show the object in the log -- helpful for debugging
 	// console.log(data.result);
-	if (plasmids.length < 1) {
+	if (bacterias.length < 1) {
 		vis.append("p").text("No data found.");
 		return;
 	}
 
-	var selection = d3.select("#vis").select("#plasmid-table").selectAll("tr.plasmid-table-data").data(plasmids);
+	var selection = d3.select("#vis").select("#bacteria-table").selectAll("tr.bacteria-table-data").data(bacterias);
 		// Code under enter is run if there is no HTML element for a data element
 	
 	selection
 		.enter()
 		.append("tr")
-		.attr("class", "plasmid-table-data")
+		.attr("class", "bacteria-table-data")
 		.style("cursor", "pointer")
-		.on("click", inspectPlasmid)
-		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.OWNER.split('_').join(" "), sample.properties.OWNER_NUMBER, sample.properties.PLASMID_NAME, sample.properties.BACKBONE.split('_').join(' '), sample.properties.BACTERIAL_ANTIBIOTIC_RESISTANCE,sample.properties.YEAST_MARKER]; })
+		.on("click", inspectbacteria)
+		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.BACTERIA_STRAIN_NAME, sample.properties.BACTERIA_GENOTYPE, sample.properties.WHAT_FOR, sample.properties.SUPPLIER, sample.properties.ARTICLE_NUMBER, sample.properties.COMMENTS]; })
 			.enter()
 			.append("td")
 			.append("div")
-			.attr("class", "plasmid-table-data-cell")
+			.attr("class", "bacteria-table-data-cell")
 			.text(String)
 
 }
 
-function plasmidFilter(filter, property, element, index, array) {
+function bacteriaFilter(filter, property, element, index, array) {
 
 	
 	filter = filter.toLowerCase();
@@ -682,7 +713,7 @@ function plasmidFilter(filter, property, element, index, array) {
 }
 
 
-function visualize(ownerFilterText, ownerNumFilterText, plasmidNameFilterText, backboneFilterText, antibioticFilterText, markerFilterText )
+function visualize(ownerFilterText, ownerNumFilterText, bacteriaNameFilterText, backboneFilterText, antibioticFilterText, markerFilterText )
 {
 	if (ownerFilterText == undefined) 
 	{
@@ -694,9 +725,9 @@ function visualize(ownerFilterText, ownerNumFilterText, plasmidNameFilterText, b
 		ownerNumFilterText = "";
 	}
 	
-	if (plasmidNameFilterText == undefined) 
+	if (bacteriaNameFilterText == undefined) 
 	{
-		plasmidNameFilterText = "";
+		bacteriaNameFilterText = "";
 	}
 
 	if (backboneFilterText == undefined) 
@@ -714,23 +745,23 @@ function visualize(ownerFilterText, ownerNumFilterText, plasmidNameFilterText, b
 		markerFilterText = "";
 	}
 	
-	var displayedPlasmids = plasmids.filter(plasmidFilter.curry(ownerFilterText, "OWNER"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(ownerNumFilterText, "OWNER_NUMBER"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(plasmidNameFilterText, "PLASMID_NAME"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(backboneFilterText, "BACKBONE"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(antibioticFilterText, "BACTERIAL_ANTIBIOTIC_RESISTANCE"));
-	displayedPlasmids = displayedPlasmids.filter(plasmidFilter.curry(markerFilterText, "YEAST_MARKER"));
+	var displayedbacterias = bacterias.filter(bacteriaFilter.curry(ownerFilterText, "OWNER"));
+	displayedbacterias = displayedbacterias.filter(bacteriaFilter.curry(ownerNumFilterText, "OWNER_NUMBER"));
+	displayedbacterias = displayedbacterias.filter(bacteriaFilter.curry(bacteriaNameFilterText, "bacteria_NAME"));
+	displayedbacterias = displayedbacterias.filter(bacteriaFilter.curry(backboneFilterText, "BACKBONE"));
+	displayedbacterias = displayedbacterias.filter(bacteriaFilter.curry(antibioticFilterText, "BACTERIAL_ANTIBIOTIC_RESISTANCE"));
+	displayedbacterias = displayedbacterias.filter(bacteriaFilter.curry(markerFilterText, "YEAST_MARKER"));
 	
 
 
-	var selection2 = d3.select("#vis").select("#plasmid-table").selectAll("tr.plasmid-table-data").data(plasmids);
+	var selection2 = d3.select("#vis").select("#bacteria-table").selectAll("tr.bacteria-table-data").data(bacterias);
 		// Code under enter is run if there is no HTML element for a data element
 	
 
 
 		selection2.style("display", 
 			function(data) {
-				if ($.inArray(data, displayedPlasmids) != -1) {
+				if ($.inArray(data, displayedbacterias) != -1) {
 					return "table-row"
 				} else {
 					return  "none"
@@ -748,7 +779,7 @@ function showMatchingSamples()
   var matchClauses = [ {"@type":"AttributeMatchClause",
 				fieldType : "ATTRIBUTE",			
 				attribute : "TYPE",
-				desiredValue : "PLASMID" 
+				desiredValue : "BACTERIA" 
 			}
 	]
 	
@@ -772,7 +803,6 @@ function showMatchingSamples()
 	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], displayReturnedSamples);
 
 }
-
 
 
 function enterApp(data)
@@ -817,27 +847,27 @@ $(document).ready(function() {
 	});
 	
 	$('#owner_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#bacteriaName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});	
 		
 	$('#ownerNum_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#bacteriaName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 
-  $('#plasmidName_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+  $('#bacteriaName_filter').keyup(function() {
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#bacteriaName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 	
 	$('#backbone_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#bacteriaName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 	
 	$('#antibiotic_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#bacteriaName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 	
 	$('#marker_filter').keyup(function() {
-		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#plasmidName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
+		visualize($('#owner_filter').val(), $('#ownerNum_filter').val(), $('#bacteriaName_filter').val(), $('#backbone_filter').val(), $('#antibiotic_filter').val(), $('#marker_filter').val());
 	});
 	
 	

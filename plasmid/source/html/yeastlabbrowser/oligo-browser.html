@@ -575,34 +575,43 @@ function ShowHide(divId)
 		<div id="button-group">	
 			<button id="logout-button" style="position: absolute; right:10px;;top:10px">Logout</button>
 		</div>
-		<div id="chemical_browser"	style="position: absolute; left:10px; top:100px">
+		<div id="bacteria_browser"	style="position: absolute; left:10px; top:100px">
+		  <a href="bacteria-browser.html">Bacteria</a> 
+		</div>   
+		<div id="chemical_browser"	style="position: absolute; left:10px; top:150px">
 		  <a href="chemical-browser.html">Chemicals</a> 
 		</div>   
-		<div id="antibody_browser" style="position: absolute; left:10px; top:150px">
+		<div id="antibody_browser" style="position: absolute; left:10px; top:200px">
 		 	<a href="antibody-browser.html">Antibodies</a>  
 		</div>		
-		<div id="media_browser" style="position: absolute; left:10px; top:200px">
+		<div id="media_browser" style="position: absolute; left:10px; top:250px">
 		 	<a href="media-browser.html">Media</a>  
 		</div>						
-		<div id="buffer_browser" style="position: absolute; left:10px; top:250px">
+		<div id="buffer_browser" style="position: absolute; left:10px; top:300px">
 		 	<a href="solutions_buffers-browser.html">Solutions Buffers</a>  
 		</div>		
-		<div id="oligo_browser"	style="position: absolute; left:10px; top:300px">
+		<div id="enzyme_browser" style="position: absolute; left:10px; top:350px">
+		 	<a href="enzyme-browser.html">Enzymes</a>  
+		</div>				
+		<div id="oligo_browser"	style="position: absolute; left:10px; top:400px">
 		  <a href="oligo-browser.html">Oligos</a>  
 		</div>		
-		<div id="plasmid_browser"	style="position: absolute; left:10px; top:350px">
+		<div id="plasmid_browser"	style="position: absolute; left:10px; top:450px">
 		  <a href="plasmid-browser.html">Plasmids</a>  
 		</div>		
-		<div id="yeast_browser" style="position: absolute; left:10px; top:400px">
+		<div id="yeast_browser" style="position: absolute; left:10px; top:500px">
 		 	<a href="yeast-browser.html">Yeasts</a>  
 		</div>		
-		<div id="protocol_browser" style="position: absolute; left:10px; top:450px">
+		<div id="protocol_browser" style="position: absolute; left:10px; top:550px">
 		 	<a href="general_protocol-browser.html">General Protocols</a>  
 		</div>		
-		<div id="pcr_browser" style="position: absolute; left:10px; top:500px">
+		<div id="pcr_browser" style="position: absolute; left:10px; top:600px">
 		 	<a href="pcr-browser.html">PCR</a>  
-		</div>				
-			<div id="search_browser" style="position: absolute; left:10px; top:550px">
+		</div>		
+			<div id="western_blotting_browser" style="position: absolute; left:10px; top:650px">
+		 	<a href="western_blotting-browser.html">Western Blotting</a>  
+		</div>					
+			<div id="search_browser" style="position: absolute; left:200px; padding-top:570px">
 		 	<a href="search-browser.html">Search</a>  
 		</div>					
 
@@ -611,15 +620,15 @@ function ShowHide(divId)
 
 		
 
-		<div id="filter-button"	style="position:absolute; top: 650px; left: 200px; font-weight:bold; padding-bottom:30px;">
+		<div id="filter-button"	style="position:absolute; padding-top: 570px; left: 400px; font-weight:bold; padding-bottom:30px;">
 		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
 		</div> 		
 	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
 		<table>
-			  <tr style="position:absolute; top: 680px; left: 200px"><td style="font-weight: bold; width: 200px">Target</td><td><input style="width: 200px" id="target_filter" type="text"></td></tr> 		
-			  <tr style="position:absolute; top: 720px; left: 200px"><td style="font-weight: bold;  width: 200px">Direction</td><td><input style="width: 200px" id="direction_filter" type="text"></td></tr>
-				<tr style="position:absolute; top: 760px; left: 200px"><td style="font-weight: bold; width: 200px">Restriction Enzyme</td><td> <input style="width: 200px" id="enzyme_filter" type="text"></td></tr> 		
-      	<tr style="position:absolute; top: 800px; left: 200px; padding-bottom:20px"><td style="font-weight: bold;  width: 200px">Project</td><td> <input style="width: 200px" id="project_filter" type="text"></td></tr> 		
+			  <tr style="position:absolute; top: 680px; left: 400px"><td style="font-weight: bold; width: 200px">Target</td><td><input style="width: 200px" id="target_filter" type="text"></td></tr> 		
+			  <tr style="position:absolute; top: 720px; left: 400px"><td style="font-weight: bold;  width: 200px">Direction</td><td><input style="width: 200px" id="direction_filter" type="text"></td></tr>
+				<tr style="position:absolute; top: 760px; left: 400px"><td style="font-weight: bold; width: 200px">Restriction Enzyme</td><td> <input style="width: 200px" id="enzyme_filter" type="text"></td></tr> 		
+      	<tr style="position:absolute; top: 800px; left: 400px; padding-bottom:20px"><td style="font-weight: bold;  width: 200px">Project</td><td> <input style="width: 200px" id="project_filter" type="text"></td></tr> 		
    	  </table> 		
     </div>	
 		
@@ -627,7 +636,7 @@ function ShowHide(divId)
 		<div id="vis">
   	 	<div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
 			<table id="oligo-table" style="float: left">
-			  <tr class="oligo-table-header"><th>Oligo Code</th><th>Target</th><th>Direction</th><th>Restriction Enzyme</th><th>Project</th></tr>
+			  <tr class="oligo-table-header"><th>Code</th><th>Target</th><th>Direction</th><th>Restriction Enzyme</th><th>Project</th></tr>
 			</table>
 			</div>
 			
