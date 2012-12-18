@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -68,6 +69,7 @@ import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreen
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.AbstractFormatSelectionCriterion;
@@ -560,6 +562,25 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
                 {
                     return openBISService.tryGetSampleIdentifier(samplePermId);
+                }
+
+                @Override
+                public List<String> tryGetContainedDatasets(String datasetCode)
+                {
+                    ExternalData ds = openBISService.tryGetDataSet(datasetCode);
+                    ContainerDataSet container = ds.tryGetAsContainerDataSet();
+                    if (container != null)
+                    {
+                        List<String> list = new LinkedList<String>();
+                        for (ExternalData contained : container.getContainedDataSets())
+                        {
+                            list.add(contained.getCode());
+                        }
+                        return list;
+                    } else
+                    {
+                        return Collections.emptyList();
+                    }
                 }
             };
     }

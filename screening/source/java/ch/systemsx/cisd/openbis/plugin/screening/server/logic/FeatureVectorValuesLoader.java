@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 import java.util.Arrays;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellFeatureVectorReference;
@@ -32,9 +33,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVecto
 public class FeatureVectorValuesLoader
 {
 
-    public static FeatureVectorValues loadFeatureVectorValues(
-            IScreeningBusinessObjectFactory businessObjectFactory,
-            String datasetCode, String datastoreCode, WellLocation wellLocation)
+    public static FeatureVectorValues loadFeatureVectorValues(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory, String datasetCode,
+            String datastoreCode, WellLocation wellLocation)
     {
         IHCSFeatureVectorLoader loader =
                 businessObjectFactory.createHCSFeatureVectorLoader(datastoreCode);
@@ -42,7 +43,7 @@ public class FeatureVectorValuesLoader
         List<WellFeatureVectorReference> wellReferences =
                 Arrays.asList(new WellFeatureVectorReference(datasetCode, wellLocation));
         WellFeatureCollection<FeatureVectorValues> featureVectors =
-                loader.fetchWellFeatureValuesIfPossible(wellReferences);
+                loader.fetchWellFeatureValuesIfPossible(session, wellReferences);
 
         List<FeatureVectorValues> features = featureVectors.getFeatures();
         if (features.size() == 0)

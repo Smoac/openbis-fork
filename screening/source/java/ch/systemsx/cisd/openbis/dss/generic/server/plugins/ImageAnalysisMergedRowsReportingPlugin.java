@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
@@ -28,7 +30,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
@@ -194,6 +198,25 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
                 public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
                 {
                     return openBISService.tryGetSampleIdentifier(samplePermId);
+                }
+
+                @Override
+                public List<String> tryGetContainedDatasets(String datasetCode)
+                {
+                    ExternalData ds = openBISService.tryGetDataSet(datasetCode);
+                    ContainerDataSet container = ds.tryGetAsContainerDataSet();
+                    if (container != null)
+                    {
+                        List<String> list = new LinkedList<String>();
+                        for (ExternalData contained : container.getContainedDataSets())
+                        {
+                            list.add(contained.getCode());
+                        }
+                        return list;
+                    } else
+                    {
+                        return Collections.emptyList();
+                    }
                 }
             };
     }

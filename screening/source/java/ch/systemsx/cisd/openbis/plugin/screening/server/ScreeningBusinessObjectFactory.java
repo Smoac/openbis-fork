@@ -31,8 +31,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.AbstractPluginBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ExperimentMetadaLoader;
@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellFeatureVectorReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.IMetadataProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSDatasetLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSImageResolutionLoader;
@@ -92,24 +93,42 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
             {
                 @Override
                 public WellFeatureCollection<FeatureVectorValues> fetchWellFeatureValuesIfPossible(
-                        List<WellFeatureVectorReference> references)
+                        Session session, List<WellFeatureVectorReference> references)
                 {
-                    return FeatureVectorLoader.fetchWellFeatureValuesIfPossible(references, dao);
+
+                    return FeatureVectorLoader.fetchWellFeatureValuesIfPossible(references, dao,
+                            getProvider(session));
                 }
 
                 @Override
                 public WellFeatureCollection<FeatureVectorValues> fetchDatasetFeatureValues(
-                        List<String> datasetCodes, List<String> featureCodes)
+                        Session session, List<String> datasetCodes, List<String> featureCodes)
                 {
-                    return FeatureVectorLoader
-                            .fetchDatasetFeatures(datasetCodes, featureCodes, dao);
+                    return FeatureVectorLoader.fetchWellFeatureCollection(datasetCodes,
+                            featureCodes, dao, getProvider(session));
+                }
+            };
+    }
+
+    FeatureVectorLoader.IMetadataProvider getProvider(final Session session)
+    {
+        return new IMetadataProvider()
+            {
+
+                @Override
+                public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
+                {
+                    return null;
                 }
 
                 @Override
-                public List<CodeAndLabel> fetchDatasetFeatureNames(String datasetCode)
+                public List<String> tryGetContainedDatasets(String datasetCode)
                 {
-                    return FeatureVectorLoader.fetchDatasetFeatureNames(datasetCode, dao);
+                    List<String> result =
+                            createDatasetLister(session).listContainedCodes(datasetCode);
+                    return result;
                 }
+
             };
     }
 

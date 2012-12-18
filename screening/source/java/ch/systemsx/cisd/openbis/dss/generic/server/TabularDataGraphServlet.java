@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -27,6 +29,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ITabularData;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
@@ -210,6 +214,26 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
                 {
                     return openBISService.tryGetSampleIdentifier(samplePermId);
                 }
+
+                @Override
+                public List<String> tryGetContainedDatasets(String datasetCode)
+                {
+                    ExternalData ds = openBISService.tryGetDataSet(datasetCode);
+                    ContainerDataSet container = ds.tryGetAsContainerDataSet();
+                    if (container != null)
+                    {
+                        List<String> list = new LinkedList<String>();
+                        for (ExternalData contained : container.getContainedDataSets())
+                        {
+                            list.add(contained.getCode());
+                        }
+                        return list;
+                    } else
+                    {
+                        return Collections.emptyList();
+                    }
+                }
+
             };
     }
 

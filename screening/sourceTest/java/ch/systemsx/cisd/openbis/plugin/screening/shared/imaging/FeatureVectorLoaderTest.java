@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -251,6 +252,9 @@ public class FeatureVectorLoaderTest extends AssertJUnit
                                 new ImgAnalysisDatasetDTO(permIDs[i], getContainerId(id));
                         dataSet.setId(id);
                         dataSets.add(dataSet);
+
+                        one(service).tryGetContainedDatasets(dataSet.getPermId());
+                        will(returnValue(Collections.emptyList()));
                     }
 
                     one(dao).listAnalysisDatasetsByPermId(permIDs);

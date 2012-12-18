@@ -75,9 +75,9 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
         }
         List<DatasetReference> datasetPerPlate =
                 chooseSingleDatasetForPlate(new ArrayList<ExternalData>(featureVectorDatasets));
+
         WellFeatureCollection<FeatureVectorValues> features =
-                FeatureVectorRetriever.tryFetch(datasetPerPlate, featureCodes,
-                        businessObjectFactory);
+                new FeatureVectorRetriever(featureCodes).tryFetch(datasetPerPlate);
 
         operationLog.info(String.format("[%d msec] Fetching %d feature vectors from %d datasets.",
                 watch.getTime(), (features == null ? 0 : features.getFeatures().size()),
@@ -123,31 +123,19 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
      * Fetches feature vectors from different datastores and merges them (assuming that feature
      * codes are the same).
      */
-    private static class FeatureVectorRetriever
+    private class FeatureVectorRetriever
     {
-        public static WellFeatureCollection<FeatureVectorValues> tryFetch(
-                Collection<DatasetReference> datasets, List<String> featureCodes,
-                IScreeningBusinessObjectFactory businessObjectFactory)
-        {
-            assert datasets.size() > 0 : "No feature vector datasets specified.";
-            return new FeatureVectorRetriever(businessObjectFactory, featureCodes)
-                    .tryFetch(datasets);
-        }
-
-        private final IScreeningBusinessObjectFactory businessObjectFactory;
-
         private final List<String> featureCodes;
 
-        public FeatureVectorRetriever(IScreeningBusinessObjectFactory businessObjectFactory,
-                List<String> featureCodes)
+        public FeatureVectorRetriever(List<String> featureCodes)
         {
-            this.businessObjectFactory = businessObjectFactory;
             this.featureCodes = featureCodes;
         }
 
         private WellFeatureCollection<FeatureVectorValues> tryFetch(
                 Collection<DatasetReference> datasets)
         {
+            assert datasets.size() > 0 : "No feature vector datasets specified.";
             GroupByMap<String/* datastore code */, DatasetReference> datastoreToDatasetsMap =
                     GroupByMap.create(datasets, new IGroupKeyExtractor<String, DatasetReference>()
                         {
@@ -175,7 +163,7 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
             return allFeatures;
         }
 
-        private static void mergeFeatures(WellFeatureCollection<FeatureVectorValues> allFeatures,
+        private void mergeFeatures(WellFeatureCollection<FeatureVectorValues> allFeatures,
                 WellFeatureCollection<FeatureVectorValues> features)
         {
             if (allFeatures.getFeatureCodes().equals(features.getFeatureCodes()) == false)
@@ -194,10 +182,10 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
         {
             IHCSFeatureVectorLoader loader =
                     businessObjectFactory.createHCSFeatureVectorLoader(datastoreCode);
-            return loader.fetchDatasetFeatureValues(extractCodes(datasets), featureCodes);
+            return loader.fetchDatasetFeatureValues(session, extractCodes(datasets), featureCodes);
         }
 
-        private static List<String> extractCodes(List<DatasetReference> datasets)
+        private List<String> extractCodes(List<DatasetReference> datasets)
         {
             Collection<String> codes =
                     org.apache.commons.collections.CollectionUtils

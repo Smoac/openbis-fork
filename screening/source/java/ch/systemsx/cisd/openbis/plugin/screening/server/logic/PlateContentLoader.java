@@ -266,33 +266,25 @@ public class PlateContentLoader
         return featureVectorDatasets;
     }
 
-    // loads feature vector with only 1 feature
     private FeatureVectorDataset loadFeatureVector(DatasetReference datasetReference,
             IHCSFeatureVectorLoader loader, String analysisProcedure)
     {
-        List<CodeAndLabel> allFeatureNames =
-                loader.fetchDatasetFeatureNames(datasetReference.getCode());
-        List<CodeAndLabel> featuresToLoad = allFeatureNames;
-        // TODO 2011-02-25, Piotr Buczek: we don't need feature values at all
-        if (featuresToLoad.size() > 1)
-        {
-            featuresToLoad = featuresToLoad.subList(0, 1);
-        }
         WellFeatureCollection<FeatureVectorValues> featureValues =
-                loader.fetchDatasetFeatureValues(Arrays.asList(datasetReference.getCode()),
-                        CodeAndLabel.asCodes(featuresToLoad));
+                loader.fetchDatasetFeatureValues(session,
+                        Arrays.asList(datasetReference.getCode()), Collections.<String> emptyList());
         List<FeatureVectorValues> featureVectors = featureValues.getFeatures();
 
         List<FeatureList> featureLists = tryLoadFeatureLists(datasetReference);
 
         FeatureVectorDataset featureVectorDataset =
-                new FeatureVectorDataset(datasetReference, featureVectors, allFeatureNames,
-                        featureLists, analysisProcedure);
+                new FeatureVectorDataset(datasetReference, featureVectors, featureLists,
+                        analysisProcedure);
         return featureVectorDataset;
     }
 
     private List<FeatureList> tryLoadFeatureLists(DatasetReference datasetReference)
     {
+
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
         dataSetTable.loadByDataSetCodes(Collections.singletonList(datasetReference.getCode()),
                 false, false);
@@ -329,11 +321,9 @@ public class PlateContentLoader
     private FeatureVectorDataset loadFeatureVector(DatasetReference datasetReference,
             CodeAndLabel featureName, IHCSFeatureVectorLoader loader)
     {
-        List<CodeAndLabel> allFeatureNames =
-                loader.fetchDatasetFeatureNames(datasetReference.getCode());
-
         WellFeatureCollection<FeatureVectorValues> featureValues =
-                loader.fetchDatasetFeatureValues(Arrays.asList(datasetReference.getCode()),
+                loader.fetchDatasetFeatureValues(session,
+                        Arrays.asList(datasetReference.getCode()),
                         Collections.singletonList(featureName.getCode()));
 
         List<FeatureVectorValues> featureVectors = featureValues.getFeatures();
@@ -347,8 +337,8 @@ public class PlateContentLoader
         List<FeatureList> featureLists = tryLoadFeatureLists(datasetReference);
 
         FeatureVectorDataset featureVectorDataset =
-                new FeatureVectorDataset(datasetReference, featureVectors, allFeatureNames,
-                        featureLists, property == null ? null : property.value);
+                new FeatureVectorDataset(datasetReference, featureVectors, featureLists,
+                        property == null ? null : property.value);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("loadFeatureVector(%s,%s):",

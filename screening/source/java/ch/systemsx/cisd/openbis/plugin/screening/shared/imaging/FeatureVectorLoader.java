@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -85,6 +86,9 @@ public class FeatureVectorLoader
     {
         /** fetches sample identifier from openBIS */
         SampleIdentifier tryGetSampleIdentifier(String samplePermId);
+
+        List<String> tryGetContainedDatasets(String datasetCode);
+
     }
 
     private final IImagingReadonlyQueryDAO dao;
@@ -125,40 +129,17 @@ public class FeatureVectorLoader
     }
 
     /**
-     * fetches all feature names of specified dataset
-     * 
-     * @throws UserFailureException if the specified dataset does not exist.
-     */
-    public static List<CodeAndLabel> fetchDatasetFeatureNames(String dataSetCode,
-            IImagingReadonlyQueryDAO dao)
-    {
-        final ImgAnalysisDatasetDTO dataSet = dao.tryGetAnalysisDatasetByPermId(dataSetCode);
-        if (dataSet == null)
-        {
-            throw new UserFailureException("Unkown data set " + dataSetCode);
-        }
-
-        final List<ImgFeatureDefDTO> featureDefs = dao.listFeatureDefsByDataSetIds(dataSet.getId());
-        final List<CodeAndLabel> result = new ArrayList<CodeAndLabel>();
-        for (ImgFeatureDefDTO featureDef : featureDefs)
-        {
-            result.add(asCodeAndLabel(featureDef));
-        }
-
-        return result;
-    }
-
-    /**
      * fetches specified features of all wells in the specified dataset
      * 
      * @throws UserFailureException if the specified dataset contains no feature vectors or does not
      *             exist.
      */
-    public static WellFeatureCollection<FeatureVectorValues> fetchDatasetFeatures(
-            List<String> datasetCodes, List<String> featureCodes, IImagingReadonlyQueryDAO dao)
+    public static WellFeatureCollection<FeatureVectorValues> fetchWellFeatureCollection(
+            List<String> datasetCodes, List<String> featureCodes, IImagingReadonlyQueryDAO dao,
+            IMetadataProvider provider)
     {
         WellFeatureCollection<FeatureTableRow> features =
-                fetchDatasetFeatures(datasetCodes, featureCodes, dao, null);
+                fetchDatasetFeatures(datasetCodes, featureCodes, dao, provider);
         return asFeatureVectorValues(features);
     }
 
@@ -199,9 +180,11 @@ public class FeatureVectorLoader
      * without any feature vectors is specified, it is silently ignored.
      */
     public static WellFeatureCollection<FeatureVectorValues> fetchWellFeatureValuesIfPossible(
-            List<WellFeatureVectorReference> references, IImagingReadonlyQueryDAO dao)
+            List<WellFeatureVectorReference> references, IImagingReadonlyQueryDAO dao,
+            IMetadataProvider metadataProvider)
     {
-        FeatureVectorLoader builder = new FeatureVectorLoader(new ArrayList<String>(), dao, null);
+        FeatureVectorLoader builder =
+                new FeatureVectorLoader(new ArrayList<String>(), dao, metadataProvider);
         Set<String> datasetCodes = extractDatasetCodesFromSimpleReferences(references);
         builder.addFeatureVectorsOfDataSetsIfPossible(datasetCodes);
         List<FeatureVectorValues> features =
@@ -329,7 +312,17 @@ public class FeatureVectorLoader
 
     private List<ImgAnalysisDatasetDTO> listAnalysisDatasetsByPermId(Collection<String> datasetCodes)
     {
-        return dao.listAnalysisDatasetsByPermId(datasetCodes.toArray(new String[0]));
+        List<String> allCodes = new LinkedList<String>(datasetCodes);
+
+        if (metadataProviderOrNull != null)
+        {
+            for (String code : datasetCodes)
+            {
+                allCodes.addAll(metadataProviderOrNull.tryGetContainedDatasets(code));
+            }
+        }
+
+        return dao.listAnalysisDatasetsByPermId(allCodes.toArray(new String[0]));
     }
 
     /**
@@ -339,7 +332,7 @@ public class FeatureVectorLoader
     {
         DatasetFeatureDefinitionCachedLister lister =
                 new DatasetFeatureDefinitionCachedLister(datasets, featureCodes, useAllFeatures,
-                        dao);
+                        dao, metadataProviderOrNull);
         for (ImgAnalysisDatasetDTO dataset : datasets)
         {
             Map<String, ImgFeatureDefDTO> featureCodeToDefMap =
@@ -401,7 +394,8 @@ public class FeatureVectorLoader
          *            for all features
          */
         public DatasetFeatureDefinitionCachedLister(List<ImgAnalysisDatasetDTO> datasets,
-                Set<String> featureCodes, boolean useAllFeatures, IImagingReadonlyQueryDAO dao)
+                Set<String> featureCodes, boolean useAllFeatures, IImagingReadonlyQueryDAO dao,
+                IMetadataProvider provider)
         {
             this.containersByIdMap = createContainerByIdMap(datasets, dao);
 

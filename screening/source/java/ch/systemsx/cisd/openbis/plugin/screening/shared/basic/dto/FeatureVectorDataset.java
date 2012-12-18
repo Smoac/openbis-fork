@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
@@ -50,14 +52,22 @@ public class FeatureVectorDataset implements Serializable
     }
 
     public FeatureVectorDataset(DatasetReference datasetReference,
-            List<FeatureVectorValues> datasetFeatures, List<CodeAndLabel> featureNames,
-            List<FeatureList> featureLists, String analysisProcedure)
+            List<FeatureVectorValues> datasetFeatures, List<FeatureList> featureLists,
+            String analysisProcedure)
+    {
+        this.datasetReference = datasetReference;
+        this.datasetFeatures = datasetFeatures;
+        this.featureLists = featureLists;
+        this.analysisProcedure = analysisProcedure;
+
+    }
+
+    public FeatureVectorDataset(DatasetReference datasetReference,
+            List<FeatureVectorValues> datasetFeatures, List<CodeAndLabel> featureNames)
     {
         this.datasetReference = datasetReference;
         this.datasetFeatures = datasetFeatures;
         this.featureNames = featureNames;
-        this.featureLists = featureLists;
-        this.analysisProcedure = analysisProcedure;
     }
 
     public DatasetReference getDatasetReference()
@@ -72,6 +82,19 @@ public class FeatureVectorDataset implements Serializable
 
     public List<CodeAndLabel> getFeatureNames()
     {
+        if (featureNames == null && datasetFeatures != null)
+        {
+
+            HashMap<String, CodeAndLabel> map = new HashMap<String, CodeAndLabel>();
+            for (FeatureVectorValues fvv : datasetFeatures)
+            {
+                for (CodeAndLabel c : fvv.getCodesAndLabels())
+                {
+                    map.put(c.getCode(), c);
+                }
+            }
+            featureNames = new LinkedList<CodeAndLabel>(map.values());
+        }
         return featureNames;
     }
 

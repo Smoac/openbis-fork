@@ -46,12 +46,12 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.base.mdarray.MDFloatArray;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.common.io.ByteArrayBasedContentNode;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
+import ch.systemsx.cisd.hcs.Location;
+import ch.systemsx.cisd.openbis.common.io.ByteArrayBasedContentNode;
 import ch.systemsx.cisd.openbis.common.io.FileBasedContentNode;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.hcs.Location;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
@@ -73,6 +73,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtilTest;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -374,6 +375,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private void prepareLoadFeatures(long[] dataSetIDs, String[][] featureCodesPerDataset)
     {
+        prepareFeatureVectorContainedDatasets(dataSetIDs);
         prepareListAnalysisDatasets(dataSetIDs);
         prepareListContainers(dataSetIDs);
         prepareGetFeatureDefinitions(dataSetIDs, featureCodesPerDataset);
@@ -916,6 +918,27 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             });
     }
 
+    private void prepareFeatureVectorContainedDatasets(final long[] dataSetIDs)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    String[] permIDs = new String[dataSetIDs.length];
+
+                    for (int i = 0; i < dataSetIDs.length; i++)
+                    {
+                        long id = dataSetIDs[i];
+                        permIDs[i] = "ds" + id;
+
+                        ExternalData d = new DataSet(); // this dataset is only asked if it is a
+                                                        // container
+                        one(service).tryGetDataSet(permIDs[i]);
+                        will(returnValue(d));
+                    }
+                }
+            });
+    }
+
     private void prepareListAnalysisDatasets(final long[] dataSetIDs)
     {
         context.checking(new Expectations()
@@ -933,6 +956,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                                 new ImgAnalysisDatasetDTO(permIDs[i], getContainerId(id));
                         dataSet.setId(id);
                         dataSets.add(dataSet);
+
                     }
 
                     one(dao).listAnalysisDatasetsByPermId(permIDs);

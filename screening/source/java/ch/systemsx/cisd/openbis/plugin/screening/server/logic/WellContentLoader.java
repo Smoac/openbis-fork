@@ -574,12 +574,12 @@ public class WellContentLoader extends AbstractContentLoader
     }
 
     // should be called for wells which have feature vector datasets from the same DSS
-    private static List<WellContent> enrichWithFeatureVectors(List<WellContent> wellsWithDatasets,
+    private List<WellContent> enrichWithFeatureVectors(List<WellContent> wellsWithDatasets,
             IHCSFeatureVectorLoader loader)
     {
         List<WellFeatureVectorReference> wellReferences = extractWellReferences(wellsWithDatasets);
         WellFeatureCollection<FeatureVectorValues> featureVectors =
-                loader.fetchWellFeatureValuesIfPossible(wellReferences);
+                loader.fetchWellFeatureValuesIfPossible(session, wellReferences);
         return enrichWithFeatureVectors(wellsWithDatasets, featureVectors);
     }
 

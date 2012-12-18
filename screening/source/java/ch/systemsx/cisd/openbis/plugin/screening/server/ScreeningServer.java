@@ -302,8 +302,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
             String datasetCode, String datastoreCode, WellLocation wellLocation)
     {
-        getSession(sessionToken);
-        return FeatureVectorValuesLoader.loadFeatureVectorValues(businessObjectFactory,
+        Session session = getSession(sessionToken);
+        return FeatureVectorValuesLoader.loadFeatureVectorValues(session, businessObjectFactory,
                 datasetCode, datastoreCode, wellLocation);
     }
 
