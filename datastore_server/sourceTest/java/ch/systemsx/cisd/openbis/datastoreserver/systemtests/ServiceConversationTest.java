@@ -480,7 +480,7 @@ public class ServiceConversationTest
 
     private void assertNoMoreConversations(int additionalWaitingTime)
     {
-        long maxFinishTime = System.currentTimeMillis() + additionalWaitingTime + 100;
+        long maxFinishTime = System.currentTimeMillis() + additionalWaitingTime + 1000;
 
         while (System.currentTimeMillis() < maxFinishTime)
         {
