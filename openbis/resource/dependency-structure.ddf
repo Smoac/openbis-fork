@@ -10,7 +10,7 @@
 
 [generic.client] = ${generic}.client.*
 [generic.server] = ${generic}.server.*
-[generic.shared] = ${generic}.shared.*
+[generic.shared] = ${generic}.shared.* excluding ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory
 
 check sets [generic.client] [generic.server] [generic.shared]
 

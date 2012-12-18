@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.jython.evaluator;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -516,7 +517,7 @@ public final class Evaluator
         {
             results.add(key.toString());
         }
-        return results;
+        return Collections.unmodifiableCollection(results);
     }
 
 }

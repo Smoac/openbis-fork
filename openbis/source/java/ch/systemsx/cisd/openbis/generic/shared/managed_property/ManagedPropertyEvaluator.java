@@ -25,7 +25,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
-import ch.systemsx.cisd.common.jython.evaluator.EvaluatorCache;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -107,7 +106,7 @@ public class ManagedPropertyEvaluator
 
     private static final String PERSON_VARIABLE_NAME = "person";
 
-    private final Evaluator evaluator;
+    private final IEvaluationRunner runner;
 
     private final List<String> columnNames;
 
@@ -117,16 +116,68 @@ public class ManagedPropertyEvaluator
 
     private List<IManagedInputWidgetDescription> inputWidgetDescriptions;
 
-    public ManagedPropertyEvaluator(String scriptExpression)
+    public ManagedPropertyEvaluator(final String scriptExpression)
     {
-        evaluator =
-                EvaluatorCache.getEvaluator("", ManagedPropertyFunctions.class, scriptExpression);
-        updateFromBatchFunctionDefined = evaluator.hasFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION);
+        this(new IEvaluationRunner()
+            {
+                private Evaluator evaluator;
+                {
+                    this.evaluator =
+                            new Evaluator("", ManagedPropertyFunctions.class, scriptExpression);
+                }
+
+                @Override
+                public <T> T evaluate(IAtomicEvaluation<T> evaluation)
+                {
+                    return evaluation.evaluate(evaluator);
+                }
+
+            });
+    }
+
+    public ManagedPropertyEvaluator(IEvaluationRunner runner)
+    {
+        this.runner = runner;
+        updateFromBatchFunctionDefined =
+                runner.evaluate(new IAtomicEvaluation<Boolean>()
+                    {
+                        @Override
+                        public Boolean evaluate(Evaluator evaluator)
+                        {
+                            return evaluator.hasFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION);
+                        }
+                    });
+
         updateFromRegistrationFormFunctionDefined =
-                evaluator.hasFunction(UPDATE_FROM_REGISTRATION_FORM_FUNCTION);
+                runner.evaluate(new IAtomicEvaluation<Boolean>()
+                    {
+                        @Override
+                        public Boolean evaluate(Evaluator evaluator)
+                        {
+                            return evaluator.hasFunction(UPDATE_FROM_REGISTRATION_FORM_FUNCTION);
+                        }
+                    });
+
         boolean batchColumnNamesFunctionDefined =
-                evaluator.hasFunction(BATCH_COLUMN_NAMES_FUNCTION);
-        boolean inputWidgetsFunctionDefined = evaluator.hasFunction(INPUT_WIDGETS_FUNCTION);
+                runner.evaluate(new IAtomicEvaluation<Boolean>()
+                    {
+                        @Override
+                        public Boolean evaluate(Evaluator evaluator)
+                        {
+                            return evaluator.hasFunction(BATCH_COLUMN_NAMES_FUNCTION);
+                        }
+                    });
+
+        boolean inputWidgetsFunctionDefined =
+                runner.evaluate(new IAtomicEvaluation<Boolean>()
+                    {
+                        @Override
+                        public Boolean evaluate(Evaluator evaluator)
+                        {
+                            return evaluator.hasFunction(INPUT_WIDGETS_FUNCTION);
+                        }
+                    });
+
         checkCombinationsOfDefinedFunctions(batchColumnNamesFunctionDefined,
                 inputWidgetsFunctionDefined);
         columnNames = new ArrayList<String>();
@@ -209,9 +260,17 @@ public class ManagedPropertyEvaluator
         }
     }
 
-    private List<?> evalFunction(String functionName)
+    private List<?> evalFunction(final String functionName)
     {
-        Object result = evaluator.evalFunction(functionName);
+        Object result = runner.evaluate(new IAtomicEvaluation<Object>()
+            {
+                @Override
+                public Object evaluate(Evaluator evaluator)
+                {
+                    return evaluator.evalFunction(functionName);
+                }
+            });
+
         if (result instanceof List == false)
         {
             throw new EvaluatorException("Function '" + functionName
@@ -221,7 +280,8 @@ public class ManagedPropertyEvaluator
         return (List<?>) result;
     }
 
-    public void configureUI(IManagedProperty managedProperty, EntityPropertyPE entityPropertyPE)
+    public void configureUI(final IManagedProperty managedProperty,
+            final EntityPropertyPE entityPropertyPE)
     {
         if (operationLog.isDebugEnabled())
         {
@@ -229,13 +289,21 @@ public class ManagedPropertyEvaluator
                     managedProperty));
         }
 
-        evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
-        evaluator.set(PROPERTY_PE_VARIABLE_NAME, entityPropertyPE);
-        evaluator.evalFunction(CONFIGURE_UI_FUNCTION);
+        runner.evaluate(new IAtomicEvaluation<Void>()
+            {
+                @Override
+                public Void evaluate(Evaluator evaluator)
+                {
+                    evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
+                    evaluator.set(PROPERTY_PE_VARIABLE_NAME, entityPropertyPE);
+                    evaluator.evalFunction(CONFIGURE_UI_FUNCTION);
+                    return null;
+                }
+            });
     }
 
-    public void updateFromUI(IManagedProperty managedProperty, IPerson person,
-            IManagedUiAction action)
+    public void updateFromUI(final IManagedProperty managedProperty, final IPerson person,
+            final IManagedUiAction action)
     {
         if (operationLog.isDebugEnabled())
         {
@@ -243,9 +311,17 @@ public class ManagedPropertyEvaluator
                     managedProperty));
         }
 
-        evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
-        evaluator.set(PERSON_VARIABLE_NAME, person);
-        evaluator.evalFunction(UPDATE_FROM_UI_FUNCTION, action);
+        runner.evaluate(new IAtomicEvaluation<Void>()
+            {
+                @Override
+                public Void evaluate(Evaluator evaluator)
+                {
+                    evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
+                    evaluator.set(PERSON_VARIABLE_NAME, person);
+                    evaluator.evalFunction(UPDATE_FROM_UI_FUNCTION, action);
+                    return null;
+                }
+            });
     }
 
     public List<String> getBatchColumnNames()
@@ -258,8 +334,8 @@ public class ManagedPropertyEvaluator
         return inputWidgetDescriptions;
     }
 
-    public void updateFromBatchInput(IManagedProperty managedProperty, IPerson person,
-            Map<String, String> bindings)
+    public void updateFromBatchInput(final IManagedProperty managedProperty, final IPerson person,
+            final Map<String, String> bindings)
     {
         if (updateFromBatchFunctionDefined == false)
         {
@@ -269,20 +345,38 @@ public class ManagedPropertyEvaluator
             }
         } else
         {
-            evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
-            evaluator.set(PERSON_VARIABLE_NAME, person);
-            evaluator.evalFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION, bindings);
+            runner.evaluate(new IAtomicEvaluation<Void>()
+                {
+                    @Override
+                    public Void evaluate(Evaluator evaluator)
+                    {
+                        evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
+                        evaluator.set(PERSON_VARIABLE_NAME, person);
+                        evaluator.evalFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION, bindings);
+                        return null;
+                    }
+                });
         }
     }
 
-    public void updateFromRegistrationForm(IManagedProperty managedProperty, IPerson person,
-            List<Map<String, String>> bindings)
+    public void updateFromRegistrationForm(final IManagedProperty managedProperty,
+            final IPerson person,
+            final List<Map<String, String>> bindings)
     {
         if (updateFromRegistrationFormFunctionDefined)
         {
-            evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
-            evaluator.set(PERSON_VARIABLE_NAME, person);
-            evaluator.evalFunction(UPDATE_FROM_REGISTRATION_FORM_FUNCTION, bindings);
+            runner.evaluate(new IAtomicEvaluation<Void>()
+                {
+                    @Override
+                    public Void evaluate(Evaluator evaluator)
+                    {
+                        evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
+                        evaluator.set(PERSON_VARIABLE_NAME, person);
+                        evaluator.evalFunction(UPDATE_FROM_REGISTRATION_FORM_FUNCTION,
+                                bindings);
+                        return null;
+                    }
+                });
         }
     }
 }

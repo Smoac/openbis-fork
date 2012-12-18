@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
+import ch.systemsx.cisd.openbis.generic.server.JythonEvaluatorPool;
 
 /**
  * Factory for creating managed property evaluators. (Could do some caching or other cleverness.)
@@ -24,8 +25,16 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property;
  */
 public class ManagedPropertyEvaluatorFactory
 {
+
     public static ManagedPropertyEvaluator createManagedPropertyEvaluator(String scriptExpression)
     {
-        return new ManagedPropertyEvaluator(scriptExpression);
+        if (JythonEvaluatorPool.INSTANCE != null)
+        {
+            return new ManagedPropertyEvaluator(JythonEvaluatorPool.INSTANCE
+                    .getRunner(scriptExpression));
+        } else
+        {
+            return new ManagedPropertyEvaluator(scriptExpression);
+        }
     }
 }

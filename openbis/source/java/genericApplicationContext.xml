@@ -213,6 +213,11 @@
     
     <bean id="entity-operation-checker" class="ch.systemsx.cisd.openbis.generic.server.business.EntityOperationChecker"/>
 
+    <bean id="jython-evaluator-pool" 
+          class="ch.systemsx.cisd.openbis.generic.server.JythonEvaluatorPool">
+        <constructor-arg ref="dao-factory" />
+        <constructor-arg value="${jython-evaluator-pool-size}" />
+    </bean>
     <!-- 
         // Transaction
     -->
