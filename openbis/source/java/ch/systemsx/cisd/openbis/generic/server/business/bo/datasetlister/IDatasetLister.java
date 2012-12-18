@@ -122,4 +122,9 @@ public interface IDatasetLister
      */
     Map<Long, GenericEntityPropertyRecord> fetchProperties(List<Long> ids, String propertyTypeCode);
 
+    /**
+     * @return codes of the datasets, that are contained in the given dataset
+     */
+    List<String> listContainedCodes(String datasetCode);
+
 }

@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -1058,5 +1059,18 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
                             });
         queryResult.close();
         return records;
+    }
+
+    @Override
+    public List<String> listContainedCodes(String datasetCode)
+    {
+        List<String> result = new LinkedList<String>();
+        DataIterator<String> queryResult = query.getContainedDataSetCodes(datasetCode);
+        for (String containedCode : queryResult)
+        {
+            result.add(containedCode);
+        }
+        queryResult.close();
+        return result;
     }
 }

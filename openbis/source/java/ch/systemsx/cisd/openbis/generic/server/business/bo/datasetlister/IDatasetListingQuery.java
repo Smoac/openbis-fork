@@ -246,6 +246,9 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<Long> getContainedDataSetIds(LongSet containerIDs);
 
+    @Select(sql = "select code from data where ctnr_id = (select id from data where code = ?{1})", fetchSize = FETCH_SIZE)
+    public DataIterator<String> getContainedDataSetCodes(String dataSetCode);
+
     //
     // Entity Properties
     //
