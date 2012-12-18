@@ -173,7 +173,9 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
                 extractCanonicalFeatureVectors(dataSet, dataSetInformation,
                         datasetInfo.getContainerGeometry());
 
-        FeatureVectorUploader uploader = new FeatureVectorUploader(dataAccessObject, datasetInfo);
+        FeatureVectorUploader uploader =
+                new FeatureVectorUploader(dataAccessObject, datasetInfo,
+                        dataSetInformation.getDataSetCode());
         uploader.uploadFeatureVectors(fvecs);
     }
 

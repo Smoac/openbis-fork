@@ -638,13 +638,26 @@ public class FeatureVectorLoader
         List<FeatureVectorValues> featureVectors = new ArrayList<FeatureVectorValues>();
         for (WellFeatureVectorReference reference : references)
         {
-            String dataSetCode = reference.getDatasetCode();
-            DatasetFeaturesBundle bundle = bundleMap.get(dataSetCode);
-            if (bundle != null)
+            String referenceDataSetCode = reference.getDatasetCode();
+
+            List<String> allCodes = new LinkedList<String>();
+            allCodes.add(referenceDataSetCode);
+
+            if (metadataProviderOrNull != null)
             {
-                FeatureVectorValues featureVector =
-                        createFeatureVector(bundle, reference.getWellLocation());
-                featureVectors.add(featureVector);
+                allCodes.addAll(metadataProviderOrNull
+                        .tryGetContainedDatasets(referenceDataSetCode));
+            }
+
+            for (String dataSetCode : allCodes)
+            {
+                DatasetFeaturesBundle bundle = bundleMap.get(dataSetCode);
+                if (bundle != null)
+                {
+                    FeatureVectorValues featureVector =
+                            createFeatureVector(bundle, reference.getWellLocation());
+                    featureVectors.add(featureVector);
+                }
             }
         }
         return featureVectors;

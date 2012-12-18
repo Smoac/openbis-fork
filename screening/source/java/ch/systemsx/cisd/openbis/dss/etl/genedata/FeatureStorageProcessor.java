@@ -208,7 +208,8 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
 
         FeatureVectorUploader uploader =
                 new FeatureVectorUploader(dataAccessObject,
-                        createScreeningDatasetInfo(dataSetInformation));
+                        createScreeningDatasetInfo(dataSetInformation),
+                        dataSetInformation.getDataSetCode());
         uploader.uploadFeatureVectors(fvecs);
     }
 

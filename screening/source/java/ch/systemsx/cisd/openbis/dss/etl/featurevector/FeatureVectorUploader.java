@@ -37,10 +37,22 @@ public class FeatureVectorUploader
 
     private final HCSContainerDatasetInfo info;
 
+    /**
+     * The perm id of the dataset, which is the actual analysis dataset
+     */
+    private final String dataSetPermID;
+
     public FeatureVectorUploader(IImagingQueryDAO imagingDao, HCSContainerDatasetInfo info)
+    {
+        this(imagingDao, info, info.getDatasetPermId());
+    }
+
+    public FeatureVectorUploader(IImagingQueryDAO imagingDao, HCSContainerDatasetInfo info,
+            String dataSetPermID)
     {
         this.dao = imagingDao;
         this.info = info;
+        this.dataSetPermID = dataSetPermID;
     }
 
     /**
@@ -51,12 +63,13 @@ public class FeatureVectorUploader
     {
         long contId = ImagingDatabaseHelper.getOrCreateExperimentAndContainer(dao, info);
         long dataSetId = createFeatureVectorDataset(contId);
+
         uploadFeatureVectors(dao, fvecs, dataSetId);
     }
 
     private long createFeatureVectorDataset(long contId)
     {
-        ImgAnalysisDatasetDTO dataset = new ImgAnalysisDatasetDTO(info.getDatasetPermId(), contId);
+        ImgAnalysisDatasetDTO dataset = new ImgAnalysisDatasetDTO(dataSetPermID, contId);
         return dao.addAnalysisDataset(dataset);
     }
 

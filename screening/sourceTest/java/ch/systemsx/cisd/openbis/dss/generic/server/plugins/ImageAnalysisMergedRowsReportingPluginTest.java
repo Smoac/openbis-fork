@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -112,6 +113,12 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
+                    one(service).tryGetContainedDatasets(ds1.getDataSetCode());
+                    will(returnValue(Collections.emptyList()));
+
+                    one(service).tryGetContainedDatasets(ds2.getDataSetCode());
+                    will(returnValue(Collections.emptyList()));
+
                     one(dao).listAnalysisDatasetsByPermId(ds1.getDataSetCode(),
                             ds2.getDataSetCode());
                     will(returnValue(Arrays.asList(createDataSet(1), createDataSet(2))));
