@@ -31,8 +31,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -386,9 +389,11 @@ public final class ClassUtils
                 classFilterOrNull == null ? ClassFilterUtils.createTrueClassFilter()
                         : classFilterOrNull;
         final List<URL> urls = getUrls(packageName);
-        final List<String> classNames = new ArrayList<String>();
+        final Map<URL, List<String>> classNamesByUrl = new HashMap<URL, List<String>>();
         for (final URL url : urls)
         {
+            ArrayList<String> classNames = new ArrayList<String>();
+            classNamesByUrl.put(url, classNames);
             final String protocol = url.getProtocol();
             if ("file".equals(protocol))
             {
@@ -409,22 +414,27 @@ public final class ClassUtils
             }
         }
         final List<Class<?>> classes = new ArrayList<Class<?>>();
-        for (final String className : classNames)
+        for (Entry<URL, List<String>> entry : classNamesByUrl.entrySet())
         {
-            try
+            List<String> classNames = entry.getValue();
+            for (String className : classNames)
             {
-                final Class<?> clazz =
-                        org.apache.commons.lang.ClassUtils.getClass(className, false);
-                if (classFilter.accept(clazz))
+                try
                 {
-                    classes.add(clazz);
+                    final Class<?> clazz =
+                            org.apache.commons.lang.ClassUtils.getClass(className, false);
+                    if (classFilter.accept(clazz))
+                    {
+                        classes.add(clazz);
+                    }
+                } catch (final ClassNotFoundException ex)
+                {
+                    throw new CheckedExceptionTunnel(ex);
+                } catch (Throwable ex)
+                {
+                    throw new IllegalArgumentException("Couldn't load class " + className
+                            + " from resource " + entry.getKey() + ": " + ex, ex);
                 }
-            } catch (final ClassNotFoundException ex)
-            {
-                throw new CheckedExceptionTunnel(ex);
-            } catch (Throwable ex)
-            {
-                throw new IllegalArgumentException("Couldn't load class " + className + ": " + ex, ex); 
             }
         }
         return classes;
