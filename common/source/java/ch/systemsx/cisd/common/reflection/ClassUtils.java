@@ -421,11 +421,14 @@ public final class ClassUtils
             {
                 try
                 {
-                    final Class<?> clazz =
-                            org.apache.commons.lang.ClassUtils.getClass(className, false);
-                    if (classFilter.accept(clazz))
+                    if (classFilter.accept(className))
                     {
-                        classes.add(clazz);
+                        final Class<?> clazz =
+                                org.apache.commons.lang.ClassUtils.getClass(className, false);
+                        if (classFilter.accept(clazz))
+                        {
+                            classes.add(clazz);
+                        }
                     }
                 } catch (final ClassNotFoundException ex)
                 {

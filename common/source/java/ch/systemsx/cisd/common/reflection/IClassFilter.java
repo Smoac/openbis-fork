@@ -27,4 +27,12 @@ public interface IClassFilter
      * Tests whether or not the specified <var>clazz</var> should be included.
      */
     public boolean accept(final Class<?> clazz);
+    
+    /**
+     * Returns <code>true</code> if the specified class is accepted. This method is call before
+     * {@link #accept(Class)}. It should return <code>false</code> if the class can not be loaded.
+     * If <code>true</code> is returned also {@link #accept(Class)} will be invoked which will give
+     * the definite answer.
+     */
+    public boolean accept(String fullyQualifiedClassName);
 }

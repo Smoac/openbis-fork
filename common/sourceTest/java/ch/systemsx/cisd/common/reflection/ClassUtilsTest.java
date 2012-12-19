@@ -258,6 +258,12 @@ public final class ClassUtilsTest
                 {
                     return clazz.equals(SuiteSlave.class) == false;
                 }
+
+                @Override
+                public boolean accept(String fullyQualifiedClassName)
+                {
+                    return true;
+                }
             });
         assertTrue(classes.size() > 0);
         assertFalse(classes.contains(Test.class));

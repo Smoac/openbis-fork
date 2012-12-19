@@ -57,5 +57,11 @@ public final class ClassFilterUtils
         {
             return true;
         }
+
+        @Override
+        public boolean accept(String fullyQualifiedClassName)
+        {
+            return true;
+        }
     }
 }

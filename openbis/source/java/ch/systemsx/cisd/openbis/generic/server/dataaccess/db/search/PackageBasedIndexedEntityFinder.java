@@ -26,7 +26,8 @@ import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.common.reflection.IClassFilter;
 
 /**
- * A {@link IIndexedEntityFinder} based on a package name specified in the constructor.
+ * A {@link IIndexedEntityFinder} based on a package name specified in the constructor. Classes
+ * ending with <code>Test</code> will be ignored.
  * <p>
  * This does not work recursively and expects to find all the correctly annotated classes in the
  * given package.
@@ -52,6 +53,12 @@ public final class PackageBasedIndexedEntityFinder implements IIndexedEntityFind
                 //
                 // IClassFilter
                 //
+
+                @Override
+                public boolean accept(String fullyQualifiedClassName)
+                {
+                    return fullyQualifiedClassName.endsWith("Test") == false;
+                }
 
                 @Override
                 public final boolean accept(final Class<?> clazz)
