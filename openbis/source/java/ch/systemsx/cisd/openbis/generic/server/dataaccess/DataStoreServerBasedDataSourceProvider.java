@@ -416,8 +416,7 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
                 }
             }
             DataSourceDefinition definition =
-                    getDefinitionsOrNull(dataStoreCode, moduleCode, dataSourceCode,
-                            replacementsByType);
+                    getDefinitionsOrNull(dataStoreCode, dataSourceCode, replacementsByType);
             if (configs.containsKey(configKey) == false)
             {
                 if (configs.containsKey(dataStoreCode) == false)
@@ -430,7 +429,7 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
             return new Mapping(dataStoreCode, configKey, definition);
         }
 
-        private DataSourceDefinition getDefinitionsOrNull(String dataStoreCode, String moduleCode,
+        private DataSourceDefinition getDefinitionsOrNull(String dataStoreCode,
                 String dataSourceCode, Map<Type, String> replacementsByType)
         {
             Map<String, DataSourceDefinition> definitionsByCode =
@@ -440,31 +439,9 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
                 return null;
             }
             DataSourceDefinition definition = definitionsByCode.get(dataSourceCode);
-            if (definition == null)
+            if (definition == null && definitionsByCode.size() == 1)
             {
-                int numberOfDefinitions = definitionsByCode.size();
-                if (numberOfDefinitions == 1)
-                {
-                    definition = definitionsByCode.values().iterator().next();
-                } else if (numberOfDefinitions == 0)
-                {
-                    throw new EnvironmentFailureException(
-                            "There are no data sources defined for data store " + dataStoreCode
-                                    + ".");
-                } else if (numberOfDefinitions > 1)
-                {
-                    CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
-                    for (DataSourceDefinition d : definitionsByCode.values())
-                    {
-                        builder.append(d.getCode());
-                    }
-                    throw new EnvironmentFailureException(
-                            "There are too many data sources defined for data store "
-                                    + dataStoreCode + ": " + builder
-                                    + "\nHint: Define in the mapping file the following line:\n"
-                                    + "*." + moduleCode + "." + Type.DATA_SOURCE
-                                    + " = <code of needed data source>");
-                }
+                definition = definitionsByCode.values().iterator().next();
             }
             if (definition != null)
             {

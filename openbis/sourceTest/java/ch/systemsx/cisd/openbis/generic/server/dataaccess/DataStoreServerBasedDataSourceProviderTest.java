@@ -204,54 +204,6 @@ public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSyst
     }
 
     @Test
-    public void testNoDataSourceDefined()
-    {
-        DataSourceConfigBuilder builder = new DataSourceConfigBuilder();
-        builder.plugin("DSS", null).property(PLUGIN_KEY, "DSS");
-        props = builder.get();
-        FileUtilities.writeToFile(mappingFile, "*.*.config = DSS\n");
-        prepareListDataStores(dataStore("DSS1"));
-        DataStoreServerBasedDataSourceProvider dataSourceProvider = createDataSourceProvider();
-
-        try
-        {
-            dataSourceProvider.getDataSourceByDataStoreServerCode("Dss1", "proteomics");
-            fail("EnvironmentFailureException expected");
-        } catch (EnvironmentFailureException ex)
-        {
-            assertEquals("There are no data sources defined for data store DSS1.", ex.getMessage());
-        }
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testTooManyDataSourcesDefined()
-    {
-        DataSourceConfigBuilder builder = new DataSourceConfigBuilder();
-        builder.plugin("DSS", null).property(PLUGIN_KEY, "DSS");
-        props = builder.get();
-        FileUtilities.writeToFile(mappingFile, "*.*.config = DSS\n");
-        prepareListDataStores(dataStore("DSS1",
-                new DataSourceDefinitionBuilder().code("db1").get(),
-                new DataSourceDefinitionBuilder().code("db2").get()));
-        DataStoreServerBasedDataSourceProvider dataSourceProvider = createDataSourceProvider();
-
-        try
-        {
-            dataSourceProvider.getDataSourceByDataStoreServerCode("Dss1", "proteomics");
-            fail("EnvironmentFailureException expected");
-        } catch (EnvironmentFailureException ex)
-        {
-            assertEquals("There are too many data sources defined for data store DSS1: db1, db2\n"
-                    + "Hint: Define in the mapping file the following line:\n"
-                    + "*.PROTEOMICS.DATA_SOURCE = <code of needed data source>", ex.getMessage());
-        }
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public void testMappingFileWithUnspecifiedDataSourceCodeAndConfigMappingAllOnOne()
     {
         DataSourceConfigBuilder builder = new DataSourceConfigBuilder();
@@ -328,12 +280,8 @@ public class DataStoreServerBasedDataSourceProviderTest extends AbstractFileSyst
         FileUtilities.writeToFile(mappingFile, "*.*.config = DSS\n"
                 + "*.screening.data-source-code = imaging_db\n");
         DataStorePE dss1 =
-                dataStore(
-                        "DSS1",
-                        new DataSourceDefinitionBuilder().code("my_db").get(),
-                        new DataSourceDefinitionBuilder().code("imaging_db")
-                                .driverClassName(DRIVER_CLASS).hostPart("ab").sid("imaging_dev")
-                                .get());
+                dataStore("DSS1", new DataSourceDefinitionBuilder().code("imaging_db")
+                        .driverClassName(DRIVER_CLASS).hostPart("ab").sid("imaging_dev").get());
         DataStorePE dss2 =
                 dataStore("DSS2", new DataSourceDefinitionBuilder().code("imaging_db")
                         .driverClassName(DRIVER_CLASS).hostPart("abc").sid("imaging_dev").get());
