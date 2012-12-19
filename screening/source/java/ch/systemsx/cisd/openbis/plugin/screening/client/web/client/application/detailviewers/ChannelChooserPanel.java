@@ -147,15 +147,32 @@ public class ChannelChooserPanel extends LayoutContainer
                 if (ScreeningConstants.USER_DEFINED_RESCALING_CODE
                         .equalsIgnoreCase(transformationCode))
                 {
-                    /*
-                     * TODO updatedTooltip += " [" + (intensityRange == null ? "undefined" :
-                     * intensityRange .getBlackPoint() + " - " + intensityRange.getWhitePoint()) +
-                     * "]";
-                     */
+
                     for (Map.Entry<String, IntensityRange> rangeEntry : intensityRanges.entrySet())
                     {
+                        IntensityRange intensityRange = rangeEntry.getValue();
+                        if (intensityRanges.size() == 1)
+                        {
+                            updatedTooltip +=
+                                    " ["
+                                            + (intensityRange == null ? "undefined"
+                                                    : intensityRange.getBlackPoint() + " - "
+                                                            + intensityRange.getWhitePoint()) + "]";
+
+                        } else
+                        {
+                            updatedTooltip +=
+                                    " "
+                                            + rangeEntry.getKey()
+                                            + "=["
+                                            + (intensityRange == null ? "undefined"
+                                                    : intensityRange.getBlackPoint() + " - "
+                                                            + intensityRange.getWhitePoint())
+                                            + "];";
+                        }
+
                         ChannelChooserPanel.this.intensitiesPerChannel.put(rangeEntry.getKey(),
-                                rangeEntry.getValue());
+                                intensityRange);
                     }
                 }
                 transformationsComboBox.setToolTip(updatedTooltip);

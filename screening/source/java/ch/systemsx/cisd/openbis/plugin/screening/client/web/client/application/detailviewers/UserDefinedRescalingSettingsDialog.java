@@ -105,10 +105,10 @@ public class UserDefinedRescalingSettingsDialog extends Dialog
         int counter = 0;
         for (SingleChannelIntesityRange scir : this.intensitiesPerChannel)
         {
-            grid.setWidget(2 * counter, 0, scir.labelMin);
-            grid.setWidget(2 * counter, 1, scir.minTextField);
-            grid.setWidget(2 * counter + 1, 0, scir.labelMax);
-            grid.setWidget(2 * counter + 1, 1, scir.maxTextField);
+            grid.setWidget(2 * counter, 0, scir.labelMax);
+            grid.setWidget(2 * counter, 1, scir.maxTextField);
+            grid.setWidget(2 * counter + 1, 0, scir.labelMin);
+            grid.setWidget(2 * counter + 1, 1, scir.minTextField);
             counter++;
         }
 
