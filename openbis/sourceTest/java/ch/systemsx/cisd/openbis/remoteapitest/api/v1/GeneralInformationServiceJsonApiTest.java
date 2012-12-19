@@ -518,9 +518,33 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
     {
         SearchCriteria sc = new SearchCriteria();
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
-        List<DataSet> result = generalInformationService.searchForDataSets(sessionToken, sc);
+        List<DataSet> result = generalInformationService.searchForDataSets(userSessionToken, sc);
         assertTrue(result.size() > 0);
         String expectedDataSetCode = "20081105092159188-3";
+
+        for (DataSet dataSet : result)
+        {
+            System.out.println(dataSet.getRegistrationDetails().toString());
+        }
+        for (DataSet dataSet : result)
+        {
+            if (expectedDataSetCode.equals(dataSet.getCode()))
+            {
+                return;
+            }
+        }
+        fail("result didn't contain data set" + expectedDataSetCode);
+    }
+
+    @Test
+    public void testSearchForContainerDataSetByCode()
+    {
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "20110509092359990-10"));
+        List<DataSet> result = generalInformationService.searchForDataSets(userSessionToken, sc);
+        assertTrue(result.size() > 0);
+        String expectedDataSetCode = "20110509092359990-10";
 
         for (DataSet dataSet : result)
         {
@@ -584,7 +608,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
                 .addSubCriteria(SearchSubCriteria.createDataSetParentCriteria(parentCriteria));
 
         List<DataSet> result =
-                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+                generalInformationService.searchForDataSets(userSessionToken, searchCriteria);
 
         assertEquals(2, result.size());
         assertEquals(

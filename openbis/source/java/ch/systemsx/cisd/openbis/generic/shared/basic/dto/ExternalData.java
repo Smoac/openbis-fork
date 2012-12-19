@@ -380,7 +380,7 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
 
     public boolean isStorageConfirmation()
     {
-        return storageConfirmation;
+        return storageConfirmation || isContainer();
     }
 
     public void setStorageConfirmation(boolean storageConfirmation)
