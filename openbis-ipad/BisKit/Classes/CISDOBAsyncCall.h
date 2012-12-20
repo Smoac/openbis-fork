@@ -40,6 +40,7 @@
 // Configuration
 @property(copy) SuccessBlock success;   //!< The block invoked if the invocation was successful. Can be nil.
 @property(copy) FailBlock fail;         //!< The block invoked if the invocation failed. Can be nil.
+@property(assign) NSTimeInterval timeoutInterval;   //!< The amount of time to wait for a response
 
 
 // Actions

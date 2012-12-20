@@ -153,7 +153,7 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
         _isLoggedIn = YES;
         [self determineIsIpadSupported: iPadCall];
     };
-
+    
     return iPadCall;
 }
 
@@ -245,12 +245,14 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
  
     _service = service;
     _connectionCall = call;
+    self.timeoutInterval = call.timeoutInterval;
     
     return self;
 }
 
 - (void)start
 {
+    _connectionCall.timeoutInterval = self.timeoutInterval;
     [_connectionCall start];
 }
 

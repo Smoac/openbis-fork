@@ -66,7 +66,6 @@
 @property(strong) NSArray *params;      //!< The method parameters
 
 // Configuration
-@property(assign) NSTimeInterval timeoutInterval;   //!< The amount of time to wait for a response
 @property(strong) id delegate;                      //!< The delegate to receive progress notifications. Can be nil.
 
 // Actions

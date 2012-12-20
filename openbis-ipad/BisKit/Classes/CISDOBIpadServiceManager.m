@@ -300,6 +300,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
  
     _serviceManager = serviceManager;
     _serviceCall = call;
+    self.timeoutInterval = call.timeoutInterval;
     
     return self;
 }
@@ -330,6 +331,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     if (self.willCallNotificationName) {
         [[NSNotificationCenter defaultCenter] postNotificationName: self.willCallNotificationName object: self.serviceManager];
     }
+    _serviceCall.timeoutInterval = self.timeoutInterval;
     [_serviceCall start];
 }
 

@@ -38,7 +38,6 @@ NSString *const CISDOBConnectionErrorDomain = @"CISDOBConnectionErrorDomain";
 @property(strong, nonatomic) NSArray *params;
 @property(copy, nonatomic) SuccessBlock successWrapper;
 @property(copy, nonatomic) FailBlock failWrapper;
-@property NSTimeInterval timeoutInterval;
 
 // Initialization
 - (id)initWithConnection:(CISDOBConnection *)aConnection method:(NSString *)aString params:(NSArray *)anArray;
@@ -58,7 +57,9 @@ NSString *const CISDOBConnectionErrorDomain = @"CISDOBConnectionErrorDomain";
 - (id)init
 {
     if (!(self = [super init])) return nil;
-    _timeoutInterval = 10.;
+    
+    // Default the timeout interval
+    _timeoutInterval = 30.;
     
     return self;
 }
