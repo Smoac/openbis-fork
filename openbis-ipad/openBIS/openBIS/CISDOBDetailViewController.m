@@ -213,12 +213,12 @@
     CGFloat labelWidth = 100.f;
     CGSize labelSize =
         [label
-            sizeWithFont: [UIFont systemFontOfSize: labelFontSize]
+            sizeWithFont: [UIFont boldSystemFontOfSize: labelFontSize + 1.]
             constrainedToSize: CGSizeMake(labelWidth, veryLargeHeight)
             lineBreakMode: NSLineBreakByWordWrapping];
     CGSize valueSize =
         [value
-            sizeWithFont: [UIFont boldSystemFontOfSize: valueFontSize]
+            sizeWithFont: [UIFont boldSystemFontOfSize: valueFontSize + 1.]
             constrainedToSize: CGSizeMake(tableView.frame.size.width - labelWidth, veryLargeHeight)
             lineBreakMode: NSLineBreakByWordWrapping];    
     CGFloat height = MAX(labelSize.height, MAX(valueSize.height, 44.0f));
