@@ -32,16 +32,13 @@ NSString *const CISDOBConnectionErrorDomain = @"CISDOBConnectionErrorDomain";
 @private
     // Internal state
     CISDOBConnection    *__weak _connection;
-    NSString            *_method;
-    NSArray             *_params;
-    SuccessBlock        _successWrapper;
-    FailBlock           _failWrapper;
 }
-@property(weak) CISDOBConnection *connection;
-@property(strong) NSString *method;
-@property(strong) NSArray *params;
-@property(copy) SuccessBlock successWrapper;
-@property(copy) FailBlock failWrapper;  
+@property(weak, nonatomic) CISDOBConnection *connection;
+@property(strong, nonatomic) NSString *method;
+@property(strong, nonatomic) NSArray *params;
+@property(copy, nonatomic) SuccessBlock successWrapper;
+@property(copy, nonatomic) FailBlock failWrapper;
+@property NSTimeInterval timeoutInterval;
 
 // Initialization
 - (id)initWithConnection:(CISDOBConnection *)aConnection method:(NSString *)aString params:(NSArray *)anArray;
@@ -142,7 +139,7 @@ NSString *const CISDOBConnectionErrorDomain = @"CISDOBConnectionErrorDomain";
     // Convert the call into a JSON-RPC call and run it
     CISDOBJsonRpcCall *jsonRpcCall = [[CISDOBJsonRpcCall alloc] init];
     jsonRpcCall.url = [_url URLByAppendingPathComponent: @"openbis/openbis/rmi-query-v1.json"];
-    jsonRpcCall.timeoutInterval = _timeoutInterval;
+    jsonRpcCall.timeoutInterval = call.timeoutInterval;
     jsonRpcCall.delegate = self;
     jsonRpcCall.method = call.method;
     jsonRpcCall.params = call.params;
@@ -190,6 +187,7 @@ NSString *const CISDOBConnectionErrorDomain = @"CISDOBConnectionErrorDomain";
     
     self.success = nil;
     self.fail = nil;
+    self.timeoutInterval = aConnection.timeoutInterval;
 
     // The success and fail blocks are actually wrapped to give the call an opportunity to modify the result. These are the defaults. Clients may provide alternates
     __weak CISDOBConnectionCall *lexicalParent = self; // weak reference to avoid a retain cycle
