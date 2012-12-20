@@ -330,6 +330,16 @@
 
 @implementation CISDOBTableFilterState
 
+- (id)initWithController:(CISDOBMasterViewController *)controller
+{
+    if (!(self = [super initWithController: controller])) return nil;
+    
+    NSPredicate *filterTemplate = [NSPredicate predicateWithFormat: @"SELF.refconJson contains[cd] $SEARCH_STRING OR SELF.propertiesJson contains[cd] $SEARCH_STRING OR SELF.summary contains[cd] $SEARCH_STRING  OR SELF.summaryHeader contains[cd] $SEARCH_STRING"];
+    self.filterTemplate = filterTemplate;
+    
+    return self;
+}
+
 - (CISDOBIpadEntity *)entityAtIndexPath:(NSIndexPath *)indexPath
 {
     return [self.filteredResults objectAtIndex: [indexPath indexAtPosition: 1]];
@@ -367,7 +377,10 @@
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
 {
     NSArray *fullResult = [self.openBisModel.fetchedResultsController fetchedObjects];
-    NSPredicate *filterPredicate = [NSPredicate predicateWithFormat: @"SELF.refconJson contains[cd] %@", searchString];
+    
+    NSPredicate *filterPredicate =
+        [self.filterTemplate predicateWithSubstitutionVariables:
+            [NSDictionary dictionaryWithObject: searchString forKey: @"SEARCH_STRING"]];
     self.filteredResults = [fullResult filteredArrayUsingPredicate: filterPredicate];
     return YES;
 }

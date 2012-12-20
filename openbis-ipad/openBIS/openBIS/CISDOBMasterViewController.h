@@ -77,6 +77,7 @@
 @interface CISDOBTableFilterState : CISDOBTableDisplayState
 
 @property (strong, nonatomic) NSArray *filteredResults;
+@property (strong, nonatomic) NSPredicate *filterTemplate;
 
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString;
 
