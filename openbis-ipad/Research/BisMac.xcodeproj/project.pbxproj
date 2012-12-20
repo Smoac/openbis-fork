@@ -70,6 +70,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		360BD7D1167F13CC00005767 /* CISDOBIpadServiceManagerInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBIpadServiceManagerInternal.h; sourceTree = "<group>"; };
 		362B81D0163FC32B00127554 /* CISDOBIpadServiceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBIpadServiceManager.h; sourceTree = "<group>"; };
 		362B81D1163FC32B00127554 /* CISDOBIpadServiceManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBIpadServiceManager.m; sourceTree = "<group>"; };
 		362B81D5163FDCE700127554 /* CISDOBIpadServiceManagerTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBIpadServiceManagerTest.h; sourceTree = "<group>"; };
@@ -81,6 +82,8 @@
 		3649C8AF15ECA4EA0019AC55 /* CISDOBShared.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBShared.h; sourceTree = "<group>"; };
 		3649C8E115ED13540019AC55 /* CISDOBJsonRpcCallTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBJsonRpcCallTest.h; sourceTree = "<group>"; };
 		3649C8E215ED13540019AC55 /* CISDOBJsonRpcCallTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBJsonRpcCallTest.m; sourceTree = "<group>"; };
+		3658B03316824A7300C3F15C /* CISDOBIpadServiceInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBIpadServiceInternal.h; sourceTree = "<group>"; };
+		3658B03716824B3A00C3F15C /* CISDOBConnectionInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBConnectionInternal.h; sourceTree = "<group>"; };
 		36684F291678DAD300265367 /* YeastLab */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = YeastLab; sourceTree = BUILT_PRODUCTS_DIR; };
 		36684F2E1678DAD300265367 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		36684F311678DAD300265367 /* YeastLab-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "YeastLab-Prefix.pch"; sourceTree = "<group>"; };
@@ -291,12 +294,15 @@
 				36F71E541619837800C87277 /* JSON-RPC */,
 				3649C8A815EBB2950019AC55 /* CISDOBConnection.h */,
 				3649C8A915EBB2950019AC55 /* CISDOBConnection.m */,
+				3658B03716824B3A00C3F15C /* CISDOBConnectionInternal.h */,
 				36F71E4D1619834600C87277 /* CISDOBIpadEntity.h */,
 				36F71E4E1619834600C87277 /* CISDOBIpadEntity.m */,
 				3680B1321611B5CE008BA207 /* CISDOBIpadService.h */,
 				3680B1331611B5CE008BA207 /* CISDOBIpadService.m */,
+				3658B03316824A7300C3F15C /* CISDOBIpadServiceInternal.h */,
 				362B81D0163FC32B00127554 /* CISDOBIpadServiceManager.h */,
 				362B81D1163FC32B00127554 /* CISDOBIpadServiceManager.m */,
+				360BD7D1167F13CC00005767 /* CISDOBIpadServiceManagerInternal.h */,
 				36F71E4A1619829300C87277 /* persistent-data-model.xcdatamodeld */,
 			);
 			path = Classes;
@@ -750,6 +756,7 @@
 				36684F381678DAD300265367 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		3680779A15D0F78600843AD5 /* Build configuration list for PBXProject "BisMac" */ = {
 			isa = XCConfigurationList;

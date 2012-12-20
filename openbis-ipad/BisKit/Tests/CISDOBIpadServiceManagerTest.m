@@ -23,8 +23,12 @@
 
 #import "CISDOBIpadServiceManagerTest.h"
 #import "CISDOBIpadServiceManager.h"
+#import "CISDOBIpadServiceManagerInternal.h"
+#import "CISDOBIpadServiceInternal.h"
 #import "CISDOBIpadService.h"
+#import "CISDOBIpadServiceInternal.h"
 #import "CISDOBConnection.h"
+#import "CISDOBConnectionInternal.h"
 #import "CISDOBIpadEntity.h"
 
 @implementation CISDOBIpadServiceManagerTest
@@ -207,46 +211,104 @@
     STAssertTrue(self.didRetrieveDetails, @"Should have retrieved details");
 }
 
-- (void)testPersistEntities
+- (void)performLogin
 {
     CISDOBAsyncCall *call;
-    
     [self assertNotLoggedIn];
     call = [self.serviceManager loginUser: GetDefaultUserName() password: GetDefaultUserPassword()];
     [self configureAndRunCallSynchronously: call];
     [self assertLoggedIn];
-    
+}
+
+- (void)performRootLevelCall
+{
+    CISDOBAsyncCall *call;
     [self assertBeforeRootLevelCall];
     call = [self.serviceManager retrieveRootLevelEntities];
     [self configureAndRunCallSynchronously: call];
     [self assertAfterRootLevelCall];
-    
     STAssertNotNil(_callResult, @"The service manager should have returned some entities.");
+}
 
-    // Get drill information on some entity
-    NSArray *entitiesWithChildren = [self entitiesWithChildren];
-    STAssertTrue([entitiesWithChildren count] > 0, @"There should be some entities with children");
-   
-
+- (void)performDrill:(CISDOBIpadEntity *)drillEntity
+{
+    CISDOBAsyncCall *call;
     [self assertBeforeDrill];
-    call = [self.serviceManager drillOnEntity: [entitiesWithChildren objectAtIndex: 0]];
+    call = [self.serviceManager drillOnEntity: drillEntity];
     [self configureAndRunCallSynchronously: call];
     STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
     [self assertAfterDrill];
-   
-    
-    // Get detail information on some entities
-    [self assertBeforeDetails];
-    call = [self.serviceManager detailsForEntity: [entitiesWithChildren objectAtIndex: 1]];
+}
+
+- (void)performDetails:(CISDOBIpadEntity *)detailsEntity
+{
+    CISDOBAsyncCall *call;
+    call = [self.serviceManager detailsForEntity:  detailsEntity];
     [self configureAndRunCallSynchronously: call];
     STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
     [self assertAfterDetails];
-  
+}
 
+- (void)testPersistEntities
+{
+    [self performLogin];
+    [self performRootLevelCall];
+    
+
+    // Get drill information on some entity
+    NSArray *entitiesWithChildren = [self entitiesWithChildren];
+    STAssertTrue([entitiesWithChildren count] > 0, @"There should be some entities with children");    
+    CISDOBIpadEntity *drillEntity = [entitiesWithChildren objectAtIndex: 0];
+    [self performDrill: drillEntity];
+   
+    
+    // Get detail information on some entities
+    CISDOBIpadEntity *detailsEntity = [entitiesWithChildren objectAtIndex: 1];
+    [self assertBeforeDetails];
+    [self performDetails: detailsEntity];
     
     // Check that the children could be found
     [self checkFindingChildren];
 }
+
+- (void)retrieveRootLevelEntitiesSimulatingDeleteOfEntity:(CISDOBIpadEntity *)entityToRemove
+{
+    // Make a root level call, but do have some entities removed from the list
+    CISDOBAsyncCall *call;
+    call = [self.serviceManager retrieveRootLevelEntities];
+    
+    NSArray *removedEntities = [self.serviceManager.service convertToEntitiesPermIds: [NSArray arrayWithObject: entityToRemove.permId] refcons: [NSArray arrayWithObject: entityToRemove.refcon] count: 1];
+    CISDOBIpadServiceCall *serviceCall = (CISDOBIpadServiceCall *)((CISDOBIpadServiceManagerCall *)call).serviceCall;
+    CISDOBConnectionCall *connectionCall = (CISDOBConnectionCall *) serviceCall.connectionCall;
+    NSArray *oldParams = connectionCall.params;
+    NSMutableArray *params = [NSMutableArray arrayWithArray: oldParams];
+    // The service parameters are always in the 4th position
+    NSDictionary *oldServiceParams = [params objectAtIndex: 3];
+    NSMutableDictionary *serviceParams = [NSMutableDictionary dictionaryWithDictionary: oldServiceParams];
+    [serviceParams setObject: removedEntities forKey: @"HIDE"];
+    [params replaceObjectAtIndex: 3 withObject: serviceParams];
+    connectionCall.params = params;
+    
+    [self configureAndRunCallSynchronously: call];
+    STAssertNotNil(_callResult, @"The service manager should have returned some entities.");
+}
+
+- (void)testDeletedEntities
+{
+    
+    [self performLogin];
+    [self performRootLevelCall];
+    
+    // Pick an entity to remove from the next result set to simulate deletion
+    NSArray *entitiesWithChildren = [self entitiesWithChildren];
+    CISDOBIpadEntity *entityToRemove = [entitiesWithChildren objectAtIndex: 0];
+
+    [self retrieveRootLevelEntitiesSimulatingDeleteOfEntity: entityToRemove];
+    
+    // TODO Check that the entityToRemove is no longer found
+    // TODO Check that entityToRemove is still accessible
+}
+
 
 - (void)testNilUrl
 {

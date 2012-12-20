@@ -23,10 +23,10 @@
 
 
 #import "CISDOBIpadServiceManager.h"
+#import "CISDOBIpadServiceManagerInternal.h"
 #import "CISDOBIpadService.h"
 #import "CISDOBIpadEntity.h"
 #import "CISDOBConnection.h"
-#import "CISDOBAsyncCall.h"
 
 NSString *const CISDOBIpadServiceWillLoginNotification = @"CISDOBIpadServiceWillLoginNotification";
 NSString *const CISDOBIpadServiceDidLoginNotification = @"CISDOBIpadServiceDidLoginNotification";
@@ -38,23 +38,6 @@ NSString *const CISDOBIpadServiceWillRetrieveDetailsForEntityNotification = @"CI
 NSString *const CISDOBIpadServiceDidRetrieveDetailsForEntityNotification = @"CISDOBIpadServiceDidRetrieveDetailsForEntityNotification";
 NSString *const CISDOBIpadServiceWillSynchEntitiesNotification = @"CISDOBIpadServiceWillSynchEntitiesNotification";
 NSString *const CISDOBIpadServiceDidSynchEntitiesNotification = @"CISDOBIpadServiceDidSynchEntitiesNotification";
-
-// Internal service call that includes the private state
-@interface CISDOBIpadServiceManagerCall : CISDOBAsyncCall
-
-@property(weak, nonatomic) CISDOBIpadServiceManager *serviceManager;
-@property(nonatomic) CISDOBAsyncCall *serviceCall;
-
-@property(copy, nonatomic) NSString *willCallNotificationName;  //<! The notification called before the call takes place, may be nil
-@property(copy, nonatomic) NSString *didCallNotificationName;   //<! The notification called after the call has completed, may be nil
-
-// Initialization
-- (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager serviceCall:(CISDOBAsyncCall *)call;
-
-- (void)notifySuccess:(id)result;
-- (void)notifyFailure:(NSError *)error;
-
-@end
 
 // Internal class that synchronizes result data to the managed object context
 @interface CISDOBBackgroundDataSynchronizer : NSObject

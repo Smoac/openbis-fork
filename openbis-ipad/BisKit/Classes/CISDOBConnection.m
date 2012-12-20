@@ -22,27 +22,12 @@
 //
 
 #import "CISDOBConnection.h"
+#import "CISDOBConnectionInternal.h"
 #import "CISDOBJsonRpcCall.h"
 #import "CISDOBAsyncCall.h"
 
 NSString *const CISDOBConnectionErrorDomain = @"CISDOBConnectionErrorDomain";
 
-// Internal connection call that includes the private state
-@interface CISDOBConnectionCall : CISDOBAsyncCall {
-@private
-    // Internal state
-    CISDOBConnection    *__weak _connection;
-}
-@property(weak, nonatomic) CISDOBConnection *connection;
-@property(strong, nonatomic) NSString *method;
-@property(strong, nonatomic) NSArray *params;
-@property(copy, nonatomic) SuccessBlock successWrapper;
-@property(copy, nonatomic) FailBlock failWrapper;
-
-// Initialization
-- (id)initWithConnection:(CISDOBConnection *)aConnection method:(NSString *)aString params:(NSArray *)anArray;
-
-@end
 
 @interface CISDOBConnection (CISDOBConnectionPrivate)
 

@@ -67,6 +67,10 @@ enum CISOBIpadServiceErrorCode {
 //! A convenience version of detailsForEntities:refcons: for one entity.
 - (CISDOBAsyncCall *)detailsForEntityWithPermId:(NSString *)permId refcon:(id)refcon;
 
+// Utility Methods
+
+- (NSArray *)convertToEntitiesPermIds:(NSArray *)permIds refcons:(NSArray *)refcons count:(NSUInteger)count;
+
 @end
 
 

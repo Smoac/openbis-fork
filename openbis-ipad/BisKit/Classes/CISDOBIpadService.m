@@ -22,24 +22,12 @@
 //
 
 #import "CISDOBIpadService.h"
+#import "CISDOBIpadServiceInternal.h"
 #import "CISDOBConnection.h"
 #import "CISDOBAsyncCall.h"
 
 NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 
-// Internal service call that includes the private state
-@interface CISDOBIpadServiceCall : CISDOBAsyncCall {
-@private
-    // Internal state
-    CISDOBAsyncCall     *_connectionCall;
-}
-@property(weak) CISDOBIpadService *service;
-@property(nonatomic) CISDOBAsyncCall *connectionCall;
-
-// Initialization
-- (id)initWithService:(CISDOBIpadService *)service connectionCall:(CISDOBAsyncCall *)call;
-
-@end
 
 // Internal methods
 @interface CISDOBIpadRawEntity (CISDOBIpadRawEntityPrivate)
@@ -180,7 +168,7 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
     return [self createIpadServiceCallWithParameters: parameters];
 }
 
-- (NSMutableArray *)convertToEntitiesPermIds:(NSArray *)permIds refcons:(NSArray *)refcons count:(NSUInteger)count
+- (NSArray *)convertToEntitiesPermIds:(NSArray *)permIds refcons:(NSArray *)refcons count:(NSUInteger)count
 {
     NSMutableArray *entities = [[NSMutableArray alloc] initWithCapacity: [permIds count]];
     for (NSUInteger i = 0; i < count; ++i) {
@@ -197,7 +185,7 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 {
     NSUInteger count = [permIds count];
     NSAssert([refcons count] == count, @"Drilling requires permIds and refcons. There must be an equal number of these.");
-    NSMutableArray *entities;
+    NSArray *entities;
     entities = [self convertToEntitiesPermIds: permIds refcons: refcons count: count];
 
     NSDictionary *parameters =
@@ -218,7 +206,7 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 {
     NSUInteger count = [permIds count];
     NSAssert([refcons count] == count, @"Drilling requires permIds and refcons. There must be an equal number of these.");
-    NSMutableArray *entities;
+    NSArray *entities;
     entities = [self convertToEntitiesPermIds: permIds refcons: refcons count: count];
 
     NSDictionary *parameters =
