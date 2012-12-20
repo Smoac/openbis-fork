@@ -334,7 +334,7 @@
 {
     if (!(self = [super initWithController: controller])) return nil;
     
-    NSPredicate *filterTemplate = [NSPredicate predicateWithFormat: @"SELF.refconJson contains[cd] $SEARCH_STRING OR SELF.propertiesJson contains[cd] $SEARCH_STRING OR SELF.summary contains[cd] $SEARCH_STRING  OR SELF.summaryHeader contains[cd] $SEARCH_STRING"];
+    NSPredicate *filterTemplate = [NSPredicate predicateWithFormat: @"SELF.refconJson contains[cd] $SEARCH_STRING OR SELF.summary contains[cd] $SEARCH_STRING  OR SELF.summaryHeader contains[cd] $SEARCH_STRING"];
     self.filterTemplate = filterTemplate;
     
     return self;
