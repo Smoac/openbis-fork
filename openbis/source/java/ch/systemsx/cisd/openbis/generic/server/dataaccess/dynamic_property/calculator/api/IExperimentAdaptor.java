@@ -16,11 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api;
 
-
 /**
  * @author Jakub Straszewski
  */
-public interface IExperimentAdaptor
+public interface IExperimentAdaptor extends IEntityAdaptor
 {
     /** Return the samples belonging to this experiment */
     Iterable<ISampleAdaptor> samples();

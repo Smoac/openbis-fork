@@ -16,11 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api;
 
-
 /**
  * @author Jakub Straszewski
  */
-public interface IMaterialAdaptor
+public interface IMaterialAdaptor extends IEntityAdaptor
 {
 
 }

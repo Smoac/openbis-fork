@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calc
 /**
  * @author Jakub Straszewski
  */
-public interface IDataAdaptor
+public interface IDataAdaptor extends IEntityAdaptor
 {
     /**
      * Returns the experiment of this data set, or null if not exists.
