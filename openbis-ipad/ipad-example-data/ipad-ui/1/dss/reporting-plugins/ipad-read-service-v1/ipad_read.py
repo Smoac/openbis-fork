@@ -406,10 +406,36 @@ class ExampleDetailRequestHandler(DetailRequestHandler):
 		self.add_rows(self.material_dict_array)
 		self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id, self.sample_type_properties_definitions))
 
+class TestingRootRequestHandler(ExampleRootRequestHandler):
+	"""A version of the root request handler designed for testing"""
+
+	def hide_hidden_samples(self):
+		"""A method used in testing to simulate the removal of a sample from the database.
+
+		Production code does not need to implement or use this method"""
+
+		hidden_entities = self.parameters.get("HIDE")
+		if hidden_entities is None:
+			return
+		hidden_perm_ids = set([entity["PERM_ID"] for entity in hidden_entities])
+
+		count = len(self.samples)
+		for indexPlus1 in range(count, 0, -1):
+			index = indexPlus1 - 1
+			if self.samples[index].getPermId() in hidden_perm_ids:
+				del self.samples[index]
+
+
+
+	def retrieve_data(self):
+		ExampleRootRequestHandler.retrieve_data(self)
+		# Used to simulate samples being removed from the database. Not designed for production code
+		self.hide_hidden_samples()
+
 def aggregate(parameters, builder):
 	request_key = parameters.get('requestKey')
 	if 'ROOT' == request_key:
-		handler = ExampleRootRequestHandler(parameters, builder)
+		handler = TestingRootRequestHandler(parameters, builder)
 	elif 'DRILL' == request_key:
 		handler = ExampleDrillRequestHandler(parameters, builder)
 	elif 'DETAIL' == request_key:

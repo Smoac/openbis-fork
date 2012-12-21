@@ -271,7 +271,7 @@
     [self checkFindingChildren];
 }
 
-- (void)retrieveRootLevelEntitiesSimulatingDeleteOfEntity:(CISDOBIpadEntity *)entityToRemove
+- (void)retrieveRootLevelEntitiesSimulatingRemovalOfEntity:(CISDOBIpadEntity *)entityToRemove
 {
     // Make a root level call, but do have some entities removed from the list
     CISDOBAsyncCall *call;
@@ -302,11 +302,18 @@
     // Pick an entity to remove from the next result set to simulate deletion
     NSArray *entitiesWithChildren = [self entitiesWithChildren];
     CISDOBIpadEntity *entityToRemove = [entitiesWithChildren objectAtIndex: 0];
+    // Remember the permId before we refresh because the entity will be deleted
+    NSArray *removedPermIds = [NSArray arrayWithObject: entityToRemove.permId];
 
-    [self retrieveRootLevelEntitiesSimulatingDeleteOfEntity: entityToRemove];
+    [self retrieveRootLevelEntitiesSimulatingRemovalOfEntity: entityToRemove];
     
-    // TODO Check that the entityToRemove is no longer found
-    // TODO Check that entityToRemove is still accessible
+    // Check that the entityToRemove is no longer found
+    NSError *error;
+    NSArray *removedEntities = [self.serviceManager entitiesByPermId: removedPermIds error: &error];
+    STAssertEquals([removedEntities count], (NSUInteger) 0, @"Removed entities should not be found anymore");
+
+    // Check that entityToRemove is still accessible
+    STAssertNil(entityToRemove.permId, @"The Entity's fields should have been set to nil");
 }
 
 
