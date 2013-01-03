@@ -215,6 +215,9 @@ public class DataSetTranslator
 
         SamplePE sampleOrNull = dataPE.tryGetSample();
         ExperimentPE experiment = dataPE.getExperiment();
+        Experiment translatedExperiment =
+                ExperimentTranslator
+                        .translate(experiment, baseIndexURL, null, withExperimentFields);
         externalData.setId(HibernateUtils.getId(dataPE));
         externalData.setCode(dataPE.getCode());
         externalData.setDataProducerCode(dataPE.getDataProducerCode());
@@ -236,13 +239,12 @@ public class DataSetTranslator
         externalData.setModifier(PersonTranslator.translate(dataPE.getModifier()));
         externalData.setRegistrationDate(dataPE.getRegistrationDate());
         externalData.setSample(sampleOrNull == null ? null : fillSample(new Sample(), sampleOrNull,
-                withDetails));
+                translatedExperiment, withDetails));
         externalData.setDataStore(DataStoreTranslator.translate(dataPE.getDataStore()));
         externalData.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL,
                 EntityKind.DATA_SET, externalData.getIdentifier()));
         setProperties(dataPE, externalData);
-        externalData.setExperiment(ExperimentTranslator.translate(experiment, baseIndexURL, null,
-                withExperimentFields));
+        externalData.setExperiment(translatedExperiment);
 
         if (metaprojects != null)
         {
@@ -310,7 +312,8 @@ public class DataSetTranslator
         }
     }
 
-    private static Sample fillSample(Sample sample, SamplePE samplePE, boolean loadSampleProperties)
+    private static Sample fillSample(Sample sample, SamplePE samplePE, Experiment experiment,
+            boolean loadSampleProperties)
     {
         sample.setId(HibernateUtils.getId(samplePE));
         sample.setPermId(samplePE.getPermId());
@@ -321,6 +324,7 @@ public class DataSetTranslator
         sample.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
         sample.setModifier(PersonTranslator.translate(samplePE.getModifier()));
         sample.setSpace(SpaceTranslator.translate(samplePE.getSpace()));
+        sample.setExperiment(experiment);
         if (loadSampleProperties)
         {
             sample.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
