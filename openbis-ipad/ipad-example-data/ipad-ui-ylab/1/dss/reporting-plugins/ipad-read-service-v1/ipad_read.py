@@ -4,6 +4,7 @@ from com.fasterxml.jackson.databind import ObjectMapper
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
 
+import codecs
 #
 # BEGIN Infrastructure
 #
@@ -83,7 +84,7 @@ class RequestHandler:
 		for header in self.headers:
 			value = entry.get(header)
 			if value is not None:
-				row.setCell(header, unicode(entry.get(header)))
+				row.setCell(header, entry.get(header))
 			else:
 				row.setCell(header, "")
 
@@ -140,7 +141,7 @@ def image_url_for_compound(material):
 	chemblId =  material.getCode()
 	return 'https://www.ebi.ac.uk/chemblws/compounds/%s/image' % chemblId
 
-def navigation_layer(oligos, antibodies, chemicals, protocols, medias, pcrs, buffers, plasmids, yeasts):
+def navigation_layer(oligos, antibodies, chemicals, protocols, medias, pcrs, buffers, plasmids, yeasts, bacterias, enzymes, westernBlottings):
 	oligo_dict = {}
 	oligo_dict["SUMMARY_HEADER"] = "oligo"
 	oligo_dict["SUMMARY"] = "Oligos in YeastLab"
@@ -246,37 +247,87 @@ def navigation_layer(oligos, antibodies, chemicals, protocols, medias, pcrs, buf
 	buffer_dict['PROPERTIES'] = json_encoded_value([])
 	buffer_dict['ROOT_LEVEL'] = True		
 	
-        plasmid_dict = {}
-        plasmid_dict["SUMMARY_HEADER"] = "plasmid"
-        plasmid_dict["SUMMARY"] = "Plasmids in YeastLab"
-        plasmid_dict['PERM_ID'] = "PLASMID"
-        refcon_plasmid = {}
-        refcon_plasmid['code'] =  "PLASMID"
-        refcon_plasmid['entityKind'] = 'NAVIGATION'
-        refcon_plasmid['entityType'] = 'NAVIGATION'
-        plasmid_dict['REFCON'] = json_encoded_value(refcon_plasmid)
-        plasmid_dict['CATEGORY'] = None
-        children = [plasmid.getPermId() for plasmid in plasmids]
-        plasmid_dict['CHILDREN'] = json_encoded_value(children)
-        plasmid_dict['PROPERTIES'] = json_encoded_value([])
-        plasmid_dict['ROOT_LEVEL'] = True	
+	plasmid_dict = {}
+	plasmid_dict["SUMMARY_HEADER"] = "plasmid"
+	plasmid_dict["SUMMARY"] = "Plasmids in YeastLab"
+	plasmid_dict['PERM_ID'] = "PLASMID"
+	refcon_plasmid = {}
+	refcon_plasmid['code'] =  "PLASMID"
+	refcon_plasmid['entityKind'] = 'NAVIGATION'
+	refcon_plasmid['entityType'] = 'NAVIGATION'
+	plasmid_dict['REFCON'] = json_encoded_value(refcon_plasmid)
+	plasmid_dict['CATEGORY'] = None
+	children = [plasmid.getPermId() for plasmid in plasmids]
+	plasmid_dict['CHILDREN'] = json_encoded_value(children)
+	plasmid_dict['PROPERTIES'] = json_encoded_value([])
+	plasmid_dict['ROOT_LEVEL'] = True	
         
 	yeast_dict = {}
-        yeast_dict["SUMMARY_HEADER"] = "yeast"
-        yeast_dict["SUMMARY"] = "Yeasts in YeastLab"
-        yeast_dict['PERM_ID'] = "YEAST"
-        refcon_yeast = {}
-        refcon_yeast['code'] =  "YEAST"
-        refcon_yeast['entityKind'] = 'NAVIGATION'
-        refcon_yeast['entityType'] = 'NAVIGATION'
-        yeast_dict['REFCON'] = json_encoded_value(refcon_yeast)
-        yeast_dict['CATEGORY'] = None
-        children = [yeast.getPermId() for yeast in yeasts]
-        yeast_dict['CHILDREN'] = json_encoded_value(children)
-        yeast_dict['PROPERTIES'] = json_encoded_value([])
-        yeast_dict['ROOT_LEVEL'] = True    
+	yeast_dict["SUMMARY_HEADER"] = "yeast"
+	yeast_dict["SUMMARY"] = "Yeasts in YeastLab"
+	yeast_dict['PERM_ID'] = "YEAST"
+	refcon_yeast = {}
+	refcon_yeast['code'] =  "YEAST"
+	refcon_yeast['entityKind'] = 'NAVIGATION'
+	refcon_yeast['entityType'] = 'NAVIGATION'
+	yeast_dict['REFCON'] = json_encoded_value(refcon_yeast)
+	yeast_dict['CATEGORY'] = None
+	children = [yeast.getPermId() for yeast in yeasts]
+	yeast_dict['CHILDREN'] = json_encoded_value(children)
+	yeast_dict['PROPERTIES'] = json_encoded_value([])
+	yeast_dict['ROOT_LEVEL'] = True    
+	
+	
+	bacteria_dict = {}
+	bacteria_dict["SUMMARY_HEADER"] = "bacteria"
+	bacteria_dict["SUMMARY"] = "Bacteria in YeastLab"
+	bacteria_dict['PERM_ID'] = "BACTERIA"
+	refcon_bacteria = {}
+	refcon_bacteria['code'] =  "BACTERIA"
+	refcon_bacteria['entityKind'] = 'NAVIGATION'
+	refcon_bacteria['entityType'] = 'NAVIGATION'
+	bacteria_dict['REFCON'] = json_encoded_value(refcon_bacteria)
+	bacteria_dict['CATEGORY'] = None
+	children = [bacteria.getPermId() for bacteria in bacterias]
+	bacteria_dict['CHILDREN'] = json_encoded_value(children)
+	bacteria_dict['PROPERTIES'] = json_encoded_value([])
+	bacteria_dict['ROOT_LEVEL'] = True    
 
-	return [oligo_dict, antibody_dict, chemical_dict, protocol_dict, media_dict, pcr_dict, buffer_dict, plasmid_dict, yeast_dict]
+
+	enzyme_dict = {}
+	enzyme_dict["SUMMARY_HEADER"] = "enzyme"
+	enzyme_dict["SUMMARY"] = "Enzymes in YeastLab"
+	enzyme_dict['PERM_ID'] = "ENZYME"
+	refcon_enzyme = {}
+	refcon_enzyme['code'] =  "ENZYME"
+	refcon_enzyme['entityKind'] = 'NAVIGATION'
+	refcon_enzyme['entityType'] = 'NAVIGATION'
+	enzyme_dict['REFCON'] = json_encoded_value(refcon_enzyme)
+	enzyme_dict['CATEGORY'] = None
+	children = [enzyme.getPermId() for enzyme in enzymes]
+	enzyme_dict['CHILDREN'] = json_encoded_value(children)
+	enzyme_dict['PROPERTIES'] = json_encoded_value([])
+	enzyme_dict['ROOT_LEVEL'] = True    
+
+
+	westernBlotting_dict = {}
+	westernBlotting_dict["SUMMARY_HEADER"] = "western blotting"
+	westernBlotting_dict["SUMMARY"] = "Western Blotting in YeastLab"
+	westernBlotting_dict['PERM_ID'] = "WESTERN_BLOTTING"
+	refcon_westernBlotting = {}
+	refcon_westernBlotting['code'] =  "WESTERN_BLOTTING"
+	refcon_westernBlotting['entityKind'] = 'NAVIGATION'
+	refcon_westernBlotting['entityType'] = 'NAVIGATION'
+	westernBlotting_dict['REFCON'] = json_encoded_value(refcon_westernBlotting)
+	westernBlotting_dict['CATEGORY'] = None
+	children = [westernBlotting.getPermId() for westernBlotting in westernBlottings]
+	westernBlotting_dict['CHILDREN'] = json_encoded_value(children)
+	westernBlotting_dict['PROPERTIES'] = json_encoded_value([])
+	westernBlotting_dict['ROOT_LEVEL'] = True    
+
+	
+
+	return [oligo_dict, antibody_dict, chemical_dict, protocol_dict, media_dict, pcr_dict, buffer_dict, plasmid_dict, yeast_dict, bacteria_dict, enzyme_dict, westernBlotting_dict]
 
 def oligo_to_dict(oligo):
         sample_dict = {}
@@ -501,6 +552,75 @@ def yeast_to_dict(yeast, children_map):
         sample_dict['ROOT_LEVEL'] = None
         return sample_dict
 
+
+def bacteria_to_dict(bacteria):
+        sample_dict = {}
+        sample_dict['SUMMARY_HEADER'] = bacteria.getCode()
+	name = str(bacteria.getPropertyValue("BACTERIA_STRAIN_NAME").encode('utf-8'))
+        summary = "Name: " + name
+        sample_dict['SUMMARY'] = summary
+        sample_dict['IDENTIFIER'] =bacteria.getSampleIdentifier()
+        sample_dict['PERM_ID'] = bacteria.getPermId()
+        refcon_bacteria = {}
+        refcon_bacteria['code'] =  bacteria.getCode()
+        refcon_bacteria['entityKind'] = 'SAMPLE'
+        refcon_bacteria['entityType'] = bacteria.getSampleType()
+        sample_dict['REFCON'] = json_encoded_value(refcon_bacteria)
+        sample_dict['CATEGORY'] = bacteria.getSampleType()
+        children = []
+        sample_dict['CHILDREN'] = json_encoded_value(children)
+
+        prop_names_bacteria = ["BOX_NUMBER", "ROW", "COLUMN","BACTERIA_GENOTYPE".encode('utf-8'), "ARTICLE_NUMBER", "COMMENTS".encode('utf-8'),"FOR_WHAT".encode('utf-8'), "SUPLLIER" ]
+        properties_bacteria = dict((name, bacteria.getPropertyValue(name)) for name in prop_names_bacteria if bacteria.getPropertyValue(name) is not None)
+        sample_dict['PROPERTIES'] = json_encoded_value(properties_bacteria)
+        sample_dict['ROOT_LEVEL'] = None
+        return sample_dict
+
+def enzyme_to_dict(enzyme):
+        sample_dict = {}
+        sample_dict['SUMMARY_HEADER'] = enzyme.getCode()
+        summary = "Name: " + str(enzyme.getPropertyValue("NAME"))
+        sample_dict['SUMMARY'] = summary
+        sample_dict['IDENTIFIER'] =enzyme.getSampleIdentifier()
+        sample_dict['PERM_ID'] = enzyme.getPermId()
+        refcon_enzyme = {}
+        refcon_enzyme['code'] =  enzyme.getCode()
+        refcon_enzyme['entityKind'] = 'SAMPLE'
+        refcon_enzyme['entityType'] = enzyme.getSampleType()
+        sample_dict['REFCON'] = json_encoded_value(refcon_enzyme)
+        sample_dict['CATEGORY'] = enzyme.getSampleType()
+        children = []
+        sample_dict['CHILDREN'] = json_encoded_value(children)
+
+        prop_names_enzyme = ["SUPPLIER", "ARTICLE_NUMBER", "STORAGE", "KIT"]
+        properties_enzyme = dict((name, enzyme.getPropertyValue(name)) for name in prop_names_enzyme if enzyme.getPropertyValue(name) is not None)
+        sample_dict['PROPERTIES'] = json_encoded_value(properties_enzyme)
+        sample_dict['ROOT_LEVEL'] = None
+        return sample_dict
+
+def westernBlotting_to_dict(westernBlotting):
+        sample_dict = {}
+        sample_dict['SUMMARY_HEADER'] = westernBlotting.getCode()
+        summary = "Name: " + str(westernBlotting.getPropertyValue("NAME").encode('utf-8'))
+        sample_dict['SUMMARY'] = summary
+        sample_dict['IDENTIFIER'] =westernBlotting.getSampleIdentifier()
+        sample_dict['PERM_ID'] = westernBlotting.getPermId()
+        refcon_westernBlotting = {}
+        refcon_westernBlotting['code'] =  westernBlotting.getCode()
+        refcon_westernBlotting['entityKind'] = 'SAMPLE'
+        refcon_westernBlotting['entityType'] = westernBlotting.getSampleType()
+        sample_dict['REFCON'] = json_encoded_value(refcon_westernBlotting)
+        sample_dict['CATEGORY'] = westernBlotting.getSampleType()
+        children = []
+        sample_dict['CHILDREN'] = json_encoded_value(children)
+
+        prop_names_westernBlotting = [ "FOR_WHAT".encode('utf-8'), "COMMENTS", "STORAGE", "XMLCOMMENTS", "PUBLICATION", "CHEMICALS", "SOLUTIONS_BUFFERS", "ANTIBODIES", "ANTIBODY_DILUTION", "ANTIBODY_SOLUTION", "MEMBRANE"]
+        properties_westernBlotting = dict((name, westernBlotting.getPropertyValue(name)) for name in prop_names_westernBlotting if westernBlotting.getPropertyValue(name) is not None)
+        sample_dict['PROPERTIES'] = json_encoded_value(properties_westernBlotting)
+        sample_dict['ROOT_LEVEL'] = None
+        return sample_dict
+
+
 def oligos_to_dict(samples):
 	result = [oligo_to_dict(sample) for sample in samples]
 	return result
@@ -541,6 +661,21 @@ def yeasts_to_dict(samples, children_map):
         result = [yeast_to_dict(sample, children_map) for sample in samples]
         return result
 
+def bacterias_to_dict(samples):
+        result = [bacteria_to_dict(sample) for sample in samples]
+        return result
+
+def enzymes_to_dict(samples):
+        result = [enzyme_to_dict(sample) for sample in samples]
+        return result
+
+def westernBlottings_to_dict(samples):
+        result = [westernBlotting_to_dict(sample) for sample in samples]
+        return result
+
+
+
+
 def retrieve_samples(sample_perm_ids_and_ref_cons):
 	sc = SearchCriteria()
 	sc.setOperator(sc.SearchOperator.MATCH_ANY_CLAUSES)
@@ -570,7 +705,7 @@ class YeastLabRootRequestHandler(RootRequestHandler):
 	def retrieve_data(self):
 		# Get the data and add a row for each data item
         	sc_oligo = SearchCriteria()
-        	sc_oligo.addMatchClause(sc_oligo.MatchClause.createAttributeMatch(sc_oligo.MatchClauseAttribute.TYPE, "OLIGO"))
+       		sc_oligo.addMatchClause(sc_oligo.MatchClause.createAttributeMatch(sc_oligo.MatchClauseAttribute.TYPE, "OLIGO"))
 		self.oligos = self.searchService.searchForSamples(sc_oligo)
 
 		sc_antibody = SearchCriteria()
@@ -597,13 +732,26 @@ class YeastLabRootRequestHandler(RootRequestHandler):
 		sc_buffer.addMatchClause(sc_buffer.MatchClause.createAttributeMatch(sc_buffer.MatchClauseAttribute.TYPE, "SOLUTIONS_BUFFERS"))
 		self.buffers = self.searchService.searchForSamples(sc_buffer)
 
-                sc_plasmid = SearchCriteria()
-                sc_plasmid.addMatchClause(sc_plasmid.MatchClause.createAttributeMatch(sc_plasmid.MatchClauseAttribute.TYPE, "PLASMID"))
-                self.plasmids = self.searchService.searchForSamples(sc_plasmid)
+		sc_plasmid = SearchCriteria()
+		sc_plasmid.addMatchClause(sc_plasmid.MatchClause.createAttributeMatch(sc_plasmid.MatchClauseAttribute.TYPE, "PLASMID"))
+		self.plasmids = self.searchService.searchForSamples(sc_plasmid)
 
-                sc_yeast = SearchCriteria()
-                sc_yeast.addMatchClause(sc_yeast.MatchClause.createAttributeMatch(sc_yeast.MatchClauseAttribute.TYPE, "YEAST"))
-                self.yeasts = self.searchService.searchForSamples(sc_yeast)
+		sc_yeast = SearchCriteria()
+		sc_yeast.addMatchClause(sc_yeast.MatchClause.createAttributeMatch(sc_yeast.MatchClauseAttribute.TYPE, "YEAST"))
+		self.yeasts = self.searchService.searchForSamples(sc_yeast)
+
+		sc_bacteria = SearchCriteria()
+		sc_bacteria.addMatchClause(sc_bacteria.MatchClause.createAttributeMatch(sc_bacteria.MatchClauseAttribute.TYPE, "BACTERIA"))
+		self.bacterias = self.searchService.searchForSamples(sc_bacteria)
+
+		sc_enzyme = SearchCriteria()
+		sc_enzyme.addMatchClause(sc_enzyme.MatchClause.createAttributeMatch(sc_enzyme.MatchClauseAttribute.TYPE, "ENZYME"))
+		self.enzymes = self.searchService.searchForSamples(sc_enzyme)
+
+		sc_westernBlotting = SearchCriteria()
+		sc_westernBlotting.addMatchClause(sc_westernBlotting.MatchClause.createAttributeMatch(sc_westernBlotting.MatchClauseAttribute.TYPE, "WESTERN_BLOTTING"))
+		self.westernBlottings = self.searchService.searchForSamples(sc_westernBlotting)
+
 		
 		self.children_map = dict()
 		for plasmid in self.plasmids:
@@ -617,7 +765,7 @@ class YeastLabRootRequestHandler(RootRequestHandler):
 			
 
 	def add_data_rows(self):
-		self.add_rows(navigation_layer(self.oligos, self.antibodies, self.chemicals, self.protocols, self.medias, self.pcrs, self.buffers, self.plasmids, self.yeasts))
+		self.add_rows(navigation_layer(self.oligos, self.antibodies, self.chemicals, self.protocols, self.medias, self.pcrs, self.buffers, self.plasmids, self.yeasts, self.bacterias, self.enzymes, self.westernBlottings))
 		self.add_rows(oligos_to_dict(self.oligos))
         	self.add_rows(antibodies_to_dict(self.antibodies))
         	self.add_rows(chemicals_to_dict(self.chemicals))
@@ -625,9 +773,11 @@ class YeastLabRootRequestHandler(RootRequestHandler):
        	 	self.add_rows(medias_to_dict(self.medias))
         	self.add_rows(pcrs_to_dict(self.pcrs))
         	self.add_rows(buffers_to_dict(self.buffers))
-                self.add_rows(plasmids_to_dict(self.plasmids, self.children_map))
-                self.add_rows(yeasts_to_dict(self.yeasts, self.children_map))
-
+            	self.add_rows(plasmids_to_dict(self.plasmids, self.children_map))
+            	self.add_rows(yeasts_to_dict(self.yeasts, self.children_map))
+        	self.add_rows(bacterias_to_dict(self.bacterias))
+        	self.add_rows(enzymes_to_dict(self.enzymes))
+        	self.add_rows(westernBlottings_to_dict(self.westernBlottings))
 
 class YeastLabDrillRequestHandler(DrillRequestHandler):
 	"""Handler for the DRILL request."""
@@ -642,7 +792,13 @@ class YeastLabDrillRequestHandler(DrillRequestHandler):
 		drill_medias = [entity for entity in entities if 'MEDIA' == entity['REFCON']['entityType']]	
 		drill_pcrs = [entity for entity in entities if 'PCR' == entity['REFCON']['entityType']]	
 		drill_buffers = [entity for entity in entities if 'SOLUTIONS_BUFFERS' == entity['REFCON']['entityType']]	
-                #drill_plasmids = [entity for entity in entities if 'PLASMID' == entity['REFCON']['entityType']]			
+                #drill_plasmids = [entity for entity in entities if 'PLASMID' == entity['REFCON']['entityType']]
+		drill_bacterias = [entity for entity in entities if 'BACTERIA' == entity['REFCON']['entityType']]	
+		drill_enzymes = [entity for entity in entities if 'ENZYME' == entity['REFCON']['entityType']]	
+		drill_westernBlottings = [entity for entity in entities if 'WESTERN_BLOTTING' == entity['REFCON']['entityType']]	
+                
+                
+                			
 		
 
 		# No information to return for navigation, oligos, or antibodies
@@ -667,9 +823,13 @@ class YeastLabDetailRequestHandler(DetailRequestHandler):
 		self.medias = [sample for sample in self.samples if 'MEDIA' == sample.getSampleType()]
 		self.pcrs = [sample for sample in self.samples if 'PCR' == sample.getSampleType()]
 		self.buffers = [sample for sample in self.samples if 'SOLUTIONS_BUFFERS' == sample.getSampleType()]
-                self.plasmids = [sample for sample in self.samples if 'PLASMID' == sample.getSampleType()]
-                self.yeasts = [sample for sample in self.samples if 'YEAST' == sample.getSampleType()]
+        	self.plasmids = [sample for sample in self.samples if 'PLASMID' == sample.getSampleType()]
+        	self.yeasts = [sample for sample in self.samples if 'YEAST' == sample.getSampleType()]
 		self.plasmid_data_sets = retrieve_seq_data_sets(self.plasmids)
+        	self.bacterias = [sample for sample in self.samples if 'BACTERIA' == sample.getSampleType()]
+        	self.enzymes = [sample for sample in self.samples if 'ENZYME' == sample.getSampleType()]
+        	self.westernBlottings = [sample for sample in self.samples if 'WESTERN_BLOTTING' == sample.getSampleType()]
+		
 
 	def add_data_rows(self):
 		self.add_rows(oligos_to_dict(self.oligos))
@@ -679,8 +839,14 @@ class YeastLabDetailRequestHandler(DetailRequestHandler):
         	self.add_rows(medias_to_dict(self.medias))
         	self.add_rows(pcrs_to_dict(self.pcrs))
         	self.add_rows(buffers_to_dict(self.buffers))
-                self.add_rows(plasmids_to_dict_with_images(self.plasmids, {}, self.plasmid_data_sets))
-                self.add_rows(yeasts_to_dict(self.yeasts, {}))
+            	self.add_rows(plasmids_to_dict_with_images(self.plasmids, {}, self.plasmid_data_sets))
+            	self.add_rows(yeasts_to_dict(self.yeasts, {}))
+        	self.add_rows(bacterias_to_dict(self.bacterias))
+        	self.add_rows(enzymes_to_dict(self.enzymes))
+        	self.add_rows(westernBlottings_to_dict(self.westernBlottings))            
+            
+            
+            
 
 def aggregate(parameters, builder):
 	request_key = parameters.get('requestKey')
