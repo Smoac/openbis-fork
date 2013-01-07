@@ -164,6 +164,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             throw new UserFailureException(String.format("Data set with ID '%s' does not exist.",
                     datasetId));
         }
+        HibernateUtils.initialize(data.getDataSetType().getDataSetTypePropertyTypes());
     }
 
     @Override
