@@ -26,6 +26,7 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.MultiTermQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.Version;
 
@@ -184,6 +185,7 @@ public class LuceneQueryBuilder
             Analyzer analyzer) throws UserFailureException
     {
         final QueryParser parser = new QueryParser(Version.LUCENE_31, fieldName, analyzer);
+        parser.setMultiTermRewriteMethod(MultiTermQuery.SCORING_BOOLEAN_QUERY_REWRITE);
         return parseQuery(searchPattern, searchPattern, parser);
     }
 
