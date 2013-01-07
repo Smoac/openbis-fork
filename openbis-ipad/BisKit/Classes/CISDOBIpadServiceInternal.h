@@ -29,10 +29,11 @@
     // Internal state
     CISDOBAsyncCall     *_connectionCall;
 }
-@property(weak) CISDOBIpadService *service;
+@property(weak, nonatomic) CISDOBIpadService *service;
 @property(strong, nonatomic) CISDOBAsyncCall *connectionCall;
 
 // Initialization
 - (id)initWithService:(CISDOBIpadService *)service connectionCall:(CISDOBAsyncCall *)call;
 
 @end
+
