@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -117,12 +118,22 @@ abstract class AbstractMaterialBatchRegistrationForm extends AbstractRegistratio
         {
             formPanel.add(wrapUnaware((Field<?>) attachmentField).get());
         }
+
+        formPanel.addListener(Events.BeforeSubmit, new Listener<FormEvent>()
+            {
+                @Override
+                public void handleEvent(FormEvent be)
+                {
+                    infoBox.displayProgress(messageProvider.getMessage(Dict.PROGRESS_UPLOADING));
+                }
+            });
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
                 protected void onSuccessfullUpload()
                 {
                     viewContext.log("Save in AbstractMaterialBatchRegistrationForm.addFormFields");
+                    infoBox.displayProgress(messageProvider.getMessage(Dict.PROGRESS_PROCESSING));
                     save();
                 }
 
@@ -177,6 +188,13 @@ abstract class AbstractMaterialBatchRegistrationForm extends AbstractRegistratio
                     }
                 }
             });
+    }
+
+    @Override
+    protected void setUploadEnabled(boolean enabled)
+    {
+        super.setUploadEnabled(enabled);
+        infoBoxResetListener.setEnabled(enabled);
     }
 
     protected final class RegisterMaterialsCallback extends

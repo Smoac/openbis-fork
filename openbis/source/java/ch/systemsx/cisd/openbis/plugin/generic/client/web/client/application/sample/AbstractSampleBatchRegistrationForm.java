@@ -21,12 +21,15 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.application.fra
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FormEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.google.gwt.user.client.Element;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
@@ -114,11 +117,21 @@ public abstract class AbstractSampleBatchRegistrationForm extends AbstractRegist
         {
             formPanel.add(wrapUnaware((Field<?>) attachmentField).get());
         }
+
+        formPanel.addListener(Events.BeforeSubmit, new Listener<FormEvent>()
+            {
+                @Override
+                public void handleEvent(FormEvent be)
+                {
+                    infoBox.displayProgress(messageProvider.getMessage(Dict.PROGRESS_UPLOADING));
+                }
+            });
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
                 protected void onSuccessfullUpload()
                 {
+                    infoBox.displayProgress(messageProvider.getMessage(Dict.PROGRESS_PROCESSING));
                     save();
                 }
 
@@ -155,4 +168,10 @@ public abstract class AbstractSampleBatchRegistrationForm extends AbstractRegist
             });
     }
 
+    @Override
+    protected void setUploadEnabled(boolean enabled)
+    {
+        super.setUploadEnabled(enabled);
+        infoBoxResetListener.setEnabled(enabled);
+    }
 }

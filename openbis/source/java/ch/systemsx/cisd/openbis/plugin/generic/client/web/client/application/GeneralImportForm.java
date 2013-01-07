@@ -8,6 +8,7 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -17,6 +18,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -173,11 +175,22 @@ public class GeneralImportForm extends AbstractRegistrationForm
     private final void addFormFields()
     {
         addOnlyFormFields(false);
+
+        formPanel.addListener(Events.BeforeSubmit, new Listener<FormEvent>()
+            {
+                @Override
+                public void handleEvent(FormEvent be)
+                {
+                    infoBox.displayProgress(messageProvider.getMessage(Dict.PROGRESS_UPLOADING));
+                }
+            });
+
         formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
             {
                 @Override
                 protected void onSuccessfullUpload()
                 {
+                    infoBox.displayProgress(messageProvider.getMessage(Dict.PROGRESS_PROCESSING));
                     save();
                 }
 
@@ -219,5 +232,12 @@ public class GeneralImportForm extends AbstractRegistrationForm
         genericViewContext.getService().registerOrUpdateSamplesAndMaterials(sessionKey, null, true,
                 asynchronous.getValue(), emailField.getValue(),
                 new RegisterOrUpdateSamplesAndMaterialsCallback(genericViewContext));
+    }
+
+    @Override
+    protected void setUploadEnabled(boolean enabled)
+    {
+        super.setUploadEnabled(enabled);
+        infoBoxResetListener.setEnabled(enabled);
     }
 }
