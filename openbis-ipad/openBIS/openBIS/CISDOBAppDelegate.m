@@ -43,7 +43,10 @@
 
 - (NSString *)username { return [[NSUserDefaults standardUserDefaults] stringForKey: @"openbis_username"]; }
 - (NSString *)password { return [[NSUserDefaults standardUserDefaults] stringForKey: @"openbis_password"]; }
-- (NSURL *)openbisUrl { return [[NSUserDefaults standardUserDefaults] URLForKey: @"openbis_server_url"]; }
+- (NSURL *)openbisUrl {
+    NSString *urlString = [[NSUserDefaults standardUserDefaults] stringForKey: @"openbis_server_url"];
+    return [NSURL URLWithString: urlString];
+}
 
 - (void)setUsername:(NSString *)username
 {
@@ -55,7 +58,7 @@
 }
 - (void)setOpenbisUrl:(NSURL *)openbisUrl
 {
-    return [[NSUserDefaults standardUserDefaults] setURL: openbisUrl forKey: @"openbis_server_url"];
+    return [[NSUserDefaults standardUserDefaults] setObject: [openbisUrl absoluteString] forKey: @"openbis_server_url"];
 }
 
 - (BOOL)synchronizeUserSettings { return [[NSUserDefaults standardUserDefaults] synchronize]; }
