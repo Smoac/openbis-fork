@@ -41,3 +41,18 @@
 - (void)notifyFailure:(NSError *)error;
 
 @end
+
+// Internal service call that includes the private state
+@interface CISDOBImageRetrievalCall : CISDOBAsyncCall {
+@private
+    // Internal state
+    NSMutableData   *_responseData;
+    NSURLConnection *_connection;
+}
+
+@property(weak, nonatomic) CISDOBIpadServiceManager *serviceManager;
+@property(strong, nonatomic) CISDOBIpadEntity *entity;
+
+- (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager entity:(CISDOBIpadEntity *)entity;
+
+@end

@@ -39,6 +39,8 @@ NSString *const CISDOBIpadServiceDidRetrieveDetailsForEntityNotification = @"CIS
 NSString *const CISDOBIpadServiceWillSynchEntitiesNotification = @"CISDOBIpadServiceWillSynchEntitiesNotification";
 NSString *const CISDOBIpadServiceDidSynchEntitiesNotification = @"CISDOBIpadServiceDidSynchEntitiesNotification";
 
+NSString *const CISDOBIpadServiceManagerErrorDomain = @"CISDOBIpadServiceManagerErrorDomain";
+
 // Internal class that synchronizes result data to the managed object context
 @interface CISDOBBackgroundDataSynchronizer : NSObject
 
@@ -229,6 +231,12 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     return managerCall;
 }
 
+- (CISDOBAsyncCall *)imagesForEntity:(CISDOBIpadEntity *)entity
+{
+    CISDOBImageRetrievalCall *call = [[CISDOBImageRetrievalCall alloc] initWithServiceManager: self entity: entity];
+    return call;
+}
+
 - (NSArray *)allIpadEntitiesOrError:(NSError **)error;
 {
 	NSFetchRequest* request = [self fetchRequestForEntities];
@@ -401,5 +409,117 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     }
     
 }
+
+@end
+
+@implementation CISDOBIpadImage
+
+- (id)initWithImageData:(NSData *)imageData
+{
+    if (!(self = [super init])) return nil;
+    
+    _imageData = imageData;
+    
+    return self;
+}
+@end
+
+@implementation CISDOBImageRetrievalCall
+// This implementation of the CISDOBImageRetrievalCall is designed to just get one
+// image. In the future, it will need to be modified to get many images, by storing a collection of responseData and connections, one for each image to retrieve.
+
+- (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager entity:(CISDOBIpadEntity *)entity
+{
+    if (!(self = [super init])) return nil;
+ 
+    self.serviceManager = serviceManager;
+    self.entity = entity;
+        // Default timeout interval to 60sandrei
+    self.timeoutInterval = 60.0;
+    
+    _responseData = [[NSMutableData alloc] init];
+    
+    return self;
+}
+
+- (void)couldNotCreateConnection
+{
+    NSDictionary *userInfo =
+        [NSDictionary dictionaryWithObjectsAndKeys: @"Could not connect to server", NSLocalizedDescriptionKey, nil];
+    NSError *error = [NSError errorWithDomain: CISDOBIpadServiceManagerErrorDomain code: kCISDOBIpadServiceManagerError_ImageRetrievalCouldNotConnectToServer userInfo: userInfo];
+    if (_fail) _fail(error);
+}
+
+- (void)start
+{
+    NSURL *url = [NSURL URLWithString: self.entity.imageUrlString];
+    NSMutableURLRequest *request = 
+        [NSMutableURLRequest requestWithURL: url cachePolicy: NSURLRequestUseProtocolCachePolicy timeoutInterval: self.timeoutInterval];
+
+    // Check that the connection can be created
+    if (![NSURLConnection canHandleRequest: request]) {
+        [self couldNotCreateConnection];
+        return;
+    } 
+    
+    _connection =
+        [NSURLConnection connectionWithRequest: request delegate: self];
+        
+    if (!_connection) {
+        [self couldNotCreateConnection];
+        return;
+    }
+}
+
+@end
+
+
+@implementation CISDOBImageRetrievalCall (NSURLConnectionDelegate)
+
+- (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
+{
+    return [protectionSpace.authenticationMethod isEqualToString: NSURLAuthenticationMethodServerTrust];
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
+{
+    if ([challenge.protectionSpace.authenticationMethod isEqualToString: NSURLAuthenticationMethodServerTrust])
+	{
+    // TODO: check with the service if the server can be trusted
+//        if (SHOULD_CALL_DELEGATE_SELECTOR(jsonRpcCall:canTrustHost:))
+//        {
+//            [_delegate jsonRpcCall: self canTrustHost: challenge.protectionSpace.host];
+//            // Tell the connection to trust this host
+//			NSURLCredential *credential = [NSURLCredential credentialForTrust: challenge.protectionSpace.serverTrust];
+//			[challenge.sender useCredential: credential forAuthenticationChallenge: challenge];
+//		}
+	}
+    [challenge.sender continueWithoutCredentialForAuthenticationChallenge: challenge]; 
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+    [_responseData setLength: 0];
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+    [_responseData appendData: data];
+}
+
+
+- (void)connectionDidFinishLoading:(NSURLConnection *)aConnection
+{
+    CISDOBIpadImage *image = [[CISDOBIpadImage alloc] initWithImageData: _responseData];
+    if (_success) _success(image);
+}
+
+
+- (void)connection:(NSURLConnection *)aConnection didFailWithError:(NSError *)error
+{
+    if (_fail) _fail(error);
+    _connection = nil;
+}
+
 
 @end

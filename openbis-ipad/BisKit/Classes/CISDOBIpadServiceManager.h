@@ -47,6 +47,16 @@ FOUNDATION_EXPORT NSString *const CISDOBIpadServiceWillSynchEntitiesNotification
 FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidSynchEntitiesNotification;
 
 
+//
+// Errors that can happen in the service manager
+//
+//! The error domain for errors in the service manager layer
+FOUNDATION_EXPORT NSString *const CISDOBIpadServiceManagerErrorDomain;
+
+enum CISDOBIpadServiceManagerErrorCode {
+    kCISDOBIpadServiceManagerError_ImageRetrievalCouldNotConnectToServer = 1,
+};
+
 
 
 @class CISDOBIpadService, CISDOBAsyncCall, CISDOBIpadEntity;
@@ -86,6 +96,9 @@ FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidSynchEntitiesNotification;
 //! Get detail information from the openBIS ipad service and store the results in the managedObjectContext.
 - (CISDOBAsyncCall *)detailsForEntity:(CISDOBIpadEntity *)entity;
 
+//! Get images for the entity, if there are any. The success block will be called with a CISDOBIpadImage object that describes the location of the image and contains the bytes for the image.
+- (CISDOBAsyncCall *)imagesForEntity:(CISDOBIpadEntity *)entity;
+
 // Local Actions -- actions that do not require a network connection
 - (NSArray *)allIpadEntitiesOrError:(NSError **)error;
 - (NSArray *)entitiesByPermId:(NSArray *)permIds error:(NSError **)error;
@@ -96,5 +109,16 @@ FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidSynchEntitiesNotification;
 - (NSFetchRequest *)fetchRequestForEntitiesNotUpdatedSince:(NSDate *)date;
 
 - (NSArray *)executeFetchRequest:(NSFetchRequest *)fetchRequest error:(NSError **)error;
+
+@end
+
+/**
+ * \brief An abstraction for an image to display in openBIS.
+ */
+@interface CISDOBIpadImage : NSObject
+
+@property(strong, readonly) NSData *imageData;
+
+- (id)initWithImageData:(NSData *)imageData;
 
 @end

@@ -316,6 +316,25 @@
     STAssertNil(entityToRemove.permId, @"The Entity's fields should have been set to nil");
 }
 
+- (void)testImageRetrieval
+{
+    
+    [self performLogin];
+    [self performRootLevelCall];
+    
+    // Get drill information on some entity
+    NSArray *entitiesWithChildren = [self entitiesWithChildren];
+    CISDOBIpadEntity *entityWithImage = [entitiesWithChildren objectAtIndex: 0];
+    [self performDetails: entityWithImage];
+    
+    STAssertNotNil(entityWithImage.imageUrlString, @"Should have found an entity with a local image");
+    
+    CISDOBAsyncCall *call = [self.serviceManager imagesForEntity: entityWithImage];
+    [self configureAndRunCallSynchronously: call];
+    
+    STAssertNotNil(_callResult, @"Should have gotten an image");
+}
+
 
 - (void)testNilUrl
 {
