@@ -58,3 +58,8 @@ enum CISOBJsonRpcErrorCode {
     //!   CISOBJsonRpcErrorObjectKey -> the error object
     kCISOBJsonRpcError_CallReturnedError = 5,
 };
+
+//
+// Shared preprocessor macros
+//
+#define SHOULD_CALL_DELEGATE_SELECTOR(_selector) (_delegate != nil && [_delegate respondsToSelector: @selector(_selector)])

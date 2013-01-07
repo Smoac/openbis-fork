@@ -23,8 +23,6 @@
 
 #import "CISDOBJsonRpcCall.h"
 
-#define SHOULD_CALL_DELEGATE_SELECTOR(_selector) (_delegate != nil && [_delegate respondsToSelector: @selector(_selector)])
-
 NSString *const CISOBJsonRpcErrorDomain = @"CISOBJsonRpcErrorDomain";
 NSString *const CISOBJsonRpcErrorObjectKey = @"CISOBJsonRpcErrorObjectKey";
 NSString *const CISOBJsonRpcResponseObjectKey = @"CISOBJsonRpcResponseObjectKey";
