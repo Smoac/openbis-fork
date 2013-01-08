@@ -34,10 +34,11 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.DynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityAdaptorFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator.IValidationRequestDelegate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.INonAbstractEntityAdapter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.EntityValidatorFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -45,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
  * {@link Interceptor} which reacts to creation and update of entities, and calls the validation
@@ -182,11 +182,12 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
             boolean isNewEntity)
     {
         validatedEntity(entity);
-        ScriptPE validationScript = entity.getEntityType().getValidationScript();
-        if (validationScript != null)
+        IEntityValidator entityValidator =
+                EntityValidatorFactory.createEntityValidator(entity.getEntityType(), this);
+        if (entityValidator != null)
         {
             IEntityInformationWithPropertiesHolder regained = regainEntity(entity);
-            validateEntityWithScript(tx, validationScript, regained, isNewEntity);
+            validateEntityWithScript(tx, entityValidator, regained, isNewEntity);
         }
     }
 
@@ -212,7 +213,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
 
     }
 
-    private void validateEntityWithScript(Transaction tx, ScriptPE script,
+    private void validateEntityWithScript(Transaction tx, IEntityValidator entityValidator,
             IEntityInformationWithPropertiesHolder entity, boolean isNewEntity)
     {
         String result = null;
@@ -223,7 +224,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
                 progressListener.update("Validation of entities", totalEntitiesToValidateCount,
                         entitiesValidatedCount);
             }
-            result = calculate(script, entity, isNewEntity);
+            result = calculate(entityValidator, entity, isNewEntity);
         } catch (Throwable e)
         {
             setRollback(tx, entity, " resulted in error. " + e.getMessage());
@@ -247,18 +248,15 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
                 + entity.getEntityType().getCode() + ")";
     }
 
-    private String calculate(ScriptPE script, IEntityInformationWithPropertiesHolder entity,
-            boolean isNewEntity)
+    private String calculate(IEntityValidator entityValidator,
+            IEntityInformationWithPropertiesHolder entity, boolean isNewEntity)
     {
-        EntityValidationCalculator calculator =
-                EntityValidationCalculator.create(script.getScript(), this);
         IDynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator(daoFactory, null);
         IEntityAdaptor adaptor =
                 EntityAdaptorFactory.create(entity, evaluator, daoFactory.getSessionFactory()
                         .getCurrentSession());
-        calculator.setEntity(adaptor);
-        calculator.setIsNewEntity(isNewEntity);
-        return calculator.evalAsString();
+
+        return entityValidator.validate(adaptor, isNewEntity);
     }
 
     private void newEntity(IEntityInformationWithPropertiesHolder entity)

@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropert
  */
 public interface IDynamicPropertyEvaluator
 {
-
     /**
      * Evaluates all dynamic properties of specified entity. Replaces placeholders with evaluated
      * values.

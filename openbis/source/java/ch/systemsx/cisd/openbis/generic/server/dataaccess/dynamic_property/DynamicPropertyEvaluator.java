@@ -33,8 +33,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConver
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter.IHibernateSessionProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityAdaptorFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.IDynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -42,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -59,9 +59,8 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
 
     public static final String ERROR_PREFIX = "ERROR: ";
 
-    /** cache of calculators with precompiled expressions */
-    private final Map<ScriptPE, DynamicPropertyCalculator> calculatorsByScript =
-            new HashMap<ScriptPE, DynamicPropertyCalculator>();
+    private final IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory =
+            new DynamicPropertyCalculatorFactory();
 
     /** path of evaluation - used to generate meaningful error message for cyclic dependencies */
     private final List<EntityTypePropertyTypePE> evaluationPath =
@@ -78,20 +77,6 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                         customSessionProviderOrNull);
     }
 
-    /** Returns a calculator for given script (creates a new one if nothing is found in cache). */
-    private DynamicPropertyCalculator getCalculator(ScriptPE scriptPE)
-    {
-        // Creation of a calculator takes some time because of compilation of the script.
-        // That is why a cache is used.
-        DynamicPropertyCalculator result = calculatorsByScript.get(scriptPE);
-        if (result == null)
-        {
-            result = DynamicPropertyCalculator.create(scriptPE.getScript());
-            calculatorsByScript.put(scriptPE, result);
-        }
-        return result;
-    }
-
     @Override
     public <T extends IEntityInformationWithPropertiesHolder> void evaluateProperties(T entity,
             Session session)
@@ -101,8 +86,7 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             operationLog.debug(String.format("Evaluating dynamic properties of entity '%s'.",
                     entity));
         }
-        final IEntityAdaptor entityAdaptor =
-                EntityAdaptorFactory.create(entity, this, session);
+        final IEntityAdaptor entityAdaptor = EntityAdaptorFactory.create(entity, this, session);
 
         Set<EntityPropertyPE> propertiesToRemove = new HashSet<EntityPropertyPE>();
         for (EntityPropertyPE property : entity.getProperties())
@@ -181,7 +165,8 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             {
                 evaluationPath.add(etpt);
             }
-            final DynamicPropertyCalculator calculator = getCalculator(etpt.getScript());
+            final IDynamicPropertyCalculator calculator =
+                    dynamicPropertyCalculatorFactory.getCalculator(etpt);
             calculator.setEntity(entityAdaptor);
             final String dynamicValue = calculator.evalAsString();
             final String validatedValue =

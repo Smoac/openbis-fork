@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 
@@ -559,15 +559,16 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
         private final List<IManagedInputWidgetDescription> inputWidgetDescriptions;
 
-        private ManagedPropertyEvaluator evaluator;
+        private IManagedPropertyEvaluator evaluator;
 
         ExtendedEntityTypePropertyType(EntityTypePropertyTypePE entityTypePropertyTypePE)
         {
             this.entityTypePropertyTypePE = entityTypePropertyTypePE;
             if (entityTypePropertyTypePE.isManaged())
             {
-                String script = entityTypePropertyTypePE.getScript().getScript();
-                evaluator = ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script);
+                evaluator =
+                        ManagedPropertyEvaluatorFactory
+                                .createManagedPropertyEvaluator(entityTypePropertyTypePE);
                 inputWidgetDescriptions = evaluator.getInputWidgetDescriptions();
             } else
             {

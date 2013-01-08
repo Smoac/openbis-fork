@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.JythonManagedPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyFunctions;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IElement;
 
@@ -48,7 +48,7 @@ public class StructuredPropertyConverterPythonTest extends AssertJUnit
         IManagedProperty managedProperty = new ManagedEntityProperty(new EntityProperty());
         String script =
                 CommonTestUtils.getResourceAsString(SCRIPT_FOLDER, "structured-property-test.py");
-        ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script);
+        JythonManagedPropertyEvaluator evaluator = new JythonManagedPropertyEvaluator(script);
 
         evaluator.configureUI(managedProperty, new SamplePropertyPE());
 

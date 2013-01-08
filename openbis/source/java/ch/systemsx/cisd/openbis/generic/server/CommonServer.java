@@ -133,11 +133,11 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchData
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SampleDataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.DynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityAdaptorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator.IValidationRequestDelegate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.INonAbstractEntityAdapter;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonDynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
@@ -302,7 +302,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
@@ -649,9 +649,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             String propertyTypeCode = entityTypePropertyType.getPropertyType().getCode();
             if (entityTypePropertyType.isManaged())
             {
-                String script = entityTypePropertyType.getScript().getScript();
-                ManagedPropertyEvaluator evaluator =
-                        ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script);
+                IManagedPropertyEvaluator evaluator =
+                        ManagedPropertyEvaluatorFactory
+                                .createManagedPropertyEvaluator(entityTypePropertyType);
                 List<IManagedInputWidgetDescription> inputWidgetDescriptions =
                         evaluator.getInputWidgetDescriptions();
                 if (inputWidgetDescriptions.isEmpty() == false)
@@ -2711,9 +2711,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 String code = etpt.getPropertyType().getCode();
                 if (etpt.isManaged())
                 {
-                    String script = etpt.getScript().getScript();
-                    ManagedPropertyEvaluator evaluator =
-                            ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script);
+                    IManagedPropertyEvaluator evaluator =
+                            ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(etpt);
                     List<String> batchColumnNames = evaluator.getBatchColumnNames();
                     if (batchColumnNames.isEmpty())
                     {
@@ -3213,8 +3212,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         IEntityInformationWithPropertiesHolder entity = getEntity(info, session);
         try
         {
-            DynamicPropertyCalculator calculator =
-                    DynamicPropertyCalculator.create(info.getScript());
+            JythonDynamicPropertyCalculator calculator =
+                    JythonDynamicPropertyCalculator.create(info.getScript());
             IDynamicPropertyEvaluator evaluator =
                     new DynamicPropertyEvaluator(getDAOFactory(), null);
             IEntityAdaptor adaptor =
@@ -3348,7 +3347,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         // Evaluate the script
         experimentBO.enrichWithProperties();
         Set<? extends EntityPropertyPE> properties = experimentBO.getExperiment().getProperties();
-        ManagedPropertyEvaluator evaluator =
+        IManagedPropertyEvaluator evaluator =
                 tryManagedPropertyEvaluator(managedProperty, properties);
         extendWithPerson(updateAction, session.tryGetPerson());
         evaluator.updateFromUI(managedProperty,
@@ -3370,7 +3369,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         // Evaluate the script
         sampleBO.enrichWithProperties();
         Set<? extends EntityPropertyPE> properties = sampleBO.getSample().getProperties();
-        ManagedPropertyEvaluator evaluator =
+        IManagedPropertyEvaluator evaluator =
                 tryManagedPropertyEvaluator(managedProperty, properties);
         extendWithPerson(updateAction, session.tryGetPerson());
         evaluator.updateFromUI(managedProperty,
@@ -3392,7 +3391,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         // Evaluate the script
         dataSetBO.enrichWithProperties();
         Set<? extends EntityPropertyPE> properties = dataSetBO.getData().getProperties();
-        ManagedPropertyEvaluator evaluator =
+        IManagedPropertyEvaluator evaluator =
                 tryManagedPropertyEvaluator(managedProperty, properties);
         extendWithPerson(updateAction, session.tryGetPerson());
         evaluator.updateFromUI(managedProperty,
@@ -3414,7 +3413,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         // Evaluate the script
         materialBO.enrichWithProperties();
         Set<? extends EntityPropertyPE> properties = materialBO.getMaterial().getProperties();
-        ManagedPropertyEvaluator evaluator =
+        IManagedPropertyEvaluator evaluator =
                 tryManagedPropertyEvaluator(managedProperty, properties);
         extendWithPerson(updateAction, session.tryGetPerson());
         evaluator.updateFromUI(managedProperty,
@@ -3434,7 +3433,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
-    private ManagedPropertyEvaluator tryManagedPropertyEvaluator(IManagedProperty managedProperty,
+    private IManagedPropertyEvaluator tryManagedPropertyEvaluator(IManagedProperty managedProperty,
             Set<? extends EntityPropertyPE> properties)
     {
         String managedPropertyCode = managedProperty.getPropertyTypeCode();
@@ -3455,7 +3454,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
 
         return ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(managedPropertyPE
-                .getEntityTypePropertyType().getScript().getScript());
+                .getEntityTypePropertyType());
     }
 
     @Override

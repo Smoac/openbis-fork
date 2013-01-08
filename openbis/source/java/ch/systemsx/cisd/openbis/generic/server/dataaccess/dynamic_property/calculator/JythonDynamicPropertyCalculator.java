@@ -27,9 +27,9 @@ import ch.systemsx.cisd.openbis.generic.shared.calculator.AbstractCalculator;
  * 
  * @author Piotr Buczek
  */
-public class DynamicPropertyCalculator extends AbstractCalculator
+public class JythonDynamicPropertyCalculator extends AbstractCalculator implements
+        IDynamicPropertyCalculator
 {
-
     private static final String ENTITY_VARIABLE_NAME = "entity";
 
     private static final String INVOKE_CALCULATE_EXPR = "calculate()";
@@ -44,7 +44,7 @@ public class DynamicPropertyCalculator extends AbstractCalculator
      * <li>result of invocation of 'calculate()' function for a *multiline* expression
      * </ul>
      */
-    public static DynamicPropertyCalculator create(String expression)
+    public static JythonDynamicPropertyCalculator create(String expression)
     {
         String calculatedExpression = expression;
         String initialScript = getBasicInitialScript();
@@ -54,18 +54,18 @@ public class DynamicPropertyCalculator extends AbstractCalculator
             initialScript += expression;
             calculatedExpression = INVOKE_CALCULATE_EXPR;
         }
-        return new DynamicPropertyCalculator(new Evaluator(calculatedExpression, Math.class,
+        return new JythonDynamicPropertyCalculator(new Evaluator(calculatedExpression, Math.class,
                 initialScript));
     }
 
-    private DynamicPropertyCalculator(Evaluator evaluator)
+    private JythonDynamicPropertyCalculator(Evaluator evaluator)
     {
         super(evaluator);
     }
 
+    @Override
     public void setEntity(IEntityAdaptor entity)
     {
         evaluator.set(ENTITY_VARIABLE_NAME, entity);
     }
-
 }

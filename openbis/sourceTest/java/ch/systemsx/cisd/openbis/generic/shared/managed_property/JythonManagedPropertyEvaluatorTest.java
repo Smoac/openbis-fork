@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
  * @author Franz-Josef Elmer
  * @author Piotr Buczek
  */
-public class ManagedPropertyEvaluatorTest extends AssertJUnit
+public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
 {
     private static final String UPDATE_FROM_UI_TEST_PY = "updateFromUI-test.py";
 
@@ -64,7 +64,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     @Test
     public void testEmptyScript()
     {
-        assertEquals(0, new ManagedPropertyEvaluator("").getBatchColumnNames().size());
+        assertEquals(0, new JythonManagedPropertyEvaluator("").getBatchColumnNames().size());
     }
 
     @Test
@@ -72,7 +72,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     {
         try
         {
-            new ManagedPropertyEvaluator("a =");
+            new JythonManagedPropertyEvaluator("a =");
             fail("EvaluatorException expected");
         } catch (EvaluatorException ex)
         {
@@ -89,7 +89,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
 
         String script =
                 CommonTestUtils.getResourceAsString(SCRIPT_FOLDER, CONFIGURE_UI_OUTPUT_TEST_PY);
-        ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script);
+        JythonManagedPropertyEvaluator evaluator = new JythonManagedPropertyEvaluator(script);
 
         evaluator.configureUI(managedProperty, new SamplePropertyPE());
         assertEquals(true, managedProperty.isOwnTab());
@@ -147,7 +147,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
         String script =
                 CommonTestUtils
                         .getResourceAsString(SCRIPT_FOLDER, CONFIGURE_UI_OUTPUT_HTML_TEST_PY);
-        ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script);
+        JythonManagedPropertyEvaluator evaluator = new JythonManagedPropertyEvaluator(script);
 
         evaluator.configureUI(managedProperty, new SamplePropertyPE());
         assertEquals(true, managedProperty.isOwnTab());
@@ -177,7 +177,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
 
         String script =
                 CommonTestUtils.getResourceAsString(SCRIPT_FOLDER, CONFIGURE_UI_INPUT_TEST_PY);
-        ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script);
+        JythonManagedPropertyEvaluator evaluator = new JythonManagedPropertyEvaluator(script);
 
         evaluator.configureUI(managedProperty, new SamplePropertyPE());
         assertEquals(false, managedProperty.isOwnTab());
@@ -249,7 +249,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
         IManagedUiAction action3 = uiDescription.addAction("a3");
 
         String script = CommonTestUtils.getResourceAsString(SCRIPT_FOLDER, UPDATE_FROM_UI_TEST_PY);
-        ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator(script);
+        JythonManagedPropertyEvaluator evaluator = new JythonManagedPropertyEvaluator(script);
 
         evaluator.updateFromUI(managedProperty, person, action1);
         assertNotNull(managedProperty.getValue());
@@ -280,8 +280,8 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     @Test
     public void testUpdateFromUIAccessToPerson()
     {
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator("def updateFromUI(action):\n"
+        JythonManagedPropertyEvaluator evaluator =
+                new JythonManagedPropertyEvaluator("def updateFromUI(action):\n"
                         + "  property.setValue(person.getUserId() + ';' + person.getUserName())");
         ManagedProperty property = new ManagedProperty();
         property.setPropertyTypeCode("p");
@@ -308,14 +308,14 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
             + "although function batchColumnNames is defined.", expectedExceptions = EvaluatorException.class)
     public void testScriptWithBatchColumnNamesFunctionButMissingUpdateFromBatchFunction()
     {
-        new ManagedPropertyEvaluator("def batchColumnNames():\n return ['A']");
+        new JythonManagedPropertyEvaluator("def batchColumnNames():\n return ['A']");
     }
 
     @Test(expectedExceptionsMessageRegExp = "Function updateFromRegistrationForm is not defined "
             + "although function inputWidgets is defined.", expectedExceptions = EvaluatorException.class)
     public void testScriptWithInputWidgetsFunctionButMissingUpdateFromBatchFunction()
     {
-        new ManagedPropertyEvaluator(
+        new JythonManagedPropertyEvaluator(
                 "def inputWidgets():\n return [inputWidgetFactory().createTextInputField('Field')]");
     }
 
@@ -323,7 +323,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
             + "although function batchColumnNames is defined.", expectedExceptions = EvaluatorException.class)
     public void testScriptWithInputWidgetsFunctionAndBatchColumnNamesFunctionButMissingUpdateFromBatchFunction()
     {
-        new ManagedPropertyEvaluator("def inputWidgets():\n"
+        new JythonManagedPropertyEvaluator("def inputWidgets():\n"
                 + " return [inputWidgetFactory().createTextInputField('Field')]\n"
                 + "def batchColumnNames():\n return ['A']");
     }
@@ -332,7 +332,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
             + "where the 2. element is null.", expectedExceptions = EvaluatorException.class)
     public void testScriptWithInputWidgetsFunctionWithANullElement()
     {
-        new ManagedPropertyEvaluator("def inputWidgets():\n"
+        new JythonManagedPropertyEvaluator("def inputWidgets():\n"
                 + " return [inputWidgetFactory().createTextInputField('A'), None]\n"
                 + "def updateFromRegistrationForm():\n  None");
     }
@@ -343,7 +343,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
             + "but java.lang.String.", expectedExceptions = EvaluatorException.class)
     public void testScriptWithInputWidgetsFunctionWithElementOfWrongType()
     {
-        new ManagedPropertyEvaluator("def inputWidgets():\n"
+        new JythonManagedPropertyEvaluator("def inputWidgets():\n"
                 + " return [inputWidgetFactory().createTextInputField('A'), 'B']\n"
                 + "def updateFromRegistrationForm():\n  None");
     }
@@ -352,14 +352,14 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
             + "but an object of type 'java.lang.Integer': 42", expectedExceptions = EvaluatorException.class)
     public void testScriptWithBatchColumnNamesFunctionWhichDoesNotReturnAList()
     {
-        new ManagedPropertyEvaluator("def batchColumnNames():\n return 42\n"
+        new JythonManagedPropertyEvaluator("def batchColumnNames():\n return 42\n"
                 + "def updateFromBatchInput():\n  None");
     }
 
     @Test(expectedExceptionsMessageRegExp = "There is already an input widget with code: A", expectedExceptions = EvaluatorException.class)
     public void testScriptWithInputWidgetsFunctionWithNonUniqueCodes()
     {
-        new ManagedPropertyEvaluator("def inputWidgets():\n" + " f = inputWidgetFactory()\n"
+        new JythonManagedPropertyEvaluator("def inputWidgets():\n" + " f = inputWidgetFactory()\n"
                 + " w1 = f.createTextInputField('a')\n" + " w2 = f.createTextInputField('Alpha')\n"
                 + " w2.code = 'A'\n" + " return [w1, w2]\n"
                 + "def updateFromRegistrationForm():\n  None");
@@ -368,9 +368,10 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     @Test
     public void testGetBatchColumnNamesScript()
     {
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator("def batchColumnNames():\n return ['A', 'Beta']\n"
-                        + "def updateFromBatchInput():\n  None");
+        JythonManagedPropertyEvaluator evaluator =
+                new JythonManagedPropertyEvaluator(
+                        "def batchColumnNames():\n return ['A', 'Beta']\n"
+                                + "def updateFromBatchInput():\n  None");
         assertEquals("[A, BETA]", evaluator.getBatchColumnNames().toString());
         List<IManagedInputWidgetDescription> inputWidgetDescriptions =
                 evaluator.getInputWidgetDescriptions();
@@ -388,8 +389,8 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     @Test
     public void testGetInputWidgetsScript()
     {
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator(
+        JythonManagedPropertyEvaluator evaluator =
+                new JythonManagedPropertyEvaluator(
                         "def inputWidgets():\n"
                                 + " return [inputWidgetFactory().createComboBoxInputField('Field', ['A', 'B'])]\n"
                                 + "def updateFromRegistrationForm():\n  None");
@@ -407,8 +408,8 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     @Test
     public void testGetInputWidgetsScriptAndBatchColumnNamesScript()
     {
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator(
+        JythonManagedPropertyEvaluator evaluator =
+                new JythonManagedPropertyEvaluator(
                         "def batchColumnNames():\n return ['A', 'Beta']\n"
                                 + "def inputWidgets():\n"
                                 + " return [inputWidgetFactory().createComboBoxInputField('Field', ['A', 'B'])]\n"
@@ -428,7 +429,7 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     @Test
     public void testUpdateFromBatchInputWithNoScript()
     {
-        ManagedPropertyEvaluator evaluator = new ManagedPropertyEvaluator("");
+        JythonManagedPropertyEvaluator evaluator = new JythonManagedPropertyEvaluator("");
         ManagedProperty property = new ManagedProperty();
         property.setPropertyTypeCode("p");
         IPerson person = new PersonAdapter("test", null, null);
@@ -443,8 +444,8 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     @Test
     public void testUpdateFromBatchInputWithNoColumns()
     {
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator("def updateFromBatchInput(bindings):\n"
+        JythonManagedPropertyEvaluator evaluator =
+                new JythonManagedPropertyEvaluator("def updateFromBatchInput(bindings):\n"
                         + "  property.setValue(bindings.get(''))");
         ManagedProperty property = new ManagedProperty();
         property.setPropertyTypeCode("p");
@@ -460,8 +461,8 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     @Test
     public void testUpdateFromBatchInputWithColumns()
     {
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator("def batchColumnNames():\n return ['A', 'B']\n"
+        JythonManagedPropertyEvaluator evaluator =
+                new JythonManagedPropertyEvaluator("def batchColumnNames():\n return ['A', 'B']\n"
                         + "def updateFromBatchInput(bindings):\n"
                         + "  property.setValue(bindings.get('A') + bindings.get('B'))");
         ManagedProperty property = new ManagedProperty();
@@ -479,12 +480,13 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     @Test
     public void testUpdateFromBatchInputWithAccessToOriginalColumns()
     {
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator("def batchColumnNames():\n return ['BC1', 'BC2']\n"
-                        + "def updateFromBatchInput(bindings):\n"
-                        + "  property.setValue(bindings.get('BC1') + ' ' + "
-                        + "bindings.get('BC2') + ' ' + "
-                        + "bindings.get(originalColumnNameBindingKey('OC')))");
+        JythonManagedPropertyEvaluator evaluator =
+                new JythonManagedPropertyEvaluator(
+                        "def batchColumnNames():\n return ['BC1', 'BC2']\n"
+                                + "def updateFromBatchInput(bindings):\n"
+                                + "  property.setValue(bindings.get('BC1') + ' ' + "
+                                + "bindings.get('BC2') + ' ' + "
+                                + "bindings.get(originalColumnNameBindingKey('OC')))");
         ManagedProperty property = new ManagedProperty();
         property.setPropertyTypeCode("p");
         IPerson person = new PersonAdapter("test", null, null);
@@ -501,8 +503,8 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     @Test
     public void testUpdateFromBatchInputAccessToPersonWithAllFieldsFilled()
     {
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator("def updateFromBatchInput(bindings):\n"
+        JythonManagedPropertyEvaluator evaluator =
+                new JythonManagedPropertyEvaluator("def updateFromBatchInput(bindings):\n"
                         + "  property.setValue(person.getUserId() + ';' + person.getUserName())");
         ManagedProperty property = new ManagedProperty();
         property.setPropertyTypeCode("p");
@@ -517,8 +519,8 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     @Test
     public void testUpdateFromBatchInputAccessToPersonWithEmptyFirstNameAndLastName()
     {
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator("def updateFromBatchInput(bindings):\n"
+        JythonManagedPropertyEvaluator evaluator =
+                new JythonManagedPropertyEvaluator("def updateFromBatchInput(bindings):\n"
                         + "  property.setValue(person.getUserId() + ';' + person.getUserName())");
         ManagedProperty property = new ManagedProperty();
         property.setPropertyTypeCode("p");
@@ -533,8 +535,8 @@ public class ManagedPropertyEvaluatorTest extends AssertJUnit
     @Test
     public void testUpdateFromBatchInputAccessToNullPerson()
     {
-        ManagedPropertyEvaluator evaluator =
-                new ManagedPropertyEvaluator("def updateFromBatchInput(bindings):\n"
+        JythonManagedPropertyEvaluator evaluator =
+                new JythonManagedPropertyEvaluator("def updateFromBatchInput(bindings):\n"
                         + "  property.setValue(person)");
         ManagedProperty property = new ManagedProperty();
         property.setPropertyTypeCode("p");

@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ManagedPropertyEvaluator
+public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
 {
     private static final class UniqunessChecker
     {
@@ -67,7 +67,7 @@ public class ManagedPropertyEvaluator
     }
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            ManagedPropertyEvaluator.class);
+            JythonManagedPropertyEvaluator.class);
 
     /**
      * The name of the function that creates ui description
@@ -116,7 +116,7 @@ public class ManagedPropertyEvaluator
 
     private List<IManagedInputWidgetDescription> inputWidgetDescriptions;
 
-    public ManagedPropertyEvaluator(final String scriptExpression)
+    public JythonManagedPropertyEvaluator(final String scriptExpression)
     {
         this(new IEvaluationRunner()
             {
@@ -135,18 +135,17 @@ public class ManagedPropertyEvaluator
             });
     }
 
-    public ManagedPropertyEvaluator(IEvaluationRunner runner)
+    public JythonManagedPropertyEvaluator(IEvaluationRunner runner)
     {
         this.runner = runner;
-        updateFromBatchFunctionDefined =
-                runner.evaluate(new IAtomicEvaluation<Boolean>()
-                    {
-                        @Override
-                        public Boolean evaluate(Evaluator evaluator)
-                        {
-                            return evaluator.hasFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION);
-                        }
-                    });
+        updateFromBatchFunctionDefined = runner.evaluate(new IAtomicEvaluation<Boolean>()
+            {
+                @Override
+                public Boolean evaluate(Evaluator evaluator)
+                {
+                    return evaluator.hasFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION);
+                }
+            });
 
         updateFromRegistrationFormFunctionDefined =
                 runner.evaluate(new IAtomicEvaluation<Boolean>()
@@ -158,25 +157,23 @@ public class ManagedPropertyEvaluator
                         }
                     });
 
-        boolean batchColumnNamesFunctionDefined =
-                runner.evaluate(new IAtomicEvaluation<Boolean>()
-                    {
-                        @Override
-                        public Boolean evaluate(Evaluator evaluator)
-                        {
-                            return evaluator.hasFunction(BATCH_COLUMN_NAMES_FUNCTION);
-                        }
-                    });
+        boolean batchColumnNamesFunctionDefined = runner.evaluate(new IAtomicEvaluation<Boolean>()
+            {
+                @Override
+                public Boolean evaluate(Evaluator evaluator)
+                {
+                    return evaluator.hasFunction(BATCH_COLUMN_NAMES_FUNCTION);
+                }
+            });
 
-        boolean inputWidgetsFunctionDefined =
-                runner.evaluate(new IAtomicEvaluation<Boolean>()
-                    {
-                        @Override
-                        public Boolean evaluate(Evaluator evaluator)
-                        {
-                            return evaluator.hasFunction(INPUT_WIDGETS_FUNCTION);
-                        }
-                    });
+        boolean inputWidgetsFunctionDefined = runner.evaluate(new IAtomicEvaluation<Boolean>()
+            {
+                @Override
+                public Boolean evaluate(Evaluator evaluator)
+                {
+                    return evaluator.hasFunction(INPUT_WIDGETS_FUNCTION);
+                }
+            });
 
         checkCombinationsOfDefinedFunctions(batchColumnNamesFunctionDefined,
                 inputWidgetsFunctionDefined);
@@ -280,6 +277,7 @@ public class ManagedPropertyEvaluator
         return (List<?>) result;
     }
 
+    @Override
     public void configureUI(final IManagedProperty managedProperty,
             final EntityPropertyPE entityPropertyPE)
     {
@@ -302,6 +300,7 @@ public class ManagedPropertyEvaluator
             });
     }
 
+    @Override
     public void updateFromUI(final IManagedProperty managedProperty, final IPerson person,
             final IManagedUiAction action)
     {
@@ -324,16 +323,19 @@ public class ManagedPropertyEvaluator
             });
     }
 
+    @Override
     public List<String> getBatchColumnNames()
     {
         return columnNames;
     }
 
+    @Override
     public List<IManagedInputWidgetDescription> getInputWidgetDescriptions()
     {
         return inputWidgetDescriptions;
     }
 
+    @Override
     public void updateFromBatchInput(final IManagedProperty managedProperty, final IPerson person,
             final Map<String, String> bindings)
     {
@@ -359,9 +361,9 @@ public class ManagedPropertyEvaluator
         }
     }
 
+    @Override
     public void updateFromRegistrationForm(final IManagedProperty managedProperty,
-            final IPerson person,
-            final List<Map<String, String>> bindings)
+            final IPerson person, final List<Map<String, String>> bindings)
     {
         if (updateFromRegistrationFormFunctionDefined)
         {
@@ -372,8 +374,7 @@ public class ManagedPropertyEvaluator
                     {
                         evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
                         evaluator.set(PERSON_VARIABLE_NAME, person);
-                        evaluator.evalFunction(UPDATE_FROM_REGISTRATION_FORM_FUNCTION,
-                                bindings);
+                        evaluator.evalFunction(UPDATE_FROM_REGISTRATION_FORM_FUNCTION, bindings);
                         return null;
                     }
                 });

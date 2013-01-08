@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyFunctions;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
@@ -64,9 +64,9 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
 
     private static class EvaluationContext
     {
-        ManagedPropertyEvaluator evaluator;
+        IManagedPropertyEvaluator evaluator;
 
-        ScriptPE scriptPE;
+        ScriptPE scriptPEorNull;
     }
 
     private final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, getClass());
@@ -165,7 +165,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
                     throw new UserFailureException("Error in row " + rowNumber + ": "
                             + cause.getMessage());
                 }
-                errors.accumulateError(rowNumber, ex, code, evalContext.scriptPE);
+                errors.accumulateError(rowNumber, ex, code, evalContext.scriptPEorNull);
             }
         }
 
@@ -181,7 +181,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
             entityProperty.setValue(bindings.get(""));
         } else
         {
-            ManagedPropertyEvaluator evaluator = evalContext.evaluator;
+            IManagedPropertyEvaluator evaluator = evalContext.evaluator;
             ManagedProperty managedProperty = new ManagedProperty();
             managedProperty.setPropertyTypeCode(code);
             evaluator.updateFromBatchInput(managedProperty, person, bindings);
@@ -259,11 +259,11 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
             if (entityTypePropertyType.isManaged())
             {
                 String propertyTypeCode = entityTypePropertyType.getPropertyType().getCode();
-                String script = entityTypePropertyType.getScript().getScript();
                 EvaluationContext context = new EvaluationContext();
                 context.evaluator =
-                        ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(script);
-                context.scriptPE = entityTypePropertyType.getScript();
+                        ManagedPropertyEvaluatorFactory
+                                .createManagedPropertyEvaluator(entityTypePropertyType);
+                context.scriptPEorNull = entityTypePropertyType.getScript();
                 result.put(propertyTypeCode, context);
             }
         }

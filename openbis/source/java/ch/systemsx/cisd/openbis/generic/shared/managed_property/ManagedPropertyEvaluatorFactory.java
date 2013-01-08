@@ -17,24 +17,47 @@
 package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
 import ch.systemsx.cisd.openbis.generic.server.JythonEvaluatorPool;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
  * Factory for creating managed property evaluators. (Could do some caching or other cleverness.)
  * 
  * @author Chandrasekhar Ramakrishnan
+ * @author Jakub Straszewski
+ * @author Pawel Glyzewski
  */
 public class ManagedPropertyEvaluatorFactory
 {
 
-    public static ManagedPropertyEvaluator createManagedPropertyEvaluator(String scriptExpression)
+    public static IManagedPropertyEvaluator createManagedPropertyEvaluator(
+            EntityTypePropertyTypePE entityTypePropertyTypePE)
+    {
+        final ScriptPE scriptPE = entityTypePropertyTypePE.getScript();
+        assert scriptPE != null && scriptPE.getScriptType() == ScriptType.MANAGED_PROPERTY;
+
+        String script = scriptPE.getScript();
+
+        return createJythonManagedPropertyEvaluator(script);
+    }
+
+    private static JythonManagedPropertyEvaluator createJythonManagedPropertyEvaluator(String script)
     {
         if (JythonEvaluatorPool.INSTANCE != null)
         {
-            return new ManagedPropertyEvaluator(JythonEvaluatorPool.INSTANCE
-                    .getRunner(scriptExpression));
+            return new JythonManagedPropertyEvaluator(
+                    JythonEvaluatorPool.INSTANCE.getRunner(script));
         } else
         {
-            return new ManagedPropertyEvaluator(scriptExpression);
+            return new JythonManagedPropertyEvaluator(script);
         }
+    }
+
+    public static IManagedPropertyEvaluator createManagedPropertyEvaluator(
+            EntityTypePropertyType<?> entityTypePropertyType)
+    {
+        return createJythonManagedPropertyEvaluator(entityTypePropertyType.getScript().getScript());
     }
 }
