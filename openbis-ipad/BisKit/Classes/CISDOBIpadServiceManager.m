@@ -453,13 +453,23 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 - (void)start
 {
     NSString *urlString = self.entity.imageUrlString;
-    if (!urlString) {
+    if (!urlString || [urlString length] < 1) {
         [[self responseData] setLength: 0];
         if (_success) _success(_image);
         return;
     }
     
-    NSURL *url = [NSURL URLWithString: urlString];
+    NSURL *url;
+    // if this is a datastore_server url, add the session token
+    NSRange dataStoreServerRange = [urlString rangeOfString: @"datastore_server"];
+    if (dataStoreServerRange.length == 0) {
+        url = [NSURL URLWithString: urlString];
+    } else {
+        NSMutableString *urlStringWithSession = [NSMutableString stringWithString: urlString];
+        [urlStringWithSession appendFormat: @"?sessionID=%@", self.serviceManager.sessionToken];
+        url = [NSURL URLWithString: urlStringWithSession];
+    }
+
     NSMutableURLRequest *request = 
         [NSMutableURLRequest requestWithURL: url cachePolicy: NSURLRequestUseProtocolCachePolicy timeoutInterval: self.timeoutInterval];
 
@@ -502,6 +512,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 {
     _image.MIMEType = [response MIMEType];
     _image.textEncodingName = [response textEncodingName];
+    _image.url = [response URL];
     [[self responseData] setLength: 0];
 }
 

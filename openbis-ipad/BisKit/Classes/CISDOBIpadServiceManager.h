@@ -132,6 +132,7 @@ typedef void (^AuthenticationChallengeBlock)(CISDOBAsyncCall *call, NSURLAuthent
 
 @property(copy, nonatomic) NSString *MIMEType;
 @property(copy, nonatomic) NSString *textEncodingName;
+@property(copy, nonatomic) NSURL *url;
 @property(strong, nonatomic) NSData *imageData;
 
 @end

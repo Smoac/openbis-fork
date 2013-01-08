@@ -348,8 +348,8 @@
     
     image = _callResult;
     STAssertTrue([image.imageData length] > 0, @"Image data should not be empty");
-    STAssertEqualObjects(@"text/html", image.MIMEType, @"Mime type should be text/html");
-    STAssertNil(image.textEncodingName, @"Text encoding should be ");
+    STAssertEqualObjects(@"image/jpeg", image.MIMEType, @"Mime type should be image/jpeg");
+    STAssertNil(image.textEncodingName, @"Text encoding should be nil");
 }
 
 
