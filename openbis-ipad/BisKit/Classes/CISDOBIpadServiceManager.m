@@ -488,10 +488,11 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     // TODO: check with the service if the server can be trusted
 //        if (SHOULD_CALL_DELEGATE_SELECTOR(jsonRpcCall:canTrustHost:))
 //        {
-//            [_delegate jsonRpcCall: self canTrustHost: challenge.protectionSpace.host];
+//            if ([_delegate jsonRpcCall: self canTrustHost: challenge.protectionSpace.host]) {
 //            // Tell the connection to trust this host
-//			NSURLCredential *credential = [NSURLCredential credentialForTrust: challenge.protectionSpace.serverTrust];
-//			[challenge.sender useCredential: credential forAuthenticationChallenge: challenge];
+			NSURLCredential *credential = [NSURLCredential credentialForTrust: challenge.protectionSpace.serverTrust];
+			[challenge.sender useCredential: credential forAuthenticationChallenge: challenge];
+// }
 //		}
 	}
     [challenge.sender continueWithoutCredentialForAuthenticationChallenge: challenge]; 
