@@ -130,8 +130,8 @@ typedef void (^AuthenticationChallengeBlock)(CISDOBAsyncCall *call, NSURLAuthent
  */
 @interface CISDOBIpadImage : NSObject
 
-@property(strong, readonly) NSData *imageData;
-
-- (id)initWithImageData:(NSData *)imageData;
+@property(copy, nonatomic) NSString *MIMEType;
+@property(copy, nonatomic) NSString *textEncodingName;
+@property(strong, nonatomic) NSData *imageData;
 
 @end

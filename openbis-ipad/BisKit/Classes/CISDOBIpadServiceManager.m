@@ -418,14 +418,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 
 @implementation CISDOBIpadImage
 
-- (id)initWithImageData:(NSData *)imageData
-{
-    if (!(self = [super init])) return nil;
-    
-    _imageData = imageData;
-    
-    return self;
-}
+
 @end
 
 @implementation CISDOBImageRetrievalCall
@@ -441,10 +434,13 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
         // Default timeout interval to 60sandrei
     self.timeoutInterval = 60.0;
     
-    _responseData = [[NSMutableData alloc] init];
+    _image = [[CISDOBIpadImage alloc] init];
+    _image.imageData = [[NSMutableData alloc] init];
     
     return self;
 }
+
+- (NSMutableData *)responseData { return (NSMutableData *)_image.imageData; }
 
 - (void)couldNotCreateConnection
 {
@@ -458,9 +454,8 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 {
     NSString *urlString = self.entity.imageUrlString;
     if (!urlString) {
-        [_responseData setLength: 0];
-        CISDOBIpadImage *image = [[CISDOBIpadImage alloc] initWithImageData: _responseData];
-        if (_success) _success(image);
+        [[self responseData] setLength: 0];
+        if (_success) _success(_image);
         return;
     }
     
@@ -505,19 +500,20 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
-    [_responseData setLength: 0];
+    _image.MIMEType = [response MIMEType];
+    _image.textEncodingName = [response textEncodingName];
+    [[self responseData] setLength: 0];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-    [_responseData appendData: data];
+    [[self responseData] appendData: data];
 }
 
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)aConnection
 {
-    CISDOBIpadImage *image = [[CISDOBIpadImage alloc] initWithImageData: _responseData];
-    if (_success) _success(image);
+    if (_success) _success(_image);
 }
 
 

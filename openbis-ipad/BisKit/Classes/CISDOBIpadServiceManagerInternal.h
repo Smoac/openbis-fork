@@ -46,7 +46,7 @@
 @interface CISDOBImageRetrievalCall : CISDOBAsyncCall {
 @private
     // Internal state
-    NSMutableData   *_responseData;
+    CISDOBIpadImage *_image;
     NSURLConnection *_connection;
 }
 
