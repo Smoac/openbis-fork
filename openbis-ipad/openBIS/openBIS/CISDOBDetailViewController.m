@@ -29,11 +29,6 @@
 #import "CISDOBImageViewPopoverController.h"
 #import "CISDOBAsyncCall.h"
 
-@interface NSURLRequest (NSURLRequestDebug)
-+ (BOOL)allowsAnyHTTPSCertificateForHost:(NSString *)host;
-+ (void)setAllowsAnyHTTPSCertificate:(BOOL)allow forHost:(NSString *)host;
-@end
-
 @interface CISDOBDetailViewController ()
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
 @property (readonly) CISDOBIpadEntity *detailItem;
@@ -131,9 +126,6 @@
     [self configureViewProvisionally];
     [self registerForNotifications];
     [self.webView setDelegate: self];
-    
-    // DEBUG
-    [NSURLRequest setAllowsAnyHTTPSCertificate: YES forHost: @"localhost"];
 }
 
 - (void)didReceiveMemoryWarning
