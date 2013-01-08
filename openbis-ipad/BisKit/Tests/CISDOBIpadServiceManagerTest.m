@@ -108,6 +108,10 @@
     NSError *error;
     self.serviceManager = [[CISDOBIpadServiceManager alloc] initWithStoreUrl: databaseUrl openbisUrl: url trusted: YES error: &error];
     STAssertNotNil(self.serviceManager, @"Service Manager file could not be created:\n%@", error);
+    
+    self.serviceManager.authenticationChallengeBlock = ^(CISDOBAsyncCall *call, NSURLAuthenticationChallenge *challange) {
+        [call trustProtectionSpaceForAuthenticationChallenge: challange];
+    };
 
     [self registerForNotifications];
 }

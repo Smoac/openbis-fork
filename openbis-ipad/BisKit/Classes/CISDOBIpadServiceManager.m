@@ -276,9 +276,13 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 }
 
 // CISDOBAsyncCallDelegate
-- (void)asyncCall:(CISDOBAsyncCall *)call didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge
+- (void)asyncCall:(CISDOBAsyncCall *)call didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-    [call trustProtectionSpaceForAuthenticationChallenge: authenticationChallenge];
+    if (self.authenticationChallengeBlock) {
+        self.authenticationChallengeBlock(call, challenge);
+    } else {
+        [challenge.sender continueWithoutCredentialForAuthenticationChallenge: challenge];
+    }
 }
 
 @end
@@ -485,15 +489,8 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 {
     if ([challenge.protectionSpace.authenticationMethod isEqualToString: NSURLAuthenticationMethodServerTrust])
 	{
-    // TODO: check with the service if the server can be trusted
-//        if (SHOULD_CALL_DELEGATE_SELECTOR(jsonRpcCall:canTrustHost:))
-//        {
-//            if ([_delegate jsonRpcCall: self canTrustHost: challenge.protectionSpace.host]) {
-//            // Tell the connection to trust this host
-			NSURLCredential *credential = [NSURLCredential credentialForTrust: challenge.protectionSpace.serverTrust];
-			[challenge.sender useCredential: credential forAuthenticationChallenge: challenge];
-// }
-//		}
+        [self.serviceManager asyncCall: self didReceiveAuthenticationChallenge: challenge];
+        return;
 	}
     [challenge.sender continueWithoutCredentialForAuthenticationChallenge: challenge]; 
 }

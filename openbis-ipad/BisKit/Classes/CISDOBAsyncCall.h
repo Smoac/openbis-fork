@@ -59,6 +59,6 @@
 
 //! Called e.g., when the call is sent over https to a server with a self-signed certificate.
 //! If the host can be trusted, the call will continue, otherwise it will fail
-- (void)asyncCall:(CISDOBAsyncCall *)call didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge;
+- (void)asyncCall:(CISDOBAsyncCall *)call didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
 
 @end
