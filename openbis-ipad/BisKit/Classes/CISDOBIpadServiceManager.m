@@ -456,7 +456,15 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 
 - (void)start
 {
-    NSURL *url = [NSURL URLWithString: self.entity.imageUrlString];
+    NSString *urlString = self.entity.imageUrlString;
+    if (!urlString) {
+        [_responseData setLength: 0];
+        CISDOBIpadImage *image = [[CISDOBIpadImage alloc] initWithImageData: _responseData];
+        if (_success) _success(image);
+        return;
+    }
+    
+    NSURL *url = [NSURL URLWithString: urlString];
     NSMutableURLRequest *request = 
         [NSMutableURLRequest requestWithURL: url cachePolicy: NSURLRequestUseProtocolCachePolicy timeoutInterval: self.timeoutInterval];
 

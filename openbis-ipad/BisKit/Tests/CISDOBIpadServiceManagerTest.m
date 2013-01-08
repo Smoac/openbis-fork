@@ -329,14 +329,25 @@
     // Get drill information on some entity
     NSArray *entitiesWithChildren = [self entitiesWithChildren];
     CISDOBIpadEntity *entityWithImage = [entitiesWithChildren objectAtIndex: 0];
-    [self performDetails: entityWithImage];
+    STAssertNil(entityWithImage.imageUrlString, @"Entity should not yet have an image");
     
-    STAssertNotNil(entityWithImage.imageUrlString, @"Should have found an entity with a local image");
-    
+    // Check that getting an image for an entity without any images works correctly
     CISDOBAsyncCall *call = [self.serviceManager imagesForEntity: entityWithImage];
     [self configureAndRunCallSynchronously: call];
+    STAssertNotNil(_callResult, @"Should have gotten an image object");
+    CISDOBIpadImage *image = _callResult;
+    STAssertEquals((NSUInteger) 0, [image.imageData length], @"Image data should be empty");
+
+    // Initialize the image url and get the image
+    [self performDetails: entityWithImage];
+    STAssertNotNil(entityWithImage.imageUrlString, @"Should have found an entity with a local image");
+    call = [self.serviceManager imagesForEntity: entityWithImage];
+    [self configureAndRunCallSynchronously: call];
     
-    STAssertNotNil(_callResult, @"Should have gotten an image");
+    STAssertNotNil(_callResult, @"Should have gotten an image object");
+    
+    image = _callResult;
+    STAssertTrue([image.imageData length] > 0, @"Image data should not be empty");
 }
 
 
