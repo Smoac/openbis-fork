@@ -200,7 +200,6 @@
         <constructor-arg ref="share-id-manager" />
         <constructor-arg ref="config-provider" />
         <constructor-arg ref="sessionHolder" />
-        <constructor-arg ref="dss-service-rpc-generic" />
         <constructor-arg ref="propertyConfigurer" />
     </bean>
 
