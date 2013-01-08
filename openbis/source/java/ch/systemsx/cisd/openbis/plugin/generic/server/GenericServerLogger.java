@@ -276,6 +276,15 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
                 getMaterials(newMaterialsWithType), userEmail);
     }
 
+    @Override
+    public void registerOrUpdateSamplesAsync(String sessionToken,
+            List<NewSamplesWithTypes> newSamplesWithType, String userEmail)
+            throws UserFailureException
+    {
+        logTracking(sessionToken, "register_or_update_samples_async", "SAMPLES(%s) EMAIL(%s)",
+                getSamples(newSamplesWithType), userEmail);
+    }
+
     private static String getSamples(final List<NewSamplesWithTypes> newSamplesWithType)
     {
         StringBuilder samples = new StringBuilder();

@@ -21,6 +21,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -288,6 +289,15 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     public void registerOrUpdateSamples(final String sessionToken,
             @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class)
             final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException
+    {
+        registerOrUpdateSamplesAndMaterials(sessionToken, newSamplesWithType,
+                Collections.<NewMaterialsWithTypes> emptyList());
+    }
+
+    private void privateRegisterOrUpdateSamples(final String sessionToken,
+            @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class)
+            final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException
+
     {
         assert sessionToken != null : "Unspecified session token.";
         final Session session = getSession(sessionToken);
@@ -936,7 +946,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         }
 
         registerOrUpdateMaterials(sessionToken, newMaterialsWithType);
-        registerOrUpdateSamples(sessionToken, newSamplesWithType);
+        privateRegisterOrUpdateSamples(sessionToken, newSamplesWithType);
     }
 
     @Override
@@ -962,6 +972,49 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                     {
                         genericServer.registerOrUpdateSamplesAndMaterials(sessionToken,
                                 newSamplesWithType, newMaterialsWithType);
+                    } catch (RuntimeException ex)
+                    {
+                        try
+                        {
+                            messageWriter.write(getName()
+                                    + " has failed with a following exception: ");
+                            messageWriter.write(ex.getMessage());
+                            messageWriter
+                                    .write("\n\nPlease correct the error or contact your administrator.");
+                        } catch (IOException writingEx)
+                        {
+                            throw new UserFailureException(writingEx.getMessage()
+                                    + " when trying to throw exception: " + ex.getMessage(), ex);
+                        }
+                        throw ex;
+                    }
+                    return true;
+                }
+            });
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @Capability("WRITE_EXPERIMENT_SAMPLE_MATERIAL")
+    public void registerOrUpdateSamplesAsync(final String sessionToken,
+            @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class)
+            final List<NewSamplesWithTypes> newSamplesWithType, String userEmail)
+            throws UserFailureException
+    {
+        executeASync(userEmail, new IASyncAction()
+            {
+                @Override
+                public String getName()
+                {
+                    return "General Batch Import";
+                }
+
+                @Override
+                public boolean doAction(Writer messageWriter)
+                {
+                    try
+                    {
+                        genericServer.registerOrUpdateSamples(sessionToken, newSamplesWithType);
                     } catch (RuntimeException ex)
                     {
                         try

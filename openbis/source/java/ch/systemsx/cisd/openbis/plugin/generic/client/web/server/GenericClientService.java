@@ -230,9 +230,15 @@ public class GenericClientService extends AbstractClientService implements IGene
 
             if (async)
             {
-                genericServer.registerOrUpdateSamplesAndMaterialsAsync(sessionToken,
-                        samplesInfo.getSamples(), materialsInfo.getMaterials(), userEmail);
-
+                if (materialsInfo.getMaterials().isEmpty())
+                {
+                    genericServer.registerOrUpdateSamplesAsync(sessionToken,
+                            samplesInfo.getSamples(), userEmail);
+                } else
+                {
+                    genericServer.registerOrUpdateSamplesAndMaterialsAsync(sessionToken,
+                            samplesInfo.getSamples(), materialsInfo.getMaterials(), userEmail);
+                }
                 List<BatchRegistrationResult> results = new ArrayList<BatchRegistrationResult>();
                 results.add(new BatchRegistrationResult(uploadedFiles.iterable().iterator().next()
                         .getOriginalFilename(),
@@ -241,9 +247,14 @@ public class GenericClientService extends AbstractClientService implements IGene
                 return results;
             } else
             {
-                genericServer.registerOrUpdateSamplesAndMaterials(sessionToken,
-                        samplesInfo.getSamples(), materialsInfo.getMaterials());
-
+                if (materialsInfo.getMaterials().isEmpty())
+                {
+                    genericServer.registerOrUpdateSamples(sessionToken, samplesInfo.getSamples());
+                } else
+                {
+                    genericServer.registerOrUpdateSamplesAndMaterials(sessionToken,
+                            samplesInfo.getSamples(), materialsInfo.getMaterials());
+                }
                 List<BatchRegistrationResult> results = new ArrayList<BatchRegistrationResult>();
                 results.addAll(materialsInfo.getResultList());
                 results.addAll(samplesInfo.getResultList());

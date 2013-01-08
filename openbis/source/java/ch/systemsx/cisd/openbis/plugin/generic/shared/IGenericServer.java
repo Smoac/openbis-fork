@@ -112,6 +112,15 @@ public interface IGenericServer extends IServer
             final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException;
 
     /**
+     * Asynchronously registers or updates samples of different types in batches.
+     */
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
+    public void registerOrUpdateSamplesAsync(final String sessionToken,
+            final List<NewSamplesWithTypes> newSamplesWithType, String userEmail)
+            throws UserFailureException;
+
+    /**
      * Registers or updates samples and materials of different types in batches.
      */
     @Transactional

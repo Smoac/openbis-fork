@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest.perform_entity_operations;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
@@ -25,8 +26,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentIdentifierId;
@@ -48,12 +51,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SampleUpdatesDTOBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
@@ -294,6 +299,53 @@ public class RegistrationTest extends SystemTestCase
                         ListSampleCriteria.createForExperiment(new TechId(loadedExperiment.getId())));
         assertSamples("[/TEST-SPACE/PLATE-1:A1, /TEST-SPACE/PLATE-1:A2]",
                 ListSampleCriteria.createForContainer(new TechId(plates.get(0))));
+    }
+
+    @DataProvider(name = "registerSharedSample")
+    protected Object[][] getMappingTypes()
+    {
+        return new Object[][]
+            {
+                { "/SHARED_TEST_SAMPLE", systemSessionToken, false },
+                { "/SHARED_TEST_SAMPLE", authenticateAs("test_role"), true },
+                { "/CISD/TEST_SAMPLE", authenticateAs("test_role"), false } };
+    }
+
+    @SuppressWarnings("null")
+    @Test(dataProvider = "registerSharedSample")
+    public void testRegisterSharedSampleFailsForNonAdminUser(String identifier,
+            String sessionToken, boolean shouldFail)
+    {
+        SampleType sampleType = etlService.getSampleType(systemSessionToken, "NORMAL");
+
+        NewSample sample = new NewSample();
+        sample.setIdentifier(identifier);
+        sample.setSampleType(sampleType);
+
+        NewSamplesWithTypes samplesForRegistration =
+                new NewSamplesWithTypes(sampleType, Collections.singletonList(sample));
+
+        try
+        {
+            genericServer.registerOrUpdateSamples(sessionToken,
+                    Collections.singletonList(samplesForRegistration));
+            if (shouldFail)
+            {
+                fail("Expected authorization error");
+            }
+            SampleIdentifier sampleIdentifier =
+                    new SampleIdentifierFactory(sample.getIdentifier()).createIdentifier();
+
+            Sample registeredSample =
+                    etlService.tryGetSampleWithExperiment(systemSessionToken, sampleIdentifier);
+
+            assertTrue(registeredSample != null);
+            assertEquals(sample.getIdentifier(), registeredSample.getIdentifier());
+
+        } catch (AuthorizationFailureException afe)
+        {
+            // is ok
+        }
     }
 
     private List<Sample> assertSamples(String expectedSamples, ListSampleCriteria criteria)
