@@ -134,8 +134,8 @@ NSString *const CISDOBConnectionErrorDomain = @"CISDOBConnectionErrorDomain";
     [jsonRpcCall start];
 }
 
-// CISDOBJsonRpcCallDelegate
-- (BOOL)jsonRpcCall:(CISDOBJsonRpcCall *)call canTrustHost:(NSString *)host { return _trusted; }
+// CISDOBAsyncCallDelegate
+- (BOOL)asyncCall:(CISDOBAsyncCall *)call canTrustProtectionSpace:(NSURLProtectionSpace *)protectionSpace { return _trusted; }
 
 @end
 

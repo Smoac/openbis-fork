@@ -52,6 +52,7 @@ enum CISDOBConnectionErrorCode {
     NSTimeInterval  _timeoutInterval;
 }
 
+@property(strong, nonatomic) id delegate;               //!< The delegate for this connection. Can be nil.
 @property(readonly) NSString *sessionToken;             //!< The session token for the connection
 @property NSTimeInterval timeoutInterval;               //!< Timeout interval for calls. Defaults to 10s.
 
@@ -66,7 +67,6 @@ enum CISDOBConnectionErrorCode {
 
 /**
  *  \brief An actual, live connection to an openBIS server
- *
  */
 @interface CISDOBLiveConnection : CISDOBConnection {
 @private
@@ -93,7 +93,6 @@ enum CISDOBConnectionErrorCode {
 
 /**
  *  \brief A fake connection to openBIS
- *
  */
 @interface CISDOBDeadConnection : CISDOBConnection {
 @private
@@ -101,3 +100,4 @@ enum CISDOBConnectionErrorCode {
 }
 
 @end
+

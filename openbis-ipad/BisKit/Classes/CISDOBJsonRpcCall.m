@@ -130,9 +130,9 @@ NSString *const CISOBJsonRpcResponseObjectKey = @"CISOBJsonRpcResponseObjectKey"
 {
     if ([challenge.protectionSpace.authenticationMethod isEqualToString: NSURLAuthenticationMethodServerTrust])
     {
-        if (SHOULD_CALL_DELEGATE_SELECTOR(jsonRpcCall:canTrustHost:))
+        if (SHOULD_CALL_DELEGATE_SELECTOR(asyncCall:canTrustProtectionSpace:))
         {
-            if ([_delegate jsonRpcCall: self canTrustHost: challenge.protectionSpace.host]) {
+            if ([_delegate asyncCall: self canTrustProtectionSpace: challenge.protectionSpace]) {
                 // Tell the connection to trust this host
                 NSURLCredential *credential = [NSURLCredential credentialForTrust: challenge.protectionSpace.serverTrust];
                 [challenge.sender useCredential: credential forAuthenticationChallenge: challenge];

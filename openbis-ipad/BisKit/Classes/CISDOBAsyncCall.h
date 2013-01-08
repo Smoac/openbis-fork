@@ -47,3 +47,15 @@
 - (void)start;  //!< Make the call (asynchronously).
 
 @end
+
+
+//
+//! The interface that delegates to async calls implement
+//
+@interface NSObject (CISDOBAsyncCallDelegate)
+
+//! Called when the call is sent over https to a server with a self-signed certificate. 
+//! If the host can be trusted, the call will continue, otherwise it will fail
+- (BOOL)asyncCall:(CISDOBAsyncCall *)call canTrustProtectionSpace:(NSURLProtectionSpace *)protectionSpace;
+
+@end

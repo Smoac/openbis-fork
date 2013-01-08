@@ -80,9 +80,9 @@
 
 @end
 
-@implementation CISDOBJsonRpcCallTest (CISDOBJsonRpcCallDelegate)
+@implementation CISDOBJsonRpcCallTest (CISDOBAsyncCallDelegate)
 
-- (BOOL)jsonRpcCall:(CISDOBJsonRpcCall *)call canTrustHost:(NSString *)host
+- (BOOL)asyncCall:(CISDOBAsyncCall *)call canTrustProtectionSpace:(NSString *)host
 {
     // Allow local self-signed certificates
     return [host isEqualToString: @"localhost"];

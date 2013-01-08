@@ -72,14 +72,3 @@
 - (void)start;  //!< Make the JSON-RPC call (asynchronously).
 
 @end
-
-//
-//! The interface that delegates implement
-//
-@interface NSObject (CISDOBJsonRpcCallDelegate)
-
-//! Called when the call is sent over https to a server with a self-signed certificate. 
-//! If the host can be trusted, the call will continue, otherwise it will fail
-- (BOOL)jsonRpcCall:(CISDOBJsonRpcCall *)call canTrustHost:(NSString *)host;
-
-@end
