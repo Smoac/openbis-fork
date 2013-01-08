@@ -395,8 +395,14 @@ def createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCel
   index1Name = configMap['index1Name']
   index2Name = configMap['index2Name']
 
-  indexRead1Length = int(flowCellDict[configMap['index1Length']]) + DEMULTIPLEX_INDEX_LENGTH_PENALTY
-  indexRead2Length = int(flowCellDict[configMap['index2Length']]) + DEMULTIPLEX_INDEX_LENGTH_PENALTY
+  try:
+    indexRead1Length = int(flowCellDict[configMap['index1Length']]) + DEMULTIPLEX_INDEX_LENGTH_PENALTY
+  except:
+    indexRead1Length = 0
+  try:
+    indexRead2Length = int(flowCellDict[configMap['index2Length']]) + DEMULTIPLEX_INDEX_LENGTH_PENALTY
+  except:
+    indexRead2Length = 0
 
   for key in parentDict.keys():
     index = ''
