@@ -46,6 +46,9 @@
 // Actions
 - (void)start;  //!< Make the call (asynchronously).
 
+// Handling authentication challenges
+- (void)trustProtectionSpaceForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;   //!< Tell the challenge to trust the protection space
+
 @end
 
 
@@ -54,8 +57,8 @@
 //
 @interface NSObject (CISDOBAsyncCallDelegate)
 
-//! Called when the call is sent over https to a server with a self-signed certificate. 
+//! Called e.g., when the call is sent over https to a server with a self-signed certificate.
 //! If the host can be trusted, the call will continue, otherwise it will fail
-- (BOOL)asyncCall:(CISDOBAsyncCall *)call canTrustProtectionSpace:(NSURLProtectionSpace *)protectionSpace;
+- (void)asyncCall:(CISDOBAsyncCall *)call didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge;
 
 @end

@@ -33,4 +33,13 @@
 
 - (void)start { [self subclassResponsibility]; }
 
+
+- (void)trustProtectionSpaceForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
+{
+    // Tell the connection to trust this host
+    NSURLCredential *credential = [NSURLCredential credentialForTrust: challenge.protectionSpace.serverTrust];
+    [challenge.sender useCredential: credential forAuthenticationChallenge: challenge];
+    return;
+}
+
 @end

@@ -82,10 +82,11 @@
 
 @implementation CISDOBJsonRpcCallTest (CISDOBAsyncCallDelegate)
 
-- (BOOL)asyncCall:(CISDOBAsyncCall *)call canTrustProtectionSpace:(NSString *)host
+- (void)asyncCall:(CISDOBAsyncCall *)call didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
+    NSString *host = challenge.protectionSpace.host;
     // Allow local self-signed certificates
-    return [host isEqualToString: @"localhost"];
+    if ([host isEqualToString: @"localhost"]) [call trustProtectionSpaceForAuthenticationChallenge: challenge];
 }
 
 @end
