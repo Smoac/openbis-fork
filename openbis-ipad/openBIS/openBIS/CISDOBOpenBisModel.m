@@ -171,7 +171,7 @@
 - (void)syncSelectedObjectForNavigationOnSuccess:(SuccessBlock)success
 {
     // Call the server to get the children.
-    CISDOBAsyncCall *call = [self.serviceManager drillOnEntity: _selectedObject];
+    CISDOBAsyncCall *call = [self.serviceManager imagesForEntity: _selectedObject];
     // Assign this to a local var to get the compiler to copy it
     SuccessBlock localSuccess = success;
     call.success = ^(id result) {

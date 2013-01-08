@@ -27,6 +27,7 @@
 #import "CISDOBIpadServiceManager.h"
 #import "CISDOBLoginViewController.h"
 #import "CISDOBImageViewPopoverController.h"
+#import "CISDOBAsyncCall.h"
 
 @interface NSURLRequest (NSURLRequestDebug)
 + (BOOL)allowsAnyHTTPSCertificateForHost:(NSString *)host;
@@ -40,6 +41,8 @@
 - (void)requestServerSync;
 - (void)configureViewProvisionally;
 - (void)configureView;
+- (void)displayImage:(CISDOBIpadImage *)image;
+- (void)requestImage;
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath;
 @end
 
@@ -49,7 +52,7 @@
 - (void)requestServerSync
 {
     // Ask the server to synchronize the detail object and nofiy me when the complete data is available
-    SuccessBlock success = ^(id result) { [self configureView]; };
+    SuccessBlock success = ^(id result) { [self configureView]; [self requestImage]; };
     [self.openBisModel syncSelectedObjectForDetailOnSuccess: success];
 }
 
@@ -80,6 +83,35 @@
     [self configureView];
 }
 
+- (void)displayImage:(CISDOBIpadImage *)image
+{
+    if ([image.imageData length] == 0) {
+        [self.webView loadHTMLString: @"<html><head></head><body></body></html>" baseURL: nil];
+        self.webView.hidden = YES;
+        self.webView.scrollView.hidden = YES;
+    } else {
+        self.webView.hidden = NO;
+        self.webView.scrollView.hidden = NO;
+        [self.webView loadData: image.imageData MIMEType: image.MIMEType textEncodingName:image.textEncodingName baseURL: image.url];
+    }
+}
+
+- (void)requestImage
+{
+    SuccessBlock success = ^(id result) {
+        [self displayImage: result];
+    };
+    FailBlock fail = ^(NSError *error) {
+        [self webView: self.webView didFailLoadWithError: error];
+    };    
+    
+    CISDOBAsyncCall *call = [self.openBisModel.serviceManager imagesForEntity: self.openBisModel.selectedObject];
+    call.success = success;
+    call.fail = fail;
+    
+    [call start];
+}
+
 - (void)configureView
 {
     // The detail item is now up-to-date. Update the user interface.
@@ -89,26 +121,6 @@
     self.summaryHeaderLabel.text = self.detailItem.summaryHeader;
     self.summaryLabel.text = self.detailItem.summary;
     self.identifierLabel.text = self.detailItem.identifier;
-    
-    if (!self.detailItem.imageUrlString || [self.detailItem.imageUrlString length] == 0) {
-        [self.webView loadHTMLString: @"<html><head></head><body></body></html>" baseURL: nil];
-        self.webView.hidden = YES;
-        self.webView.scrollView.hidden = YES;
-    } else {
-        NSURL *url = [self.openBisModel urlFromUrlString: self.detailItem.imageUrlString];
-        // No need to fiddle with the web view if the URL is the same
-        BOOL updateWebView = ![self.webView.request.URL isEqual: url];
-        if (updateWebView) {
-            // DEBUG -- We will need to switch to getting the data using a NSURLConnection, but for development, it is more convenient to use the request
-            NSURLRequest *request = [NSURLRequest requestWithURL: url cachePolicy: NSURLRequestReloadIgnoringLocalCacheData timeoutInterval: 10.f];
-            [self.webView loadRequest: request];
-            if (self.detailItem.imageUrlString) {
-                self.webView.hidden = NO;
-                self.webView.scrollView.hidden = NO;
-            }
-        }
-    }
-    
     [self.propertiesTableView reloadData];
 }
 

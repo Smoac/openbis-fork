@@ -243,6 +243,10 @@
         if (!_serviceManager) return NO;
     }
     
+    _serviceManager.authenticationChallengeBlock = ^(CISDOBAsyncCall *call, NSURLAuthenticationChallenge *challange) {
+        [call trustProtectionSpaceForAuthenticationChallenge: challange];
+    };
+    
     return YES;
 }
 
