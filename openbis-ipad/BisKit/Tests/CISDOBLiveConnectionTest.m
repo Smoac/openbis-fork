@@ -32,6 +32,7 @@
     [super setUp];
     NSURL *url = [NSURL URLWithString: @"https://localhost:8443"];
     _connection = [[CISDOBLiveConnection alloc] initWithUrl: url trusted: YES];
+    _connection.delegate = self;
 }
 
 - (void)tearDown
@@ -96,6 +97,12 @@
     rows = [_callResult objectForKey: @"rows"];
     STAssertTrue([rows count] > 0, @"The ipad-read-service-v1 should have returned some data.");
     [service release];
+}
+
+// CISDOBAsyncCallDelegate
+- (void)asyncCall:(CISDOBAsyncCall *)call didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge
+{
+    [call trustProtectionSpaceForAuthenticationChallenge: authenticationChallenge];
 }
 
 @end

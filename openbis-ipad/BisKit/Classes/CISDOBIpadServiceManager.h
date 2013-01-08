@@ -57,9 +57,15 @@ enum CISDOBIpadServiceManagerErrorCode {
     kCISDOBIpadServiceManagerError_ImageRetrievalCouldNotConnectToServer = 1,
 };
 
-
-
 @class CISDOBIpadService, CISDOBAsyncCall, CISDOBIpadEntity;
+
+//
+// Typedefs
+//
+typedef void (^AuthenticationChallengeBlock)(CISDOBAsyncCall *call, NSURLAuthenticationChallenge *challange);
+
+
+
 /**
  * \brief A class that manages a connection to the openBIS iPad service, caching data locally as CISDOBIpadEntity objects.
  */
@@ -74,6 +80,7 @@ enum CISDOBIpadServiceManagerErrorCode {
 @property (readonly, strong) NSEntityDescription *ipadEntityDescription;
 @property (readonly, strong) NSOperationQueue *queue;
 @property (readonly) NSString *sessionToken;
+@property (copy, nonatomic) AuthenticationChallengeBlock authenticationChallengeBlock;
 
 
 // Initialization
@@ -109,6 +116,12 @@ enum CISDOBIpadServiceManagerErrorCode {
 - (NSFetchRequest *)fetchRequestForEntitiesNotUpdatedSince:(NSDate *)date;
 
 - (NSArray *)executeFetchRequest:(NSFetchRequest *)fetchRequest error:(NSError **)error;
+
+@end
+
+@interface CISDOBIpadServiceManager (CISDOBAsyncCallDelegate)
+
+- (void)asyncCall:(CISDOBAsyncCall *)call didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge;
 
 @end
 

@@ -62,4 +62,4 @@ enum CISOBJsonRpcErrorCode {
 //
 // Shared preprocessor macros
 //
-#define SHOULD_CALL_DELEGATE_SELECTOR(_selector) (_delegate != nil && [_delegate respondsToSelector: @selector(_selector)])
+#define SHOULD_CALL_DELEGATE_SELECTOR(_selector) (self.delegate != nil && [self.delegate respondsToSelector: @selector(_selector)])

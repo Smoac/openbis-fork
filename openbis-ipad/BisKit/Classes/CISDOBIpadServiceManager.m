@@ -92,15 +92,8 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 {
     if (!(self = [super init])) return nil;
     
-    CISDOBConnection *connection;
-    if (openbisUrl) {
-        connection = [[CISDOBLiveConnection alloc] initWithUrl: openbisUrl trusted: trusted];
-    } else {
-        connection = [[CISDOBDeadConnection alloc] init];
-    }
-    
+    [self setOpenbisUrl: openbisUrl trusted: trusted];
     _storeUrl = [storeUrl copy];
-    _service = [[CISDOBIpadService alloc] initWithConnection: connection];
     _managedObjectContext = GetMainThreadManagedObjectContext(self.storeUrl, error);
     _persistentStoreCoordinator = _managedObjectContext.persistentStoreCoordinator;
     if (!_managedObjectContext) return nil;
@@ -131,6 +124,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     } else {
         connection = [[CISDOBDeadConnection alloc] init];
     }
+    connection.delegate = self;
     
     _service = [[CISDOBIpadService alloc] initWithConnection: connection];
 }
@@ -279,6 +273,12 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     NSDictionary *fetchVariables = [NSDictionary dictionaryWithObject: date forKey: @"LAST_UPDATE_DATE"];
     NSFetchRequest *request = [self.managedObjectModel fetchRequestFromTemplateWithName: @"EntitiesNotUpdatedSince" substitutionVariables: fetchVariables];
     return request;
+}
+
+// CISDOBAsyncCallDelegate
+- (void)asyncCall:(CISDOBAsyncCall *)call didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge
+{
+    [call trustProtectionSpaceForAuthenticationChallenge: authenticationChallenge];
 }
 
 @end

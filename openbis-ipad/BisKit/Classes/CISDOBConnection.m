@@ -137,7 +137,11 @@ NSString *const CISDOBConnectionErrorDomain = @"CISDOBConnectionErrorDomain";
 // CISDOBAsyncCallDelegate
 - (void)asyncCall:(CISDOBAsyncCall *)call didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-    if (_trusted) [call trustProtectionSpaceForAuthenticationChallenge: challenge];
+    if (SHOULD_CALL_DELEGATE_SELECTOR(asyncCall:didReceiveAuthenticationChallenge:))
+    {
+        [self.delegate asyncCall: call didReceiveAuthenticationChallenge: challenge];
+        return;
+    }
 }
 
 @end

@@ -52,7 +52,8 @@ enum CISDOBConnectionErrorCode {
     NSTimeInterval  _timeoutInterval;
 }
 
-@property(strong, nonatomic) id delegate;               //!< The delegate for this connection. Can be nil.
+//! The delegate for this connection. Can be nil. It should respond to the CISDOBAsyncCallDelegate protocol
+@property(strong, nonatomic) id delegate;
 @property(readonly) NSString *sessionToken;             //!< The session token for the connection
 @property NSTimeInterval timeoutInterval;               //!< Timeout interval for calls. Defaults to 10s.
 
@@ -76,7 +77,7 @@ enum CISDOBConnectionErrorCode {
 }
 
 @property(readonly) NSURL *url;                         //!< The URL for openBIS. This should just be the address and port.
-@property(readonly, getter=isTrusted) BOOL trusted;     //!< Is the server trusted? If so, self-signed certificates will be automatically accepted. By default, NO.
+@property(readonly, getter=isTrusted) BOOL trusted;     //!< Is the server trusted? Clients may use this information to accept self-signed certificates. By default, NO.
 
 // Initialization
 - (id)initWithUrl:(NSURL *)url;                         //!< Initialize with trusted = NO

@@ -24,6 +24,7 @@
 #import "CISDOBIpadServiceTest.h"
 #import "CISDOBConnection.h"
 #import "CISDOBIpadService.h"
+#import "CISDOBAsyncCall.h"
 
 
 @implementation CISDOBIpadServiceTest
@@ -33,6 +34,7 @@
     [super setUp];
     NSURL *url = [NSURL URLWithString: @"https://localhost:8443"];
     CISDOBLiveConnection *connection = [[CISDOBLiveConnection alloc] initWithUrl: url trusted: YES];
+    connection.delegate = self;
     _service = [[CISDOBIpadService alloc] initWithConnection: connection];
     [connection release];
 }
@@ -170,6 +172,12 @@
     }    
     
     [entityWithChildren release];
+}
+
+// CISDOBAsyncCallDelegate
+- (void)asyncCall:(CISDOBAsyncCall *)call didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge
+{
+    [call trustProtectionSpaceForAuthenticationChallenge: authenticationChallenge];
 }
 
 @end
