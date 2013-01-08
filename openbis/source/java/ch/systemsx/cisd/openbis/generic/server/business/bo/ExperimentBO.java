@@ -142,6 +142,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                     experimentId));
         }
         dataChanged = false;
+        HibernateUtils.initialize(experiment.getExperimentType().getExperimentTypePropertyTypes());
     }
 
     @Override

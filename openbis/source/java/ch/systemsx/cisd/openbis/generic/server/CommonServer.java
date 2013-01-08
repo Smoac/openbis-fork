@@ -1469,7 +1469,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Collection<MetaprojectPE> metaprojectPEs =
                 getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
                         session.tryGetPerson(), dataset);
-        return DataSetTranslator.translate(dataset, session.getBaseIndexURL(), false,
+        return DataSetTranslator.translate(dataset, session.getBaseIndexURL(),
                 MetaprojectTranslator.translate(metaprojectPEs));
     }
 
