@@ -112,7 +112,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                     infoProvider.getResolvedProps().getProperty("session-workspace-root-dir",
                             "data/sessionWorkspace");
             cacheWorkspace =
-                    new File(new File(sessionWorkspaceRoot, session.getSessionToken()), "dss-cache");
+                    new File(new File(sessionWorkspaceRoot), "dss-cache");
             if (cacheWorkspace.exists() == false)
             {
                 cacheWorkspace.mkdirs();
