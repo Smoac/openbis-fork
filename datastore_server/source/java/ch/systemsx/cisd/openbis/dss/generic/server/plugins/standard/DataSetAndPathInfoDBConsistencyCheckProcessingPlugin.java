@@ -604,7 +604,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
                     new HierarchicalContentProvider(ServiceProvider.getOpenBISService(),
                             ServiceProvider.getShareIdManager(),
                             ServiceProvider.getConfigProvider(),
-                            new DefaultFileBasedHierarchicalContentFactory(), null, null, null);
+                            new DefaultFileBasedHierarchicalContentFactory(), null, null);
         }
         return fileProvider;
     }
@@ -624,7 +624,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
                 pathInfoProvider =
                         new HierarchicalContentProvider(ServiceProvider.getOpenBISService(),
                                 ServiceProvider.getShareIdManager(),
-                                ServiceProvider.getConfigProvider(), pathInfoDBFactory, null, null,
+                                ServiceProvider.getConfigProvider(), pathInfoDBFactory, null,
                                 null);
             }
         }

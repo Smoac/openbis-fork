@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
@@ -42,21 +41,20 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
 
     private final OpenBISSessionHolder sessionHolder;
 
-    private final IDssServiceRpcGeneric local;
+    private final IDssServiceRpcGeneric remote;
 
-    private final String sessionWorkspaceRoot;
+    private final ContentCache cache;
 
     public RemoteHierarchicalContent(IDatasetLocationNode location,
-            ISingleDataSetPathInfoProvider pathInfoProvider,
-            OpenBISSessionHolder sessionHolder,
-            IDssServiceRpcGeneric local,
-            String sessionWorkspaceRoot)
+            ISingleDataSetPathInfoProvider pathInfoProvider, OpenBISSessionHolder sessionHolder,
+            ContentCache cache)
     {
         this.location = location;
         this.provider = pathInfoProvider;
         this.sessionHolder = sessionHolder;
-        this.local = local;
-        this.sessionWorkspaceRoot = sessionWorkspaceRoot;
+        this.remote = cache.getRemoteDss();
+        this.cache = cache;
+        
     }
 
     @Override
@@ -150,15 +148,8 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
 
     private IHierarchicalContentNode createNode(DataSetPathInfo info)
     {
-
-        return new RemoteHierarchicalContentNode(
-                location.getLocation().getDataSetCode(),
-                info,
-                provider,
-                local,
-                getRemoteDss(),
-                sessionHolder,
-                sessionWorkspaceRoot);
+        return new RemoteHierarchicalContentNode(location.getLocation().getDataSetCode(), info,
+                provider, remote, sessionHolder, cache);
     }
 
     private List<IHierarchicalContentNode> createNodes(List<DataSetPathInfo> paths)
@@ -169,11 +160,5 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
             nodes.add(createNode(info));
         }
         return nodes;
-    }
-
-    private IDssServiceRpcGeneric getRemoteDss()
-    {
-        return HttpInvokerUtils.createServiceStub(IDssServiceRpcGeneric.class, location
-                .getLocation().getDataStoreUrl() + "/datastore_server/rmi-dss-api-v1", 300000);
     }
 }

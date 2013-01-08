@@ -21,7 +21,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -41,12 +40,23 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
  */
 public class RemoteHierarchicalContentNodeTest
 {
+    private static final String SESSION_TOKEN = "token";
+
+    private static final String CACHED_DATASET_CODE = "cached_dataset_code";
+
+    private static final String REMOTE_DATASET_CODE = "remote_dataset_code";
+
+    private static final File SESSION_WORKSPACE_DIR =
+            new File("targets/unit-test/RemoteHierarchicalContentNodeTest/session-workspace/");
+
+    private static final String REMOTE_FILES_DIR =
+            "targets/unit-test/RemoteHierarchicalContentNodeTest/remote-files";
+
+    private ContentCache cache;
 
     Mockery context;
 
     ISingleDataSetPathInfoProvider provider;
-
-    IDssServiceRpcGeneric localDss;
 
     IDssServiceRpcGeneric remoteDss;
 
@@ -63,8 +73,6 @@ public class RemoteHierarchicalContentNodeTest
 
         provider = context.mock(ISingleDataSetPathInfoProvider.class);
 
-        localDss = context.mock(IDssServiceRpcGeneric.class, "local dss");
-
         remoteDss = context.mock(IDssServiceRpcGeneric.class, "remote dss");
 
         sessionHolder = new OpenBISSessionHolder();
@@ -73,11 +81,11 @@ public class RemoteHierarchicalContentNodeTest
         remoteFile = new File(REMOTE_FILES_DIR + "/" + REMOTE_DATASET_CODE, "remote-file.txt");
 
         fileInSessionWorkspace =
-                new File(SESSION_WORKSPACE_DIR + SESSION_TOKEN + "/dss-cache/"
-                        + CACHED_DATASET_CODE,
-                        "already-downloaded-file.txt");
+                new File(SESSION_WORKSPACE_DIR, CACHED_DATASET_CODE
+                        + "/already-downloaded-file.txt");
         create(remoteFile);
         create(fileInSessionWorkspace);
+        cache = new ContentCache(remoteDss, sessionHolder, SESSION_WORKSPACE_DIR);
     }
 
     @Test
@@ -90,8 +98,7 @@ public class RemoteHierarchicalContentNodeTest
 
         IHierarchicalContentNode node =
                 new RemoteHierarchicalContentNode(REMOTE_DATASET_CODE, pathInfo, provider,
-                        localDss,
-                        remoteDss, sessionHolder, SESSION_WORKSPACE_DIR);
+                        remoteDss, sessionHolder, cache);
 
         context.checking(new Expectations()
             {
@@ -99,10 +106,6 @@ public class RemoteHierarchicalContentNodeTest
                     allowing(remoteDss).getDownloadUrlForFileForDataSet(with(any(String.class)),
                             with(any(String.class)), with(any(String.class)));
                     will(returnValue(remoteFile.toURI().toURL().toString()));
-
-                    oneOf(localDss).putFileToSessionWorkspace(with(any(String.class)),
-                            with("dss-cache/" + REMOTE_DATASET_CODE + "/" + remoteFile.getName()),
-                            with(any(InputStream.class)));
                 }
             });
 
@@ -122,13 +125,7 @@ public class RemoteHierarchicalContentNodeTest
 
         IHierarchicalContentNode node =
                 new RemoteHierarchicalContentNode(CACHED_DATASET_CODE, pathInfo, provider,
-                        localDss, remoteDss, sessionHolder, SESSION_WORKSPACE_DIR);
-
-        context.checking(new Expectations()
-            {
-                {
-                }
-            });
+                        remoteDss, sessionHolder, cache);
 
         File file = node.getFile();
         assertThat(file.getAbsolutePath(), is(fileInSessionWorkspace.getAbsolutePath()));
@@ -146,7 +143,7 @@ public class RemoteHierarchicalContentNodeTest
 
         IHierarchicalContentNode node =
                 new RemoteHierarchicalContentNode(CACHED_DATASET_CODE, pathInfo, provider,
-                        localDss, remoteDss, sessionHolder, SESSION_WORKSPACE_DIR);
+                        remoteDss, sessionHolder, cache);
 
         context.checking(new Expectations()
             {
@@ -170,7 +167,7 @@ public class RemoteHierarchicalContentNodeTest
 
         IHierarchicalContentNode node =
                 new RemoteHierarchicalContentNode(CACHED_DATASET_CODE, pathInfo, null,
-                        localDss, remoteDss, sessionHolder, SESSION_WORKSPACE_DIR);
+                        remoteDss, sessionHolder, cache);
 
         context.checking(new Expectations()
             {
@@ -189,18 +186,6 @@ public class RemoteHierarchicalContentNodeTest
 
         context.assertIsSatisfied();
     }
-
-    private static final String SESSION_TOKEN = "token";
-
-    private static final String CACHED_DATASET_CODE = "cached_dataset_code";
-
-    private static final String REMOTE_DATASET_CODE = "remote_dataset_code";
-
-    private static final String SESSION_WORKSPACE_DIR =
-            "targets/unit-test/RemoteHierarchicalContentNodeTest/session-workspace/";
-
-    private static final String REMOTE_FILES_DIR =
-            "targets/unit-test/RemoteHierarchicalContentNodeTest/remote-files";
 
     private static void create(File file)
     {

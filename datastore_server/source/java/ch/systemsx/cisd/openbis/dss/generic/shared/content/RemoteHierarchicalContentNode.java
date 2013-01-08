@@ -20,17 +20,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
@@ -51,52 +47,37 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
 
     private ISingleDataSetPathInfoProvider provider;
 
-    private IDssServiceRpcGeneric localDss;
-
     private IDssServiceRpcGeneric remoteDss;
 
     private OpenBISSessionHolder sessionHolder;
 
     private DataSetPathInfo path;
 
-    private String sessionWorkspaceRoot;
-
     private String parentRelativePath;
 
-    public RemoteHierarchicalContentNode(String dataSetCode,
-            DataSetPathInfo path,
-            ISingleDataSetPathInfoProvider provider,
-            IDssServiceRpcGeneric local,
-            IDssServiceRpcGeneric remote,
-            OpenBISSessionHolder sessionHolder,
-            String sessionWorkspaceRoot)
+    private final ContentCache cache;
+
+    public RemoteHierarchicalContentNode(String dataSetCode, DataSetPathInfo path,
+            ISingleDataSetPathInfoProvider provider, IDssServiceRpcGeneric remote,
+            OpenBISSessionHolder sessionHolder, ContentCache contentCache)
     {
-        this.dataSetCode = dataSetCode;
-        this.path = path;
-        this.provider = provider;
-        this.localDss = local;
-        this.remoteDss = remote;
-        this.sessionHolder = sessionHolder;
-        this.sessionWorkspaceRoot = sessionWorkspaceRoot;
-        this.parentRelativePath = null;
+        this(dataSetCode, path, provider, remote, sessionHolder, contentCache, null);
     }
 
     private RemoteHierarchicalContentNode(String dataSetCode,
             DataSetPathInfo path,
             ISingleDataSetPathInfoProvider provider,
-            IDssServiceRpcGeneric local,
             IDssServiceRpcGeneric remote,
             OpenBISSessionHolder sessionHolder,
-            String sessionWorkspaceRoot,
+            ContentCache contentCache,
             String parentRelativePath)
     {
         this.dataSetCode = dataSetCode;
         this.path = path;
         this.provider = provider;
-        this.localDss = local;
         this.remoteDss = remote;
         this.sessionHolder = sessionHolder;
-        this.sessionWorkspaceRoot = sessionWorkspaceRoot;
+        this.cache = contentCache;
         this.parentRelativePath = parentRelativePath;
     }
 
@@ -171,8 +152,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
             for (DataSetPathInfo childPath : provider.listChildrenPathInfos(path))
             {
                 children.add(new RemoteHierarchicalContentNode(dataSetCode, childPath, provider,
-                        localDss,
-                        remoteDss, sessionHolder, sessionWorkspaceRoot, path.getRelativePath()));
+                        remoteDss, sessionHolder, cache, path.getRelativePath()));
             }
         } else
         {
@@ -188,8 +168,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
                 info.setSizeInBytes(file.getFileSize());
                 info.setLastModified(new Date(0L));
                 children.add(new RemoteHierarchicalContentNode(dataSetCode, info, provider,
-                        localDss,
-                        remoteDss, sessionHolder, sessionWorkspaceRoot, path.getRelativePath()));
+                        remoteDss, sessionHolder, cache, path.getRelativePath()));
             }
         }
         return children;
@@ -198,50 +177,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
     @Override
     public File getFile() throws UnsupportedOperationException
     {
-        File workspace = new File(sessionWorkspaceRoot, sessionHolder.getSessionToken());
-        if (workspace.exists() == false)
-        {
-            workspace.mkdirs();
-        }
-
-        File f = new File(workspace.getAbsolutePath() + "/dss-cache/"
-                + dataSetCode + "/" + path.getRelativePath());
-
-        if (f.exists())
-        {
-            return f;
-        }
-
-        String url =
-                remoteDss.getDownloadUrlForFileForDataSet(
-                        sessionHolder.getSessionToken(),
-                        dataSetCode,
-                        path.getRelativePath());
-        InputStream input;
-        try
-        {
-            if (url.toLowerCase().startsWith("https"))
-            {
-                input = new URL(null, url, new sun.net.www.protocol.https.Handler())
-                        .openConnection().getInputStream();
-            } else
-            {
-                input = new URL(url).openStream();
-            }
-        } catch (MalformedURLException ex)
-        {
-            throw new ConfigurationFailureException("Malformed URL: " + url);
-        } catch (Exception ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-
-        localDss.putFileToSessionWorkspace(sessionHolder.getSessionToken(), "dss-cache/"
-                + dataSetCode + "/" + path.getRelativePath(), input);
-
-        return new File(workspace.getAbsolutePath() + "/dss-cache/"
-                + dataSetCode + "/" + path.getRelativePath());
-
+        return cache.getFile(dataSetCode, path);
     }
 
     @Override
