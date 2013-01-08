@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
+import java.util.Collection;
+
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 
 /**
  * @author anttil
@@ -27,10 +30,14 @@ class DataSetTypeDsl extends DataSetType
 
     private String description;
 
-    public DataSetTypeDsl(String code, String description)
+    private Collection<PropertyTypeAssignment> propertyTypeAssignments;
+
+    public DataSetTypeDsl(String code, String description,
+            Collection<PropertyTypeAssignment> propertyTypeAssignments)
     {
         this.code = code;
         this.description = description;
+        this.propertyTypeAssignments = propertyTypeAssignments;
     }
 
     @Override
@@ -45,9 +52,20 @@ class DataSetTypeDsl extends DataSetType
         return description;
     }
 
+    @Override
+    public Collection<PropertyTypeAssignment> getPropertyTypeAssignments()
+    {
+        return propertyTypeAssignments;
+    }
+
     void setDescription(String description)
     {
         this.description = description;
+    }
+
+    void setPropertyTypeAssignments(Collection<PropertyTypeAssignment> propertyTypeAssignments)
+    {
+        this.propertyTypeAssignments = propertyTypeAssignments;
     }
 
     @Override

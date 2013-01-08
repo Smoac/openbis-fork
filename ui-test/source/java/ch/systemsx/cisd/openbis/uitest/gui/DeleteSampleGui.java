@@ -18,34 +18,34 @@ package ch.systemsx.cisd.openbis.uitest.gui;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Command;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
-import ch.systemsx.cisd.openbis.uitest.layout.AssignSamplePropertyLocation;
-import ch.systemsx.cisd.openbis.uitest.page.AssignSamplePropertyType;
-import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
+import ch.systemsx.cisd.openbis.uitest.page.Browsable;
+import ch.systemsx.cisd.openbis.uitest.page.Browser;
+import ch.systemsx.cisd.openbis.uitest.type.BrowsableWrapper;
+import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 
 /**
  * @author anttil
  */
-public class CreatePropertyTypeAssignmentGui implements Command<PropertyTypeAssignment>
+public class DeleteSampleGui implements Command<Void>
 {
-
     @Inject
     private Pages pages;
 
-    private PropertyTypeAssignment assignment;
+    private Sample sample;
 
-    public CreatePropertyTypeAssignmentGui(PropertyTypeAssignment assignment)
+    public DeleteSampleGui(Sample sample)
     {
-        this.assignment = assignment;
+        this.sample = sample;
     }
 
     @Override
-    public PropertyTypeAssignment execute()
+    public Void execute()
     {
-        AssignSamplePropertyType assign = pages.goTo(new AssignSamplePropertyLocation());
-        assign.fillWith(assignment);
-        assign.save();
-        return assignment;
+        Browsable browsable = new BrowsableWrapper(sample);
+        Browser browser = pages.goTo(browsable.getBrowserLocation());
+        browser.delete(browsable);
+        return null;
     }
 
 }

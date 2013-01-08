@@ -51,6 +51,7 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
         this.withRadio();
         this.singleDataOrNull = null;
         this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
+        this.setId("deletion-confirmation-dialog");
     }
 
     public SampleListDeletionConfirmationDialog(
@@ -60,6 +61,7 @@ public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> ext
         super(viewContext, data, deletionCallback);
         this.singleDataOrNull = sample;
         this.selectedAndDisplayedItemsOrNull = null;
+        this.setId("deletion-confirmation-dialog");
     }
 
     @Override

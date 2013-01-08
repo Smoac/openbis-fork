@@ -25,13 +25,14 @@ import org.openqa.selenium.Point;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.internal.Coordinates;
 import org.openqa.selenium.internal.Locatable;
+import org.openqa.selenium.internal.WrapsElement;
 
 import ch.systemsx.cisd.openbis.uitest.screenshot.ScreenShotter;
 
 /**
  * @author anttil
  */
-class WidgetContext implements WebElement, Locatable
+class WidgetContext implements WebElement, Locatable, WrapsElement
 {
 
     private WebElement element;
@@ -153,5 +154,15 @@ class WidgetContext implements WebElement, Locatable
     public Point getLocationOnScreenOnceScrolledIntoView()
     {
         return ((Locatable) element).getLocationOnScreenOnceScrolledIntoView();
+    }
+
+    @Override
+    public WebElement getWrappedElement()
+    {
+        if (element instanceof WrapsElement)
+        {
+            return ((WrapsElement) element).getWrappedElement();
+        }
+        return element;
     }
 }

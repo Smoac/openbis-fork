@@ -45,14 +45,17 @@ class SampleDsl extends Sample
 
     private Collection<MetaProject> metaProjects;
 
+    private Sample container;
+
     public SampleDsl(SampleType type, String code, Experiment experiment, Space space,
-            Collection<Sample> parents, Map<PropertyType, Object> properties,
+            Sample container, Collection<Sample> parents, Map<PropertyType, Object> properties,
             Collection<MetaProject> metaProjects)
     {
         this.type = type;
         this.code = code;
         this.experiment = experiment;
         this.space = space;
+        this.container = container;
         this.parents = parents;
         this.properties = properties;
         this.metaProjects = metaProjects;
@@ -80,6 +83,12 @@ class SampleDsl extends Sample
     public Space getSpace()
     {
         return space;
+    }
+
+    @Override
+    public Sample getContainer()
+    {
+        return container;
     }
 
     @Override
@@ -113,6 +122,11 @@ class SampleDsl extends Sample
     void setSpace(Space space)
     {
         this.space = space;
+    }
+
+    void setContainer(Sample container)
+    {
+        this.container = container;
     }
 
     void setParents(Collection<Sample> parents)

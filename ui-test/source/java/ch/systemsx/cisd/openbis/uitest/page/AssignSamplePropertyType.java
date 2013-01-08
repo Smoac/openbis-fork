@@ -16,9 +16,12 @@
 
 package ch.systemsx.cisd.openbis.uitest.page;
 
+import java.util.concurrent.TimeUnit;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
@@ -105,6 +108,8 @@ public class AssignSamplePropertyType
     {
         String sampleTypeCode = sampleType.getValue();
         this.save.click();
-        infoBox.findElements(By.xpath(".//div[contains(text(), '" + sampleTypeCode + "')]"));
+        SeleniumTest.setImplicitWait(30, TimeUnit.MINUTES);
+        infoBox.findElement(By.xpath(".//div[contains(text(), '" + sampleTypeCode + "')]"));
+        SeleniumTest.setImplicitWaitToDefault();
     }
 }

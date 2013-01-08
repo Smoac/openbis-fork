@@ -27,15 +27,20 @@ import java.util.concurrent.TimeUnit;
  */
 public class Console extends Writer
 {
+    private static long DEFAULT_TIMEOUT = 60000;
+
     private LinkedBlockingQueue<String> queue;
 
     private boolean buffering;
 
     private long startTime;
 
+    private long timeout;
+
     public Console()
     {
         buffering = false;
+        timeout = DEFAULT_TIMEOUT;
     }
 
     @Override
@@ -71,6 +76,16 @@ public class Console extends Writer
         this.startTime = System.currentTimeMillis();
     }
 
+    public void setTimeOut(long timeout)
+    {
+        this.timeout = timeout;
+    }
+
+    public void reset()
+    {
+        this.timeout = DEFAULT_TIMEOUT;
+    }
+
     public void waitFor(String... text)
     {
         while (true)
@@ -89,7 +104,7 @@ public class Console extends Writer
                 break;
             }
 
-            if (System.currentTimeMillis() - startTime > 30000)
+            if (System.currentTimeMillis() - startTime > timeout)
             {
                 throw new RuntimeException(
                         "Timeout - could not find log line containing substrings: "

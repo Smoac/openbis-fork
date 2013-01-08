@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
 import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
 import ch.systemsx.cisd.openbis.uitest.rmi.CreateDataSetTypeRmi;
 import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
 /**
@@ -33,10 +37,13 @@ public class DataSetTypeBuilder implements Builder<DataSetType>
 
     private String description;
 
+    private Collection<PropertyTypeAssignment> propertyTypeAssignments;
+
     public DataSetTypeBuilder(UidGenerator uid)
     {
         this.code = uid.uid();
         this.description = "";
+        this.propertyTypeAssignments = new HashSet<PropertyTypeAssignment>();
     }
 
     public DataSetTypeBuilder withCode(String code)
@@ -48,6 +55,7 @@ public class DataSetTypeBuilder implements Builder<DataSetType>
     @Override
     public DataSetType build(Application openbis, Ui ui)
     {
-        return openbis.execute(new CreateDataSetTypeRmi(new DataSetTypeDsl(code, description)));
+        return openbis.execute(new CreateDataSetTypeRmi(new DataSetTypeDsl(code, description,
+                propertyTypeAssignments)));
     }
 }

@@ -165,6 +165,7 @@ public class Application
                     field.set(command, etlService);
                 } else if (fieldType.equals(Console.class))
                 {
+                    console.reset();
                     field.set(command, console);
                 } else if (fieldType.equals(IDssServiceRpcGeneric.class))
                 {

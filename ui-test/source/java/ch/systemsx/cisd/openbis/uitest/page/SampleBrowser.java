@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Lazy;
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
 import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.DeletionConfirmationBox;
 import ch.systemsx.cisd.openbis.uitest.widget.DropDown;
 import ch.systemsx.cisd.openbis.uitest.widget.FilterToolBar;
 import ch.systemsx.cisd.openbis.uitest.widget.Grid;
@@ -36,6 +37,9 @@ public class SampleBrowser extends Browser
 
     @Locate("openbis_sample-browser_main_add-button")
     private Button addSample;
+
+    @Locate("openbis_sample-browser_main_delete-button")
+    private Button delete;
 
     @Locate("openbis_select_sample-typesample-browser-toolbar")
     private DropDown sampleTypeList;
@@ -53,6 +57,10 @@ public class SampleBrowser extends Browser
     @Lazy
     @Locate("entity-browser-grid-SAMPLE-(all)")
     private SettingsDialog settings;
+
+    @Lazy
+    @Locate("deletion-confirmation-dialog")
+    private DeletionConfirmationBox confimDeletion;
 
     public void addSample()
     {
@@ -107,7 +115,7 @@ public class SampleBrowser extends Browser
     @Override
     protected void delete()
     {
-        // TODO Auto-generated method stub
-
+        delete.click();
+        confimDeletion.confirm("reason");
     }
 }

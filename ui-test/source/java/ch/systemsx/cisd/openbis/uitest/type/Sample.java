@@ -34,6 +34,8 @@ public abstract class Sample implements Entity
 
     public abstract Collection<Sample> getParents();
 
+    public abstract Sample getContainer();
+
     public abstract Map<PropertyType, Object> getProperties();
 
     @Override

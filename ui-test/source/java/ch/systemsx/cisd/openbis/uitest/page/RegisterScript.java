@@ -67,6 +67,6 @@ public class RegisterScript
     {
         String scriptName = name.getValue().toUpperCase();
         save.click();
-        infoBox.findElements(By.xpath(".//div/b[text()='" + scriptName + "']"));
+        infoBox.findElement(By.xpath(".//div/b[text()='" + scriptName + "']"));
     }
 }

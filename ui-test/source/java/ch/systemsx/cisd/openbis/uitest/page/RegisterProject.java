@@ -53,7 +53,7 @@ public class RegisterProject
     {
         String projectCode = code.getValue().toUpperCase();
         save.click();
-        infoBox.findElements(By.xpath(".//div/b[contains(text(), '" + projectCode + "')]"));
+        infoBox.findElement(By.xpath(".//div/b[contains(text(), '" + projectCode + "')]"));
     }
 
     @Override

@@ -128,6 +128,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataManagemen
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SampleDataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.DynamicPropertyEvaluator;
@@ -3666,9 +3667,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     private void deletePermanentlyCommon(String sessionToken, List<TechId> deletionIds,
             boolean forceDisallowedTypes)
     {
-        checkSession(sessionToken);
+        Session session = getSession(sessionToken);
+        PersonPE registrator = session.tryGetPerson();
 
         IDeletionDAO deletionDAO = getDAOFactory().getDeletionDAO();
+        ISampleDAO sampleDAO = getDAOFactory().getSampleDAO();
         // NOTE: we can't do bulk deletions to preserve original reasons
         for (TechId deletionId : deletionIds)
         {
@@ -3681,13 +3684,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             deleteDataSetsCommon(sessionToken, trashedDataSets, deletionReason, deletionType,
                     forceDisallowedTypes, true);
 
-            // we need to first delete components and then containers not to break constraints
-            List<TechId> trashedComponentSamples =
-                    deletionDAO.findTrashedComponentSampleIds(singletonList);
-            deleteSamples(sessionToken, trashedComponentSamples, deletionReason, deletionType);
-            List<TechId> trashedNonComponentSamples =
-                    deletionDAO.findTrashedNonComponentSampleIds(singletonList);
-            deleteSamples(sessionToken, trashedNonComponentSamples, deletionReason, deletionType);
+            sampleDAO.deletePermanently(deletion, registrator);
 
             List<TechId> trashedExperiments = deletionDAO.findTrashedExperimentIds(singletonList);
             deleteExperiments(sessionToken, trashedExperiments, deletionReason, deletionType);

@@ -98,7 +98,7 @@ public class RegisterExperiment
     {
         String experimentCode = code.getValue().toUpperCase();
         this.saveButton.click();
-        infoBox.findElements(By.xpath(".//div/b[contains(text(), '" + experimentCode + "')]"));
+        infoBox.findElement(By.xpath(".//div/b[contains(text(), '" + experimentCode + "')]"));
     }
 
     @Override

@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
+import java.util.Collection;
+
 /**
  * @author anttil
  */
 public interface EntityType
 {
     public String getCode();
+
+    public Collection<PropertyTypeAssignment> getPropertyTypeAssignments();
 }

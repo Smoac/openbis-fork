@@ -42,6 +42,7 @@ public abstract class SampleType implements EntityType
 
     public abstract String getGeneratedCodePrefix();
 
+    @Override
     public abstract Collection<PropertyTypeAssignment> getPropertyTypeAssignments();
 
     public abstract Script getValidationScript();

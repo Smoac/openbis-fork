@@ -63,6 +63,10 @@ public class AdminMenu
     @Locate("openbis_top-menu_PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE")
     private Link assignToSampleType;
 
+    @Lazy
+    @Locate("openbis_top-menu_PROPERTY_TYPES_MENU_ASSIGN_TO_DATA_SET_TYPE")
+    private Link assignToDataSetType;
+
     @Locate("openbis_top-menu_SCRIPT_MENU_BROWSE")
     private Link scripts;
 
@@ -123,6 +127,12 @@ public class AdminMenu
     {
         metadata.highlight();
         assignToSampleType.click();
+    }
+
+    public void assignPropertyTypeToDataSetType()
+    {
+        metadata.highlight();
+        assignToDataSetType.click();
     }
 
     public void scripts()

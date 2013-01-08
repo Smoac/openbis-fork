@@ -18,11 +18,11 @@ package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
 import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
-import ch.systemsx.cisd.openbis.uitest.gui.CreatePropertyTypeAssignmentGui;
+import ch.systemsx.cisd.openbis.uitest.gui.CreateDataSetPropertyTypeAssignmentGui;
+import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
-import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.type.Script;
 import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
 
@@ -30,12 +30,12 @@ import ch.systemsx.cisd.openbis.uitest.uid.UidGenerator;
  * @author anttil
  */
 @SuppressWarnings("hiding")
-public class PropertyTypeAssignmentBuilder implements Builder<PropertyTypeAssignment>
+public class DataSetPropertyTypeAssignmentBuilder implements Builder<PropertyTypeAssignment>
 {
 
     private PropertyType propertyType;
 
-    private SampleType entityType;
+    private DataSetType dataSetType;
 
     private boolean mandatory;
 
@@ -45,40 +45,40 @@ public class PropertyTypeAssignmentBuilder implements Builder<PropertyTypeAssign
 
     private Script script;
 
-    public PropertyTypeAssignmentBuilder(UidGenerator uid)
+    public DataSetPropertyTypeAssignmentBuilder(UidGenerator uid)
     {
         this.uid = uid;
         this.propertyType = null;
-        this.entityType = null;
+        this.dataSetType = null;
         this.mandatory = false;
         this.initialValue = "";
     }
 
-    public PropertyTypeAssignmentBuilder with(SampleType sampleType)
+    public DataSetPropertyTypeAssignmentBuilder with(DataSetType dataSetType)
     {
-        this.entityType = sampleType;
+        this.dataSetType = dataSetType;
         return this;
     }
 
-    public PropertyTypeAssignmentBuilder with(PropertyType propertyType)
+    public DataSetPropertyTypeAssignmentBuilder with(PropertyType propertyType)
     {
         this.propertyType = propertyType;
         return this;
     }
 
-    public PropertyTypeAssignmentBuilder thatIsMandatory()
+    public DataSetPropertyTypeAssignmentBuilder thatIsMandatory()
     {
         this.mandatory = true;
         return this;
     }
 
-    public PropertyTypeAssignmentBuilder handledBy(Script script)
+    public DataSetPropertyTypeAssignmentBuilder handledBy(Script script)
     {
         this.script = script;
         return this;
     }
 
-    public PropertyTypeAssignmentBuilder havingInitialValueOf(String value)
+    public DataSetPropertyTypeAssignmentBuilder havingInitialValueOf(String value)
     {
         this.initialValue = value;
         return this;
@@ -93,22 +93,22 @@ public class PropertyTypeAssignmentBuilder implements Builder<PropertyTypeAssign
                     new PropertyTypeBuilder(uid, PropertyTypeDataType.BOOLEAN).build(openbis, ui);
         }
 
-        if (entityType == null)
+        if (dataSetType == null)
         {
-            entityType = new SampleTypeBuilder(uid).build(openbis, ui);
+            dataSetType = new DataSetTypeBuilder(uid).build(openbis, ui);
         }
 
         PropertyTypeAssignment assignment =
-                new PropertyTypeAssignmentDsl(propertyType, entityType, mandatory, initialValue,
+                new PropertyTypeAssignmentDsl(propertyType, dataSetType, mandatory, initialValue,
                         script);
         if (Ui.WEB.equals(ui))
         {
-            assignment = openbis.execute(new CreatePropertyTypeAssignmentGui(assignment));
+            assignment = openbis.execute(new CreateDataSetPropertyTypeAssignmentGui(assignment));
         } else
         {
             throw new UnsupportedOperationException();
         }
-        entityType.getPropertyTypeAssignments().add(assignment);
+        dataSetType.getPropertyTypeAssignments().add(assignment);
         return assignment;
     }
 }

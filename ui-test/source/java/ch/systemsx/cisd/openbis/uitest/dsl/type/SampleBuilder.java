@@ -48,6 +48,8 @@ public class SampleBuilder implements Builder<Sample>
 
     private Space space;
 
+    private Sample container;
+
     private Collection<Sample> parents;
 
     private Map<PropertyType, Object> properties;
@@ -86,6 +88,12 @@ public class SampleBuilder implements Builder<Sample>
         return this;
     }
 
+    public SampleBuilder in(Sample container)
+    {
+        this.container = container;
+        return this;
+    }
+
     public SampleBuilder withProperty(PropertyType propertyType, Object value)
     {
         this.properties.put(propertyType, value);
@@ -118,7 +126,7 @@ public class SampleBuilder implements Builder<Sample>
         }
 
         Sample sample =
-                new SampleDsl(type, code, experiment, space, parents, properties,
+                new SampleDsl(type, code, experiment, space, container, parents, properties,
                         new HashSet<MetaProject>());
 
         if (Ui.WEB.equals(ui))

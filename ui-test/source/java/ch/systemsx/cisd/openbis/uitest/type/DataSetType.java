@@ -19,9 +19,10 @@ package ch.systemsx.cisd.openbis.uitest.type;
 /**
  * @author anttil
  */
-public abstract class DataSetType
+public abstract class DataSetType implements EntityType
 {
 
+    @Override
     public abstract String getCode();
 
     public abstract String getDescription();

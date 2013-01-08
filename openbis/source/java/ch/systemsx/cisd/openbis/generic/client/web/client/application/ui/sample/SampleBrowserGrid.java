@@ -109,6 +109,8 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
 
     public static final String EDIT_BUTTON_ID_SUFFIX = "_edit-button";
 
+    public static final String DELETE_BUTTON_ID_SUFFIX = "_delete-button";
+
     public static final String SHOW_DETAILS_BUTTON_ID_SUFFIX = "_show-details-button";
 
     public static final String METAPROJECT_TYPE = "metaproject";
@@ -577,6 +579,7 @@ public class SampleBrowserGrid extends AbstractEntityGrid<Sample>
                             viewContext, samples, callback, s);
                 }
             });
+        deleteButton.setId(createChildComponentId(DELETE_BUTTON_ID_SUFFIX));
         changeButtonTitleOnSelectedItems(deleteButton, deleteAllTitle, deleteTitle);
         addButton(deleteButton);
         allowMultipleSelection(); // we allow deletion of multiple samples

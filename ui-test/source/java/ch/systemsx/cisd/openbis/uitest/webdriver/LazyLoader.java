@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.internal.WrapsElement;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 
@@ -39,7 +40,7 @@ public class LazyLoader implements InvocationHandler
         return java.lang.reflect.Proxy.newProxyInstance(
                 WebElement.class.getClassLoader(),
                 new Class<?>[]
-                    { WebElement.class },
+                    { WebElement.class, WrapsElement.class },
                 new LazyLoader(id, null));
     }
 
@@ -48,7 +49,7 @@ public class LazyLoader implements InvocationHandler
         return java.lang.reflect.Proxy.newProxyInstance(
                 WebElement.class.getClassLoader(),
                 new Class<?>[]
-                    { WebElement.class },
+                    { WebElement.class, WrapsElement.class },
                 new LazyLoader(xpath, context));
     }
 

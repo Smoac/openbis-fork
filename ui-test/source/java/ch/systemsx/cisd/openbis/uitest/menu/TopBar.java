@@ -37,6 +37,9 @@ public class TopBar
     @Locate("new_menu")
     private Button newMenu;
 
+    @Locate("import_menu")
+    private Button importMenu;
+
     @Locate("trash-button")
     private Button trash;
 
@@ -67,6 +70,11 @@ public class TopBar
     public void newMenu()
     {
         newMenu.click();
+    }
+
+    public void importMenu()
+    {
+        importMenu.click();
     }
 
     public String getUserName()

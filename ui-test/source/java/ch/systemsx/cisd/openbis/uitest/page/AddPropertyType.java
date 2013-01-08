@@ -71,7 +71,7 @@ public class AddPropertyType
     {
         String propertyCode = code.getValue().toUpperCase();
         save.click();
-        infoBox.findElements(By.xpath(".//div/b[text()='" + propertyCode + "']"));
+        infoBox.findElement(By.xpath(".//div/b[text()='" + propertyCode + "']"));
 
     }
 }

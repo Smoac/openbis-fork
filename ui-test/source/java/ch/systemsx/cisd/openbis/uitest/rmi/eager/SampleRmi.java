@@ -110,4 +110,10 @@ public class SampleRmi extends Sample
         }
         return metaProjects;
     }
+
+    @Override
+    public Sample getContainer()
+    {
+        throw new UnsupportedOperationException("to be implemented");
+    }
 }

@@ -47,6 +47,7 @@ public class ImportMenu extends TopMenuItem
             ComponentProvider componentProvider)
     {
         super(viewContext.getMessage(Dict.MENU_IMPORT));
+        setId("import_menu");
 
         IMessageProvider messageProvider = viewContext;
         ApplicationInfo applicationInfo = viewContext.getModel().getApplicationInfo();

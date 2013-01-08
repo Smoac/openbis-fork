@@ -103,6 +103,7 @@ public abstract class FileFieldManager<T extends FileUploadField>
         final int number = counter + 1;
         file.setFieldLabel(fieldLabel);
         file.setName(Format.substitute(FIELD_NAME_TEMPLATE, sessionKey, number));
+        file.setId(Format.substitute(FIELD_NAME_TEMPLATE, sessionKey, number));
         return file;
     }
 

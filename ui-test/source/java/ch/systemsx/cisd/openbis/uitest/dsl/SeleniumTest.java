@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.uitest.dsl.matcher.RegisterSampleFormContainsInp
 import ch.systemsx.cisd.openbis.uitest.dsl.matcher.RowExistsMatcher;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.Builder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.DataSetBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.DataSetPropertyTypeAssignmentBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.DataSetTypeBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.ExperimentTypeBuilder;
@@ -64,9 +65,9 @@ import ch.systemsx.cisd.openbis.uitest.dsl.type.MaterialBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.MaterialTypeBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.MetaProjectBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.ProjectBuilder;
-import ch.systemsx.cisd.openbis.uitest.dsl.type.PropertyTypeAssignmentBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.PropertyTypeBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.SampleBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.SamplePropertyTypeAssignmentBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.SampleTypeBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.SampleTypeUpdateBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.ScriptBuilder;
@@ -78,12 +79,14 @@ import ch.systemsx.cisd.openbis.uitest.gui.DeleteExperimentTypeGui;
 import ch.systemsx.cisd.openbis.uitest.gui.DeleteExperimentsOfProjectGui;
 import ch.systemsx.cisd.openbis.uitest.gui.DeleteProjectGui;
 import ch.systemsx.cisd.openbis.uitest.gui.DeletePropertyTypeGui;
+import ch.systemsx.cisd.openbis.uitest.gui.DeleteSampleGui;
 import ch.systemsx.cisd.openbis.uitest.gui.DeleteSampleTypeGui;
 import ch.systemsx.cisd.openbis.uitest.gui.DeleteSpaceGui;
 import ch.systemsx.cisd.openbis.uitest.gui.DeleteVocabularyGui;
 import ch.systemsx.cisd.openbis.uitest.gui.EmptyTrashGui;
 import ch.systemsx.cisd.openbis.uitest.gui.LoginGui;
 import ch.systemsx.cisd.openbis.uitest.gui.LogoutGui;
+import ch.systemsx.cisd.openbis.uitest.gui.RegisterSampleBatchGui;
 import ch.systemsx.cisd.openbis.uitest.layout.Location;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterSampleLocation;
 import ch.systemsx.cisd.openbis.uitest.layout.SampleBrowserLocation;
@@ -571,6 +574,11 @@ public abstract class SeleniumTest
         openbis.execute(new DeleteProjectGui(project));
     }
 
+    protected void delete(Sample sample)
+    {
+        openbis.execute(new DeleteSampleGui(sample));
+    }
+
     protected void delete(SampleType sampleType)
     {
         openbis.execute(new DeleteSampleTypeGui(sampleType));
@@ -661,9 +669,14 @@ public abstract class SeleniumTest
         return new PropertyTypeBuilder(uid, vocabulary);
     }
 
-    protected PropertyTypeAssignmentBuilder aSamplePropertyTypeAssignment()
+    protected SamplePropertyTypeAssignmentBuilder aSamplePropertyTypeAssignment()
     {
-        return new PropertyTypeAssignmentBuilder(uid);
+        return new SamplePropertyTypeAssignmentBuilder(uid);
+    }
+
+    protected DataSetPropertyTypeAssignmentBuilder aDataSetPropertyTypeAssignment()
+    {
+        return new DataSetPropertyTypeAssignmentBuilder(uid);
     }
 
     protected DataSetTypeBuilder aDataSetType()
@@ -872,5 +885,10 @@ public abstract class SeleniumTest
     public QueryTableModel reportInInternal(String dataSetCode, String... rest)
     {
         return openbis.execute(new ReportFromDataSetsRmi("INTERNAL", dataSetCode, rest));
+    }
+
+    public void batchRegister(List<Sample> samples)
+    {
+        openbis.execute(new RegisterSampleBatchGui(samples));
     }
 }

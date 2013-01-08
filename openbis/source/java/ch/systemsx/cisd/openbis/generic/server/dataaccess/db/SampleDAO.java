@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,6 +27,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.HibernateException;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
@@ -45,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -340,7 +344,8 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         if (containerCodeOrNull != null)
         {
             criteria.createAlias("container", "c");
-            criteria.add(Restrictions.eq("c.code", CodeConverter.tryToDatabase(containerCodeOrNull)));
+            criteria.add(Restrictions
+                    .eq("c.code", CodeConverter.tryToDatabase(containerCodeOrNull)));
         } else
         {
             criteria.add(Restrictions.isNull("container"));
@@ -453,6 +458,66 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         executePermanentDeleteAction(EntityType.SAMPLE, sampleIds, registrator, reason,
                 sqlSelectPermIds, sqlDeleteProperties, sqlSelectAttachmentContentIds,
                 sqlDeleteAttachmentContents, sqlDeleteAttachments, sqlDeleteSamples, sqlInsertEvent);
+    }
+
+    @Override
+    public void deletePermanently(final DeletionPE deletion, final PersonPE registrator)
+    {
+        getHibernateTemplate().execute(new HibernateCallback()
+            {
+                @SuppressWarnings("unchecked")
+                @Override
+                public Object doInHibernate(Session session) throws HibernateException,
+                        SQLException
+                {
+                    String permIdQuery = "SELECT perm_id FROM samples_all WHERE del_id = :id";
+
+                    String properties =
+                            "DELETE FROM sample_properties WHERE samp_id IN ("
+                                    + "SELECT id FROM samples_all WHERE del_id = :id)";
+
+                    String samples =
+                            "DELETE FROM samples_all WHERE del_id = :id";
+
+                    String event =
+                            "INSERT INTO events (id, event_type, description, reason, pers_id_registerer, entity_type, identifiers) "
+                                    + "VALUES (nextval('EVENT_ID_SEQ'), 'DELETION', :description, :reason, :registerer, 'SAMPLE', :identifiers)";
+
+                    SQLQuery getPermIds = session.createSQLQuery(permIdQuery);
+                    getPermIds.setParameter("id", deletion.getId());
+
+                    StringBuffer permIdList = new StringBuffer();
+                    for (String id : (List<String>) getPermIds.list())
+                    {
+                        permIdList.append(", ");
+                        permIdList.append(id);
+                    }
+
+                    if (permIdList.length() == 0)
+                    {
+                        return null;
+                    }
+
+                    String permIds = permIdList.substring(2);
+
+                    SQLQuery deleteProperties = session.createSQLQuery(properties);
+                    deleteProperties.setParameter("id", deletion.getId());
+                    deleteProperties.executeUpdate();
+
+                    SQLQuery deleteSamples = session.createSQLQuery(samples);
+                    deleteSamples.setParameter("id", deletion.getId());
+                    deleteSamples.executeUpdate();
+
+                    SQLQuery insertEvent = session.createSQLQuery(event);
+                    insertEvent.setParameter("description", permIds);
+                    insertEvent.setParameter("reason", deletion.getReason());
+                    insertEvent.setParameter("registerer", registrator.getId());
+                    insertEvent.setParameter("identifiers", permIds);
+                    insertEvent.executeUpdate();
+
+                    return null;
+                }
+            });
     }
 
     @Override
