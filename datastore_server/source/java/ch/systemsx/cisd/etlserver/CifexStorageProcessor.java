@@ -109,8 +109,7 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
             File newIncomingDataSetDirectory = incomingDataSetDirectory;
             if (StringUtils.isBlank(keepFileRegex) == false)
             {
-                newIncomingDataSetDirectory =
- clean(incomingDataSetDirectory, keepFileRegex);
+                newIncomingDataSetDirectory = clean(incomingDataSetDirectory, keepFileRegex);
             }
             nestedTransaction.storeData(typeExtractor, mailClient, newIncomingDataSetDirectory);
 
