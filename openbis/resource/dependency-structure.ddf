@@ -69,7 +69,9 @@ check [grid-columns] independentOf [extjs]
 [generic.server.authorization] = ${generic.server}.authorization.*
 [generic.server.business] = ${generic.server}.business.*
 [generic.server.dataaccess] = ${generic.server}.dataaccess.* excluding \
-                              ${generic.server}.dataaccess.migration.*
+                              ${generic.server}.dataaccess.migration.* \
+                              ${generic.server}.dataaccess.dynamic_property.* \
+                              ${generic.server}.dataaccess.entity_validation.*
 [generic.server.dataaccess.migration] = ${generic.server}.dataaccess.migration.*
 [generic.server.util] = ${generic.server}.util.*
 [generic.server-subpackages] = ${generic.server}.* excluding ${generic.server}.*.*
