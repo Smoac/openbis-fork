@@ -17,13 +17,17 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator;
 
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
+import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
+import ch.systemsx.cisd.openbis.generic.server.JythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.calculator.AbstractCalculator;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IAtomicEvaluation;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IEvaluationRunner;
 
 /**
  * @author Jakub Straszewski
  */
-public class JythonEntityValidationCalculator extends AbstractCalculator
+public class JythonEntityValidationCalculator
 {
     private static final String ENTITY_VARIABLE_NAME = "__entity";
 
@@ -42,6 +46,10 @@ public class JythonEntityValidationCalculator extends AbstractCalculator
         public void requestValidation(T o);
     }
 
+    private final IEvaluationRunner runner;
+
+    private final IValidationRequestDelegate<Object> wrappedValidationRequestedDelegate;
+
     /**
      * Creates a calculator for given <code>expression</code>.
      * <p>
@@ -51,54 +59,95 @@ public class JythonEntityValidationCalculator extends AbstractCalculator
     public static JythonEntityValidationCalculator create(String expression,
             final IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequestedDelegate)
     {
-        String initialScript = getBasicInitialScript();
-        initialScript += VALIDATION_REQUEST_FUNCTION + NEWLINE;
+        String initialScript = AbstractCalculator.getBasicInitialScript();
+        initialScript += VALIDATION_REQUEST_FUNCTION;
         initialScript += expression;
         String calculatedExpression = INVOKE_CALCULATE_EXPR;
 
-        return new JythonEntityValidationCalculator(new Evaluator(calculatedExpression, Math.class,
-                initialScript), validationRequestedDelegate);
+        if (JythonEvaluatorPool.INSTANCE != null)
+        {
+            return new JythonEntityValidationCalculator(JythonEvaluatorPool.INSTANCE.getRunner(
+                    calculatedExpression, Math.class, initialScript), validationRequestedDelegate);
+        } else
+        {
+            return new JythonEntityValidationCalculator(calculatedExpression, initialScript,
+                    validationRequestedDelegate);
+        }
+
     }
 
-    public JythonEntityValidationCalculator(Evaluator evaluator,
+    private JythonEntityValidationCalculator(final String expression, final String script,
             final IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequested)
     {
-        super(evaluator);
+        this(new IEvaluationRunner()
+            {
+                private Evaluator evaluator;
+                {
+                    this.evaluator = new Evaluator(expression, Math.class, script);
+                }
+
+                @Override
+                public <T> T evaluate(IAtomicEvaluation<T> evaluation)
+                {
+                    return evaluation.evaluate(evaluator);
+                }
+
+            }, validationRequested);
+    }
+
+    public JythonEntityValidationCalculator(IEvaluationRunner runner,
+            final IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequested)
+    {
+        this.runner = runner;
 
         // wrap the request validation with argument checking, so that the implementators of the
         // interface can focus on logic
-        IValidationRequestDelegate<Object> wrappedValidationRequestedDelegate =
-                new IValidationRequestDelegate<Object>()
+        wrappedValidationRequestedDelegate = new IValidationRequestDelegate<Object>()
+            {
+                @Override
+                public void requestValidation(Object entity)
+                {
+                    if (entity == null)
                     {
-                        @Override
-                        public void requestValidation(Object entity)
-                        {
-                            if (entity == null)
-                            {
-                                return;
-                            }
+                        return;
+                    }
 
-                            if (false == entity instanceof INonAbstractEntityAdapter)
-                            {
-                                throw new IllegalArgumentException(
-                                        "Trying to force the validation of an object of invalid type "
-                                                + entity.getClass());
-                            }
-                            validationRequested
-                                    .requestValidation((INonAbstractEntityAdapter) entity);
-                        }
-                    };
-
-        evaluator.set(CALCULATOR_VARIABLE, wrappedValidationRequestedDelegate);
+                    if (false == entity instanceof INonAbstractEntityAdapter)
+                    {
+                        throw new IllegalArgumentException(
+                                "Trying to force the validation of an object of invalid type "
+                                        + entity.getClass());
+                    }
+                    validationRequested.requestValidation((INonAbstractEntityAdapter) entity);
+                }
+            };
     }
 
-    public void setEntity(IEntityAdaptor entity)
+    public String eval(final IEntityAdaptor entity, final boolean isNewEntity)
+            throws EvaluatorException
     {
-        evaluator.set(ENTITY_VARIABLE_NAME, entity);
+        return runner.evaluate(new IAtomicEvaluation<String>()
+            {
+                @Override
+                public String evaluate(Evaluator evaluator)
+                {
+                    evaluator.set(CALCULATOR_VARIABLE, wrappedValidationRequestedDelegate);
+                    evaluator.set(ENTITY_VARIABLE_NAME, entity);
+                    evaluator.set(IS_NEW_ENTITY_VARIABLE_NAME, isNewEntity);
+                    return evaluator.evalAsStringLegacy2_2();
+                }
+            });
     }
 
-    public void setIsNewEntity(boolean isNewEntity)
+    public void checkScriptCompilation()
     {
-        evaluator.set(IS_NEW_ENTITY_VARIABLE_NAME, isNewEntity);
+        runner.evaluate(new IAtomicEvaluation<Void>()
+            {
+                @Override
+                public Void evaluate(Evaluator evaluator)
+                {
+                    return null;
+                }
+            });
     }
 }

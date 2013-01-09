@@ -39,9 +39,6 @@ public class JythonEntityValidator extends AbstractEntityValidator implements IE
         JythonEntityValidationCalculator calculator =
                 JythonEntityValidationCalculator.create(script.getScript(),
                         validationRequestedDelegate);
-        calculator.setEntity(entity);
-        calculator.setIsNewEntity(isNew);
-
-        return calculator.evalAsString();
+        return calculator.eval(entity, isNew);
     }
 }

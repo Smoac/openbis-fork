@@ -3258,9 +3258,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             IEntityAdaptor adaptor =
                     EntityAdaptorFactory.create(entity, evaluator, getDAOFactory()
                             .getSessionFactory().getCurrentSession());
-            calculator.setEntity(adaptor);
-            calculator.setIsNewEntity(info.isNew());
-            String result = calculator.evalAsString();
+            String result = calculator.eval(adaptor, info.isNew());
 
             if (result != null)
             {

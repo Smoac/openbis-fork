@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonDynamicPropertyCalculator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonEntityValidationCalculator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
@@ -159,10 +160,15 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         if (scriptType == ScriptType.MANAGED_PROPERTY)
         {
             new JythonManagedPropertyEvaluator(scriptExpression);
-        } else
+        } else if (scriptType == ScriptType.DYNAMIC_PROPERTY)
         {
             JythonDynamicPropertyCalculator calculator =
                     JythonDynamicPropertyCalculator.create(scriptExpression);
+            calculator.checkScriptCompilation();
+        } else
+        {
+            JythonEntityValidationCalculator calculator =
+                    JythonEntityValidationCalculator.create(scriptExpression, null);
             calculator.checkScriptCompilation();
         }
     }
