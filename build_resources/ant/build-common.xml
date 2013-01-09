@@ -122,6 +122,7 @@
 			<xmlfileset dir="${sources.test}" includes="${test.suite}" />
 			<jvmarg value="-Xmx1024M" />
 			<jvmarg value="-XX:MaxPermSize=512m" />
+			<jvmarg value="-Dant.project.name=${ant.project.name}" />
 		</testng>
 		
 	</target>
