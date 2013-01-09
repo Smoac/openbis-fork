@@ -99,8 +99,10 @@ public class TestInitializer
         // and in the right place when we run tests
         restoreSearchIndex();
 
+        String projectName = System.getProperty("ant.project.name", "");
+
         System.setProperty("database.create-from-scratch", "true");
-        System.setProperty("database.kind", "test");
+        System.setProperty("database.kind", projectName.isEmpty() ? "test" : "test_" + projectName);
         System.setProperty("script-folder", scriptFolder);
         System.setProperty("hibernate.search.index-mode", hibernateIndexMode.name());
         System.setProperty("hibernate.search.index-base", LUCENE_INDEX_PATH);
