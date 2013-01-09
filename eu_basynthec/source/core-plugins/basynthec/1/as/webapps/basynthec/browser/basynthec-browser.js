@@ -542,9 +542,19 @@ AppModel.prototype.initializeOd600WithPhenotypesAndPredictionsModel = function(c
 		    	return "OD600" == dataset.dataSetTypeCode;
 		    });
 			
-			if(hasPhenotypesOrPredictions && hasOd600Datasets){
-				strainData.isKnown = true;
-				strainsKnownToOpenbisWithPhenotypesOrPredictions.push(strainData);
+			if (hasOd600Datasets) { 
+			  if(hasPhenotypesOrPredictions){
+				  strainData.isKnown = true;
+				  strainsKnownToOpenbisWithPhenotypesOrPredictions.push(strainData);
+			  } else {
+				  strainData.isKnown = true;
+				  strainsKnownToOpenbisWithPhenotypesOrPredictions.push(strainData);
+			  }
+			} else {
+				if (strainDatasets && strainDatasets.dataSets.length > 0) {
+				  strainData.isKnown = true;
+				  strainsKnownToOpenbisWithPhenotypesOrPredictions.push(strainData);
+				}
 			}
 		}
 		
@@ -577,8 +587,8 @@ AppModel.prototype.initializeOd600WithPhenotypesAndPredictionsModel = function(c
 }
 
 AppModel.prototype.od600DataSets = function() {
-    var ds = this.dataSetsByType["OD600"];
-    return ds ? ds : [];
+	var ds = this.dataSetsByType["OD600"];
+        return ds ? ds : [];
 }
 
 /**
@@ -814,8 +824,10 @@ Od600StrainWithPhenotypesAndPredictionsView.prototype.updateView = function(dura
 					return "green";
 				}else if(d.data.hasPhenotypes){
 					return "blue";
-				}else if(d.data.hasPredictions){
+				} else if(d.data.hasPredictions){
 					return "red";
+				} else {
+				  return "black"
 				}
 			})
 	tds.attr("class", function(d){
@@ -837,6 +849,7 @@ Od600StrainWithPhenotypesAndPredictionsView.prototype.updateView = function(dura
 	legendList.append("li").append("span").text("strain with phenotypes and predictions").style("color","green");
 	legendList.append("li").append("span").text("strain with phenotypes only").style("color","blue");
 	legendList.append("li").append("span").text("strain with predictions only").style("color","red");
+	legendList.append("li").append("span").text("strain with no phenotypes or predictions").style("color","black");	
 }
 
 /**
