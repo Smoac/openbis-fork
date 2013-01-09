@@ -312,7 +312,7 @@ AppPresenter.prototype.toggleInspected = function(d, connectedNode) {
 			d.dataSets = [{ bis : d.dataSet }];
 			retrieveFilesForDataSets(d.dataSets);
 		} else if (!d.dataSets) {
-			d.dataSets = model.dataSetsByStrain[d.name].dataSets.map(function(ds){ return {bis : ds} }); 
+			d.dataSets = model.dataSetsByStrain[d.name].dataSets.map(function(ds){ return {bis : ds} });
 			retrieveFilesForDataSets(d.dataSets);
 		}
 	}
@@ -350,8 +350,8 @@ AppPresenter.prototype.toggleOd600Inspected = function(d) {
 		if (d instanceof DataSetWrapper) {
 			d.dataSets = [{ bis : d.dataSet }];
 			retrieveFilesForDataSets(d.dataSets);
-		} else if (!d.dataSets) {
-			d.dataSets = model.dataSetsByStrain[d.name].dataSets.map(function(ds){ return {bis : ds} }); 
+		} else if (!d.dataSets && d.data.isKnown) {
+			d.dataSets = model.dataSetsByStrain[d.name].dataSets.map(function(ds){ return {bis : ds} });
 			retrieveFilesForDataSets(d.dataSets);
 		}
 	}
@@ -561,7 +561,7 @@ AppModel.prototype.initializeOd600WithPhenotypesAndPredictionsModel = function(c
 		    	return "OD600" == dataset.dataSetTypeCode;
 		    });
 			
-			if (hasOd600Datasets) { 
+			if (hasOd600Datasets) {
 			  if(hasPhenotypesOrPredictions){
 				  strainData.isKnown = true;
 				  strainsKnownToOpenbisWithPhenotypesOrPredictions.push(strainData);
@@ -584,9 +584,17 @@ AppModel.prototype.initializeOd600WithPhenotypesAndPredictionsModel = function(c
 			var hasPhenotypesOrPredictions = strainData && (strainData.hasPhenotypes || strainData.hasPredictions);
 			var hasDatasets = strainDatasets && strainDatasets.dataSets.length > 0;
 			
-			if(hasPhenotypesOrPredictions && !hasDatasets){
+			if(hasPhenotypesOrPredictions && !hasDatasets) {
 				strainData.isKnown = false;
 				strainsUnknownToOpenbisWithPhenotypesOrPredictions.push(strainData);
+			}
+
+			strainData.phenotypeMap = {};
+			if (strainData.hasPhenotypes) {
+				strainData.phenotypes.forEach(function(each) {
+					strainData.phenotypeMap[each.media] = each.relativeGrowth;
+					model.addGrowthMedium(each.media, strainName);
+				});
 			}
 		}
 		
@@ -845,11 +853,7 @@ Od600StrainWithPhenotypesAndPredictionsView.prototype.updateView = function(dura
     var tds = trs.selectAll("td").data(function(d) { return d });
 	tds.enter()
 			.append("td")
-			.on("click", function(d){
-				if(d.data.isKnown){
-					return toggleOd600Inspected(d);
-				}
-			})
+			.on("click", function(d) { return toggleOd600Inspected(d); })
 			.text(function(d) { return d.label })
 			.style("color", function(d){
 				if(d.data.hasPhenotypes && d.data.hasPredictions){
