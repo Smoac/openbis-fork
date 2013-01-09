@@ -144,6 +144,7 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
     @Override
     public void close()
     {
+        cache.unlockFilesFor(location.getLocation().getDataSetCode());
     }
 
     private IHierarchicalContentNode createNode(DataSetPathInfo info)

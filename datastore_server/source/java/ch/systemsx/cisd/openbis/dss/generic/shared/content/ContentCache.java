@@ -23,12 +23,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
@@ -40,18 +46,35 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
  */
 public class ContentCache
 {
-    private IDssServiceRpcGeneric remoteDss;
+    static final String CHACHED_FOLDER = "cached";
 
-    private OpenBISSessionHolder sessionHolder;
+    static final String DOWNLOADING_FOLDER = "downloading";
+    
+    private final IDssServiceRpcGeneric remoteDss;
 
-    private File cacheWorkspace;
+    private final OpenBISSessionHolder sessionHolder;
+
+    private final File cachedFiles;
+
+    private final File downloadingFolder;
+
+    private Map<String, Lock> locks;
 
     public ContentCache(IDssServiceRpcGeneric remoteDss, OpenBISSessionHolder sessionHolder,
-            File cacheWorkSpace)
+            File cacheWorkSpace, IFileOperations fileOperations)
     {
         this.remoteDss = remoteDss;
         this.sessionHolder = sessionHolder;
-        cacheWorkspace = cacheWorkSpace;
+        cachedFiles = new File(cacheWorkSpace, CHACHED_FOLDER);
+        creatFolder(cachedFiles);
+        downloadingFolder = new File(cacheWorkSpace, DOWNLOADING_FOLDER);
+        fileOperations.removeRecursivelyQueueing(downloadingFolder);
+        creatFolder(downloadingFolder);
+        locks = new HashMap<String, Lock>();
+    }
+
+    public void unlockFilesFor(String dataSetCode)
+    {
     }
 
     IDssServiceRpcGeneric getRemoteDss()
@@ -62,32 +85,34 @@ public class ContentCache
     File getFile(String dataSetCode, DataSetPathInfo path)
     {
         String pathInCache = dataSetCode + "/" + path.getRelativePath();
-        File file = new File(cacheWorkspace, pathInCache);
-
-        if (file.exists())
+        lock(pathInCache);
+        try
         {
+            File file = new File(cachedFiles, pathInCache);
+            if (file.exists() == false)
+            {
+                downloadFile(dataSetCode, path, pathInCache);
+            }
             return file;
+        } finally
+        {
+            unlock(pathInCache);
         }
+    }
 
-        String url =
-                remoteDss.getDownloadUrlForFileForDataSet(sessionHolder.getSessionToken(),
-                        dataSetCode, path.getRelativePath());
+    private void downloadFile(String dataSetCode, DataSetPathInfo path, String pathInCache)
+    {
         InputStream input = null;
         try
         {
-            if (url.toLowerCase().startsWith("https"))
-            {
-                input =
-                        new URL(null, url, new sun.net.www.protocol.https.Handler())
-                                .openConnection().getInputStream();
-            } else
-            {
-                input = new URL(url).openStream();
-            }
-            putFileToSessionWorkspace(pathInCache, input);
-        } catch (MalformedURLException ex)
-        {
-            throw new ConfigurationFailureException("Malformed URL: " + url);
+            String url =
+                    remoteDss.getDownloadUrlForFileForDataSet(sessionHolder.getSessionToken(),
+                            dataSetCode, path.getRelativePath());
+            input = createURL(url).openStream();
+            File downloadedFile = createFileFromInputStream(pathInCache, input);
+            File file = new File(cachedFiles, pathInCache);
+            creatFolder(file.getParentFile());
+            downloadedFile.renameTo(file);
         } catch (Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -95,16 +120,28 @@ public class ContentCache
         {
             IOUtils.closeQuietly(input);
         }
-
-        return file;
-
+    }
+    
+    private URL createURL(String url)
+    {
+        try
+        {
+            if (url.toLowerCase().startsWith("https"))
+            {
+                return new URL(null, url, new sun.net.www.protocol.https.Handler());
+            }
+            return new URL(url);
+        } catch (MalformedURLException ex)
+        {
+            throw new ConfigurationFailureException("Malformed URL: " + url);
+        }
     }
 
-    private void putFileToSessionWorkspace(String filePath, InputStream inputStream)
+    private File createFileFromInputStream(String filePath, InputStream inputStream)
     {
         final String subDir = FilenameUtils.getFullPath(filePath);
         final String filename = FilenameUtils.getName(filePath);
-        final File dir = new File(cacheWorkspace, subDir);
+        final File dir = new File(downloadingFolder, subDir);
         dir.mkdirs();
         final File file = new File(dir, filename);
         OutputStream ostream = null;
@@ -112,6 +149,7 @@ public class ContentCache
         {
             ostream = new FileOutputStream(file);
             IOUtils.copyLarge(inputStream, ostream);
+            return file;
         } catch (IOException ex)
         {
             file.delete();
@@ -119,6 +157,49 @@ public class ContentCache
         } finally
         {
             IOUtils.closeQuietly(ostream);
+        }
+    }
+    
+    private void creatFolder(File folder)
+    {
+        if (folder.exists() == false)
+        {
+            boolean result = folder.mkdirs();
+            if (result == false)
+            {
+                throw new EnvironmentFailureException("Couldn't create folder: " + folder);
+            }
+        }
+    }
+
+    private void lock(String pathInCache)
+    {
+        getLock(pathInCache).lock();
+    }
+    
+    private Lock getLock(String pathInCache)
+    {
+        synchronized (locks)
+        {
+            Lock lock = locks.get(pathInCache);
+            if (lock == null)
+            {
+                lock = new ReentrantLock();
+                locks.put(pathInCache, lock);
+            }
+            return lock;
+        }
+    }
+    
+    private void unlock(String pathInCache)
+    {
+        synchronized (locks)
+        {
+            Lock lock = locks.remove(pathInCache);
+            if (lock != null)
+            {
+                lock.unlock();
+            }
         }
     }
 

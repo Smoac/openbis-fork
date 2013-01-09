@@ -28,6 +28,7 @@ import org.jmock.Mockery;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
@@ -56,6 +57,8 @@ public class RemoteHierarchicalContentNodeTest
 
     Mockery context;
 
+    private IFileOperations fileOperations;
+    
     ISingleDataSetPathInfoProvider provider;
 
     IDssServiceRpcGeneric remoteDss;
@@ -70,6 +73,7 @@ public class RemoteHierarchicalContentNodeTest
     public void fixture() throws Exception
     {
         context = new Mockery();
+        fileOperations = context.mock(IFileOperations.class);
 
         provider = context.mock(ISingleDataSetPathInfoProvider.class);
 
@@ -81,11 +85,18 @@ public class RemoteHierarchicalContentNodeTest
         remoteFile = new File(REMOTE_FILES_DIR + "/" + REMOTE_DATASET_CODE, "remote-file.txt");
 
         fileInSessionWorkspace =
-                new File(SESSION_WORKSPACE_DIR, CACHED_DATASET_CODE
+                new File(SESSION_WORKSPACE_DIR, ContentCache.CHACHED_FOLDER + "/" + CACHED_DATASET_CODE
                         + "/already-downloaded-file.txt");
         create(remoteFile);
         create(fileInSessionWorkspace);
-        cache = new ContentCache(remoteDss, sessionHolder, SESSION_WORKSPACE_DIR);
+        context.checking(new Expectations()
+            {
+                {
+                    one(fileOperations).removeRecursivelyQueueing(
+                            new File(SESSION_WORKSPACE_DIR, ContentCache.DOWNLOADING_FOLDER));
+                }
+            });
+        cache = new ContentCache(remoteDss, sessionHolder, SESSION_WORKSPACE_DIR, fileOperations);
     }
 
     @Test

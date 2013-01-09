@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
@@ -195,7 +196,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                     HttpInvokerUtils.createServiceStub(IDssServiceRpcGeneric.class, locationNode
                             .getLocation().getDataStoreUrl() + "/datastore_server/rmi-dss-api-v1",
                             300000);
-            cache = new ContentCache(remote, session, cacheWorkspace);
+            cache = new ContentCache(remote, session, cacheWorkspace, FileOperations.getInstance());
             cacheMap.put(remoteDataStoreCode, cache);
         }
         return cache;
