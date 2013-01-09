@@ -112,7 +112,7 @@ public class JythonEvaluatorPool
     private <T> T evaluate(String expression, Class<?> clazz, String script,
             IAtomicEvaluation<T> evaluation)
     {
-        String key = expression + "#" + script + "#" + clazz.getCanonicalName();
+        String key = generateKey(expression, clazz, script);
 
         EvaluatorState state = cache.get(key);
         if (state == null)
@@ -141,6 +141,20 @@ public class JythonEvaluatorPool
         {
             lock.unlock();
         }
+    }
+
+    /**
+     * Generate key for the script for the cache.
+     */
+    String generateKey(String expression, Class<?> clazz, String script)
+    {
+        String key = expression + "#" + script + "#" + clazz.getCanonicalName();
+        return key;
+    }
+
+    String generateKeyForManagedProperties(String script)
+    {
+        return generateKey("", ManagedPropertyFunctions.class, script);
     }
 
     /**
@@ -191,7 +205,7 @@ public class JythonEvaluatorPool
         }
     }
 
-    public static Map<String, EvaluatorState> createCache(String poolSize)
+    static Map<String, EvaluatorState> createCache(String poolSize)
     {
         int size = DEFAULT_POOL_SIZE;
         try
@@ -208,7 +222,7 @@ public class JythonEvaluatorPool
         return createCache(size);
     }
 
-    public static Map<String, EvaluatorState> createCache(final int poolSize)
+    static Map<String, EvaluatorState> createCache(final int poolSize)
     {
         return new LinkedHashMap<String, EvaluatorState>(16, 0.75f, true)
             {

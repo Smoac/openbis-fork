@@ -16,35 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
  * @author Pawel Glyzewski
  */
 public class DynamicPropertyCalculatorFactory implements IDynamicPropertyCalculatorFactory
 {
-    private final Map<ScriptPE, IDynamicPropertyCalculator> calculatorsByScript =
-            new HashMap<ScriptPE, IDynamicPropertyCalculator>();
-
     @Override
     /** Returns a calculator for given script (creates a new one if nothing is found in cache). */
     public IDynamicPropertyCalculator getCalculator(EntityTypePropertyTypePE etpt)
     {
-        ScriptPE scriptPE = etpt.getScript();
-
-        // Creation of a calculator takes some time because of compilation of the script.
-        // That is why a cache is used.
-        IDynamicPropertyCalculator result = calculatorsByScript.get(scriptPE);
-        if (result == null)
-        {
-            result = JythonDynamicPropertyCalculator.create(scriptPE.getScript());
-            calculatorsByScript.put(scriptPE, result);
-        }
-        return result;
+        return JythonDynamicPropertyCalculator.create(etpt.getScript().getScript());
     }
 }

@@ -125,8 +125,10 @@ public class JythonEvaluatorPoolTest
             pool.getManagedPropertiesRunner(scripts.get(0)).evaluate(dummyEvaluation());
         }
 
-        assertThat(cache.containsKey(scripts.get(0)), is(true));
-        assertThat(cache.containsKey(scripts.get(1)), is(false));
+        assertThat(cache.containsKey(pool.generateKeyForManagedProperties(scripts.get(0))),
+                is(true));
+        assertThat(cache.containsKey(pool.generateKeyForManagedProperties(scripts.get(1))),
+                is(false));
     }
 
     private String createRandomScript()

@@ -109,4 +109,16 @@ public class JythonDynamicPropertyCalculator implements IDynamicPropertyCalculat
                 }
             });
     }
+
+    public void checkScriptCompilation()
+    {
+        runner.evaluate(new IAtomicEvaluation<Void>()
+            {
+                @Override
+                public Void evaluate(Evaluator evaluator)
+                {
+                    return null;
+                }
+            });
+    }
 }

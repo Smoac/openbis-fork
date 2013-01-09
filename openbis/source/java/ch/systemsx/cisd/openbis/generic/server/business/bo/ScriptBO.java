@@ -161,7 +161,9 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
             new JythonManagedPropertyEvaluator(scriptExpression);
         } else
         {
-            JythonDynamicPropertyCalculator.create(scriptExpression);
+            JythonDynamicPropertyCalculator calculator =
+                    JythonDynamicPropertyCalculator.create(scriptExpression);
+            calculator.checkScriptCompilation();
         }
     }
 
