@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3605B05C1653EE8500CEC7F8 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 3605B05B1653EE8500CEC7F8 /* Settings.bundle */; };
+		3611F7B1169D5D8E0072B61A /* CISDOBAuthenticationChallengeConfirmationDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 3611F7B0169D5D8E0072B61A /* CISDOBAuthenticationChallengeConfirmationDialog.m */; };
 		362B81EC163FFB6C00127554 /* CISDOBIpadServiceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 362B81EB163FFB6C00127554 /* CISDOBIpadServiceManager.m */; };
 		364D509E161C6ADB00A739B0 /* openBISData.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 364D509C161C6ADB00A739B0 /* openBISData.sqlite */; };
 		3656C9B4165A7A7E00E9B0FA /* CISDOBImageViewPopoverController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3656C9B3165A7A7E00E9B0FA /* CISDOBImageViewPopoverController.m */; };
@@ -80,6 +81,8 @@
 
 /* Begin PBXFileReference section */
 		3605B05B1653EE8500CEC7F8 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
+		3611F7AF169D5D8E0072B61A /* CISDOBAuthenticationChallengeConfirmationDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBAuthenticationChallengeConfirmationDialog.h; sourceTree = "<group>"; };
+		3611F7B0169D5D8E0072B61A /* CISDOBAuthenticationChallengeConfirmationDialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBAuthenticationChallengeConfirmationDialog.m; sourceTree = "<group>"; };
 		362B81EA163FFB6C00127554 /* CISDOBIpadServiceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBIpadServiceManager.h; sourceTree = "<group>"; };
 		362B81EB163FFB6C00127554 /* CISDOBIpadServiceManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBIpadServiceManager.m; sourceTree = "<group>"; };
 		364D5098161C6A3600A739B0 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = readme.md; sourceTree = "<group>"; };
@@ -223,6 +226,8 @@
 				364D5098161C6A3600A739B0 /* readme.md */,
 				36F71E89161C3AE900C87277 /* CISDOBAppDelegate.h */,
 				36F71E8A161C3AE900C87277 /* CISDOBAppDelegate.m */,
+				3611F7AF169D5D8E0072B61A /* CISDOBAuthenticationChallengeConfirmationDialog.h */,
+				3611F7B0169D5D8E0072B61A /* CISDOBAuthenticationChallengeConfirmationDialog.m */,
 				36F71E92161C3AE900C87277 /* MainStoryboard_iPhone.storyboard */,
 				36F71E95161C3AE900C87277 /* MainStoryboard_iPad.storyboard */,
 				36F71E9E161C3AE900C87277 /* CISDOBDetailViewController.h */,
@@ -487,6 +492,7 @@
 				362B81EC163FFB6C00127554 /* CISDOBIpadServiceManager.m in Sources */,
 				36BDE60016555869007EC62A /* CISDOBLoginViewController.m in Sources */,
 				3656C9B4165A7A7E00E9B0FA /* CISDOBImageViewPopoverController.m in Sources */,
+				3611F7B1169D5D8E0072B61A /* CISDOBAuthenticationChallengeConfirmationDialog.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

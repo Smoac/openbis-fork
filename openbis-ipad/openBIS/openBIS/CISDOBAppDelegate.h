@@ -23,8 +23,11 @@
 
 #import <UIKit/UIKit.h>
 
-@class CISDOBOpenBisModel, CISDOBIpadServiceManager, CISDOBAsyncCall, CISDOBLoginViewController;
-@interface CISDOBAppDelegate : UIResponder <UIApplicationDelegate>
+@class CISDOBOpenBisModel, CISDOBIpadServiceManager, CISDOBAsyncCall, CISDOBLoginViewController, CISDOBAuthenticationChallengeConfirmationDialog;
+@interface CISDOBAppDelegate : UIResponder <UIApplicationDelegate> {
+@private
+    CISDOBAuthenticationChallengeConfirmationDialog *_challengeDialog;
+}
 
 @property (strong, nonatomic) UIWindow *window;
 

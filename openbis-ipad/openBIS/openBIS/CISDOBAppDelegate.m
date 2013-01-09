@@ -29,6 +29,7 @@
 #import "CISDOBAsyncCall.h"
 #import "CISDOBDetailViewController.h"
 #import "CISDOBLoginViewController.h"
+#import "CISDOBAuthenticationChallengeConfirmationDialog.h"
 
 @implementation CISDOBAppDelegate
 
@@ -243,8 +244,9 @@
         if (!_serviceManager) return NO;
     }
     
-    _serviceManager.authenticationChallengeBlock = ^(CISDOBAsyncCall *call, NSURLAuthenticationChallenge *challange) {
-        [call trustProtectionSpaceForAuthenticationChallenge: challange];
+    __weak CISDOBAppDelegate *weakSelf = self;
+    _serviceManager.authenticationChallengeBlock = ^(CISDOBAsyncCall *call, NSURLAuthenticationChallenge *challenge) {
+        [weakSelf presetDialogForCall: call challenge: challenge];
     };
     
     return YES;
@@ -258,6 +260,29 @@
     _rootOpenBisModel.appDelegate = self;
     
     return _rootOpenBisModel;
+}
+
+#pragma mark - Authentication Challenges
+- (void)presetDialogForCall:(CISDOBAsyncCall *)call challenge:(NSURLAuthenticationChallenge *)challenge
+{
+    // Just continue if a dialog is already being shown
+    if (_challengeDialog != nil) {
+        [challenge.sender continueWithoutCredentialForAuthenticationChallenge: challenge];
+        return;
+    }
+    
+    _challengeDialog =
+        [[CISDOBAuthenticationChallengeConfirmationDialog alloc]
+            initWithCall: call challenge: challenge];
+    _challengeDialog.delegate = self;
+    [_challengeDialog start];
+}
+
+// CISDOBAuthenticationChallengeConfirmationDialogDelegate
+
+- (void)didDismissConfirmationDialog:(CISDOBAuthenticationChallengeConfirmationDialog *)dialog trusting:(BOOL)didTrust
+{
+    _challengeDialog = nil;
 }
 
 
