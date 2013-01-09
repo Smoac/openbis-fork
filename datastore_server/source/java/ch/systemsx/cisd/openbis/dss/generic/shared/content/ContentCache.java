@@ -35,9 +35,9 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
-import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
 /**
  * Cache for files remotely retrieved from a DSS.
@@ -52,7 +52,7 @@ public class ContentCache
     
     private final IDssServiceRpcGeneric remoteDss;
 
-    private final OpenBISSessionHolder sessionHolder;
+    private final ISessionTokenProvider sessionTokenProvider;
 
     private final File cachedFiles;
 
@@ -60,11 +60,11 @@ public class ContentCache
 
     private Map<String, Lock> locks;
 
-    public ContentCache(IDssServiceRpcGeneric remoteDss, OpenBISSessionHolder sessionHolder,
+    public ContentCache(IDssServiceRpcGeneric remoteDss, ISessionTokenProvider sessionTokenProvider,
             File cacheWorkSpace, IFileOperations fileOperations)
     {
         this.remoteDss = remoteDss;
-        this.sessionHolder = sessionHolder;
+        this.sessionTokenProvider = sessionTokenProvider;
         cachedFiles = new File(cacheWorkSpace, CHACHED_FOLDER);
         creatFolder(cachedFiles);
         downloadingFolder = new File(cacheWorkSpace, DOWNLOADING_FOLDER);
@@ -106,8 +106,9 @@ public class ContentCache
         try
         {
             String url =
-                    remoteDss.getDownloadUrlForFileForDataSet(sessionHolder.getSessionToken(),
-                            dataSetCode, path.getRelativePath());
+                    remoteDss.getDownloadUrlForFileForDataSet(
+                            sessionTokenProvider.getSessionToken(), dataSetCode,
+                            path.getRelativePath());
             input = createURL(url).openStream();
             File downloadedFile = createFileFromInputStream(pathInCache, input);
             File file = new File(cachedFiles, pathInCache);

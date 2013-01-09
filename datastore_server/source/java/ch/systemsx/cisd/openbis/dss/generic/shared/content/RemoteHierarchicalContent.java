@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
 /**
  * Implementation of HierchicalContent that is stored on remote datastore server.
@@ -39,19 +39,19 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
 
     private final ISingleDataSetPathInfoProvider provider;
 
-    private final OpenBISSessionHolder sessionHolder;
+    private final ISessionTokenProvider sessionTokenProvider;
 
     private final IDssServiceRpcGeneric remote;
 
     private final ContentCache cache;
 
     public RemoteHierarchicalContent(IDatasetLocationNode location,
-            ISingleDataSetPathInfoProvider pathInfoProvider, OpenBISSessionHolder sessionHolder,
+            ISingleDataSetPathInfoProvider pathInfoProvider, ISessionTokenProvider sessionTokenProvider,
             ContentCache cache)
     {
         this.location = location;
         this.provider = pathInfoProvider;
-        this.sessionHolder = sessionHolder;
+        this.sessionTokenProvider = sessionTokenProvider;
         this.remote = cache.getRemoteDss();
         this.cache = cache;
         
@@ -150,7 +150,7 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
     private IHierarchicalContentNode createNode(DataSetPathInfo info)
     {
         return new RemoteHierarchicalContentNode(location.getLocation().getDataSetCode(), info,
-                provider, remote, sessionHolder, cache);
+                provider, remote, sessionTokenProvider, cache);
     }
 
     private List<IHierarchicalContentNode> createNodes(List<DataSetPathInfo> paths)

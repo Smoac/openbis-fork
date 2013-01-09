@@ -27,12 +27,12 @@ import java.util.List;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
-import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
 /**
  * A node of hierarchical content that stored on a remote datastore server. If file content is
@@ -49,7 +49,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
 
     private IDssServiceRpcGeneric remoteDss;
 
-    private OpenBISSessionHolder sessionHolder;
+    private ISessionTokenProvider sessionTokenProvider;
 
     private DataSetPathInfo path;
 
@@ -59,16 +59,16 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
 
     public RemoteHierarchicalContentNode(String dataSetCode, DataSetPathInfo path,
             ISingleDataSetPathInfoProvider provider, IDssServiceRpcGeneric remote,
-            OpenBISSessionHolder sessionHolder, ContentCache contentCache)
+            ISessionTokenProvider sessionTokenProvider, ContentCache contentCache)
     {
-        this(dataSetCode, path, provider, remote, sessionHolder, contentCache, null);
+        this(dataSetCode, path, provider, remote, sessionTokenProvider, contentCache, null);
     }
 
     private RemoteHierarchicalContentNode(String dataSetCode,
             DataSetPathInfo path,
             ISingleDataSetPathInfoProvider provider,
             IDssServiceRpcGeneric remote,
-            OpenBISSessionHolder sessionHolder,
+            ISessionTokenProvider sessionTokenProvider,
             ContentCache contentCache,
             String parentRelativePath)
     {
@@ -76,7 +76,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
         this.path = path;
         this.provider = provider;
         this.remoteDss = remote;
-        this.sessionHolder = sessionHolder;
+        this.sessionTokenProvider = sessionTokenProvider;
         this.cache = contentCache;
         this.parentRelativePath = parentRelativePath;
     }
@@ -152,12 +152,12 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
             for (DataSetPathInfo childPath : provider.listChildrenPathInfos(path))
             {
                 children.add(new RemoteHierarchicalContentNode(dataSetCode, childPath, provider,
-                        remoteDss, sessionHolder, cache, path.getRelativePath()));
+                        remoteDss, sessionTokenProvider, cache, path.getRelativePath()));
             }
         } else
         {
             for (FileInfoDssDTO file : remoteDss.listFilesForDataSet(
-                    sessionHolder.getSessionToken(), dataSetCode,
+                    sessionTokenProvider.getSessionToken(), dataSetCode,
                     path.getRelativePath(), false))
             {
                 DataSetPathInfo info = new DataSetPathInfo();
@@ -168,7 +168,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
                 info.setSizeInBytes(file.getFileSize());
                 info.setLastModified(new Date(0L));
                 children.add(new RemoteHierarchicalContentNode(dataSetCode, info, provider,
-                        remoteDss, sessionHolder, cache, path.getRelativePath()));
+                        remoteDss, sessionTokenProvider, cache, path.getRelativePath()));
             }
         }
         return children;

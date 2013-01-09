@@ -27,8 +27,10 @@ import org.apache.log4j.Logger;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
+import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
@@ -43,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
 /**
  * The default implementation of {@link IHierarchicalContentProvider}.
@@ -63,7 +64,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
 
     private IHierarchicalContentFactory hierarchicalContentFactory;
 
-    private OpenBISSessionHolder session;
+    private ISessionTokenProvider sessionTokenProvider;
 
     private String dataStoreCode;
 
@@ -73,21 +74,22 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
 
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
             IShareIdManager shareIdManager, IConfigProvider configProvider,
-            OpenBISSessionHolder session,
+            ISessionTokenProvider sessionTokenProvider,
             ExposablePropertyPlaceholderConfigurer infoProvider)
     {
         this(openbisService, new DataSetDirectoryProvider(configProvider.getStoreRoot(),
-                shareIdManager), null, session, configProvider.getDataStoreCode(),
+                shareIdManager), null, sessionTokenProvider, configProvider.getDataStoreCode(),
                 infoProvider);
     }
 
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
             IShareIdManager shareIdManager, IConfigProvider configProvider,
-            IHierarchicalContentFactory hierarchicalContentFactory, OpenBISSessionHolder session,
+            IHierarchicalContentFactory hierarchicalContentFactory,
+            ISessionTokenProvider sessionTokenProvider,
             ExposablePropertyPlaceholderConfigurer infoProvider)
     {
         this(openbisService, new DataSetDirectoryProvider(configProvider.getStoreRoot(),
-                shareIdManager), hierarchicalContentFactory, session, configProvider
+                shareIdManager), hierarchicalContentFactory, sessionTokenProvider, configProvider
                 .getDataStoreCode(), infoProvider);
     }
 
@@ -95,14 +97,14 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
             IDataSetDirectoryProvider directoryProvider,
             IHierarchicalContentFactory hierarchicalContentFactory,
-            OpenBISSessionHolder session,
+            ISessionTokenProvider session,
             String dataStoreCode,
             ExposablePropertyPlaceholderConfigurer infoProvider)
     {
         this.openbisService = openbisService;
         this.directoryProvider = directoryProvider;
         this.hierarchicalContentFactory = hierarchicalContentFactory;
-        this.session = session;
+        this.sessionTokenProvider = session;
         this.dataStoreCode = dataStoreCode;
         this.trustAllCertificates = false;
         if (infoProvider != null)
@@ -182,21 +184,24 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                         .getDataStoreUrl());
             }
             ContentCache cache = getCache(locationNode);
-            return new RemoteHierarchicalContent(locationNode, provider, session, cache);
+            return new RemoteHierarchicalContent(locationNode, provider, sessionTokenProvider,
+                    cache);
         }
     }
 
     private ContentCache getCache(IDatasetLocationNode locationNode)
     {
-        String remoteDataStoreCode = locationNode.getLocation().getDataStoreCode();
+        IDatasetLocation location = locationNode.getLocation();
+        String remoteDataStoreCode = location.getDataStoreCode();
         ContentCache cache = cacheMap.get(remoteDataStoreCode);
         if (cache == null)
         {
+            String serviceURL = location.getDataStoreUrl() + "/datastore_server/rmi-dss-api-v1";
             IDssServiceRpcGeneric remote =
-                    HttpInvokerUtils.createServiceStub(IDssServiceRpcGeneric.class, locationNode
-                            .getLocation().getDataStoreUrl() + "/datastore_server/rmi-dss-api-v1",
+                    HttpInvokerUtils.createServiceStub(IDssServiceRpcGeneric.class, serviceURL,
                             300000);
-            cache = new ContentCache(remote, session, cacheWorkspace, FileOperations.getInstance());
+            IFileOperations fileOperations = FileOperations.getInstance();
+            cache = new ContentCache(remote, sessionTokenProvider, cacheWorkspace, fileOperations);
             cacheMap.put(remoteDataStoreCode, cache);
         }
         return cache;
