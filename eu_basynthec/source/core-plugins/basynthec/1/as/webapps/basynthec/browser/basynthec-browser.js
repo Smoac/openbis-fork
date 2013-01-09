@@ -451,6 +451,9 @@ function AppModel() {
 
 	// A map holding data sets by type
 	this.dataSetsByType = { };
+
+	// A set of all known growth media 
+	this.growthMediaSet = {};
 }
 
 AppModel.prototype.initialize = function(callback) {
@@ -459,6 +462,15 @@ AppModel.prototype.initialize = function(callback) {
 	this.initializeStrainGroups();
 	this.initializeOd600Model();
 	this.initializeOd600WithPhenotypesAndPredictionsModel(callback);
+}
+
+AppModel.prototype.addGrowthMedium = function(medium, strain) {
+	var mediumList = this.growthMediaSet[medium];
+	if (null == mediumList) {
+		mediumList = [];
+		this.growthMediaSet[medium] = mediumList;
+	}
+	mediumList.push(strain);
 }
 
 /** Compute the dataSetsByType variable */
@@ -536,6 +548,13 @@ AppModel.prototype.initializeOd600WithPhenotypesAndPredictionsModel = function(c
 		for(strainName in model.dataSetsByStrain){
 			var strainData = strainDataMap[strainName];
 			var strainDatasets = model.dataSetsByStrain[strainName];
+			strainData.phenotypeMap = {};
+			if (strainData.hasPhenotypes) {
+				strainData.phenotypes.forEach(function(each) { 
+					strainData.phenotypeMap[each.media] = each.relativeGrowth;
+					model.addGrowthMedium(each.media, strainName);
+				});
+			}
 			
 			var hasPhenotypesOrPredictions = strainData && (strainData.hasPhenotypes || strainData.hasPredictions);
 		    var hasOd600Datasets = strainDatasets && strainDatasets.dataSets.some(function(dataset){
@@ -580,6 +599,19 @@ AppModel.prototype.initializeOd600WithPhenotypesAndPredictionsModel = function(c
 			"mainGroupName" : "Strains without data in openBIS",
 			"groups" : createStrainGroups(strainsUnknownToOpenbisWithPhenotypesOrPredictions)
 		});
+
+		var commonGrowthMedia = []
+		var allGrowthMedia = []
+		for (medium in model.growthMediaSet) {
+			allGrowthMedia.push(medium);
+			if (model.growthMediaSet[medium].length > 20) {
+				commonGrowthMedia.push(medium);
+			}
+		}
+		allGrowthMedia.sort();
+		commonGrowthMedia.sort();
+		model.allGrowthMedia = allGrowthMedia;
+		model.commonGrowthMedia = commonGrowthMedia;
 		
 		callback();
 	});
@@ -996,6 +1028,8 @@ Od600InspectorView.prototype.updateView = function(duration)
 			d.showSmall = !d.showSmall;
 			od600InspectorView.updateView();
 		});
+
+	appendGrowthSection(inspectorEnter);
 	
 	appendObjectSection({
 		getSectionContainer: function(){
@@ -1012,24 +1046,6 @@ Od600InspectorView.prototype.updateView = function(duration)
 		},
 		getSectionObjectProperties: function(d){
 			return prediction_props_to_pairs(d);
-		}
-	});
-	
-	appendObjectSection({
-		getSectionContainer: function(){
-			return inspectorEnter;
-		},
-		getSectionName: function(){
-			return "Phenotypes";
-		},
-		getSectionClass: function(){
-			return "phenotypeSection";
-		},
-		getSectionObjects: function(d){
-			return d.data.phenotypes ? d.data.phenotypes : [];
-		},
-		getSectionObjectProperties: function(d){
-			return phenotype_props_to_pairs(d);
 		}
 	});
 
@@ -1154,6 +1170,59 @@ Od600InspectorView.prototype.updateView = function(duration)
 		.duration(duration)
 		.style("opacity", "0")
 		.remove();
+}
+
+function appendGrowthSection(inspectorEnter) {
+	var growthMediaSection = inspectorEnter.append("div");
+	var growsSection = growthMediaSection.selectAll("div.growth")
+		.data(function(d) { var growsOn = [];
+			model.allGrowthMedia.forEach(function(m) { 
+				var value = d.data.phenotypeMap[m]
+				if (value && value > 0)	growsOn.push(m);
+			});
+			return growsOn.length > 0 ? [growsOn] : [];
+		});
+	growsSection.enter().append("div")
+		.attr("class", "growth")
+		.text("Grows on: ");
+	growsSection.selectAll("span")
+		.data(function(d) { return d })
+	.enter().append("span")
+		.text(function (d) { return d + " "});
+
+	var doesNotGrowSection = growthMediaSection.selectAll("div.nogrow")
+		.data(function(d) { var doesNotGrowOn = [];
+			model.allGrowthMedia.forEach(function(m) { 
+				var value = d.data.phenotypeMap[m]
+				if (value && value < 0.01)	doesNotGrowOn.push(m);
+			});
+			return doesNotGrowOn.length > 0 ? [doesNotGrowOn] : [];
+		});
+	doesNotGrowSection.enter().append("div")
+		.attr("class", "nogrow")
+		.text("No growth on: ");
+	doesNotGrowSection.selectAll("span")
+		.data(function(d) { return d })	
+	.enter().append("span")
+		.text(function (d) { return d + " "});
+
+
+	var unknownGrowthSection = growthMediaSection.selectAll("div.unknown")
+		.data(function(d) { var unknownGrowOn = [];
+			model.commonGrowthMedia.forEach(function(m) { 
+				var value = d.data.phenotypeMap[m]
+				if (!value)	unknownGrowOn.push(m);
+			});
+			return unknownGrowOn.length > 0 ? [unknownGrowOn] : [];
+		});
+	unknownGrowthSection.enter().append("div")
+		.attr("class", "unknown")
+		.text("Unknown growth on: ");
+
+	unknownGrowthSection.selectAll("span")
+		.data(function(d) { return d})
+	.enter().append("span")
+		.text(function (d) { return d + " "});
 }
 
 function appendObjectSection(config){
