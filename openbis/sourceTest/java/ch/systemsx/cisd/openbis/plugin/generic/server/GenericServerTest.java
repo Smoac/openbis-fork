@@ -274,10 +274,12 @@ public final class GenericServerTest extends AbstractServerTestCase
         final NewSamplesWithTypes newSamplesWithType =
                 new NewSamplesWithTypes(sampleType, newSamples);
         samplesWithTypes.add(newSamplesWithType);
+
         context.checking(new Expectations()
             {
                 {
-                    one(sampleTypeDAO).tryFindSampleTypeByCode(sampleTypePE.getCode());
+                    exactly(2).of(sampleTypeDAO).tryFindSampleTypeByCode(
+                            with(equal(sampleTypePE.getCode())));
                     will(returnValue(sampleTypePE));
 
                     one(sampleTypeSlaveServerPlugin).registerSamples(session, newSamples, null);
