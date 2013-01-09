@@ -65,6 +65,8 @@ public class JythonEvaluatorPool
         this.cache = cache;
         this.cacheLock = new ReentrantLock();
 
+        // only managed properties are cached during pool initialization, as only managed properties
+        // affect the performance of read-only ui operations.
         for (ScriptPE script : daoFactory.getScriptDAO().listEntities(ScriptType.MANAGED_PROPERTY,
                 null))
         {
