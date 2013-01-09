@@ -21,12 +21,27 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calcu
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 
 /**
+ * This interface needs to be implemented by all entity validators.
+ * 
  * @author Pawel Glyzewski
  */
 public interface IEntityValidator
 {
+    /**
+     * Before the validation is triggered, the validator is initialized by calling this method.
+     * 
+     * @param validationRequestedDelegate object responsible for handling requests for entity
+     *            validation
+     */
     public void init(
             IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequestedDelegate);
 
+    /**
+     * Main method, that performs actual validation
+     * 
+     * @param entity entity that needs to be validated
+     * @param isNew <code>true</code> if the entity is freshly created, <code>false</code> if the
+     *            entity was only updated.
+     */
     public String validate(IEntityAdaptor entity, boolean isNew);
 }
