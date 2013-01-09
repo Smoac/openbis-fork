@@ -52,7 +52,7 @@ public class EntityValidationCalculator extends AbstractCalculator
             final IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequestedDelegate)
     {
         String initialScript = getBasicInitialScript();
-        initialScript += importFunctions(EntityValidationCalculator.class) + NEWLINE;
+        initialScript += importFunctions(EntityValidationCalculator.class);
         initialScript += VALIDATION_REQUEST_FUNCTION + NEWLINE;
         initialScript += expression;
         String calculatedExpression = INVOKE_CALCULATE_EXPR;

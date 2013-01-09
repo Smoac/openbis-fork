@@ -17,8 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator;
 
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
+import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
+import ch.systemsx.cisd.openbis.generic.server.JythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.calculator.AbstractCalculator;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IAtomicEvaluation;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IEvaluationRunner;
 
 /**
  * Calculator for dynamic properties.
@@ -26,13 +30,16 @@ import ch.systemsx.cisd.openbis.generic.shared.calculator.AbstractCalculator;
  * Variables : <code>entity<code> of type {@link IEntityAdaptor}
  * 
  * @author Piotr Buczek
+ * @author Jakub Straszewski
+ * @author Pawel Glyzewski
  */
-public class JythonDynamicPropertyCalculator extends AbstractCalculator implements
-        IDynamicPropertyCalculator
+public class JythonDynamicPropertyCalculator implements IDynamicPropertyCalculator
 {
     private static final String ENTITY_VARIABLE_NAME = "entity";
 
     private static final String INVOKE_CALCULATE_EXPR = "calculate()";
+
+    private final IEvaluationRunner runner;
 
     /**
      * Creates a calculator for given <code>expression</code>.
@@ -47,25 +54,59 @@ public class JythonDynamicPropertyCalculator extends AbstractCalculator implemen
     public static JythonDynamicPropertyCalculator create(String expression)
     {
         String calculatedExpression = expression;
-        String initialScript = getBasicInitialScript();
-        initialScript += importFunctions(DynamicPropertyFunctions.class) + NEWLINE;
+        String initialScript = AbstractCalculator.getBasicInitialScript();
+        initialScript += AbstractCalculator.importFunctions(DynamicPropertyFunctions.class);
         if (Evaluator.isMultiline(expression))
         {
             initialScript += expression;
             calculatedExpression = INVOKE_CALCULATE_EXPR;
         }
-        return new JythonDynamicPropertyCalculator(new Evaluator(calculatedExpression, Math.class,
-                initialScript));
+
+        if (JythonEvaluatorPool.INSTANCE != null)
+        {
+            return new JythonDynamicPropertyCalculator(JythonEvaluatorPool.INSTANCE.getRunner(
+                    calculatedExpression, Math.class, initialScript));
+        } else
+        {
+            return new JythonDynamicPropertyCalculator(calculatedExpression, initialScript);
+        }
+
     }
 
-    private JythonDynamicPropertyCalculator(Evaluator evaluator)
+    private JythonDynamicPropertyCalculator(final String expression, final String script)
     {
-        super(evaluator);
+        this(new IEvaluationRunner()
+            {
+                private Evaluator evaluator;
+                {
+                    this.evaluator = new Evaluator(expression, Math.class, script);
+                }
+
+                @Override
+                public <T> T evaluate(IAtomicEvaluation<T> evaluation)
+                {
+                    return evaluation.evaluate(evaluator);
+                }
+
+            });
+    }
+
+    private JythonDynamicPropertyCalculator(IEvaluationRunner runner)
+    {
+        this.runner = runner;
     }
 
     @Override
-    public void setEntity(IEntityAdaptor entity)
+    public String eval(final IEntityAdaptor entity) throws EvaluatorException
     {
-        evaluator.set(ENTITY_VARIABLE_NAME, entity);
+        return runner.evaluate(new IAtomicEvaluation<String>()
+            {
+                @Override
+                public String evaluate(Evaluator evaluator)
+                {
+                    evaluator.set(ENTITY_VARIABLE_NAME, entity);
+                    return evaluator.evalAsStringLegacy2_2();
+                }
+            });
     }
 }

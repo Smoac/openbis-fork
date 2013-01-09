@@ -104,7 +104,7 @@ public class JythonEvaluatorPoolTest
 
         for (String script : scripts)
         {
-            pool.getRunner(script).evaluate(dummyEvaluation());
+            pool.getManagedPropertiesRunner(script).evaluate(dummyEvaluation());
         }
 
         assertThat(cache.size(), is(POOL_SIZE));
@@ -121,8 +121,8 @@ public class JythonEvaluatorPoolTest
 
         for (String script : scripts)
         {
-            pool.getRunner(script).evaluate(dummyEvaluation());
-            pool.getRunner(scripts.get(0)).evaluate(dummyEvaluation());
+            pool.getManagedPropertiesRunner(script).evaluate(dummyEvaluation());
+            pool.getManagedPropertiesRunner(scripts.get(0)).evaluate(dummyEvaluation());
         }
 
         assertThat(cache.containsKey(scripts.get(0)), is(true));
@@ -166,15 +166,14 @@ public class JythonEvaluatorPoolTest
 
     private Callable<Evaluator> getEvaluatorInUse()
     {
-        final String script =
-                "def something():\n\treturn '" + UUID.randomUUID().toString() + "'";
+        final String script = "def something():\n\treturn '" + UUID.randomUUID().toString() + "'";
 
         return new Callable<Evaluator>()
             {
                 @Override
                 public Evaluator call() throws Exception
                 {
-                    return pool.getRunner(script).evaluate(
+                    return pool.getManagedPropertiesRunner(script).evaluate(
                             new IAtomicEvaluation<Evaluator>()
                                 {
                                     @Override
@@ -182,8 +181,7 @@ public class JythonEvaluatorPoolTest
                                     {
                                         return evaluator;
                                     }
-                                }
-                            );
+                                });
                 }
             };
     }
@@ -197,7 +195,7 @@ public class JythonEvaluatorPoolTest
                 @Override
                 public Integer call() throws Exception
                 {
-                    return pool.getRunner(script).evaluate(
+                    return pool.getManagedPropertiesRunner(script).evaluate(
                             new IAtomicEvaluation<Integer>()
                                 {
                                     @Override
@@ -209,8 +207,7 @@ public class JythonEvaluatorPoolTest
                                         evaluator.evalFunction("set_x", 3);
                                         return x;
                                     }
-                                }
-                            );
+                                });
                 }
             };
     }

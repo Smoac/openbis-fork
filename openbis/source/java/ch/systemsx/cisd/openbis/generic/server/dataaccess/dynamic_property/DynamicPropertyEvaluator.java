@@ -167,8 +167,7 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             }
             final IDynamicPropertyCalculator calculator =
                     dynamicPropertyCalculatorFactory.getCalculator(etpt);
-            calculator.setEntity(entityAdaptor);
-            final String dynamicValue = calculator.evalAsString();
+            final String dynamicValue = calculator.eval(entityAdaptor);
             final String validatedValue =
                     entityPropertiesConverter.tryCreateValidatedPropertyValue(etpt.getEntityType()
                             .getEntityKind(), etpt.getPropertyType(), etpt, dynamicValue);

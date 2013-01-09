@@ -70,8 +70,10 @@ public class JythonEvaluatorPool
         {
             try
             {
-                cache.put(script.getScript(),
-                        new EvaluatorState(createEvaluatorFor(script.getScript())));
+                cache.put(
+                        script.getScript(),
+                        new EvaluatorState(createEvaluatorFor("", ManagedPropertyFunctions.class,
+                                script.getScript())));
             } catch (EvaluatorException e)
             {
                 log.warn("Could not create evaluator for script " + script.getName(), e);
@@ -81,17 +83,23 @@ public class JythonEvaluatorPool
         INSTANCE = this;
     }
 
+    public IEvaluationRunner getManagedPropertiesRunner(final String script)
+    {
+        return getRunner("", ManagedPropertyFunctions.class, script);
+    }
+
     /**
      * Return runner that can be used to evaluate python functions using evaluator in the pool.
      */
-    public IEvaluationRunner getRunner(final String script)
+    public IEvaluationRunner getRunner(final String expression, final Class<?> clazz,
+            final String script)
     {
         return new IEvaluationRunner()
             {
                 @Override
                 public <T> T evaluate(IAtomicEvaluation<T> evaluation)
                 {
-                    return JythonEvaluatorPool.this.evaluate(script, evaluation);
+                    return JythonEvaluatorPool.this.evaluate(expression, clazz, script, evaluation);
                 }
             };
     }
@@ -101,19 +109,22 @@ public class JythonEvaluatorPool
      * Evaluator instance does not exist, create it. Give access to the instance for only one thread
      * at a time.
      */
-    private <T> T evaluate(String script, IAtomicEvaluation<T> evaluation)
+    private <T> T evaluate(String expression, Class<?> clazz, String script,
+            IAtomicEvaluation<T> evaluation)
     {
-        EvaluatorState state = cache.get(script);
+        String key = expression + "#" + script + "#" + clazz.getCanonicalName();
+
+        EvaluatorState state = cache.get(key);
         if (state == null)
         {
             cacheLock.lock();
             try
             {
-                state = cache.get(script);
+                state = cache.get(key);
                 if (state == null)
                 {
-                    state = new EvaluatorState(createEvaluatorFor(script));
-                    cache.put(script, state);
+                    state = new EvaluatorState(createEvaluatorFor(expression, clazz, script));
+                    cache.put(key, state);
                 }
             } finally
             {
@@ -132,9 +143,12 @@ public class JythonEvaluatorPool
         }
     }
 
-    private Evaluator createEvaluatorFor(String script)
+    /**
+     * Create the evaluator that has the body, and the default expression to be evaluated.
+     */
+    private Evaluator createEvaluatorFor(String expression, Class<?> clazz, String script)
     {
-        return new Evaluator("", ManagedPropertyFunctions.class, script);
+        return new Evaluator(expression, clazz, script);
     }
 
     /**

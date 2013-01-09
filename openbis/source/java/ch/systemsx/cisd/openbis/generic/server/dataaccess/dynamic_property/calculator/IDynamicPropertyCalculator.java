@@ -21,10 +21,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calcu
 
 /**
  * @author Pawel Glyzewski
+ * @author Jakub Straszewski
  */
 public interface IDynamicPropertyCalculator
 {
-    public void setEntity(IEntityAdaptor entity);
-
-    public String evalAsString() throws EvaluatorException;
+    public String eval(IEntityAdaptor entity) throws EvaluatorException;
 }

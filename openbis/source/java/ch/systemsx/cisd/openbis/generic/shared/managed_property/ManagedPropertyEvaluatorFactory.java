@@ -48,7 +48,7 @@ public class ManagedPropertyEvaluatorFactory
         if (JythonEvaluatorPool.INSTANCE != null)
         {
             return new JythonManagedPropertyEvaluator(
-                    JythonEvaluatorPool.INSTANCE.getRunner(script));
+                    JythonEvaluatorPool.INSTANCE.getManagedPropertiesRunner(script));
         } else
         {
             return new JythonManagedPropertyEvaluator(script);

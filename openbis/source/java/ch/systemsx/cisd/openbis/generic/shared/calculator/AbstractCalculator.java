@@ -29,15 +29,15 @@ public class AbstractCalculator
 {
     protected static String NEWLINE = "\n";
 
-    protected static String importFunctions(Class<?> clazz)
+    public static String importFunctions(Class<?> clazz)
     {
-        return "from " + clazz.getCanonicalName() + " import *";
+        return "from " + clazz.getCanonicalName() + " import *" + NEWLINE;
     }
 
-    protected final static String getBasicInitialScript()
+    public final static String getBasicInitialScript()
     {
-        return importFunctions(StandardFunctions.class) + NEWLINE + "def int(x):return toInt(x)"
-                + NEWLINE + "def float(x):return toFloat(x)" + NEWLINE;
+        return importFunctions(StandardFunctions.class) + "def int(x):return toInt(x)" + NEWLINE
+                + "def float(x):return toFloat(x)" + NEWLINE;
     }
 
     protected final Evaluator evaluator;

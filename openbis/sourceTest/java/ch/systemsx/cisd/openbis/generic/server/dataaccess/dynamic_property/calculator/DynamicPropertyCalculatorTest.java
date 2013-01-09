@@ -42,11 +42,9 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
         final JythonDynamicPropertyCalculator calculator =
                 JythonDynamicPropertyCalculator.create("entity.code()");
 
-        calculator.setEntity(createEntity(entityCode1, null));
-        assertEquals(entityCode1, calculator.evalAsString());
+        assertEquals(entityCode1, calculator.eval(createEntity(entityCode1, null)));
 
-        calculator.setEntity(createEntity(entityCode2, null));
-        assertEquals(entityCode2, calculator.evalAsString());
+        assertEquals(entityCode2, calculator.eval(createEntity(entityCode2, null)));
     }
 
     @Test
@@ -61,20 +59,19 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
         IEntityPropertyAdaptor p21 = createProperty("P2", "v21");
         IEntityPropertyAdaptor p22 = createProperty("P2", "v22");
 
-        calculator.setEntity(createEntity(entityCode, null));
-        assertEquals("", calculator.evalAsString());
+        assertEquals("", calculator.eval(createEntity(entityCode, null)));
 
-        calculator.setEntity(createEntity(entityCode, Arrays.asList(new IEntityPropertyAdaptor[]
-            { p1 })));
-        assertEquals("", calculator.evalAsString()); // non-existent property
+        assertEquals("",
+                calculator.eval(createEntity(entityCode, Arrays.asList(new IEntityPropertyAdaptor[]
+                    { p1 })))); // non-existent property
 
-        calculator.setEntity(createEntity(entityCode, Arrays.asList(new IEntityPropertyAdaptor[]
-            { p1, p21 })));
-        assertEquals(p21.valueAsString(), calculator.evalAsString());
+        assertEquals(p21.valueAsString(),
+                calculator.eval(createEntity(entityCode, Arrays.asList(new IEntityPropertyAdaptor[]
+                    { p1, p21 }))));
 
-        calculator.setEntity(createEntity(entityCode, Arrays.asList(new IEntityPropertyAdaptor[]
-            { p1, p22 })));
-        assertEquals(p22.valueAsString(), calculator.evalAsString());
+        assertEquals(p22.valueAsString(),
+                calculator.eval(createEntity(entityCode, Arrays.asList(new IEntityPropertyAdaptor[]
+                    { p1, p22 }))));
     }
 
     @Test
@@ -91,15 +88,17 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
         IEntityPropertyAdaptor xmlProperty =
                 createXmlProperty("xmlProperty", XmlUtilsTest.SIMPLE_XML, XmlUtilsTest.SIMPLE_XSLT);
 
-        normalPropertyCalculator.setEntity(createEntity(entityCode,
-                Arrays.asList(new IEntityPropertyAdaptor[]
-                    { normalProperty, xmlProperty })));
-        assertEquals("normalValue", normalPropertyCalculator.evalAsString());
+        assertEquals(
+                "normalValue",
+                normalPropertyCalculator.eval(createEntity(entityCode,
+                        Arrays.asList(new IEntityPropertyAdaptor[]
+                            { normalProperty, xmlProperty }))));
 
-        xmlPropertyCalculator.setEntity(createEntity(entityCode,
-                Arrays.asList(new IEntityPropertyAdaptor[]
-                    { normalProperty, xmlProperty })));
-        assertEquals(XmlUtilsTest.SIMPLE_XML_TRANSFORMED, xmlPropertyCalculator.evalAsString());
+        assertEquals(
+                XmlUtilsTest.SIMPLE_XML_TRANSFORMED,
+                xmlPropertyCalculator.eval(createEntity(entityCode,
+                        Arrays.asList(new IEntityPropertyAdaptor[]
+                            { normalProperty, xmlProperty }))));
     }
 
     @Test
@@ -107,10 +106,10 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
     {
         final String expression = "def calculate():\n" + "\treturn entity.code()";
         final String entityCode = "ecode";
-        final JythonDynamicPropertyCalculator calculator = JythonDynamicPropertyCalculator.create(expression);
+        final JythonDynamicPropertyCalculator calculator =
+                JythonDynamicPropertyCalculator.create(expression);
 
-        calculator.setEntity(createEntity(entityCode, null));
-        assertEquals(entityCode, calculator.evalAsString());
+        assertEquals(entityCode, calculator.eval(createEntity(entityCode, null)));
     }
 
     @Test
@@ -118,12 +117,12 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
     {
         final String expression = "def calc():\n" + "\treturn entity.code()";
         final String entityCode = "ecode";
-        final JythonDynamicPropertyCalculator calculator = JythonDynamicPropertyCalculator.create(expression);
+        final JythonDynamicPropertyCalculator calculator =
+                JythonDynamicPropertyCalculator.create(expression);
 
-        calculator.setEntity(createEntity(entityCode, null));
         try
         {
-            calculator.evalAsString();
+            calculator.eval(createEntity(entityCode, null));
             fail("expected EvaluatorException");
         } catch (EvaluatorException e)
         {
@@ -141,8 +140,9 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
         final String typeCode = "TYPE";
 
         final JythonDynamicPropertyCalculator calculator =
-                JythonDynamicPropertyCalculator.create("material('" + code + "', '" + typeCode + "')");
-        assertEquals(MaterialIdentifier.print(code, typeCode), calculator.evalAsString());
+                JythonDynamicPropertyCalculator.create("material('" + code + "', '" + typeCode
+                        + "')");
+        assertEquals(MaterialIdentifier.print(code, typeCode), calculator.eval(null));
     }
 
     private static IEntityAdaptor createEntity(final String code,
