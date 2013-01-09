@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.calculator.AbstractCalculator;
 /**
  * @author Jakub Straszewski
  */
-public class EntityValidationCalculator extends AbstractCalculator
+public class JythonEntityValidationCalculator extends AbstractCalculator
 {
     private static final String ENTITY_VARIABLE_NAME = "__entity";
 
@@ -48,20 +48,19 @@ public class EntityValidationCalculator extends AbstractCalculator
      * The script is expected to contain validate method with two parameters: "entity" and
      * "isNewEntity"
      */
-    public static EntityValidationCalculator create(String expression,
+    public static JythonEntityValidationCalculator create(String expression,
             final IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequestedDelegate)
     {
         String initialScript = getBasicInitialScript();
-        initialScript += importFunctions(EntityValidationCalculator.class);
         initialScript += VALIDATION_REQUEST_FUNCTION + NEWLINE;
         initialScript += expression;
         String calculatedExpression = INVOKE_CALCULATE_EXPR;
 
-        return new EntityValidationCalculator(new Evaluator(calculatedExpression, Math.class,
+        return new JythonEntityValidationCalculator(new Evaluator(calculatedExpression, Math.class,
                 initialScript), validationRequestedDelegate);
     }
 
-    public EntityValidationCalculator(Evaluator evaluator,
+    public JythonEntityValidationCalculator(Evaluator evaluator,
             final IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequested)
     {
         super(evaluator);

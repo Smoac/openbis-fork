@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityValidationCalculator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonEntityValidationCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
@@ -36,8 +36,9 @@ public class JythonEntityValidator extends AbstractEntityValidator implements IE
     @Override
     public String validate(IEntityAdaptor entity, boolean isNew)
     {
-        EntityValidationCalculator calculator =
-                EntityValidationCalculator.create(script.getScript(), validationRequestedDelegate);
+        JythonEntityValidationCalculator calculator =
+                JythonEntityValidationCalculator.create(script.getScript(),
+                        validationRequestedDelegate);
         calculator.setEntity(entity);
         calculator.setIsNewEntity(isNew);
 
