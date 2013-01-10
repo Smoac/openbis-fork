@@ -89,7 +89,7 @@ public class SearchCriteria implements Serializable
     public static enum MatchClauseAttribute
     {
         // common
-        CODE, TYPE, // TODO 2011-06-24, Piotr Buczek: add search by PERM_ID
+        CODE, TYPE, PERM_ID,
         // for sample or experiment
         SPACE,
         // for experiment
