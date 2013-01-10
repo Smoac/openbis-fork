@@ -36,6 +36,8 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
 /**
@@ -53,7 +55,14 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
 
     private static final String SESSION_TOKEN = "token";
 
+    private static final String DATA_STORE_URL = "http://a.b.c";
+
+    private static final String DATA_STORE_CODE = "DSS";
+    
     private static final String DATA_SET_CODE = "DS-123";
+    
+    private static final IDatasetLocation DATA_SET_LOCATION = new DatasetLocation(
+            DATA_SET_CODE, "a/b/c", DATA_STORE_CODE, DATA_STORE_URL);
 
     private Mockery context;
 
@@ -90,14 +99,18 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
         remoteFile2 = new File(remoteDataSetFolder, "file2.txt");
         FileUtilities.writeToFile(remoteFile2, FILE2_CONTENT);
         workSpace = new File(workingDirectory, "workspace");
+        final IDssServiceRpcGenericFactory serviceFactory = context.mock(IDssServiceRpcGenericFactory.class);
         context.checking(new Expectations()
             {
                 {
                     one(fileOperations).removeRecursivelyQueueing(
                             new File(workSpace, ContentCache.DOWNLOADING_FOLDER));
+                    
+                    allowing(serviceFactory).getService(DATA_STORE_URL);
+                    will(returnValue(remoteDss));
                 }
             });
-        cache = new ContentCache(remoteDss, sessionHolder, workSpace, fileOperations);
+        cache = new ContentCache(serviceFactory, sessionHolder, workSpace, fileOperations);
     }
 
     @AfterMethod
@@ -403,7 +416,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
     
     private IHierarchicalContentNode createRemoteNode(DataSetPathInfo pathInfo)
     {
-        return new RemoteHierarchicalContentNode(DATA_SET_CODE, pathInfo, provider, remoteDss,
+        return new RemoteHierarchicalContentNode(DATA_SET_LOCATION, pathInfo, provider, 
                 sessionHolder, cache);
     }
 

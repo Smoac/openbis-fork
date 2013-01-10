@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
  * Cache for files remotely retrieved from a DSS.
@@ -50,8 +51,6 @@ public class ContentCache
 
     static final String DOWNLOADING_FOLDER = "downloading";
     
-    private final IDssServiceRpcGeneric remoteDss;
-
     private final ISessionTokenProvider sessionTokenProvider;
 
     private final File cachedFiles;
@@ -60,10 +59,13 @@ public class ContentCache
 
     private Map<String, Lock> locks;
 
-    public ContentCache(IDssServiceRpcGeneric remoteDss, ISessionTokenProvider sessionTokenProvider,
-            File cacheWorkSpace, IFileOperations fileOperations)
+    private final IDssServiceRpcGenericFactory serviceFactory;
+
+    public ContentCache(IDssServiceRpcGenericFactory serviceFactory,
+            ISessionTokenProvider sessionTokenProvider, File cacheWorkSpace,
+            IFileOperations fileOperations)
     {
-        this.remoteDss = remoteDss;
+        this.serviceFactory = serviceFactory;
         this.sessionTokenProvider = sessionTokenProvider;
         cachedFiles = new File(cacheWorkSpace, CHACHED_FOLDER);
         creatFolder(cachedFiles);
@@ -72,18 +74,19 @@ public class ContentCache
         creatFolder(downloadingFolder);
         locks = new HashMap<String, Lock>();
     }
+    
+    IDssServiceRpcGeneric getDssService(IDatasetLocation dataSetLocation)
+    {
+        return serviceFactory.getService(dataSetLocation.getDataStoreUrl());
+    }
 
     public void unlockFilesFor(String dataSetCode)
     {
     }
 
-    IDssServiceRpcGeneric getRemoteDss()
+    File getFile(IDatasetLocation dataSetLocation, DataSetPathInfo path)
     {
-        return remoteDss;
-    }
-
-    File getFile(String dataSetCode, DataSetPathInfo path)
-    {
+        String dataSetCode = dataSetLocation.getDataSetCode();
         String pathInCache = dataSetCode + "/" + path.getRelativePath();
         lock(pathInCache);
         try
@@ -91,7 +94,7 @@ public class ContentCache
             File file = new File(cachedFiles, pathInCache);
             if (file.exists() == false)
             {
-                downloadFile(dataSetCode, path, pathInCache);
+                downloadFile(dataSetLocation, path, pathInCache);
             }
             return file;
         } finally
@@ -100,15 +103,16 @@ public class ContentCache
         }
     }
 
-    private void downloadFile(String dataSetCode, DataSetPathInfo path, String pathInCache)
+    private void downloadFile(IDatasetLocation dataSetLocation, DataSetPathInfo path, String pathInCache)
     {
         InputStream input = null;
         try
         {
             String url =
-                    remoteDss.getDownloadUrlForFileForDataSet(
-                            sessionTokenProvider.getSessionToken(), dataSetCode,
-                            path.getRelativePath());
+                    serviceFactory.getService(dataSetLocation.getDataStoreUrl())
+                            .getDownloadUrlForFileForDataSet(
+                                    sessionTokenProvider.getSessionToken(),
+                                    dataSetLocation.getDataSetCode(), path.getRelativePath());
             input = createURL(url).openStream();
             File downloadedFile = createFileFromInputStream(pathInCache, input);
             File file = new File(cachedFiles, pathInCache);

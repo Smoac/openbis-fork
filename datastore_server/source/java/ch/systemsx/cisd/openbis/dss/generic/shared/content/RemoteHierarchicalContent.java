@@ -23,7 +23,6 @@ import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 
@@ -41,8 +40,6 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
 
     private final ISessionTokenProvider sessionTokenProvider;
 
-    private final IDssServiceRpcGeneric remote;
-
     private final ContentCache cache;
 
     public RemoteHierarchicalContent(IDatasetLocationNode location,
@@ -52,7 +49,6 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
         this.location = location;
         this.provider = pathInfoProvider;
         this.sessionTokenProvider = sessionTokenProvider;
-        this.remote = cache.getRemoteDss();
         this.cache = cache;
         
     }
@@ -149,8 +145,8 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
 
     private IHierarchicalContentNode createNode(DataSetPathInfo info)
     {
-        return new RemoteHierarchicalContentNode(location.getLocation().getDataSetCode(), info,
-                provider, remote, sessionTokenProvider, cache);
+        return new RemoteHierarchicalContentNode(location.getLocation(), info,
+                provider, sessionTokenProvider, cache);
     }
 
     private List<IHierarchicalContentNode> createNodes(List<DataSetPathInfo> paths)

@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvide
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
  * A node of hierarchical content that stored on a remote datastore server. If file content is
@@ -43,11 +44,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
 {
 
-    private String dataSetCode;
-
     private ISingleDataSetPathInfoProvider provider;
-
-    private IDssServiceRpcGeneric remoteDss;
 
     private ISessionTokenProvider sessionTokenProvider;
 
@@ -57,25 +54,25 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
 
     private final ContentCache cache;
 
-    public RemoteHierarchicalContentNode(String dataSetCode, DataSetPathInfo path,
-            ISingleDataSetPathInfoProvider provider, IDssServiceRpcGeneric remote,
+    private final IDatasetLocation dataSetLocation;
+
+    public RemoteHierarchicalContentNode(IDatasetLocation dataSetetLocation, DataSetPathInfo path,
+            ISingleDataSetPathInfoProvider provider, 
             ISessionTokenProvider sessionTokenProvider, ContentCache contentCache)
     {
-        this(dataSetCode, path, provider, remote, sessionTokenProvider, contentCache, null);
+        this(dataSetetLocation, path, provider, sessionTokenProvider, contentCache, null);
     }
 
-    private RemoteHierarchicalContentNode(String dataSetCode,
+    private RemoteHierarchicalContentNode(IDatasetLocation dataSetetLocation,
             DataSetPathInfo path,
             ISingleDataSetPathInfoProvider provider,
-            IDssServiceRpcGeneric remote,
             ISessionTokenProvider sessionTokenProvider,
             ContentCache contentCache,
             String parentRelativePath)
     {
-        this.dataSetCode = dataSetCode;
+        this.dataSetLocation = dataSetetLocation;
         this.path = path;
         this.provider = provider;
-        this.remoteDss = remote;
         this.sessionTokenProvider = sessionTokenProvider;
         this.cache = contentCache;
         this.parentRelativePath = parentRelativePath;
@@ -144,21 +141,23 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
     @Override
     public List<IHierarchicalContentNode> getChildNodes() throws UnsupportedOperationException
     {
-
         List<IHierarchicalContentNode> children = new ArrayList<IHierarchicalContentNode>();
-
+        String relativePath = path.getRelativePath();
         if (provider != null)
         {
             for (DataSetPathInfo childPath : provider.listChildrenPathInfos(path))
             {
-                children.add(new RemoteHierarchicalContentNode(dataSetCode, childPath, provider,
-                        remoteDss, sessionTokenProvider, cache, path.getRelativePath()));
+                children.add(new RemoteHierarchicalContentNode(dataSetLocation, childPath,
+                        provider, sessionTokenProvider, cache, relativePath));
             }
         } else
         {
-            for (FileInfoDssDTO file : remoteDss.listFilesForDataSet(
-                    sessionTokenProvider.getSessionToken(), dataSetCode,
-                    path.getRelativePath(), false))
+            IDssServiceRpcGeneric service = cache.getDssService(dataSetLocation);
+            String sessionToken = sessionTokenProvider.getSessionToken();
+            String dataSetCode = dataSetLocation.getDataSetCode();
+            FileInfoDssDTO[] files =
+                    service.listFilesForDataSet(sessionToken, dataSetCode, relativePath, false);
+            for (FileInfoDssDTO file : files)
             {
                 DataSetPathInfo info = new DataSetPathInfo();
                 info.setChecksumCRC32(file.tryGetCrc32Checksum());
@@ -167,8 +166,8 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
                 info.setRelativePath(file.getPathInDataSet());
                 info.setSizeInBytes(file.getFileSize());
                 info.setLastModified(new Date(0L));
-                children.add(new RemoteHierarchicalContentNode(dataSetCode, info, provider,
-                        remoteDss, sessionTokenProvider, cache, path.getRelativePath()));
+                children.add(new RemoteHierarchicalContentNode(dataSetLocation, info, provider,
+                        sessionTokenProvider, cache, relativePath));
             }
         }
         return children;
@@ -177,7 +176,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
     @Override
     public File getFile() throws UnsupportedOperationException
     {
-        return cache.getFile(dataSetCode, path);
+        return cache.getFile(dataSetLocation, path);
     }
 
     @Override

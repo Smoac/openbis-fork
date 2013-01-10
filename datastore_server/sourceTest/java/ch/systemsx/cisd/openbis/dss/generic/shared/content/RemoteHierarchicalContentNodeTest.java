@@ -34,6 +34,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvide
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
 /**
@@ -41,11 +43,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
  */
 public class RemoteHierarchicalContentNodeTest
 {
+    private static final String DATA_STORE_URL = "http://a.b.c";
+
+    private static final String DATA_STORE_CODE = "DSS";
+
     private static final String SESSION_TOKEN = "token";
 
-    private static final String CACHED_DATASET_CODE = "cached_dataset_code";
+    private static final IDatasetLocation CACHED_DATASET_LOCATION = new DatasetLocation(
+            "cached_dataset_code", "a/b/c", DATA_STORE_CODE, DATA_STORE_URL);
 
-    private static final String REMOTE_DATASET_CODE = "remote_dataset_code";
+    private static final IDatasetLocation REMOTE_DATASET_LOCATION = new DatasetLocation(
+            "remote_dataset_code", "a/b/c", DATA_STORE_CODE, DATA_STORE_URL);
 
     private static final File SESSION_WORKSPACE_DIR =
             new File("targets/unit-test/RemoteHierarchicalContentNodeTest/session-workspace/");
@@ -82,21 +90,27 @@ public class RemoteHierarchicalContentNodeTest
         sessionHolder = new OpenBISSessionHolder();
         sessionHolder.setSessionToken("token");
 
-        remoteFile = new File(REMOTE_FILES_DIR + "/" + REMOTE_DATASET_CODE, "remote-file.txt");
+        remoteFile =
+                new File(REMOTE_FILES_DIR + "/" + REMOTE_DATASET_LOCATION.getDataSetCode(),
+                        "remote-file.txt");
 
         fileInSessionWorkspace =
-                new File(SESSION_WORKSPACE_DIR, ContentCache.CHACHED_FOLDER + "/" + CACHED_DATASET_CODE
-                        + "/already-downloaded-file.txt");
+                new File(SESSION_WORKSPACE_DIR, ContentCache.CHACHED_FOLDER + "/"
+                        + CACHED_DATASET_LOCATION.getDataSetCode() + "/already-downloaded-file.txt");
         create(remoteFile);
         create(fileInSessionWorkspace);
+        final IDssServiceRpcGenericFactory serviceFactory = context.mock(IDssServiceRpcGenericFactory.class);
         context.checking(new Expectations()
             {
                 {
                     one(fileOperations).removeRecursivelyQueueing(
                             new File(SESSION_WORKSPACE_DIR, ContentCache.DOWNLOADING_FOLDER));
+                    
+                    allowing(serviceFactory).getService(DATA_STORE_URL);
+                    will(returnValue(remoteDss));
                 }
             });
-        cache = new ContentCache(remoteDss, sessionHolder, SESSION_WORKSPACE_DIR, fileOperations);
+        cache = new ContentCache(serviceFactory, sessionHolder, SESSION_WORKSPACE_DIR, fileOperations);
     }
 
     @Test
@@ -108,8 +122,8 @@ public class RemoteHierarchicalContentNodeTest
         pathInfo.setRelativePath(remoteFile.getName());
 
         IHierarchicalContentNode node =
-                new RemoteHierarchicalContentNode(REMOTE_DATASET_CODE, pathInfo, provider,
-                        remoteDss, sessionHolder, cache);
+                new RemoteHierarchicalContentNode(REMOTE_DATASET_LOCATION, pathInfo, provider,
+                        sessionHolder, cache);
 
         context.checking(new Expectations()
             {
@@ -135,8 +149,8 @@ public class RemoteHierarchicalContentNodeTest
         pathInfo.setRelativePath(fileInSessionWorkspace.getName());
 
         IHierarchicalContentNode node =
-                new RemoteHierarchicalContentNode(CACHED_DATASET_CODE, pathInfo, provider,
-                        remoteDss, sessionHolder, cache);
+                new RemoteHierarchicalContentNode(CACHED_DATASET_LOCATION, pathInfo, provider,
+                        sessionHolder, cache);
 
         File file = node.getFile();
         assertThat(file.getAbsolutePath(), is(fileInSessionWorkspace.getAbsolutePath()));
@@ -153,8 +167,8 @@ public class RemoteHierarchicalContentNodeTest
         pathInfo.setRelativePath(fileInSessionWorkspace.getName());
 
         IHierarchicalContentNode node =
-                new RemoteHierarchicalContentNode(CACHED_DATASET_CODE, pathInfo, provider,
-                        remoteDss, sessionHolder, cache);
+                new RemoteHierarchicalContentNode(CACHED_DATASET_LOCATION, pathInfo, provider,
+                        sessionHolder, cache);
 
         context.checking(new Expectations()
             {
@@ -177,14 +191,15 @@ public class RemoteHierarchicalContentNodeTest
         pathInfo.setRelativePath(fileInSessionWorkspace.getName());
 
         IHierarchicalContentNode node =
-                new RemoteHierarchicalContentNode(CACHED_DATASET_CODE, pathInfo, null,
-                        remoteDss, sessionHolder, cache);
+                new RemoteHierarchicalContentNode(CACHED_DATASET_LOCATION, pathInfo, null,
+                        sessionHolder, cache);
 
         context.checking(new Expectations()
             {
                 {
-                    oneOf(remoteDss).listFilesForDataSet(SESSION_TOKEN, CACHED_DATASET_CODE,
-                            pathInfo.getRelativePath(), false);
+                    oneOf(remoteDss).listFilesForDataSet(SESSION_TOKEN,
+                            CACHED_DATASET_LOCATION.getDataSetCode(), pathInfo.getRelativePath(),
+                            false);
                     will(returnValue(new FileInfoDssDTO[]
                         { new FileInfoDssDTO("path/to/file", "path/to/file", false, 3) }));
                 }
@@ -212,4 +227,5 @@ public class RemoteHierarchicalContentNodeTest
             ex.printStackTrace();
         }
     }
+    
 }
