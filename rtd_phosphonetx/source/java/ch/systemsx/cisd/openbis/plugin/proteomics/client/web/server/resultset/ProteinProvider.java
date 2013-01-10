@@ -105,8 +105,15 @@ public class ProteinProvider extends AbstractTableModelProvider<ProteinInfo>
                 List<Treatment> treatments = abundanceColumnDefinition.getTreatments();
                 if (treatments.isEmpty() == false)
                 {
-                    header = "";
-                    String delim = "";
+                    String delim;
+                    if (header == null)
+                    {
+                        header = "";
+                        delim = "";
+                    } else
+                    {
+                        delim = ": ";
+                    }
                     for (Treatment treatment : treatments)
                     {
                         header += delim + treatment;
