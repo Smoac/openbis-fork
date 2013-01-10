@@ -165,6 +165,9 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                 case TYPE:
                     ans = SampleAttributeSearchFieldKind.SAMPLE_TYPE;
                     break;
+                case PERM_ID:
+                    ans = SampleAttributeSearchFieldKind.PERM_ID;
+                    break;
                 case SPACE:
                     ans = SampleAttributeSearchFieldKind.SPACE;
                     break;
@@ -214,6 +217,9 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                     break;
                 case TYPE:
                     ans = ExperimentAttributeSearchFieldKind.EXPERIMENT_TYPE;
+                    break;
+                case PERM_ID:
+                    ans = ExperimentAttributeSearchFieldKind.PERM_ID;
                     break;
                 case SPACE:
                     ans = ExperimentAttributeSearchFieldKind.PROJECT_SPACE;
@@ -305,6 +311,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
             switch (attribute)
             {
                 case CODE:
+                case PERM_ID:
                     ans = DataSetAttributeSearchFieldKind.CODE;
                     break;
                 case TYPE:

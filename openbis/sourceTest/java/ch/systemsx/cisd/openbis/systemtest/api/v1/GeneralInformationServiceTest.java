@@ -230,6 +230,29 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testSearchForSamplesByPermId()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.PERM_ID, "201206191219327-1054"));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByPermIdByAnyField()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAnyFieldMatch("201206191219327-1054"));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEntities("[/TEST-SPACE/FV-TEST]", samples);
+    }
+
+    @Test
     public void testSearchForSamplesByMetaprojectName()
     {
         SearchCriteria searchCriteria = new SearchCriteria();
@@ -1034,6 +1057,19 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.searchForDataSets(sessionToken, searchCriteria);
         assertCollection("[20120619092259000-22, 20120628092259000-23]", testSpaceResult,
                 new DataSetToCode());
+    }
+
+    @Test
+    public void testSearchForDataSetsByPermId()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.PERM_ID, "20081105092259000-21"));
+
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        assertEquals("[DataSet[20081105092259000-21,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{}]]",
+                dataSets.toString());
     }
 
     @Test

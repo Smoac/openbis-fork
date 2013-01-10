@@ -29,6 +29,8 @@ public enum SampleAttributeSearchFieldKind implements Serializable, IAttributeSe
 
     SAMPLE_TYPE("Sample Type"),
 
+    PERM_ID("Perm Id"),
+
     SPACE("Space"),
 
     METAPROJECT("Metaproject"),

@@ -156,6 +156,8 @@ class IndexFieldNameHelper
                 return CODE;
             case EXPERIMENT_TYPE:
                 return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
+            case PERM_ID:
+                return SearchFieldConstants.PERM_ID;
             case PROJECT:
                 return SearchFieldConstants.PREFIX_PROJECT + CODE;
             case PROJECT_SPACE:
@@ -206,6 +208,8 @@ class IndexFieldNameHelper
                 return CODE;
             case SAMPLE_TYPE:
                 return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
+            case PERM_ID:
+                return SearchFieldConstants.PERM_ID;
             case SPACE:
                 return SearchFieldConstants.PREFIX_SPACE + CODE;
             case METAPROJECT:
