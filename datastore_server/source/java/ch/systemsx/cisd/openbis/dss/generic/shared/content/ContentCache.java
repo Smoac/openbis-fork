@@ -35,9 +35,9 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SessionWorkspaceUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
@@ -53,14 +53,14 @@ public class ContentCache
 
     static final String DOWNLOADING_FOLDER = "downloading";
 
-    public static ContentCache create(Properties properties, IPluginTaskInfoProvider infoProvider)
+    public static ContentCache create(Properties properties)
     {
         String workspacePathOrNull = properties.getProperty(CACHE_WORKSPACE_FOLDER_KEY);
         boolean sessionCache = workspacePathOrNull == null;
         File cacheWorkspace;
         if (sessionCache)
         {
-            cacheWorkspace = infoProvider.getSessionWorkspaceRootDir();
+            cacheWorkspace = SessionWorkspaceUtil.getSessionWorkspace(properties);
         } else
         {
             cacheWorkspace = new File(workspacePathOrNull);
@@ -93,7 +93,7 @@ public class ContentCache
         fileLockManager = new LockManager();
     }
 
-    IDssServiceRpcGeneric getDssService(IDatasetLocation dataSetLocation)
+    public IDssServiceRpcGeneric getDssService(IDatasetLocation dataSetLocation)
     {
         return serviceFactory.getService(dataSetLocation.getDataStoreUrl());
     }
@@ -116,7 +116,7 @@ public class ContentCache
         return dataSetLockManager.isLocked(dataSetPath);
     }
 
-    File getFile(String sessionToken, IDatasetLocation dataSetLocation,
+    public File getFile(String sessionToken, IDatasetLocation dataSetLocation,
             DataSetPathInfo path)
     {
         String pathInWorkspace =

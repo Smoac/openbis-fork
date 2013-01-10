@@ -197,7 +197,6 @@
     <bean id="content-cache" class="ch.systemsx.cisd.openbis.dss.generic.shared.content.ContentCache" 
           factory-method="create">
         <constructor-arg ref="configProperties" />
-        <constructor-arg ref="plugin-tasks" />
     </bean>
 
     <bean id="hierarchical-content-provider" 

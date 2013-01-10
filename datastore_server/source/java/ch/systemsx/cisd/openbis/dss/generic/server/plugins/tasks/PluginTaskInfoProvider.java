@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SessionWorkspaceUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 
 /**
@@ -36,10 +37,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
 {
     public static final String STOREROOT_DIR_KEY = "storeroot-dir";
-
-    private static final String SESSION_WORKSPACE_ROOT_DIR_KEY = "session-workspace-root-dir";
-
-    private static final String SESSION_WORKSPACE_ROOT_DIR_DEFAULT = "data/sessionWorkspace";
 
     /** name of archiver properties section */
     @Private
@@ -62,10 +59,7 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
         Properties properties = DssPropertyParametersUtil.loadServiceProperties();
         final String storeRootDir = properties.getProperty(STOREROOT_DIR_KEY);
         final File storeRoot = new File(storeRootDir);
-        final String workspaceRootDir =
-                properties.getProperty(SESSION_WORKSPACE_ROOT_DIR_KEY,
-                        SESSION_WORKSPACE_ROOT_DIR_DEFAULT);
-        final File workspaceRoot = new File(workspaceRootDir);
+        final File workspaceRoot = SessionWorkspaceUtil.getSessionWorkspace(properties);
         PluginTaskInfoProvider providers =
                 new PluginTaskInfoProvider(properties, servletPropertiesManager, storeRoot,
                         workspaceRoot);
