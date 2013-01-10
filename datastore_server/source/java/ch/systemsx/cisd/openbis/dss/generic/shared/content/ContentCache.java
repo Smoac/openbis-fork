@@ -25,98 +25,121 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
-import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
- * Cache for files remotely retrieved from a DSS.
+ * Cache for files remotely retrieved from Data Store Servers.
  * 
  * @author Franz-Josef Elmer
  */
 public class ContentCache
 {
-    static final String CHACHED_FOLDER = "cached";
+    static final String CACHE_FOLDER = "cached";
 
     static final String DOWNLOADING_FOLDER = "downloading";
+
+    private final LockManager dataSetLockManager;
     
-    private final ISessionTokenProvider sessionTokenProvider;
-
-    private final File cachedFiles;
-
-    private final File downloadingFolder;
-
-    private Map<String, Lock> locks;
-
+    private final LockManager fileLockManager;
+    
     private final IDssServiceRpcGenericFactory serviceFactory;
 
-    public ContentCache(IDssServiceRpcGenericFactory serviceFactory,
-            ISessionTokenProvider sessionTokenProvider, File cacheWorkSpace,
-            IFileOperations fileOperations)
+    private final boolean sessionCache;
+
+    private final File workspace;
+    
+    public ContentCache(File cacheWorkspace, boolean sessionCache)
+    {
+        this(new DssServiceRpcGenericFactory(), cacheWorkspace, sessionCache, FileOperations.getInstance());
+    }
+
+    ContentCache(IDssServiceRpcGenericFactory serviceFactory, File cacheWorkspace,
+            boolean sessionCache, IFileOperations fileOperations)
     {
         this.serviceFactory = serviceFactory;
-        this.sessionTokenProvider = sessionTokenProvider;
-        cachedFiles = new File(cacheWorkSpace, CHACHED_FOLDER);
-        creatFolder(cachedFiles);
-        downloadingFolder = new File(cacheWorkSpace, DOWNLOADING_FOLDER);
-        fileOperations.removeRecursivelyQueueing(downloadingFolder);
-        creatFolder(downloadingFolder);
-        locks = new HashMap<String, Lock>();
+        this.workspace = cacheWorkspace;
+        this.sessionCache = sessionCache;
+        if (sessionCache == false)
+        {
+            fileOperations.removeRecursivelyQueueing(new File(cacheWorkspace, DOWNLOADING_FOLDER));
+        }
+        dataSetLockManager = new LockManager();
+        fileLockManager = new LockManager();
     }
-    
+
     IDssServiceRpcGeneric getDssService(IDatasetLocation dataSetLocation)
     {
         return serviceFactory.getService(dataSetLocation.getDataStoreUrl());
     }
 
-    public void unlockFilesFor(String dataSetCode)
+    public void lockDataSet(String sessionToken, String dataSetCode)
     {
+        String dataSetPath = createDataSetPath(sessionToken, CACHE_FOLDER, dataSetCode);
+        dataSetLockManager.lock(dataSetPath);
     }
 
-    File getFile(IDatasetLocation dataSetLocation, DataSetPathInfo path)
+    public void unlockDataSet(String sessionToken, String dataSetCode)
     {
-        String dataSetCode = dataSetLocation.getDataSetCode();
-        String pathInCache = dataSetCode + "/" + path.getRelativePath();
-        lock(pathInCache);
+        String dataSetPath = createDataSetPath(sessionToken, CACHE_FOLDER, dataSetCode);
+        dataSetLockManager.unlock(dataSetPath);
+    }
+    
+    public boolean isDataSetLocked(String sessionToken, String dataSetCode)
+    {
+        String dataSetPath = createDataSetPath(sessionToken, CACHE_FOLDER, dataSetCode);
+        return dataSetLockManager.isLocked(dataSetPath);
+    }
+
+    File getFile(String sessionToken, IDatasetLocation dataSetLocation,
+            DataSetPathInfo path)
+    {
+        String pathInWorkspace =
+                createPathInWorkspace(sessionToken, CACHE_FOLDER, dataSetLocation, path);
+        fileLockManager.lock(pathInWorkspace);
         try
         {
-            File file = new File(cachedFiles, pathInCache);
+            File file = new File(workspace, pathInWorkspace);
             if (file.exists() == false)
             {
-                downloadFile(dataSetLocation, path, pathInCache);
+                downloadFile(sessionToken, dataSetLocation, path);
             }
             return file;
         } finally
         {
-            unlock(pathInCache);
+            fileLockManager.unlock(pathInWorkspace);
         }
     }
 
-    private void downloadFile(IDatasetLocation dataSetLocation, DataSetPathInfo path, String pathInCache)
+    private void downloadFile(String sessionToken,
+            IDatasetLocation dataSetLocation, DataSetPathInfo path)
     {
         InputStream input = null;
         try
         {
+            String dataStoreUrl = dataSetLocation.getDataStoreUrl();
+            IDssServiceRpcGeneric service = serviceFactory.getService(dataStoreUrl);
+            String dataSetCode = dataSetLocation.getDataSetCode();
+            String relativePath = path.getRelativePath();
             String url =
-                    serviceFactory.getService(dataSetLocation.getDataStoreUrl())
-                            .getDownloadUrlForFileForDataSet(
-                                    sessionTokenProvider.getSessionToken(),
-                                    dataSetLocation.getDataSetCode(), path.getRelativePath());
+                    service.getDownloadUrlForFileForDataSet(sessionToken, dataSetCode, relativePath);
             input = createURL(url).openStream();
-            File downloadedFile = createFileFromInputStream(pathInCache, input);
-            File file = new File(cachedFiles, pathInCache);
-            creatFolder(file.getParentFile());
+            File downloadedFile =
+                    createFileFromInputStream(sessionToken, dataSetLocation, path, input);
+            String pathInWorkspace =
+                    createPathInWorkspace(sessionToken, CACHE_FOLDER, dataSetLocation, path);
+            File file = new File(workspace, pathInWorkspace);
+            createFolder(file.getParentFile());
             downloadedFile.renameTo(file);
         } catch (Exception ex)
         {
@@ -126,7 +149,21 @@ public class ContentCache
             IOUtils.closeQuietly(input);
         }
     }
-    
+
+    private String createPathInWorkspace(String sessionToken, String folder,
+            IDatasetLocation dataSetLocation, DataSetPathInfo path)
+    {
+        String dataSetCode = dataSetLocation.getDataSetCode();
+        return createDataSetPath(sessionToken, folder, dataSetCode) + "/"
+                + path.getRelativePath();
+    }
+
+    private String createDataSetPath(String sessionToken, String folder,
+            String dataSetCode)
+    {
+        return (sessionCache ? sessionToken + "/dss-cache/" : "") + folder + "/" + dataSetCode;
+    }
+
     private URL createURL(String url)
     {
         try
@@ -142,13 +179,13 @@ public class ContentCache
         }
     }
 
-    private File createFileFromInputStream(String filePath, InputStream inputStream)
+    private File createFileFromInputStream(String sessionToken,
+            IDatasetLocation dataSetLocation, DataSetPathInfo path, InputStream inputStream)
     {
-        final String subDir = FilenameUtils.getFullPath(filePath);
-        final String filename = FilenameUtils.getName(filePath);
-        final File dir = new File(downloadingFolder, subDir);
-        dir.mkdirs();
-        final File file = new File(dir, filename);
+        File file =
+                new File(workspace, createPathInWorkspace(sessionToken, DOWNLOADING_FOLDER,
+                        dataSetLocation, path));
+        createFolder(file.getParentFile());
         OutputStream ostream = null;
         try
         {
@@ -164,8 +201,8 @@ public class ContentCache
             IOUtils.closeQuietly(ostream);
         }
     }
-    
-    private void creatFolder(File folder)
+
+    private void createFolder(File folder)
     {
         if (folder.exists() == false)
         {
@@ -177,35 +214,45 @@ public class ContentCache
         }
     }
 
-    private void lock(String pathInCache)
-    {
-        getLock(pathInCache).lock();
-    }
     
-    private Lock getLock(String pathInCache)
+    private static final class LockManager
     {
-        synchronized (locks)
+        private final Map<String, ReentrantLock> locks = new HashMap<String, ReentrantLock>();
+
+        void lock(String path)
         {
-            Lock lock = locks.get(pathInCache);
-            if (lock == null)
+            ReentrantLock lock;
+            synchronized (locks)
             {
-                lock = new ReentrantLock();
-                locks.put(pathInCache, lock);
+                lock = locks.get(path);
+                if (lock == null)
+                {
+                    lock = new ReentrantLock();
+                    locks.put(path, lock);
+                }
             }
-            return lock;
+            lock.lock();
         }
-    }
-    
-    private void unlock(String pathInCache)
-    {
-        synchronized (locks)
+
+        synchronized void unlock(String path)
         {
-            Lock lock = locks.remove(pathInCache);
+            ReentrantLock lock = locks.get(path);
             if (lock != null)
             {
                 lock.unlock();
+                if (lock.isLocked() == false)
+                {
+                    locks.remove(path);
+                }
             }
         }
+        
+        synchronized boolean isLocked(String path)
+        {
+            ReentrantLock lock = locks.get(path);
+            return lock != null && lock.isLocked();
+        }
+        
     }
 
 }

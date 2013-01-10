@@ -95,7 +95,7 @@ public class RemoteHierarchicalContentNodeTest
                         "remote-file.txt");
 
         fileInSessionWorkspace =
-                new File(SESSION_WORKSPACE_DIR, ContentCache.CHACHED_FOLDER + "/"
+                new File(SESSION_WORKSPACE_DIR, ContentCache.CACHE_FOLDER + "/"
                         + CACHED_DATASET_LOCATION.getDataSetCode() + "/already-downloaded-file.txt");
         create(remoteFile);
         create(fileInSessionWorkspace);
@@ -110,7 +110,7 @@ public class RemoteHierarchicalContentNodeTest
                     will(returnValue(remoteDss));
                 }
             });
-        cache = new ContentCache(serviceFactory, sessionHolder, SESSION_WORKSPACE_DIR, fileOperations);
+        cache = new ContentCache(serviceFactory, SESSION_WORKSPACE_DIR, false, fileOperations);
     }
 
     @Test

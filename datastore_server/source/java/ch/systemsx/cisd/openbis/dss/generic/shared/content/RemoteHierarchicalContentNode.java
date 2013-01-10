@@ -176,7 +176,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
     @Override
     public File getFile() throws UnsupportedOperationException
     {
-        return cache.getFile(dataSetLocation, path);
+        return cache.getFile(sessionTokenProvider.getSessionToken(), dataSetLocation, path);
     }
 
     @Override

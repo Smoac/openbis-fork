@@ -50,7 +50,7 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
         this.provider = pathInfoProvider;
         this.sessionTokenProvider = sessionTokenProvider;
         this.cache = cache;
-        
+        cache.lockDataSet(sessionTokenProvider.getSessionToken(), location.getLocation().getDataSetCode());
     }
 
     @Override
@@ -140,7 +140,7 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
     @Override
     public void close()
     {
-        cache.unlockFilesFor(location.getLocation().getDataSetCode());
+        cache.unlockDataSet(sessionTokenProvider.getSessionToken(), location.getLocation().getDataSetCode());
     }
 
     private IHierarchicalContentNode createNode(DataSetPathInfo info)

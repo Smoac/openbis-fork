@@ -74,13 +74,13 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
 
     private OpenBISSessionHolder sessionHolder;
 
-    private ContentCache cache;
-
     private File workSpace;
 
     private File remoteFile1;
 
     private File remoteFile2;
+
+    private IDssServiceRpcGenericFactory serviceFactory;
 
     @BeforeMethod
     public void setUpFixture()
@@ -99,20 +99,16 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
         remoteFile2 = new File(remoteDataSetFolder, "file2.txt");
         FileUtilities.writeToFile(remoteFile2, FILE2_CONTENT);
         workSpace = new File(workingDirectory, "workspace");
-        final IDssServiceRpcGenericFactory serviceFactory = context.mock(IDssServiceRpcGenericFactory.class);
+        serviceFactory = context.mock(IDssServiceRpcGenericFactory.class);
         context.checking(new Expectations()
             {
                 {
-                    one(fileOperations).removeRecursivelyQueueing(
-                            new File(workSpace, ContentCache.DOWNLOADING_FOLDER));
-                    
                     allowing(serviceFactory).getService(DATA_STORE_URL);
                     will(returnValue(remoteDss));
                 }
             });
-        cache = new ContentCache(serviceFactory, sessionHolder, workSpace, fileOperations);
     }
-
+    
     @AfterMethod
     public void tearDown()
     {
@@ -124,10 +120,11 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
     @Test
     public void testGetTwoDifferentFilesInSequence() throws Exception
     {
+        ContentCache cache = createCache(true);
         final DataSetPathInfo pathInfo1 = new DataSetPathInfo();
         pathInfo1.setRelativePath(remoteFile1.getName());
         pathInfo1.setDirectory(false);
-        IHierarchicalContentNode node1 = createRemoteNode(pathInfo1);
+        IHierarchicalContentNode node1 = createRemoteNode(pathInfo1, cache);
         context.checking(new Expectations()
             {
                 {
@@ -139,7 +136,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
         final DataSetPathInfo pathInfo2 = new DataSetPathInfo();
         pathInfo2.setRelativePath(remoteFile2.getName());
         pathInfo2.setDirectory(false);
-        IHierarchicalContentNode node2 = createRemoteNode(pathInfo2);
+        IHierarchicalContentNode node2 = createRemoteNode(pathInfo2, cache);
         context.checking(new Expectations()
             {
                 {
@@ -152,11 +149,13 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
         File file1 = node1.getFile();
         File file2 = node2.getFile();
 
-        assertEquals(new File(workSpace, ContentCache.CHACHED_FOLDER + "/" + DATA_SET_CODE + "/"
-                + remoteFile1.getName()).getAbsolutePath(), file1.getAbsolutePath());
+        assertEquals(new File(workSpace, SESSION_TOKEN + "/dss-cache/" + ContentCache.CACHE_FOLDER
+                + "/" + DATA_SET_CODE + "/" + remoteFile1.getName()).getAbsolutePath(),
+                file1.getAbsolutePath());
         assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file1).trim());
-        assertEquals(new File(workSpace, ContentCache.CHACHED_FOLDER + "/" + DATA_SET_CODE + "/"
-                + remoteFile2.getName()).getAbsolutePath(), file2.getAbsolutePath());
+        assertEquals(new File(workSpace, SESSION_TOKEN + "/dss-cache/" + ContentCache.CACHE_FOLDER
+                + "/" + DATA_SET_CODE + "/" + remoteFile2.getName()).getAbsolutePath(),
+                file2.getAbsolutePath());
         assertEquals(FILE2_CONTENT, FileUtilities.loadToString(file2).trim());
         context.assertIsSatisfied();
     }
@@ -164,10 +163,11 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
     @Test
     public void testGetSameFileInSequenceFirstTryFailing() throws Exception
     {
+        ContentCache cache = createCache(false);
         final DataSetPathInfo pathInfo = new DataSetPathInfo();
         pathInfo.setRelativePath(remoteFile1.getName());
         pathInfo.setDirectory(false);
-        IHierarchicalContentNode node = createRemoteNode(pathInfo);
+        IHierarchicalContentNode node = createRemoteNode(pathInfo, cache);
         context.checking(new Expectations()
             {
                 {
@@ -194,7 +194,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
         }
         File file = node.getFile();
 
-        assertEquals(new File(workSpace, ContentCache.CHACHED_FOLDER + "/" + DATA_SET_CODE + "/"
+        assertEquals(new File(workSpace, ContentCache.CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
                 + remoteFile1.getName()).getAbsolutePath(), file.getAbsolutePath());
         assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file).trim());
         context.assertIsSatisfied();
@@ -203,10 +203,11 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
     @Test
     public void testGetTwoDifferentFilesInTwoThreads() throws Exception
     {
+        ContentCache cache = createCache(false);
         final DataSetPathInfo pathInfo1 = new DataSetPathInfo();
         pathInfo1.setRelativePath(remoteFile1.getName());
         pathInfo1.setDirectory(false);
-        IHierarchicalContentNode node1 = createRemoteNode(pathInfo1);
+        IHierarchicalContentNode node1 = createRemoteNode(pathInfo1, cache);
         final MessageChannel channel1 = new MessageChannel(10000);
         GetFileRunnable fileRunnable1 = new GetFileRunnable(node1, channel1)
             {
@@ -221,7 +222,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
         final DataSetPathInfo pathInfo2 = new DataSetPathInfo();
         pathInfo2.setRelativePath(remoteFile2.getName());
         pathInfo2.setDirectory(false);
-        IHierarchicalContentNode node2 = createRemoteNode(pathInfo2);
+        IHierarchicalContentNode node2 = createRemoteNode(pathInfo2, cache);
         final MessageChannel channel2 = new MessageChannel(10000);
         GetFileRunnable fileRunnable2 = new GetFileRunnable(node2, channel2)
             {
@@ -269,10 +270,10 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
         File file1 = fileRunnable1.tryGetResult();
         File file2 = fileRunnable2.tryGetResult();
 
-        assertEquals(new File(workSpace, ContentCache.CHACHED_FOLDER + "/" + DATA_SET_CODE + "/"
+        assertEquals(new File(workSpace, ContentCache.CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
                 + remoteFile1.getName()).getAbsolutePath(), file1.getAbsolutePath());
         assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file1).trim());
-        assertEquals(new File(workSpace, ContentCache.CHACHED_FOLDER + "/" + DATA_SET_CODE + "/"
+        assertEquals(new File(workSpace, ContentCache.CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
                 + remoteFile2.getName()).getAbsolutePath(), file2.getAbsolutePath());
         assertEquals(FILE2_CONTENT, FileUtilities.loadToString(file2).trim());
         context.assertIsSatisfied();
@@ -281,14 +282,15 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
     @Test
     public void testGetSameFileInTwoThreads() throws Exception
     {
+        ContentCache cache = createCache(false);
         final DataSetPathInfo pathInfo = new DataSetPathInfo();
         pathInfo.setRelativePath(remoteFile1.getName());
         pathInfo.setDirectory(false);
-        final IHierarchicalContentNode node1 = createRemoteNode(pathInfo);
+        final IHierarchicalContentNode node1 = createRemoteNode(pathInfo, cache);
         ConsoleLogger logger = new ConsoleLogger();
         final MessageChannel channel1 =
                 new MessageChannelBuilder(10000).name("1").logger(logger).getChannel();
-        final IHierarchicalContentNode node2 = createRemoteNode(pathInfo);
+        final IHierarchicalContentNode node2 = createRemoteNode(pathInfo, cache);
         final MessageChannel channel2 =
                 new MessageChannelBuilder(10000).name("2").logger(logger).getChannel();
         final MessageChannel channel3 =
@@ -332,7 +334,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
 
         File file1 = fileRunnable1.tryGetResult();
         File file2 = fileRunnable2.tryGetResult();
-        assertEquals(new File(workSpace, ContentCache.CHACHED_FOLDER + "/" + DATA_SET_CODE + "/"
+        assertEquals(new File(workSpace, ContentCache.CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
                 + remoteFile1.getName()).getAbsolutePath(), file1.getAbsolutePath());
         assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file1).trim());
         assertEquals(file1, file2);
@@ -342,14 +344,15 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
     @Test
     public void testGetSameFileInTwoThreadsFirstDownloadFails() throws Exception
     {
+        ContentCache cache = createCache(false);
         final DataSetPathInfo pathInfo = new DataSetPathInfo();
         pathInfo.setRelativePath(remoteFile1.getName());
         pathInfo.setDirectory(false);
-        final IHierarchicalContentNode node1 = createRemoteNode(pathInfo);
+        final IHierarchicalContentNode node1 = createRemoteNode(pathInfo, cache);
         ConsoleLogger logger = new ConsoleLogger();
         final MessageChannel channel1 =
                 new MessageChannelBuilder(10000).name("1").logger(logger).getChannel();
-        final IHierarchicalContentNode node2 = createRemoteNode(pathInfo);
+        final IHierarchicalContentNode node2 = createRemoteNode(pathInfo, cache);
         final MessageChannel channel2 =
                 new MessageChannelBuilder(10000).name("2").logger(logger).getChannel();
         final MessageChannel channel3 =
@@ -408,13 +411,28 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
         File file1 = fileRunnable1.tryGetResult();
         assertEquals(null, file1);
         File file2 = fileRunnable2.tryGetResult();
-        assertEquals(new File(workSpace, ContentCache.CHACHED_FOLDER + "/" + DATA_SET_CODE + "/"
+        assertEquals(new File(workSpace, ContentCache.CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
                 + remoteFile1.getName()).getAbsolutePath(), file2.getAbsolutePath());
         assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file2).trim());
         context.assertIsSatisfied();
     }
     
-    private IHierarchicalContentNode createRemoteNode(DataSetPathInfo pathInfo)
+    private ContentCache createCache(boolean sessionCache)
+    {
+        if (sessionCache == false)
+        {
+            context.checking(new Expectations()
+                {
+                    {
+                        one(fileOperations).removeRecursivelyQueueing(
+                                new File(workSpace, ContentCache.DOWNLOADING_FOLDER));
+                    }
+                });
+        }
+        return new ContentCache(serviceFactory, workSpace, sessionCache, fileOperations);
+    }
+
+    private IHierarchicalContentNode createRemoteNode(DataSetPathInfo pathInfo, ContentCache cache)
     {
         return new RemoteHierarchicalContentNode(DATA_SET_LOCATION, pathInfo, provider, 
                 sessionHolder, cache);

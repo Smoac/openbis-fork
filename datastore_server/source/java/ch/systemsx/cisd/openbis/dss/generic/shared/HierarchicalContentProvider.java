@@ -19,13 +19,12 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
-import ch.systemsx.cisd.common.filesystem.FileOperations;
-import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
@@ -34,7 +33,6 @@ import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.ContentCache;
-import ch.systemsx.cisd.openbis.dss.generic.shared.content.DssServiceRpcGenericFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoDBAwareHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.RemoteHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
@@ -105,13 +103,13 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         this.dataStoreCode = dataStoreCode;
         if (infoProvider != null)
         {
-            String trust = infoProvider.getResolvedProps().getProperty("trust-all-certificates");
+            Properties properties = infoProvider.getResolvedProps();
+            String trust = properties.getProperty("trust-all-certificates");
             trustAllCertificates = (trust != null && trust.equalsIgnoreCase("true"));
             String sessionWorkspaceRoot =
                     infoProvider.getResolvedProps().getProperty("session-workspace-root-dir",
                             "data/sessionWorkspace");
-            cacheWorkspace =
-                    new File(new File(sessionWorkspaceRoot), "dss-cache");
+            cacheWorkspace = new File(sessionWorkspaceRoot);
             if (cacheWorkspace.exists() == false)
             {
                 cacheWorkspace.mkdirs();
@@ -120,10 +118,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         {
             trustAllCertificates = false;
         }
-        IFileOperations fileOperations = FileOperations.getInstance();
-        cache =
-                new ContentCache(new DssServiceRpcGenericFactory(), sessionTokenProvider,
-                        cacheWorkspace, fileOperations);
+        cache = new ContentCache(cacheWorkspace, true);
     }
 
     @Override
