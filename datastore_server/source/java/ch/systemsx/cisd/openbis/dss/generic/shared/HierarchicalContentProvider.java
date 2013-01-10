@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.dss.generic.shared.content.DssServiceRpcGenericFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.IContentCache;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.IDssServiceRpcGenericFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoDBAwareHierarchicalContentFactory;
@@ -70,13 +71,13 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
 
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
             IShareIdManager shareIdManager, IConfigProvider configProvider,
-            IContentCache contentCache, IDssServiceRpcGenericFactory serviceFactory,
+            IContentCache contentCache, 
             ISessionTokenProvider sessionTokenProvider,
             ExposablePropertyPlaceholderConfigurer infoProvider)
     {
         this(openbisService, new DataSetDirectoryProvider(configProvider.getStoreRoot(),
-                shareIdManager), null, serviceFactory, contentCache, sessionTokenProvider,
-                configProvider.getDataStoreCode(), infoProvider);
+                shareIdManager), null, new DssServiceRpcGenericFactory(), contentCache,
+                sessionTokenProvider, configProvider.getDataStoreCode(), infoProvider);
     }
 
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
