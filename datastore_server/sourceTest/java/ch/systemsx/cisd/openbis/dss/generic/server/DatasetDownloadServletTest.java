@@ -172,7 +172,7 @@ public class DatasetDownloadServletTest
                 new MockDataSetDirectoryProvider(TEST_FOLDER, DEFAULT_SHARE_ID, shareIdManager);
         hierarchicalContentProvider =
                 new HierarchicalContentProvider(openbisService, dummyDirectoryProvider,
-                        fileBasedContentFactory, null, "STANDARD", null);
+                        fileBasedContentFactory, null, null, "STANDARD", null);
         httpSession = context.mock(HttpSession.class);
         TEST_FOLDER.mkdirs();
         EXAMPLE_DATA_SET_FOLDER.mkdirs();

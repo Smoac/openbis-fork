@@ -603,7 +603,7 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
             fileProvider =
                     new HierarchicalContentProvider(ServiceProvider.getOpenBISService(),
                             ServiceProvider.getShareIdManager(),
-                            ServiceProvider.getConfigProvider(),
+                            ServiceProvider.getConfigProvider(), ServiceProvider.getContentCache(),
                             new DefaultFileBasedHierarchicalContentFactory(), null, null);
         }
         return fileProvider;
@@ -624,8 +624,8 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
                 pathInfoProvider =
                         new HierarchicalContentProvider(ServiceProvider.getOpenBISService(),
                                 ServiceProvider.getShareIdManager(),
-                                ServiceProvider.getConfigProvider(), pathInfoDBFactory, null,
-                                null);
+                                ServiceProvider.getConfigProvider(),
+                                ServiceProvider.getContentCache(), pathInfoDBFactory, null, null);
             }
         }
         return pathInfoProvider;

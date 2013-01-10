@@ -73,7 +73,7 @@ public class HierarchicalContentProviderTest extends AssertJUnit
         openbisService = context.mock(IEncapsulatedOpenBISService.class);
         hierarchicalContentProvider =
                 new HierarchicalContentProvider(openbisService, directoryProvider,
-                        hierarchicalContentFactory, null, "STANDARD", null);
+                        hierarchicalContentFactory, null, null, "STANDARD", null);
     }
 
     @AfterMethod

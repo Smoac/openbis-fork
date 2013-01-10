@@ -63,28 +63,26 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
 
     private final boolean trustAllCertificates;
 
-    private File cacheWorkspace;
-
-    private ContentCache cache;
+    private final ContentCache cache;
 
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
-            IShareIdManager shareIdManager, IConfigProvider configProvider,
+            IShareIdManager shareIdManager, IConfigProvider configProvider, ContentCache contentCache,
             ISessionTokenProvider sessionTokenProvider,
             ExposablePropertyPlaceholderConfigurer infoProvider)
     {
         this(openbisService, new DataSetDirectoryProvider(configProvider.getStoreRoot(),
-                shareIdManager), null, sessionTokenProvider, configProvider.getDataStoreCode(),
+                shareIdManager), null, contentCache, sessionTokenProvider, configProvider.getDataStoreCode(),
                 infoProvider);
     }
 
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
-            IShareIdManager shareIdManager, IConfigProvider configProvider,
+            IShareIdManager shareIdManager, IConfigProvider configProvider, ContentCache contentCache,
             IHierarchicalContentFactory hierarchicalContentFactory,
             ISessionTokenProvider sessionTokenProvider,
             ExposablePropertyPlaceholderConfigurer infoProvider)
     {
         this(openbisService, new DataSetDirectoryProvider(configProvider.getStoreRoot(),
-                shareIdManager), hierarchicalContentFactory, sessionTokenProvider, configProvider
+                shareIdManager), hierarchicalContentFactory, contentCache, sessionTokenProvider, configProvider
                 .getDataStoreCode(), infoProvider);
     }
 
@@ -92,13 +90,14 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
             IDataSetDirectoryProvider directoryProvider,
             IHierarchicalContentFactory hierarchicalContentFactory,
-            ISessionTokenProvider session,
+            ContentCache contentCache, ISessionTokenProvider session,
             String dataStoreCode,
             ExposablePropertyPlaceholderConfigurer infoProvider)
     {
         this.openbisService = openbisService;
         this.directoryProvider = directoryProvider;
         this.hierarchicalContentFactory = hierarchicalContentFactory;
+        this.cache = contentCache;
         this.sessionTokenProvider = session;
         this.dataStoreCode = dataStoreCode;
         if (infoProvider != null)
@@ -106,19 +105,10 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
             Properties properties = infoProvider.getResolvedProps();
             String trust = properties.getProperty("trust-all-certificates");
             trustAllCertificates = (trust != null && trust.equalsIgnoreCase("true"));
-            String sessionWorkspaceRoot =
-                    infoProvider.getResolvedProps().getProperty("session-workspace-root-dir",
-                            "data/sessionWorkspace");
-            cacheWorkspace = new File(sessionWorkspaceRoot);
-            if (cacheWorkspace.exists() == false)
-            {
-                cacheWorkspace.mkdirs();
-            }
         } else
         {
             trustAllCertificates = false;
         }
-        cache = new ContentCache(cacheWorkspace, true);
     }
 
     @Override

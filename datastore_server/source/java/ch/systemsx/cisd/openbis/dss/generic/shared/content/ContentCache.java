@@ -25,6 +25,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.io.IOUtils;
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -45,10 +47,28 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
  */
 public class ContentCache
 {
+    public static final String CACHE_WORKSPACE_FOLDER_KEY = "cache-workspace-folder";
+
     static final String CACHE_FOLDER = "cached";
 
     static final String DOWNLOADING_FOLDER = "downloading";
 
+    public static ContentCache create(Properties properties, IPluginTaskInfoProvider infoProvider)
+    {
+        String workspacePathOrNull = properties.getProperty(CACHE_WORKSPACE_FOLDER_KEY);
+        boolean sessionCache = workspacePathOrNull == null;
+        File cacheWorkspace;
+        if (sessionCache)
+        {
+            cacheWorkspace = infoProvider.getSessionWorkspaceRootDir();
+        } else
+        {
+            cacheWorkspace = new File(workspacePathOrNull);
+        }
+        return new ContentCache(new DssServiceRpcGenericFactory(), cacheWorkspace, sessionCache,
+                FileOperations.getInstance());
+    }
+    
     private final LockManager dataSetLockManager;
     
     private final LockManager fileLockManager;
@@ -59,11 +79,6 @@ public class ContentCache
 
     private final File workspace;
     
-    public ContentCache(File cacheWorkspace, boolean sessionCache)
-    {
-        this(new DssServiceRpcGenericFactory(), cacheWorkspace, sessionCache, FileOperations.getInstance());
-    }
-
     ContentCache(IDssServiceRpcGenericFactory serviceFactory, File cacheWorkspace,
             boolean sessionCache, IFileOperations fileOperations)
     {

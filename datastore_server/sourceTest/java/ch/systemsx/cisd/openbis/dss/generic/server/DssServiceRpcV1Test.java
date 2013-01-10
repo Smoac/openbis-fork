@@ -186,7 +186,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                 new MockDataSetDirectoryProvider(storeDir, SHARE_ID, shareIdManager);
         contentProvider =
                 new HierarchicalContentProvider(openBisService, dummyDirectoryProvider,
-                        fileBasedContentFactory, null, "STANDARD", null);
+                        fileBasedContentFactory, null, null, "STANDARD", null);
 
         setupGetExpectations();
 

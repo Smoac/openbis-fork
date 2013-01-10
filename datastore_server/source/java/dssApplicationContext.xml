@@ -193,12 +193,19 @@
     <bean id="data-source-provider" class="ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceProvider" />
     
     <bean id="config-provider" class="ch.systemsx.cisd.etlserver.ConfigProvider"/>
+    
+    <bean id="content-cache" class="ch.systemsx.cisd.openbis.dss.generic.shared.content.ContentCache" 
+          factory-method="create">
+        <constructor-arg ref="configProperties" />
+        <constructor-arg ref="plugin-tasks" />
+    </bean>
 
     <bean id="hierarchical-content-provider" 
         class="ch.systemsx.cisd.openbis.dss.generic.shared.HierarchicalContentProvider">
         <constructor-arg ref="openBIS-service" />
         <constructor-arg ref="share-id-manager" />
         <constructor-arg ref="config-provider" />
+        <constructor-arg ref="content-cache" />
         <constructor-arg ref="sessionHolder" />
         <constructor-arg ref="propertyConfigurer" />
     </bean>
