@@ -52,28 +52,30 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
 
     private String parentRelativePath;
 
-    private final ContentCache cache;
+    private final IContentCache cache;
 
     private final IDatasetLocation dataSetLocation;
 
+    private final IDssServiceRpcGenericFactory serviceFactory;
+
     public RemoteHierarchicalContentNode(IDatasetLocation dataSetetLocation, DataSetPathInfo path,
-            ISingleDataSetPathInfoProvider provider, 
-            ISessionTokenProvider sessionTokenProvider, ContentCache contentCache)
+            ISingleDataSetPathInfoProvider provider, IDssServiceRpcGenericFactory serviceFactory,
+            ISessionTokenProvider sessionTokenProvider, IContentCache contentCache)
     {
-        this(dataSetetLocation, path, provider, sessionTokenProvider, contentCache, null);
+        this(dataSetetLocation, path, provider, serviceFactory, sessionTokenProvider, contentCache,
+                null);
     }
 
-    private RemoteHierarchicalContentNode(IDatasetLocation dataSetetLocation,
-            DataSetPathInfo path,
-            ISingleDataSetPathInfoProvider provider,
-            ISessionTokenProvider sessionTokenProvider,
-            ContentCache contentCache,
+    private RemoteHierarchicalContentNode(IDatasetLocation dataSetetLocation, DataSetPathInfo path,
+            ISingleDataSetPathInfoProvider provider, IDssServiceRpcGenericFactory serviceFactory,
+            ISessionTokenProvider sessionTokenProvider, IContentCache contentCache,
             String parentRelativePath)
     {
         this.dataSetLocation = dataSetetLocation;
         this.path = path;
         this.provider = provider;
         this.sessionTokenProvider = sessionTokenProvider;
+        this.serviceFactory = serviceFactory;
         this.cache = contentCache;
         this.parentRelativePath = parentRelativePath;
     }
@@ -148,11 +150,12 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
             for (DataSetPathInfo childPath : provider.listChildrenPathInfos(path))
             {
                 children.add(new RemoteHierarchicalContentNode(dataSetLocation, childPath,
-                        provider, sessionTokenProvider, cache, relativePath));
+                        provider, serviceFactory, sessionTokenProvider, cache, relativePath));
             }
         } else
         {
-            IDssServiceRpcGeneric service = cache.getDssService(dataSetLocation);
+            IDssServiceRpcGeneric service =
+                    serviceFactory.getService(dataSetLocation.getDataStoreUrl());
             String sessionToken = sessionTokenProvider.getSessionToken();
             String dataSetCode = dataSetLocation.getDataSetCode();
             FileInfoDssDTO[] files =
@@ -167,7 +170,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
                 info.setSizeInBytes(file.getFileSize());
                 info.setLastModified(new Date(0L));
                 children.add(new RemoteHierarchicalContentNode(dataSetLocation, info, provider,
-                        sessionTokenProvider, cache, relativePath));
+                        serviceFactory, sessionTokenProvider, cache, relativePath));
             }
         }
         return children;

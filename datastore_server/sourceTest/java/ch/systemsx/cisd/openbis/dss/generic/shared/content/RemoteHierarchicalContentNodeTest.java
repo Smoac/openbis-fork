@@ -77,6 +77,8 @@ public class RemoteHierarchicalContentNodeTest
 
     File fileInSessionWorkspace;
 
+    private IDssServiceRpcGenericFactory serviceFactory;
+
     @BeforeMethod
     public void fixture() throws Exception
     {
@@ -99,7 +101,7 @@ public class RemoteHierarchicalContentNodeTest
                         + CACHED_DATASET_LOCATION.getDataSetCode() + "/already-downloaded-file.txt");
         create(remoteFile);
         create(fileInSessionWorkspace);
-        final IDssServiceRpcGenericFactory serviceFactory = context.mock(IDssServiceRpcGenericFactory.class);
+        serviceFactory = context.mock(IDssServiceRpcGenericFactory.class);
         context.checking(new Expectations()
             {
                 {
@@ -123,7 +125,7 @@ public class RemoteHierarchicalContentNodeTest
 
         IHierarchicalContentNode node =
                 new RemoteHierarchicalContentNode(REMOTE_DATASET_LOCATION, pathInfo, provider,
-                        sessionHolder, cache);
+                        serviceFactory, sessionHolder, cache);
 
         context.checking(new Expectations()
             {
@@ -150,7 +152,7 @@ public class RemoteHierarchicalContentNodeTest
 
         IHierarchicalContentNode node =
                 new RemoteHierarchicalContentNode(CACHED_DATASET_LOCATION, pathInfo, provider,
-                        sessionHolder, cache);
+                        serviceFactory, sessionHolder, cache);
 
         File file = node.getFile();
         assertThat(file.getAbsolutePath(), is(fileInSessionWorkspace.getAbsolutePath()));
@@ -168,7 +170,7 @@ public class RemoteHierarchicalContentNodeTest
 
         IHierarchicalContentNode node =
                 new RemoteHierarchicalContentNode(CACHED_DATASET_LOCATION, pathInfo, provider,
-                        sessionHolder, cache);
+                        serviceFactory, sessionHolder, cache);
 
         context.checking(new Expectations()
             {
@@ -192,7 +194,7 @@ public class RemoteHierarchicalContentNodeTest
 
         IHierarchicalContentNode node =
                 new RemoteHierarchicalContentNode(CACHED_DATASET_LOCATION, pathInfo, null,
-                        sessionHolder, cache);
+                        serviceFactory, sessionHolder, cache);
 
         context.checking(new Expectations()
             {

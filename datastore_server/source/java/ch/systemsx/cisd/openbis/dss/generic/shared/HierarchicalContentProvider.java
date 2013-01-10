@@ -32,7 +32,8 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
-import ch.systemsx.cisd.openbis.dss.generic.shared.content.ContentCache;
+import ch.systemsx.cisd.openbis.dss.generic.shared.content.IContentCache;
+import ch.systemsx.cisd.openbis.dss.generic.shared.content.IDssServiceRpcGenericFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoDBAwareHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.RemoteHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
@@ -63,42 +64,47 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
 
     private final boolean trustAllCertificates;
 
-    private final ContentCache cache;
+    private final IContentCache cache;
+
+    private final IDssServiceRpcGenericFactory serviceFactory;
 
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
-            IShareIdManager shareIdManager, IConfigProvider configProvider, ContentCache contentCache,
+            IShareIdManager shareIdManager, IConfigProvider configProvider,
+            IContentCache contentCache, IDssServiceRpcGenericFactory serviceFactory,
             ISessionTokenProvider sessionTokenProvider,
             ExposablePropertyPlaceholderConfigurer infoProvider)
     {
         this(openbisService, new DataSetDirectoryProvider(configProvider.getStoreRoot(),
-                shareIdManager), null, contentCache, sessionTokenProvider, configProvider.getDataStoreCode(),
-                infoProvider);
+                shareIdManager), null, serviceFactory, contentCache, sessionTokenProvider,
+                configProvider.getDataStoreCode(), infoProvider);
     }
 
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
-            IShareIdManager shareIdManager, IConfigProvider configProvider, ContentCache contentCache,
-            IHierarchicalContentFactory hierarchicalContentFactory,
+            IShareIdManager shareIdManager, IConfigProvider configProvider,
+            IContentCache contentCache, IHierarchicalContentFactory hierarchicalContentFactory,
+            IDssServiceRpcGenericFactory serviceFactory,
             ISessionTokenProvider sessionTokenProvider,
             ExposablePropertyPlaceholderConfigurer infoProvider)
     {
         this(openbisService, new DataSetDirectoryProvider(configProvider.getStoreRoot(),
-                shareIdManager), hierarchicalContentFactory, contentCache, sessionTokenProvider, configProvider
-                .getDataStoreCode(), infoProvider);
+                shareIdManager), hierarchicalContentFactory, serviceFactory, contentCache,
+                sessionTokenProvider, configProvider.getDataStoreCode(), infoProvider);
     }
 
     @Private
     public HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
             IDataSetDirectoryProvider directoryProvider,
             IHierarchicalContentFactory hierarchicalContentFactory,
-            ContentCache contentCache, ISessionTokenProvider session,
-            String dataStoreCode,
+            IDssServiceRpcGenericFactory serviceFactory, IContentCache contentCache,
+            ISessionTokenProvider sessionTokenProvider, String dataStoreCode,
             ExposablePropertyPlaceholderConfigurer infoProvider)
     {
         this.openbisService = openbisService;
         this.directoryProvider = directoryProvider;
         this.hierarchicalContentFactory = hierarchicalContentFactory;
+        this.serviceFactory = serviceFactory;
         this.cache = contentCache;
-        this.sessionTokenProvider = session;
+        this.sessionTokenProvider = sessionTokenProvider;
         this.dataStoreCode = dataStoreCode;
         if (infoProvider != null)
         {
@@ -160,9 +166,9 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
             {
                 IDataSetPathInfoProvider dataSetPathInfoProvider =
                         ServiceProvider.getDataSetPathInfoProvider();
-                provider = dataSetPathInfoProvider.tryGetSingleDataSetPathInfoProvider(locationNode
-                        .getLocation()
-                        .getDataSetCode());
+                provider =
+                        dataSetPathInfoProvider.tryGetSingleDataSetPathInfoProvider(locationNode
+                                .getLocation().getDataSetCode());
             }
 
             if (trustAllCertificates)
@@ -170,8 +176,8 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                 SslCertificateHelper.trustAnyCertificate(locationNode.getLocation()
                         .getDataStoreUrl());
             }
-            return new RemoteHierarchicalContent(locationNode, provider, sessionTokenProvider,
-                    cache);
+            return new RemoteHierarchicalContent(locationNode, provider, serviceFactory,
+                    sessionTokenProvider, cache);
         }
     }
 

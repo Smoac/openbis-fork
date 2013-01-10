@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
  * 
  * @author Franz-Josef Elmer
  */
-public class ContentCache
+public class ContentCache implements IContentCache
 {
     public static final String CACHE_WORKSPACE_FOLDER_KEY = "cache-workspace-folder";
 
@@ -93,29 +93,28 @@ public class ContentCache
         fileLockManager = new LockManager();
     }
 
-    public IDssServiceRpcGeneric getDssService(IDatasetLocation dataSetLocation)
-    {
-        return serviceFactory.getService(dataSetLocation.getDataStoreUrl());
-    }
-
+    @Override
     public void lockDataSet(String sessionToken, String dataSetCode)
     {
         String dataSetPath = createDataSetPath(sessionToken, CACHE_FOLDER, dataSetCode);
         dataSetLockManager.lock(dataSetPath);
     }
 
+    @Override
     public void unlockDataSet(String sessionToken, String dataSetCode)
     {
         String dataSetPath = createDataSetPath(sessionToken, CACHE_FOLDER, dataSetCode);
         dataSetLockManager.unlock(dataSetPath);
     }
     
+    @Override
     public boolean isDataSetLocked(String sessionToken, String dataSetCode)
     {
         String dataSetPath = createDataSetPath(sessionToken, CACHE_FOLDER, dataSetCode);
         return dataSetLockManager.isLocked(dataSetPath);
     }
 
+    @Override
     public File getFile(String sessionToken, IDatasetLocation dataSetLocation,
             DataSetPathInfo path)
     {

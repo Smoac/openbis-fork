@@ -46,6 +46,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.HierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.content.DssServiceRpcGenericFactory;
+import ch.systemsx.cisd.openbis.dss.generic.shared.content.IDssServiceRpcGenericFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoDBOnlyHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -61,6 +63,8 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
     private transient IHierarchicalContentProvider fileProvider;
 
     private transient IHierarchicalContentProvider pathInfoProvider;
+
+    private transient IDssServiceRpcGenericFactory serviceFactory;
 
     private static final long serialVersionUID = 1L;
 
@@ -604,7 +608,8 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
                     new HierarchicalContentProvider(ServiceProvider.getOpenBISService(),
                             ServiceProvider.getShareIdManager(),
                             ServiceProvider.getConfigProvider(), ServiceProvider.getContentCache(),
-                            new DefaultFileBasedHierarchicalContentFactory(), null, null);
+                            new DefaultFileBasedHierarchicalContentFactory(), getServiceFactory(),
+                            null, null);
         }
         return fileProvider;
     }
@@ -625,9 +630,19 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPlugin implements IPr
                         new HierarchicalContentProvider(ServiceProvider.getOpenBISService(),
                                 ServiceProvider.getShareIdManager(),
                                 ServiceProvider.getConfigProvider(),
-                                ServiceProvider.getContentCache(), pathInfoDBFactory, null, null);
+                                ServiceProvider.getContentCache(), pathInfoDBFactory,
+                                getServiceFactory(), null, null);
             }
         }
         return pathInfoProvider;
+    }
+
+    private IDssServiceRpcGenericFactory getServiceFactory()
+    {
+        if (serviceFactory == null)
+        {
+            serviceFactory = new DssServiceRpcGenericFactory();
+        }
+        return serviceFactory;
     }
 }

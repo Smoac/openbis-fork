@@ -40,14 +40,18 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
 
     private final ISessionTokenProvider sessionTokenProvider;
 
-    private final ContentCache cache;
+    private final IContentCache cache;
+
+    private final IDssServiceRpcGenericFactory serviceFactory;
 
     public RemoteHierarchicalContent(IDatasetLocationNode location,
-            ISingleDataSetPathInfoProvider pathInfoProvider, ISessionTokenProvider sessionTokenProvider,
-            ContentCache cache)
+            ISingleDataSetPathInfoProvider pathInfoProvider,
+            IDssServiceRpcGenericFactory serviceFactory,
+            ISessionTokenProvider sessionTokenProvider, IContentCache cache)
     {
         this.location = location;
         this.provider = pathInfoProvider;
+        this.serviceFactory = serviceFactory;
         this.sessionTokenProvider = sessionTokenProvider;
         this.cache = cache;
         cache.lockDataSet(sessionTokenProvider.getSessionToken(), location.getLocation().getDataSetCode());
@@ -146,7 +150,7 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
     private IHierarchicalContentNode createNode(DataSetPathInfo info)
     {
         return new RemoteHierarchicalContentNode(location.getLocation(), info,
-                provider, sessionTokenProvider, cache);
+                provider, serviceFactory, sessionTokenProvider, cache);
     }
 
     private List<IHierarchicalContentNode> createNodes(List<DataSetPathInfo> paths)

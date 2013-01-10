@@ -26,7 +26,7 @@ import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.dss.generic.shared.content.ContentCache;
+import ch.systemsx.cisd.openbis.dss.generic.shared.content.IContentCache;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
@@ -189,9 +189,9 @@ public class ServiceProvider
         return result;
     }
     
-    public static ContentCache getContentCache()
+    public static IContentCache getContentCache()
     {
-        return (ContentCache) getApplicationContext().getBean("content-cache");
+        return (IContentCache) getApplicationContext().getBean("content-cache");
     }
 
     private ServiceProvider()

@@ -19,104 +19,22 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 import java.io.File;
 
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.jmock.internal.NamedSequence;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.concurrent.MessageChannelBuilder;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.logging.ConsoleLogger;
 import ch.systemsx.cisd.common.test.ProxyAction;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSystemTestCase
+public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemoteHierarchicalContentTestCase
 {
-    private static final String STARTED_MESSAGE = "started";
-
-    private static final String FINISHED_MESSAGE = "finished";
-
-    private static final String FILE1_CONTENT = "hello file one";
-
-    private static final String FILE2_CONTENT = "hello file two";
-
-    private static final String SESSION_TOKEN = "token";
-
-    private static final String DATA_STORE_URL = "http://a.b.c";
-
-    private static final String DATA_STORE_CODE = "DSS";
-    
-    private static final String DATA_SET_CODE = "DS-123";
-    
-    private static final IDatasetLocation DATA_SET_LOCATION = new DatasetLocation(
-            DATA_SET_CODE, "a/b/c", DATA_STORE_CODE, DATA_STORE_URL);
-
-    private Mockery context;
-
-    private IFileOperations fileOperations;
-    
-    private ISingleDataSetPathInfoProvider provider;
-
-    private IDssServiceRpcGeneric remoteDss;
-
-    private OpenBISSessionHolder sessionHolder;
-
-    private File workSpace;
-
-    private File remoteFile1;
-
-    private File remoteFile2;
-
-    private IDssServiceRpcGenericFactory serviceFactory;
-
-    @BeforeMethod
-    public void setUpFixture()
-    {
-        context = new Mockery();
-        fileOperations = context.mock(IFileOperations.class);
-        provider = context.mock(ISingleDataSetPathInfoProvider.class);
-        remoteDss = context.mock(IDssServiceRpcGeneric.class, "remote DSS");
-        sessionHolder = new OpenBISSessionHolder();
-        sessionHolder.setSessionToken(SESSION_TOKEN);
-        File remoteStore = new File(workingDirectory, "remote-store");
-        File remoteDataSetFolder = new File(remoteStore, DATA_SET_CODE);
-        remoteDataSetFolder.mkdirs();
-        remoteFile1 = new File(remoteDataSetFolder, "file1.txt");
-        FileUtilities.writeToFile(remoteFile1, FILE1_CONTENT);
-        remoteFile2 = new File(remoteDataSetFolder, "file2.txt");
-        FileUtilities.writeToFile(remoteFile2, FILE2_CONTENT);
-        workSpace = new File(workingDirectory, "workspace");
-        serviceFactory = context.mock(IDssServiceRpcGenericFactory.class);
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(serviceFactory).getService(DATA_STORE_URL);
-                    will(returnValue(remoteDss));
-                }
-            });
-    }
-    
-    @AfterMethod
-    public void tearDown()
-    {
-        // To following line of code should also be called at the end of each test method.
-        // Otherwise one do not known which test failed.
-        context.assertIsSatisfied();
-    }
-
     @Test
     public void testGetTwoDifferentFilesInSequence() throws Exception
     {
@@ -417,25 +335,10 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractFileSy
         context.assertIsSatisfied();
     }
     
-    private ContentCache createCache(boolean sessionCache)
-    {
-        if (sessionCache == false)
-        {
-            context.checking(new Expectations()
-                {
-                    {
-                        one(fileOperations).removeRecursivelyQueueing(
-                                new File(workSpace, ContentCache.DOWNLOADING_FOLDER));
-                    }
-                });
-        }
-        return new ContentCache(serviceFactory, workSpace, sessionCache, fileOperations);
-    }
-
     private IHierarchicalContentNode createRemoteNode(DataSetPathInfo pathInfo, ContentCache cache)
     {
-        return new RemoteHierarchicalContentNode(DATA_SET_LOCATION, pathInfo, provider, 
-                sessionHolder, cache);
+        return new RemoteHierarchicalContentNode(DATA_SET_LOCATION, pathInfo, pathInfoProvider, 
+                serviceFactory, sessionHolder, cache);
     }
 
     private static interface IRunnableWithResult<T> extends Runnable
