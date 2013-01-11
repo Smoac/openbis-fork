@@ -65,12 +65,6 @@ public class FeatureVectorDataSet extends DataSet<FeatureVectorDataSetInformatio
     }
 
     @Override
-    public File getDataSetStagingFolder()
-    {
-        return dataSet.getDataSetStagingFolder();
-    }
-
-    @Override
     public String getDataSetCode()
     {
         return dataSet.getDataSetCode();

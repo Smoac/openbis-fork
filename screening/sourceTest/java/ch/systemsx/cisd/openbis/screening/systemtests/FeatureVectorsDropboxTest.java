@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.screening.systemtests;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -30,11 +32,15 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
+import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 
@@ -62,7 +68,22 @@ public class FeatureVectorsDropboxTest extends AbstractScreeningSystemTestCase
         moveFileToIncoming(exampleDataSet);
         waitUntilDataSetImported();
     }
-    
+
+    @Override
+    protected boolean checkLogContentForFinishedDataSetRegistration(String logContent)
+    {
+        return checkOnFinishedPostRegistration(logContent);
+    }
+
+    /**
+     * sets up the openbis database to be used by the tests.
+     */
+    @Override
+    protected void setUpDatabaseProperties()
+    {
+        TestInitializer.initEmptyDbWithIndex();
+    }
+
     @BeforeMethod
     public void setUp() throws Exception
     {
@@ -75,7 +96,9 @@ public class FeatureVectorsDropboxTest extends AbstractScreeningSystemTestCase
         Object bean = applicationContext.getBean(ResourceNames.SCREENING_PLUGIN_SERVER);
         screeningServer = (IScreeningApiServer) bean;
         sessionToken = screeningClientService.tryToLogin("admin", "a").getSessionID();
-        screeningFacade = ScreeningOpenbisServiceFacade.tryCreateForTest(sessionToken, "http://localhost:" + SYSTEM_TEST_CASE_SERVER_PORT, screeningServer);
+        screeningFacade =
+                ScreeningOpenbisServiceFacade.tryCreateForTest(sessionToken, "http://localhost:"
+                        + SYSTEM_TEST_CASE_SERVER_PORT, screeningServer);
     }
 
     @AfterMethod
@@ -102,8 +125,40 @@ public class FeatureVectorsDropboxTest extends AbstractScreeningSystemTestCase
         FeatureVectorDatasetReference feature = features.get(0);
         assertEquals("HCS_ANALYSIS_CONTAINER_WELL_FEATURES", feature.getDataSetType());
 
+        List<FeatureInformation> availableFeatures =
+                screeningFacade.listAvailableFeatures(features);
+
+        List<String> availableFeatureCodes = new LinkedList<String>();
+        for (FeatureInformation availableFeature : availableFeatures)
+        {
+            availableFeatureCodes.add(availableFeature.getCode());
+        }
+        Collections.sort(availableFeatureCodes);
+        assertEquals("[COLUMN_NUMBER, ROW_NUMBER, STATE, TPU]", availableFeatureCodes.toString());
+
+        List<FeatureVectorDataset> featureVectorDatasets =
+                screeningFacade.loadFeatures(features, Collections.singletonList("TPU"));
+
+        assertEquals(1, featureVectorDatasets.size());
+
+        FeatureVectorDataset featureVectorDataset = featureVectorDatasets.get(0);
+
+        int nonNanPositions = 0;
+
+        for (FeatureVector v : featureVectorDataset.getFeatureVectors())
+        {
+            if (false == Double.isNaN(v.getValues()[0]))
+            {
+                nonNanPositions++;
+            }
+        }
+
+        assertEquals(
+                "There are not enough values in the feature. Maybe the feature was not loaded correctly",
+                8 * 12, nonNanPositions);
+
     }
-    
+
     private List<Plate> filterPlates(List<Plate> plates)
     {
         List<Plate> filteredPlates = new ArrayList<Plate>();
@@ -125,6 +180,7 @@ public class FeatureVectorsDropboxTest extends AbstractScreeningSystemTestCase
         File featureSrc = getFeatureVectorsTestData();
         FileUtils.copyFileToDirectory(featureSrc, dest);
         // Copy the test data set to the location for processing
+
         return dest;
     }
 

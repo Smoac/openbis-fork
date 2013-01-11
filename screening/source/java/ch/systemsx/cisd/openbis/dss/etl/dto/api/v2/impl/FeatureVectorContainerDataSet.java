@@ -98,12 +98,6 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
         getRegistrationDetails().setPropertyValue(propertyCode, propertyValue);
     }
 
-    @Override
-    public File getDataSetStagingFolder()
-    {
-        return originalDataset.getDataSetStagingFolder();
-    }
-
     public static String getContainerAnalysisType(String dataSetTypeCode)
     {
         if (!isHCSAnalysisDataSetType(dataSetTypeCode))

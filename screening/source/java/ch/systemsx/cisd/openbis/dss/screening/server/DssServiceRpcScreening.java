@@ -1319,14 +1319,12 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     {
         String[] permIds = extractPermIds(datasetIdents);
         List<ImgAnalysisDatasetDTO> datasets = getDAO().listAnalysisDatasetsByPermId(permIds);
-        if (datasets.size() != datasetIdents.size())
+
+        if (datasets.size() == 0 && datasetIdents.size() > 0)
         {
-            Set<String> missing = new HashSet<String>(Arrays.asList(permIds));
-            for (ImgAnalysisDatasetDTO dataset : datasets)
-            {
-                missing.remove(dataset.getPermId());
-            }
-            throw new UserFailureException("Following datasets could not be found: " + missing);
+            throw new UserFailureException(
+                    "Couldn't find any analysis dataset for given datasets: "
+                            + Arrays.asList(permIds));
         }
         return datasets;
     }

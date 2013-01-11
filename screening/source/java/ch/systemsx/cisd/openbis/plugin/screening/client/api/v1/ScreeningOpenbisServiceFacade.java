@@ -13,6 +13,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,12 +24,12 @@ import org.apache.commons.lang.time.DateUtils;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.MinimalMinorVersion;
-import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.api.retry.RetryCaller;
 import ch.systemsx.cisd.common.api.retry.RetryProxyFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
+import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchOperator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.IDataSetFilter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
@@ -200,8 +202,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     /**
      * This constructor is only for use in tests. Do not use it otherwise.
      */
-    public static IScreeningOpenbisServiceFacade tryCreateForTest(String sessionToken, String serverUrl,
-            final IScreeningApiServer openbisServer)
+    public static IScreeningOpenbisServiceFacade tryCreateForTest(String sessionToken,
+            String serverUrl, final IScreeningApiServer openbisServer)
     {
         return tryCreate(sessionToken, serverUrl, openbisServer);
     }
@@ -902,7 +904,30 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
         final Set<FeatureInformation> result = new HashSet<FeatureInformation>();
-        featureVectorDataSetIdentifierMultiplexer.process(featureDatasets,
+
+        List<DataSet> containedDataSets = getContainedDataSets(featureDatasets);
+
+        List<IFeatureVectorDatasetIdentifier> identifiersIncludingContained = null;
+
+        if (containedDataSets.size() != 0)
+        {
+            String host = featureDatasets.get(0).getDatastoreServerUrl();
+
+            identifiersIncludingContained = new LinkedList<IFeatureVectorDatasetIdentifier>();
+            identifiersIncludingContained.addAll(featureDatasets);
+            for (DataSet contained : containedDataSets)
+            {
+                IFeatureVectorDatasetIdentifier containedIdentifier =
+                        new FeatureVectorDatasetReference(contained.getCode(),
+                                contained.getDataSetTypeCode(), host, null, null, null, null, null,
+                                null);
+                identifiersIncludingContained.add(containedIdentifier);
+            }
+        }
+
+        featureVectorDataSetIdentifierMultiplexer.process(
+                identifiersIncludingContained == null ? featureDatasets
+                        : identifiersIncludingContained,
                 new IReferenceHandler<IFeatureVectorDatasetIdentifier>()
                     {
                         @Override
@@ -930,6 +955,30 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     });
         return new ArrayList<FeatureInformation>(result);
+    }
+
+    private SearchSubCriteria getContainerSearchCriteria(String containerCode)
+    {
+        SearchCriteria searchSubCriteria = new SearchCriteria();
+        searchSubCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.CODE, containerCode));
+        return SearchSubCriteria.createDataSetContainerCriteria(searchSubCriteria);
+    }
+
+    protected List<DataSet> getContainedDataSets(
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        for (IFeatureVectorDatasetIdentifier id : featureDatasets)
+        {
+            String containerId = id.getDatasetCode();
+            searchCriteria.addSubCriteria(getContainerSearchCriteria(containerId));
+        }
+        searchCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
+
+        List<DataSet> containedDataSets =
+                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
+        return containedDataSets;
     }
 
     /**
