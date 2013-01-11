@@ -69,6 +69,11 @@ public class TestInitializer
         init(IndexMode.NO_INDEX, SCRIPT_FOLDER_EMPTY_DB);
     }
 
+    public static void initEmptyDbWithIndex()
+    {
+        init(IndexMode.SKIP_IF_MARKER_FOUND, SCRIPT_FOLDER_EMPTY_DB);
+    }
+
     private static boolean firstTry = true;
 
     private static void init(IndexMode hibernateIndexMode, String scriptFolder)
