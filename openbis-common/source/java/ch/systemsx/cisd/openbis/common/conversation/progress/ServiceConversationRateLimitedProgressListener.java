@@ -87,8 +87,7 @@ public class ServiceConversationRateLimitedProgressListener implements
 
         if (timeSinceLastExecution > this.interval)
         {
-            this.executor.execute(update);
-            this.future = null;
+            future = this.executor.schedule(update, 0, TimeUnit.MILLISECONDS);
         } else
         {
             future =
