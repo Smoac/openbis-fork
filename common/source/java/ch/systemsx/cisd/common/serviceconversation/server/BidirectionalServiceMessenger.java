@@ -26,7 +26,6 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
 import ch.systemsx.cisd.common.serviceconversation.IServiceMessageTransport;
-import ch.systemsx.cisd.common.serviceconversation.IServiceMessenger;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
 import ch.systemsx.cisd.common.serviceconversation.UnexpectedMessagePayloadException;
 
@@ -46,11 +45,11 @@ class BidirectionalServiceMessenger
 
     private final int messageReceivingTimeoutMillis;
 
-    private int outgoingMessageIdx;
-
     private int messageIdxLastSeen = -1;
 
     private final AtomicBoolean interrupted = new AtomicBoolean();
+
+    private final IInternalServiceMessenger serviceMessenger;
 
     BidirectionalServiceMessenger(String conversationId, int messageReceivingTimeoutMillis,
             IServiceMessageTransport responseMessenger)
@@ -58,12 +57,20 @@ class BidirectionalServiceMessenger
         this.conversationId = conversationId;
         this.messageReceivingTimeoutMillis = messageReceivingTimeoutMillis;
         this.responseMessenger = responseMessenger;
+        this.serviceMessenger = createServiceMessenger();
     }
 
-    IServiceMessenger getServiceMessenger()
+    private IInternalServiceMessenger createServiceMessenger()
     {
-        return new IServiceMessenger()
+        return new IInternalServiceMessenger()
             {
+                private int outgoingMessageIdx;
+
+                private int nextOutgoingMessageIndex()
+                {
+                    return outgoingMessageIdx++;
+                }
+
                 @Override
                 public <T extends Serializable> T receive(Class<T> messageClass)
                 {
@@ -112,7 +119,7 @@ class BidirectionalServiceMessenger
                 }
 
                 @Override
-                public void send(Serializable message)
+                public synchronized void send(Serializable message)
                 {
                     if (interrupted.get())
                     {
@@ -123,6 +130,20 @@ class BidirectionalServiceMessenger
                 }
 
                 @Override
+                public synchronized void sendException(String errorMsg)
+                {
+                    responseMessenger.send(new ServiceMessage(conversationId,
+                            nextOutgoingMessageIndex(), true, errorMsg));
+                }
+
+                @Override
+                public synchronized void sendProgress(ProgressInfo progress)
+                {
+                    responseMessenger.send(new ServiceMessage(conversationId,
+                            nextOutgoingMessageIndex(), false, progress));
+                }
+
+                @Override
                 public String getId()
                 {
                     return conversationId;
@@ -130,9 +151,9 @@ class BidirectionalServiceMessenger
             };
     }
 
-    int nextOutgoingMessageIndex()
+    IInternalServiceMessenger getServiceMessenger()
     {
-        return outgoingMessageIdx++;
+        return serviceMessenger;
     }
 
     public void sendToService(ServiceMessage message)
@@ -146,10 +167,6 @@ class BidirectionalServiceMessenger
             messageIdxLastSeen = message.getMessageIdx();
         }
         incoming.add(message);
-    }
-    
-    public void sendToClient(ServiceMessage message) {
-        responseMessenger.send(message);
     }
 
     public void markAsInterrupted()

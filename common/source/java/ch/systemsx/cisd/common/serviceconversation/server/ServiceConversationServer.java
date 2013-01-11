@@ -237,16 +237,15 @@ public class ServiceConversationServer
                                                         .getDescriptionFromException(ex);
                                         try
                                         {
-                                            responseMessenger.send(new ServiceMessage(
-                                                    serviceConversationId, messenger
-                                                            .nextOutgoingMessageIndex(), true,
-                                                    errorMessage));
+                                            messenger.getServiceMessenger().sendException(
+                                                    errorMessage);
                                         } catch (Exception ex2)
                                         {
-                                            operationLog.error(
-                                                    String.format(
-                                                            "[id: %s] Cannot send message about exception to client.",
-                                                            serviceConversationId), ex2);
+                                            operationLog
+                                                    .error(
+                                                            String.format(
+                                                                    "[id: %s] Cannot send message about exception to client.",
+                                                                    serviceConversationId), ex2);
                                         }
                                     }
                                 } finally
@@ -337,8 +336,7 @@ public class ServiceConversationServer
 
         BidirectionalServiceMessenger messenger =
                 this.conversations.get(conversationId).getMessenger();
-        messenger.sendToClient(new ServiceMessage(conversationId, messenger
-                .nextOutgoingMessageIndex(), progress));
+        messenger.getServiceMessenger().sendProgress(progress);
     }
 
 }

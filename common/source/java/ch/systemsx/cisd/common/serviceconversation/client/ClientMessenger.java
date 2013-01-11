@@ -91,8 +91,11 @@ class ClientMessenger implements IServiceConversation
     public void send(Serializable message)
     {
         checkServiceException();
-        transportToService.send(new ServiceMessage(serviceConversationId,
-                nextOutgoingMessageIndex(), false, message));
+        synchronized (this)
+        {
+            transportToService.send(new ServiceMessage(serviceConversationId,
+                    nextOutgoingMessageIndex(), false, message));
+        }
     }
 
     private void checkServiceException() throws ServiceExecutionException
@@ -117,7 +120,10 @@ class ClientMessenger implements IServiceConversation
     @Override
     public void terminate()
     {
-        transportToService.send(ServiceMessage.terminate(serviceConversationId));
+        synchronized (this)
+        {
+            transportToService.send(ServiceMessage.terminate(serviceConversationId));
+        }
     }
 
     @Override
@@ -174,8 +180,11 @@ class ClientMessenger implements IServiceConversation
                                 "Timeout while waiting on message from service.");
                 final String exceptionDescription =
                         ServiceExecutionException.getDescriptionFromException(exception);
-                transportToService.send(new ServiceMessage(serviceConversationId,
-                        nextOutgoingMessageIndex(), true, exceptionDescription));
+                synchronized (this)
+                {
+                    transportToService.send(new ServiceMessage(serviceConversationId,
+                            nextOutgoingMessageIndex(), true, exceptionDescription));
+                }
                 throw exception;
             } else
             {
