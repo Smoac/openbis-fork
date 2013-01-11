@@ -24,8 +24,8 @@ import ch.systemsx.cisd.common.serviceconversation.IServiceMessageTransport;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
 
 /**
- * A class that holds a queue for response messages to a client. 
- *
+ * A class that holds a queue for response messages to a client.
+ * 
  * @author Bernd Rinn
  */
 class ClientResponseMessageQueue implements IServiceMessageTransport
@@ -39,7 +39,7 @@ class ClientResponseMessageQueue implements IServiceMessageTransport
     {
         return messageQueue.poll(timeoutMillis, TimeUnit.MILLISECONDS);
     }
-    
+
     @Override
     public void send(ServiceMessage message)
     {
@@ -50,7 +50,7 @@ class ClientResponseMessageQueue implements IServiceMessageTransport
         {
             messageIdxLastSeen = message.getMessageIdx();
         }
-        if (message.hasPayload() == false)
+        if (message.isException())
         {
             messageQueue.clear();
         }
