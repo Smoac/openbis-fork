@@ -31,6 +31,7 @@ import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.FileRenamer;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
+import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.v1.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -50,7 +51,7 @@ public class DataSetStorageRollbacker
 
     private final UnstoreDataAction unstoreAction;
 
-    private final File incomingDataSetFile;
+    private final DataSetFile incomingDataSetFile;
 
     private final String dataSetTypeCodeOrNull;
 
@@ -71,7 +72,7 @@ public class DataSetStorageRollbacker
      * @param errorOrNull
      */
     public DataSetStorageRollbacker(OmniscientTopLevelDataSetRegistratorState registratorContext,
-            Logger operationLog, UnstoreDataAction unstoreAction, File incomingDataSetFile,
+            Logger operationLog, UnstoreDataAction unstoreAction, DataSetFile incomingDataSetFile,
             String dataSetTypeCodeOrNull, Throwable errorOrNull)
     {
         this(registratorContext, operationLog, unstoreAction, incomingDataSetFile,
@@ -89,7 +90,7 @@ public class DataSetStorageRollbacker
      * @param errorOrNull
      */
     public DataSetStorageRollbacker(OmniscientTopLevelDataSetRegistratorState registratorContext,
-            Logger operationLog, UnstoreDataAction unstoreAction, File incomingDataSetFile,
+            Logger operationLog, UnstoreDataAction unstoreAction, DataSetFile incomingDataSetFile,
             String dataSetTypeCodeOrNull, Throwable errorOrNull, ErrorType errorTypeOrNull)
     {
         super();
@@ -123,6 +124,14 @@ public class DataSetStorageRollbacker
     public File doRollback(DssRegistrationLogger dssRegistrationLog)
     {
         dssRegistrationLog.log(getErrorMessageForLog());
+
+        // delete pre-staging copy always - even if not deleting the real incoming directory
+        if (incomingDataSetFile.isLogicalFileSpecified())
+        {
+            FileUtilities.deleteRecursively(incomingDataSetFile.getLogicalIncomingFile()
+                    .getParentFile());
+        }
+
         if (unstoreAction == UnstoreDataAction.MOVE_TO_ERROR)
         {
             File newLocation = moveIncomingToError();
@@ -140,16 +149,16 @@ public class DataSetStorageRollbacker
         {
             dssRegistrationLog.log("File has been deleted.");
 
-            FileUtilities.deleteRecursively(incomingDataSetFile,
+            FileUtilities.deleteRecursively(incomingDataSetFile.getRealIncomingFile(),
                     new Log4jSimpleLogger(operationLog));
             return null;
         }
 
         StringBuilder untouchedMessage = new StringBuilder();
         untouchedMessage.append("File has been left untouched ");
-        untouchedMessage.append(incomingDataSetFile.getAbsolutePath());
+        untouchedMessage.append(incomingDataSetFile.getRealIncomingFile().getAbsolutePath());
         dssRegistrationLog.log(untouchedMessage.toString());
-        return incomingDataSetFile;
+        return incomingDataSetFile.getRealIncomingFile();
     }
 
     public File moveIncomingToError()
@@ -171,13 +180,14 @@ public class DataSetStorageRollbacker
                         TransferredDataSetHandler.ERROR_DATA_STRATEGY, registratorContext
                                 .getStorageProcessor().getStoreRootDirectory(), registratorContext
                                 .getFileOperations(), dataSetInfo, dataSetInfo.getDataSetType(),
-                        incomingDataSetFile);
+                        incomingDataSetFile.getRealIncomingFile());
         baseDirectoryHolder =
                 new BaseDirectoryHolder(TransferredDataSetHandler.ERROR_DATA_STRATEGY,
-                        baseDirectory, incomingDataSetFile);
+                        baseDirectory, incomingDataSetFile.getRealIncomingFile());
 
         // Move the incoming there
-        FileRenamer.renameAndLog(incomingDataSetFile, baseDirectoryHolder.getTargetFile());
+        FileRenamer.renameAndLog(incomingDataSetFile.getRealIncomingFile(),
+                baseDirectoryHolder.getTargetFile());
         return baseDirectoryHolder.getTargetFile();
     }
 
@@ -187,7 +197,7 @@ public class DataSetStorageRollbacker
     private void writeThrowable()
     {
         assert errorOrNull != null;
-        final String fileName = incomingDataSetFile.getName() + ".exception";
+        final String fileName = incomingDataSetFile.getRealIncomingFile().getName() + ".exception";
         final File file = new File(baseDirectoryHolder.getTargetFile().getParentFile(), fileName);
         FileWriter writer = null;
         try

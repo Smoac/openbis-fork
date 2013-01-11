@@ -479,8 +479,8 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
                         state.getOnErrorActionDecision().computeUndoAction(
                                 ErrorType.OPENBIS_REGISTRATION_FAILURE, null);
                 DataSetStorageRollbacker rollbacker =
-                        new DataSetStorageRollbacker(state, operationLog, action, recoveryState
-                                .getIncomingDataSetFile().getRealIncomingFile(), null, null,
+                        new DataSetStorageRollbacker(state, operationLog, action,
+                                recoveryState.getIncomingDataSetFile(), null, null,
                                 ErrorType.OPENBIS_REGISTRATION_FAILURE);
                 operationLog.info(rollbacker.getErrorMessageForLog());
                 rollbacker.doRollback(logger);

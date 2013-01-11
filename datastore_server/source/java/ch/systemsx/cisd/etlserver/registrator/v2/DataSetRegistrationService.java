@@ -232,7 +232,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     {
         DataSetStorageRollbacker rollbacker =
                 new DataSetStorageRollbacker(registratorContext, operationLog,
-                        UnstoreDataAction.MOVE_TO_ERROR, incomingDataSetFile.getRealIncomingFile(),
+                        UnstoreDataAction.MOVE_TO_ERROR, incomingDataSetFile,
                         dataSetTypeCodeOrNull, null);
         return rollbacker.doRollback(dssRegistrationLog);
     }
@@ -249,7 +249,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
                     registratorContext.getOnErrorActionDecision().computeUndoAction(errorType, ex);
             DataSetStorageRollbacker rollbacker =
                     new DataSetStorageRollbacker(registratorContext, operationLog, action,
-                            incomingDataSetFile.getRealIncomingFile(), null, ex, errorType);
+                            incomingDataSetFile, null, ex, errorType);
             operationLog.info(rollbacker.getErrorMessageForLog());
             rollbacker.doRollback(dssRegistrationLog);
         }

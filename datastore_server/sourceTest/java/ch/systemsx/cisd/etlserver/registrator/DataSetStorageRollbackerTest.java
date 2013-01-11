@@ -37,9 +37,9 @@ import ch.systemsx.cisd.etlserver.ThreadParameters;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryManager;
 import ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator;
+import ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.v1.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.v1.DataSetStorageRollbacker;
-import ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.v1.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -65,7 +65,7 @@ public class DataSetStorageRollbackerTest extends AbstractFileSystemTestCase
 
     private IDataSetValidator dataSetValidator;
 
-    private File incomingDataSetFile;
+    private DataSetFile incomingDataSetFile;
 
     private TestDataSetRegistrator testRegistrator;
 
@@ -89,7 +89,8 @@ public class DataSetStorageRollbackerTest extends AbstractFileSystemTestCase
     @Test
     public void testLogging()
     {
-        incomingDataSetFile = createDirectory(workingDirectory, "data_set");
+        File realIncoming = createDirectory(workingDirectory, "data_set");
+        incomingDataSetFile = new DataSetFile(realIncoming);
         OmniscientTopLevelDataSetRegistratorState globalState =
                 testRegistrator.getRegistratorState();
         DataSetStorageRollbacker rollbacker =

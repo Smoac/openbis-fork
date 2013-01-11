@@ -410,6 +410,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                 new DssUniqueFilenameGenerator(globalState.getThreadParameters().getThreadName(),
                         incomingDataSetFile.getName(), null).generateFilename();
         File preStagingDir = new File(preStagingRootDir, incomingDirName);
+
         preStagingDir.mkdir();
 
         // Try to find a hardlink maker
@@ -548,8 +549,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                             ErrorType.REGISTRATION_SCRIPT_ERROR, ex);
             DataSetStorageRollbacker rollbacker =
                     new DataSetStorageRollbacker(getRegistratorState(), operationLog, action,
-                            incomingDataSetFile.getRealIncomingFile(), null, ex,
-                            ErrorType.REGISTRATION_SCRIPT_ERROR);
+                            incomingDataSetFile, null, ex, ErrorType.REGISTRATION_SCRIPT_ERROR);
             operationLog.info(rollbacker.getErrorMessageForLog());
 
             service.getDssRegistrationLog().log("Processing failed : " + ex.toString());
@@ -589,8 +589,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                         ErrorType.INVALID_DATA_SET, null);
         DataSetStorageRollbacker rollbacker =
                 new DataSetStorageRollbacker(getRegistratorState(), operationLog, action,
-                        incomingDataSetFile.getRealIncomingFile(), null, null,
-                        ErrorType.INVALID_DATA_SET);
+                        incomingDataSetFile, null, null, ErrorType.INVALID_DATA_SET);
         sb.append(rollbacker.getErrorMessageForLog());
         String logMessage = sb.toString();
         operationLog.info(logMessage);
