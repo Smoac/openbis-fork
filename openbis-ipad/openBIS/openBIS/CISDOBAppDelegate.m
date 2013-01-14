@@ -95,6 +95,9 @@
     [controller dismissViewControllerAnimated: YES completion: nil];
 }
 
+#pragma mark - Online Status
+- (void)goOnline { [self initializeOpenBisConnection]; }
+
 #pragma mark - App Startup
 
 - (void)configureControllers;
@@ -138,6 +141,13 @@
     [controller didConnectServiceManager: self.serviceManager];
 }
 
+- (void)serverOffline
+{
+    self.online = NO;
+    CISDOBMasterViewController *controller = [self masterViewController];
+    [controller didConnectServiceManager: self.serviceManager];
+}
+
 - (void)initializeOpenBisConnection
 {
     self.online = NO;
@@ -149,7 +159,12 @@
         [weakSelf didConnectToServer];
     };
     call.fail = ^(NSError *error) {
-        [[weakSelf detailViewController] performSegueWithIdentifier: @"ShowLoginDialog" sender: self];
+        if ([NSURLErrorDomain isEqualToString: error.domain] && -1004 == error.code) {
+            // "Could not connect to the server"
+            [self serverOffline];
+        } else {
+            [[weakSelf detailViewController] performSegueWithIdentifier: @"ShowLoginDialog" sender: self];
+        }
     };
     [call start];
 }

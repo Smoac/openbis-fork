@@ -35,6 +35,10 @@
 @property (weak, nonatomic) IBOutlet UILabel *identifierLabel;
 @property (weak, nonatomic) IBOutlet UIWebView *webView;
 @property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *goOnlineButton;
+
+// UI Actions
+- (IBAction)goOnline:(id)sender;
 
 // Actions
 - (void)selectionDidChange;     //!< Signals that the user has made a final selction

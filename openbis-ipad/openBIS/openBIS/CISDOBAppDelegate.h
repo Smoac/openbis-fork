@@ -38,6 +38,8 @@
 @property (readonly, strong, nonatomic) CISDOBIpadServiceManager *serviceManager;
 @property (nonatomic, getter=isOnline) BOOL online;
 
+- (NSURL *)applicationDocumentsDirectory;
+
 // User Settings
 @property (copy, nonatomic) NSString *username;
 @property (copy, nonatomic) NSString *password;
@@ -46,7 +48,8 @@
 - (void)verifyLoginURL:(NSURL *)openbisUrl username:(NSString *)username password:(NSString *)password sender:(CISDOBLoginViewController *)controller;
 - (void)loginControllerDidComplete:(CISDOBLoginViewController *)controller;
 
+// Actions
 - (void)saveContext;
-- (NSURL *)applicationDocumentsDirectory;
+- (void)goOnline;
 
 @end

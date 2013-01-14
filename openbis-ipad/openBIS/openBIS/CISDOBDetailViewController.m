@@ -28,6 +28,7 @@
 #import "CISDOBLoginViewController.h"
 #import "CISDOBImageViewPopoverController.h"
 #import "CISDOBAsyncCall.h"
+#import "CISDOBAppDelegate.h"
 
 @interface CISDOBDetailViewController ()
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
@@ -42,6 +43,12 @@
 @end
 
 @implementation CISDOBDetailViewController
+
+#pragma mark - UI Actions
+- (IBAction)goOnline:(id)sender
+{
+    [self.appDelegate goOnline];
+}
 
 #pragma mark - Managing the detail item
 - (void)requestServerSync
@@ -117,8 +124,21 @@
     return [NSString stringWithFormat: @"%@ %@", titleRoot, onlineStatus];
 }
 
+- (void)configureGoOnlineButton
+{
+    // Remove the go online button if we are already online
+    if (!self.openBisModel || self.openBisModel.online) {
+        [self.navigationItem setRightBarButtonItem: nil animated: NO];
+        return;
+    }
+    
+    [self.navigationItem setRightBarButtonItem: self.goOnlineButton animated: NO];
+    return;
+}
+
 - (void)configureView
 {
+    [self configureGoOnlineButton];
     self.title = [self titleString];
     if (!self.detailItem) {
         self.summaryHeaderLabel.text = @"";
