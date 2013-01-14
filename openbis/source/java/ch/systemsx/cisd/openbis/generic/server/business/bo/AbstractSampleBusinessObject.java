@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -237,6 +236,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             return;
         }
 
+        checkIfCanBeContainer(samplePE, containerPE);
+
         if (containerPE == null)
         {
             relationshipService.removeSampleFromContainer(session, samplePE);
@@ -268,6 +269,24 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             checkIfCanBeParent(childPE, parent);
         }
         replaceParents(childPE, parentPEs);
+    }
+
+    /**
+     * check if the given candidate for the container is not already contained in the sample.
+     */
+    private void checkIfCanBeContainer(final SamplePE sample, final SamplePE container)
+    {
+        SamplePE containerCandidate = container;
+
+        while (containerCandidate != null)
+        {
+            if (sample.equals(containerCandidate))
+            {
+                throw UserFailureException.fromTemplate("'%s' cannot be it's own container.",
+                        sample.getIdentifier());
+            }
+            containerCandidate = containerCandidate.getContainer();
+        }
     }
 
     /**

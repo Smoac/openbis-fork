@@ -119,14 +119,13 @@ public class UpdateSampleContainmentTest extends BaseTest
         perform(anUpdateOf(subComponent).toHaveContainer(component));
     }
 
-    @Test
+    @Test(expectedExceptions =
+        { UserFailureException.class })
     public void sampleCanContainItself() throws Exception
     {
         Sample sample = create(aSample().inSpace(space));
 
         perform(anUpdateOf(sample).toHaveContainer(sample));
-
-        assertThat(sample, hasContainer(sample));
     }
 
     Space containerSpace;
