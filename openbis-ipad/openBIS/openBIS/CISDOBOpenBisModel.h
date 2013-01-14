@@ -39,6 +39,7 @@
 
 @property (weak, nonatomic) CISDOBOpenBisModel *parentModel;
 @property (readonly) CISDOBIpadServiceManager *serviceManager;
+@property (strong, nonatomic) CISDOBIpadEntity *selectedObject;
 
 // Initialize
 - (id)initWithParentModel:(CISDOBOpenBisModel *)parentModel; //!< The designated initializer
@@ -50,8 +51,6 @@
 - (CISDOBIpadEntity *)objectAtIndexPath:(NSIndexPath *)indexPath;
 
 // Selection
-@property (strong, nonatomic) CISDOBIpadEntity *selectedObject;
-
 
 //! Select the object and return it
 - (CISDOBIpadEntity *)selectObjectAtIndexPath:(NSIndexPath *)indexPath;

@@ -46,6 +46,8 @@
 #pragma mark - Managing the detail item
 - (void)requestServerSync
 {
+    if (!self.detailItem) return;
+    
     // Ask the server to synchronize the detail object and nofiy me when the complete data is available
     SuccessBlock success = ^(id result) { [self configureView]; [self requestImage]; };
     [self.openBisModel syncSelectedObjectForDetailOnSuccess: success];
@@ -109,9 +111,16 @@
 
 - (void)configureView
 {
-    // The detail item is now up-to-date. Update the user interface.
-    if (!self.detailItem) return;
+    if (!self.detailItem) {
+        self.title = @"";
+        self.summaryHeaderLabel.text = @"";
+        self.summaryLabel.text = @"";
+        self.identifierLabel.text = @"";
+        [self.propertiesTableView reloadData];
+        return;
+    }
 
+    // The detail item is now up-to-date. Update the user interface.
     self.title = self.detailItem.summaryHeader;
     self.summaryHeaderLabel.text = self.detailItem.summaryHeader;
     self.summaryLabel.text = self.detailItem.summary;
@@ -179,6 +188,11 @@
 #pragma mark - Table View (Properties)
 - (NSDictionary *)propertiesAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (!self.detailItem) {
+        return [NSDictionary dictionaryWithObjectsAndKeys:
+            @"label", @"",
+            @"value", @"", nil];
+    }
     NSDictionary *properties = [self.detailItem.properties objectAtIndex: [indexPath indexAtPosition: 1]];
     return properties;
 }

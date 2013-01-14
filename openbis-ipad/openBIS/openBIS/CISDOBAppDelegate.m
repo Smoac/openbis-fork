@@ -30,6 +30,7 @@
 #import "CISDOBDetailViewController.h"
 #import "CISDOBLoginViewController.h"
 #import "CISDOBAuthenticationChallengeConfirmationDialog.h"
+#import "CISDOBIpadEntity.h"
 
 @implementation CISDOBAppDelegate
 
@@ -103,7 +104,7 @@
         UISplitViewController *splitViewController = (UISplitViewController *)self.window.rootViewController;
         UINavigationController *navigationController = [splitViewController.viewControllers lastObject];
         splitViewController.delegate = (id)navigationController.topViewController;
-        [self detailsViewController].appDelegate = self;
+        [self detailViewController].appDelegate = self;
         [self masterViewController].openBisModel = self.rootOpenBisModel;
     } else {
 
@@ -125,7 +126,7 @@
     return controller;
 }
 
-- (CISDOBDetailViewController *)detailsViewController
+- (CISDOBDetailViewController *)detailViewController
 {
     UISplitViewController *splitViewController = (UISplitViewController *)self.window.rootViewController;
     return (CISDOBDetailViewController *)[[splitViewController.viewControllers lastObject] topViewController];
@@ -141,7 +142,7 @@
         [controller didConnectServiceManager: self.serviceManager];
     };
     call.fail = ^(NSError *error) {
-        [[self detailsViewController] performSegueWithIdentifier: @"ShowLoginDialog" sender: self];
+        [[self detailViewController] performSegueWithIdentifier: @"ShowLoginDialog" sender: self];
     };
     [call start];
 }
@@ -244,9 +245,13 @@
         if (!_serviceManager) return NO;
     }
     
+    // Use a weak reference to self in blocks to avoid retain cycles
     __weak CISDOBAppDelegate *weakSelf = self;
     _serviceManager.authenticationChallengeBlock = ^(CISDOBAsyncCall *call, NSURLAuthenticationChallenge *challenge) {
         [weakSelf presetDialogForCall: call challenge: challenge];
+    };
+    _serviceManager.mocSaveBlock = ^(CISDOBIpadServiceManager *serviceManager, NSArray *deletedEntityPermIds) {
+        [weakSelf serviceManager: serviceManager willSaveDeletingEntities: deletedEntityPermIds];
     };
     
     return YES;
@@ -285,6 +290,30 @@
     _challengeDialog = nil;
 }
 
+#pragma mark - MOC Save Handling
+- (void)serviceManager:(CISDOBIpadServiceManager *)serviceManager willSaveDeletingEntities:(NSArray *)deletedEntityPermIds
+{
+    // Nothing to do if nothing was deleted
+    if ([deletedEntityPermIds count] < 1) return;
+    
+    // Check if any of the deleted entities are currently open, if so, return to the root view to avoid any problems caused by looking at zombie entities
+    BOOL returnToRoot = NO;
+    NSSet *permIdSet = [NSSet setWithArray: deletedEntityPermIds];
+    CISDOBOpenBisModel *model;
+    for (model = [self detailViewController].openBisModel; model != nil; model = model.parentModel) {
+        if ([permIdSet containsObject: model.selectedObject.permId]) {
+            returnToRoot = YES;
+            break;
+        }
+    }
+    
+    if (returnToRoot) {
+       UINavigationController *navigationController = self.masterViewController.navigationController;
+       [navigationController popToRootViewControllerAnimated: YES];
+       self.detailViewController.openBisModel = self.rootOpenBisModel;
+       [self.detailViewController selectionDidChange];
+    }
+}
 
 #pragma mark - Application's Documents directory
 
