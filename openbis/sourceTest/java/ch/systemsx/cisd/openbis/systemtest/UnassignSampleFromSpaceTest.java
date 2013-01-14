@@ -86,29 +86,6 @@ public class UnassignSampleFromSpaceTest extends BaseTest
         perform(anUpdateOf(sample).removingSpace());
     }
 
-    @Test
-    public void childSampleCanBeUnassignedFromSpace() throws Exception
-    {
-        Sample parent = create(aSample().inExperiment(experiment));
-        Sample child = create(aSample().withParent(parent).inExperiment(experiment));
-
-        perform(anUpdateOf(child).removingSpace());
-
-        assertThat(child, hasNoSpace());
-    }
-
-    @Test
-    public void spaceAssignmentOfParentSampleIsNotChangedWhenChildSampleIsUnassignedFromSpace()
-            throws Exception
-    {
-        Sample parent = create(aSample().inExperiment(experiment));
-        Sample child = create(aSample().withParent(parent).inExperiment(experiment));
-
-        perform(anUpdateOf(child).removingSpace());
-
-        assertThat(parent, is(inSpace(space)));
-    }
-
     @Test(expectedExceptions =
         { UserFailureException.class })
     public void childSampleCantBeUnassignedFromSpace() throws Exception
@@ -117,8 +94,6 @@ public class UnassignSampleFromSpaceTest extends BaseTest
         Sample child = create(aSample().withParent(parent).inExperiment(experiment));
 
         perform(anUpdateOf(child).removingSpace());
-
-        assertThat(child, hasNoSpace());
     }
 
     @Test
@@ -144,15 +119,14 @@ public class UnassignSampleFromSpaceTest extends BaseTest
         assertThat(child, is(inSpace(space)));
     }
 
-    @Test
+    @Test(expectedExceptions =
+        { UserFailureException.class })
     public void componentOfSpaceLevelSampleCanBeUnassignedFromSpace() throws Exception
     {
         Sample container = create(aSample().inExperiment(experiment));
         Sample component = create(aSample().inExperiment(experiment).inContainer(container));
 
         perform(anUpdateOf(component).removingSpace());
-
-        assertThat(component, hasNoSpace());
     }
 
     @Test

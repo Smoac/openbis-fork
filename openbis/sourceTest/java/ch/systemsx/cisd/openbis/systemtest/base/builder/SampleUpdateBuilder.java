@@ -65,7 +65,7 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
         this.version = sample.getVersion();
         this.sampleIdentifier = id(sample);
         this.parents = null;
-        this.container = null;
+        this.container = sample.getContainer();
     }
 
     public SampleUpdateBuilder toExperiment(Experiment experiment)
