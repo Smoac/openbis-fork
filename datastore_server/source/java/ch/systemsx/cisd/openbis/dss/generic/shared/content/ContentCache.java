@@ -69,7 +69,7 @@ public class ContentCache implements IContentCache
                 FileOperations.getInstance());
     }
     
-    private final LockManager dataSetLockManager;
+    private final Map<String, Integer> dataSetLocks = new HashMap<String, Integer>();
     
     private final LockManager fileLockManager;
     
@@ -89,7 +89,6 @@ public class ContentCache implements IContentCache
         {
             fileOperations.removeRecursivelyQueueing(new File(cacheWorkspace, DOWNLOADING_FOLDER));
         }
-        dataSetLockManager = new LockManager();
         fileLockManager = new LockManager();
     }
 
@@ -97,21 +96,40 @@ public class ContentCache implements IContentCache
     public void lockDataSet(String sessionToken, String dataSetCode)
     {
         String dataSetPath = createDataSetPath(sessionToken, CACHE_FOLDER, dataSetCode);
-        dataSetLockManager.lock(dataSetPath);
+        synchronized (dataSetLocks)
+        {
+            Integer count = dataSetLocks.get(dataSetPath);
+            if (count == null)
+            {
+                count = 0;
+            }
+            count++;
+            dataSetLocks.put(dataSetPath, count);
+        }
     }
 
     @Override
     public void unlockDataSet(String sessionToken, String dataSetCode)
     {
         String dataSetPath = createDataSetPath(sessionToken, CACHE_FOLDER, dataSetCode);
-        dataSetLockManager.unlock(dataSetPath);
+        synchronized (dataSetLocks)
+        {
+            Integer count = dataSetLocks.remove(dataSetPath);
+            if (count != null && count > 1)
+            {
+                dataSetLocks.put(dataSetPath, count - 1);
+            }
+        }
     }
     
     @Override
     public boolean isDataSetLocked(String sessionToken, String dataSetCode)
     {
         String dataSetPath = createDataSetPath(sessionToken, CACHE_FOLDER, dataSetCode);
-        return dataSetLockManager.isLocked(dataSetPath);
+        synchronized (dataSetLocks)
+        {
+            return dataSetLocks.containsKey(dataSetPath);
+        }
     }
 
     @Override
@@ -259,12 +277,6 @@ public class ContentCache implements IContentCache
                     locks.remove(path);
                 }
             }
-        }
-        
-        synchronized boolean isLocked(String path)
-        {
-            ReentrantLock lock = locks.get(path);
-            return lock != null && lock.isLocked();
         }
         
     }
