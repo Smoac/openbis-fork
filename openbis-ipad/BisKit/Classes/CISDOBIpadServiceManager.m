@@ -233,6 +233,38 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     return call;
 }
 
+- (CISDOBAsyncCall *)drillOnEntities:(NSArray *)entities
+{
+    NSMutableArray *refcons = [NSMutableArray arrayWithCapacity: [entities count]];
+    for (CISDOBIpadEntity *entity in entities) {
+        [refcons addObject: entity.refcon];
+    }
+    
+    CISDOBAsyncCall *call = [self.service drillOnEntities: entities refcons: refcons];
+    CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call];
+    
+    managerCall.willCallNotificationName = CISDOBIpadServiceWillDrillOnEntityNotification;
+    managerCall.didCallNotificationName = CISDOBIpadServiceDidDrillOnEntityNotification;
+    
+    return managerCall;
+}
+
+- (CISDOBAsyncCall *)detailsForEntities:(NSArray *)entities
+{
+    NSMutableArray *refcons = [NSMutableArray arrayWithCapacity: [entities count]];
+    for (CISDOBIpadEntity *entity in entities) {
+        [refcons addObject: entity.refcon];
+    }
+    
+    CISDOBAsyncCall *call = [self.service detailsForEntities: entities refcons: refcons];
+    CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call];
+    
+    managerCall.willCallNotificationName = CISDOBIpadServiceWillRetrieveDetailsForEntityNotification;
+    managerCall.didCallNotificationName = CISDOBIpadServiceDidRetrieveDetailsForEntityNotification;
+    
+    return managerCall;
+}
+
 - (NSArray *)allIpadEntitiesOrError:(NSError **)error;
 {
 	NSFetchRequest* request = [self fetchRequestForEntities];

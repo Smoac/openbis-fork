@@ -10,13 +10,13 @@
 		3605B05C1653EE8500CEC7F8 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 3605B05B1653EE8500CEC7F8 /* Settings.bundle */; };
 		3611F7B1169D5D8E0072B61A /* CISDOBAuthenticationChallengeConfirmationDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 3611F7B0169D5D8E0072B61A /* CISDOBAuthenticationChallengeConfirmationDialog.m */; };
 		362B81EC163FFB6C00127554 /* CISDOBIpadServiceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 362B81EB163FFB6C00127554 /* CISDOBIpadServiceManager.m */; };
-		364D509E161C6ADB00A739B0 /* openBISData.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 364D509C161C6ADB00A739B0 /* openBISData.sqlite */; };
 		3656C9B4165A7A7E00E9B0FA /* CISDOBImageViewPopoverController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3656C9B3165A7A7E00E9B0FA /* CISDOBImageViewPopoverController.m */; };
 		3656C9C6165ABC5D00E9B0FA /* Zoom.png in Resources */ = {isa = PBXBuildFile; fileRef = 3656C9C5165ABC5D00E9B0FA /* Zoom.png */; };
 		3656C9C9165ABD4C00E9B0FA /* Zoom-small.png in Resources */ = {isa = PBXBuildFile; fileRef = 3656C9C8165ABD4C00E9B0FA /* Zoom-small.png */; };
 		3687D8FF162D3AB500622690 /* openbis-icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 3687D8FD162D3AB500622690 /* openbis-icon-72.png */; };
 		3687D900162D3AB500622690 /* openbis-icon-144.png in Resources */ = {isa = PBXBuildFile; fileRef = 3687D8FE162D3AB500622690 /* openbis-icon-144.png */; };
 		36BDE60016555869007EC62A /* CISDOBLoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36BDE5FF16555869007EC62A /* CISDOBLoginViewController.m */; };
+		36D853DD16A3FE6C00B94F90 /* CISDOBIpadServiceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 362B81EB163FFB6C00127554 /* CISDOBIpadServiceManager.m */; };
 		36F71E79161C3AE900C87277 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E78161C3AE900C87277 /* UIKit.framework */; };
 		36F71E7B161C3AE900C87277 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E7A161C3AE900C87277 /* Foundation.framework */; };
 		36F71E7D161C3AE900C87277 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E7C161C3AE900C87277 /* CoreGraphics.framework */; };
@@ -86,7 +86,6 @@
 		362B81EA163FFB6C00127554 /* CISDOBIpadServiceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBIpadServiceManager.h; sourceTree = "<group>"; };
 		362B81EB163FFB6C00127554 /* CISDOBIpadServiceManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBIpadServiceManager.m; sourceTree = "<group>"; };
 		364D5098161C6A3600A739B0 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = readme.md; sourceTree = "<group>"; };
-		364D509C161C6ADB00A739B0 /* openBISData.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = openBISData.sqlite; sourceTree = "<group>"; };
 		3656C9B2165A7A7E00E9B0FA /* CISDOBImageViewPopoverController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBImageViewPopoverController.h; sourceTree = "<group>"; };
 		3656C9B3165A7A7E00E9B0FA /* CISDOBImageViewPopoverController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBImageViewPopoverController.m; sourceTree = "<group>"; };
 		3656C9C5165ABC5D00E9B0FA /* Zoom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Zoom.png; sourceTree = "<group>"; };
@@ -181,7 +180,6 @@
 		364D509A161C6ADB00A739B0 /* DevData */ = {
 			isa = PBXGroup;
 			children = (
-				364D509C161C6ADB00A739B0 /* openBISData.sqlite */,
 			);
 			path = DevData;
 			sourceTree = SOURCE_ROOT;
@@ -438,7 +436,6 @@
 				36F71E91161C3AE900C87277 /* Default-568h@2x.png in Resources */,
 				36F71E94161C3AE900C87277 /* MainStoryboard_iPhone.storyboard in Resources */,
 				36F71E97161C3AE900C87277 /* MainStoryboard_iPad.storyboard in Resources */,
-				364D509E161C6ADB00A739B0 /* openBISData.sqlite in Resources */,
 				3687D8FF162D3AB500622690 /* openbis-icon-72.png in Resources */,
 				3687D900162D3AB500622690 /* openbis-icon-144.png in Resources */,
 				3605B05C1653EE8500CEC7F8 /* Settings.bundle in Resources */,
@@ -508,6 +505,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				36D853DD16A3FE6C00B94F90 /* CISDOBIpadServiceManager.m in Sources */,
 				36F71F28161C4F0400C87277 /* CISDOBAsyncCall.m in Sources */,
 				36F71F2A161C4F0400C87277 /* CISDOBConnection.m in Sources */,
 				36F71F2C161C4F0400C87277 /* CISDOBIpadEntity.m in Sources */,

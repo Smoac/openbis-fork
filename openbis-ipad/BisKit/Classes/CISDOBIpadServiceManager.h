@@ -93,8 +93,9 @@ typedef void (^MocSaveBlock)(CISDOBIpadServiceManager *serviceManager, NSArray *
 // Properties
 - (void)setOpenbisUrl:(NSURL *)openbisUrl trusted:(BOOL)trusted;
 
-// Actions
-
+//
+// Server Actions -- actions that communicate with the server
+//
 //! Log the user into the openBIS instance
 - (CISDOBAsyncCall *)loginUser:(NSString *)user password:(NSString *)password;
 
@@ -110,7 +111,15 @@ typedef void (^MocSaveBlock)(CISDOBIpadServiceManager *serviceManager, NSArray *
 //! Get images for the entity, if there are any. The success block will be called with a CISDOBIpadImage object that describes the location of the image and contains the bytes for the image.
 - (CISDOBAsyncCall *)imagesForEntity:(CISDOBIpadEntity *)entity;
 
+//! Get drill information from the openBIS ipad service and store the results in the managedObjectContext.
+- (CISDOBAsyncCall *)drillOnEntities:(NSArray *)entities;
+
+//! Get detail information from the openBIS ipad service and store the results in the managedObjectContext.
+- (CISDOBAsyncCall *)detailsForEntities:(NSArray *)entities;
+
+//
 // Local Actions -- actions that do not require a network connection
+//
 - (NSArray *)allIpadEntitiesOrError:(NSError **)error;
 - (NSArray *)entitiesByPermId:(NSArray *)permIds error:(NSError **)error;
 - (NSArray *)entitiesNotUpdatedSince:(NSDate *)date error:(NSError **)error;

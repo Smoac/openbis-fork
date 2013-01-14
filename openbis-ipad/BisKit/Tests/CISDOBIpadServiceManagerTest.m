@@ -253,7 +253,48 @@
     [self assertAfterDetails];
 }
 
+- (void)performDrillOnCollection:(NSArray *)drillEntities
+{
+    CISDOBAsyncCall *call;
+    [self assertBeforeDrill];
+    call = [self.serviceManager drillOnEntities: drillEntities];
+    [self configureAndRunCallSynchronously: call];
+    STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
+    [self assertAfterDrill];
+}
+
+- (void)performDetailsOnCollection:(NSArray *)detailsEntities
+{
+    CISDOBAsyncCall *call;
+    call = [self.serviceManager detailsForEntities:  detailsEntities];
+    [self configureAndRunCallSynchronously: call];
+    STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
+    [self assertAfterDetails];
+}
+
 - (void)testPersistEntities
+{
+    [self performLogin];
+    [self performRootLevelCall];
+    
+
+    // Get drill information on some entity
+    NSArray *entitiesWithChildren = [self entitiesWithChildren];
+    STAssertTrue([entitiesWithChildren count] > 0, @"There should be some entities with children");    
+    CISDOBIpadEntity *drillEntity = [entitiesWithChildren objectAtIndex: 0];
+    [self performDrill: drillEntity];
+   
+    
+    // Get detail information on some entities
+    CISDOBIpadEntity *detailsEntity = [entitiesWithChildren objectAtIndex: 1];
+    [self assertBeforeDetails];
+    [self performDetails: detailsEntity];
+    
+    // Check that the children could be found
+    [self checkFindingChildren];
+}
+
+- (void)testPersistDrillAndDetailsOnCollections
 {
     [self performLogin];
     [self performRootLevelCall];
