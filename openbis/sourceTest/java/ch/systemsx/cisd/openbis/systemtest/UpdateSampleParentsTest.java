@@ -101,18 +101,19 @@ public class UpdateSampleParentsTest extends BaseTest
         assertThat(child, hasParents(parent1, parent2));
     }
 
-    @Test
-    public void sampleCanBeItsOwnParent() throws Exception
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void sampleCantBeItsOwnParent() throws Exception
     {
         Sample sample = create(aSample().inSpace(space));
 
         perform(anUpdateOf(sample).toHaveParent(sample));
 
-        assertThat(sample, hasParents(sample));
     }
 
-    @Test
-    public void sampleCanBeItsOwnGrandParent() throws Exception
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void sampleCantBeItsOwnGrandParent() throws Exception
     {
         Sample parent = create(aSample().inSpace(space));
         Sample child = create(aSample().inSpace(space));
@@ -120,8 +121,6 @@ public class UpdateSampleParentsTest extends BaseTest
         perform(anUpdateOf(child).toHaveParent(parent));
         perform(anUpdateOf(parent).toHaveParent(child));
 
-        assertThat(child, hasParents(parent));
-        assertThat(parent, hasParents(child));
     }
 
     @Test

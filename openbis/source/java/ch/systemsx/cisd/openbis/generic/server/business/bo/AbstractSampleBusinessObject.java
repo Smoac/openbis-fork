@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Stack;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
@@ -263,8 +265,41 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         {
             SamplePE parent = getSampleByIdentifier(si);
             parentPEs.add(parent);
+            checkIfCanBeParent(childPE, parent);
         }
         replaceParents(childPE, parentPEs);
+    }
+
+    /**
+     * depth-first search through all parents of parent candidate in search of a childPE. If it's
+     * found - the exception is being thrown
+     */
+
+    private void checkIfCanBeParent(final SamplePE childPE, final SamplePE parentCandidate)
+    {
+        HashSet<SamplePE> visitedCandidates = new HashSet<SamplePE>();
+        Stack<SamplePE> candidates = new Stack<SamplePE>();
+
+        candidates.add(parentCandidate);
+        visitedCandidates.add(parentCandidate);
+
+        while (false == candidates.empty())
+        {
+            SamplePE candidate = candidates.pop();
+            if (candidate == childPE)
+            {
+                throw UserFailureException.fromTemplate("'%s' cannot be it's own parent.",
+                        childPE.getIdentifier());
+            }
+            for (SamplePE parent : candidate.getParents())
+            {
+                if (false == visitedCandidates.contains(parent))
+                {
+                    candidates.add(parent);
+                    visitedCandidates.add(parent);
+                }
+            }
+        }
     }
 
     private void replaceParents(SamplePE child, Set<SamplePE> newParents)
