@@ -140,7 +140,7 @@ class BidirectionalServiceMessenger
                 public synchronized void sendProgress(ProgressInfo progress)
                 {
                     responseMessenger.send(new ServiceMessage(conversationId,
-                            nextOutgoingMessageIndex(), false, progress));
+                            nextOutgoingMessageIndex(), progress));
                 }
 
                 @Override
