@@ -40,6 +40,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.common.test.TrackingMockery;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
@@ -105,6 +106,12 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         {
             return new DefaultFileBasedHierarchicalContentFactory().asHierarchicalContent(
                     datasetDirectory, IDelegatedAction.DO_NOTHING);
+        }
+
+        @Override
+        public IHierarchicalContentProvider cloneFor(ISessionTokenProvider sessionTokenProvider)
+        {
+            return null;
         }
     }
 

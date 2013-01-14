@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
 /**
  * Abstract superclass of DssServiceRpc implementations.
@@ -84,13 +85,15 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
         this.contentProvider = contentProvider;
     }
 
-    protected IHierarchicalContentProvider getHierarchicalContentProvider()
+    protected IHierarchicalContentProvider getHierarchicalContentProvider(String sessionToken)
     {
         if (contentProvider == null)
         {
             contentProvider = ServiceProvider.getHierarchicalContentProvider();
         }
-        return contentProvider;
+        OpenBISSessionHolder sessionTokenHolder = new OpenBISSessionHolder();
+        sessionTokenHolder.setSessionToken(sessionToken);
+        return contentProvider.cloneFor(sessionTokenHolder);
     }
 
     protected IShareIdManager getShareIdManager()
@@ -128,9 +131,9 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
         return homeDatabaseInstance;
     }
 
-    protected IHierarchicalContent getHierarchicalContent(String dataSetCode)
+    protected IHierarchicalContent getHierarchicalContent(String sessionToken, String dataSetCode)
     {
-        return getHierarchicalContentProvider().asContent(dataSetCode);
+        return getHierarchicalContentProvider(sessionToken).asContent(dataSetCode);
     }
 
     protected ExternalData tryGetDataSet(String sessionToken, String dataSetCode)

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
 /**
  * Application context. It contains the object accessing the openBIS for retrieving the data set,
@@ -61,9 +62,15 @@ class ApplicationContext
         return configParameters;
     }
 
-    public IHierarchicalContentProvider getHierarchicalContentProvider()
+    public IHierarchicalContentProvider getHierarchicalContentProvider(String sessionTokenOrNull)
     {
-        return hierarchicalContentProvider;
+        if (sessionTokenOrNull == null)
+        {
+            return hierarchicalContentProvider;
+        }
+        OpenBISSessionHolder sessionHolder = new OpenBISSessionHolder();
+        sessionHolder.setSessionToken(sessionTokenOrNull);
+        return hierarchicalContentProvider.cloneFor(sessionHolder);
     }
 
 }

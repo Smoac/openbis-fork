@@ -112,7 +112,8 @@ public class DatasetImageOverviewServlet extends AbstractDatasetDownloadServlet
             ensureDatasetAccessible(datasetCode, session, sessionId);
 
             ResponseContentStream responseStream =
-                    createImageResponse(session, datasetCode, datasetTypeCode, resolution);
+                    createImageResponse(session, sessionId, datasetCode, datasetTypeCode,
+                            resolution);
 
             if (responseStream != null && operationLog.isDebugEnabled())
             {
@@ -128,11 +129,11 @@ public class DatasetImageOverviewServlet extends AbstractDatasetDownloadServlet
         }
     }
 
-    private ResponseContentStream createImageResponse(HttpSession session, String dataSetCode,
+    private ResponseContentStream createImageResponse(HttpSession session, String sessionToken, String dataSetCode,
             String dataSetTypeCode, ImageResolutionKind resolution)
     {
         IHierarchicalContent content =
-                applicationContext.getHierarchicalContentProvider().asContent(dataSetCode);
+                applicationContext.getHierarchicalContentProvider(sessionToken).asContent(dataSetCode);
         IDatasetImageOverviewPlugin plugin =
                 configuration.getDatasetImageOverviewPlugin(dataSetTypeCode);
         return plugin.createImageOverview(dataSetCode, dataSetTypeCode, content, resolution);

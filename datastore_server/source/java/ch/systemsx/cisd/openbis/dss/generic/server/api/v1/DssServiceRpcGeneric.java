@@ -135,7 +135,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         IHierarchicalContent content = null;
         try
         {
-            content = getHierarchicalContent(dataSetCode);
+            content = getHierarchicalContent(sessionToken, dataSetCode);
             IHierarchicalContentNode startPathNode = getContentNode(content, startPath);
             ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
             if (startPathNode.isDirectory())
@@ -173,7 +173,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         IHierarchicalContent content = null;
         try
         {
-            content = getHierarchicalContent(dataSetCode);
+            content = getHierarchicalContent(sessionToken, dataSetCode);
             IHierarchicalContentNode contentNode = getContentNode(content, path);
             return HierarchicalContentUtils.getInputStreamAutoClosingContent(contentNode, content);
         } catch (RuntimeException ex)

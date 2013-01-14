@@ -34,6 +34,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentNodeFilter;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
@@ -113,7 +114,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
                 addNodesOfType(PARENT_PREFIX, result, dataSetWithMetaData.getParentCodes());
                 addNodesOfType(CHILD_PREFIX, result, dataSetWithMetaData.getChildrenCodes());
             }
-            FtpFileEvaluationContext evalContext = createFtpFileEvaluationContext();
+            FtpFileEvaluationContext evalContext = createFtpFileEvaluationContext(resolverContext);
             try
             {
                 IHierarchicalContent hierarchicalContent =
@@ -246,7 +247,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
                 service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
         if (fileNamePresent)
         {
-            FtpFileEvaluationContext evalContext = evaluateDataSetPaths(dataSets);
+            FtpFileEvaluationContext evalContext = evaluateDataSetPaths(resolverContext, dataSets);
 
             try
             {
@@ -425,18 +426,18 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         List<ExternalData> dataSets =
                 service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
 
-        FtpFileEvaluationContext evalContext = evaluateDataSetPaths(dataSets);
+        FtpFileEvaluationContext evalContext = evaluateDataSetPaths(context, dataSets);
         try
         {
-            return createFtpFilesFromEvaluationResult(parentPath, evalContext);
+            return createFtpFilesFromEvaluationResult(context, parentPath, evalContext);
         } finally
         {
             evalContext.close();
         }
     }
 
-    private List<FtpFile> createFtpFilesFromEvaluationResult(final String parentPath,
-            FtpFileEvaluationContext evalResult)
+    private List<FtpFile> createFtpFilesFromEvaluationResult(ISessionTokenProvider sessionTokenProvider,
+            final String parentPath, FtpFileEvaluationContext evalResult)
     {
         ArrayList<FtpFile> result = new ArrayList<FtpFile>();
         for (EvaluatedElement evalElement : evalResult.getEvalElements())
@@ -447,7 +448,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
                 String childPath =
                         parentPath + FtpConstants.FILE_SEPARATOR + evalElement.evaluatedTemplate;
                 String dataSetCode = evalElement.dataSet.getCode();
-                IHierarchicalContentProvider getContentProvider = getContentProvider();
+                IHierarchicalContentProvider getContentProvider = getContentProvider(sessionTokenProvider);
 
                 FtpFile childFtpFile =
                         FtpFileFactory.createFtpFile(dataSetCode, childPath,
@@ -460,9 +461,10 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         return result;
     }
 
-    private FtpFileEvaluationContext evaluateDataSetPaths(List<ExternalData> dataSets)
+    private FtpFileEvaluationContext evaluateDataSetPaths(ISessionTokenProvider sessionTokenProvider,
+            List<ExternalData> dataSets)
     {
-        FtpFileEvaluationContext evalContext = createFtpFileEvaluationContext();
+        FtpFileEvaluationContext evalContext = createFtpFileEvaluationContext(sessionTokenProvider);
 
         for (int disambiguationIdx = 0; disambiguationIdx < dataSets.size(); disambiguationIdx++)
         {
@@ -664,18 +666,20 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         return getDataSetTypeConfig(dataSet).fileListSubPath;
     }
 
-    private FtpFileEvaluationContext createFtpFileEvaluationContext()
+    private FtpFileEvaluationContext createFtpFileEvaluationContext(
+            ISessionTokenProvider sessionTokenProvider)
     {
-        return new FtpFileEvaluationContext(getContentProvider());
+        return new FtpFileEvaluationContext(getContentProvider(sessionTokenProvider));
     }
 
-    private IHierarchicalContentProvider getContentProvider()
+    private IHierarchicalContentProvider getContentProvider(
+            ISessionTokenProvider sessionTokenProvider)
     {
         if (contentProvider == null)
         {
             contentProvider = ServiceProvider.getHierarchicalContentProvider();
         }
-        return contentProvider;
+        return contentProvider.cloneFor(sessionTokenProvider);
     }
 
 }

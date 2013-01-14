@@ -31,6 +31,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -113,6 +114,13 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
                         throws IllegalArgumentException
                 {
                     return getContent("dataset-" + dataSetCode);
+                }
+
+                @Override
+                public IHierarchicalContentProvider cloneFor(
+                        ISessionTokenProvider sessionTokenProvider)
+                {
+                    return null;
                 }
             };
     }

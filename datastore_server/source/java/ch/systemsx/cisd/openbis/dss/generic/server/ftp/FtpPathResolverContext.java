@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -37,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * 
  * @author Kaloyan Enimanev
  */
-public class FtpPathResolverContext
+public class FtpPathResolverContext implements ISessionTokenProvider
 {
 
     private final String sessionToken;
@@ -61,6 +62,7 @@ public class FtpPathResolverContext
         this.cache = cache;
     }
 
+    @Override
     public String getSessionToken()
     {
         return sessionToken;

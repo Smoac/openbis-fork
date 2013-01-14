@@ -248,7 +248,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             for (IImageDatasetIdentifier dataset : imageDatasets)
             {
                 final IHierarchicalContent content =
-                        getHierarchicalContent(dataset.getDatasetCode());
+                        getHierarchicalContent(sessionToken, dataset.getDatasetCode());
                 try
                 {
                     result.add(extractImageMetadata(dataset, content));
@@ -828,7 +828,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public InputStream loadImages(String sessionToken, IDatasetIdentifier dataSetIdentifier,
             List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull)
     {
-        final IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
+        final IImagingDatasetLoader imageAccessor = createImageLoader(sessionToken, dataSetIdentifier);
 
         final List<PlateImageReference> imageReferences =
                 createPlateImageReferences(imageAccessor, dataSetIdentifier, wellPositions, channel);
@@ -870,7 +870,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public InputStream loadImages(String sessionToken, IDatasetIdentifier dataSetIdentifier,
             String channel, ImageSize thumbnailSizeOrNull)
     {
-        final IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
+        final IImagingDatasetLoader imageAccessor = createImageLoader(sessionToken, dataSetIdentifier);
         List<MicroscopyImageReference> imageReferences =
                 listImageReferences(dataSetIdentifier, channel, imageAccessor);
         final Size sizeOrNull = tryAsSize(thumbnailSizeOrNull);
@@ -903,7 +903,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public InputStream loadThumbnailImages(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<String> channels)
     {
-        final IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
+        final IImagingDatasetLoader imageAccessor = createImageLoader(sessionToken, dataSetIdentifier);
         assert imageAccessor != null : "imageAccessor not found for: " + dataSetIdentifier;
         final List<MicroscopyImageReference> imageReferences =
                 listImageReferences(dataSetIdentifier, channels, imageAccessor);
@@ -936,7 +936,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public List<MicroscopyImageReference> listImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, String channel)
     {
-        IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
+        IImagingDatasetLoader imageAccessor = createImageLoader(sessionToken, dataSetIdentifier);
         return listImageReferences(dataSetIdentifier, channel, imageAccessor);
     }
 
@@ -944,7 +944,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public List<MicroscopyImageReference> listImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<String> channels)
     {
-        IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
+        IImagingDatasetLoader imageAccessor = createImageLoader(sessionToken, dataSetIdentifier);
         return listImageReferences(dataSetIdentifier, channels, imageAccessor);
     }
 
@@ -982,7 +982,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public List<PlateImageReference> listPlateImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions, String channel)
     {
-        IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
+        IImagingDatasetLoader imageAccessor = createImageLoader(sessionToken, dataSetIdentifier);
         return createPlateImageReferences(imageAccessor, dataSetIdentifier, wellPositions, channel);
     }
 
@@ -991,7 +991,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions,
             List<String> channels)
     {
-        IImagingDatasetLoader imageAccessor = createImageLoader(dataSetIdentifier);
+        IImagingDatasetLoader imageAccessor = createImageLoader(sessionToken, dataSetIdentifier);
         return createPlateImageReferences(imageAccessor, dataSetIdentifier, wellPositions, channels);
     }
 
@@ -1107,10 +1107,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return transformations;
     }
 
-    private IImagingDatasetLoader createImageLoader(IDatasetIdentifier dataSetIdentifier)
+    private IImagingDatasetLoader createImageLoader(String sessionToken, IDatasetIdentifier dataSetIdentifier)
     {
         final String datasetCode = dataSetIdentifier.getDatasetCode();
-        return createImageLoader(datasetCode);
+        return createImageLoader(sessionToken, datasetCode);
     }
 
     @Override
@@ -1442,7 +1442,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             if (imageDatasetsMap.containsKey(imageReference.getDatasetCode()) == false)
             {
                 IImagingDatasetLoader imageAccessor =
-                        tryCreateImageLoader(imageReference.getDatasetCode());
+                        tryCreateImageLoader(sessionToken, imageReference.getDatasetCode());
                 if (imageAccessor == null) // Check whether this is a feature vector data set
                 {
                     final ExternalData imageDataset =
@@ -1450,7 +1450,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     if (imageDataset != null)
                     {
                         imageAccessor =
-                                createImageLoader(imageDataset.getCode());
+                                createImageLoader(sessionToken, imageDataset.getCode());
                     } else
                     {
                         throw UserFailureException.fromTemplate(
@@ -1536,15 +1536,15 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return new Size(thumbnailSizeOrNull.getWidth(), thumbnailSizeOrNull.getHeight());
     }
 
-    private IImagingDatasetLoader tryCreateImageLoader(String datasetCode)
+    private IImagingDatasetLoader tryCreateImageLoader(String sessionToken, String datasetCode)
     {
-        final IHierarchicalContent content = getHierarchicalContent(datasetCode);
+        final IHierarchicalContent content = getHierarchicalContent(sessionToken, datasetCode);
         return tryCreateImageLoader(datasetCode, content, false);
     }
 
-    private IImagingDatasetLoader createImageLoader(String datasetCode)
+    private IImagingDatasetLoader createImageLoader(String sessionToken, String datasetCode)
     {
-        final IHierarchicalContent content = getHierarchicalContent(datasetCode);
+        final IHierarchicalContent content = getHierarchicalContent(sessionToken, datasetCode);
         return createImageLoader(datasetCode, content);
     }
 

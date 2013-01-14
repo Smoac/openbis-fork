@@ -51,6 +51,7 @@ import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
@@ -125,6 +126,13 @@ public class UploadingCommandTest extends AssertJUnit
                             throws IllegalArgumentException
                     {
                         return getContent(LOCATION_PREFIX + dataSetCode);
+                    }
+
+                    @Override
+                    public IHierarchicalContentProvider cloneFor(
+                            ISessionTokenProvider sessionTokenProvider)
+                    {
+                        return null;
                     }
                 };
 

@@ -81,14 +81,16 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
     protected void deliverFile(HttpServletResponse response, ImageGenerationDescription params,
             HttpSession session) throws IOException
     {
-        ensureDatasetsAccessible(params, session, params.getSessionId());
+        String sessionId = params.getSessionId();
+        ensureDatasetsAccessible(params, session, sessionId);
 
         long start = System.currentTimeMillis();
         ResponseContentStream responseStream;
         try
         {
             responseStream =
-                    createImageResponse(params, applicationContext.getHierarchicalContentProvider());
+                    createImageResponse(params,
+                            applicationContext.getHierarchicalContentProvider(sessionId));
         } catch (HighLevelException e)
         {
             operationLog.warn(e.getMessage());

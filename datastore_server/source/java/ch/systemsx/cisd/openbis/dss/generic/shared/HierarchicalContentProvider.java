@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -100,6 +99,18 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
             ISessionTokenProvider sessionTokenProvider, String dataStoreCode,
             ExposablePropertyPlaceholderConfigurer infoProvider)
     {
+        this(openbisService, directoryProvider, hierarchicalContentFactory, serviceFactory,
+                contentCache, sessionTokenProvider, dataStoreCode, infoProvider != null
+                        && "true".equalsIgnoreCase(infoProvider.getResolvedProps().getProperty(
+                                "trust-all-certificates")));
+    }
+    
+    private HierarchicalContentProvider(IEncapsulatedOpenBISService openbisService,
+            IDataSetDirectoryProvider directoryProvider,
+            IHierarchicalContentFactory hierarchicalContentFactory,
+            IDssServiceRpcGenericFactory serviceFactory, IContentCache contentCache,
+            ISessionTokenProvider sessionTokenProvider, String dataStoreCode, boolean trustAllCertificates)
+    {
         this.openbisService = openbisService;
         this.directoryProvider = directoryProvider;
         this.hierarchicalContentFactory = hierarchicalContentFactory;
@@ -107,15 +118,16 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         this.cache = contentCache;
         this.sessionTokenProvider = sessionTokenProvider;
         this.dataStoreCode = dataStoreCode;
-        if (infoProvider != null)
-        {
-            Properties properties = infoProvider.getResolvedProps();
-            String trust = properties.getProperty("trust-all-certificates");
-            trustAllCertificates = (trust != null && trust.equalsIgnoreCase("true"));
-        } else
-        {
-            trustAllCertificates = false;
-        }
+        this.trustAllCertificates = trustAllCertificates;
+        
+    }
+    
+    @Override
+    public IHierarchicalContentProvider cloneFor(ISessionTokenProvider anotherSessionTokenProvider)
+    {
+        return new HierarchicalContentProvider(openbisService, directoryProvider,
+                hierarchicalContentFactory, serviceFactory, cache, anotherSessionTokenProvider,
+                dataStoreCode, trustAllCertificates);
     }
 
     @Override

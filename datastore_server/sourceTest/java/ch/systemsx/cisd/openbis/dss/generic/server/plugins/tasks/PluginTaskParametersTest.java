@@ -39,6 +39,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
@@ -102,6 +103,13 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
 
                 @Override
                 public IHierarchicalContent asContent(ExternalData dataSet)
+                {
+                    return null;
+                }
+
+                @Override
+                public IHierarchicalContentProvider cloneFor(
+                        ISessionTokenProvider sessionTokenProvider)
                 {
                     return null;
                 }

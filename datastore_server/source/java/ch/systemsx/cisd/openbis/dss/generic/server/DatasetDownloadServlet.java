@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HierarchicalContentUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.generic.shared.util.HttpRequestUtils;
 
@@ -223,8 +224,10 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         IHierarchicalContent rootContent = null;
         try
         {
-            rootContent =
-                    applicationContext.getHierarchicalContentProvider().asContent(dataSetCode);
+            String sessionTokenOrNull = requestParams.tryGetSessionId();
+            IHierarchicalContentProvider contentProvider =
+                    applicationContext.getHierarchicalContentProvider(sessionTokenOrNull);
+            rootContent = contentProvider.asContent(dataSetCode);
         } catch (IllegalArgumentException ex)
         {
             throw new UserFailureException(ex.getMessage());

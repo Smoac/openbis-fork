@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISessionWorkspaceProvider;
@@ -105,7 +106,7 @@ public class DataSetProcessingContext
      * Creates an instance for specified service, directory provider, workspace provider, parameter
      * bindings, e-mail client, and optional user e-mail address and sessionToken.
      */
-    public DataSetProcessingContext(IEncapsulatedOpenBISService service,
+    private DataSetProcessingContext(IEncapsulatedOpenBISService service,
             IHierarchicalContentProvider contentProvider,
             IDataSetDirectoryProvider directoryProvider,
             ISessionWorkspaceProvider sessionWorkspaceProviderOrNull,
@@ -195,6 +196,14 @@ public class DataSetProcessingContext
                 {
                     return hierarchicalContentProvider.asContent(datasetLocation);
                 }
+
+                @Override
+                public IHierarchicalContentProvider cloneFor(
+                        ISessionTokenProvider sessionTokenProvider)
+                {
+                    return hierarchicalContentProvider.cloneFor(sessionTokenProvider);
+                }
+                
             };
     }
     
