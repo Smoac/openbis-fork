@@ -98,7 +98,7 @@ public class UpdateDataSetContainmentTest extends BaseTest
         perform(anUpdateOf(component1).withContainer(component2));
     }
 
-    @Test(expectedExceptions = UserFailureException.class, groups = "broken")
+    @Test(expectedExceptions = UserFailureException.class)
     public void dataSetWithComponentTypeCannotHaveComponents() throws Exception
     {
         ExternalData component1 = create(aDataSet().inSample(sample));
@@ -164,8 +164,9 @@ public class UpdateDataSetContainmentTest extends BaseTest
         perform(anUpdateOf(dataset).withComponent(dataset));
     }
 
-    @Test(groups = "broken")
-    public void subcomponentsAreAllowed() throws Exception
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void subcomponentsAreNotAllowed() throws Exception
     {
         ExternalData component = create(aDataSet().inSample(sample));
         ExternalData container =

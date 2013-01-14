@@ -661,6 +661,10 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         if (modifiedContainedDatasetCodesOrNull == null)
         {
             return; // contained data sets were not changed
+        } else if (modifiedContainedDatasetCodesOrNull.length > 0 && false == data.isContainer())
+        {
+            throw new UserFailureException("Data set '" + data.getCode()
+                    + " is not a container data set, and cannot contain other data sets.");
         } else
         {
             final List<DataPE> currentComponents =
