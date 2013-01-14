@@ -259,6 +259,87 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
         context.assertIsSatisfied();
     }
 
+    
+    @Test
+    public void testGetSameFileInThreeThreads() throws Exception
+    {
+        ContentCache cache = createCache(false);
+        final DataSetPathInfo pathInfo = new DataSetPathInfo();
+        pathInfo.setRelativePath(remoteFile1.getName());
+        pathInfo.setDirectory(false);
+        final IHierarchicalContentNode node1 = createRemoteNode(pathInfo, cache);
+        ConsoleLogger logger = new ConsoleLogger();
+        final MessageChannel channel1 =
+                new MessageChannelBuilder(10000).name("1").logger(logger).getChannel();
+        final IHierarchicalContentNode node2 = createRemoteNode(pathInfo, cache);
+        final MessageChannel channel2 =
+                new MessageChannelBuilder(10000).name("2").logger(logger).getChannel();
+        final IHierarchicalContentNode node3 = createRemoteNode(pathInfo, cache);
+        final MessageChannel channel3 =
+                new MessageChannelBuilder(10000).name("3").logger(logger).getChannel();
+        final MessageChannel channel4 =
+                new MessageChannelBuilder(10000).name("4").logger(logger).getChannel();
+        GetFileRunnable fileRunnable1 = new GetFileRunnable(node1, channel1);
+        GetFileRunnable fileRunnable2 = new GetFileRunnable(node2, channel2)
+        {
+            @Override
+            public void run()
+            {
+                channel1.assertNextMessage(STARTED_MESSAGE);
+                channel2.send(STARTED_MESSAGE);
+                super.run();
+            }
+        };
+        GetFileRunnable fileRunnable3 = new GetFileRunnable(node3, channel3)
+        {
+            @Override
+            public void run()
+            {
+                channel2.assertNextMessage(STARTED_MESSAGE);
+                channel3.send(STARTED_MESSAGE);
+                super.run();
+            }
+        };
+        final Thread thread1 = new Thread(fileRunnable1, "thread1");
+        final Thread thread2 = new Thread(fileRunnable2, "thread2");
+        final Thread thread3 = new Thread(fileRunnable3, "thread3");
+        context.checking(new Expectations()
+        {
+            {
+                one(remoteDss).getDownloadUrlForFileForDataSet(SESSION_TOKEN, DATA_SET_CODE,
+                        pathInfo.getRelativePath());
+                will(new ProxyAction(returnValue(remoteFile1.toURI().toURL().toString()))
+                {
+                    @Override
+                    protected void doBeforeReturn()
+                    {
+                        channel1.send(STARTED_MESSAGE);
+                        channel3.assertNextMessage(STARTED_MESSAGE);
+                        channel4.send(FINISHED_MESSAGE);
+                    }
+                });
+            }
+        });
+        
+        thread1.start();
+        thread2.start();
+        thread3.start();
+        channel4.assertNextMessage(FINISHED_MESSAGE);
+        channel1.assertNextMessage(FINISHED_MESSAGE);
+        channel2.assertNextMessage(FINISHED_MESSAGE);
+        channel3.assertNextMessage(FINISHED_MESSAGE);
+        
+        File file1 = fileRunnable1.tryGetResult();
+        File file2 = fileRunnable2.tryGetResult();
+        File file3 = fileRunnable3.tryGetResult();
+        assertEquals(new File(workSpace, ContentCache.CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
+                + remoteFile1.getName()).getAbsolutePath(), file1.getAbsolutePath());
+        assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file1).trim());
+        assertEquals(file1, file2);
+        assertEquals(file1, file3);
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public void testGetSameFileInTwoThreadsFirstDownloadFails() throws Exception
     {

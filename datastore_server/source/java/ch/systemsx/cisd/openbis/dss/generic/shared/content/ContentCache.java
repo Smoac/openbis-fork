@@ -26,6 +26,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.io.IOUtils;
@@ -245,34 +246,40 @@ public class ContentCache implements IContentCache
             }
         }
     }
-
     
     private static final class LockManager
     {
-        private final Map<String, ReentrantLock> locks = new HashMap<String, ReentrantLock>();
+        private static final class LockWithCounter
+        {
+            private Lock lock = new ReentrantLock();
+            private int count;
+        }
+        
+        private final Map<String, LockWithCounter> locks = new HashMap<String, LockWithCounter>();
 
         void lock(String path)
         {
-            ReentrantLock lock;
+            LockWithCounter lock;
             synchronized (locks)
             {
                 lock = locks.get(path);
                 if (lock == null)
                 {
-                    lock = new ReentrantLock();
+                    lock = new LockWithCounter();
                     locks.put(path, lock);
                 }
+                lock.count++;
             }
-            lock.lock();
+            lock.lock.lock();
         }
 
         synchronized void unlock(String path)
         {
-            ReentrantLock lock = locks.get(path);
+            LockWithCounter lock = locks.get(path);
             if (lock != null)
             {
-                lock.unlock();
-                if (lock.isLocked() == false)
+                lock.lock.unlock();
+                if (--lock.count == 0)
                 {
                     locks.remove(path);
                 }
