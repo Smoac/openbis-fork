@@ -49,7 +49,7 @@ public class JsonDssServiceRpcGenericTest extends SystemTestCase
             + IGeneralInformationService.JSON_SERVICE_URL;
 
     // TODO KE: put the suffix in a constant
-    private static final String DSS_URL = TestInstanceHostUtils.getDSSPort()
+    private static final String DSS_URL = TestInstanceHostUtils.getDSSUrl()
             + "/datastore_server/rmi-dss-api-v1.json";
 
     private IGeneralInformationService openbisService;
