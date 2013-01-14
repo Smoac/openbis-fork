@@ -299,7 +299,6 @@
 
 - (void)testDeletedEntities
 {
-    
     [self performLogin];
     [self performRootLevelCall];
     
@@ -308,6 +307,11 @@
     CISDOBIpadEntity *entityToRemove = [entitiesWithChildren objectAtIndex: 0];
     // Remember the permId before we refresh because the entity will be deleted
     NSArray *removedPermIds = [NSArray arrayWithObject: entityToRemove.permId];
+    
+    self.serviceManager.mocSaveBlock = ^(CISDOBIpadServiceManager *manager, NSArray *entitiesToDelete) {
+        STAssertEquals((NSUInteger) 1, [entitiesToDelete count], @"Only one entity should be deleted");
+        STAssertEqualObjects(entityToRemove.permId, [entitiesToDelete objectAtIndex: 0],  @"Only the specified object should be deleted");
+    };
 
     [self retrieveRootLevelEntitiesSimulatingRemovalOfEntity: entityToRemove];
     

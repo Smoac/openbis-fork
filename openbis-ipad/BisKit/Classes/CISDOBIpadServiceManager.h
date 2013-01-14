@@ -57,12 +57,14 @@ enum CISDOBIpadServiceManagerErrorCode {
     kCISDOBIpadServiceManagerError_ImageRetrievalCouldNotConnectToServer = 1,
 };
 
-@class CISDOBIpadService, CISDOBAsyncCall, CISDOBIpadEntity;
+@class CISDOBIpadService, CISDOBIpadServiceManager, CISDOBAsyncCall, CISDOBIpadEntity;
 
 //
 // Typedefs
 //
 typedef void (^AuthenticationChallengeBlock)(CISDOBAsyncCall *call, NSURLAuthenticationChallenge *challange);
+
+typedef void (^MocSaveBlock)(CISDOBIpadServiceManager *serviceManager, NSArray *deletedEntityPermIds);
 
 
 
@@ -81,6 +83,8 @@ typedef void (^AuthenticationChallengeBlock)(CISDOBAsyncCall *call, NSURLAuthent
 @property (readonly, strong) NSOperationQueue *queue;
 @property (readonly) NSString *sessionToken;
 @property (copy, nonatomic) AuthenticationChallengeBlock authenticationChallengeBlock;
+//! Called before the service manager saves the managed object context which will delete the entities with the deletedEntityPermIds
+@property (copy, nonatomic) MocSaveBlock mocSaveBlock;
 
 
 // Initialization
@@ -116,12 +120,6 @@ typedef void (^AuthenticationChallengeBlock)(CISDOBAsyncCall *call, NSURLAuthent
 - (NSFetchRequest *)fetchRequestForEntitiesNotUpdatedSince:(NSDate *)date;
 
 - (NSArray *)executeFetchRequest:(NSFetchRequest *)fetchRequest error:(NSError **)error;
-
-@end
-
-@interface CISDOBIpadServiceManager (CISDOBAsyncCallDelegate)
-
-- (void)asyncCall:(CISDOBAsyncCall *)call didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge;
 
 @end
 

@@ -51,6 +51,7 @@ NSString *const CISDOBIpadServiceManagerErrorDomain = @"CISDOBIpadServiceManager
 @property(nonatomic, copy) NSError *error;
 
 @property(nonatomic) BOOL prune;
+@property(readonly) NSArray *deletedEntities;
 
 // Initialization
 - (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager managerCall:(CISDOBIpadServiceManagerCall *)call rawEntities:(NSArray *)rawEntities;
@@ -151,6 +152,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
             CISDOBBackgroundDataSynchronizer *notifySynchronizer = synchronizer;
             if(!notifySynchronizer.error) {
                 NSError *error;
+                if (self.mocSaveBlock) self.mocSaveBlock(self, notifySynchronizer.deletedEntities);
                 if (![self.managedObjectContext save: &error]) {
                     notifySynchronizer.error = error;
                 }
@@ -346,6 +348,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     _managedObjectContext.parentContext = _serviceManager.managedObjectContext;
     _prune = NO;
     _error = nil;
+    _deletedEntities = [NSMutableArray array];
     
     return self;
 }
@@ -391,6 +394,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
         NSFetchRequest *fetchRequest = [self.serviceManager fetchRequestForEntitiesNotUpdatedSince: lastUpdateDate];
         NSArray *entitiesToDelete = [self.managedObjectContext executeFetchRequest: fetchRequest error: &error];
         for (CISDOBIpadEntity *entity in entitiesToDelete) {
+            [(NSMutableArray *)_deletedEntities addObject: entity.permId];
             [self.managedObjectContext deleteObject: entity];
         }
     }
