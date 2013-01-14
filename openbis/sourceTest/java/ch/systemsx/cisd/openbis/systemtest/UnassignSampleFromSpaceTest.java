@@ -109,6 +109,18 @@ public class UnassignSampleFromSpaceTest extends BaseTest
         assertThat(parent, is(inSpace(space)));
     }
 
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void childSampleCantBeUnassignedFromSpace() throws Exception
+    {
+        Sample parent = create(aSample().inExperiment(experiment));
+        Sample child = create(aSample().withParent(parent).inExperiment(experiment));
+
+        perform(anUpdateOf(child).removingSpace());
+
+        assertThat(child, hasNoSpace());
+    }
+
     @Test
     public void parentSampleCanBeUnassignedFromSpace() throws Exception
     {

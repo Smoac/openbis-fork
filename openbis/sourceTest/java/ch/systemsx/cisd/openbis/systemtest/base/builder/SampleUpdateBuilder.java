@@ -64,7 +64,7 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
         }
         this.version = sample.getVersion();
         this.sampleIdentifier = id(sample);
-        this.parents = new ArrayList<Sample>();
+        this.parents = null;
         this.container = null;
     }
 
@@ -105,6 +105,10 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
 
     public SampleUpdateBuilder toHaveParents(Sample... samples)
     {
+        if (this.parents == null)
+        {
+            this.parents = new ArrayList<Sample>();
+        }
         for (Sample parent : samples)
         {
             this.parents.add(parent);
@@ -134,10 +138,14 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
     @Override
     public SampleUpdatesDTO create()
     {
-        String[] parentIdentifiers = new String[this.parents.size()];
-        for (int i = 0; i < this.parents.size(); i++)
+        String[] parentIdentifiers = null;
+        if (this.parents != null)
         {
-            parentIdentifiers[i] = this.parents.get(i).getIdentifier();
+            parentIdentifiers = new String[this.parents.size()];
+            for (int i = 0; i < this.parents.size(); i++)
+            {
+                parentIdentifiers[i] = this.parents.get(i).getIdentifier();
+            }
         }
         return new SampleUpdatesDTO(this.sampleId, new ArrayList<IEntityProperty>(),
                 this.experimentId, new ArrayList<NewAttachment>(), this.version,
