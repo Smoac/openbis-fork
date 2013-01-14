@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
+import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -36,7 +37,8 @@ public class DssComponentTestClient
         configureLogging();
         System.out.println("Logging in");
         IDssComponent component =
-                DssComponentFactory.tryCreate("test", "foobar", "http://localhost:8888", 0);
+                DssComponentFactory.tryCreate("test", "foobar",
+                        TestInstanceHostUtils.getOpenBISUrl(), 0);
         IDataSetDss dataSet = component.getDataSet("20100318094819344-4");
         FileInfoDssDTO fileInfos[] = dataSet.listFiles("/", true);
         for (FileInfoDssDTO fileInfo : fileInfos)

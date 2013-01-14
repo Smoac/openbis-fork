@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.args4j.CmdLineException;
 import ch.systemsx.cisd.args4j.CmdLineParser;
+import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -44,14 +45,16 @@ public class DataSetArgumentsTest extends AssertJUnit
     public void testParseBasicArguments()
     {
         String[] args =
-                    { "-u", "foo", "-p", "bar", "-s", "http://localhost:8888/openbis",
+                    { "-u", "foo", "-p", "bar", "-s",
+                            TestInstanceHostUtils.getOpenBISUrl() + "/openbis",
                             "20100318094819344-4" };
         try
         {
             parser.parseArgument(args);
             assertEquals("foo", arguments.getUsername());
             assertEquals("bar", arguments.getPassword());
-            assertEquals("http://localhost:8888/openbis", arguments.getServerBaseUrl());
+            assertEquals(TestInstanceHostUtils.getOpenBISUrl() + "/openbis",
+                    arguments.getServerBaseUrl());
             assertEquals("20100318094819344-4", arguments.getDataSetCode());
             assertTrue(arguments.isComplete());
             assertFalse(arguments.isHelp());
@@ -65,7 +68,7 @@ public class DataSetArgumentsTest extends AssertJUnit
     public void testParseIncompleteArguments()
     {
         String[] args =
-            { "-u", "foo", "-p", "bar", "-s", "http://localhost:8888/openbis" };
+            { "-u", "foo", "-p", "bar", "-s", TestInstanceHostUtils.getOpenBISUrl() + "/openbis" };
         try
         {
             parser.parseArgument(args);

@@ -69,7 +69,8 @@ public class ScreeningClientApiTest
         if (args.length != 3)
         {
             System.err.println("Usage: <user> <password> <openbis-server-url>");
-            System.err.println("Example parameters: test-user my-password http://localhost:8888");
+            System.err
+                    .println("Example parameters: test-user my-password http://localhost:8888/openbis/openbis");
             System.exit(1);
             return;
         }
@@ -79,7 +80,7 @@ public class ScreeningClientApiTest
         String userPassword = args[1];
         String serverUrl = args[2];
 
-        print(String.format("Connecting to the server '%s' as a user '%s.", serverUrl, userId));
+        print(String.format("Connecting to the server '%s' as a user '%s'.", serverUrl, userId));
         IScreeningOpenbisServiceFacade facade =
                 ScreeningOpenbisServiceFacadeFactory.INSTANCE.tryToCreate(userId, userPassword,
                         serverUrl);
@@ -89,6 +90,7 @@ public class ScreeningClientApiTest
             System.exit(1);
             return;
         }
+
         List<ExperimentIdentifier> experiments = facade.listExperiments();
         print("Experiments: " + experiments);
 
@@ -150,13 +152,15 @@ public class ScreeningClientApiTest
                 }
             });
         print("Feature vector datasets: "
-                + featureVectorDatasets.subList(0, Math.min(5, featureVectorDatasets.size())));
+                + featureVectorDatasets.subList(0, Math.min(1, featureVectorDatasets.size())));
 
         List<String> featureCodes = facade.listAvailableFeatureCodes(featureVectorDatasets);
         Collections.sort(featureCodes);
         print("Feature codes: " + featureCodes);
         List<FeatureVectorDataset> features =
-                facade.loadFeatures(featureVectorDatasets, featureCodes);
+                facade.loadFeatures(new ArrayList<FeatureVectorDatasetReference>(
+                        featureVectorDatasets.subList(0, 1)),
+                        new ArrayList<String>(featureCodes.subList(0, 10)));
         Collections.sort(features, new Comparator<FeatureVectorDataset>()
             {
                 @Override
@@ -195,7 +199,8 @@ public class ScreeningClientApiTest
         // loadImagesFromFeatureVectors(facade, getFirstTwo(facade, featureVectorDatasets));
 
         List<PlateMetadata> plateMetadata =
-                facade.getPlateMetadataList(Arrays.asList(plates.get(0), plates.get(1), plates.get(2)));
+                facade.getPlateMetadataList(Arrays.asList(plates.get(0), plates.get(1),
+                        plates.get(2)));
         for (PlateMetadata metadata : plateMetadata)
         {
             WellMetadata well = metadata.getWell(1, 1);
@@ -217,17 +222,18 @@ public class ScreeningClientApiTest
         return builder.toString();
     }
 
-    private static void renderMaterials(Map<String, Material> materialProperties, StringBuilder builder,
-            String indent)
+    private static void renderMaterials(Map<String, Material> materialProperties,
+            StringBuilder builder, String indent)
     {
         Set<Entry<String, Material>> entrySet = materialProperties.entrySet();
         for (Entry<String, Material> entry : entrySet)
         {
-            builder.append(indent).append("material property of type ").append(entry.getKey()).append(":\n");
+            builder.append(indent).append("material property of type ").append(entry.getKey())
+                    .append(":\n");
             renderMaterial(entry.getValue(), builder, indent + "  ");
         }
     }
-    
+
     private static void renderMaterial(Material material, StringBuilder builder, String indent)
     {
         builder.append(indent).append(material.getAugmentedCode()).append(" properties: ");

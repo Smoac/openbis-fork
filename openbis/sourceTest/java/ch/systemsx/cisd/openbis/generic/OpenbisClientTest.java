@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
+import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
 
 /*
  * Copyright 2009 ETH Zuerich, CISD
@@ -54,7 +55,7 @@ public class OpenbisClientTest
 
     private static final String USER_PASSWORD = "test";
 
-    private static final String SERVER_URL = "http://localhost:8888/openbis";
+    private static final String SERVER_URL = TestInstanceHostUtils.getOpenBISUrl() + "/openbis";
 
     // CommonServiceServer
     private static final String COMMON_SERVICE_PATH = SERVER_URL + "/rmi-common";
@@ -157,8 +158,8 @@ public class OpenbisClientTest
                 {
                     entityInfo.add(toString(entity));
                 }
-                return String.format("\nTracked %d %s(s): \n%s", entityInfo.size(), entityKind
-                        .getDescription(), StringUtils.join(entityInfo, "\n"));
+                return String.format("\nTracked %d %s(s): \n%s", entityInfo.size(),
+                        entityKind.getDescription(), StringUtils.join(entityInfo, "\n"));
             }
         }
 

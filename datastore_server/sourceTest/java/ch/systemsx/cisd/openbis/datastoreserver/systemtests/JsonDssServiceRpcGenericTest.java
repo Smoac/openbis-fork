@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.api.json.GenericObjectMapper;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
 
 /**
  * Verifies that the functionality of {@link IDssServiceRpcGeneric} is accessible over JSON-RPC.
@@ -44,11 +45,11 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
     { "slow" })
 public class JsonDssServiceRpcGenericTest extends SystemTestCase
 {
-    private static final String OPENBIS_URL = "http://localhost:8888"
+    private static final String OPENBIS_URL = TestInstanceHostUtils.getOpenBISUrl()
             + IGeneralInformationService.JSON_SERVICE_URL;
 
     // TODO KE: put the suffix in a constant
-    private static final String DSS_URL = "http://localhost:8889"
+    private static final String DSS_URL = TestInstanceHostUtils.getDSSPort()
             + "/datastore_server/rmi-dss-api-v1.json";
 
     private IGeneralInformationService openbisService;

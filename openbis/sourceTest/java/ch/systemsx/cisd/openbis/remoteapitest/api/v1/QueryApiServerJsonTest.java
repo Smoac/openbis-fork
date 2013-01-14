@@ -27,13 +27,14 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
+import com.googlecode.jsonrpc4j.ProxyUtil;
+
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
-
-import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
-import com.googlecode.jsonrpc4j.ProxyUtil;
+import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
 
 /**
  * Verifies that an instance of {@link IQueryApiServer} is published via JSON-RPC and that it is
@@ -45,7 +46,7 @@ import com.googlecode.jsonrpc4j.ProxyUtil;
     { "remote api" })
 public class QueryApiServerJsonTest extends RemoteApiTestCase
 {
-    private static final String SERVICE_URL = "http://localhost:8888/openbis/"
+    private static final String SERVICE_URL = TestInstanceHostUtils.getOpenBISUrl() + "/openbis/"
             + IQueryApiServer.JSON_SERVICE_URL;
 
     protected IQueryApiServer queryApiService;

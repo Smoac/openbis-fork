@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageR
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -66,7 +67,7 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
         moveFileToIncoming(exampleDataSet);
         waitUntilDataSetImported();
     }
-    
+
     @BeforeMethod
     public void setUp() throws Exception
     {
@@ -79,7 +80,9 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
         Object bean = applicationContext.getBean(ResourceNames.SCREENING_PLUGIN_SERVER);
         screeningServer = (IScreeningApiServer) bean;
         sessionToken = screeningClientService.tryToLogin("admin", "a").getSessionID();
-        screeningFacade = ScreeningOpenbisServiceFacade.tryCreateForTest(sessionToken, "http://localhost:" + SYSTEM_TEST_CASE_SERVER_PORT, screeningServer);
+        screeningFacade =
+                ScreeningOpenbisServiceFacade.tryCreateForTest(sessionToken,
+                        TestInstanceHostUtils.getOpenBISUrl(), screeningServer);
     }
 
     @AfterMethod
@@ -98,25 +101,31 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
         // The components of the plate identifier come from the dropbox code
         // (resource/test-data/TransformedImageRepresentationsTest/data-set-handler.py)
         PlateIdentifier plate = new PlateIdentifier("TRANSFORMED-THUMB-PLATE", "TEST", null);
-        List<ImageDatasetReference> imageDataSets = screeningFacade.listRawImageDatasets(Arrays.asList(plate));
-        List<DatasetImageRepresentationFormats> representationFormats = screeningFacade.listAvailableImageRepresentationFormats(imageDataSets);
+        List<ImageDatasetReference> imageDataSets =
+                screeningFacade.listRawImageDatasets(Arrays.asList(plate));
+        List<DatasetImageRepresentationFormats> representationFormats =
+                screeningFacade.listAvailableImageRepresentationFormats(imageDataSets);
         assertEquals(1, representationFormats.size());
-        List<ImageRepresentationFormat> formats = representationFormats.get(0).getImageRepresentationFormats();
+        List<ImageRepresentationFormat> formats =
+                representationFormats.get(0).getImageRepresentationFormats();
 
         HashSet<Dimension> expectedResolutions = new HashSet<Dimension>();
-        expectedResolutions.addAll(Arrays.asList(new Dimension(64, 64), new Dimension(128, 128), new Dimension(256, 256), new Dimension(512, 512)));
+        expectedResolutions.addAll(Arrays.asList(new Dimension(64, 64), new Dimension(128, 128),
+                new Dimension(256, 256), new Dimension(512, 512)));
         for (ImageRepresentationFormat format : formats)
         {
             Dimension resolution = new Dimension(format.getWidth(), format.getHeight());
             // Make sure the resolution we specified was found
-            assertTrue("" + resolution + " was not expected", expectedResolutions.remove(resolution));
+            assertTrue("" + resolution + " was not expected",
+                    expectedResolutions.remove(resolution));
         }
         assertEquals(0, expectedResolutions.size());
 
         // Check that the representations are JPEG for the following resolutions: 64x64, 128x128,
         // 256x256
         HashSet<Dimension> jpegResolutions = new HashSet<Dimension>();
-        jpegResolutions.addAll(Arrays.asList(new Dimension(64, 64), new Dimension(128, 128), new Dimension(256, 256)));
+        jpegResolutions.addAll(Arrays.asList(new Dimension(64, 64), new Dimension(128, 128),
+                new Dimension(256, 256)));
         for (ImageRepresentationFormat format : formats)
         {
             Dimension resolution = new Dimension(format.getWidth(), format.getHeight());

@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
+import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -67,8 +68,6 @@ public abstract class SystemTestCase extends AssertJUnit
     private static final Pattern PATTERN = Pattern.compile("::(\\d+-\\d+);.*");
 
     private static final String SOURCE_TEST_CORE_PLUGINS = "sourceTest/core-plugins";
-
-    public static final int SYSTEM_TEST_CASE_SERVER_PORT = 8888;
 
     private static final String UNIT_TEST_WORKING_DIRECTORY = "unit-test-wd";
 
@@ -83,7 +82,8 @@ public abstract class SystemTestCase extends AssertJUnit
 
     // this message appears if the dropbox has successfully completed the registration, even if no
     // datasets have been imported
-    private static final String REGISTRATION_FINISHED_LOG_MARKER = DataSetRegistrationTransaction.SUCCESS_MESSAGE;
+    private static final String REGISTRATION_FINISHED_LOG_MARKER =
+            DataSetRegistrationTransaction.SUCCESS_MESSAGE;
 
     protected static GenericWebApplicationContext applicationContext;
 
@@ -149,7 +149,7 @@ public abstract class SystemTestCase extends AssertJUnit
         setUpDatabaseProperties();
         Server server = new Server();
         Connector connector = new SelectChannelConnector();
-        connector.setPort(SYSTEM_TEST_CASE_SERVER_PORT);
+        connector.setPort(TestInstanceHostUtils.getOpenBISPort());
         server.addConnector(connector);
         DispatcherServlet dispatcherServlet = new DispatcherServlet()
             {
@@ -176,8 +176,8 @@ public abstract class SystemTestCase extends AssertJUnit
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "inputs", "");
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "core-plugins-folder",
                 SOURCE_TEST_CORE_PLUGINS);
-        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
-                + Constants.ENABLED_MODULES_KEY, getEnabledTechnologies());
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + Constants.ENABLED_MODULES_KEY,
+                getEnabledTechnologies());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + ROOT_DIR_KEY,
                 rootDir.getAbsolutePath());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX
@@ -266,7 +266,7 @@ public abstract class SystemTestCase extends AssertJUnit
         return logContent.contains(DATA_SET_IMPORTED_LOG_MARKER)
                 || logContent.contains(REGISTRATION_FINISHED_LOG_MARKER);
     }
-    
+
     protected Set<String> getSuccessfullyRegisteredDataSets(String logContent)
     {
         BufferedReader reader = new BufferedReader(new StringReader(logContent));
@@ -292,7 +292,7 @@ public abstract class SystemTestCase extends AssertJUnit
             IOUtils.closeQuietly(reader);
         }
     }
-    
+
     private Set<String> extractDataSetCodes(String logLineExtract)
     {
         Set<String> result = new HashSet<String>();
@@ -321,7 +321,8 @@ public abstract class SystemTestCase extends AssertJUnit
         FileUtils.moveDirectoryToDirectory(exampleDataSet, getIncomingDirectory(), false);
     }
 
-    protected boolean checkForFinalPostRegistrationLogEntry(String logContent, Set<String> registeredDataSets)
+    protected boolean checkForFinalPostRegistrationLogEntry(String logContent,
+            Set<String> registeredDataSets)
     {
         Pattern pattern = Pattern.compile(".*Post registration of (\\d*). of \\1 data sets: (.*)");
         String[] lines = logContent.split("\\n");

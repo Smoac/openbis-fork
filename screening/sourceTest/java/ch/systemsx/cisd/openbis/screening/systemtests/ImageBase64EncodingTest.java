@@ -53,14 +53,18 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetR
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
+import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
 
 @Test(groups =
     { "slow", "systemtest" })
 public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
 {
-    private static String IMAGE1_FILENAME = getTestDataFolder() + "TRANSFORMED-THUMB-PLATE/bPLATE_wA1_s1_cRGB.png";
-    private static String IMAGE2_FILENAME = getTestDataFolder() + "TRANSFORMED-THUMB-PLATE/bPLATE_wA2_s1_cRGB.png";
-    
+    private static String IMAGE1_FILENAME = getTestDataFolder()
+            + "TRANSFORMED-THUMB-PLATE/bPLATE_wA1_s1_cRGB.png";
+
+    private static String IMAGE2_FILENAME = getTestDataFolder()
+            + "TRANSFORMED-THUMB-PLATE/bPLATE_wA2_s1_cRGB.png";
+
     private MockHttpServletRequest request;
 
     private String sessionToken;
@@ -70,7 +74,7 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
     private IScreeningApiServer screeningServer;
 
     private IScreeningOpenbisServiceFacade screeningFacade;
-    
+
     private IDssServiceRpcScreening screeningJsonApi;
 
     @BeforeTest
@@ -80,7 +84,7 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
         moveFileToIncoming(exampleDataSet);
         waitUntilDataSetImported();
     }
-    
+
     @BeforeMethod
     public void setUp() throws Exception
     {
@@ -93,11 +97,16 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
         Object bean = applicationContext.getBean(ResourceNames.SCREENING_PLUGIN_SERVER);
         screeningServer = (IScreeningApiServer) bean;
         sessionToken = screeningClientService.tryToLogin("admin", "a").getSessionID();
-        screeningFacade = ScreeningOpenbisServiceFacade.tryCreateForTest(sessionToken, "http://localhost:" + SYSTEM_TEST_CASE_SERVER_PORT, screeningServer);
+        screeningFacade =
+                ScreeningOpenbisServiceFacade.tryCreateForTest(sessionToken,
+                        TestInstanceHostUtils.getOpenBISUrl(), screeningServer);
 
         JsonRpcHttpClient client =
-                new JsonRpcHttpClient(new URL("http://localhost:8889/rmi-datastore-server-screening-api-v1.json/"));
-        screeningJsonApi =  ProxyUtil.createProxy(this.getClass().getClassLoader(), IDssServiceRpcScreening.class, client);
+                new JsonRpcHttpClient(new URL(TestInstanceHostUtils.getDSSUrl()
+                        + "/rmi-datastore-server-screening-api-v1.json/"));
+        screeningJsonApi =
+                ProxyUtil.createProxy(this.getClass().getClassLoader(),
+                        IDssServiceRpcScreening.class, client);
 
     }
 
@@ -111,51 +120,57 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
         }
     }
 
-
     @Test
     public void base64EncodedImagesContainTheOriginalData() throws Exception
     {
         byte[] originalImage1 = getBytes(IMAGE1_FILENAME);
         byte[] originalImage2 = getBytes(IMAGE2_FILENAME);
-        
+
         List<Plate> p = screeningFacade.listPlates();
         List<Plate> plates = new ArrayList<Plate>();
-        for (Plate plate : p) {
-            if (plate.getAugmentedCode().equals("/TEST/BASE64PLATE")) {
+        for (Plate plate : p)
+        {
+            if (plate.getAugmentedCode().equals("/TEST/BASE64PLATE"))
+            {
                 plates.add(plate);
                 break;
             }
         }
-        
+
         List<ImageDatasetReference> imageDatasets = screeningFacade.listRawImageDatasets(plates);
-        
+
         System.out.println(plates);
         System.out.println(imageDatasets);
-        
+
         List<PlateImageReference> plateImages = new ArrayList<PlateImageReference>();
-        
-        plateImages.add(new PlateImageReference(0, "MERGED CHANNELS", new WellPosition(1,1), imageDatasets.get(0)));
-        plateImages.add(new PlateImageReference(0, "MERGED CHANNELS", new WellPosition(1,2), imageDatasets.get(0)));
-        
-        List<String> results = screeningJsonApi.loadImagesBase64(sessionToken, new PlateImageReferenceList(plateImages), false);
+
+        plateImages.add(new PlateImageReference(0, "MERGED CHANNELS", new WellPosition(1, 1),
+                imageDatasets.get(0)));
+        plateImages.add(new PlateImageReference(0, "MERGED CHANNELS", new WellPosition(1, 2),
+                imageDatasets.get(0)));
+
+        List<String> results =
+                screeningJsonApi.loadImagesBase64(sessionToken, new PlateImageReferenceList(
+                        plateImages), false);
 
         byte[] image1 = Base64.decode(results.get(0));
         byte[] image2 = Base64.decode(results.get(1));
-        
+
         assertThat(image1, is(equalTo(originalImage1)));
         assertThat(image2, is(equalTo(originalImage2)));
-        assertThat(results.size(), is(2));        
+        assertThat(results.size(), is(2));
     }
-    
-    private static byte[] getBytes(String filename) throws FileNotFoundException, IOException {
+
+    private static byte[] getBytes(String filename) throws FileNotFoundException, IOException
+    {
         File file = new File(filename);
         FileInputStream fis = new FileInputStream(file);
-        byte[] bytes = new byte[(int)file.length()];
+        byte[] bytes = new byte[(int) file.length()];
         fis.read(bytes);
         fis.close();
         return bytes;
     }
-    
+
     private File createTestDataContents() throws IOException
     {
         File dest = new File(workingDirectory, "test-data");
@@ -177,14 +192,15 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
     {
         return 6000;
     }
-    
+
     @Override
     protected boolean checkLogContentForFinishedDataSetRegistration(String logContent)
     {
         return checkOnFinishedPostRegistration(logContent);
     }
 
-    private static class PlateImageReferenceList extends ArrayList<PlateImageReference> implements IModifiable
+    private static class PlateImageReferenceList extends ArrayList<PlateImageReference> implements
+            IModifiable
     {
 
         private static final long serialVersionUID = 1845499753563383092L;

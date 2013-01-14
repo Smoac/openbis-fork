@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -84,8 +85,6 @@ public class DssComponentTest extends SystemTestCase
                         return f1.getPathInDataSet().compareTo(f2.getPathInDataSet());
                     }
                 };
-
-    private static final String OPENBIS_URL = "http://localhost:8888";
 
     private IDssComponent dss;
 
@@ -382,7 +381,7 @@ public class DssComponentTest extends SystemTestCase
 
     private IDssComponent createDssComponent(String userName)
     {
-        return DssComponentFactory.tryCreate(userName, "a", OPENBIS_URL,
+        return DssComponentFactory.tryCreate(userName, "a", TestInstanceHostUtils.getOpenBISUrl(),
                 5 * DateUtils.MILLIS_PER_MINUTE);
     }
 

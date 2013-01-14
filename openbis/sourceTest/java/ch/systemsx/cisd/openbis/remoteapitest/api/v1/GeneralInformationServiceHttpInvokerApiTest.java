@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
 
 /**
  * Verifies that an instance of {@link IGeneralInformationService} is published via
@@ -51,16 +52,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 public class GeneralInformationServiceHttpInvokerApiTest extends
         GeneralInformationServiceJsonApiTest
 {
-
-    private static final String SERVICE_URL = "http://localhost:8888/";
-
     @Override
     protected IGeneralInformationService createService()
     {
         ServiceFinder generalInformationServiceFinder =
                 new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
         return generalInformationServiceFinder.createService(IGeneralInformationService.class,
-                SERVICE_URL, 10000000);
+                TestInstanceHostUtils.getOpenBISUrl(), 10000000);
     }
 
     @Test

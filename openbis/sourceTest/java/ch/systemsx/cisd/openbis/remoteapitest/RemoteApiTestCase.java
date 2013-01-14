@@ -32,6 +32,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 import org.testng.annotations.BeforeSuite;
 
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
+import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
 
 /**
  * Test cases which have access to the public API services of a running, fully-fledged openBIS
@@ -52,7 +53,7 @@ public class RemoteApiTestCase extends AbstractTransactionalTestNGSpringContextT
         TestInitializer.init();
         server = new Server();
         Connector connector = new SelectChannelConnector();
-        connector.setPort(8888);
+        connector.setPort(TestInstanceHostUtils.getOpenBISPort());
         server.addConnector(connector);
         DispatcherServlet dispatcherServlet = new DispatcherServlet()
             {

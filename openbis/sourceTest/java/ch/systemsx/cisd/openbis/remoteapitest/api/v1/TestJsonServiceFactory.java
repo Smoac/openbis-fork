@@ -26,13 +26,15 @@ import com.googlecode.jsonrpc4j.ProxyUtil;
 import ch.systemsx.cisd.openbis.generic.shared.api.json.GenericObjectMapper;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
 
 /**
  * @author Kaloyan Enimanev
  */
 public class TestJsonServiceFactory
 {
-    private static final String OPENBIS_SERVER_URL = "http://localhost:8888/openbis/";
+    private static final String OPENBIS_SERVER_URL = TestInstanceHostUtils.getOpenBISUrl()
+            + "/openbis/";
 
     private static final String GENERAL_INFO_SERVICE_URL = OPENBIS_SERVER_URL
             + IGeneralInformationService.JSON_SERVICE_URL;

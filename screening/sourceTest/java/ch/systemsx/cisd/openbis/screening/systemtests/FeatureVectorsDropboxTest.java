@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
+import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -97,8 +98,8 @@ public class FeatureVectorsDropboxTest extends AbstractScreeningSystemTestCase
         screeningServer = (IScreeningApiServer) bean;
         sessionToken = screeningClientService.tryToLogin("admin", "a").getSessionID();
         screeningFacade =
-                ScreeningOpenbisServiceFacade.tryCreateForTest(sessionToken, "http://localhost:"
-                        + SYSTEM_TEST_CASE_SERVER_PORT, screeningServer);
+                ScreeningOpenbisServiceFacade.tryCreateForTest(sessionToken,
+                        TestInstanceHostUtils.getOpenBISUrl(), screeningServer);
     }
 
     @AfterMethod

@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -66,8 +67,6 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
                         return f1.getPathInDataSet().compareTo(f2.getPathInDataSet());
                     }
                 };
-
-    private static final String OPENBIS_URL = "http://localhost:8888";
 
     private IOpenbisServiceFacade serviceFacade;
 
@@ -251,8 +250,8 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
 
     private IOpenbisServiceFacade createServiceFacade(String userName)
     {
-        return OpenbisServiceFacadeFactory.tryCreate(userName, "a", OPENBIS_URL,
-                5 * DateUtils.MILLIS_PER_MINUTE);
+        return OpenbisServiceFacadeFactory.tryCreate(userName, "a",
+                TestInstanceHostUtils.getOpenBISUrl(), 5 * DateUtils.MILLIS_PER_MINUTE);
     }
 
     private NewDataSetDTO createNewDataSetDTO(File exampleDataSet) throws IOException

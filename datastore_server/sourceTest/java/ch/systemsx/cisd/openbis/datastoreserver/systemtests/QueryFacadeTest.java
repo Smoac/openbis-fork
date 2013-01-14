@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
+import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
 
 /**
  * @author Jakub Straszewski
@@ -35,9 +36,6 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription
 @Test(groups = "slow")
 public class QueryFacadeTest extends AbstractQueryFacadeTest
 {
-
-    private static final String OPENBIS_URL = "http://localhost:8888";
-
     IQueryApiFacade queryFacade;
 
     @BeforeMethod
@@ -48,7 +46,7 @@ public class QueryFacadeTest extends AbstractQueryFacadeTest
 
     private IQueryApiFacade createServiceFacade(String userName)
     {
-        return FacadeFactory.create(OPENBIS_URL, userName, "a");
+        return FacadeFactory.create(TestInstanceHostUtils.getOpenBISUrl(), userName, "a");
     }
 
     @Override

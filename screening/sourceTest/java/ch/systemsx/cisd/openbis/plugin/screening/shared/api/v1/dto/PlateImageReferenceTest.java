@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
+
 /**
  * @author Chandrasekhar Ramakrishnan
  */
@@ -65,7 +67,7 @@ public class PlateImageReferenceTest extends AssertJUnit
                 @Override
                 public String getDatastoreServerUrl()
                 {
-                    return "http://localhost:8888";
+                    return TestInstanceHostUtils.getOpenBISUrl();
                 }
 
             };
