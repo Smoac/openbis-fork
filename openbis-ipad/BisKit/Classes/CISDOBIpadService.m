@@ -165,7 +165,10 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 - (CISDOBAsyncCall *)listRootLevelEntities;
 {
     NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"ROOT" forKey: @"requestKey"];
-    return [self createIpadServiceCallWithParameters: parameters];
+    CISDOBIpadServiceCall *serviceCall = [self createIpadServiceCallWithParameters: parameters];
+    // Make sure the timeout interval is at least 60s
+    if (serviceCall.timeoutInterval < 60.) serviceCall.timeoutInterval = 60.;
+    return serviceCall;
 }
 
 - (NSArray *)convertToEntitiesPermIds:(NSArray *)permIds refcons:(NSArray *)refcons count:(NSUInteger)count
