@@ -435,7 +435,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
  
     self.serviceManager = serviceManager;
     self.entity = entity;
-        // Default timeout interval to 60sandrei
+        // Default timeout interval to 60s
     self.timeoutInterval = 60.0;
     
     _image = [[CISDOBIpadImage alloc] init];
