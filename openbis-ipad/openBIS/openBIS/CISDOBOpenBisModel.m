@@ -53,6 +53,7 @@
 #pragma mark - Accessor
 - (CISDOBIpadServiceManager *)serviceManager { return self.appDelegate.serviceManager; }
 - (NSManagedObjectContext *)managedObjectContext { return self.appDelegate.managedObjectContext; }
+- (BOOL)isOnline { return self.appDelegate.online; }
 
 #pragma mark - Model
 - (NSInteger)numberOfSections

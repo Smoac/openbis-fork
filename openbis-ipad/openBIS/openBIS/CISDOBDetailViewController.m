@@ -109,10 +109,18 @@
     [call start];
 }
 
+- (NSString *)titleString
+{
+    if (!self.openBisModel) return @"";
+    NSString *titleRoot = (self.detailItem) ? self.detailItem.summaryHeader : @"";
+    NSString *onlineStatus = (self.openBisModel.online) ? @"" : @"(offline)";
+    return [NSString stringWithFormat: @"%@ %@", titleRoot, onlineStatus];
+}
+
 - (void)configureView
 {
+    self.title = [self titleString];
     if (!self.detailItem) {
-        self.title = @"";
         self.summaryHeaderLabel.text = @"";
         self.summaryLabel.text = @"";
         self.identifierLabel.text = @"";
@@ -121,7 +129,6 @@
     }
 
     // The detail item is now up-to-date. Update the user interface.
-    self.title = self.detailItem.summaryHeader;
     self.summaryHeaderLabel.text = self.detailItem.summaryHeader;
     self.summaryLabel.text = self.detailItem.summary;
     self.identifierLabel.text = self.detailItem.identifier;

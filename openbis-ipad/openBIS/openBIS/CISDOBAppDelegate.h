@@ -36,6 +36,7 @@
 @property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 @property (readonly, strong, nonatomic) CISDOBOpenBisModel *rootOpenBisModel;
 @property (readonly, strong, nonatomic) CISDOBIpadServiceManager *serviceManager;
+@property (nonatomic, getter=isOnline) BOOL online;
 
 // User Settings
 @property (copy, nonatomic) NSString *username;

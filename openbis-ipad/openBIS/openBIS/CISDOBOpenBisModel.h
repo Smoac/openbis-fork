@@ -40,6 +40,7 @@
 @property (weak, nonatomic) CISDOBOpenBisModel *parentModel;
 @property (readonly) CISDOBIpadServiceManager *serviceManager;
 @property (strong, nonatomic) CISDOBIpadEntity *selectedObject;
+@property (readonly, getter=isOnline) BOOL  online;
 
 // Initialize
 - (id)initWithParentModel:(CISDOBOpenBisModel *)parentModel; //!< The designated initializer

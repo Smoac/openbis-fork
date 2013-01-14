@@ -73,17 +73,16 @@
         return;
     }
     
-    CISDOBMasterViewController *masterViewController = [self masterViewController];
-
     // Initialize the connection to openBIS
     CISDOBAsyncCall *call = [self.serviceManager loginUser: username password: password];
+    __weak CISDOBAppDelegate *weakSelf = self;
     call.success = ^(id result) {
-        self.username = username;
-        self.password = password;
-        self.openbisUrl = openbisUrl;
-        [self synchronizeUserSettings];
-        [self loginControllerDidComplete: controller];
-        [masterViewController didConnectServiceManager: self.serviceManager];
+        weakSelf.username = username;
+        weakSelf.password = password;
+        weakSelf.openbisUrl = openbisUrl;
+        [weakSelf synchronizeUserSettings];
+        [weakSelf loginControllerDidComplete: controller];
+        [weakSelf didConnectToServer];
     };
     call.fail = ^(NSError *error) {
         [controller showError: error];
@@ -132,17 +131,25 @@
     return (CISDOBDetailViewController *)[[splitViewController.viewControllers lastObject] topViewController];
 }
 
+- (void)didConnectToServer
+{
+    self.online = YES;
+    CISDOBMasterViewController *controller = [self masterViewController];
+    [controller didConnectServiceManager: self.serviceManager];
+}
+
 - (void)initializeOpenBisConnection
 {
-    CISDOBMasterViewController *controller = [self masterViewController];
-
+    self.online = NO;
+    
     // Initialize the connection to openBIS
     CISDOBAsyncCall *call = [self.serviceManager loginUser: [self username] password: [self password]];
+    __weak CISDOBAppDelegate *weakSelf = self;
     call.success = ^(id result) {
-        [controller didConnectServiceManager: self.serviceManager];
+        [weakSelf didConnectToServer];
     };
     call.fail = ^(NSError *error) {
-        [[self detailViewController] performSegueWithIdentifier: @"ShowLoginDialog" sender: self];
+        [[weakSelf detailViewController] performSegueWithIdentifier: @"ShowLoginDialog" sender: self];
     };
     [call start];
 }
