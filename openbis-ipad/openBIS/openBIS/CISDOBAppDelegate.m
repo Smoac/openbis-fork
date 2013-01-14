@@ -75,7 +75,7 @@
     CISDOBMasterViewController *masterViewController = [self masterViewController];
 
     // Initialize the connection to openBIS
-    CISDOBAsyncCall *call = [self.serviceManager loginUser: [self username] password: [self password]];
+    CISDOBAsyncCall *call = [self.serviceManager loginUser: username password: password];
     call.success = ^(id result) {
         self.username = username;
         self.password = password;
