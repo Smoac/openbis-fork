@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="2843" systemVersion="11G56" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="5">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="2844" systemVersion="11G63" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="5">
     <dependencies>
         <development version="4500" identifier="xcode"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="1929"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="1930"/>
     </dependencies>
     <scenes>
         <!--Navigation Controller-->
@@ -238,19 +238,21 @@
                             </label>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" lineBreakMode="tailTruncation" numberOfLines="6" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="518" translatesAutoresizingMaskIntoConstraints="NO" id="7Aq-O2-MYr">
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="518" id="Ldk-lk-uGQ"/>
                                     <constraint firstAttribute="height" constant="82" id="TlM-Xl-NTi"/>
                                 </constraints>
                                 <string key="text">This iPad app is designed to give users of openBIS access to their data from their iPad.
 
-If you are a user of an openBIS server, plese enter the URL and your login details in the space provided below. If you are just curious and want to try out the iPad app, click the "Demo" button to bypass log in.</string>
+If you are a user of an openBIS server, plese enter the URL and your login details in the space provided below. If you are just curious and want to try out the iPad app, click the "Browse Offline" button to bypass log in.</string>
                                 <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" reversesTitleShadowWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3rW-ET-vQX">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" reversesTitleShadowWhenHighlighted="YES" lineBreakMode="wordWrap" translatesAutoresizingMaskIntoConstraints="NO" id="3rW-ET-vQX">
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="92" id="HFo-et-YQ6"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
-                                <state key="normal" title="Demo">
+                                <state key="normal" title="Browse Offline">
                                     <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -288,6 +290,7 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstAttribute="trailing" secondItem="3rW-ET-vQX" secondAttribute="trailing" constant="93" id="0Wa-cx-Rpu"/>
                             <constraint firstItem="y8r-6g-CzC" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="77" id="0ob-Dv-vCz"/>
                             <constraint firstItem="sWb-wa-6qu" firstAttribute="top" secondItem="LRp-55-gt6" secondAttribute="bottom" constant="8" symbolic="YES" type="user" id="28F-qF-pyr"/>
                             <constraint firstItem="t1Z-Hl-UZu" firstAttribute="trailing" secondItem="156-KK-cHv" secondAttribute="trailing" type="default" id="3Cm-ZJ-4ej"/>
@@ -298,7 +301,6 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
                             <constraint firstItem="156-KK-cHv" firstAttribute="leading" secondItem="IEY-Jd-Yi1" secondAttribute="trailing" constant="8" symbolic="YES" type="default" id="MMa-ki-yYc"/>
                             <constraint firstItem="3rW-ET-vQX" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="125" id="N4K-n3-cea"/>
                             <constraint firstItem="7Aq-O2-MYr" firstAttribute="top" secondItem="y8r-6g-CzC" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="RJ0-gw-cc5"/>
-                            <constraint firstAttribute="trailing" secondItem="3rW-ET-vQX" secondAttribute="trailing" constant="55" id="TbQ-3X-ryq"/>
                             <constraint firstItem="Fv2-LT-eNm" firstAttribute="leading" secondItem="IEY-Jd-Yi1" secondAttribute="leading" type="default" id="W0P-8D-xEd"/>
                             <constraint firstItem="5qJ-y2-Sq5" firstAttribute="top" secondItem="t1Z-Hl-UZu" secondAttribute="bottom" constant="8" symbolic="YES" type="user" id="WCy-gs-2y4"/>
                             <constraint firstItem="Fv2-LT-eNm" firstAttribute="top" secondItem="sWb-wa-6qu" secondAttribute="bottom" constant="8" symbolic="YES" type="user" id="cC5-xK-V5C"/>
