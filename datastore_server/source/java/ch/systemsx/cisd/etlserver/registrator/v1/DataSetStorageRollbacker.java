@@ -108,10 +108,11 @@ public class DataSetStorageRollbacker
         if (errorTypeOrNull != null)
         {
             return "Responding to error [" + errorTypeOrNull + "] by performing action "
-                    + unstoreAction + " on " + incomingDataSetFile;
+                    + unstoreAction + " on " + incomingDataSetFile.getRealIncomingFile();
         } else
         {
-            return "Performing action " + unstoreAction + " on " + incomingDataSetFile;
+            return "Performing action " + unstoreAction + " on "
+                    + incomingDataSetFile.getRealIncomingFile();
         }
     }
 
