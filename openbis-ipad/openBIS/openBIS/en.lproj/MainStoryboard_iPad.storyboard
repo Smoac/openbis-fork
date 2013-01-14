@@ -122,7 +122,7 @@
                                         </view>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="0n2-Cb-rbW"/>
-                                    <barButtonItem image="Zoom-small.png" width="38" id="ZrU-PG-qcH">
+                                    <barButtonItem image="Zoom-small.png" width="38" style="plain" id="ZrU-PG-qcH">
                                         <inset key="imageInsets" minX="0.0" minY="0.0" maxX="0.0" maxY="2"/>
                                         <connections>
                                             <action selector="toggleImageViewMaximization:" destination="4" id="MJw-ZW-Tfx"/>
@@ -203,6 +203,7 @@
                             </textField>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="User" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="IEY-Jd-Yi1">
                                 <constraints>
+                                    <constraint firstAttribute="height" constant="30" type="user" id="9GI-qd-VyX"/>
                                     <constraint firstAttribute="width" constant="166" id="Jtp-1J-Ywx"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -210,6 +211,7 @@
                             </textField>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Password" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="156-KK-cHv">
                                 <constraints>
+                                    <constraint firstAttribute="height" constant="30" type="user" id="3ED-wa-5yJ"/>
                                     <constraint firstAttribute="width" constant="300" id="hMu-HO-BTO"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -217,7 +219,7 @@
                             </textField>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Login" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fv2-LT-eNm">
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="22" id="nEH-LM-o8w"/>
+                                    <constraint firstAttribute="height" constant="22" type="user" id="nEH-LM-o8w"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -263,7 +265,7 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" reversesTitleShadowWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="t1Z-Hl-UZu">
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="44" id="hat-U2-hIZ"/>
+                                    <constraint firstAttribute="height" constant="44" type="user" id="hat-U2-hIZ"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                                 <state key="normal" title="Log In">
@@ -294,21 +296,23 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
                             <constraint firstItem="t1Z-Hl-UZu" firstAttribute="trailing" secondItem="156-KK-cHv" secondAttribute="trailing" type="default" id="3Cm-ZJ-4ej"/>
                             <constraint firstItem="LRp-55-gt6" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="263" type="user" id="4Tt-tZ-zJQ"/>
                             <constraint firstItem="IEY-Jd-Yi1" firstAttribute="baseline" secondItem="156-KK-cHv" secondAttribute="baseline" type="user" id="7HG-Jt-IJz"/>
+                            <constraint firstItem="IEY-Jd-Yi1" firstAttribute="top" secondItem="Fv2-LT-eNm" secondAttribute="bottom" constant="11" type="user" id="BKN-CR-KUd"/>
                             <constraint firstItem="y8r-6g-CzC" firstAttribute="leading" secondItem="RL9-Rf-b7S" secondAttribute="leading" constant="31" id="DtS-bD-LhH"/>
-                            <constraint firstAttribute="bottom" secondItem="t1Z-Hl-UZu" secondAttribute="bottom" constant="307" id="J8t-rT-8nM"/>
-                            <constraint firstItem="IEY-Jd-Yi1" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="362" id="Kjh-AU-ab5"/>
+                            <constraint firstItem="IEY-Jd-Yi1" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="362" type="user" id="Kjh-AU-ab5"/>
                             <constraint firstItem="156-KK-cHv" firstAttribute="leading" secondItem="IEY-Jd-Yi1" secondAttribute="trailing" constant="8" symbolic="YES" type="default" id="MMa-ki-yYc"/>
                             <constraint firstItem="sWb-wa-6qu" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="293" id="OKf-tb-ndc"/>
                             <constraint firstItem="7Aq-O2-MYr" firstAttribute="top" secondItem="y8r-6g-CzC" secondAttribute="bottom" constant="8" symbolic="YES" type="default" id="RJ0-gw-cc5"/>
                             <constraint firstItem="Fv2-LT-eNm" firstAttribute="leading" secondItem="IEY-Jd-Yi1" secondAttribute="leading" type="default" id="W0P-8D-xEd"/>
                             <constraint firstItem="3rW-ET-vQX" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="126" id="bF1-sU-35U"/>
                             <constraint firstItem="5qJ-y2-Sq5" firstAttribute="leading" secondItem="IEY-Jd-Yi1" secondAttribute="leading" type="default" id="diM-o0-wZw"/>
-                            <constraint firstItem="Fv2-LT-eNm" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="329" id="h0H-Uy-I6a"/>
+                            <constraint firstItem="Fv2-LT-eNm" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="329" type="user" id="h0H-Uy-I6a"/>
+                            <constraint firstItem="156-KK-cHv" firstAttribute="top" secondItem="Fv2-LT-eNm" secondAttribute="bottom" constant="11" type="user" id="hfd-gT-q4j"/>
                             <constraint firstItem="Fv2-LT-eNm" firstAttribute="leading" secondItem="sWb-wa-6qu" secondAttribute="leading" type="default" id="iAC-ad-Bwq"/>
                             <constraint firstItem="sWb-wa-6qu" firstAttribute="trailing" secondItem="156-KK-cHv" secondAttribute="trailing" type="default" id="kFD-Ip-DpD"/>
                             <constraint firstItem="LRp-55-gt6" firstAttribute="leading" secondItem="sWb-wa-6qu" secondAttribute="leading" type="default" id="sJ8-Gb-txC"/>
                             <constraint firstItem="7Aq-O2-MYr" firstAttribute="leading" secondItem="LRp-55-gt6" secondAttribute="leading" type="default" id="tgp-P1-o0q"/>
                             <constraint firstAttribute="bottom" secondItem="5qJ-y2-Sq5" secondAttribute="bottom" constant="21" id="tjb-h2-b5S"/>
+                            <constraint firstItem="t1Z-Hl-UZu" firstAttribute="top" secondItem="156-KK-cHv" secondAttribute="bottom" constant="5" type="user" id="xyp-7f-3Dr"/>
                             <constraint firstItem="y8r-6g-CzC" firstAttribute="top" secondItem="RL9-Rf-b7S" secondAttribute="top" constant="76" id="yXB-7i-tkJ"/>
                             <constraint firstItem="7Aq-O2-MYr" firstAttribute="leading" secondItem="y8r-6g-CzC" secondAttribute="leading" type="default" id="ybM-Ej-2gb"/>
                         </constraints>
