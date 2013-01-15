@@ -35,5 +35,8 @@
 // Initialization
 - (id)initWithService:(CISDOBIpadService *)service connectionCall:(CISDOBAsyncCall *)call;
 
+// Actions
+- (void)replaceSessionToken:(NSString *)oldSessionToken with:(NSString *)sessionToken;
+
 @end
 

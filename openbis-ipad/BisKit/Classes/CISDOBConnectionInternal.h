@@ -38,4 +38,16 @@
 // Initialization
 - (id)initWithConnection:(CISDOBConnection *)aConnection method:(NSString *)aString params:(NSArray *)anArray;
 
+// Actions
+- (void)replaceSessionToken:(NSString *)oldSessionToken with:(NSString *)sessionToken;
+@end
+
+
+/**
+ *  \brief An interface with methods that support testing. These methods are used to get the connection into error states. There should be no need to use them outside of testing.
+ */
+@interface CISDOBConnection (CISDOBConnectionTesting)
+
+- (void)setSessionTokenForTesting:(NSString *)bogusSessionToken;
+
 @end

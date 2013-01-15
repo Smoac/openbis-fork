@@ -25,6 +25,7 @@
 #import "CISDOBIpadServiceInternal.h"
 #import "CISDOBConnection.h"
 #import "CISDOBAsyncCall.h"
+#import "CISDOBConnectionInternal.h"
 
 NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 
@@ -239,6 +240,12 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
     self.timeoutInterval = call.timeoutInterval;
     
     return self;
+}
+
+- (void)replaceSessionToken:(NSString *)oldSessionToken with:(NSString *)sessionToken
+{
+    CISDOBConnectionCall *connectionCall = (CISDOBConnectionCall *) _connectionCall;
+    [connectionCall replaceSessionToken: oldSessionToken with: sessionToken];
 }
 
 - (void)start

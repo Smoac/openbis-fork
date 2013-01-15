@@ -316,6 +316,22 @@
     [self checkFindingChildren];
 }
 
+- (void)testInvalidSessionToken
+{
+    [self performLogin];
+    [self performRootLevelCall];
+    
+    // Switch the session token
+    [self.serviceManager.service.connection setSessionTokenForTesting: @"junk"];
+
+    // Get drill information on some entity
+    NSArray *entitiesWithChildren = [self entitiesWithChildren];
+    STAssertTrue([entitiesWithChildren count] > 0, @"There should be some entities with children");    
+    CISDOBIpadEntity *drillEntity = [entitiesWithChildren objectAtIndex: 0];
+    [self performDrill: drillEntity];
+    NSLog(@"Error %@", _callError);
+}
+
 - (void)retrieveRootLevelEntitiesSimulatingRemovalOfEntity:(CISDOBIpadEntity *)entityToRemove
 {
     // Make a root level call, but do have some entities removed from the list

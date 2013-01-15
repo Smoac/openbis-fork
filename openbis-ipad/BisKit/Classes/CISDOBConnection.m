@@ -190,9 +190,28 @@ NSString *const CISDOBConnectionErrorDomain = @"CISDOBConnectionErrorDomain";
     return self;
 }
 
+- (void)replaceSessionToken:(NSString *)oldSessionToken with:(NSString *)sessionToken
+{
+    NSArray *oldParams = self.params;
+    if ([[oldParams objectAtIndex: 0] isEqualToString: oldSessionToken]) {
+        NSMutableArray *params = [oldParams mutableCopy];
+        [params replaceObjectAtIndex: 0 withObject: sessionToken];
+        self.params = params;
+    }
+}
+
 - (void)start
 {
     [_connection executeCall: self];
+}
+
+@end
+
+@implementation CISDOBConnection (CISDOBConnectionTesting)
+
+- (void)setSessionTokenForTesting:(NSString *)bogusSessionToken
+{
+    _sessionToken = bogusSessionToken;
 }
 
 @end

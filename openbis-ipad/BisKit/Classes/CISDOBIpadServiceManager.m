@@ -25,6 +25,7 @@
 #import "CISDOBIpadServiceManager.h"
 #import "CISDOBIpadServiceManagerInternal.h"
 #import "CISDOBIpadService.h"
+#import "CISDOBIpadServiceInternal.h"
 #import "CISDOBIpadEntity.h"
 #import "CISDOBConnection.h"
 
@@ -165,6 +166,41 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     [_queue addOperationWithBlock: syncBlock];
 }
 
+- (BOOL)shouldRetryCall:(CISDOBIpadServiceManagerCall *)managerCall onError:(NSError *)error
+{
+    // We can retry JsonRpc errors caused by invalid session tokens
+    if (![CISOBJsonRpcErrorDomain isEqualToString: error.domain]) return false;
+
+    NSDictionary *jsonErrorObject = [[error userInfo] objectForKey: CISOBJsonRpcErrorObjectKey];
+    if (!jsonErrorObject) return false;
+    NSDictionary *errorData = [jsonErrorObject objectForKey: @"data"];
+    if (!errorData) return false;
+    NSString *exceptionTypeName = [errorData objectForKey: @"exceptionTypeName"];
+    if (!exceptionTypeName) return false;
+    if (![@"ch.systemsx.cisd.common.exceptions.InvalidSessionException" isEqualToString: exceptionTypeName]) return false;
+    
+    return managerCall.retryCount < 1;
+}
+
+- (void)loginAndRetryCall:(CISDOBIpadServiceManagerCall *)managerCall
+{
+    if (!_username || !_password) return;
+    
+    NSString *oldSessionToken = self.service.connection.sessionToken;
+    
+    // Login and then retry the call
+    managerCall.retryCount =  managerCall.retryCount + 1;
+    CISDOBAsyncCall *call = [self.service.connection loginUser: _username password: _password];
+    call.success = ^(id result) {
+        // Fix the session token
+        CISDOBIpadServiceCall *serviceCall = (CISDOBIpadServiceCall *)managerCall.serviceCall;
+        [serviceCall replaceSessionToken: oldSessionToken with: result];
+        [managerCall start];
+    };
+    call.fail = ^(NSError *error) { [managerCall notifyFailure: error]; };
+    [call start];
+}
+
 - (CISDOBIpadServiceManagerCall *)managerCallWrappingServiceCall:(CISDOBAsyncCall *)serviceCall pruning:(BOOL)prune
 {
     CISDOBIpadServiceManagerCall *managerCall = [[CISDOBIpadServiceManagerCall alloc] initWithServiceManager: self serviceCall: serviceCall];
@@ -178,6 +214,11 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     };    
     
     serviceCall.fail = ^(NSError *error) {
+        if ([weakSelf shouldRetryCall: managerCall onError: error]) {
+            [self loginAndRetryCall: managerCall];
+            return;
+        }
+        
         // Check the error -- the server could be unavailable
         if ([NSURLErrorDomain isEqualToString: error.domain] && -1004 == error.code) {
             // "Could not connect to the server"
@@ -197,6 +238,9 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 - (CISDOBAsyncCall *)loginUser:(NSString *)user password:(NSString *)password
 {
     CISDOBAsyncCall *call = [self.service loginUser: user password: password];
+    // Remember the username and password so we can reauthenticate if necessary
+    _username = user;
+    _password = password;
     CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call pruning: NO];
     call.success = ^(id result) { [managerCall notifySuccess: result]; };
     managerCall.willCallNotificationName = CISDOBIpadServiceWillLoginNotification;
@@ -341,6 +385,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     _serviceManager = serviceManager;
     _serviceCall = call;
     self.timeoutInterval = call.timeoutInterval;
+    self.retryCount = 0;
     
     return self;
 }

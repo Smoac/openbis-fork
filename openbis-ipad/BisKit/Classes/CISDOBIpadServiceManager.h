@@ -74,13 +74,15 @@ typedef void (^MocSaveBlock)(CISDOBIpadServiceManager *serviceManager, NSArray *
 @interface CISDOBIpadServiceManager : NSObject
 
 @property (readonly) NSURL *openbisUrl;
-@property (readonly, strong) CISDOBIpadService *service;
-@property (readonly, strong) NSURL *storeUrl;
-@property (readonly, strong) NSManagedObjectContext *managedObjectContext;
-@property (readonly, strong) NSManagedObjectModel *managedObjectModel;
-@property (readonly, strong) NSPersistentStoreCoordinator *persistentStoreCoordinator;
-@property (readonly, strong) NSEntityDescription *ipadEntityDescription;
-@property (readonly, strong) NSOperationQueue *queue;
+@property (readonly) CISDOBIpadService *service;
+@property (readonly) NSString *username;
+@property (readonly) NSString *password;
+@property (readonly) NSURL *storeUrl;
+@property (readonly) NSManagedObjectContext *managedObjectContext;
+@property (readonly) NSManagedObjectModel *managedObjectModel;
+@property (readonly) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+@property (readonly) NSEntityDescription *ipadEntityDescription;
+@property (readonly) NSOperationQueue *queue;
 @property (readonly) NSString *sessionToken;
 @property (nonatomic, getter=isOnline) BOOL online;
 
