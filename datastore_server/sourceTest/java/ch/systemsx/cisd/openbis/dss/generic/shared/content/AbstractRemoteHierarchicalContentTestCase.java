@@ -26,6 +26,8 @@ import org.testng.annotations.BeforeMethod;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
@@ -73,6 +75,8 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
     protected File remoteFile1;
     
     protected File remoteFile2;
+
+    private ITimeProvider timeProvider;
     
     @BeforeMethod
     public void setUpBasicFixture()
@@ -82,6 +86,7 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
         serviceFactory = context.mock(IDssServiceRpcGenericFactory.class);
         remoteDss = context.mock(IDssServiceRpcGeneric.class, "remote DSS");
         pathInfoProvider = context.mock(ISingleDataSetPathInfoProvider.class);
+        timeProvider = new MockTimeProvider(0, 60000);
         workSpace = new File(workingDirectory, "workspace");
         sessionHolder = new OpenBISSessionHolder();
         sessionHolder.setSessionToken(SESSION_TOKEN);
@@ -121,7 +126,8 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
                     }
                 });
         }
-        return new ContentCache(serviceFactory, workSpace, sessionCache, fileOperations);
+        return new ContentCache(serviceFactory, workSpace, sessionCache, fileOperations,
+                timeProvider);
     }
 
 

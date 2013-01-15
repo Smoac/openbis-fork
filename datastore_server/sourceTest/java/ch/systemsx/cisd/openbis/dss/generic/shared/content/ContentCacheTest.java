@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 /**
  * 
@@ -39,12 +40,15 @@ public class ContentCacheTest extends AssertJUnit
     private Mockery context;
 
     private IFileOperations fileOperations;
+
+    private ITimeProvider timeProvider;
     
     @BeforeMethod
     public void setUp()
     {
         context = new Mockery();
         fileOperations = context.mock(IFileOperations.class);
+        timeProvider = context.mock(ITimeProvider.class);
     }
 
     @AfterMethod
@@ -79,7 +83,7 @@ public class ContentCacheTest extends AssertJUnit
         
         context.assertIsSatisfied();
     }
-
+    
     private ContentCache createCache(boolean sessionCache)
     {
         final File workSpace = new File(".");
@@ -93,6 +97,6 @@ public class ContentCacheTest extends AssertJUnit
                     }
                 });
         }
-        return new ContentCache(null, workSpace, sessionCache, fileOperations);
+        return new ContentCache(null, workSpace, sessionCache, fileOperations, timeProvider);
     }
 }

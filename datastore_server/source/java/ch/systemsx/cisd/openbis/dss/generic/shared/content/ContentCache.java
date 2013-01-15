@@ -36,6 +36,8 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SessionWorkspaceUtil;
@@ -67,7 +69,7 @@ public class ContentCache implements IContentCache
             cacheWorkspace = new File(workspacePathOrNull);
         }
         return new ContentCache(new DssServiceRpcGenericFactory(), cacheWorkspace, sessionCache,
-                FileOperations.getInstance());
+                FileOperations.getInstance(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
     
     private final Map<String, Integer> dataSetLocks = new HashMap<String, Integer>();
@@ -80,12 +82,15 @@ public class ContentCache implements IContentCache
 
     private final File workspace;
     
+    private final ITimeProvider timeProvider;
+    
     ContentCache(IDssServiceRpcGenericFactory serviceFactory, File cacheWorkspace,
-            boolean sessionCache, IFileOperations fileOperations)
+            boolean sessionCache, IFileOperations fileOperations, ITimeProvider timeProvider)
     {
         this.serviceFactory = serviceFactory;
         this.workspace = cacheWorkspace;
         this.sessionCache = sessionCache;
+        this.timeProvider = timeProvider;
         if (sessionCache == false)
         {
             fileOperations.removeRecursivelyQueueing(new File(cacheWorkspace, DOWNLOADING_FOLDER));
@@ -147,6 +152,7 @@ public class ContentCache implements IContentCache
             {
                 downloadFile(sessionToken, dataSetLocation, path);
             }
+            file.setLastModified(timeProvider.getTimeInMilliseconds());
             return file;
         } finally
         {

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 
+import static ch.systemsx.cisd.common.utilities.SystemTimeProvider.SYSTEM_TIME_PROVIDER;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -112,7 +113,9 @@ public class RemoteHierarchicalContentNodeTest
                     will(returnValue(remoteDss));
                 }
             });
-        cache = new ContentCache(serviceFactory, SESSION_WORKSPACE_DIR, false, fileOperations);
+        cache =
+                new ContentCache(serviceFactory, SESSION_WORKSPACE_DIR, false, fileOperations,
+                        SYSTEM_TIME_PROVIDER);
     }
 
     @Test
