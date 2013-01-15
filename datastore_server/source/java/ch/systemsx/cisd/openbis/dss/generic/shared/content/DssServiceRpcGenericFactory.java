@@ -19,6 +19,10 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 
@@ -30,6 +34,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
  */
 public class DssServiceRpcGenericFactory implements IDssServiceRpcGenericFactory
 {
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DssServiceRpcGenericFactory.class);
+    
     private final Map<String, IDssServiceRpcGeneric> services =
             new HashMap<String, IDssServiceRpcGeneric>();
 
@@ -44,6 +51,7 @@ public class DssServiceRpcGenericFactory implements IDssServiceRpcGenericFactory
                     HttpInvokerUtils.createServiceStub(IDssServiceRpcGeneric.class, serviceURL,
                             300000);
             services.put(baseURL, service);
+            operationLog.info("DSS remote service created. URL: " + serviceURL);
         }
         return service;
     }
