@@ -103,6 +103,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     _managedObjectModel = [_ipadEntityDescription managedObjectModel];
     
     _queue = [[NSOperationQueue alloc] init];
+    self.online = NO;
     
     return self;
 }
@@ -168,12 +169,22 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 {
     CISDOBIpadServiceManagerCall *managerCall = [[CISDOBIpadServiceManagerCall alloc] initWithServiceManager: self serviceCall: serviceCall];
     
+    __weak CISDOBIpadServiceManager *weakSelf = self;
+    
     serviceCall.success = ^(id result) {
+        weakSelf.online = YES;
         // Update the cache and call the managerCall success when done
-        [self syncEntities: result pruning: prune notifying: managerCall];
+        [weakSelf syncEntities: result pruning: prune notifying: managerCall];
     };    
     
-    serviceCall.fail = ^(NSError *error) { [managerCall notifyFailure: error]; };
+    serviceCall.fail = ^(NSError *error) {
+        // Check the error -- the server could be unavailable
+        if ([NSURLErrorDomain isEqualToString: error.domain] && -1004 == error.code) {
+            // "Could not connect to the server"
+            weakSelf.online = NO;
+        }
+        [managerCall notifyFailure: error];
+    };
     
     return managerCall;
 }

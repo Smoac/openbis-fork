@@ -36,7 +36,7 @@
 @property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 @property (readonly, strong, nonatomic) CISDOBOpenBisModel *rootOpenBisModel;
 @property (readonly, strong, nonatomic) CISDOBIpadServiceManager *serviceManager;
-@property (nonatomic, getter=isOnline) BOOL online;
+@property (readonly, getter=isOnline) BOOL online;
 
 - (NSURL *)applicationDocumentsDirectory;
 

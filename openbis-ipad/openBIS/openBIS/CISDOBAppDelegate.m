@@ -96,6 +96,7 @@
 }
 
 #pragma mark - Online Status
+- (BOOL)isOnline { return self.serviceManager.online; }
 - (void)goOnline { [self initializeOpenBisConnection]; }
 
 #pragma mark - App Startup
@@ -136,22 +137,18 @@
 
 - (void)didConnectToServer
 {
-    self.online = YES;
     CISDOBMasterViewController *controller = [self masterViewController];
     [controller didConnectServiceManager: self.serviceManager];
 }
 
 - (void)serverOffline
 {
-    self.online = NO;
     CISDOBMasterViewController *controller = [self masterViewController];
     [controller didConnectServiceManager: self.serviceManager];
 }
 
 - (void)initializeOpenBisConnection
 {
-    self.online = NO;
-    
     // Initialize the connection to openBIS
     CISDOBAsyncCall *call = [self.serviceManager loginUser: [self username] password: [self password]];
     __weak CISDOBAppDelegate *weakSelf = self;

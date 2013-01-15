@@ -82,7 +82,11 @@ typedef void (^MocSaveBlock)(CISDOBIpadServiceManager *serviceManager, NSArray *
 @property (readonly, strong) NSEntityDescription *ipadEntityDescription;
 @property (readonly, strong) NSOperationQueue *queue;
 @property (readonly) NSString *sessionToken;
+@property (nonatomic, getter=isOnline) BOOL online;
+
+//! Called when the service encounters an authentication challenge
 @property (copy, nonatomic) AuthenticationChallengeBlock authenticationChallengeBlock;
+
 //! Called before the service manager saves the managed object context which will delete the entities with the deletedEntityPermIds
 @property (copy, nonatomic) MocSaveBlock mocSaveBlock;
 
