@@ -337,11 +337,25 @@
     } else if ([CISDOBIpadServiceWillDrillOnEntityNotification isEqualToString: [note name]]) {
         [self setStatusText: @"Retrieving drill information..."];
     } else if ([CISDOBIpadServiceDidDrillOnEntityNotification isEqualToString: [note name]]) {
-        [self clearStatusText];
+        NSError* errorOrNil = [[note userInfo] valueForKey: NSUnderlyingErrorKey];
+        if (errorOrNil) {
+            NSString *description = [[errorOrNil userInfo] valueForKey: NSLocalizedDescriptionKey];
+            NSString *statusText = [NSString stringWithFormat: @"Could not drill :%@", description];
+            [self setStatusText: statusText];
+        } else {
+            [self clearStatusText];
+        }
     } else if ([CISDOBIpadServiceWillRetrieveDetailsForEntityNotification isEqualToString: [note name]]) {
         [self setStatusText: @"Retrieving detail information..."];
     } else if ([CISDOBIpadServiceDidRetrieveDetailsForEntityNotification isEqualToString: [note name]]) {
-        [self clearStatusText];
+        NSError* errorOrNil = [[note userInfo] valueForKey: NSUnderlyingErrorKey];
+        if (errorOrNil) {
+            NSString *description = [[errorOrNil userInfo] valueForKey: NSLocalizedDescriptionKey];
+            NSString *statusText = [NSString stringWithFormat: @"Could not retrieve details :%@", description];
+            [self setStatusText: statusText];
+        } else {
+            [self clearStatusText];
+        }
     }    
 }
 
