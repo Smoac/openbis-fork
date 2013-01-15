@@ -454,11 +454,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     {
         checkPropertiesBusinessRules(sample, cacheOrNull);
         checkExperimentBusinessRules(dataDAO, sample);
-        if (spaceUpdated)
-        {
-            checkParentBusinessRules(sample);
-            checkContainerBusinessRules(sample);
-        }
+        checkParentBusinessRules(sample);
+        checkContainerBusinessRules(sample);
     }
 
     protected void checkPropertiesBusinessRules(SamplePE sample,
