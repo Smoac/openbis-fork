@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
-import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 
 /**
  * @author Franz-Josef Elmer

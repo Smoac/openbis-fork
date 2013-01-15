@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.util;
+package ch.systemsx.cisd.openbis.generic.shared.util;
 
 /**
  * @author Pawel Glyzewski

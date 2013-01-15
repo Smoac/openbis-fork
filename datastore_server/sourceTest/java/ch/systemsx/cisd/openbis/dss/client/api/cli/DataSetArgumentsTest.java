@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.args4j.CmdLineException;
 import ch.systemsx.cisd.args4j.CmdLineParser;
-import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan

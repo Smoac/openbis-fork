@@ -30,11 +30,11 @@ import org.testng.annotations.Test;
 import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
 import com.googlecode.jsonrpc4j.ProxyUtil;
 
+import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
-import ch.systemsx.cisd.openbis.util.TestInstanceHostUtils;
 
 /**
  * Verifies that an instance of {@link IQueryApiServer} is published via JSON-RPC and that it is
