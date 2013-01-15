@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.test.TrackingMockery;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
@@ -111,7 +112,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         @Override
         public IHierarchicalContentProvider cloneFor(ISessionTokenProvider sessionTokenProvider)
         {
-            return null;
+            return this;
         }
     }
 
@@ -417,6 +418,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
         prepareExperimentListExpectations(dataSets);
 
+        final RecordingMatcher<ISessionTokenProvider> sessionTokeProviderMatcher = new RecordingMatcher<ISessionTokenProvider>();
         context.checking(new Expectations()
             {
                 {
@@ -425,6 +427,9 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
                     one(hierarchicalContentProvider).asContent((ExternalData) ds1);
                     will(returnValue(content));
+                    
+                    one(hierarchicalContentProvider).cloneFor(with(sessionTokeProviderMatcher));
+                    will(returnValue(hierarchicalContentProvider));
 
                     IHierarchicalContentNode rootNode =
                             context.mock(IHierarchicalContentNode.class, "root");
@@ -465,6 +470,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
         FtpFile ftpFile = resolver.resolve(path, resolverContext);
 
+        assertEquals(SESSION_TOKEN, sessionTokeProviderMatcher.recordedObject().getSessionToken());
         assertNotNull(ftpFile);
         assertEquals(subPath, ftpFile.getName());
         assertTrue(ftpFile.isFile());

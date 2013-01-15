@@ -30,6 +30,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.io.IOUtilities;
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.DatasetSessionAuthorizer;
@@ -117,7 +119,7 @@ public class DssServiceRpcGenericTest extends AssertJUnit
         final String path = "abc/de";
         prepareLockDataSet(dataSetCode);
         prepareAuthorizationCheck(dataSetCode);
-        prepareGetContent(dataSetCode);
+        RecordingMatcher<ISessionTokenProvider> matcher = prepareGetContent(dataSetCode);
         context.checking(new Expectations()
             {
                 {
@@ -147,6 +149,7 @@ public class DssServiceRpcGenericTest extends AssertJUnit
         FileInfoDssDTO[] files =
                 dssService.listFilesForDataSet(SESSION_TOKEN, dataSetCode, path, true);
 
+        assertEquals(SESSION_TOKEN, matcher.recordedObject().getSessionToken());
         assertEquals(path, files[0].getPathInDataSet());
         assertEquals("main-node", files[0].getPathInListing());
         assertEquals(42L, files[0].getFileSize());
@@ -161,14 +164,14 @@ public class DssServiceRpcGenericTest extends AssertJUnit
         final String path = "abc/de";
         prepareLockDataSet(dataSetCode);
         prepareAuthorizationCheck(dataSetCode);
-        prepareGetContent(dataSetCode);
+        RecordingMatcher<ISessionTokenProvider> matcher = prepareGetContent(dataSetCode);
         context.checking(new Expectations()
             {
                 {
                     IHierarchicalContentNode mainNode = createNodeMock("mainNode");
                     one(content).getNode(path);
                     will(returnValue(mainNode));
-
+                    
                     IHierarchicalContentNode childNode1 = createNodeMock("childNode1");
                     IHierarchicalContentNode childNode1Child1 = createNodeMock("childNode1Child1");
                     IHierarchicalContentNode childNode1Child2 = createNodeMock("childNode1Child2");
@@ -226,6 +229,7 @@ public class DssServiceRpcGenericTest extends AssertJUnit
         FileInfoDssDTO[] dataSets =
                 dssService.listFilesForDataSet(SESSION_TOKEN, dataSetCode, path, true);
 
+        assertEquals(SESSION_TOKEN, matcher.recordedObject().getSessionToken());
         assertEquals(6, dataSets.length);
         assertEquals(fileInfoString(path, "child1", -1, null), dataSets[0].toString());
         assertEquals(fileInfoString(path, "child1/child1", 11, 123), dataSets[1].toString());
@@ -274,16 +278,22 @@ public class DssServiceRpcGenericTest extends AssertJUnit
 
     }
 
-    private void prepareGetContent(final String dataSetCode)
+    private RecordingMatcher<ISessionTokenProvider> prepareGetContent(final String dataSetCode)
     {
+        final RecordingMatcher<ISessionTokenProvider> sessionTokenProviderMatcher =
+                new RecordingMatcher<ISessionTokenProvider>();
         context.checking(new Expectations()
             {
                 {
+                    one(contentProvider).cloneFor(with(sessionTokenProviderMatcher));
+                    will(returnValue(contentProvider));
+
                     one(contentProvider).asContent(dataSetCode);
                     will(returnValue(content));
 
                     one(content).close(); // content should be always closed
                 }
             });
+        return sessionTokenProviderMatcher;
     }
 }
