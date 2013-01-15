@@ -74,15 +74,15 @@ public class UpdateSampleContainmentTest extends BaseTest
         assertThat(componentCandidate, hasContainer(container));
     }
 
-    @Test
-    public void componentCanBeSharedSample() throws Exception
+    @Test(expectedExceptions =
+        { UserFailureException.class })
+    public void componentCantBeSharedSample() throws Exception
     {
         Sample container = create(aSample().inSpace(space));
         Sample componentCandidate = create(aSample());
 
         perform(anUpdateOf(componentCandidate).toHaveContainer(container));
 
-        assertThat(componentCandidate, hasContainer(container));
     }
 
     @Test
