@@ -210,9 +210,11 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
 
                 }
             });
+
         context.checking(new Expectations()
             {
                 {
+
                     allowing(f1id).getDatastoreServerUrl();
                     will(returnValue(URL1));
 
@@ -265,6 +267,16 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         context.checking(new Expectations()
             {
                 {
+                    one(f1id).getDatasetCode();
+                    will(returnValue(DATA_SET1));
+
+                    one(f2id).getDatasetCode();
+                    will(returnValue(DATA_SET2));
+
+                    one(generalInformationService).searchForDataSets(with(equal(SESSION_TOKEN)),
+                            with(new RecordingMatcher<SearchCriteria>()));
+                    will(returnValue(Collections.EMPTY_LIST));
+
                     one(dssService1).listAvailableFeatures(SESSION_TOKEN, Arrays.asList(f1id));
                     will(returnValue(Arrays.asList(new FeatureInformation("f1", "Feature 1",
                             "The first feature."), new FeatureInformation("f2", "Feature 2",
