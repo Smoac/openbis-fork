@@ -140,4 +140,10 @@ public class GridCustomColumnDefinition<T> implements IColumnDefinitionUI<T>
     private GridCustomColumnDefinition()
     {
     }
+
+    @Override
+    public boolean isCustom()
+    {
+        return true;
+    }
 }

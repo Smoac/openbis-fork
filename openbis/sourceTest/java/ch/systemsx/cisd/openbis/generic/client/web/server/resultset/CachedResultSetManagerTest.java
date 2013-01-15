@@ -1154,6 +1154,12 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                     return "a".equals(key) ? "42" : null;
                 }
 
+                @Override
+                public boolean isCustom()
+                {
+                    return false;
+                }
+
             };
     }
 

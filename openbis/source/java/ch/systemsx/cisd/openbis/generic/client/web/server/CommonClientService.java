@@ -119,6 +119,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetapr
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -295,6 +296,21 @@ public final class CommonClientService extends AbstractClientService implements
         // Not directly needed but this refreshes the session.
         String session = getSessionToken();
         final TableExportCriteria<T> exportCriteria = getAndRemoveExportCriteria(exportDataKey);
+
+        // Remove custom column definitions, as they are not needed in export (and are expensive to
+        // calculate).
+        Set<IColumnDefinition<T>> availableColumns = exportCriteria.getAvailableColumns();
+        Set<IColumnDefinition<T>> nonCustomColumns = new HashSet<IColumnDefinition<T>>();
+        for (IColumnDefinition<T> def : availableColumns)
+        {
+            if (def.isCustom() == false)
+            {
+                nonCustomColumns.add(def);
+            }
+        }
+        availableColumns.retainAll(nonCustomColumns);
+        exportCriteria.getColumnDefs().retainAll(nonCustomColumns);
+
         final GridRowModels<T> entities = fetchCachedEntities(exportCriteria);
         EntityKind entityKindForUpdate = exportCriteria.getEntityKindForUpdateOrNull();
         if (entityKindForUpdate != null)

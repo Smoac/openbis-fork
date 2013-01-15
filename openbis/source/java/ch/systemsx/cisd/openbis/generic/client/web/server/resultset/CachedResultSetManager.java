@@ -223,6 +223,12 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                         {
                             throw new UnsupportedOperationException();
                         }
+
+                        @Override
+                        public boolean isCustom()
+                        {
+                            return false;
+                        }
                     });
             }
             this.customColumnsProvider = customColumnsProvider;

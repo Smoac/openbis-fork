@@ -121,4 +121,10 @@ public class TypedTableGridColumnDefinitionUI<T extends Serializable> extends
     {
         return header.tryGetVocabulary();
     }
+
+    @Override
+    public boolean isCustom()
+    {
+        return false;
+    }
 }

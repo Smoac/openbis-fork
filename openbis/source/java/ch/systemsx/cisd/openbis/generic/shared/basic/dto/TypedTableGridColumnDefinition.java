@@ -106,4 +106,10 @@ public class TypedTableGridColumnDefinition<T extends Serializable> implements
         // The check of index is needed because the column is applied to the wrong model
         return index < values.size() ? values.get(index) : null;
     }
+
+    @Override
+    public boolean isCustom()
+    {
+        return false;
+    }
 }
