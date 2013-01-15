@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 import java.io.File;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
+
 /**
  * Utility functions for session workspace.
  *
@@ -32,8 +34,13 @@ public class SessionWorkspaceUtil
 
     public static File getSessionWorkspace(Properties properties)
     {
-        return new File(properties.getProperty(SESSION_WORKSPACE_ROOT_DIR_KEY,
+        File workspace = new File(properties.getProperty(SESSION_WORKSPACE_ROOT_DIR_KEY,
                 SESSION_WORKSPACE_ROOT_DIR_DEFAULT));
+        if (workspace.exists())
+        {
+            QueueingPathRemoverService.removeRecursively(workspace);
+        }
+        return workspace;
 
     }
 }
