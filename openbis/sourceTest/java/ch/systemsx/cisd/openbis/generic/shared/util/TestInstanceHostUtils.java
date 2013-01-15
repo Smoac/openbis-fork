@@ -25,7 +25,7 @@ public class TestInstanceHostUtils
 
     public static int getOpenBISPort()
     {
-        return 8888;
+        return 8800 + getProjectNumber() + 8;
     }
 
     public static String getOpenBISUrl()
@@ -35,7 +35,7 @@ public class TestInstanceHostUtils
 
     public static int getDSSPort()
     {
-        return 8889;
+        return 8800 + getProjectNumber() + 9;
     }
 
     public static String getDSSUrl()
@@ -43,4 +43,21 @@ public class TestInstanceHostUtils
         return OPENBIS_URL + ":" + getDSSPort();
     }
 
+    private static int getProjectNumber()
+    {
+        String projectName = System.getProperty("ant.project.name", "");
+
+        if (projectName.equals("openbis"))
+        {
+            return 0;
+        } else if (projectName.equals("datastore_server"))
+        {
+            return 10;
+        } else if (projectName.equals("screening"))
+        {
+            return 20;
+        }
+
+        return 80;
+    }
 }

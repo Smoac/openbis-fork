@@ -48,7 +48,6 @@ public class QueryApiJsonDssServiceRpcGenericTest extends AbstractQueryFacadeTes
         dssRpcService = JsonDssServiceRpcGenericTest.createDssRpcService();
 
         sessionToken = openbisService.tryToAuthenticateForAllServices("test", "1");
-
     }
 
     @Override

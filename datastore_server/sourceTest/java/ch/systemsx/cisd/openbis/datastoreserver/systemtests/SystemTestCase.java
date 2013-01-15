@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
+import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil.DOWNLOAD_URL_KEY;
 import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil.OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX;
+import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil.SERVER_URL_KEY;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -184,6 +186,15 @@ public abstract class SystemTestCase extends AssertJUnit
                 + DssPropertyParametersUtil.DSS_REGISTRATION_LOG_DIR_PATH, getRegistrationLogDir()
                 .getAbsolutePath());
         System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "dss-rpc.put-default", "test");
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + SERVER_URL_KEY,
+                TestInstanceHostUtils.getOpenBISUrl());
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + "port",
+                Integer.toString(TestInstanceHostUtils.getDSSPort()));
+        System.setProperty(OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX + DOWNLOAD_URL_KEY,
+                TestInstanceHostUtils.getDSSUrl());
+        System.setProperty(SERVER_URL_KEY, TestInstanceHostUtils.getOpenBISUrl());
+        System.setProperty("port", Integer.toString(TestInstanceHostUtils.getDSSPort()));
+        System.setProperty(DOWNLOAD_URL_KEY, TestInstanceHostUtils.getDSSUrl());
 
         QueueingPathRemoverService.start(rootDir, ETLDaemon.shredderQueueFile);
         DataStoreServer.main(new String[0]);
