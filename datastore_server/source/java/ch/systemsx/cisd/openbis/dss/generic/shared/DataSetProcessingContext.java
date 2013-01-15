@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPlug
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
 /**
  * Context for processing data sets by a {@link IProcessingPluginTask}.
@@ -165,6 +166,7 @@ public class DataSetProcessingContext
 
     public IHierarchicalContentProvider getHierarchicalContentProvider()
     {
+        final IHierarchicalContentProvider contentProvider = getContentProvider();
         return new IHierarchicalContentProvider()
             {
 
@@ -172,7 +174,7 @@ public class DataSetProcessingContext
                 public IHierarchicalContent asContent(ExternalData dataSet)
                 {
                     assertAuthorization(dataSet.getCode());
-                    return hierarchicalContentProvider.asContent(dataSet);
+                    return contentProvider.asContent(dataSet);
                 }
 
                 @Override
@@ -180,33 +182,46 @@ public class DataSetProcessingContext
                         throws IllegalArgumentException
                 {
                     assertAuthorization(dataSetCode);
-                    return hierarchicalContentProvider.asContent(dataSetCode);
+                    return contentProvider.asContent(dataSetCode);
                 }
 
                 @SuppressWarnings("deprecation")
                 @Override
                 public IHierarchicalContent asContent(File datasetDirectory)
                 {
-                    return hierarchicalContentProvider.asContent(datasetDirectory);
+                    return contentProvider.asContent(datasetDirectory);
                 }
 
                 @SuppressWarnings("deprecation")
                 @Override
                 public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
                 {
-                    return hierarchicalContentProvider.asContent(datasetLocation);
+                    return contentProvider.asContent(datasetLocation);
                 }
 
                 @Override
                 public IHierarchicalContentProvider cloneFor(
                         ISessionTokenProvider sessionTokenProvider)
                 {
-                    return hierarchicalContentProvider.cloneFor(sessionTokenProvider);
+                    return contentProvider.cloneFor(sessionTokenProvider);
                 }
                 
             };
     }
-    
+
+    private IHierarchicalContentProvider getContentProvider()
+    {
+        if (sessionTokenOrNull == null)
+        {
+            return hierarchicalContentProvider;
+        }
+        OpenBISSessionHolder sessionHolder = new OpenBISSessionHolder();
+        sessionHolder.setSessionToken(sessionTokenOrNull);
+        final IHierarchicalContentProvider contentProvider =
+                hierarchicalContentProvider.cloneFor(sessionHolder);
+        return contentProvider;
+    }
+
     public IHierarchicalContentProvider getHierarchicalContentProviderUnfiltered()
     {
         return hierarchicalContentProvider;
