@@ -47,6 +47,7 @@ import ch.systemsx.cisd.base.mdarray.MDFloatArray;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
+import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.hcs.Location;
 import ch.systemsx.cisd.openbis.common.io.ByteArrayBasedContentNode;
 import ch.systemsx.cisd.openbis.common.io.FileBasedContentNode;
@@ -207,6 +208,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     will(returnValue(imageParameters));
                     allowing(contentProvider).asContent(with(any(String.class)));
                     will(returnValue(null));
+                    allowing(contentProvider).cloneFor(with(any(ISessionTokenProvider.class)));
+                    will(returnValue(contentProvider));
                 }
             });
         testMethodInterceptor = new TestMethodInterceptor(shareIdManager);
