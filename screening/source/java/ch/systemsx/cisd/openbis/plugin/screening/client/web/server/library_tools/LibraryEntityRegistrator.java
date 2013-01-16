@@ -179,10 +179,8 @@ public class LibraryEntityRegistrator
         {
             String wellCode = extractor.getWellCode(row);
             String wellIdentifier = plateId + ":" + wellCode;
-            String oligoMaterialProperty =
-                    oligoId + " (" + ScreeningConstants.SIRNA_PLUGIN_TYPE_NAME + ")";
-            String geneMaterialProperty =
-                    geneId + " (" + ScreeningConstants.GENE_PLUGIN_TYPE_CODE + ")";
+            String oligoMaterialProperty = oligoId;
+            String geneMaterialProperty = geneId;
             saveWell(wellIdentifier, experimentIdentifier, plateId, oligoMaterialProperty,
                     geneMaterialProperty);
         }
