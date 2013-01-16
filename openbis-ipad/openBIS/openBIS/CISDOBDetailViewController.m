@@ -83,13 +83,14 @@
 
 - (void)configureViewProvisionally
 {
-    // We have a detail item which might not be up-to-date. Update the user interface. 
+    // We have a detail item which might not be up-to-date. Update the user interface.
+    [self displayImage: nil];
     [self configureView];
 }
 
 - (void)displayImage:(CISDOBIpadImage *)image
 {
-    if ([image.imageData length] == 0) {
+    if (!image || [image.imageData length] == 0) {
         [self.webView loadHTMLString: @"<html><head></head><body></body></html>" baseURL: nil];
         self.webView.hidden = YES;
         self.webView.scrollView.hidden = YES;
