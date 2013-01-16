@@ -40,7 +40,6 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SessionWorkspaceUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
@@ -58,16 +57,10 @@ public class ContentCache implements IContentCache
 
     public static ContentCache create(Properties properties)
     {
-        String workspacePathOrNull = properties.getProperty(CACHE_WORKSPACE_FOLDER_KEY);
-        boolean sessionCache = workspacePathOrNull == null;
-        File cacheWorkspace;
-        if (sessionCache)
-        {
-            cacheWorkspace = SessionWorkspaceUtil.getSessionWorkspace(properties);
-        } else
-        {
-            cacheWorkspace = new File(workspacePathOrNull);
-        }
+        String workspacePath =
+                properties.getProperty(CACHE_WORKSPACE_FOLDER_KEY, "../../data/dss-cache");
+        boolean sessionCache = workspacePath == null;
+        File cacheWorkspace = new File(workspacePath);
         return new ContentCache(new DssServiceRpcGenericFactory(), cacheWorkspace, sessionCache,
                 FileOperations.getInstance(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
