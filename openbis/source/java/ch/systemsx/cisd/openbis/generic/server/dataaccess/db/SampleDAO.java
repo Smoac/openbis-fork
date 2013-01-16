@@ -476,6 +476,16 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                             "DELETE FROM sample_properties WHERE samp_id IN ("
                                     + "SELECT id FROM samples_all WHERE del_id = :id)";
 
+                    String attachmentContentIdQuery =
+                            "SELECT exac_id FROM attachments WHERE samp_id IN (SELECT id FROM samples_all WHERE del_id = :id)";
+
+                    String attachments =
+                            "DELETE FROM attachments WHERE samp_id IN ("
+                                    + "SELECT id FROM samples_all WHERE del_id = :id)";
+
+                    String attachmentContents =
+                            "DELETE FROM attachment_contents WHERE id IN (:ids)";
+
                     String samples =
                             "DELETE FROM samples_all WHERE del_id = :id";
 
@@ -503,6 +513,23 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                     SQLQuery deleteProperties = session.createSQLQuery(properties);
                     deleteProperties.setParameter("id", deletion.getId());
                     deleteProperties.executeUpdate();
+
+                    SQLQuery getAttachmentContentIds =
+                            session.createSQLQuery(attachmentContentIdQuery);
+                    getAttachmentContentIds.setParameter("id", deletion.getId());
+                    List<Long> attachmentContentIdList = getAttachmentContentIds.list();
+
+                    SQLQuery deleteAttachments = session.createSQLQuery(attachments);
+                    deleteAttachments.setParameter("id", deletion.getId());
+                    deleteAttachments.executeUpdate();
+
+                    if (attachmentContentIdList.size() > 0)
+                    {
+                        SQLQuery deleteAttachmentContents =
+                                session.createSQLQuery(attachmentContents);
+                        deleteAttachmentContents.setParameterList("ids", attachmentContentIdList);
+                        deleteAttachmentContents.executeUpdate();
+                    }
 
                     SQLQuery deleteSamples = session.createSQLQuery(samples);
                     deleteSamples.setParameter("id", deletion.getId());
