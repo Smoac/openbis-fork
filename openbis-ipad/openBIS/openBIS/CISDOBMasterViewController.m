@@ -82,6 +82,11 @@
     return (tableView == self.browseTableView) ? self.browseState : self.filterState;
 }
 
+- (void)refreshTable
+{
+    [self.tableView reloadData];
+}
+
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     if ([[segue identifier] isEqualToString:@"showDetail"]) {

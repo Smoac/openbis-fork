@@ -352,10 +352,12 @@
     }
     
     if (returnToRoot) {
-       UINavigationController *navigationController = self.masterViewController.navigationController;
-       [navigationController popToRootViewControllerAnimated: YES];
-       self.detailViewController.openBisModel = self.rootOpenBisModel;
-       [self.detailViewController selectionDidChange];
+        UINavigationController *navigationController = self.masterViewController.navigationController;
+        [navigationController popToRootViewControllerAnimated: YES];
+
+        [self.masterViewController refreshTable];
+        self.detailViewController.openBisModel = self.rootOpenBisModel;
+        [self.detailViewController selectionDidChange];
     }
 }
 

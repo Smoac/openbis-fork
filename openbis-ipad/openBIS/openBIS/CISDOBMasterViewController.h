@@ -42,6 +42,7 @@
 
 // Table Display
 - (CISDOBTableDisplayState *)displayStateForTable:(UITableView *)tableView;
+- (void)refreshTable;
 
 @end
 
