@@ -32,7 +32,6 @@ import ch.systemsx.cisd.etlserver.registrator.api.impl.SecondaryTransactionFailu
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IJavaDataSetRegistrationDropboxV1;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IJavaDataSetRegistrationDropboxV2;
-import ch.systemsx.cisd.etlserver.registrator.api.v2.JythonAsJavaDataSetRegistrationDropboxV2Wrapper;
 import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
 import ch.systemsx.cisd.etlserver.registrator.v1.JythonTopLevelDataSetHandler.ProgrammableDropboxObjectFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -237,7 +236,8 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
     {
         if (throwable instanceof PyException)
         {
-            return new RuntimeException(throwable.toString());
+            Object value = ((PyException) throwable).value;
+            return new RuntimeException((value == null ? "" : value + "\n") + throwable);
         }
 
         return super.asSerializableException(throwable);
