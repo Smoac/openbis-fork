@@ -190,6 +190,16 @@
     [fetchReqeust setSortDescriptors: sortDescriptors];
 }
 
+- (void)refreshResults
+{
+    NSError *error;
+    if (![self.fetchedResultsController performFetch: &error]) {
+        // TODO Implement error handling
+	    NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+	    abort();
+	}
+}
+
 - (void)initializeRootFetchedResultsController
 {
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
@@ -206,12 +216,7 @@
     aFetchedResultsController.delegate = self;
     self.fetchedResultsController = aFetchedResultsController;
 
-    NSError *error;
-    if (![self.fetchedResultsController performFetch: &error]) {
-        // TODO Implement error handling
-	    NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-	    abort();
-	}
+    [self refreshResults];
 }
 
 - (void)initializeChildFetchedResultsController
@@ -232,12 +237,7 @@
     aFetchedResultsController.delegate = self;
     self.fetchedResultsController = aFetchedResultsController;
     
-	NSError *error = nil;
-	if (![self.fetchedResultsController performFetch:&error]) {
-        // TODO Implement error handling
-	    NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-	    abort();
-	}
+    [self refreshResults];
 }
 
 

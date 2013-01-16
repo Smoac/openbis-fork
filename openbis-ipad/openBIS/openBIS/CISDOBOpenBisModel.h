@@ -50,6 +50,7 @@
 - (NSInteger)numberOfEntitiesInSection:(NSInteger)section;
 - (NSString *)titleForHeaderInSection:(NSInteger)section;
 - (CISDOBIpadEntity *)objectAtIndexPath:(NSIndexPath *)indexPath;
+- (void)refreshResults;
 
 // Selection
 

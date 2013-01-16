@@ -84,6 +84,7 @@
 
 - (void)refreshTable
 {
+    [self.openBisModel refreshResults];
     [self.tableView reloadData];
 }
 
@@ -256,7 +257,7 @@
 - (void)didConnectServiceManager:(CISDOBIpadServiceManager *)serviceManager
 {
     [self.openBisModel syncRootEntities: ^(id result) {
-        [self.tableView reloadData];
+        [self refreshTable];
     }];
 }
 
