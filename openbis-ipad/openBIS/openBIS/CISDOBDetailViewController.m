@@ -250,7 +250,9 @@
 {
     NSDictionary *properties = [self propertiesAtIndexPath: indexPath];
     NSString *label = [properties valueForKey: @"label"];
+    if ([[NSNull null] isEqual: label]) label = @"";
     NSString *value = [properties valueForKey: @"value"];
+    if ([[NSNull null] isEqual: value]) value = @"";
 
     // Font and size obtained from the storyboard
     CGFloat labelFontSize = 12.f;
@@ -291,8 +293,14 @@
     if (!self.detailItem) return;
     NSDictionary *properties;
     properties = [self propertiesAtIndexPath: indexPath];
-    cell.textLabel.text = [properties valueForKey: @"label"];
-    cell.detailTextLabel.text = [properties valueForKey: @"value"];
+
+    NSString *label = [properties valueForKey: @"label"];
+    if ([[NSNull null] isEqual: label]) label = @"";
+    NSString *value = [properties valueForKey: @"value"];
+    if ([[NSNull null] isEqual: value]) value = @"";
+    
+    cell.textLabel.text = label;
+    cell.detailTextLabel.text = value;
 }
 
 #pragma mark - Status Updates
@@ -341,7 +349,7 @@
         NSError* errorOrNil = [[note userInfo] valueForKey: NSUnderlyingErrorKey];
         if (errorOrNil) {
             NSString *description = [[errorOrNil userInfo] valueForKey: NSLocalizedDescriptionKey];
-            NSString *statusText = [NSString stringWithFormat: @"Could not drill :%@", description];
+            NSString *statusText = [NSString stringWithFormat: @"Could not drill: %@", description];
             [self setStatusText: statusText];
         } else {
             [self clearStatusText];
@@ -352,7 +360,7 @@
         NSError* errorOrNil = [[note userInfo] valueForKey: NSUnderlyingErrorKey];
         if (errorOrNil) {
             NSString *description = [[errorOrNil userInfo] valueForKey: NSLocalizedDescriptionKey];
-            NSString *statusText = [NSString stringWithFormat: @"Could not retrieve details :%@", description];
+            NSString *statusText = [NSString stringWithFormat: @"Could not retrieve details: %@", description];
             [self setStatusText: statusText];
         } else {
             [self clearStatusText];
