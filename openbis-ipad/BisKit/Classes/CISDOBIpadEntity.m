@@ -121,9 +121,10 @@ id ObjectFromJsonData(NSString *jsonDataString, NSError **error)
         if ([properties isKindOfClass: [NSDictionary class]])
             properties = [self propertiesArrayFromDictionaryOrError: &error];
 #endif
-
         if (error) {
             NSLog(@"Could not deserialize properties %@", error);
+        } else {
+            [self setPrimitiveValue: properties forKey: @"properties"];
         }
     }
     
