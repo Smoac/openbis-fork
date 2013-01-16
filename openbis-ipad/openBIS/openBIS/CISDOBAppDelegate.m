@@ -289,9 +289,34 @@
 #pragma mark - Authentication Challenges
 - (void)presetDialogForCall:(CISDOBAsyncCall *)call challenge:(NSURLAuthenticationChallenge *)challenge
 {
-    // Just continue if a dialog is already being shown
-    if (_challengeDialog != nil) {
+    // We only handle server trust challenges
+    if (![NSURLAuthenticationMethodServerTrust isEqualToString: challenge.protectionSpace.authenticationMethod]) {
         [challenge.sender continueWithoutCredentialForAuthenticationChallenge: challenge];
+        return;
+    }
+    // Evalute the server trust. If it evaluates to proceed, just proceed
+    SecTrustRef serverTrust = challenge.protectionSpace.serverTrust;
+    SecTrustResultType serverTrustResult = -1;
+    OSStatus err = SecTrustEvaluate(serverTrust, &serverTrustResult);
+    if (errSecSuccess != err) {
+        [challenge.sender continueWithoutCredentialForAuthenticationChallenge: challenge];
+        return;
+    }
+
+    // Only the recoverable trust failure requires user confirmation
+    if (kSecTrustResultRecoverableTrustFailure != serverTrustResult) {
+        [challenge.sender continueWithoutCredentialForAuthenticationChallenge: challenge];
+        return;
+    }
+
+    // A dialog is already being shown
+    if (_challengeDialog != nil) {
+        if (call == _challengeDialog.call) {
+            // If it relates to the same call, bundle this challenge together with the other one
+            [_challengeDialog addChallenge: challenge];
+        } else {
+            [challenge.sender continueWithoutCredentialForAuthenticationChallenge: challenge];
+        }
         return;
     }
     

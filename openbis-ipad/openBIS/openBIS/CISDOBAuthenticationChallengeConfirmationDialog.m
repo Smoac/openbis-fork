@@ -32,6 +32,8 @@
     
     _call = call;
     _challenge = challenge;
+    _challenges = [NSMutableArray array];
+    [_challenges addObject: challenge];
     
     [self initializeAlertView];
     
@@ -52,6 +54,11 @@
         ];
 }
 
+- (void)addChallenge:(NSURLAuthenticationChallenge *)challenge
+{
+    [_challenges addObject: challenge];
+}
+
 - (void)start
 {
     [_alertView show];
@@ -63,9 +70,11 @@
 {
     BOOL didTrust = buttonIndex != alertView.cancelButtonIndex;
     if (didTrust) {
-        [_call trustProtectionSpaceForAuthenticationChallenge: _challenge];
+        for (NSURLAuthenticationChallenge *challenge in _challenges)
+            [_call trustProtectionSpaceForAuthenticationChallenge: challenge];
     } else {
-        [_challenge.sender continueWithoutCredentialForAuthenticationChallenge: _challenge];
+        for (NSURLAuthenticationChallenge *challenge in _challenges)
+            [challenge.sender continueWithoutCredentialForAuthenticationChallenge: challenge];
     }
     
     if (SHOULD_CALL_DELEGATE_SELECTOR(didDismissConfirmationDialog:trusting:)) {

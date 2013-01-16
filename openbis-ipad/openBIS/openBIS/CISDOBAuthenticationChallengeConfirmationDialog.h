@@ -31,13 +31,19 @@
 @private
     UIAlertView         *_alertView;
     CISDOBAsyncCall     *_call;
+        // The challenge that initiated ne need for confirmation.
     NSURLAuthenticationChallenge *_challenge;
+        // Any other challenges that may have come up.
+    NSMutableArray      *_challenges;
 }
 
 //! The delegate gets notified when the dialog has completed
 @property(strong, nonatomic) id delegate;
+@property(readonly) CISDOBAsyncCall *call;
 
 - (id)initWithCall:(CISDOBAsyncCall *)call challenge:(NSURLAuthenticationChallenge *)challenge;
+
+- (void)addChallenge:(NSURLAuthenticationChallenge *)challenge;
 
 // Actions
 - (void)start; //!< Present the dialog and handle the result

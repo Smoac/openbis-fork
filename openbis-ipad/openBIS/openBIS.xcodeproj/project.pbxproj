@@ -16,6 +16,8 @@
 		3687D8FF162D3AB500622690 /* openbis-icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 3687D8FD162D3AB500622690 /* openbis-icon-72.png */; };
 		3687D900162D3AB500622690 /* openbis-icon-144.png in Resources */ = {isa = PBXBuildFile; fileRef = 3687D8FE162D3AB500622690 /* openbis-icon-144.png */; };
 		36BDE60016555869007EC62A /* CISDOBLoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36BDE5FF16555869007EC62A /* CISDOBLoginViewController.m */; };
+		36C5780A16A5958800C21E06 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36C5780716A5954900C21E06 /* Security.framework */; };
+		36C5780B16A5959500C21E06 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36C5780716A5954900C21E06 /* Security.framework */; };
 		36D853DD16A3FE6C00B94F90 /* CISDOBIpadServiceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 362B81EB163FFB6C00127554 /* CISDOBIpadServiceManager.m */; };
 		36F71E79161C3AE900C87277 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E78161C3AE900C87277 /* UIKit.framework */; };
 		36F71E7B161C3AE900C87277 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36F71E7A161C3AE900C87277 /* Foundation.framework */; };
@@ -94,6 +96,7 @@
 		3687D8FE162D3AB500622690 /* openbis-icon-144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "openbis-icon-144.png"; sourceTree = "<group>"; };
 		36BDE5FE16555869007EC62A /* CISDOBLoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBLoginViewController.h; sourceTree = "<group>"; };
 		36BDE5FF16555869007EC62A /* CISDOBLoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBLoginViewController.m; sourceTree = "<group>"; };
+		36C5780716A5954900C21E06 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		36F71E74161C3AE900C87277 /* openBIS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = openBIS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		36F71E78161C3AE900C87277 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		36F71E7A161C3AE900C87277 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -151,6 +154,7 @@
 				36F71E7B161C3AE900C87277 /* Foundation.framework in Frameworks */,
 				36F71E7D161C3AE900C87277 /* CoreGraphics.framework in Frameworks */,
 				36F71E7F161C3AE900C87277 /* CoreData.framework in Frameworks */,
+				36C5780B16A5959500C21E06 /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -171,6 +175,7 @@
 			files = (
 				36F71F16161C4AA000C87277 /* CoreData.framework in Frameworks */,
 				36F71F17161C4AA000C87277 /* Foundation.framework in Frameworks */,
+				36C5780A16A5958800C21E06 /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -211,6 +216,7 @@
 			children = (
 				36F71E78161C3AE900C87277 /* UIKit.framework */,
 				36F71E7A161C3AE900C87277 /* Foundation.framework */,
+				36C5780716A5954900C21E06 /* Security.framework */,
 				36F71E7C161C3AE900C87277 /* CoreGraphics.framework */,
 				36F71E7E161C3AE900C87277 /* CoreData.framework */,
 				36F71EA7161C3AEA00C87277 /* SenTestingKit.framework */,
