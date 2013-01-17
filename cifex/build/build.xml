@@ -47,7 +47,7 @@
 	<target name="dist" description="Makes a distribution file." depends="clean, war">
     <property name="dist.file.name.zip"
               value="${ant.project.name}-${version.number}-r${revision.number}.zip" />
-		<property name="jetty.path" value="${lib}/jetty7" />
+		<property name="jetty.path" value="${lib}/jetty8" />
 		<property name="zipped.dir" value="${dist}/${ant.project.name}" />
 
 		<mkdir dir="${zipped.dir}" />

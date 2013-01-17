@@ -220,7 +220,7 @@
 	<!-- Add libraries to DSS distribution. -->
 	<target name="add-dss-dist-libs">
   	<copy todir="${dist.datastore_server.lib}" flatten="true">
-  		<fileset dir="${lib}/jetty7/lib">
+  		<fileset dir="${lib}/jetty8/lib">
   		  <include name="common/*.jar" />
   		  <include name="server/*.jar" />
   		</fileset>
