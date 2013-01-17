@@ -74,7 +74,7 @@ public final class FullTextIndexerRunnable extends HibernateDaoSupport implement
         // scanning Hibernate mapped entities?
         this.indexedEntityFinder =
                 new PackageBasedIndexedEntityFinder("ch.systemsx.cisd.openbis.generic.shared.dto");
-        operationLog.debug(String.format("Hibernate search context: %s.", context));
+        operationLog.info(String.format("Hibernate search context: %s.", context));
     }
 
     //
