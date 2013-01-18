@@ -21,7 +21,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
-import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext.IHolder;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
