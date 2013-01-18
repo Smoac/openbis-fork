@@ -35,7 +35,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/libraries/jfreechart/jfreechart-1.0.13-javadocs.zip!/jfreechart-1.0.13-javadocs"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-continuation.jar"/>
 	<classpathentry kind="lib" path="/libraries/jline/jline.jar" sourcepath="/libraries/jline/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jai/jai_codec.jar"/>
 	<classpathentry kind="lib" path="/libraries/jai/jai_core.jar"/>
@@ -88,5 +87,6 @@
 	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-server.jar"/>
 	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-servlet.jar" sourcepath="/libraries/jetty8/src/jetty_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/servlet-api-3.0.jar" sourcepath="/libraries/jetty8/src/jetty_src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-continuation.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
