@@ -20,10 +20,12 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstan
 import static ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -31,7 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.http.ssl.SslContextFactory;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
@@ -42,7 +44,6 @@ import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
-import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -307,7 +308,7 @@ public class DataStoreServer
 
         context.addServlet(new ServletHolder(new HttpInvokerServlet(jsonV1ServiceExporter,
                 jsonRpcV1Path)), jsonRpcV1Path);
-        context.addFilter(DssCrossOriginFilter.class, "/*", FilterMapping.ALL);
+        context.addFilter(DssCrossOriginFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
 
         HttpInvokerServiceExporter nameServiceExporter =
                 ServiceProvider.getRpcNameServiceExporter();

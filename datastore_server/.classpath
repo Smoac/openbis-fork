@@ -35,13 +35,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/libraries/jfreechart/jfreechart-1.0.13-javadocs.zip!/jfreechart-1.0.13-javadocs"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-io.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-http.jar" sourcepath="/libraries/jetty7/src/jetty_src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-util.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-server.jar" sourcepath="/libraries/jetty7/src/jetty_src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-servlet.jar" sourcepath="/libraries/jetty7/src/jetty_src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-security.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/servlet-api-2.5.jar"/>
 	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-continuation.jar"/>
 	<classpathentry kind="lib" path="/libraries/jline/jline.jar" sourcepath="/libraries/jline/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jai/jai_codec.jar"/>
@@ -88,5 +81,12 @@
 	<classpathentry kind="lib" path="/libraries/poi/poi.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-fileupload/commons-fileupload.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-collections/commons-collections.jar" sourcepath="/libraries/commons-collections/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/common/jetty-http.jar" sourcepath="/libraries/jetty8/src/jetty_src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/common/jetty-io.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/common/jetty-util.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-security.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-server.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-servlet.jar" sourcepath="/libraries/jetty8/src/jetty_src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/servlet-api-3.0.jar" sourcepath="/libraries/jetty8/src/jetty_src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
