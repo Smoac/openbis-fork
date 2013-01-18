@@ -41,16 +41,16 @@
 	<classpathentry kind="lib" path="/libraries/commons-dbcp/commons-dbcp.jar" sourcepath="/libraries/commons-dbcp/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jline/jline.jar" sourcepath="/libraries/jline/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/gwt-debug-panel/gwt-debug-panel.jar" sourcepath="/gwt-debug-panel-read-only"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-util.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/common/jetty-util.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt-image-loader/gwt-image-loader.jar"/>
 	<classpathentry kind="lib" path="/libraries/mail/mail.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-server.jar" sourcepath="/libraries/jetty7/src/jetty_src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-servlet.jar" sourcepath="/libraries/jetty7/src/jetty_src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/servlet-api-2.5.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-http.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-io.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-continuation.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-security.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-server.jar" sourcepath="/libraries/jetty8/src/jetty_src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-servlet.jar" sourcepath="/libraries/jetty8/src/jetty_src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/servlet-api-3.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/common/jetty-http.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/common/jetty-io.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-continuation.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-security.jar"/>
 	<classpathentry kind="lib" path="/libraries/jython/jython.jar" sourcepath="/libraries/jython/jython_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/gwt2.4/gwt-user.jar"/>
 	<classpathentry kind="lib" path="/libraries/gxt2.2.5/gxt.jar"/>
@@ -79,8 +79,8 @@
 	<classpathentry kind="lib" path="/libraries/poi/poi-ooxml-schemas.jar"/>
 	<classpathentry kind="lib" path="/libraries/poi/poi-ooxml.jar"/>
 	<classpathentry kind="lib" path="/libraries/poi/poi.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-deploy.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-webapp.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-deploy.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-webapp.jar"/>
 	<classpathentry kind="lib" path="/libraries/lucene-queries/lucene-queries.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>

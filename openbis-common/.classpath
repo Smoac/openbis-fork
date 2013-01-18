@@ -18,7 +18,7 @@
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/spring/third-party/stream-supporting-httpinvoker.jar" sourcepath="/libraries/spring/third-party/stream-supporting-httpinvoker-src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/servlet-api-2.5.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/servlet-api-3.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/hibernate-search/jms.jar"/>
 	<classpathentry kind="lib" path="/libraries/eodsql/eodsql.jar" sourcepath="/libraries/eodsql/eodsql_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/gwt2.4/gwt-servlet.jar"/>
@@ -33,13 +33,13 @@
 	<classpathentry kind="lib" path="/libraries/spring/webmvc/spring-webmvc.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring.jar"/>
 	<classpathentry kind="lib" path="/libraries/hibernate-core/hibernate-core.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-http.jar" sourcepath="/libraries/jetty7/src/jetty_src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-io.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/common/jetty-util.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-continuation.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-security.jar"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-server.jar" sourcepath="/libraries/jetty7/src/jetty_src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jetty7/lib/server/jetty-servlet.jar" sourcepath="/libraries/jetty7/src/jetty_src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/common/jetty-http.jar" sourcepath="/libraries/jetty8/src/jetty_src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/common/jetty-io.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/common/jetty-util.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-continuation.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-security.jar"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-server.jar" sourcepath="/libraries/jetty8/src/jetty_src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-servlet.jar" sourcepath="/libraries/jetty8/src/jetty_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-integration.jar"/>
 	<classpathentry kind="lib" path="/libraries/dom4j/dom4j.jar"/>
 	<classpathentry kind="lib" path="/libraries/javassist/javassist.jar" sourcepath="/libraries/javassist/src.zip"/>
