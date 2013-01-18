@@ -192,13 +192,16 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         Query query = null;
 
+        Analyzer chosenAnalyzer = analyzer;
         if (MetaprojectSearch.isMetaprojectField(fieldName))
         {
             String searchTerm =
                     LuceneQueryBuilder.adaptQuery(
                             MetaprojectSearch.getMetaprojectUserQuery(userQuery, userId),
                             useWildcardSearchMode, false);
-            query = LuceneQueryBuilder.parseQuery(fieldName, searchTerm, new IgnoreCaseAnalyzer());
+            query =
+                    LuceneQueryBuilder.parseQuery(fieldName, searchTerm, (chosenAnalyzer =
+                            new IgnoreCaseAnalyzer()));
         } else
         {
             String searchTerm = LuceneQueryBuilder.adaptQuery(userQuery, useWildcardSearchMode);
@@ -216,7 +219,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         hibernateQuery.setFirstResult(0);
         hibernateQuery.setMaxResults(maxResults);
 
-        MyHighlighter highlighter = new MyHighlighter(query, indexReader, analyzer);
+        MyHighlighter highlighter = new MyHighlighter(query, indexReader, chosenAnalyzer);
         hibernateQuery.setResultTransformer(new MatchingEntityResultTransformer(searchableEntity,
                 fieldName, highlighter, dataProvider));
         List<?> list = hibernateQuery.list();
