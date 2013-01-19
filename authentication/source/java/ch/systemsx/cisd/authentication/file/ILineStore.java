@@ -53,4 +53,10 @@ interface ILineStore
      * Writes the <var>lines</var> to the store.
      */
     void writeLines(List<String> lines) throws EnvironmentFailureException;
+
+    /**
+     * Returns <code>true</code> if the lines store has changed on disk since the last time it was
+     * read or written.
+     */
+    boolean hasChanged();
 }

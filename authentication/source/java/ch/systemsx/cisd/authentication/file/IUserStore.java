@@ -34,10 +34,16 @@ interface IUserStore extends ISelfTestable
     String getId();
 
     /**
-     * Returns the {@link UserEntry} of <var>user</var>, or <code>null</code>, if this user does
+     * Returns the {@link UserEntry} of <var>userId</var>, or <code>null</code>, if this user does
      * not exist.
      */
-    UserEntry tryGetUser(String user) throws EnvironmentFailureException;
+    UserEntry tryGetUserById(String userId) throws EnvironmentFailureException;
+    
+    /**
+     * Returns the {@link UserEntry} of <var>email</var>, or <code>null</code>, if this user does
+     * not exist.
+     */
+    UserEntry tryGetUserByEmail(String email) throws EnvironmentFailureException;
     
     /**
      * Adds the <var>user</var> if it exists, otherwise updates (replaces) the entry with the given

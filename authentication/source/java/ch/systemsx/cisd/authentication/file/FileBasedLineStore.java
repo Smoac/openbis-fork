@@ -50,6 +50,8 @@ final class FileBasedLineStore implements ILineStore
     private final File newFile;
 
     private final String fileDescription;
+    
+    private long lastReadTimestamp;
 
     FileBasedLineStore(File file, String fileDescription)
     {
@@ -135,7 +137,9 @@ final class FileBasedLineStore implements ILineStore
         }
         try
         {
-            return primReadLines(file);
+            final List<String> lines = primReadLines(file);
+            lastReadTimestamp = file.lastModified();
+            return lines;
         } catch (IOException ex)
         {
             final String msg =
@@ -182,6 +186,13 @@ final class FileBasedLineStore implements ILineStore
         oldFile.delete();
         file.renameTo(oldFile);
         newFile.renameTo(file);
+        lastReadTimestamp = file.lastModified();
+    }
+
+    @Override
+    public boolean hasChanged()
+    {
+        return file.lastModified() != lastReadTimestamp;
     }
 
 }

@@ -637,4 +637,10 @@ public class CrowdAuthenticationService implements IAuthenticationService
         return false;
     }
 
+    @Override
+    public boolean supportsAuthenticatingByEmail()
+    {
+        return false;
+    }
+
 }

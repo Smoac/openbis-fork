@@ -58,6 +58,12 @@ public interface IAuthenticationService extends ISelfTestable
     public Principal getPrincipal(String user) throws IllegalArgumentException;
 
     /**
+     * Returns <code>true</code> if this authentication service supports authenticating users by
+     * their email address.
+     */
+    public boolean supportsAuthenticatingByEmail();
+
+    /**
      * Returns <code>true</code> if this authentication service supports listing of principals by
      * user id.
      * <p>

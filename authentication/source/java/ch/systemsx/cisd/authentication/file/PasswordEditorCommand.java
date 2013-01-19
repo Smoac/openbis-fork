@@ -106,7 +106,7 @@ public class PasswordEditorCommand
                 case ADD:
                 {
                     final String userId = params.getUserId();
-                    final UserEntry userOrNull = userStore.tryGetUser(userId);
+                    final UserEntry userOrNull = userStore.tryGetUserById(userId);
                     if (userOrNull != null)
                     {
                         System.err.printf("User '%s' already exists.\n", userId);
@@ -129,7 +129,7 @@ public class PasswordEditorCommand
                 case CHANGE:
                 {
                     final String userId = params.getUserId();
-                    final UserEntry userOrNull = userStore.tryGetUser(userId);
+                    final UserEntry userOrNull = userStore.tryGetUserById(userId);
                     if (userOrNull == null)
                     {
                         System.err.printf("User '%s' does not exist.\n", userId);
@@ -180,7 +180,7 @@ public class PasswordEditorCommand
                 case SHOW:
                 {
                     final String userId = params.getUserId();
-                    final UserEntry userOrNull = userStore.tryGetUser(userId);
+                    final UserEntry userOrNull = userStore.tryGetUserById(userId);
                     if (userOrNull == null)
                     {
                         System.err.printf("User '%s' does not exist.\n", userId);
@@ -194,7 +194,7 @@ public class PasswordEditorCommand
                 case TEST:
                 {
                     final String userId = params.getUserId();
-                    final UserEntry userOrNull = userStore.tryGetUser(userId);
+                    final UserEntry userOrNull = userStore.tryGetUserById(userId);
                     if (userOrNull == null)
                     {
                         System.err.printf("User '%s' does not exist.\n", userId);

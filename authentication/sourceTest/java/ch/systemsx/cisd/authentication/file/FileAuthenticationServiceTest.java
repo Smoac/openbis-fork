@@ -92,7 +92,7 @@ public class FileAuthenticationServiceTest
         context.checking(new Expectations()
         {
             {
-                one(userStore).tryGetUser(uid);
+                one(userStore).tryGetUserById(uid);
                 will(returnValue(user));
             }
         });
@@ -107,7 +107,7 @@ public class FileAuthenticationServiceTest
         context.checking(new Expectations()
         {
             {
-                one(userStore).tryGetUser(uid);
+                one(userStore).tryGetUserById(uid);
                 will(returnValue(null));
             }
         });

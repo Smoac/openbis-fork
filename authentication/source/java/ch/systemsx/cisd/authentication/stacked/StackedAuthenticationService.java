@@ -41,6 +41,8 @@ public class StackedAuthenticationService implements IAuthenticationService
     private final boolean supportsListingByEmail;
 
     private final boolean supportsListingByLastName;
+    
+    private final boolean supportsAuthenticatingByEmail;
 
     public StackedAuthenticationService(List<IAuthenticationService> authenticationServices)
     {
@@ -49,17 +51,20 @@ public class StackedAuthenticationService implements IAuthenticationService
         boolean foundSupportsListingByUserId = false;
         boolean foundSupportsListingByEmail = false;
         boolean foundSupportsListingByLastName = false;
+        boolean foundSupportsAuthenticateByEmail = false;
         for (IAuthenticationService service : delegates)
         {
             foundRemote |= service.isRemote();
             foundSupportsListingByUserId |= service.supportsListingByUserId();
             foundSupportsListingByEmail |= service.supportsListingByEmail();
             foundSupportsListingByLastName |= service.supportsListingByLastName();
+            foundSupportsAuthenticateByEmail |= service.supportsAuthenticatingByEmail();
         }
         this.remote = foundRemote;
         this.supportsListingByUserId = foundSupportsListingByUserId;
         this.supportsListingByEmail = foundSupportsListingByEmail;
         this.supportsListingByLastName = foundSupportsListingByLastName;
+        this.supportsAuthenticatingByEmail = foundSupportsAuthenticateByEmail;
     }
 
     @Override
@@ -232,6 +237,12 @@ public class StackedAuthenticationService implements IAuthenticationService
     public boolean supportsListingByUserId()
     {
         return supportsListingByUserId;
+    }
+
+    @Override
+    public boolean supportsAuthenticatingByEmail()
+    {
+        return supportsAuthenticatingByEmail;
     }
 
     @Override

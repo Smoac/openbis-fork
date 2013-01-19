@@ -119,6 +119,8 @@ public class LineBasedUserStoreTest
         context.checking(new Expectations()
             {
                 {
+                    one(lineStore).hasChanged();
+                    will(returnValue(true));
                     one(lineStore).readLines();
                     will(returnValue(lines));
                 }
@@ -138,11 +140,27 @@ public class LineBasedUserStoreTest
         context.checking(new Expectations()
             {
                 {
+                    one(lineStore).hasChanged();
+                    will(returnValue(true));
                     one(lineStore).readLines();
                     will(returnValue(lines));
                 }
             });
-        assertNull(userStore.tryGetUser("uid"));
+        assertNull(userStore.tryGetUserById("uid"));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testTryGetUserFailedNoStoreFile()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(lineStore).hasChanged();
+                    will(returnValue(false));
+                }
+            });
+        assertNull(userStore.tryGetUserById("uid"));
         context.assertIsSatisfied();
     }
 
@@ -157,11 +175,13 @@ public class LineBasedUserStoreTest
         context.checking(new Expectations()
             {
                 {
+                    one(lineStore).hasChanged();
+                    will(returnValue(true));
                     one(lineStore).readLines();
                     will(returnValue(lines));
                 }
             });
-        assertNull(userStore.tryGetUser("non-existent"));
+        assertNull(userStore.tryGetUserById("non-existent"));
         context.assertIsSatisfied();
     }
 
@@ -176,11 +196,13 @@ public class LineBasedUserStoreTest
         context.checking(new Expectations()
             {
                 {
+                    one(lineStore).hasChanged();
+                    will(returnValue(true));
                     one(lineStore).readLines();
                     will(returnValue(lines));
                 }
             });
-        assertEquals(u1, userStore.tryGetUser("uid1"));
+        assertEquals(u1, userStore.tryGetUserById("uid1"));
         context.assertIsSatisfied();
     }
 
@@ -197,6 +219,8 @@ public class LineBasedUserStoreTest
         context.checking(new Expectations()
             {
                 {
+                    one(lineStore).hasChanged();
+                    will(returnValue(true));
                     one(lineStore).readLines();
                     will(returnValue(lines));
                 }
@@ -218,6 +242,8 @@ public class LineBasedUserStoreTest
         context.checking(new Expectations()
             {
                 {
+                    one(lineStore).hasChanged();
+                    will(returnValue(true));
                     one(lineStore).readLines();
                     will(returnValue(lines));
                 }
@@ -234,6 +260,8 @@ public class LineBasedUserStoreTest
         context.checking(new Expectations()
             {
                 {
+                    one(lineStore).hasChanged();
+                    will(returnValue(true));
                     one(lineStore).readLines();
                     will(returnValue(new ArrayList<String>()));
                     one(lineStore).writeLines(Collections.singletonList(userLine));
@@ -253,10 +281,10 @@ public class LineBasedUserStoreTest
         context.checking(new Expectations()
             {
                 {
-                    final List<String> lines = new ArrayList<String>();
-                    lines.add(oldUserLine);
+                    one(lineStore).hasChanged();
+                    will(returnValue(true));
                     one(lineStore).readLines();
-                    will(returnValue(lines));
+                    will(returnValue(Arrays.asList(oldUserLine)));
                     one(lineStore).writeLines(Arrays.asList(oldUserLine, newUserLine));
                 }
             });
@@ -280,11 +308,47 @@ public class LineBasedUserStoreTest
         context.checking(new Expectations()
             {
                 {
+                    one(lineStore).hasChanged();
+                    will(returnValue(true));
                     one(lineStore).readLines();
                     will(returnValue(lines));
                     one(lineStore).writeLines(linesUpdated);
                 }
             });
+        userStore.addOrUpdateUser(u3Updated);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdateUserStoreChanged()
+    {
+        final UserEntry u1 = new UserEntry("uid1", "email1", "first1", "last1", "pwd1");
+        final UserEntry u2 = new UserEntry("uid2", "email2", "first2", "last2", "pwd2");
+        final UserEntry u3 = new UserEntry("uid3", "email3", "first3", "last3", "pwd3");
+        final List<String> linesOld =
+                Arrays.asList(u1.asPasswordLine(), u3.asPasswordLine());
+        final List<String> linesNew =
+                Arrays.asList(u1.asPasswordLine(), u2.asPasswordLine(), u3.asPasswordLine());
+
+        final UserEntry u3Updated = new UserEntry("uid3", "email3U", "first3U", "last3U", "pwd3U");
+        final List<String> linesUpdated =
+                Arrays.asList(u1.asPasswordLine(), u2.asPasswordLine(), u3Updated.asPasswordLine());
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(lineStore).hasChanged();
+                    will(returnValue(true));
+                    one(lineStore).readLines();
+                    will(returnValue(linesOld));
+                    one(lineStore).hasChanged();
+                    will(returnValue(true));
+                    one(lineStore).readLines();
+                    will(returnValue(linesNew));
+                    one(lineStore).writeLines(linesUpdated);
+                }
+            });
+        assertEquals(Arrays.asList(u1, u3), userStore.listUsers());
         userStore.addOrUpdateUser(u3Updated);
         context.assertIsSatisfied();
     }
@@ -305,11 +369,47 @@ public class LineBasedUserStoreTest
         context.checking(new Expectations()
             {
                 {
+                    one(lineStore).hasChanged();
+                    will(returnValue(true));
                     one(lineStore).readLines();
                     will(returnValue(lines));
                     one(lineStore).writeLines(linesUpdated);
                 }
             });
+        userStore.removeUser(uid1);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testRemoveUserStoreChanged()
+    {
+        final String uid1 = "uid1";
+        final UserEntry u1 = new UserEntry(uid1, "email1", "first1", "last1", "pwd1");
+        final UserEntry u2 = new UserEntry("uid2", "email2", "first2", "last2", "pwd2");
+        final UserEntry u3 = new UserEntry("uid3", "email3", "first3", "last3", "pwd3");
+        final List<String> linesOld =
+                new ArrayList<String>(Arrays.asList(u1.asPasswordLine(), u3.asPasswordLine()));
+        final List<String> linesNew =
+                new ArrayList<String>(Arrays.asList(u1.asPasswordLine(), u2.asPasswordLine(), u3
+                        .asPasswordLine()));
+
+        final List<String> linesUpdated = Arrays.asList(u2.asPasswordLine(), u3.asPasswordLine());
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(lineStore).hasChanged();
+                    will(returnValue(true));
+                    one(lineStore).readLines();
+                    will(returnValue(linesOld));
+                    one(lineStore).hasChanged();
+                    will(returnValue(true));
+                    one(lineStore).readLines();
+                    will(returnValue(linesNew));
+                    one(lineStore).writeLines(linesUpdated);
+                }
+            });
+        assertEquals(Arrays.asList(u1, u3), userStore.listUsers());
         userStore.removeUser(uid1);
         context.assertIsSatisfied();
     }
@@ -326,6 +426,8 @@ public class LineBasedUserStoreTest
         context.checking(new Expectations()
             {
                 {
+                    one(lineStore).hasChanged();
+                    will(returnValue(true));
                     one(lineStore).readLines();
                     will(returnValue(lines));
                 }
@@ -344,6 +446,8 @@ public class LineBasedUserStoreTest
         context.checking(new Expectations()
             {
                 {
+                    one(lineStore).hasChanged();
+                    will(returnValue(true));
                     one(lineStore).readLines();
                     will(returnValue(lines));
                     one(lineStore).writeLines(Collections.<String> emptyList());

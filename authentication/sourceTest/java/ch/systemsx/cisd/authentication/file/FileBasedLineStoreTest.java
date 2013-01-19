@@ -82,11 +82,16 @@ public class FileBasedLineStoreTest
         file.delete();
         assertFalse(file.exists());
 
+        assertFalse(store.hasChanged());
         final List<String> lines1 = Arrays.asList("1", "2", "3"); 
         store.writeLines(lines1);
         assertTrue(file.exists());
+        assertFalse(store.hasChanged());
+        file.setLastModified(System.currentTimeMillis() + 1000);
+        assertTrue(store.hasChanged());
         assertEquals(StringUtils.join(lines1, '\n') + "\n", FileUtils.readFileToString(file));
         final List<String> linesRead1 = store.readLines();
+        assertFalse(store.hasChanged());
         assertEquals(lines1, linesRead1);
         assertTrue(svFile.exists());
         assertEquals(0, svFile.length());

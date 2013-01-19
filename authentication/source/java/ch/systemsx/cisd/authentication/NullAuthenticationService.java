@@ -108,6 +108,12 @@ public class NullAuthenticationService implements IAuthenticationService
     }
 
     @Override
+    public boolean supportsAuthenticatingByEmail()
+    {
+        return true;
+    }
+
+    @Override
     public boolean authenticateUser(String user, String password)
     {
         return false;

@@ -158,6 +158,12 @@ public class LDAPAuthenticationService implements IAuthenticationService
     }
 
     @Override
+    public boolean supportsAuthenticatingByEmail()
+    {
+        return true;
+    }
+
+    @Override
     public void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         query.check();

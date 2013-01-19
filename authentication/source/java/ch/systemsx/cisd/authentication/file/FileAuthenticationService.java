@@ -79,9 +79,9 @@ public class FileAuthenticationService implements IAuthenticationService
     }
 
     @Override
-    public boolean authenticateUser(String user, String password)
+    public boolean authenticateUser(String userId, String password)
     {
-        return userStore.isPasswordCorrect(user, password);
+        return userStore.isPasswordCorrect(userId, password);
     }
 
     @Override
@@ -90,54 +90,58 @@ public class FileAuthenticationService implements IAuthenticationService
     {
         return tryGetAndAuthenticateUser(user, passwordOrNull);
     }
-    
+
     @Override
     public Principal tryGetAndAuthenticateUser(String user,
             String passwordOrNull)
     {
-        final UserEntry userOrNull = userStore.tryGetUser(user);
-        if (userOrNull != null)
-        {
-            final Principal principal = userOrNull.asPrincipal();
-            if (passwordOrNull != null)
-            {
-                principal
-                        .setAuthenticated(authenticateUser(user, passwordOrNull));
-            }
-            return principal;
-        } else
-        {
-            return null;
-        }
+        return tryAuthenticateUser(userStore.tryGetUserById(user), passwordOrNull);
     }
 
     @Override
-    public Principal getPrincipal(String applicationToken, String user)
+    public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email,
+            String passwordOrNull)
     {
-        return getPrincipal(user);
-    }
-    
-    @Override
-    public Principal getPrincipal(String user)
-    {
-        final Principal principalOrNull = tryGetAndAuthenticateUser(user, null);
-        if (principalOrNull == null)
-        {
-            throw new IllegalArgumentException("Cannot find user '" + user + "'.");
-        }
-        return principalOrNull;
-    }
-
-    @Override
-    public Principal tryGetAndAuthenticateUserByEmail(String applicationToken, String email, String passwordOrNull)
-    {
-        throw new UnsupportedOperationException();
+        return tryGetAndAuthenticateUserByEmail(email, passwordOrNull);
     }
 
     @Override
     public Principal tryGetAndAuthenticateUserByEmail(String email, String passwordOrNull)
     {
-        throw new UnsupportedOperationException();
+        return tryAuthenticateUser(userStore.tryGetUserByEmail(email), passwordOrNull);
+    }
+
+    private Principal tryAuthenticateUser(final UserEntry userOrNull,
+            String passwordOrNull)
+    {
+        if (userOrNull == null)
+        {
+            return null;
+        }
+        final Principal principal = userOrNull.asPrincipal();
+        if (passwordOrNull != null)
+        {
+            principal
+                    .setAuthenticated(authenticateUser(principal.getUserId(), passwordOrNull));
+        }
+        return principal;
+    }
+
+    @Override
+    public Principal getPrincipal(String applicationToken, String userId)
+    {
+        return getPrincipal(userId);
+    }
+
+    @Override
+    public Principal getPrincipal(String userId)
+    {
+        final Principal principalOrNull = tryGetAndAuthenticateUser(userId, null);
+        if (principalOrNull == null)
+        {
+            throw new IllegalArgumentException("Cannot find user '" + userId + "'.");
+        }
+        return principalOrNull;
     }
 
     @Override
@@ -192,6 +196,12 @@ public class FileAuthenticationService implements IAuthenticationService
     public boolean supportsListingByUserId()
     {
         return false;
+    }
+
+    @Override
+    public boolean supportsAuthenticatingByEmail()
+    {
+        return true;
     }
 
     @Override

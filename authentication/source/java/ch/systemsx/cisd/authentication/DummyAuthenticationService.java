@@ -175,6 +175,12 @@ public final class DummyAuthenticationService implements IAuthenticationService
     }
 
     @Override
+    public boolean supportsAuthenticatingByEmail()
+    {
+        return true;
+    }
+
+    @Override
     public final void check()
     {
         // Always available.

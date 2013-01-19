@@ -17,9 +17,14 @@
 package ch.systemsx.cisd.authentication.file;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
  * A class to read and write {@link UserEntry}.
@@ -28,28 +33,69 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
  */
 final class LineBasedUserStore implements IUserStore
 {
-
     private final ILineStore lineStore;
-    
+
+    private Map<String, UserEntry> idToEntryMap;
+
+    private Map<String, UserEntry> emailToEntryMap;
+
     LineBasedUserStore(final ILineStore lineStore)
     {
         this.lineStore = lineStore;
+        this.idToEntryMap = new LinkedHashMap<String, UserEntry>();
+        this.emailToEntryMap = new LinkedHashMap<String, UserEntry>();
     }
 
-    private UserEntry tryFindUserEntry(String user, List<String> passwordLines)
+    private synchronized Map<String, UserEntry> getIdToEntryMap()
     {
-        assert user != null;
-        assert passwordLines != null;
+        return idToEntryMap;
+    }
 
-        for (String line : passwordLines)
+    private synchronized Map<String, UserEntry> getEmailToEntryMap()
+    {
+        return emailToEntryMap;
+    }
+
+    synchronized void setEntryMaps(Map<String, UserEntry> idToEntryMap,
+            Map<String, UserEntry> emailToEntryMap)
+    {
+        this.idToEntryMap = idToEntryMap;
+        this.emailToEntryMap = emailToEntryMap;
+    }
+
+    private void updateMaps()
+    {
+        if (lineStore.hasChanged())
         {
-            final UserEntry entry = new UserEntry(line);
-            if (user.equals(entry.getUserId()))
+            final Map<String, UserEntry> newIdToEntryMap = new LinkedHashMap<String, UserEntry>();
+            final Map<String, UserEntry> newEmailToEntryMap =
+                    new LinkedHashMap<String, UserEntry>();
+            for (String line : lineStore.readLines())
             {
-                return entry;
+                final UserEntry entry = new UserEntry(line);
+                newIdToEntryMap.put(entry.getUserId(), entry);
+                if (StringUtils.isNotBlank(entry.getEmail()))
+                {
+                    if (newEmailToEntryMap.put(entry.getEmail().toLowerCase(), entry) != null)
+                    {
+                        // Multiple users with the same email
+                        emailToEntryMap.remove(entry.getEmail().toLowerCase());
+                    }
+                }
             }
+            setEntryMaps(newIdToEntryMap, newEmailToEntryMap);
         }
-        return null;
+    }
+
+    private List<String> asPasswordLines()
+    {
+        final Collection<UserEntry> users = getIdToEntryMap().values();
+        final List<String> lines = new ArrayList<String>(users.size());
+        for (UserEntry user : users)
+        {
+            lines.add(user.asPasswordLine());
+        }
+        return lines;
     }
 
     @Override
@@ -59,59 +105,54 @@ final class LineBasedUserStore implements IUserStore
     }
 
     @Override
-    public UserEntry tryGetUser(String user)
+    public UserEntry tryGetUserById(String user)
     {
-        return tryFindUserEntry(user, lineStore.readLines());
+        updateMaps();
+        return getIdToEntryMap().get(user);
     }
 
     @Override
-    public void addOrUpdateUser(UserEntry user)
+    public UserEntry tryGetUserByEmail(String email) throws EnvironmentFailureException
+    {
+        updateMaps();
+        return getEmailToEntryMap().get(email.toLowerCase());
+    }
+
+    @Override
+    public synchronized void addOrUpdateUser(UserEntry user)
     {
         assert user != null;
 
-        final List<String> passwordLines = lineStore.readLines();
-        boolean found = false;
-        for (int i = 0; i < passwordLines.size(); ++i)
+        updateMaps();
+        idToEntryMap.put(user.getUserId(), user);
+        if (StringUtils.isNotBlank(user.getEmail()))
         {
-            final String line = passwordLines.get(i);
-            final UserEntry entry = new UserEntry(line);
-            if (entry.getUserId().equals(user.getUserId()))
+            if (emailToEntryMap.put(user.getEmail().toLowerCase(), user) != null)
             {
-                passwordLines.set(i, user.asPasswordLine());
-                found = true;
-                break;
+                // Multiple users with the same email
+                emailToEntryMap.remove(user.getEmail().toLowerCase());
             }
         }
-        if (found == false)
-        {
-            passwordLines.add(user.asPasswordLine());
-        }
-        lineStore.writeLines(passwordLines);
+        lineStore.writeLines(asPasswordLines());
     }
 
     @Override
-    public boolean removeUser(String userId)
+    public synchronized boolean removeUser(String userId)
     {
         assert userId != null;
 
-        final List<String> passwordLines = lineStore.readLines();
-        boolean found = false;
-        for (int i = 0; i < passwordLines.size(); ++i)
+        updateMaps();
+        final UserEntry oldEntryOrNull = idToEntryMap.remove(userId);
+        if (oldEntryOrNull != null)
         {
-            final String line = passwordLines.get(i);
-            final UserEntry entry = new UserEntry(line);
-            if (userId.equals(entry.getUserId()))
+            if (StringUtils.isNotBlank(oldEntryOrNull.getEmail()))
             {
-                passwordLines.remove(i);
-                found = true;
-                break;
+                emailToEntryMap.remove(oldEntryOrNull.getEmail().toLowerCase());
             }
+            lineStore.writeLines(asPasswordLines());
+            return true;
         }
-        if (found)
-        {
-            lineStore.writeLines(passwordLines);
-        }
-        return found;
+        return false;
     }
 
     @Override
@@ -120,7 +161,7 @@ final class LineBasedUserStore implements IUserStore
         assert user != null;
         assert password != null;
 
-        final UserEntry userEntryOrNull = tryFindUserEntry(user, lineStore.readLines());
+        final UserEntry userEntryOrNull = tryGetUserById(user);
         if (userEntryOrNull == null)
         {
             return false;
@@ -131,13 +172,8 @@ final class LineBasedUserStore implements IUserStore
     @Override
     public List<UserEntry> listUsers()
     {
-        final List<UserEntry> list = new ArrayList<UserEntry>();
-        for (String line : lineStore.readLines())
-        {
-            final UserEntry user = new UserEntry(line);
-            list.add(user);
-        }
-        return list;
+        updateMaps();
+        return new ArrayList<UserEntry>(getIdToEntryMap().values());
     }
 
     /**
