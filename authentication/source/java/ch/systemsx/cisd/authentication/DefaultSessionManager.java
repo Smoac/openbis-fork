@@ -593,16 +593,9 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     {
         final Principal p = authenticationService.tryGetAndAuthenticateUser(user, password);
         if (p == null && tryEmailAsUserName && user.contains("@")
-                && authenticationService.supportsListingByEmail())
+                && authenticationService.supportsAuthenticatingByEmail())
         {
-            for (Principal p2 : authenticationService.listPrincipalsByEmail(user))
-            {
-                if (authenticationService.authenticateUser(p2.getUserId(), password))
-                {
-                    p2.setAuthenticated(true);
-                    return p2;
-                }
-            }
+            return authenticationService.tryGetAndAuthenticateUserByEmail(user, password);
         }
         return p;
     }

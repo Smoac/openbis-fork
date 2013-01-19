@@ -20,8 +20,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
-import java.util.Arrays;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
@@ -169,19 +167,17 @@ public class DefaultSessionManagerTest
         final String user = "bla";
         final String userEmail = "bla@blub.com";
         final Principal sessionPrincipal =
-                new Principal(user, StringUtils.EMPTY, StringUtils.EMPTY, userEmail, false);
+                new Principal(user, StringUtils.EMPTY, StringUtils.EMPTY, userEmail, true);
         prepareRemoteHostSessionFactoryAndPrefixGenerator(user, sessionPrincipal);
         context.checking(new Expectations()
             {
                 {
                     one(authenticationService).tryGetAndAuthenticateUser(userEmail, "blub");
                     will(returnValue(null));
-                    one(authenticationService).supportsListingByEmail();
+                    one(authenticationService).supportsAuthenticatingByEmail();
                     will(returnValue(true));
-                    one(authenticationService).listPrincipalsByEmail(userEmail);
-                    will(returnValue(Arrays.asList(sessionPrincipal)));
-                    one(authenticationService).authenticateUser(user, "blub");
-                    will(returnValue(true));
+                    one(authenticationService).tryGetAndAuthenticateUserByEmail(userEmail, "blub");
+                    will(returnValue(sessionPrincipal));
                 }
             });
 
