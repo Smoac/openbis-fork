@@ -56,7 +56,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 {
     private static final String LOGOUT_PREFIX = "LOGOUT: ";
 
-    private static final String LOGIN_PREFIX = "LOGIN: ";
+    private static final String LOGIN_PREFIX_TEMPLATE = "(%dms) LOGIN: ";
 
     private static final char SESSION_TOKEN_SEPARATOR = '-';
 
@@ -336,11 +336,12 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         return session != null && session.hasExpired();
     }
 
-    private void logAuthenticed(final T session)
+    private void logAuthenticed(final T session, final long timeToLoginMillis)
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(LOGIN_PREFIX + (session.isAnonymous() ? "Anonymous user" : "User")
+            operationLog.info(String.format(LOGIN_PREFIX_TEMPLATE, timeToLoginMillis)
+                    + (session.isAnonymous() ? "Anonymous user" : "User")
                     + " '" + session.getUserName()
                     + "' has been successfully authenticated from host '" + getRemoteHost()
                     + "'. Session token: '" + session.getSessionToken() + "'.");
@@ -349,17 +350,20 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         authenticationLog.info(prefix + ": login");
     }
 
-    private void logFailedAuthentication(final String user)
+    private void logFailedAuthentication(final String user, final long timeToLoginMillis)
     {
-        operationLog.warn(LOGIN_PREFIX + "User '" + user + "' failed to authenticate from host '"
+        operationLog.warn(String.format(LOGIN_PREFIX_TEMPLATE, timeToLoginMillis) + "User '" + user
+                + "' failed to authenticate from host '"
                 + getRemoteHost() + "'.");
         logAuthenticationFailure(user);
     }
 
-    private void logSessionFailure(final String user, final RuntimeException ex)
+    private void logSessionFailure(final String user, final RuntimeException ex,
+            final long timeToLoginMillis)
     {
         logAuthenticationFailure(user);
-        operationLog.error(LOGIN_PREFIX + "Error when trying to authenticate user '" + user + "'.",
+        operationLog.error(String.format(LOGIN_PREFIX_TEMPLATE, timeToLoginMillis)
+                + "Error when trying to authenticate user '" + user + "'.",
                 ex);
     }
 
@@ -516,11 +520,12 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     public String tryToOpenSession(String userID, IPrincipalProvider principalProvider)
     {
         checkIfNotBlank(userID, "user");
+        final long now = System.currentTimeMillis();
         try
         {
             String sessionToken = null;
-            final long now = System.currentTimeMillis();
             final Principal principalOrNull = principalProvider.tryToGetPrincipal(userID);
+            final long timeToLogin = System.currentTimeMillis() - now;
             final boolean isAuthenticated = Principal.isAuthenticated(principalOrNull);
             if (isAuthenticated)
             {
@@ -529,7 +534,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                     final T session =
                             createAndStoreSession(principalOrNull.getUserId(), principalOrNull, now);
                     sessionToken = session.getSessionToken();
-                    logAuthenticed(session);
+                    logAuthenticed(session, timeToLogin);
                 } catch (final IllegalArgumentException ex)
                 {
                     // getPrincipal() of an authenticated user should not fail, if it does, this
@@ -538,12 +543,12 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                 }
             } else
             {
-                logFailedAuthentication(userID);
+                logFailedAuthentication(userID, timeToLogin);
             }
             return sessionToken;
         } catch (final RuntimeException ex)
         {
-            logSessionFailure(userID, ex);
+            logSessionFailure(userID, ex, System.currentTimeMillis() - now);
             throw ex;
         }
 

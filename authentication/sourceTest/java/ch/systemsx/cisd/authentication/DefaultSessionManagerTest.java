@@ -151,7 +151,7 @@ public class DefaultSessionManagerTest
                 "INFO  OPERATION.DefaultSessionManager - Create dummy session monitor"
                         + OSUtilities.LINE_SEPARATOR
                         + "INFO  OPERATION.DefaultSessionManager - "
-                        + "LOGIN: User 'bla' has been successfully authenticated from host 'remote-host'. Session token: '"
+                        + "(0ms) LOGIN: User 'bla' has been successfully authenticated from host 'remote-host'. Session token: '"
                         + token
                         + "'."
                         + OSUtilities.LINE_SEPARATOR
@@ -187,7 +187,7 @@ public class DefaultSessionManagerTest
                 "INFO  OPERATION.DefaultSessionManager - Create dummy session monitor"
                         + OSUtilities.LINE_SEPARATOR
                         + "INFO  OPERATION.DefaultSessionManager - "
-                        + "LOGIN: User 'bla' has been successfully authenticated from host 'remote-host'. Session token: '"
+                        + "(0ms) LOGIN: User 'bla' has been successfully authenticated from host 'remote-host'. Session token: '"
                         + token
                         + "'."
                         + OSUtilities.LINE_SEPARATOR
@@ -217,7 +217,7 @@ public class DefaultSessionManagerTest
         assert null == sessionManager.tryToOpenSession(user, "blub");
         assertEquals(
                 "WARN  OPERATION.DefaultSessionManager - "
-                        + "LOGIN: User 'bla' failed to authenticate from host 'remote-host'."
+                        + "(0ms) LOGIN: User 'bla' failed to authenticate from host 'remote-host'."
                         + OSUtilities.LINE_SEPARATOR
                         + "INFO  AUTH.DefaultSessionManager - [USER:'bla', HOST:'remote-host']: login   ...FAILED",
                 logRecorder.getLogContent());
@@ -345,7 +345,7 @@ public class DefaultSessionManagerTest
                 "INFO  OPERATION.DefaultSessionManager - Create dummy session monitor"
                         + OSUtilities.LINE_SEPARATOR
                         + "INFO  OPERATION.DefaultSessionManager - "
-                        + "LOGIN: User 'u1' has been successfully authenticated from host 'remote-host'. Session token: '"
+                        + "(0ms) LOGIN: User 'u1' has been successfully authenticated from host 'remote-host'. Session token: '"
                         + token
                         + "'."
                         + OSUtilities.LINE_SEPARATOR
