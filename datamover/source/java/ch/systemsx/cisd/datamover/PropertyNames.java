@@ -37,6 +37,10 @@ public final class PropertyNames
 
     static final String DATA_COMPLETED_SCRIPT_TIMEOUT = "data-completed-script-timeout";
 
+    static final String REMOTE_CONNECTION_TIMEOUT = "remote-connection-timeout";
+    
+    static final String REMOTE_OPERATION_TIMEOUT = "remote-operation-timeout";
+
     static final String CLEANSING_REGEX = "cleansing-regex";
 
     /** The local directory where we create additional copy of the incoming data. */

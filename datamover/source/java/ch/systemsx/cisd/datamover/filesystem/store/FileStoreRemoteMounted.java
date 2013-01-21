@@ -57,7 +57,8 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
             final String description, final IFileSysOperationsFactory factory,
             final boolean skipAccessibilityTest, final long lastChangedTimeoutMillis)
     {
-        super(file, description, factory, skipAccessibilityTest);
+        super(file, description, factory, skipAccessibilityTest,
+                DEFAULT_REMOTE_CONNECTION_TIMEOUT_MILLIS);
         this.localImpl = new FileStoreLocal(file, description, factory, skipAccessibilityTest);
         this.localImplMonitored =
                 MonitoringProxy.create(IFileStore.class, localImpl)
@@ -188,7 +189,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
         {
             log(level, message, null);
         }
-        
+
         @Override
         public void log(LogLevel level, String message, Throwable throwableOrNull)
         {

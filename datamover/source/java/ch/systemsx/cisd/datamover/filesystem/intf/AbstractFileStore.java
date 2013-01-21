@@ -42,6 +42,8 @@ import ch.systemsx.cisd.datamover.DatamoverConstants;
  */
 public abstract class AbstractFileStore implements IFileStore
 {
+    public static final long DEFAULT_REMOTE_CONNECTION_TIMEOUT_MILLIS = 20 * 1000L;
+
     private final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark;
 
     private final String kind;
@@ -50,12 +52,15 @@ public abstract class AbstractFileStore implements IFileStore
 
     protected final boolean skipAccessibilityTest;
 
+    protected final long remoteConnectionTimeoutMillis;
+
     protected AbstractFileStore(
             final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark, final String kind,
-            final IFileSysOperationsFactory factory, final boolean skipAccessibilityTest)
+            final IFileSysOperationsFactory factory, final boolean skipAccessibilityTest, final long remoteConnectionTimeoutMillis)
     {
         assert hostAwareFileWithHighwaterMark != null;
         assert kind != null;
+        this.remoteConnectionTimeoutMillis = remoteConnectionTimeoutMillis;
         this.hostAwareFileWithHighwaterMark = hostAwareFileWithHighwaterMark;
         this.kind = kind;
         this.factory = factory;
@@ -163,7 +168,7 @@ public abstract class AbstractFileStore implements IFileStore
                         FileUtilities.checkPathCopier(copier, srcHostOrNull, executableOrNull,
                                 tryGetRsyncModuleName(),
                                 DatamoverConstants.RSYNC_PASSWORD_FILE_INCOMING,
-                                DatamoverConstants.TIMEOUT_REMOTE_CONNECTION_MILLIS);
+                                remoteConnectionTimeoutMillis);
                     }
                     if (destHostOrNull != null)
                     {
@@ -171,7 +176,7 @@ public abstract class AbstractFileStore implements IFileStore
                         FileUtilities.checkPathCopier(copier, destHostOrNull, executableOrNull,
                                 destinationStore.tryGetRsyncModuleName(),
                                 DatamoverConstants.RSYNC_PASSWORD_FILE_OUTGOING,
-                                DatamoverConstants.TIMEOUT_REMOTE_CONNECTION_MILLIS);
+                                remoteConnectionTimeoutMillis);
                     }
                 }
 

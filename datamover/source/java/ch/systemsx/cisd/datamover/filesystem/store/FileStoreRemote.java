@@ -57,9 +57,9 @@ public class FileStoreRemote extends AbstractFileStore
 
     private static final String NO_SUCH_FILE_OR_DIRECTORY_MSG = "No such file or directory";
 
-    public static final long QUICK_SSH_TIMEOUT_MILLIS = 15 * 1000;
+    public static final long DEFAULT_REMOTE_OPERATION_TIMEOUT_MILLIS = 100 * 1000;
 
-    public static final long LONG_SSH_TIMEOUT_MILLIS = 120 * 1000;
+    private final long remoteOperationAndConnectionTimeoutMillis;
 
     // -- bash commands -------------
 
@@ -126,11 +126,13 @@ public class FileStoreRemote extends AbstractFileStore
     public FileStoreRemote(final HostAwareFileWithHighwaterMark fileWithHighwaterMark,
             final String kind, final IFileSysOperationsFactory factory,
             final boolean skipAccessibilityTest, final String remoteFindExecutableOrNull,
-            final String remoteLastchangedExecutableOrNull)
+            final String remoteLastchangedExecutableOrNull,
+            final long remoteConnectionTimeoutMillis, final long remoteOperationTimeoutMillis)
     {
         this(fileWithHighwaterMark, kind, SshCommandExecutor
                 .createSshCommandBuilder(findSSHOrDie(factory)), factory, skipAccessibilityTest,
-                remoteFindExecutableOrNull, remoteLastchangedExecutableOrNull);
+                remoteFindExecutableOrNull, remoteLastchangedExecutableOrNull,
+                remoteConnectionTimeoutMillis, remoteOperationTimeoutMillis);
     }
 
     @Private
@@ -139,13 +141,30 @@ public class FileStoreRemote extends AbstractFileStore
             final IFileSysOperationsFactory factory, final boolean skipAccessibilityTest,
             final String remoteFindExecutableOrNull, final String remoteLastchangedExecutableOrNull)
     {
-        super(hostAwareFileWithHighwaterMark, kind, factory, skipAccessibilityTest);
+        this(hostAwareFileWithHighwaterMark, kind, sshCommandBuilder, factory,
+                skipAccessibilityTest, remoteFindExecutableOrNull,
+                remoteLastchangedExecutableOrNull, DEFAULT_REMOTE_CONNECTION_TIMEOUT_MILLIS,
+                DEFAULT_REMOTE_OPERATION_TIMEOUT_MILLIS);
+    }
+
+    @Private
+    FileStoreRemote(final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark,
+            final String kind, final ISshCommandBuilder sshCommandBuilder,
+            final IFileSysOperationsFactory factory, final boolean skipAccessibilityTest,
+            final String remoteFindExecutableOrNull,
+            final String remoteLastchangedExecutableOrNull,
+            final long remoteConnectionTimeoutMillis, final long remoteOperationTimeoutMillis)
+    {
+        super(hostAwareFileWithHighwaterMark, kind, factory, skipAccessibilityTest,
+                remoteConnectionTimeoutMillis);
         assert hostAwareFileWithHighwaterMark.tryGetHost() != null : "Unspecified host";
         this.sshCommandExecutor =
                 new SshCommandExecutor(sshCommandBuilder,
                         hostAwareFileWithHighwaterMark.tryGetHost());
         this.highwaterMarkWatcher =
                 createHighwaterMarkWatcher(hostAwareFileWithHighwaterMark, sshCommandBuilder);
+        this.remoteOperationAndConnectionTimeoutMillis =
+                remoteOperationTimeoutMillis + remoteConnectionTimeoutMillis;
         setAndLogLastchangedExecutable(remoteLastchangedExecutableOrNull);
         setAndLogFindExecutable(remoteFindExecutableOrNull);
         if (remoteFindExecutableOrNull != null)
@@ -202,7 +221,7 @@ public class FileStoreRemote extends AbstractFileStore
         final String pathString = toUnixPathString(item);
         final String cmd = mkDeleteFileCommand(pathString);
         final ProcessResult result =
-                sshCommandExecutor.executeCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS);
+                sshCommandExecutor.executeCommandRemotely(cmd, remoteConnectionTimeoutMillis);
         final String errMsg = getErrorMessageOrNull(result);
         if (errMsg == null)
         {
@@ -217,7 +236,7 @@ public class FileStoreRemote extends AbstractFileStore
     public final BooleanStatus exists(final StoreItem item)
     {
         final String pathString = toUnixPathString(item);
-        return sshCommandExecutor.exists(pathString, QUICK_SSH_TIMEOUT_MILLIS);
+        return sshCommandExecutor.exists(pathString, remoteConnectionTimeoutMillis);
     }
 
     @Override
@@ -249,7 +268,8 @@ public class FileStoreRemote extends AbstractFileStore
                 mkLastchangedCommand(itemPath, stopWhenFindYoungerMillis, isRelative,
                         remoteLastchangedExecutableOrNull);
         final ProcessResult result =
-                sshCommandExecutor.executeCommandRemotely(cmd, LONG_SSH_TIMEOUT_MILLIS);
+                sshCommandExecutor.executeCommandRemotely(cmd,
+                        remoteOperationAndConnectionTimeoutMillis);
         final String errMsg = getErrorMessageOrNullForLastchanged(result);
         if (errMsg == null)
         {
@@ -269,7 +289,8 @@ public class FileStoreRemote extends AbstractFileStore
         final String findExec = getRemoteFindExecutableOrDie();
         final String cmd = mkFindYoungestModificationTimestampSecCommand(itemPath, findExec);
         final ProcessResult result =
-                sshCommandExecutor.executeCommandRemotely(cmd, LONG_SSH_TIMEOUT_MILLIS);
+                sshCommandExecutor.executeCommandRemotely(cmd,
+                        remoteOperationAndConnectionTimeoutMillis);
         final String errMsg = getErrorMessageOrNullForFind(result);
         if (errMsg == null)
         {
@@ -398,7 +419,8 @@ public class FileStoreRemote extends AbstractFileStore
     {
         final String cmd = mkCheckCommandExistsCommand(findExec);
         final ProcessResult result =
-                sshCommandExecutor.executeCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS, false);
+                sshCommandExecutor
+                        .executeCommandRemotely(cmd, remoteConnectionTimeoutMillis, false);
         if (machineLog.isDebugEnabled())
         {
             result.log();
@@ -408,7 +430,8 @@ public class FileStoreRemote extends AbstractFileStore
             final String findExecutable = result.getOutput().get(0);
             final String verCmd = getVersionCommand(findExec);
             final ProcessResult verResult =
-                    sshCommandExecutor.executeCommandRemotely(verCmd, QUICK_SSH_TIMEOUT_MILLIS,
+                    sshCommandExecutor.executeCommandRemotely(verCmd,
+                            remoteConnectionTimeoutMillis,
                             false);
             if (machineLog.isDebugEnabled())
             {
@@ -456,7 +479,8 @@ public class FileStoreRemote extends AbstractFileStore
     {
         final String cmd = mkCheckCommandExistsCommand(exec);
         final ProcessResult result =
-                sshCommandExecutor.executeCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS, false);
+                sshCommandExecutor.executeCommandRemotely(cmd, remoteConnectionTimeoutMillis
+                        , false);
         if (machineLog.isDebugEnabled())
         {
             result.log();
@@ -508,7 +532,8 @@ public class FileStoreRemote extends AbstractFileStore
     {
         final String simpleCmd = mkListByOldestModifiedCommand(toUnixPathString(null));
         final ProcessResult result =
-                sshCommandExecutor.executeCommandRemotely(simpleCmd, LONG_SSH_TIMEOUT_MILLIS);
+                sshCommandExecutor.executeCommandRemotely(simpleCmd,
+                        remoteOperationAndConnectionTimeoutMillis);
         if (result.isOK())
         {
             return asStoreItems(result.getOutput());

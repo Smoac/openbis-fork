@@ -50,6 +50,7 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
+import ch.systemsx.cisd.datamover.filesystem.store.FileStoreRemote;
 import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
 import ch.systemsx.cisd.datamover.intf.ITimingParameters;
 
@@ -81,6 +82,16 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     @Option(longName = PropertyNames.DATA_COMPLETED_SCRIPT_TIMEOUT, usage = "Timeout (in seconds) after which data completed script will be stopped "
             + "[default: " + DEFAULT_DATA_COMPLETED_SCRIPT_TIMEOUT + "]", handler = MillisecondConversionOptionHandler.class)
     private long dataCompletedScriptTimeout = DEFAULT_DATA_COMPLETED_SCRIPT_TIMEOUT;
+
+    @Option(longName = PropertyNames.REMOTE_CONNECTION_TIMEOUT, usage = "Timeout (in seconds) for a remote connection to be established "
+            + "[default: " + FileStoreRemote.DEFAULT_REMOTE_OPERATION_TIMEOUT_MILLIS / 1000L + "]", handler = MillisecondConversionOptionHandler.class)
+    private long remoteConnectionTimeout =
+            FileStoreRemote.DEFAULT_REMOTE_OPERATION_TIMEOUT_MILLIS / 1000L;
+
+    @Option(longName = PropertyNames.REMOTE_OPERATION_TIMEOUT, usage = "Timeout (in seconds) for a remote operations to complete "
+            + "[default: " + FileStoreRemote.DEFAULT_REMOTE_OPERATION_TIMEOUT_MILLIS / 1000L + "]", handler = MillisecondConversionOptionHandler.class)
+    private long remoteOperationTimeout =
+            FileStoreRemote.DEFAULT_REMOTE_OPERATION_TIMEOUT_MILLIS / 1000L;
 
     /**
      * The name of the <code>rsync</code> executable to use for copy operations.
@@ -471,6 +482,12 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         dataCompletedScriptTimeout =
                 toMillis(PropertyUtils.getPosLong(serviceProperties,
                         PropertyNames.DATA_COMPLETED_SCRIPT_TIMEOUT, dataCompletedScriptTimeout));
+        remoteConnectionTimeout =
+                toMillis(PropertyUtils.getPosLong(serviceProperties,
+                        PropertyNames.REMOTE_CONNECTION_TIMEOUT, remoteConnectionTimeout));
+        remoteOperationTimeout = 
+                toMillis(PropertyUtils.getPosLong(serviceProperties,
+                        PropertyNames.REMOTE_OPERATION_TIMEOUT, remoteOperationTimeout));
         rsyncExecutable =
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.RSYNC_EXECUTABLE,
                         rsyncExecutable);
@@ -615,6 +632,16 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     public final long getDataCompletedScriptTimeout()
     {
         return dataCompletedScriptTimeout;
+    }
+
+    public final long getRemoteConnectionTimeout()
+    {
+        return remoteConnectionTimeout;
+    }
+
+    public final long getRemoteOperationTimeout()
+    {
+        return remoteOperationTimeout;
     }
 
     /**
@@ -777,7 +804,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                     FileStoreFactory.createStore(incomingTarget, INCOMING_KIND_DESC,
                             treatIncomingAsRemote, factory, skipAccessibilityTestOnIncoming,
                             incomingHostFindExecutableOrNull,
-                            incomingHostLastchangedExecutableOrNull, checkIntervalMillis);
+                            incomingHostLastchangedExecutableOrNull, checkIntervalMillis,
+                            remoteConnectionTimeout, remoteOperationTimeout);
         }
         return incomingStore;
     }
@@ -834,7 +862,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             outgoingStore =
                     FileStoreFactory.createStore(outgoingTarget, OUTGOING_KIND_DESC, true, factory,
                             skipAccessibilityTestOnOutgoing, outgoingHostFindExecutableOrNull,
-                            outgoingHostLastchangedExecutableOrNull, checkIntervalMillis);
+                            outgoingHostLastchangedExecutableOrNull, checkIntervalMillis,
+                            remoteConnectionTimeout, remoteOperationTimeout);
         }
         return outgoingStore;
     }
@@ -940,6 +969,10 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                     DurationFormatUtils.formatDuration(getIntervalToWaitAfterFailure(), "s")));
             operationLog.info(String.format("Maximum number of retries: %d.",
                     getMaximalNumberOfRetries()));
+            operationLog.info(String.format("Timeout for remote connections: %s s.",
+                    DurationFormatUtils.formatDuration(getRemoteConnectionTimeout(), "s")));
+            operationLog.info(String.format("Timeout for remote operations: %s s.",
+                    DurationFormatUtils.formatDuration(getRemoteOperationTimeout(), "s")));
             if (tryGetCleansingRegex() != null)
             {
                 operationLog.info(String.format(

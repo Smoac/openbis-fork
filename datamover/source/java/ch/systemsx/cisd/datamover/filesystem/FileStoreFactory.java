@@ -50,10 +50,12 @@ public final class FileStoreFactory
     private static final IFileStore createRemoteHost(final HostAwareFileWithHighwaterMark path,
             final String kind, final IFileSysOperationsFactory factory,
             final boolean skipAccessibilityTest, final String findExecutableOrNull,
-            final String lastchangedExecutableOrNull)
+            final String lastchangedExecutableOrNull, final long remoteConnectionTimeoutMillis,
+            final long remoteOperationTimeoutMillis)
     {
         return new FileStoreRemote(path, kind, factory, skipAccessibilityTest,
-                findExecutableOrNull, lastchangedExecutableOrNull);
+                findExecutableOrNull, lastchangedExecutableOrNull, remoteConnectionTimeoutMillis,
+                remoteOperationTimeoutMillis);
     }
 
     /**
@@ -87,7 +89,9 @@ public final class FileStoreFactory
             final IFileSysOperationsFactory factory)
     {
         return createRemoteHost(new HostAwareFileWithHighwaterMark(host, path, rsyncModuleOrNull),
-                kind, factory, false, null, null);
+                kind, factory, false, null, null,
+                FileStoreRemote.DEFAULT_REMOTE_CONNECTION_TIMEOUT_MILLIS,
+                FileStoreRemote.DEFAULT_REMOTE_OPERATION_TIMEOUT_MILLIS);
     }
 
     /**
@@ -99,19 +103,22 @@ public final class FileStoreFactory
     public final static IFileStore createStore(final HostAwareFileWithHighwaterMark path,
             final String kind, final boolean isRemote, final IFileSysOperationsFactory factory,
             final boolean skipAccessibilityTest, final String findExecutableOrNull,
-            final String lastchangedExecutableOrNull, final long checkIntervalMillis)
+            final String lastchangedExecutableOrNull, final long checkIntervalMillis,
+            final long remoteConnectionTimeoutMillis, final long remoteOperationTimeoutMillis)
     {
         if (path.tryGetHost() != null)
         {
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug(String.format(
-                        "Create %s store for remote host %s, path %s, timeout: %f s.", kind,
-                        path.tryGetHost(), path.getPath(),
-                        FileStoreRemote.LONG_SSH_TIMEOUT_MILLIS / 1000.0));
+                        "Create %s store for remote host %s, path %s, connection timeout: %d s, " +
+                                "operation timeout: %d s.", kind, path.tryGetHost(),
+                        path.getPath(), remoteConnectionTimeoutMillis / 1000,
+                        remoteOperationTimeoutMillis / 1000));
             }
             return createRemoteHost(path, kind, factory, skipAccessibilityTest,
-                    findExecutableOrNull, lastchangedExecutableOrNull);
+                    findExecutableOrNull, lastchangedExecutableOrNull,
+                    remoteConnectionTimeoutMillis, remoteOperationTimeoutMillis);
         } else
         {
             final long timoutMillis = checkIntervalMillis * 3;

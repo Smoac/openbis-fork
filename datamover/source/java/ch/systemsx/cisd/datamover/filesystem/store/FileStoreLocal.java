@@ -67,7 +67,8 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
             final String description, final IFileSysOperationsFactory factory,
             final boolean skipAccessibilityTest)
     {
-        super(hostAwareFileWithHighwaterMark, description, factory, skipAccessibilityTest);
+        super(hostAwareFileWithHighwaterMark, description, factory, skipAccessibilityTest,
+                DEFAULT_REMOTE_CONNECTION_TIMEOUT_MILLIS);
         this.remover = factory.getRemover();
         this.mover = factory.getMover();
         this.highwaterMarkWatcher = createHighwaterMarkWatcher(hostAwareFileWithHighwaterMark);
