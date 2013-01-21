@@ -18,10 +18,14 @@ package ch.systemsx.cisd.authentication.ldap;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * A {@link IAuthenticationService} for LDAP servers.
@@ -31,6 +35,9 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 public class LDAPAuthenticationService implements IAuthenticationService
 {
     private static final String DUMMY_TOKEN_STR = "DUMMY-TOKEN";
+
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, LDAPAuthenticationService.class);
 
     private final LDAPPrincipalQuery query;
 
@@ -54,7 +61,18 @@ public class LDAPAuthenticationService implements IAuthenticationService
     @Override
     public boolean authenticateUser(String user, String password)
     {
-        return query.authenticateUser(user, password);
+        final boolean authenticated = query.authenticateUser(user, password);
+        logAuthentication(user, authenticated);
+        return authenticated;
+    }
+
+    private void logAuthentication(final String user, final boolean authenticated)
+    {
+        if (operationLog.isInfoEnabled())
+        {
+            final String msg = "LDAP: authentication of user '" + user + "': ";
+            operationLog.info(msg + (authenticated ? "SUCCESS." : "FAILED."));
+        }
     }
 
     @Override
@@ -67,7 +85,9 @@ public class LDAPAuthenticationService implements IAuthenticationService
     @Override
     public Principal tryGetAndAuthenticateUser(String user, String passwordOrNull)
     {
-        return query.tryGetAndAuthenticatePrincipal(user, passwordOrNull);
+        final Principal principal = query.tryGetAndAuthenticatePrincipal(user, passwordOrNull);
+        logAuthentication(user, Principal.isAuthenticated(principal));
+        return principal;
     }
 
     @Override
@@ -94,7 +114,7 @@ public class LDAPAuthenticationService implements IAuthenticationService
     {
         return listPrincipalsByEmail(emailQuery);
     }
-    
+
     @Override
     public List<Principal> listPrincipalsByEmail(String emailQuery)
     {
@@ -107,12 +127,15 @@ public class LDAPAuthenticationService implements IAuthenticationService
     {
         return tryGetAndAuthenticateUserByEmail(email, passwordOrNull);
     }
-    
+
     @Override
     public Principal tryGetAndAuthenticateUserByEmail(String email,
             String passwordOrNull)
     {
-        return query.tryGetAndAuthenticatePrincipalByEmail(email, passwordOrNull);
+        final Principal principal = query.tryGetAndAuthenticatePrincipalByEmail(email, passwordOrNull);
+        final String user = (principal != null) ? principal.getUserId() : "email:" + email;
+        logAuthentication(user, Principal.isAuthenticated(principal));
+        return principal;
     }
 
     @Override
@@ -120,7 +143,7 @@ public class LDAPAuthenticationService implements IAuthenticationService
     {
         return listPrincipalsByLastName(lastNameQuery);
     }
-    
+
     @Override
     public List<Principal> listPrincipalsByLastName(String lastNameQuery)
     {
@@ -132,7 +155,7 @@ public class LDAPAuthenticationService implements IAuthenticationService
     {
         return listPrincipalsByUserId(userIdQuery);
     }
-    
+
     @Override
     public List<Principal> listPrincipalsByUserId(String userIdQuery)
     {
