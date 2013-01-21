@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,42 +61,35 @@ public class ContentCache implements IContentCache
     {
         String workspacePath =
                 properties.getProperty(CACHE_WORKSPACE_FOLDER_KEY, "../../data/dss-cache");
-        boolean sessionCache = workspacePath == null;
         File cacheWorkspace = new File(workspacePath);
-        return new ContentCache(new DssServiceRpcGenericFactory(), cacheWorkspace, sessionCache,
+        return new ContentCache(new DssServiceRpcGenericFactory(), cacheWorkspace,
                 FileOperations.getInstance(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
-    
+
     private final Map<String, Integer> dataSetLocks = new HashMap<String, Integer>();
-    
+
     private final LockManager fileLockManager;
-    
+
     private final IDssServiceRpcGenericFactory serviceFactory;
 
-    private final boolean sessionCache;
-
     private final File workspace;
-    
+
     private final ITimeProvider timeProvider;
-    
+
     ContentCache(IDssServiceRpcGenericFactory serviceFactory, File cacheWorkspace,
-            boolean sessionCache, IFileOperations fileOperations, ITimeProvider timeProvider)
+            IFileOperations fileOperations, ITimeProvider timeProvider)
     {
         this.serviceFactory = serviceFactory;
         this.workspace = cacheWorkspace;
-        this.sessionCache = sessionCache;
         this.timeProvider = timeProvider;
-        if (sessionCache == false)
-        {
-            fileOperations.removeRecursivelyQueueing(new File(cacheWorkspace, DOWNLOADING_FOLDER));
-        }
+        fileOperations.removeRecursivelyQueueing(new File(cacheWorkspace, DOWNLOADING_FOLDER));
         fileLockManager = new LockManager();
     }
 
     @Override
     public void lockDataSet(String sessionToken, String dataSetCode)
     {
-        String dataSetPath = createDataSetPath(sessionToken, CACHE_FOLDER, dataSetCode);
+        String dataSetPath = createDataSetPath(CACHE_FOLDER, dataSetCode);
         synchronized (dataSetLocks)
         {
             Integer count = dataSetLocks.get(dataSetPath);
@@ -110,7 +105,7 @@ public class ContentCache implements IContentCache
     @Override
     public void unlockDataSet(String sessionToken, String dataSetCode)
     {
-        String dataSetPath = createDataSetPath(sessionToken, CACHE_FOLDER, dataSetCode);
+        String dataSetPath = createDataSetPath(CACHE_FOLDER, dataSetCode);
         synchronized (dataSetLocks)
         {
             Integer count = dataSetLocks.remove(dataSetPath);
@@ -120,11 +115,11 @@ public class ContentCache implements IContentCache
             }
         }
     }
-    
+
     @Override
     public boolean isDataSetLocked(String sessionToken, String dataSetCode)
     {
-        String dataSetPath = createDataSetPath(sessionToken, CACHE_FOLDER, dataSetCode);
+        String dataSetPath = createDataSetPath(CACHE_FOLDER, dataSetCode);
         synchronized (dataSetLocks)
         {
             return dataSetLocks.containsKey(dataSetPath);
@@ -132,11 +127,9 @@ public class ContentCache implements IContentCache
     }
 
     @Override
-    public File getFile(String sessionToken, IDatasetLocation dataSetLocation,
-            DataSetPathInfo path)
+    public File getFile(String sessionToken, IDatasetLocation dataSetLocation, DataSetPathInfo path)
     {
-        String pathInWorkspace =
-                createPathInWorkspace(sessionToken, CACHE_FOLDER, dataSetLocation, path);
+        String pathInWorkspace = createPathInWorkspace(CACHE_FOLDER, dataSetLocation, path);
         fileLockManager.lock(pathInWorkspace);
         try
         {
@@ -146,7 +139,7 @@ public class ContentCache implements IContentCache
                 downloadFile(sessionToken, dataSetLocation, path);
             }
             File dataSetFolder =
-                    new File(workspace, createDataSetPath(sessionToken, CACHE_FOLDER,
+                    new File(workspace, createDataSetPath(CACHE_FOLDER,
                             dataSetLocation.getDataSetCode()));
             dataSetFolder.setLastModified(timeProvider.getTimeInMilliseconds());
             return file;
@@ -156,8 +149,21 @@ public class ContentCache implements IContentCache
         }
     }
 
-    private void downloadFile(String sessionToken,
-            IDatasetLocation dataSetLocation, DataSetPathInfo path)
+    @Override
+    public InputStream getInputStream(String sessionToken, IDatasetLocation dataSetLocation,
+            DataSetPathInfo path)
+    {
+        try
+        {
+            return new FileInputStream(getFile(sessionToken, dataSetLocation, path));
+        } catch (FileNotFoundException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    private void downloadFile(String sessionToken, IDatasetLocation dataSetLocation,
+            DataSetPathInfo path)
     {
         InputStream input = null;
         try
@@ -169,10 +175,8 @@ public class ContentCache implements IContentCache
             String url =
                     service.getDownloadUrlForFileForDataSet(sessionToken, dataSetCode, relativePath);
             input = createURL(url).openStream();
-            File downloadedFile =
-                    createFileFromInputStream(sessionToken, dataSetLocation, path, input);
-            String pathInWorkspace =
-                    createPathInWorkspace(sessionToken, CACHE_FOLDER, dataSetLocation, path);
+            File downloadedFile = createFileFromInputStream(dataSetLocation, path, input);
+            String pathInWorkspace = createPathInWorkspace(CACHE_FOLDER, dataSetLocation, path);
             File file = new File(workspace, pathInWorkspace);
             createFolder(file.getParentFile());
             downloadedFile.renameTo(file);
@@ -185,23 +189,16 @@ public class ContentCache implements IContentCache
         }
     }
 
-    private String createPathInWorkspace(String sessionToken, String folder,
-            IDatasetLocation dataSetLocation, DataSetPathInfo path)
+    private String createPathInWorkspace(String folder, IDatasetLocation dataSetLocation,
+            DataSetPathInfo path)
     {
         String dataSetCode = dataSetLocation.getDataSetCode();
-        return createDataSetPath(sessionToken, folder, dataSetCode + "/"
-                + path.getRelativePath());
+        return createDataSetPath(folder, dataSetCode + "/" + path.getRelativePath());
     }
 
-    private String createDataSetPath(String sessionToken, String folder,
-            String dataSetCode)
+    private String createDataSetPath(String folder, String dataSetCode)
     {
-        return createPath(sessionToken, folder + "/" + dataSetCode);
-    }
-
-    private String createPath(String sessionToken, String relativePath)
-    {
-        return (sessionCache ? sessionToken + "/dss-cache/" : "") + relativePath;
+        return folder + "/" + dataSetCode;
     }
 
     private URL createURL(String url)
@@ -219,11 +216,11 @@ public class ContentCache implements IContentCache
         }
     }
 
-    private File createFileFromInputStream(String sessionToken,
-            IDatasetLocation dataSetLocation, DataSetPathInfo path, InputStream inputStream)
+    private File createFileFromInputStream(IDatasetLocation dataSetLocation, DataSetPathInfo path,
+            InputStream inputStream)
     {
         String relativePath = DOWNLOADING_FOLDER + "/" + Thread.currentThread().getId();
-        File file = new File(workspace, createPath(sessionToken, relativePath));
+        File file = new File(workspace, relativePath);
         createFolder(file.getParentFile());
         OutputStream ostream = null;
         try
@@ -252,15 +249,16 @@ public class ContentCache implements IContentCache
             }
         }
     }
-    
+
     private static final class LockManager
     {
         private static final class LockWithCounter
         {
             private Lock lock = new ReentrantLock();
+
             private int count;
         }
-        
+
         private final Map<String, LockWithCounter> locks = new HashMap<String, LockWithCounter>();
 
         void lock(String path)
@@ -291,7 +289,7 @@ public class ContentCache implements IContentCache
                 }
             }
         }
-        
+
     }
 
 }

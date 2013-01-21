@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.List;
 
 import org.jmock.Expectations;
 import org.jmock.internal.NamedSequence;
@@ -40,7 +39,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
     @Test
     public void testGetTwoDifferentFilesInSequence() throws Exception
     {
-        ContentCache cache = createCache(true);
+        ContentCache cache = createCache();
         final DataSetPathInfo pathInfo1 = new DataSetPathInfo();
         pathInfo1.setRelativePath(remoteFile1.getName());
         pathInfo1.setDirectory(false);
@@ -69,20 +68,19 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
         File file1 = node1.getFile();
         
         assertEquals(0, file1.getParentFile().lastModified());
-        assertEquals(new File(workSpace, SESSION_TOKEN + "/dss-cache/" + ContentCache.CACHE_FOLDER
+        assertEquals(new File(workSpace, ContentCache.CACHE_FOLDER
                 + "/" + DATA_SET_CODE + "/" + remoteFile1.getName()).getAbsolutePath(),
                 file1.getAbsolutePath());
         assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file1).trim());
         assertEquals(
                 "[]",
                 Arrays.asList(
-                        new File(workSpace, SESSION_TOKEN + "/dss-cache/"
-                                + ContentCache.DOWNLOADING_FOLDER).list()).toString());
+                        new File(workSpace, ContentCache.DOWNLOADING_FOLDER).list()).toString());
         
         File file2 = node2.getFile();
 
         assertEquals(60000, file2.getParentFile().lastModified());
-        assertEquals(new File(workSpace, SESSION_TOKEN + "/dss-cache/" + ContentCache.CACHE_FOLDER
+        assertEquals(new File(workSpace, ContentCache.CACHE_FOLDER
                 + "/" + DATA_SET_CODE + "/" + remoteFile2.getName()).getAbsolutePath(),
                 file2.getAbsolutePath());
         assertEquals(FILE2_CONTENT, FileUtilities.loadToString(file2).trim());
@@ -92,7 +90,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
     @Test
     public void testGetSameFileInSequenceFirstTryFailing() throws Exception
     {
-        ContentCache cache = createCache(false);
+        ContentCache cache = createCache();
         final DataSetPathInfo pathInfo = new DataSetPathInfo();
         pathInfo.setRelativePath(remoteFile1.getName());
         pathInfo.setDirectory(false);
@@ -132,7 +130,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
     @Test
     public void testGetTwoDifferentFilesInTwoThreads() throws Exception
     {
-        ContentCache cache = createCache(false);
+        ContentCache cache = createCache();
         final DataSetPathInfo pathInfo1 = new DataSetPathInfo();
         pathInfo1.setRelativePath(remoteFile1.getName());
         pathInfo1.setDirectory(false);
@@ -211,7 +209,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
     @Test
     public void testGetSameFileInTwoThreads() throws Exception
     {
-        ContentCache cache = createCache(false);
+        ContentCache cache = createCache();
         final DataSetPathInfo pathInfo = new DataSetPathInfo();
         pathInfo.setRelativePath(remoteFile1.getName());
         pathInfo.setDirectory(false);
@@ -275,7 +273,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
     @Test
     public void testGetSameFileInThreeThreads() throws Exception
     {
-        ContentCache cache = createCache(false);
+        ContentCache cache = createCache();
         final DataSetPathInfo pathInfo = new DataSetPathInfo();
         pathInfo.setRelativePath(remoteFile1.getName());
         pathInfo.setDirectory(false);
@@ -356,7 +354,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
     @Test
     public void testGetSameFileInTwoThreadsFirstDownloadFails() throws Exception
     {
-        ContentCache cache = createCache(false);
+        ContentCache cache = createCache();
         final DataSetPathInfo pathInfo = new DataSetPathInfo();
         pathInfo.setRelativePath(remoteFile1.getName());
         pathInfo.setDirectory(false);

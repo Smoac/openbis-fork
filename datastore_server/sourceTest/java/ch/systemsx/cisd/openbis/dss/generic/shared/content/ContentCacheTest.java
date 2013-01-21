@@ -62,7 +62,7 @@ public class ContentCacheTest extends AssertJUnit
     @Test
     public void testDataSetLocking()
     {
-        ContentCache cache = createCache(false);
+        ContentCache cache = createCache();
         
         cache.lockDataSet(SESSION_TOKEN, "DS-1");
         
@@ -84,19 +84,16 @@ public class ContentCacheTest extends AssertJUnit
         context.assertIsSatisfied();
     }
     
-    private ContentCache createCache(boolean sessionCache)
+    private ContentCache createCache()
     {
         final File workSpace = new File(".");
-        if (sessionCache == false)
-        {
-            context.checking(new Expectations()
+        context.checking(new Expectations()
+            {
                 {
-                    {
-                        one(fileOperations).removeRecursivelyQueueing(
-                                new File(workSpace, ContentCache.DOWNLOADING_FOLDER));
-                    }
-                });
-        }
-        return new ContentCache(null, workSpace, sessionCache, fileOperations, timeProvider);
+                    one(fileOperations).removeRecursivelyQueueing(
+                            new File(workSpace, ContentCache.DOWNLOADING_FOLDER));
+                }
+            });
+        return new ContentCache(null, workSpace, fileOperations, timeProvider);
     }
 }

@@ -114,20 +114,16 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
         context.assertIsSatisfied();
     }
 
-    protected ContentCache createCache(boolean sessionCache)
+    protected ContentCache createCache()
     {
-        if (sessionCache == false)
-        {
-            context.checking(new Expectations()
+        context.checking(new Expectations()
+            {
                 {
-                    {
-                        one(fileOperations).removeRecursivelyQueueing(
-                                new File(workSpace, ContentCache.DOWNLOADING_FOLDER));
-                    }
-                });
-        }
-        return new ContentCache(serviceFactory, workSpace, sessionCache, fileOperations,
-                timeProvider);
+                    one(fileOperations).removeRecursivelyQueueing(
+                            new File(workSpace, ContentCache.DOWNLOADING_FOLDER));
+                }
+            });
+        return new ContentCache(serviceFactory, workSpace, fileOperations, timeProvider);
     }
 
 

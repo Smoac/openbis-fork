@@ -35,7 +35,7 @@ public class RemoteHierarchicalContentTest extends AbstractRemoteHierarchicalCon
     @Test
     public void testLockingUnlockingDataSet()
     {
-        ContentCache cache = createCache(false);
+        ContentCache cache = createCache();
         RemoteHierarchicalContent content = createContent(cache);
 
         assertEquals(true, cache.isDataSetLocked(SESSION_TOKEN, DATA_SET_CODE));
@@ -49,7 +49,7 @@ public class RemoteHierarchicalContentTest extends AbstractRemoteHierarchicalCon
     @Test
     public void testGetDefaultRootNode() throws Exception
     {
-        ContentCache cache = createCache(false);
+        ContentCache cache = createCache();
         RemoteHierarchicalContent content = createContent(cache);
 
         context.checking(new Expectations()
@@ -71,7 +71,7 @@ public class RemoteHierarchicalContentTest extends AbstractRemoteHierarchicalCon
     @Test
     public void testGetRootNode() throws Exception
     {
-        ContentCache cache = createCache(false);
+        ContentCache cache = createCache();
         RemoteHierarchicalContent content = createContent(cache);
         
         context.checking(new Expectations()

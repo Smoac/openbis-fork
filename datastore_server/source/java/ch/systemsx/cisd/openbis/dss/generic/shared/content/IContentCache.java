@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 
 import java.io.File;
+import java.io.InputStream;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -36,5 +37,8 @@ public interface IContentCache
     public boolean isDataSetLocked(String sessionToken, String dataSetCode);
 
     public File getFile(String sessionToken, IDatasetLocation dataSetLocation, DataSetPathInfo path);
+
+    public InputStream getInputStream(String sessionToken, IDatasetLocation dataSetLocation,
+            DataSetPathInfo path);
 
 }

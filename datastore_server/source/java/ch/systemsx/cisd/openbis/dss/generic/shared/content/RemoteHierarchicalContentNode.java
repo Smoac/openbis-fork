@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -204,13 +202,6 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
     @Override
     public InputStream getInputStream() throws UnsupportedOperationException, IOExceptionUnchecked
     {
-        File f = getFile();
-        try
-        {
-            return new FileInputStream(f);
-        } catch (FileNotFoundException ex)
-        {
-            throw new IOExceptionUnchecked(ex);
-        }
+        return cache.getInputStream(sessionTokenProvider.getSessionToken(), dataSetLocation, path);
     }
 }

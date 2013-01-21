@@ -114,8 +114,7 @@ public class RemoteHierarchicalContentNodeTest
                 }
             });
         cache =
-                new ContentCache(serviceFactory, SESSION_WORKSPACE_DIR, false, fileOperations,
-                        SYSTEM_TIME_PROVIDER);
+                new ContentCache(serviceFactory, SESSION_WORKSPACE_DIR, fileOperations, SYSTEM_TIME_PROVIDER);
     }
 
     @Test
