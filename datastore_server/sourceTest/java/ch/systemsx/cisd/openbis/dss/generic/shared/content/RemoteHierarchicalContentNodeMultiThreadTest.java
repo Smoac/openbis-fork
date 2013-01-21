@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 import org.jmock.Expectations;
 import org.jmock.internal.NamedSequence;
@@ -65,17 +67,24 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
             });
 
         File file1 = node1.getFile();
-        File file2 = node2.getFile();
-
+        
+        assertEquals(0, file1.getParentFile().lastModified());
         assertEquals(new File(workSpace, SESSION_TOKEN + "/dss-cache/" + ContentCache.CACHE_FOLDER
                 + "/" + DATA_SET_CODE + "/" + remoteFile1.getName()).getAbsolutePath(),
                 file1.getAbsolutePath());
-        assertEquals(0, file1.lastModified());
         assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file1).trim());
+        assertEquals(
+                "[]",
+                Arrays.asList(
+                        new File(workSpace, SESSION_TOKEN + "/dss-cache/"
+                                + ContentCache.DOWNLOADING_FOLDER).list()).toString());
+        
+        File file2 = node2.getFile();
+
+        assertEquals(60000, file2.getParentFile().lastModified());
         assertEquals(new File(workSpace, SESSION_TOKEN + "/dss-cache/" + ContentCache.CACHE_FOLDER
                 + "/" + DATA_SET_CODE + "/" + remoteFile2.getName()).getAbsolutePath(),
                 file2.getAbsolutePath());
-        assertEquals(60000, file2.lastModified());
         assertEquals(FILE2_CONTENT, FileUtilities.loadToString(file2).trim());
         context.assertIsSatisfied();
     }
@@ -254,11 +263,10 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
 
         File file1 = fileRunnable1.tryGetResult();
         File file2 = fileRunnable2.tryGetResult();
-        assertEquals(60000, file1.lastModified());
+        assertEquals(60000, file1.getParentFile().lastModified());
         assertEquals(new File(workSpace, ContentCache.CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
                 + remoteFile1.getName()).getAbsolutePath(), file1.getAbsolutePath());
         assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file1).trim());
-        assertEquals(60000, file2.lastModified());
         assertEquals(file1, file2);
         context.assertIsSatisfied();
     }
@@ -338,12 +346,10 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
         File file3 = fileRunnable3.tryGetResult();
         assertEquals(new File(workSpace, ContentCache.CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
                 + remoteFile1.getName()).getAbsolutePath(), file1.getAbsolutePath());
-        assertEquals(120000, file1.lastModified());
+        assertEquals(120000, file1.getParentFile().lastModified());
         assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file1).trim());
         assertEquals(file1, file2);
-        assertEquals(120000, file2.lastModified());
         assertEquals(file1, file3);
-        assertEquals(120000, file3.lastModified());
         context.assertIsSatisfied();
     }
     

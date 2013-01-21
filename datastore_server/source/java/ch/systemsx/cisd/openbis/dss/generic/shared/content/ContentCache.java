@@ -145,7 +145,10 @@ public class ContentCache implements IContentCache
             {
                 downloadFile(sessionToken, dataSetLocation, path);
             }
-            file.setLastModified(timeProvider.getTimeInMilliseconds());
+            File dataSetFolder =
+                    new File(workspace, createDataSetPath(sessionToken, CACHE_FOLDER,
+                            dataSetLocation.getDataSetCode()));
+            dataSetFolder.setLastModified(timeProvider.getTimeInMilliseconds());
             return file;
         } finally
         {
@@ -186,14 +189,19 @@ public class ContentCache implements IContentCache
             IDatasetLocation dataSetLocation, DataSetPathInfo path)
     {
         String dataSetCode = dataSetLocation.getDataSetCode();
-        return createDataSetPath(sessionToken, folder, dataSetCode) + "/"
-                + path.getRelativePath();
+        return createDataSetPath(sessionToken, folder, dataSetCode + "/"
+                + path.getRelativePath());
     }
 
     private String createDataSetPath(String sessionToken, String folder,
             String dataSetCode)
     {
-        return (sessionCache ? sessionToken + "/dss-cache/" : "") + folder + "/" + dataSetCode;
+        return createPath(sessionToken, folder + "/" + dataSetCode);
+    }
+
+    private String createPath(String sessionToken, String relativePath)
+    {
+        return (sessionCache ? sessionToken + "/dss-cache/" : "") + relativePath;
     }
 
     private URL createURL(String url)
@@ -214,9 +222,8 @@ public class ContentCache implements IContentCache
     private File createFileFromInputStream(String sessionToken,
             IDatasetLocation dataSetLocation, DataSetPathInfo path, InputStream inputStream)
     {
-        File file =
-                new File(workspace, createPathInWorkspace(sessionToken, DOWNLOADING_FOLDER,
-                        dataSetLocation, path));
+        String relativePath = DOWNLOADING_FOLDER + "/" + Thread.currentThread().getId();
+        File file = new File(workspace, createPath(sessionToken, relativePath));
         createFolder(file.getParentFile());
         OutputStream ostream = null;
         try
