@@ -20,6 +20,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
@@ -147,16 +149,19 @@ public class DefaultSessionManagerTest
 
         final String token = sessionManager.tryToOpenSession("bla", "blub");
         assertEquals("bla-1", token);
-        assertEquals(
-                "INFO  OPERATION.DefaultSessionManager - Create dummy session monitor"
-                        + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.DefaultSessionManager - "
-                        + "(0ms) LOGIN: User 'bla' has been successfully authenticated from host 'remote-host'. Session token: '"
-                        + token
-                        + "'."
-                        + OSUtilities.LINE_SEPARATOR
-                        + "INFO  AUTH.DefaultSessionManager - [USER:'bla', HOST:'remote-host']: login",
-                logRecorder.getLogContent());
+        assertTrue(
+                logRecorder.getLogContent(),
+                Pattern.matches(
+                        "INFO  OPERATION.DefaultSessionManager - Create dummy session monitor"
+                                + OSUtilities.LINE_SEPARATOR
+                                + "INFO  OPERATION.DefaultSessionManager - "
+                                + "\\([0123456789]ms\\) LOGIN: User 'bla' has been successfully "
+                                + "authenticated from host 'remote-host'\\. Session token: '"
+                                + token
+                                + "'\\."
+                                + OSUtilities.LINE_SEPARATOR
+                                + "INFO  AUTH.DefaultSessionManager - \\[USER:'bla', HOST:'remote-host'\\]: login",
+                        logRecorder.getLogContent()));
 
         context.assertIsSatisfied();
     }
@@ -183,16 +188,19 @@ public class DefaultSessionManagerTest
 
         final String token = sessionManager.tryToOpenSession(userEmail, "blub");
         assertEquals("bla-1", token);
-        assertEquals(
-                "INFO  OPERATION.DefaultSessionManager - Create dummy session monitor"
-                        + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.DefaultSessionManager - "
-                        + "(0ms) LOGIN: User 'bla' has been successfully authenticated from host 'remote-host'. Session token: '"
-                        + token
-                        + "'."
-                        + OSUtilities.LINE_SEPARATOR
-                        + "INFO  AUTH.DefaultSessionManager - [USER:'bla', HOST:'remote-host']: login",
-                logRecorder.getLogContent());
+        assertTrue(
+                logRecorder.getLogContent(),
+                Pattern.matches(
+                        "INFO  OPERATION.DefaultSessionManager - Create dummy session monitor"
+                                + OSUtilities.LINE_SEPARATOR
+                                + "INFO  OPERATION.DefaultSessionManager - "
+                                + "\\([0123456789]ms\\) LOGIN: User 'bla' has been successfully "
+                                + "authenticated from host 'remote-host'\\. Session token: '"
+                                + token
+                                + "'\\."
+                                + OSUtilities.LINE_SEPARATOR
+                                + "INFO  AUTH.DefaultSessionManager - \\[USER:'bla', HOST:'remote-host'\\]: login",
+                        logRecorder.getLogContent()));
 
         context.assertIsSatisfied();
     }
@@ -215,12 +223,14 @@ public class DefaultSessionManagerTest
                 }
             });
         assert null == sessionManager.tryToOpenSession(user, "blub");
-        assertEquals(
-                "WARN  OPERATION.DefaultSessionManager - "
-                        + "(0ms) LOGIN: User 'bla' failed to authenticate from host 'remote-host'."
-                        + OSUtilities.LINE_SEPARATOR
-                        + "INFO  AUTH.DefaultSessionManager - [USER:'bla', HOST:'remote-host']: login   ...FAILED",
-                logRecorder.getLogContent());
+        assertTrue(
+                logRecorder.getLogContent(),
+                Pattern.matches(
+                        "WARN  OPERATION.DefaultSessionManager - "
+                                + "\\([0123456789]ms\\) LOGIN: User 'bla' failed to authenticate from host 'remote-host'\\."
+                                + OSUtilities.LINE_SEPARATOR
+                                + "INFO  AUTH.DefaultSessionManager - \\[USER:'bla', HOST:'remote-host'\\]: login   ...FAILED",
+                        logRecorder.getLogContent()));
 
         context.assertIsSatisfied();
     }
@@ -341,16 +351,20 @@ public class DefaultSessionManagerTest
         String token = sessionManager.tryToOpenSession(user, principalProvider);
 
         assertEquals(user + "-1", token);
-        assertEquals(
-                "INFO  OPERATION.DefaultSessionManager - Create dummy session monitor"
-                        + OSUtilities.LINE_SEPARATOR
-                        + "INFO  OPERATION.DefaultSessionManager - "
-                        + "(0ms) LOGIN: User 'u1' has been successfully authenticated from host 'remote-host'. Session token: '"
-                        + token
-                        + "'."
-                        + OSUtilities.LINE_SEPARATOR
-                        + "INFO  AUTH.DefaultSessionManager - [USER:'u1', HOST:'remote-host']: login",
-                logRecorder.getLogContent());
+        assertTrue(
+                logRecorder.getLogContent(),
+                Pattern.matches(
+                        "INFO  OPERATION.DefaultSessionManager - Create dummy session monitor"
+                                + OSUtilities.LINE_SEPARATOR
+                                + "INFO  OPERATION.DefaultSessionManager - "
+                                + "\\([0123456789]ms\\) LOGIN: User 'u1' has been successfully "
+                                + "authenticated from host 'remote-host'\\. Session token: '"
+                                + token
+                                + "'\\."
+                                + OSUtilities.LINE_SEPARATOR
+                                + "INFO  AUTH.DefaultSessionManager - \\[USER:'u1', HOST:'remote-host'\\]: login",
+                        logRecorder.getLogContent()));
+
         context.assertIsSatisfied();
     }
 }
