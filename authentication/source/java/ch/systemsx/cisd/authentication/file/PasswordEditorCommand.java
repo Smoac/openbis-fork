@@ -100,7 +100,8 @@ public class PasswordEditorCommand
         {
             final Parameters params = new Parameters(args);
             final ILineStore lineStore = new FileBasedLineStore(getPasswordFile(), "Password file");
-            final IUserStore<UserEntry> userStore = LineBasedUserStore.create(lineStore);
+            final IUserStore<UserEntry> userStore =
+                    FileAuthenticationService.createUserStore(lineStore);
             switch (params.getCommand())
             {
                 case ADD:

@@ -55,37 +55,6 @@ final class LineBasedUserStore<T extends UserEntry> implements IUserStore<T>
         this.emailToEntryMap = new LinkedHashMap<String, T>();
     }
 
-    /**
-     * Returns a "standard" line-based user store for {@link UserEntry}s.
-     */
-    static LineBasedUserStore<UserEntry> create(final ILineStore lineStore)
-    {
-        return new LineBasedUserStore<UserEntry>(lineStore, new IUserEntryFactory<UserEntry>()
-            {
-                @Override
-                public UserEntry create(String line)
-                {
-                    return new UserEntry(line);
-                }
-            });
-    }
-
-    /**
-     * Returns a "cache" line-based user store for {@link UserEntry}s.
-     */
-    static LineBasedUserStore<UserCacheEntry> createCache(final ILineStore lineStore)
-    {
-        return new LineBasedUserStore<UserCacheEntry>(lineStore,
-                new IUserEntryFactory<UserCacheEntry>()
-                    {
-                        @Override
-                        public UserCacheEntry create(String line)
-                        {
-                            return new UserCacheEntry(line);
-                        }
-                    });
-    }
-
     private synchronized Map<String, T> getIdToEntryMap()
     {
         return idToEntryMap;

@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.authentication.file.LineBasedUserStore.IUserEntryFactory;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -58,7 +59,22 @@ public class FileAuthenticationService implements IAuthenticationService
     {
         final ILineStore lineStore =
                 new FileBasedLineStore(new File(passwordFileName), "Password file");
-        return LineBasedUserStore.create(lineStore);
+        return createUserStore(lineStore);
+    }
+
+    /**
+     * Returns a "standard" line-based user store for {@link UserEntry}s.
+     */
+    static IUserStore<UserEntry> createUserStore(final ILineStore lineStore)
+    {
+        return new LineBasedUserStore<UserEntry>(lineStore, new IUserEntryFactory<UserEntry>()
+            {
+                @Override
+                public UserEntry create(String line)
+                {
+                    return new UserEntry(line);
+                }
+            });
     }
 
     public FileAuthenticationService(final String passwordFileName)

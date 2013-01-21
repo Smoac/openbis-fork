@@ -42,14 +42,14 @@ public class LineBasedUserStoreTest
 
     private ILineStore lineStore;
 
-    private LineBasedUserStore<UserEntry> userStore;
+    private IUserStore<UserEntry> userStore;
 
     @BeforeMethod
     public final void setUp()
     {
         context = new Mockery();
         lineStore = context.mock(ILineStore.class);
-        userStore = LineBasedUserStore.create(lineStore);
+        userStore = FileAuthenticationService.createUserStore(lineStore);
     }
 
     @AfterMethod
