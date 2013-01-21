@@ -31,33 +31,73 @@ import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
  * 
  * @author Bernd Rinn
  */
-final class LineBasedUserStore implements IUserStore
+final class LineBasedUserStore<T extends UserEntry> implements IUserStore<T>
 {
     private final ILineStore lineStore;
 
-    private Map<String, UserEntry> idToEntryMap;
+    private final IUserEntryFactory<T> userEntryFactory;
 
-    private Map<String, UserEntry> emailToEntryMap;
+    private Map<String, T> idToEntryMap;
 
-    LineBasedUserStore(final ILineStore lineStore)
+    private Map<String, T> emailToEntryMap;
+
+    interface IUserEntryFactory<T extends UserEntry>
     {
-        this.lineStore = lineStore;
-        this.idToEntryMap = new LinkedHashMap<String, UserEntry>();
-        this.emailToEntryMap = new LinkedHashMap<String, UserEntry>();
+        /** Creates a new user entry from a line in the line-based store. */
+        T create(String line);
     }
 
-    private synchronized Map<String, UserEntry> getIdToEntryMap()
+    LineBasedUserStore(final ILineStore lineStore, final IUserEntryFactory<T> userEntryFactory)
+    {
+        this.lineStore = lineStore;
+        this.userEntryFactory = userEntryFactory;
+        this.idToEntryMap = new LinkedHashMap<String, T>();
+        this.emailToEntryMap = new LinkedHashMap<String, T>();
+    }
+
+    /**
+     * Returns a "standard" line-based user store for {@link UserEntry}s.
+     */
+    static LineBasedUserStore<UserEntry> create(final ILineStore lineStore)
+    {
+        return new LineBasedUserStore<UserEntry>(lineStore, new IUserEntryFactory<UserEntry>()
+            {
+                @Override
+                public UserEntry create(String line)
+                {
+                    return new UserEntry(line);
+                }
+            });
+    }
+
+    /**
+     * Returns a "cache" line-based user store for {@link UserEntry}s.
+     */
+    static LineBasedUserStore<UserCacheEntry> createCache(final ILineStore lineStore)
+    {
+        return new LineBasedUserStore<UserCacheEntry>(lineStore,
+                new IUserEntryFactory<UserCacheEntry>()
+                    {
+                        @Override
+                        public UserCacheEntry create(String line)
+                        {
+                            return new UserCacheEntry(line);
+                        }
+                    });
+    }
+
+    private synchronized Map<String, T> getIdToEntryMap()
     {
         return idToEntryMap;
     }
 
-    private synchronized Map<String, UserEntry> getEmailToEntryMap()
+    private synchronized Map<String, T> getEmailToEntryMap()
     {
         return emailToEntryMap;
     }
 
-    synchronized void setEntryMaps(Map<String, UserEntry> idToEntryMap,
-            Map<String, UserEntry> emailToEntryMap)
+    synchronized void setEntryMaps(Map<String, T> idToEntryMap,
+            Map<String, T> emailToEntryMap)
     {
         this.idToEntryMap = idToEntryMap;
         this.emailToEntryMap = emailToEntryMap;
@@ -67,12 +107,12 @@ final class LineBasedUserStore implements IUserStore
     {
         if (lineStore.hasChanged())
         {
-            final Map<String, UserEntry> newIdToEntryMap = new LinkedHashMap<String, UserEntry>();
-            final Map<String, UserEntry> newEmailToEntryMap =
-                    new LinkedHashMap<String, UserEntry>();
+            final Map<String, T> newIdToEntryMap = new LinkedHashMap<String, T>();
+            final Map<String, T> newEmailToEntryMap =
+                    new LinkedHashMap<String, T>();
             for (String line : lineStore.readLines())
             {
-                final UserEntry entry = new UserEntry(line);
+                final T entry = userEntryFactory.create(line);
                 newIdToEntryMap.put(entry.getUserId(), entry);
                 if (StringUtils.isNotBlank(entry.getEmail()))
                 {
@@ -89,9 +129,9 @@ final class LineBasedUserStore implements IUserStore
 
     private List<String> asPasswordLines()
     {
-        final Collection<UserEntry> users = getIdToEntryMap().values();
+        final Collection<T> users = getIdToEntryMap().values();
         final List<String> lines = new ArrayList<String>(users.size());
-        for (UserEntry user : users)
+        for (T user : users)
         {
             lines.add(user.asPasswordLine());
         }
@@ -105,21 +145,48 @@ final class LineBasedUserStore implements IUserStore
     }
 
     @Override
-    public UserEntry tryGetUserById(String user)
+    public T tryGetUserById(String user)
     {
         updateMaps();
         return getIdToEntryMap().get(user);
     }
 
     @Override
-    public UserEntry tryGetUserByEmail(String email) throws EnvironmentFailureException
+    public T tryGetUserByEmail(String email) throws EnvironmentFailureException
     {
         updateMaps();
         return getEmailToEntryMap().get(email.toLowerCase());
     }
 
     @Override
-    public synchronized void addOrUpdateUser(UserEntry user)
+    public UserEntryAuthenticationState<T> tryGetAndAuthenticateUserById(String userId,
+            String password)
+            throws EnvironmentFailureException
+    {
+        final T entry = tryGetUserById(userId);
+        if (entry == null)
+        {
+            return null;
+        }
+        final boolean authenticated = isPasswordCorrect(userId, password);
+        return new UserEntryAuthenticationState<T>(entry, authenticated);
+    }
+
+    @Override
+    public UserEntryAuthenticationState<T> tryGetAndAuthenticateUserByEmail(String email,
+            String password) throws EnvironmentFailureException
+    {
+        final T entry = tryGetUserByEmail(email);
+        if (entry == null)
+        {
+            return null;
+        }
+        final boolean authenticated = isPasswordCorrect(entry.getUserId(), password);
+        return new UserEntryAuthenticationState<T>(entry, authenticated);
+    }
+
+    @Override
+    public synchronized void addOrUpdateUser(T user)
     {
         assert user != null;
 
@@ -170,10 +237,10 @@ final class LineBasedUserStore implements IUserStore
     }
 
     @Override
-    public List<UserEntry> listUsers()
+    public List<T> listUsers()
     {
         updateMaps();
-        return new ArrayList<UserEntry>(getIdToEntryMap().values());
+        return new ArrayList<T>(getIdToEntryMap().values());
     }
 
     /**

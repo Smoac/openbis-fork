@@ -24,6 +24,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.authentication.Principal;
+
 /**
  * Test cases for the {@link FileAuthenticationService}. 
  *
@@ -34,16 +36,17 @@ public class FileAuthenticationServiceTest
 
     private Mockery context;
 
-    private IUserStore userStore;
+    private IUserStore<UserEntry> userStore;
     
     private FileAuthenticationService authService;
 
+    @SuppressWarnings("unchecked")
     @BeforeMethod
     public final void setUp()
     {
         context = new Mockery();
         userStore = context.mock(IUserStore.class);
-        authService = new FileAuthenticationService(userStore);
+        authService = new FileAuthenticationService(userStore, null);
     }
 
     @AfterMethod
@@ -64,7 +67,7 @@ public class FileAuthenticationServiceTest
                 will(returnValue(true));
             }
         });
-        assertTrue(authService.authenticateUser("doesntmatter", user, password));
+        assertTrue(authService.authenticateUser(user, password));
         context.assertIsSatisfied();
     }
     
@@ -80,7 +83,7 @@ public class FileAuthenticationServiceTest
                 will(returnValue(false));
             }
         });
-        assertFalse(authService.authenticateUser("doesntmatter", user, password));
+        assertFalse(authService.authenticateUser(user, password));
         context.assertIsSatisfied();
     }
     
@@ -96,7 +99,7 @@ public class FileAuthenticationServiceTest
                 will(returnValue(user));
             }
         });
-        assertEquals(user.asPrincipal(), authService.getPrincipal("doesntmatter", uid));
+        assertEquals(user.asPrincipal(), authService.getPrincipal(uid));
         context.assertIsSatisfied();
     }
     
@@ -113,12 +116,88 @@ public class FileAuthenticationServiceTest
         });
         try
         {
-            authService.getPrincipal("doesntmatter", uid);
+            authService.getPrincipal(uid);
             fail("Unknown user went undetected.");
         } catch (IllegalArgumentException ex)
         {
             assertEquals("Cannot find user 'uid'.", ex.getMessage());
         }
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetAndAuthenticateUserSuccess()
+    {
+        final String uid = "uid";
+        final String password = "passw0rd";
+        final UserEntry user = new UserEntry(uid, "email", "first", "last", password);
+        context.checking(new Expectations()
+        {
+            {
+                one(userStore).tryGetAndAuthenticateUserById(uid, password);
+                will(returnValue(new UserEntryAuthenticationState<UserEntry>(user, true)));
+            }
+        });
+        final Principal principal = user.asPrincipal();
+        principal.setAuthenticated(true);
+        assertEquals(principal, authService.tryGetAndAuthenticateUser(uid, password));
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetAndAuthenticateUserAuthenticationFailed()
+    {
+        final String uid = "uid";
+        final String password = "passw0rd";
+        final UserEntry user = new UserEntry(uid, "email", "first", "last", password);
+        context.checking(new Expectations()
+        {
+            {
+                one(userStore).tryGetAndAuthenticateUserById(uid, password);
+                will(returnValue(new UserEntryAuthenticationState<UserEntry>(user, false)));
+            }
+        });
+        final Principal principal = user.asPrincipal();
+        assertEquals(principal, authService.tryGetAndAuthenticateUser(uid, password));
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetAndAuthenticateUserByEmailSuccess()
+    {
+        final String uid = "uid";
+        final String email = "email@null.org";
+        final String password = "passw0rd";
+        final UserEntry user = new UserEntry(uid, email, "first", "last", password);
+        context.checking(new Expectations()
+        {
+            {
+                one(userStore).tryGetAndAuthenticateUserByEmail(email, password);
+                will(returnValue(new UserEntryAuthenticationState<UserEntry>(user, true)));
+            }
+        });
+        final Principal principal = user.asPrincipal();
+        principal.setAuthenticated(true);
+        assertEquals(principal, authService.tryGetAndAuthenticateUserByEmail(email, password));
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetAndAuthenticateUserByEmailAuthenticationFailed()
+    {
+        final String uid = "uid";
+        final String email = "email@null.org";
+        final String password = "passw0rd";
+        final UserEntry user = new UserEntry(uid, email, "first", "last", password);
+        context.checking(new Expectations()
+        {
+            {
+                one(userStore).tryGetAndAuthenticateUserByEmail(email, password);
+                will(returnValue(new UserEntryAuthenticationState<UserEntry>(user, false)));
+            }
+        });
+        final Principal principal = user.asPrincipal();
+        assertEquals(principal, authService.tryGetAndAuthenticateUserByEmail(email, password));
         context.assertIsSatisfied();
     }
     

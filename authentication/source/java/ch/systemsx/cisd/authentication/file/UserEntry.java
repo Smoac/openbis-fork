@@ -45,15 +45,16 @@ class UserEntry extends AbstractHashable
 
     UserEntry(String passwordFileLine) throws IllegalArgumentException
     {
-        this.passwordFileEntry = split(passwordFileLine);
+        this.passwordFileEntry = split(passwordFileLine, NUMBER_OF_COLUMNS_IN_PASSWORD_FILE);
     }
 
-    private static String[] split(String passwordFileLine) throws IllegalArgumentException
+    static String[] split(String passwordFileLine, int numberOfColumnsInPasswdFile)
+            throws IllegalArgumentException
     {
         assert passwordFileLine != null;
 
         final String[] entry = passwordFileLine.split(":");
-        if (entry.length != NUMBER_OF_COLUMNS_IN_PASSWORD_FILE)
+        if (entry.length != numberOfColumnsInPasswdFile)
         {
             final String msg =
                     String.format("Password line is ill-formatted: '%s'", passwordFileLine);
@@ -62,7 +63,13 @@ class UserEntry extends AbstractHashable
         return entry;
     }
 
-    UserEntry(String userId, String email, String firstName, String lastName, String password)
+    UserEntry(String[] passwordFileEntry) throws IllegalArgumentException
+    {
+        this.passwordFileEntry = passwordFileEntry;
+    }
+
+    UserEntry(String userId, String email, String firstName, String lastName,
+            String password)
     {
         assert userId != null;
         assert email != null;
@@ -70,14 +77,21 @@ class UserEntry extends AbstractHashable
         assert lastName != null;
         assert password != null;
 
-        this.passwordFileEntry = new String[]
-            { userId, email, firstName, lastName, PasswordHasher.computeSaltedHash(password) };
+        this.passwordFileEntry =
+                new String[]
+                    {
+                            userId,
+                            email,
+                            firstName,
+                            lastName,
+                            StringUtils.isEmpty(password) ? ""
+                                    : PasswordHasher.computeSaltedHash(password) };
     }
 
     /**
      * Returns the password line suitable for putting into the password file.
      */
-    String asPasswordLine()
+    synchronized String asPasswordLine()
     {
         return StringUtils.join(passwordFileEntry, ':');
     }
@@ -85,15 +99,23 @@ class UserEntry extends AbstractHashable
     /**
      * Returns the user entry as {@link Principal}.
      */
-    Principal asPrincipal()
+    synchronized Principal asPrincipal()
     {
         return new Principal(getUserId(), getFirstName(), getLastName(), getEmail(), false);
     }
 
     /**
+     * Returns the password file element <var>idx</var>.
+     */
+    synchronized String getElement(int idx)
+    {
+        return passwordFileEntry[idx];
+    }
+
+    /**
      * Returns the user id.
      */
-    String getUserId()
+    synchronized String getUserId()
     {
         return passwordFileEntry[USER_ID_IDX];
     }
@@ -101,7 +123,7 @@ class UserEntry extends AbstractHashable
     /**
      * Returns the email address.
      */
-    String getEmail()
+    synchronized String getEmail()
     {
         return passwordFileEntry[EMAIL_IDX];
     }
@@ -110,7 +132,7 @@ class UserEntry extends AbstractHashable
      * Sets the email address of the user. <var>email</var> can be blank, but must not be
      * <code>null</code>.
      */
-    void setEmail(String email)
+    synchronized void setEmail(String email)
     {
         assert email != null;
 
@@ -120,7 +142,7 @@ class UserEntry extends AbstractHashable
     /**
      * Returns the first name.
      */
-    String getFirstName()
+    synchronized String getFirstName()
     {
         return passwordFileEntry[FIRST_NAME_IDX];
     }
@@ -129,7 +151,7 @@ class UserEntry extends AbstractHashable
      * Sets the first name of the user. <var>firstName</var> can be blank, but must not be
      * <code>null</code>.
      */
-    void setFirstName(String firstName)
+    synchronized void setFirstName(String firstName)
     {
         assert firstName != null;
 
@@ -139,7 +161,7 @@ class UserEntry extends AbstractHashable
     /**
      * Returns the last name.
      */
-    String getLastName()
+    synchronized String getLastName()
     {
         return passwordFileEntry[LAST_NAME_IDX];
     }
@@ -148,38 +170,55 @@ class UserEntry extends AbstractHashable
      * Sets the last name of the user. <var>lastName</var> can be blank, but must not be
      * <code>null</code>.
      */
-    void setLastName(String lastName)
+    synchronized void setLastName(String lastName)
     {
         assert lastName != null;
 
         passwordFileEntry[LAST_NAME_IDX] = lastName;
     }
 
-    private String getPasswordHash()
+    /**
+     * Returns the password hash (may be an empty string if no password has been supplied).
+     */
+    synchronized String getPasswordHash()
     {
         return passwordFileEntry[PASSWORD_IDX];
     }
 
     /**
-     * Sets the password of the user. <var>plainPassword</var> must not be blank.
+     * Sets the password of the user. If <var>plainPassword</var> is blank, then an empty password
+     * hash will be saved and all password checks will fail for this user entry.
      * <p>
      * The password is actually salted, an SHA1 hash of the salted password is computed and the
      * Base64 encoded version of the salt concatenated with the SHA1 hash is stored.
      */
-    void setPassword(String plainPassword)
+    synchronized void setPassword(String plainPassword)
     {
-        assert StringUtils.isNotBlank(plainPassword);
+        if (StringUtils.isBlank(plainPassword))
+        {
+            passwordFileEntry[PASSWORD_IDX] = "";
+        } else
+        {
+            passwordFileEntry[PASSWORD_IDX] = PasswordHasher.computeSaltedHash(plainPassword);
+        }
+    }
 
-        passwordFileEntry[PASSWORD_IDX] = PasswordHasher.computeSaltedHash(plainPassword);
+    /**
+     * Returns <code>true</code> if this entry has a password hash to check authentication.
+     */
+    synchronized boolean hasPassword()
+    {
+        return StringUtils.isNotBlank(getPasswordHash());
     }
 
     /**
      * Returns <code>true</code>, if the <var>password</var> is matching the password of this
      * user entry.
      */
-    boolean isPasswordCorrect(String password)
+    synchronized boolean isPasswordCorrect(String password)
     {
-        return PasswordHasher.isPasswordCorrect(password, getPasswordHash());
+        final String hash = getPasswordHash();
+        return StringUtils.isBlank(hash) ? false : PasswordHasher.isPasswordCorrect(password, hash);
     }
 
 }

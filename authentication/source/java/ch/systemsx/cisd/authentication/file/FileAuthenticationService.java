@@ -19,10 +19,14 @@ package ch.systemsx.cisd.authentication.file;
 import java.io.File;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * An implementation of {@link IAuthenticationService} that gets the authentication information from
@@ -41,26 +45,32 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  */
 public class FileAuthenticationService implements IAuthenticationService
 {
-
     private static final String DUMMY_TOKEN_STR = "DUMMY-TOKEN";
 
-    private final IUserStore userStore;
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, FileAuthenticationService.class);
 
-    private static IUserStore createUserStore(final String passwordFileName)
+    private final IUserStore<? extends UserEntry> userStore;
+
+    private final IAuthenticationService listingServiceOrNull;
+
+    private static IUserStore<? extends UserEntry> createUserStore(final String passwordFileName)
     {
         final ILineStore lineStore =
                 new FileBasedLineStore(new File(passwordFileName), "Password file");
-        return new LineBasedUserStore(lineStore);
+        return LineBasedUserStore.create(lineStore);
     }
 
     public FileAuthenticationService(final String passwordFileName)
     {
-        this(createUserStore(passwordFileName));
+        this(createUserStore(passwordFileName), null);
     }
 
-    public FileAuthenticationService(IUserStore userStore)
+    public FileAuthenticationService(IUserStore<? extends UserEntry> userStore,
+            IAuthenticationService listingServiceOrNull)
     {
         this.userStore = userStore;
+        this.listingServiceOrNull = listingServiceOrNull;
     }
 
     /**
@@ -75,13 +85,24 @@ public class FileAuthenticationService implements IAuthenticationService
     @Override
     public boolean authenticateUser(String dummyToken, String user, String password)
     {
-        return userStore.isPasswordCorrect(user, password);
+        return authenticateUser(user, password);
     }
 
     @Override
     public boolean authenticateUser(String userId, String password)
     {
-        return userStore.isPasswordCorrect(userId, password);
+        final boolean authenticated = userStore.isPasswordCorrect(userId, password);
+        logAuthentication(userId, authenticated);
+        return authenticated;
+    }
+
+    private void logAuthentication(final String user, final boolean authenticated)
+    {
+        if (operationLog.isInfoEnabled())
+        {
+            final String msg = "FILE: authentication of user '" + user + "': ";
+            operationLog.info(msg + (authenticated ? "SUCCESS." : "FAILED."));
+        }
     }
 
     @Override
@@ -92,10 +113,13 @@ public class FileAuthenticationService implements IAuthenticationService
     }
 
     @Override
-    public Principal tryGetAndAuthenticateUser(String user,
+    public Principal tryGetAndAuthenticateUser(String userId,
             String passwordOrNull)
     {
-        return tryAuthenticateUser(userStore.tryGetUserById(user), passwordOrNull);
+        final Principal principal =
+                toPrincipal(userStore.tryGetAndAuthenticateUserById(userId, passwordOrNull));
+        logAuthentication(userId, Principal.isAuthenticated(principal));
+        return principal;
     }
 
     @Override
@@ -108,23 +132,32 @@ public class FileAuthenticationService implements IAuthenticationService
     @Override
     public Principal tryGetAndAuthenticateUserByEmail(String email, String passwordOrNull)
     {
-        return tryAuthenticateUser(userStore.tryGetUserByEmail(email), passwordOrNull);
+        final Principal principal =
+                toPrincipal(userStore.tryGetAndAuthenticateUserByEmail(email, passwordOrNull));
+        final String user = (principal != null) ? principal.getUserId() : "email:" + email;
+        logAuthentication(user, Principal.isAuthenticated(principal));
+        return principal;
     }
 
-    private Principal tryAuthenticateUser(final UserEntry userOrNull,
-            String passwordOrNull)
+    static Principal toPrincipal(UserEntryAuthenticationState<? extends UserEntry> entryOrNull)
     {
-        if (userOrNull == null)
+        if (entryOrNull == null)
         {
             return null;
         }
-        final Principal principal = userOrNull.asPrincipal();
-        if (passwordOrNull != null)
-        {
-            principal
-                    .setAuthenticated(authenticateUser(principal.getUserId(), passwordOrNull));
-        }
+        final UserEntry user = entryOrNull.getUserEntry();
+        final Principal principal = user.asPrincipal();
+        principal.setAuthenticated(entryOrNull.isAuthenticated());
         return principal;
+    }
+
+    static Principal toPrincipal(UserEntry entryOrNull)
+    {
+        if (entryOrNull == null)
+        {
+            return null;
+        }
+        return entryOrNull.asPrincipal();
     }
 
     @Override
@@ -136,7 +169,7 @@ public class FileAuthenticationService implements IAuthenticationService
     @Override
     public Principal getPrincipal(String userId)
     {
-        final Principal principalOrNull = tryGetAndAuthenticateUser(userId, null);
+        final Principal principalOrNull = toPrincipal(userStore.tryGetUserById(userId));
         if (principalOrNull == null)
         {
             throw new IllegalArgumentException("Cannot find user '" + userId + "'.");
@@ -147,55 +180,92 @@ public class FileAuthenticationService implements IAuthenticationService
     @Override
     public List<Principal> listPrincipalsByEmail(String applicationToken, String emailQuery)
     {
-        throw new UnsupportedOperationException();
+        if (listingServiceOrNull != null)
+        {
+            return listingServiceOrNull.listPrincipalsByEmail(emailQuery);
+        } else
+        {
+            throw new UnsupportedOperationException();
+        }
     }
 
     @Override
     public List<Principal> listPrincipalsByEmail(String emailQuery)
     {
-        throw new UnsupportedOperationException();
+        if (listingServiceOrNull != null)
+        {
+            return listingServiceOrNull.listPrincipalsByEmail(emailQuery);
+        } else
+        {
+            throw new UnsupportedOperationException();
+        }
     }
 
     @Override
     public List<Principal> listPrincipalsByLastName(String applicationToken, String lastNameQuery)
     {
-        throw new UnsupportedOperationException();
+        if (listingServiceOrNull != null)
+        {
+            return listingServiceOrNull.listPrincipalsByLastName(lastNameQuery);
+        } else
+        {
+            throw new UnsupportedOperationException();
+        }
     }
 
     @Override
     public List<Principal> listPrincipalsByLastName(String lastNameQuery)
     {
-        throw new UnsupportedOperationException();
+        if (listingServiceOrNull != null)
+        {
+            return listingServiceOrNull.listPrincipalsByLastName(lastNameQuery);
+        } else
+        {
+            throw new UnsupportedOperationException();
+        }
     }
 
     @Override
     public List<Principal> listPrincipalsByUserId(String dummyToken, String userIdQuery)
     {
-        throw new UnsupportedOperationException();
+        if (listingServiceOrNull != null)
+        {
+            return listingServiceOrNull.listPrincipalsByUserId(userIdQuery);
+        } else
+        {
+            throw new UnsupportedOperationException();
+        }
     }
 
     @Override
     public List<Principal> listPrincipalsByUserId(String userIdQuery)
     {
-        throw new UnsupportedOperationException();
+        if (listingServiceOrNull != null)
+        {
+            return listingServiceOrNull.listPrincipalsByUserId(userIdQuery);
+        } else
+        {
+            throw new UnsupportedOperationException();
+        }
     }
 
     @Override
     public boolean supportsListingByEmail()
     {
-        return false;
+        return (listingServiceOrNull != null)
+                && listingServiceOrNull.supportsListingByEmail();
     }
 
     @Override
     public boolean supportsListingByLastName()
     {
-        return false;
+        return (listingServiceOrNull != null) && listingServiceOrNull.supportsListingByLastName();
     }
 
     @Override
     public boolean supportsListingByUserId()
     {
-        return false;
+        return (listingServiceOrNull != null) && listingServiceOrNull.supportsListingByUserId();
     }
 
     @Override
@@ -208,12 +278,16 @@ public class FileAuthenticationService implements IAuthenticationService
     public void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
         userStore.check();
+        if (listingServiceOrNull != null)
+        {
+            listingServiceOrNull.check();
+        }
     }
 
     @Override
     public boolean isRemote()
     {
-        return false;
+        return (listingServiceOrNull != null) && listingServiceOrNull.isRemote();
     }
 
 }

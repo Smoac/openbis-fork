@@ -23,10 +23,10 @@ import ch.systemsx.cisd.common.utilities.ISelfTestable;
 
 /**
  * An abstraction of a store for {@link UserEntry}s.
- *
+ * 
  * @author Bernd Rinn
  */
-interface IUserStore extends ISelfTestable
+interface IUserStore<T extends UserEntry> extends ISelfTestable
 {
     /**
      * Returns the unique identifier of the store.
@@ -34,22 +34,36 @@ interface IUserStore extends ISelfTestable
     String getId();
 
     /**
-     * Returns the {@link UserEntry} of <var>userId</var>, or <code>null</code>, if this user does
+     * Returns the {@link UserEntry} for <var>userId</var>, or <code>null</code>, if this user does
      * not exist.
      */
-    UserEntry tryGetUserById(String userId) throws EnvironmentFailureException;
-    
+    T tryGetUserById(String userId) throws EnvironmentFailureException;
+
     /**
-     * Returns the {@link UserEntry} of <var>email</var>, or <code>null</code>, if this user does
+     * Returns the {@link UserEntry} for <var>userId</var> and whether it correctly authenticated
+     * with <var>password</var>, or <code>null</code>, if this user does not exist.
+     */
+    UserEntryAuthenticationState<T> tryGetAndAuthenticateUserById(String userId, String password)
+            throws EnvironmentFailureException;
+
+    /**
+     * Returns the {@link UserEntry} for <var>email</var>, or <code>null</code>, if this user does
      * not exist.
      */
-    UserEntry tryGetUserByEmail(String email) throws EnvironmentFailureException;
-    
+    T tryGetUserByEmail(String email) throws EnvironmentFailureException;
+
+    /**
+     * Returns the {@link UserEntry} for <var>email</var> and whether it correctly authenticated
+     * with <var>password</var>, or <code>null</code>, if this user does not exist.
+     */
+    UserEntryAuthenticationState<T> tryGetAndAuthenticateUserByEmail(String email, String password)
+            throws EnvironmentFailureException;
+
     /**
      * Adds the <var>user</var> if it exists, otherwise updates (replaces) the entry with the given
      * entry.
      */
-    void addOrUpdateUser(UserEntry user) throws EnvironmentFailureException;
+    void addOrUpdateUser(T user) throws EnvironmentFailureException;
 
     /**
      * Removes the user with id <var>userId</var> if it exists.
@@ -57,15 +71,15 @@ interface IUserStore extends ISelfTestable
      * @return <code>true</code>, if the user has been removed.
      */
     boolean removeUser(String userId) throws EnvironmentFailureException;
-    
+
     /**
      * Returns <code>true</code>, if <var>user</var> is known and has the given <var>password</var>.
      */
-    boolean isPasswordCorrect(String user, String password) throws EnvironmentFailureException;
-    
+    boolean isPasswordCorrect(String userId, String password) throws EnvironmentFailureException;
+
     /**
      * Returns a list of all users currently found in the password file.
      */
-    List<UserEntry> listUsers() throws EnvironmentFailureException;
+    List<T> listUsers() throws EnvironmentFailureException;
 
 }

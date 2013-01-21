@@ -42,14 +42,14 @@ public class LineBasedUserStoreTest
 
     private ILineStore lineStore;
 
-    private LineBasedUserStore userStore;
+    private LineBasedUserStore<UserEntry> userStore;
 
     @BeforeMethod
     public final void setUp()
     {
         context = new Mockery();
         lineStore = context.mock(ILineStore.class);
-        userStore = new LineBasedUserStore(lineStore);
+        userStore = LineBasedUserStore.create(lineStore);
     }
 
     @AfterMethod
