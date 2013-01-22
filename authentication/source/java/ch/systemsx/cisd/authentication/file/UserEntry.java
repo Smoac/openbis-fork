@@ -53,7 +53,7 @@ class UserEntry extends AbstractHashable
     {
         assert passwordFileLine != null;
 
-        final String[] entry = passwordFileLine.split(":");
+        final String[] entry = StringUtils.splitPreserveAllTokens(passwordFileLine, ':');
         if (entry.length != numberOfColumnsInPasswdFile)
         {
             final String msg =
@@ -212,13 +212,14 @@ class UserEntry extends AbstractHashable
     }
 
     /**
-     * Returns <code>true</code>, if the <var>password</var> is matching the password of this
-     * user entry.
+     * Returns <code>true</code>, if the <var>passwordOrNull</var> is matching the password of this
+     * user entry (<code>null</code> means: <code>false</code>).
      */
-    synchronized boolean isPasswordCorrect(String password)
+    synchronized boolean isPasswordCorrect(String passwordOrNull)
     {
         final String hash = getPasswordHash();
-        return StringUtils.isBlank(hash) ? false : PasswordHasher.isPasswordCorrect(password, hash);
+        return StringUtils.isEmpty(passwordOrNull) || StringUtils.isBlank(hash) ? false
+                : PasswordHasher.isPasswordCorrect(passwordOrNull, hash);
     }
 
 }
