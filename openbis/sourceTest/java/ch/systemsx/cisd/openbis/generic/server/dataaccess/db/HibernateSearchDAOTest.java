@@ -605,7 +605,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         changeExternalDataProperty(externalData, propertyCode, newValue);
         flushSearchIndices();
         assertCorrectDatasetsFound(criteria, DSLoc.XXX_YYY_ZZZ);
-        TestInitializer.restoreSearchIndex();
+        TestInitializer.restoreSearchIndex(null);
     }
 
     private void flushSearchIndices()

@@ -41,9 +41,9 @@ public class TestInitializer
     static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             TestInitializer.class);
 
-    public static final String LUCENE_INDEX_TEMPLATE_PATH = "../openbis/targets/tempLuceneIndices";
+    public static final String LUCENE_INDEX_TEMPLATE_PATH = "targets/tempLuceneIndices";
 
-    public static final String LUCENE_INDEX_PATH = "../openbis/targets/lucene/indices";
+    public static final String LUCENE_INDEX_PATH = "targets/lucene/indices";
 
     public static final String SCRIPT_FOLDER_TEST_DB = "../openbis/sourceTest";
 
@@ -102,7 +102,7 @@ public class TestInitializer
 
         // make sure the search index is up-to-date
         // and in the right place when we run tests
-        restoreSearchIndex();
+        restoreSearchIndex(hibernateIndexMode);
 
         String projectName = System.getProperty("ant.project.name", "");
 
@@ -116,27 +116,30 @@ public class TestInitializer
     }
 
     // create a fresh copy of the Lucene index
-    public static void restoreSearchIndex()
+    public static void restoreSearchIndex(IndexMode indexMode)
     {
         File targetPath = new File(TestInitializer.LUCENE_INDEX_PATH).getAbsoluteFile();
         FileUtilities.deleteRecursively(targetPath);
         targetPath.mkdirs();
-        File srcPath = new File(LUCENE_INDEX_TEMPLATE_PATH).getAbsoluteFile();
-        try
+        if (indexMode != IndexMode.NO_INDEX)
         {
-            FileUtils.copyDirectory(srcPath, targetPath, new FileFilter()
-                {
-                    @Override
-                    public boolean accept(File path)
+            File srcPath = new File(LUCENE_INDEX_TEMPLATE_PATH).getAbsoluteFile();
+            try
+            {
+                FileUtils.copyDirectory(srcPath, targetPath, new FileFilter()
                     {
-                        return false == path.getName().equalsIgnoreCase(".svn");
-                    }
-                });
-            new File(srcPath, FullTextIndexerRunnable.FULL_TEXT_INDEX_MARKER_FILENAME)
-                    .createNewFile();
-        } catch (IOException ex)
-        {
-            throw new IOExceptionUnchecked(ex);
+                        @Override
+                        public boolean accept(File path)
+                        {
+                            return false == path.getName().equalsIgnoreCase(".svn");
+                        }
+                    });
+                new File(srcPath, FullTextIndexerRunnable.FULL_TEXT_INDEX_MARKER_FILENAME)
+                        .createNewFile();
+            } catch (IOException ex)
+            {
+                throw new IOExceptionUnchecked(ex);
+            }
         }
     }
 
