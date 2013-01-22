@@ -205,6 +205,7 @@ public class CachingAuthenticationService implements IAuthenticationService
             }
             if (request.isAuthenticated() && p.isAuthenticated() == false)
             {
+                userStore.removeUser(userId);
                 operationLog.warn(String.format(
                         "User '%s' has been logged in with an outdated password.",
                         userId));
