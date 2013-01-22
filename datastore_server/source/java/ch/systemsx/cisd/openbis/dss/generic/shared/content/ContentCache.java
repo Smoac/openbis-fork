@@ -32,12 +32,15 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
@@ -53,6 +56,9 @@ public class ContentCache implements IContentCache
 {
     public static final String CACHE_WORKSPACE_FOLDER_KEY = "cache-workspace-folder";
 
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ContentCache.class);
+    
     static final String CACHE_FOLDER = "cached";
 
     static final String DOWNLOADING_FOLDER = "downloading";
@@ -84,6 +90,7 @@ public class ContentCache implements IContentCache
         this.timeProvider = timeProvider;
         fileOperations.removeRecursivelyQueueing(new File(cacheWorkspace, DOWNLOADING_FOLDER));
         fileLockManager = new LockManager();
+        operationLog.info("Content cache created. Workspace: " + cacheWorkspace.getAbsolutePath());
     }
 
     @Override
@@ -138,10 +145,7 @@ public class ContentCache implements IContentCache
             {
                 downloadFile(sessionToken, dataSetLocation, path);
             }
-            File dataSetFolder =
-                    new File(workspace, createDataSetPath(CACHE_FOLDER,
-                            dataSetLocation.getDataSetCode()));
-            dataSetFolder.setLastModified(timeProvider.getTimeInMilliseconds());
+            touchDataSetFolder(dataSetLocation);
             return file;
         } finally
         {
@@ -150,16 +154,79 @@ public class ContentCache implements IContentCache
     }
 
     @Override
-    public InputStream getInputStream(String sessionToken, IDatasetLocation dataSetLocation,
+    public InputStream getInputStream(String sessionToken, final IDatasetLocation dataSetLocation,
             DataSetPathInfo path)
     {
-        try
+        final String pathInWorkspace = createPathInWorkspace(CACHE_FOLDER, dataSetLocation, path);
+        fileLockManager.lock(pathInWorkspace);
+        final File file = new File(workspace, pathInWorkspace);
+        if (file.exists())
         {
-            return new FileInputStream(getFile(sessionToken, dataSetLocation, path));
-        } catch (FileNotFoundException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            try
+            {
+                FileInputStream fileInputStream =
+                        new FileInputStream(getFile(sessionToken, dataSetLocation, path));
+                touchDataSetFolder(dataSetLocation);
+                return fileInputStream;
+            } catch (FileNotFoundException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            } finally
+            {
+               fileLockManager.unlock(pathInWorkspace);
+            }
         }
+        final File tempFile = createTempFile();
+        final InputStream inputStream = createInputStream(sessionToken, dataSetLocation, path);
+        final OutputStream fileOutputStream = createFileOutputStream(tempFile);
+        return new InputStream()
+            {
+                private boolean closed;
+
+                @Override
+                public int read() throws IOException
+                {
+                    int b = inputStream.read();
+                    fileOutputStream.write(b);
+                    return b;
+                }
+
+                @Override
+                public int read(byte[] b, int off, int len) throws IOException
+                {
+                    int count = inputStream.read(b, off, len);
+                    if (count >= 0)
+                    {
+                        fileOutputStream.write(b, off, count);
+                    }
+                    return count;
+                }
+
+                @Override
+                public void close() throws IOException
+                {
+                    if (closed)
+                    {
+                        return;
+                    }
+                    inputStream.close();
+                    fileOutputStream.close();
+                    moveDownloadedFileToCache(tempFile, pathInWorkspace);
+                    touchDataSetFolder(dataSetLocation);
+                    closed = true;
+                    fileLockManager.unlock(pathInWorkspace);
+                }
+
+                @Override
+                protected void finalize() throws Throwable
+                {
+                    if (closed == false)
+                    {
+                        fileLockManager.unlock(pathInWorkspace);
+                    }
+                    super.finalize();
+                }
+            };
     }
 
     private void downloadFile(String sessionToken, IDatasetLocation dataSetLocation,
@@ -168,24 +235,75 @@ public class ContentCache implements IContentCache
         InputStream input = null;
         try
         {
-            String dataStoreUrl = dataSetLocation.getDataStoreUrl();
-            IDssServiceRpcGeneric service = serviceFactory.getService(dataStoreUrl);
-            String dataSetCode = dataSetLocation.getDataSetCode();
-            String relativePath = path.getRelativePath();
-            String url =
-                    service.getDownloadUrlForFileForDataSet(sessionToken, dataSetCode, relativePath);
-            input = createURL(url).openStream();
+            input = createInputStream(sessionToken, dataSetLocation, path);
             File downloadedFile = createFileFromInputStream(dataSetLocation, path, input);
             String pathInWorkspace = createPathInWorkspace(CACHE_FOLDER, dataSetLocation, path);
-            File file = new File(workspace, pathInWorkspace);
-            createFolder(file.getParentFile());
-            downloadedFile.renameTo(file);
+            moveDownloadedFileToCache(downloadedFile, pathInWorkspace);
         } catch (Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         } finally
         {
             IOUtils.closeQuietly(input);
+        }
+    }
+
+    private void moveDownloadedFileToCache(File downloadedFile, String pathInWorkspace)
+    {
+        File file = new File(workspace, pathInWorkspace);
+        createFolder(file.getParentFile());
+        boolean success = downloadedFile.renameTo(file);
+        String msg = "'" + pathInWorkspace + "' successfully downloaded ";
+        if (success)
+        {
+            operationLog.debug(msg + "and successfully moved to cache.");
+        } else
+        {
+            operationLog.warn(msg + "but couldn't move to cache.");
+        }
+    }
+
+    private void touchDataSetFolder(IDatasetLocation dataSetLocation)
+    {
+        File dataSetFolder =
+                new File(workspace, createDataSetPath(CACHE_FOLDER,
+                        dataSetLocation.getDataSetCode()));
+        dataSetFolder.setLastModified(timeProvider.getTimeInMilliseconds());
+    }
+
+    private InputStream createInputStream(String sessionToken, IDatasetLocation dataSetLocation,
+            DataSetPathInfo path)
+    {
+        String dataStoreUrl = dataSetLocation.getDataStoreUrl();
+        IDssServiceRpcGeneric service = serviceFactory.getService(dataStoreUrl);
+        String dataSetCode = dataSetLocation.getDataSetCode();
+        String relativePath = path.getRelativePath();
+        URL url =
+                createURL(service.getDownloadUrlForFileForDataSet(sessionToken, dataSetCode,
+                        relativePath));
+        InputStream openStream = null;
+        try
+        {
+            openStream = url.openStream();
+            return openStream;
+        } catch (IOException ex)
+        {
+            IOUtils.closeQuietly(openStream);
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    private OutputStream createFileOutputStream(File file)
+    {
+        OutputStream outputStream = null;
+        try
+        {
+            outputStream = new FileOutputStream(file);
+            return outputStream;
+        } catch (FileNotFoundException ex)
+        {
+            IOUtils.closeQuietly(outputStream);
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
@@ -219,9 +337,7 @@ public class ContentCache implements IContentCache
     private File createFileFromInputStream(IDatasetLocation dataSetLocation, DataSetPathInfo path,
             InputStream inputStream)
     {
-        String relativePath = DOWNLOADING_FOLDER + "/" + Thread.currentThread().getId();
-        File file = new File(workspace, relativePath);
-        createFolder(file.getParentFile());
+        File file = createTempFile();
         OutputStream ostream = null;
         try
         {
@@ -237,6 +353,14 @@ public class ContentCache implements IContentCache
             IOUtils.closeQuietly(ostream);
         }
     }
+    
+    private File createTempFile()
+    {
+        String relativePath = DOWNLOADING_FOLDER + "/" + Thread.currentThread().getId();
+        File file = new File(workspace, relativePath);
+        createFolder(file.getParentFile());
+        return file;
+    }
 
     private void createFolder(File folder)
     {
@@ -249,7 +373,7 @@ public class ContentCache implements IContentCache
             }
         }
     }
-
+    
     private static final class LockManager
     {
         private static final class LockWithCounter
@@ -290,6 +414,6 @@ public class ContentCache implements IContentCache
             }
         }
 
-    }
-
+    }    
+    
 }
