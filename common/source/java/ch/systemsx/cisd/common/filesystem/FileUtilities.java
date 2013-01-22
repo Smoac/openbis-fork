@@ -50,6 +50,7 @@ import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -65,10 +66,14 @@ import ch.systemsx.cisd.common.exceptions.FileExistsException;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.parser.Line;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
+import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.string.StringUtilities;
 import ch.systemsx.cisd.common.string.StringUtilities.IUniquenessChecker;
 
@@ -88,6 +93,11 @@ import ch.systemsx.cisd.common.string.StringUtilities.IUniquenessChecker;
  */
 public final class FileUtilities
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            FileUtilities.class);
+    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
+            FileUtilities.class);
+    
     private FileUtilities()
     {
         // Can not be instantiated.
@@ -2278,4 +2288,42 @@ public final class FileUtilities
         return tmpFile.exists();
     }
 
+    /**
+     * Returns the size of the specified file or folder. In case of a folder and a Unix-type OS the
+     * command <tt>du</tt> will be used for better performance in case of huge folders/subfolders.
+     */
+    public static long getSizeOf(File file)
+    {
+        if (file == null)
+        {
+            throw new IllegalArgumentException("Unspecified file.");
+        } 
+        if (file.exists() == false)
+        {
+            throw new IllegalArgumentException("File does not exists: " + file);
+        }
+        if (file.isFile())
+        {
+            return file.length();
+        }
+        if (OSUtilities.isUnix())
+        {
+            ProcessResult result =
+                    ProcessExecutionHelper.run(Arrays.asList("du", "-k",
+                            OSUtilities.isMacOS() ? "-d0" : "--max-depth 0", file.toString()),
+                            operationLog, machineLog);
+            if (result.isOK())
+            {
+                return Long.parseLong(result.getOutput().get(0).split("\\t")[0]) * 1024;
+            }
+            Throwable exception = result.getProcessIOResult().tryGetException();
+            if (exception != null)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(exception);
+            }
+            throw new EnvironmentFailureException("The size of the folder '" + file
+                    + "' couldn't be determined: " + result.getErrorOutput());
+        }
+        return FileUtils.sizeOfDirectory(file);
+    }
 }

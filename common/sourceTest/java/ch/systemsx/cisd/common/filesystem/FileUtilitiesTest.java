@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.parser.filter.ExcludeEmptyAndCommentLineFilter;
@@ -514,4 +515,40 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         assertFalse(FileUtilities.isValidFileName("a/b"));
     }
 
+    @Test
+    public void testGetSizeOf()
+    {
+        File testFolder = new File(workingDirectory, "test-folder");
+        File subFolder = new File(testFolder, "sub-folder");
+        subFolder.mkdirs();
+        File file1 = new File(testFolder, "text1.txt");
+        FileUtilities.writeToFile(file1, createDummyStringOfSize(4500));
+        File file2 = new File(subFolder, "text2.txt");
+        FileUtilities.writeToFile(file2, createDummyStringOfSize(300));
+        File file3 = new File(subFolder, "text3.txt");
+        FileUtilities.writeToFile(file3, createDummyStringOfSize(2900));
+        
+        assertEquals(4500, FileUtilities.getSizeOf(file1));
+        assertEquals(300, FileUtilities.getSizeOf(file2));
+        assertEquals(2900, FileUtilities.getSizeOf(file3));
+        if (OSUtilities.isMacOS())
+        {
+            assertEquals(2 * 4096, FileUtilities.getSizeOf(subFolder));
+            assertEquals(4 * 4096, FileUtilities.getSizeOf(testFolder));
+        } else if (OSUtilities.isUnix())
+        {
+            assertEquals(3 * 4096, FileUtilities.getSizeOf(subFolder));
+            assertEquals(6 * 4096, FileUtilities.getSizeOf(testFolder));
+        }
+    }
+    
+    private String createDummyStringOfSize(long size)
+    {
+        StringBuilder builder = new StringBuilder();
+        for (long i = 0; i < size; i++)
+        {
+            builder.append('x');
+        }
+        return builder.toString();
+    }
 }
