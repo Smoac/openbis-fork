@@ -2322,7 +2322,10 @@ public final class FileUtilities
                 throw CheckedExceptionTunnel.wrapIfNecessary(exception);
             }
             throw new EnvironmentFailureException("The size of the folder '" + file
-                    + "' couldn't be determined: " + result.getErrorOutput());
+                    + "' couldn't be determined:\n command: " + result.getCommandName() 
+                    + "\n commad line arguments: " + result.getCommandLine() 
+                    + "\n output: " + result.getOutput() 
+                    + "\n error output: "+ result.getErrorOutput());
         }
         return FileUtils.sizeOfDirectory(file);
     }
