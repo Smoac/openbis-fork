@@ -51,15 +51,29 @@ public class TSVViewReportingPlugin extends AbstractFileTableReportingPlugin
     }
 
     @Override
-    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
+    public TableModel createReport(List<DatasetDescription> datasets,
+            DataSetProcessingContext context)
     {
         assureOnlyOneDataSetSelected(datasets);
         DatasetDescription dataset = datasets.get(0);
         IHierarchicalContent root =
                 getDatasetDir(context.getHierarchicalContentProvider(), dataset);
-        IHierarchicalContentNode fileToOpenOrNull =
-                tryFindFileToOpen(dataset.getMainDataSetPattern(), dataset.getMainDataSetPath(),
-                        root);
+
+        String pattern = properties.getProperty("data-set-regex");
+        String path = properties.getProperty("data-set-path");
+
+        if (pattern == null)
+        {
+            pattern = dataset.getMainDataSetPattern();
+        }
+
+        if (path == null)
+        {
+            path = dataset.getMainDataSetPath();
+        }
+
+        IHierarchicalContentNode fileToOpenOrNull = tryFindFileToOpen(pattern, path, root);
+
         if (fileToOpenOrNull != null && false == fileToOpenOrNull.isDirectory()
                 && fileToOpenOrNull.exists())
         {
