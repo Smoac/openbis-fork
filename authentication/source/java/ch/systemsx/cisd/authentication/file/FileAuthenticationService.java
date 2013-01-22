@@ -167,13 +167,13 @@ public class FileAuthenticationService implements IAuthenticationService
         return principal;
     }
 
-    static Principal toPrincipal(UserEntry entryOrNull)
+    static Principal toPrincipal(UserEntry userOrNull)
     {
-        if (entryOrNull == null)
+        if (userOrNull == null)
         {
             return null;
         }
-        return entryOrNull.asPrincipal();
+        return userOrNull.asPrincipal();
     }
 
     @Override
