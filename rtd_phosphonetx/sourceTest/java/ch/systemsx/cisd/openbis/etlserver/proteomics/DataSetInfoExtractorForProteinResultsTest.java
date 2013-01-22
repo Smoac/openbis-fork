@@ -119,6 +119,32 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         assertEquals("[1, 2, 3, 4]", info.getParentDataSetCodes().toString());
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testWithProvidedExperimentCode()
+    {
+        String propertiesFile = "my.properties";
+        FileUtilities.writeToFile(new File(dataSet, propertiesFile), "answer=42\nblabla=blub\n"
+                + DataSetInfoExtractorForProteinResults.EXPERIMENT_CODE_KEY + "= MY_EXP1\n");
+        Properties properties = new Properties();
+        String experimentType = "MY_EXPERIMENT";
+        properties.setProperty(EXPERIMENT_TYPE_CODE_KEY, experimentType);
+        properties.setProperty(EXPERIMENT_PROPERTIES_FILE_NAME_KEY, propertiesFile);
+        prepare(experimentType, false);
+        context.checking(new Expectations()
+        {
+            {
+                one(service).registerExperiment(with(any(NewExperiment.class)));
+            }
+        });
+        
+        IDataSetInfoExtractor extractor = createExtractor(properties);
+        
+        DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
+        
+        assertEquals("/SPACE1/PROJECT1/MY_EXP1", info.getExperimentIdentifier().toString());
+        context.assertIsSatisfied();
+    }
 
     @Test
     public void testRegistrationWithOneMandatoryProperty()
@@ -352,11 +378,19 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
 
     private void prepare(final String experimentType)
     {
+        prepare(experimentType, true);
+    }
+    
+    private void prepare(final String experimentType, final boolean experimentCodeGenerated)
+    {
         context.checking(new Expectations()
             {
                 {
-                    one(service).generateCodes("E", EntityKind.EXPERIMENT, 1);
-                    will(returnValue(Collections.singletonList("E4711")));
+                    if (experimentCodeGenerated)
+                    {
+                        one(service).generateCodes("E", EntityKind.EXPERIMENT, 1);
+                        will(returnValue(Collections.singletonList("E4711")));
+                    }
 
                     one(service).getExperimentType(experimentType);
                     ExperimentType type = new ExperimentType();

@@ -47,7 +47,10 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
 {
     @Private
     static final String EXPERIMENT_TYPE_CODE_KEY = "experiment-type-code";
-
+    
+    @Private
+    static final String EXPERIMENT_CODE_KEY = "experiment-code";
+    
     @Private
     static final String EXPERIMENT_PROPERTIES_FILE_NAME_KEY = "experiment-properties-file-name";
 
@@ -103,15 +106,19 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
                             + separator + "': " + name);
         }
         ProjectIdentifier projectIdentifier = new ProjectIdentifier(items[0], items[1]);
-        String experimentCode = service.generateCodes("E", EntityKind.EXPERIMENT, 1).get(0);
+        Properties properties =
+                loadSearchProperties(new File(incomingDataSetPath, experimentPropertiesFileName));
+        String experimentCode = properties.getProperty(EXPERIMENT_CODE_KEY);
+        if (experimentCode == null)
+        {
+            experimentCode = service.generateCodes("E", EntityKind.EXPERIMENT, 1).get(0);
+        }
         ExperimentIdentifier experimentIdentifier =
                 new ExperimentIdentifier(projectIdentifier, experimentCode);
         NewExperiment experiment =
                 new NewExperiment(experimentIdentifier.toString(), experimentTypeCode);
         ExperimentType experimentType = service.getExperimentType(experimentTypeCode);
 
-        Properties properties =
-                loadSearchProperties(new File(incomingDataSetPath, experimentPropertiesFileName));
         experiment.setProperties(Util.getAndCheckProperties(properties, experimentType));
         DataSetInformation info = new DataSetInformation();
         info.setExperimentIdentifier(experimentIdentifier);
