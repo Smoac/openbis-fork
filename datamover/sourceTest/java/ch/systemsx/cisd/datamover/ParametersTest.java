@@ -34,8 +34,10 @@ import ch.systemsx.cisd.common.utilities.SystemExit;
 import ch.systemsx.cisd.datamover.Parameters.HostAwareFileWithHighwaterMarkHandler;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.FileSysOperationsFactory;
+import ch.systemsx.cisd.datamover.filesystem.intf.AbstractFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
+import ch.systemsx.cisd.datamover.filesystem.store.FileStoreRemote;
 import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
 
 /**
@@ -109,8 +111,8 @@ public final class ParametersTest extends AbstractFileSystemTestCase
     {
         return new Object[][]
             {
-                { PropertyNames.BUFFER_DIR, 100 },
-                { PropertyNames.OUTGOING_TARGET, 200 } };
+                    { PropertyNames.BUFFER_DIR, 100 },
+                    { PropertyNames.OUTGOING_TARGET, 200 } };
     }
 
     @Test(dataProvider = "directoryWithHighwaterMark")
@@ -429,10 +431,13 @@ public final class ParametersTest extends AbstractFileSystemTestCase
         final IFileSysOperationsFactory factory = new FileSysOperationsFactory(parameters);
         if (hostOrNull == null)
         {
-            return FileStoreFactory.createLocal(path, kind, factory, false);
+            return FileStoreFactory.createLocal(path, kind, factory, false,
+                    AbstractFileStore.DEFAULT_REMOTE_CONNECTION_TIMEOUT_MILLIS);
         } else
         {
-            return FileStoreFactory.createRemoteHost(path, hostOrNull, null, kind, factory);
+            return FileStoreFactory.createRemoteHost(path, hostOrNull, null, kind, factory,
+                    AbstractFileStore.DEFAULT_REMOTE_CONNECTION_TIMEOUT_MILLIS,
+                    FileStoreRemote.DEFAULT_REMOTE_OPERATION_TIMEOUT_MILLIS);
         }
     }
 }

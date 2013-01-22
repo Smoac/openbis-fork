@@ -63,19 +63,21 @@ public final class FileStoreFactory
      */
     public static final IFileStore createLocal(final HostAwareFileWithHighwaterMark path,
             final String kind, final IFileSysOperationsFactory factory,
-            final boolean skipAccessibilityTest)
+            final boolean skipAccessibilityTest, final long remoteConnectionTimeoutMillis)
     {
-        return new FileStoreLocal(path, kind, factory, skipAccessibilityTest);
+        return new FileStoreLocal(path, kind, factory, skipAccessibilityTest,
+                remoteConnectionTimeoutMillis);
     }
 
     /**
      * use when file store is on a local host.
      */
     public static final IFileStore createLocal(final String readyToMoveDir, final String string,
-            final IFileSysOperationsFactory factory, final boolean skipAccessibilityTest)
+            final IFileSysOperationsFactory factory, final boolean skipAccessibilityTest,
+            final long remoteConnectionTimeoutMillis)
     {
         return createLocal(new HostAwareFileWithHighwaterMark(readyToMoveDir), string, factory,
-                skipAccessibilityTest);
+                skipAccessibilityTest, remoteConnectionTimeoutMillis);
     }
 
     /**
@@ -86,12 +88,12 @@ public final class FileStoreFactory
     @Private
     public static final IFileStore createRemoteHost(final String path, final String host,
             final String rsyncModuleOrNull, final String kind,
-            final IFileSysOperationsFactory factory)
+            final IFileSysOperationsFactory factory, final long remoteConnectionTimeoutMillis,
+            final long remoteOperationTimeoutMillis)
     {
         return createRemoteHost(new HostAwareFileWithHighwaterMark(host, path, rsyncModuleOrNull),
-                kind, factory, false, null, null,
-                FileStoreRemote.DEFAULT_REMOTE_CONNECTION_TIMEOUT_MILLIS,
-                FileStoreRemote.DEFAULT_REMOTE_OPERATION_TIMEOUT_MILLIS);
+                kind, factory, false, null, null, remoteConnectionTimeoutMillis,
+                remoteOperationTimeoutMillis);
     }
 
     /**
@@ -121,17 +123,17 @@ public final class FileStoreFactory
                     remoteConnectionTimeoutMillis, remoteOperationTimeoutMillis);
         } else
         {
-            final long timoutMillis = checkIntervalMillis * 3;
             if (isRemote)
             {
                 if (operationLog.isDebugEnabled())
                 {
                     operationLog.debug(String.format(
-                            "Create %s store for mounted path %s, timeout: %f s.", kind, path
-                                    .getLocalFile().toString(), timoutMillis / 1000.0));
+                            "Create %s store for mounted path %s, timeout: %d s.", kind, path
+                                    .getLocalFile().toString(),
+                            remoteOperationTimeoutMillis / 1000L));
                 }
                 return new FileStoreRemoteMounted(path, kind, factory, skipAccessibilityTest,
-                        timoutMillis);
+                        remoteConnectionTimeoutMillis, remoteOperationTimeoutMillis);
             } else
             {
                 if (operationLog.isDebugEnabled())
@@ -139,7 +141,8 @@ public final class FileStoreFactory
                     operationLog.debug(String.format("Create %s store for local path %s.", kind,
                             path.getLocalFile().toString()));
                 }
-                return createLocal(path, kind, factory, skipAccessibilityTest);
+                return createLocal(path, kind, factory, skipAccessibilityTest,
+                        remoteConnectionTimeoutMillis);
             }
         }
     }

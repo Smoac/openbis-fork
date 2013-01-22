@@ -479,8 +479,8 @@ public class FileStoreRemote extends AbstractFileStore
     {
         final String cmd = mkCheckCommandExistsCommand(exec);
         final ProcessResult result =
-                sshCommandExecutor.executeCommandRemotely(cmd, remoteConnectionTimeoutMillis
-                        , false);
+                sshCommandExecutor
+                        .executeCommandRemotely(cmd, remoteConnectionTimeoutMillis, false);
         if (machineLog.isDebugEnabled())
         {
             result.log();

@@ -33,7 +33,9 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
+import ch.systemsx.cisd.datamover.filesystem.intf.AbstractFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
+import ch.systemsx.cisd.datamover.filesystem.store.FileStoreRemote;
 import ch.systemsx.cisd.datamover.testhelper.FileOperationsUtil;
 
 /**
@@ -274,13 +276,16 @@ public class SelfTestTest
             String description)
     {
         return FileStoreFactory.createRemoteHost(path, host, rsyncModule, description,
-                FileOperationsUtil.createTestFactory());
+                FileOperationsUtil.createTestFactory(),
+                AbstractFileStore.DEFAULT_REMOTE_CONNECTION_TIMEOUT_MILLIS,
+                FileStoreRemote.DEFAULT_REMOTE_OPERATION_TIMEOUT_MILLIS);
     }
 
     private final static IFileStore createLocalStore(File path, String description)
     {
         return FileStoreFactory.createLocal(path.getPath(), description,
-                FileOperationsUtil.createTestFactory(), false);
+                FileOperationsUtil.createTestFactory(), false,
+                AbstractFileStore.DEFAULT_REMOTE_CONNECTION_TIMEOUT_MILLIS);
     }
 
 }

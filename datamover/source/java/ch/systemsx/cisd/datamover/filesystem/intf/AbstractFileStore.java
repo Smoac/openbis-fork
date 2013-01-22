@@ -56,7 +56,8 @@ public abstract class AbstractFileStore implements IFileStore
 
     protected AbstractFileStore(
             final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark, final String kind,
-            final IFileSysOperationsFactory factory, final boolean skipAccessibilityTest, final long remoteConnectionTimeoutMillis)
+            final IFileSysOperationsFactory factory, final boolean skipAccessibilityTest,
+            final long remoteConnectionTimeoutMillis)
     {
         assert hostAwareFileWithHighwaterMark != null;
         assert kind != null;

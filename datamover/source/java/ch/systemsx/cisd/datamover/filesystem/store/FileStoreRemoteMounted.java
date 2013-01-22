@@ -55,11 +55,13 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
      */
     public FileStoreRemoteMounted(final HostAwareFileWithHighwaterMark file,
             final String description, final IFileSysOperationsFactory factory,
-            final boolean skipAccessibilityTest, final long lastChangedTimeoutMillis)
+            final boolean skipAccessibilityTest, final long remoteConnectionTimeoutMillis,
+            final long lastChangedTimeoutMillis)
     {
-        super(file, description, factory, skipAccessibilityTest,
-                DEFAULT_REMOTE_CONNECTION_TIMEOUT_MILLIS);
-        this.localImpl = new FileStoreLocal(file, description, factory, skipAccessibilityTest);
+        super(file, description, factory, skipAccessibilityTest, remoteConnectionTimeoutMillis);
+        this.localImpl =
+                new FileStoreLocal(file, description, factory, skipAccessibilityTest,
+                        remoteConnectionTimeoutMillis);
         this.localImplMonitored =
                 MonitoringProxy.create(IFileStore.class, localImpl)
                         .timing(TimingParameters.create(lastChangedTimeoutMillis)).get();

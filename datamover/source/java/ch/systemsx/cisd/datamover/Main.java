@@ -101,7 +101,8 @@ public final class Main
         stores.add(parameters.getIncomingStore(factory));
         final IFileStore bufferStore =
                 FileStoreFactory.createLocal(parameters.getBufferDirectoryPath(),
-                        Parameters.BUFFER_KIND_DESC, factory, false);
+                        Parameters.BUFFER_KIND_DESC, factory, false,
+                        parameters.getRemoteConnectionTimeout());
         stores.add(bufferStore);
         stores.add(parameters.getOutgoingStore(factory));
         if (parameters.tryGetManualInterventionDir() != null)
@@ -109,14 +110,15 @@ public final class Main
             final IFileStore dummyStore =
                     FileStoreFactory.createLocal(
                             parameters.tryGetManualInterventionDir().getPath(),
-                            "manual intervention", factory, false);
+                            "manual intervention", factory, false,
+                            parameters.getRemoteConnectionTimeout());
             stores.add(dummyStore);
         }
         if (parameters.tryGetExtraCopyDir() != null)
         {
             final IFileStore dummyStore =
                     FileStoreFactory.createLocal(parameters.tryGetExtraCopyDir().getPath(),
-                            "extra-copy", factory, false);
+                            "extra-copy", factory, false, parameters.getRemoteConnectionTimeout());
             stores.add(dummyStore);
         }
         final IPathCopier copyProcess = factory.getCopier(false);

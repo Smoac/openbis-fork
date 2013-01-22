@@ -266,7 +266,8 @@ public final class DataMover
         final IFileStore outgoingStore = parameters.getOutgoingStore(factory);
         final File sourceDirectory = bufferDirs.getReadyToMoveDir();
         final IFileStore readyToMoveStore =
-                FileStoreFactory.createLocal(sourceDirectory.getPath(), "ready-to-move", factory, false);
+                FileStoreFactory.createLocal(sourceDirectory.getPath(), "ready-to-move", factory,
+                        false, parameters.getRemoteConnectionTimeout());
         final IStoreHandler remoteStoreMover =
                 wrapHandleWithLogging(createOutgoingPathMover(readyToMoveStore, outgoingStore),
                         null, FINISHED_TRANSFER, null);
