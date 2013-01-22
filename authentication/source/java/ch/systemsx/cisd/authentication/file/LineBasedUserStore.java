@@ -160,7 +160,11 @@ final class LineBasedUserStore<T extends UserEntry> implements IUserStore<T>
         assert user != null;
 
         updateMaps();
-        idToEntryMap.put(user.getUserId(), user);
+        final T oldUserOrNull = idToEntryMap.put(user.getUserId(), user);
+        if (oldUserOrNull != null && StringUtils.isNotBlank(oldUserOrNull.getEmail()))
+        {
+            emailToEntryMap.remove(oldUserOrNull.getEmail().toLowerCase());
+        }
         if (StringUtils.isNotBlank(user.getEmail()))
         {
             if (emailToEntryMap.put(user.getEmail().toLowerCase(), user) != null)
