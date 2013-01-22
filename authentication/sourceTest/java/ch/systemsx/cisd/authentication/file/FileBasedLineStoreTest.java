@@ -16,16 +16,21 @@
 
 package ch.systemsx.cisd.authentication.file;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.testng.AssertJUnit.*;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * Test cases for the {@link FileBasedLineStore}.
@@ -49,6 +54,12 @@ public class FileBasedLineStoreTest
     
     private final static FileBasedLineStore store = new FileBasedLineStore(file, fileDescription);
 
+    @AfterClass
+    public void cleanUp()
+    {
+        FileUtilities.deleteRecursively(workingDirectory);
+    }
+    
     @Test
     public void testCheck()
     {
