@@ -44,7 +44,7 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
     @Override
     protected void setUpDatabaseProperties()
     {
-        TestInitializer.initEmptyDbNoIndex();
+        TestInitializer.initEmptyDbWithIndex();
     }
 
     @Override

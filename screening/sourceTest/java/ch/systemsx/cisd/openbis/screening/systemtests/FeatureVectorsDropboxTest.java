@@ -76,15 +76,6 @@ public class FeatureVectorsDropboxTest extends AbstractScreeningSystemTestCase
         return checkOnFinishedPostRegistration(logContent);
     }
 
-    /**
-     * sets up the openbis database to be used by the tests.
-     */
-    @Override
-    protected void setUpDatabaseProperties()
-    {
-        TestInitializer.initEmptyDbWithIndex();
-    }
-
     @BeforeMethod
     public void setUp() throws Exception
     {
