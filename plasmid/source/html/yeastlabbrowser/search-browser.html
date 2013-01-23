@@ -115,8 +115,7 @@ function initializeEachsamples(result)
 	
 	// Combine the two groups back together to produce the full collection of eachsamples
 	eachsamples = fryEachsamples.concat(otherEachsamples);
-	
-	
+	console.log(eachsamples)	
 }
 
 
@@ -133,7 +132,7 @@ function inspectEachsample(eachsample)
  
  
 	 
-  window.open(eachsample.sampleTypeCode +"-browser.html?code=" + eachsample.code, "_blank");
+  window.open(eachsample.sampleTypeCode.toLowerCase() +"-browser.html?code=" + eachsample.code, "_blank");
   
 
 }
@@ -182,7 +181,7 @@ selection
 	 	.attr("class", "eachsample-table-data")
 		.style("cursor", "pointer")
 		.on("click", inspectEachsample)
-		.selectAll("td").data(function(sample) { return [sample.sampleTypeCode, sample.identifier.slice(11,50), sample.properties ]; })
+		.selectAll("td").data(function(sample) { return [sample.sampleTypeCode, sample.identifier.slice(11,50), sample.properties, sample.properties ]; })
 			.enter()
 			.append("td")
 			.append("div")
@@ -191,15 +190,24 @@ selection
 			  if(index == 2){
 			    if(searchText && searchText.length > 0 && d){
 				    for(propertyName in d){
-				        var propertyValue = d[propertyName];
+				    	  var propertyValue = d[propertyName];
 				        if(propertyValue && searchRegexp.test(propertyValue)){
 							    return propertyValue;
-							    console.log(propertyValue)
-							    console.log(propertyName)
-							  }			    
+								  }			    
 				    }
 					}	    
-			  }else{
+			  }
+			  else if (index ==3){
+			    if(searchText && searchText.length > 0 && d){
+				    for(propertyName in d){
+				    	  var propertyValue = d[propertyName];
+				        if(propertyValue && searchRegexp.test(propertyValue)){
+							    return propertyName;
+								  }			    
+				    }
+					}	    
+			  }
+			  else{
 			    return d;
 			  }
 			  
@@ -207,8 +215,6 @@ selection
 			})
 			
 }
-
-
 
 
 /**
@@ -252,6 +258,23 @@ function showMatchingSamples()
 
 }
 
+function showMatchingField()
+{
+	var sampleCriteria = 
+	{
+		matchClauses : 
+			[ {"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",
+				attribute:"TYPE",			
+				desiredValue : "*" 
+			}
+			],
+		operator : "MATCH_ANY_CLAUSES"
+	};
+
+	openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], displayReturnedSamples);
+
+}
 
 
 /**
@@ -271,7 +294,7 @@ function enterApp(data)
 	$('#openbis-logo').height(30);
 	
 	
-	showMatchingSamples();
+	//showMatchingSamples();
 }
 
 
@@ -388,16 +411,16 @@ $(document).ready(function() {
 	    
 	    <div id="search-field" ">
 	    <table>
-			  <tr style="position:absolute; top: 650px; left: 200px"><td style="font-weight: bold; width: 100px">Search</td><td><form><input style="width: 200px" id="search" type="text"></form></td></tr> 		
+			  <tr style="position:absolute; top: 100px; left: 200px"><td style="font-weight: bold; width: 100px">Search</td><td><form><input style="width: 200px" id="search" type="text"></form></td></tr> 		
 		</table>
 	    </div>
 	    
 
  		<div id="vis">
- 		   <div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
+ 		   <div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 150px; overflow: auto">
   	 	  <table id="eachsample-table" cellpadding="0" cellspacing="0" border="1" bordercolor="white" class="display" width="100%">
 			  <thead >
-					<tr class="eachsample-table-header"><th>Sample Type</th><th>Code</th><th>Matched Text</th></tr>
+					<tr class="eachsample-table-header"><th>Sample Type</th><th>Code</th><th>Matched Text</th><th>Matching Field</th></tr>
 				</thead> 
 				<tbody></tbody>
 			</table>
