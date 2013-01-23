@@ -76,7 +76,7 @@
         <property name="timeoutStr" value="${ldap.timeout}" />
         <property name="timeToWaitAfterFailureStr" value="${ldap.timeToWaitAfterFailure}" />
     </bean>
-
+    
     <bean id="ldap-authentication-service"
         class="ch.systemsx.cisd.authentication.ldap.LDAPAuthenticationService">
         <constructor-arg ref="ldap-directory-configuration" />
@@ -97,7 +97,8 @@
         </constructor-arg>
     </bean>
     
-    <bean id="file-ldap-authentication-service" class = "ch.systemsx.cisd.authentication.stacked.StackedAuthenticationService">
+    <bean id="file-ldap-authentication-service" 
+    			class = "ch.systemsx.cisd.authentication.stacked.StackedAuthenticationService">
         <constructor-arg>
             <list>
                 <ref bean="file-authentication-service" />
@@ -106,7 +107,8 @@
         </constructor-arg>
     </bean>
     
-    <bean id="stacked-authentication-service" class = "ch.systemsx.cisd.authentication.stacked.StackedAuthenticationService">
+    <bean id="ldap-crowd-authentication-service" 
+    			class = "ch.systemsx.cisd.authentication.stacked.StackedAuthenticationService">
         <constructor-arg>
             <list>
                 <ref bean="ldap-authentication-service" />
@@ -114,7 +116,23 @@
             </list>
         </constructor-arg>
     </bean>
+
+    <bean id="authentication-cache-configuration"
+    		class="ch.systemsx.cisd.authentication.file.CachingAuthenticationConfiguration">
+        <property name="delegate" ref="ldap-crowd-authentication-service" />
+        <property name="passwordCacheFile" value="etc/password_cache" />
+        <property name="cacheTimeStr" value="${authentication.cache.time}" />
+        <property name="cacheTimeNoRevalidationStr" value="${authentication.cache.time-no-revalidation}" />
+    </bean>
+
+    <bean id="file-ldap-crowd-caching-authentication-service" 
+    			class = "ch.systemsx.cisd.authentication.file.CachingAuthenticationService">
+        <constructor-arg ref="authentication-cache-configuration" />
+    </bean>
     
+    <!-- Keep this for backward compatibility with old service.properties files. -->
+    <alias name="ldap-crowd-authentication-service" alias="stacked-authentication-service"/>
+        
     <!-- 
         // Implementation of IRequestContextProvider
     -->

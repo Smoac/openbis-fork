@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.time.DateTimeUtils;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 
@@ -67,9 +68,9 @@ public class CachingAuthenticationService implements IAuthenticationService
 
     public final static long ONE_HOUR = 60 * ONE_MINUTE;
 
-    private final static long CACHE_TIME_MILLIS_NO_REVALIDATION = ONE_HOUR;
+    public final static long CACHE_TIME_MILLIS_NO_REVALIDATION = ONE_HOUR;
 
-    private final static long CACHE_TIME_MILLIS = 28 * ONE_HOUR;
+    public final static long CACHE_TIME_MILLIS = 28 * ONE_HOUR;
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CachingAuthenticationService.class);
@@ -211,7 +212,7 @@ public class CachingAuthenticationService implements IAuthenticationService
                         userId));
             }
         }
-        
+
         @Override
         public void run()
         {
@@ -230,7 +231,7 @@ public class CachingAuthenticationService implements IAuthenticationService
         }
     }
 
-    /** A simple interface to authenticate by one type of id. */
+    /** A interface with one method to authenticate by one type of id (userid or email). */
     interface IAuthenticator
     {
         Principal tryGetAndAuthenticate(String id, String passwordOrNull);
@@ -252,20 +253,22 @@ public class CachingAuthenticationService implements IAuthenticationService
 
     private final ITimeProvider timeProvider;
 
-    CachingAuthenticationService(IAuthenticationService delegate,
+    private final boolean caching;
+
+    public CachingAuthenticationService(IAuthenticationService delegate,
             String passwordCacheFileName)
     {
         this(delegate, createUserStore(passwordCacheFileName));
     }
 
-    CachingAuthenticationService(IAuthenticationService authenticationService,
+    public CachingAuthenticationService(IAuthenticationService authenticationService,
             IUserStore<UserCacheEntry> store)
     {
         this(authenticationService, store, CACHE_TIME_MILLIS_NO_REVALIDATION,
                 CACHE_TIME_MILLIS);
     }
 
-    CachingAuthenticationService(IAuthenticationService delegate,
+    public CachingAuthenticationService(IAuthenticationService delegate,
             String passwordCacheFileName,
             long cacheTimeNoRevalidationMillis,
             long cacheTimeMillis)
@@ -274,13 +277,19 @@ public class CachingAuthenticationService implements IAuthenticationService
                 cacheTimeNoRevalidationMillis, cacheTimeMillis);
     }
 
-    CachingAuthenticationService(IAuthenticationService delegate,
+    public CachingAuthenticationService(IAuthenticationService delegate,
             IUserStore<UserCacheEntry> userStore,
             long cacheTimeNoRevalidationMillis,
             long cacheTimeMillis)
     {
         this(delegate, userStore, cacheTimeNoRevalidationMillis, cacheTimeMillis, true,
                 SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+    }
+
+    public CachingAuthenticationService(CachingAuthenticationConfiguration config)
+    {
+        this(config.getDelegate(), createUserStore(config.getPasswordCacheFile()), config
+                .getCacheTimeNoRevalidation(), config.getCacheTime());
     }
 
     // For unit tests.
@@ -315,18 +324,36 @@ public class CachingAuthenticationService implements IAuthenticationService
         this.cacheTimeMillis = cacheTimeMillis;
         this.validationQueue = new LinkedBlockingQueue<ValidationRequest>();
         this.timeProvider = timeProvider;
-        if (startRevalidationThread)
+        this.caching = (cacheTimeMillis > 0);
+        if (startRevalidationThread && caching)
         {
             final Thread t = new Thread(new RevalidationRunnable());
             t.setName(getClass().getSimpleName() + " - Validator");
             t.setDaemon(true);
             t.start();
         }
+        if (operationLog.isInfoEnabled())
+        {
+            if (caching)
+            {
+                operationLog.info(String.format(
+                        "Caching authentication results for %s, revalidating after %s.",
+                        DateTimeUtils.renderDuration(cacheTimeMillis),
+                        DateTimeUtils.renderDuration(cacheTimeNoRevalidationMillis)));
+            } else
+            {
+                operationLog.info("Authentication caching is switched off.");
+            }
+        }
     }
 
     static IUserStore<UserCacheEntry> createUserStore(
             final String passwordCacheFileName)
     {
+        if (StringUtils.isBlank(passwordCacheFileName))
+        {
+            return null;
+        }
         final ILineStore lineStore =
                 new FileBasedLineStore(new File(passwordCacheFileName), "Password cache file");
         return new LineBasedUserStore<UserCacheEntry>(lineStore,
@@ -386,9 +413,13 @@ public class CachingAuthenticationService implements IAuthenticationService
                 {
                     return null;
                 }
-                final UserCacheEntry user =
-                        new UserCacheEntry(p, passwordOrNull, timeProvider.getTimeInMilliseconds());
-                userStore.addOrUpdateUser(user);
+                if (caching)
+                {
+                    final UserCacheEntry user =
+                            new UserCacheEntry(p, passwordOrNull,
+                                    timeProvider.getTimeInMilliseconds());
+                    userStore.addOrUpdateUser(user);
+                }
                 return p;
             }
             default:
@@ -409,7 +440,7 @@ public class CachingAuthenticationService implements IAuthenticationService
 
     private CacheEntryStatus getStatus(UserCacheEntry entry, boolean requirePassword, long now)
     {
-        if (entry == null)
+        if (entry == null || caching == false)
         {
             return CacheEntryStatus.NO_ENTRY;
         }
@@ -579,7 +610,7 @@ public class CachingAuthenticationService implements IAuthenticationService
     @Override
     public boolean isConfigured()
     {
-        return delegate.isConfigured();
+        return (userStore != null) && (delegate != null) && delegate.isConfigured();
     }
 
 }

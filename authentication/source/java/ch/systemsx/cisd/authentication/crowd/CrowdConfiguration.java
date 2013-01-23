@@ -18,6 +18,8 @@ package ch.systemsx.cisd.authentication.crowd;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.common.time.DateTimeUtils;
+
 /**
  * A configuration object for Crowd.
  * 
@@ -80,9 +82,10 @@ public class CrowdConfiguration
     {
         return Integer.toString(port);
     }
-    
+
     /**
-     * Sets the port (as String) that the Crowd service is running on. Only set if a positive integer.
+     * Sets the port (as String) that the Crowd service is running on. Only set if a positive
+     * integer.
      */
     public void setPortStr(String portStr)
     {
@@ -111,7 +114,7 @@ public class CrowdConfiguration
             return null;
         }
     }
-    
+
     /**
      * Returns the application name that this application sends to the Crowd service.
      */
@@ -151,7 +154,7 @@ public class CrowdConfiguration
     }
 
     /**
-     * Returns the timeout, i.e.  how long to wait for a result from Crowd (in ms).
+     * Returns the timeout, i.e. how long to wait for a result from Crowd (in ms).
      */
     public int getTimeout()
     {
@@ -167,7 +170,8 @@ public class CrowdConfiguration
     }
 
     /**
-     * Sets the timeout, i.e. how long to wait for a result from Crowd (as String, in s).
+     * Sets the timeout, i.e. how long to wait for a result from Crowd as a String in a format
+     * understood by {@link DateTimeUtils#parseDurationToMillis(String)}.
      */
     public void setTimeoutStr(String timeoutStr)
     {
@@ -175,14 +179,14 @@ public class CrowdConfiguration
         {
             try
             {
-                setTimeout(Integer.parseInt(timeoutStr) * 1000);
+                setTimeout((int) DateTimeUtils.parseDurationToMillis(timeoutStr));
             } catch (NumberFormatException ex)
             {
                 // Not set.
             }
         }
     }
-    
+
     /**
      * Returns the timeout, i.e. how long to wait for a result from Crowd (as String, in s).
      */

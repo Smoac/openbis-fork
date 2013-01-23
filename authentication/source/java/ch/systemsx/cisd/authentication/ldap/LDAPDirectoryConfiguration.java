@@ -20,6 +20,8 @@ import javax.naming.Context;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.common.time.DateTimeUtils;
+
 /**
  * The configuration for an LDAP directory server. Example:
  * 
@@ -335,13 +337,14 @@ public final class LDAPDirectoryConfiguration
     }
 
     /**
-     * Set the read timeout (in s).
+     * Set the read timeout as String in a format understood by
+     * {@link DateTimeUtils#parseDurationToMillis(String)}.
      */
-    public void setTimeoutStr(String timeoutMillis)
+    public void setTimeoutStr(String timeoutStr)
     {
-        if (isResolved(timeoutMillis))
+        if (isResolved(timeoutStr))
         {
-            this.timeout = Long.parseLong(timeoutMillis) * 1000L;
+            this.timeout = DateTimeUtils.parseDurationToMillis(timeoutStr);
         }
     }
 
@@ -364,13 +367,15 @@ public final class LDAPDirectoryConfiguration
     }
 
     /**
-     * Set the time to wait after failure before retrying (in ms).
+     * Set the time to wait after failure before retrying as a String in a format understood by
+     * {@link DateTimeUtils#parseDurationToMillis(String)}.
      */
-    public void setTimeToWaitAfterFailureStr(String timeToWaitOnFailureMillis)
+    public void setTimeToWaitAfterFailureStr(String timeToWaitOnFailureStr)
     {
-        if (isResolved(timeToWaitOnFailureMillis))
+        if (isResolved(timeToWaitOnFailureStr))
         {
-            this.timeToWaitAfterFailure = Long.parseLong(timeToWaitOnFailureMillis) * 1000L;
+            this.timeToWaitAfterFailure =
+                    DateTimeUtils.parseDurationToMillis(timeToWaitOnFailureStr);
         }
     }
 

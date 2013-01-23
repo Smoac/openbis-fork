@@ -37,6 +37,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 /**
@@ -103,6 +104,7 @@ public class CachingAuthenticationServiceSuccessTests
     @BeforeClass
     public void setUp()
     {
+        LogInitializer.init();
         FileUtilities.deleteRecursively(workingDirectory);
         workingDirectory.mkdirs();
         context = new Mockery();
