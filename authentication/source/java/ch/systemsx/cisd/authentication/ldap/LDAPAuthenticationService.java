@@ -40,10 +40,13 @@ public class LDAPAuthenticationService implements IAuthenticationService
             LogFactory.getLogger(LogCategory.OPERATION, LDAPAuthenticationService.class);
 
     private final LDAPPrincipalQuery query;
+    
+    private final boolean configured;
 
     public LDAPAuthenticationService(LDAPDirectoryConfiguration config)
     {
         query = new LDAPPrincipalQuery(config);
+        this.configured = config.isConfigured();
     }
 
     @Override
@@ -196,6 +199,12 @@ public class LDAPAuthenticationService implements IAuthenticationService
     public boolean isRemote()
     {
         return query.isRemote();
+    }
+
+    @Override
+    public boolean isConfigured()
+    {
+        return configured;
     }
 
 }

@@ -44,12 +44,18 @@
     <bean id="no-authentication-service"
         class="ch.systemsx.cisd.authentication.NullAuthenticationService" />
 
+    <bean id="crowd-configuration" 
+        class="ch.systemsx.cisd.authentication.crowd.CrowdConfiguration">
+        <property name="host" value="${crowd.service.host}" />
+        <property name="portStr" value="${crowd.service.port}" />
+        <property name="timeoutStr" value="${crowd.service.timeout}" />
+        <property name="application" value="${crowd.application.name}" />
+        <property name="applicationPassword" value="${crowd.application.password}" />
+    </bean>
+
     <bean id="crowd-authentication-service"
         class="ch.systemsx.cisd.authentication.crowd.CrowdAuthenticationService">
-        <constructor-arg value="${crowd.service.host}" />
-        <constructor-arg value="${crowd.service.port}" />
-        <constructor-arg value="${crowd.application.name}" />
-        <constructor-arg value="${crowd.application.password}" />
+        <constructor-arg ref="crowd-configuration" />
     </bean>
 
     <bean id="ldap-directory-configuration" 

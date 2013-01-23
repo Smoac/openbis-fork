@@ -37,8 +37,9 @@ import org.apache.commons.lang.StringUtils;
 public final class LDAPDirectoryConfiguration
 {
 
-    static final String DEFAULT_QUERY_TEMPLATE = "(&(objectClass=organizationalPerson)(objectCategory=person)"
-                        + "(objectClass=user)(%s))";
+    static final String DEFAULT_QUERY_TEMPLATE =
+            "(&(objectClass=organizationalPerson)(objectCategory=person)"
+                    + "(objectClass=user)(%s))";
 
     private String userIdAttributeName = "uid";
 
@@ -47,11 +48,11 @@ public final class LDAPDirectoryConfiguration
     private String firstNameAttributeName = "givenName";
 
     private String emailAttributeName = "mail";
-    
+
     private String emailAliasesAttributeName = "proxyAddresses";
-    
+
     private String emailAttributePrefix = "smtp:";
-    
+
     private String queryEmailForAliases = "false";
 
     private String securityProtocol = "ssl";
@@ -59,11 +60,11 @@ public final class LDAPDirectoryConfiguration
     private String securityAuthenticationMethod = "simple";
 
     private String referral = "follow";
-    
+
     private long timeout = 10000L;
-    
+
     private int maxRetries = 1;
-    
+
     private long timeToWaitAfterFailure = 10000L;
 
     private String queryTemplate =
@@ -74,6 +75,16 @@ public final class LDAPDirectoryConfiguration
     private String serverUrl;
 
     private String securityPrincipalPassword;
+
+    /**
+     * Returns <code>true</code> if this configuration is complete.
+     */
+    public boolean isConfigured()
+    {
+        return StringUtils.isNotBlank(serverUrl)
+                && StringUtils.isNotBlank(securityPrincipalDistinguishedName)
+                && StringUtils.isNotBlank(securityPrincipalPassword);
+    }
 
     /**
      * Default value: <code>uid</code>
@@ -161,8 +172,8 @@ public final class LDAPDirectoryConfiguration
     }
 
     /**
-     * If the query for emails should use the email aliases instead of the canonical email addresses.
-     * 
+     * If the query for emails should use the email aliases instead of the canonical email
+     * addresses.
      * Default: <code>false</code>.
      */
     public void setQueryEmailForAliases(String queryEmailForAliases)
@@ -316,29 +327,27 @@ public final class LDAPDirectoryConfiguration
 
     /**
      * The read timeout (in ms).
-     * 
      * Default value: <code>-1</code> (which means: wait forever)
      */
     public String getTimeoutStr()
     {
-        return Long.toString(timeout);
+        return Long.toString(timeout / 1000);
     }
 
     /**
-     * Set the read timeout (in ms).
+     * Set the read timeout (in s).
      */
     public void setTimeoutStr(String timeoutMillis)
     {
         if (isResolved(timeoutMillis))
         {
-            this.timeout = Long.parseLong(timeoutMillis);
+            this.timeout = Long.parseLong(timeoutMillis) * 1000L;
         }
     }
 
     /**
      * The time to wait after failure before retrying (in ms).
-     * 
-     * Default value: <code>-1</code> (which means: wait forever)
+     * Default value: <code>10000</code> (10s)
      */
     public long getTimeToWaitAfterFailure()
     {
@@ -346,13 +355,12 @@ public final class LDAPDirectoryConfiguration
     }
 
     /**
-     * The time to wait after failure before retrying (in ms).
-     * 
-     * Default value: <code>-1</code> (which means: wait forever)
+     * The time to wait after failure before retrying (in s).
+     * Default value: <code>10</code>
      */
     public String getTimeToWaitAfterFailureStr()
     {
-        return Long.toString(timeToWaitAfterFailure);
+        return Long.toString(timeToWaitAfterFailure / 1000);
     }
 
     /**
@@ -362,13 +370,12 @@ public final class LDAPDirectoryConfiguration
     {
         if (isResolved(timeToWaitOnFailureMillis))
         {
-            this.timeToWaitAfterFailure = Long.parseLong(timeToWaitOnFailureMillis);
+            this.timeToWaitAfterFailure = Long.parseLong(timeToWaitOnFailureMillis) * 1000L;
         }
     }
 
     /**
      * The maximum number of times a failed query is retried.
-     * 
      * Default value: <code>9</code>
      */
     public int getMaxRetries()
@@ -378,7 +385,6 @@ public final class LDAPDirectoryConfiguration
 
     /**
      * The maximum number of times a failed query is retried.
-     * 
      * Default value: <code>9</code>
      */
     public String getMaxRetriesStr()
@@ -416,5 +422,5 @@ public final class LDAPDirectoryConfiguration
     {
         return StringUtils.isNotBlank(name) && name.startsWith("${") == false;
     }
-    
+
 }

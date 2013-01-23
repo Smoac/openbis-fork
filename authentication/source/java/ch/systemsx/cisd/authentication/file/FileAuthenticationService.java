@@ -57,6 +57,10 @@ public class FileAuthenticationService implements IAuthenticationService
 
     private static IUserStore<? extends UserEntry> createUserStore(final String passwordFileName)
     {
+        if (passwordFileName == null)
+        {
+            return null;
+        }
         final ILineStore lineStore =
                 new FileBasedLineStore(new File(passwordFileName), "Password file");
         return createUserStore(lineStore);
@@ -304,6 +308,12 @@ public class FileAuthenticationService implements IAuthenticationService
     public boolean isRemote()
     {
         return (listingServiceOrNull != null) && listingServiceOrNull.isRemote();
+    }
+
+    @Override
+    public boolean isConfigured()
+    {
+        return userStore != null;
     }
 
 }

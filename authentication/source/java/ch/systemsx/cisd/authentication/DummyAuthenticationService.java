@@ -186,4 +186,10 @@ public final class DummyAuthenticationService implements IAuthenticationService
         // Always available.
     }
 
+    @Override
+    public boolean isConfigured()
+    {
+        return true;
+    }
+
 }

@@ -59,7 +59,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public class CrowdAuthenticationService implements IAuthenticationService
 {
-    private static final int CONNECTION_TIMEOUT = (int) (5 * DateUtils.MILLIS_PER_MINUTE);
+    private static final int DEFAULT_CONNECTION_TIMEOUT_MILLIS =
+            (int) (5 * DateUtils.MILLIS_PER_MINUTE);
 
     private static final String DUMMY_TOKEN_STR = "DUMMY-TOKEN";
 
@@ -133,7 +134,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
                             + "   </soap:Body>\n"
                             + "</soap:Envelope>\n");
 
-    private static IRequestExecutor createExecutor()
+    private static IRequestExecutor createExecutor(final int timeoutMillis)
     {
         return new IRequestExecutor()
             {
@@ -149,7 +150,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
                     {
                         final HttpClient client = new HttpClient();
                         final PostMethod post = new PostMethod(serviceUrl);
-                        post.getParams().setSoTimeout(CONNECTION_TIMEOUT);
+                        post.getParams().setSoTimeout(timeoutMillis);
                         final StringRequestEntity entity =
                                 new StringRequestEntity(message, "application/soap+xml", "utf-8");
                         post.setRequestEntity(entity);
@@ -178,15 +179,36 @@ public class CrowdAuthenticationService implements IAuthenticationService
 
     private final String applicationPassword;
 
-    private final IRequestExecutor requestExecutor;
+    private final boolean configured;
 
+    private final IRequestExecutor requestExecutor;
+    
     private final AtomicReference<String> applicationTokenHolder = new AtomicReference<String>();
 
+    public CrowdAuthenticationService(CrowdConfiguration configuration)
+    {
+        this.url = configuration.getServerURL();
+        this.application = configuration.getApplication();
+        this.applicationPassword = configuration.getApplicationPassword();
+        this.configured = configuration.isConfigured();
+        this.requestExecutor = createExecutor(configuration.getTimeout());
+        if (operationLog.isDebugEnabled())
+        {
+            final String msg =
+                    "A new CrowdAuthenticationService instance has been created for [" + "url="
+                            + url + ", application=" + application + "], timeout: "
+                            + ((configuration.getTimeout() == 0) ? "-." : (configuration.getTimeout()
+                            / 1000 + " s."));
+            operationLog.debug(msg);
+        }
+    }
+
+    // Keep this constructor for backward compatibility with old Spring application context files.
     public CrowdAuthenticationService(final String host, final String port,
             final String application, final String applicationPassword)
     {
         this("https://" + host + ":" + checkPort(port) + "/crowd/services/SecurityServer",
-                application, applicationPassword, createExecutor());
+                application, applicationPassword, createExecutor(DEFAULT_CONNECTION_TIMEOUT_MILLIS));
     }
 
     CrowdAuthenticationService(final String url, final String application,
@@ -196,6 +218,7 @@ public class CrowdAuthenticationService implements IAuthenticationService
         this.application = application;
         this.applicationPassword = applicationPassword;
         this.requestExecutor = requestExecutor;
+        this.configured = true;
         if (operationLog.isDebugEnabled())
         {
             final String msg =
@@ -641,6 +664,12 @@ public class CrowdAuthenticationService implements IAuthenticationService
     public boolean supportsAuthenticatingByEmail()
     {
         return false;
+    }
+
+    @Override
+    public boolean isConfigured()
+    {
+        return configured;
     }
 
 }

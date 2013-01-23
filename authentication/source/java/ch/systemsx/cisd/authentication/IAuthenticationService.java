@@ -28,6 +28,11 @@ import ch.systemsx.cisd.common.utilities.ISelfTestable;
 public interface IAuthenticationService extends ISelfTestable
 {
     /**
+     * Returns <code>true</code> if this authentication service is configured.
+     */
+    public boolean isConfigured();
+    
+    /**
      * Attempts authentication for the given user credentials.
      * 
      * @return <code>true</code> if the <var>user</var> has been successfully authenticated.

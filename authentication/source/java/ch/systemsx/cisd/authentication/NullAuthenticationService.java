@@ -157,4 +157,10 @@ public class NullAuthenticationService implements IAuthenticationService
         return null;
     }
 
+    @Override
+    public boolean isConfigured()
+    {
+        return false;
+    }
+
 }

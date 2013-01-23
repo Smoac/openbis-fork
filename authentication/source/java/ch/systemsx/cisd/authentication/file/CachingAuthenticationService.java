@@ -576,4 +576,10 @@ public class CachingAuthenticationService implements IAuthenticationService
         delegate.check();
     }
 
+    @Override
+    public boolean isConfigured()
+    {
+        return delegate.isConfigured();
+    }
+
 }

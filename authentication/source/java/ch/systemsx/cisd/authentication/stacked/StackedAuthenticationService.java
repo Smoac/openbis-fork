@@ -41,12 +41,12 @@ public class StackedAuthenticationService implements IAuthenticationService
     private final boolean supportsListingByEmail;
 
     private final boolean supportsListingByLastName;
-    
+
     private final boolean supportsAuthenticatingByEmail;
 
     public StackedAuthenticationService(List<IAuthenticationService> authenticationServices)
     {
-        this.delegates = authenticationServices;
+        this.delegates = filterConfigured(authenticationServices);
         boolean foundRemote = false;
         boolean foundSupportsListingByUserId = false;
         boolean foundSupportsListingByEmail = false;
@@ -65,6 +65,21 @@ public class StackedAuthenticationService implements IAuthenticationService
         this.supportsListingByEmail = foundSupportsListingByEmail;
         this.supportsListingByLastName = foundSupportsListingByLastName;
         this.supportsAuthenticatingByEmail = foundSupportsAuthenticateByEmail;
+    }
+
+    private static List<IAuthenticationService> filterConfigured(
+            List<IAuthenticationService> services)
+    {
+        final List<IAuthenticationService> configuredServices =
+                new ArrayList<IAuthenticationService>(services.size());
+        for (IAuthenticationService service : services)
+        {
+            if (service.isConfigured())
+            {
+                configuredServices.add(service);
+            }
+        }
+        return configuredServices;
     }
 
     @Override
@@ -258,6 +273,12 @@ public class StackedAuthenticationService implements IAuthenticationService
     public boolean isRemote()
     {
         return remote;
+    }
+
+    @Override
+    public boolean isConfigured()
+    {
+        return (delegates.isEmpty() == false);
     }
 
 }

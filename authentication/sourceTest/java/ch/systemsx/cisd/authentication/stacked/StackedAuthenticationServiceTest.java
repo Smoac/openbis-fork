@@ -43,6 +43,8 @@ public class StackedAuthenticationServiceTest
 
     private IAuthenticationService authService2;
 
+    private IAuthenticationService authService3;
+
     private IAuthenticationService stackedAuthService;
 
     @BeforeMethod
@@ -51,11 +53,29 @@ public class StackedAuthenticationServiceTest
         context = new Mockery();
         authService1 = context.mock(IAuthenticationService.class, "auth service 1");
         authService2 = context.mock(IAuthenticationService.class, "auth service 2");
+        authService3 = context.mock(IAuthenticationService.class, "auth service 3");
         addStandardExpectations();
+        addAlways();
         stackedAuthService =
-                new StackedAuthenticationService(Arrays.asList(authService1, authService2));
+                new StackedAuthenticationService(Arrays.asList(authService1, authService2,
+                        authService3));
     }
 
+    private void addAlways()
+    {
+        context.checking(new Expectations()
+        {
+            {
+                allowing(authService1).isConfigured();
+                will(returnValue(true));
+                allowing(authService2).isConfigured();
+                will(returnValue(true));
+                allowing(authService3).isConfigured();
+                will(returnValue(false));
+            }
+        });
+    }
+    
     private void addStandardExpectations()
     {
         context.checking(new Expectations()
@@ -66,7 +86,7 @@ public class StackedAuthenticationServiceTest
                     one(authService1).supportsListingByEmail();
                     one(authService1).supportsListingByLastName();
                     one(authService1).supportsAuthenticatingByEmail();
-                    
+
                     one(authService2).isRemote();
                     one(authService2).supportsListingByUserId();
                     one(authService2).supportsListingByEmail();
@@ -92,6 +112,7 @@ public class StackedAuthenticationServiceTest
                     one(authService2).check();
                 }
             });
+        assertTrue(stackedAuthService.isConfigured());
         stackedAuthService.check();
         context.assertIsSatisfied();
     }
@@ -123,6 +144,7 @@ public class StackedAuthenticationServiceTest
         context = new Mockery();
         authService1 = context.mock(IAuthenticationService.class, "auth service 1");
         authService2 = context.mock(IAuthenticationService.class, "auth service 2");
+        addAlways();
         context.checking(new Expectations()
             {
                 {
@@ -131,7 +153,7 @@ public class StackedAuthenticationServiceTest
                     one(authService1).supportsListingByEmail();
                     one(authService1).supportsListingByLastName();
                     one(authService1).supportsAuthenticatingByEmail();
-                    
+
                     one(authService2).isRemote();
                     one(authService2).supportsListingByUserId();
                     will(returnValue(true));
@@ -152,6 +174,7 @@ public class StackedAuthenticationServiceTest
         context = new Mockery();
         authService1 = context.mock(IAuthenticationService.class, "auth service 1");
         authService2 = context.mock(IAuthenticationService.class, "auth service 2");
+        addAlways();
         context.checking(new Expectations()
             {
                 {
@@ -161,7 +184,7 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(true));
                     one(authService1).supportsListingByLastName();
                     one(authService1).supportsAuthenticatingByEmail();
-                    
+
                     one(authService2).isRemote();
                     one(authService2).supportsListingByUserId();
                     one(authService2).supportsListingByEmail();
@@ -181,6 +204,7 @@ public class StackedAuthenticationServiceTest
         context = new Mockery();
         authService1 = context.mock(IAuthenticationService.class, "auth service 1");
         authService2 = context.mock(IAuthenticationService.class, "auth service 2");
+        addAlways();
         context.checking(new Expectations()
             {
                 {
@@ -189,7 +213,7 @@ public class StackedAuthenticationServiceTest
                     one(authService1).supportsListingByEmail();
                     one(authService1).supportsListingByLastName();
                     one(authService1).supportsAuthenticatingByEmail();
-                    
+
                     one(authService2).isRemote();
                     one(authService2).supportsListingByUserId();
                     one(authService2).supportsListingByEmail();
@@ -217,6 +241,7 @@ public class StackedAuthenticationServiceTest
                     one(authService2).tryGetAndAuthenticateUser(user, password);
                 }
             });
+        addAlways();
         assertFalse(stackedAuthService.authenticateUser(user, password));
         context.assertIsSatisfied();
     }
@@ -235,6 +260,7 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(principal));
                 }
             });
+        addAlways();
         assertTrue(stackedAuthService.authenticateUser(user, password));
         context.assertIsSatisfied();
     }
@@ -254,6 +280,7 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(principal));
                 }
             });
+        addAlways();
         assertTrue(stackedAuthService.authenticateUser(user, password));
         context.assertIsSatisfied();
     }
@@ -274,6 +301,7 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(principal));
                 }
             });
+        addAlways();
         assertEquals(principal, stackedAuthService.getPrincipal(user));
         context.assertIsSatisfied();
     }
@@ -295,6 +323,7 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(principal));
                 }
             });
+        addAlways();
         assertEquals(principal, stackedAuthService.getPrincipal(user));
         context.assertIsSatisfied();
     }
@@ -311,6 +340,7 @@ public class StackedAuthenticationServiceTest
                     one(authService2).tryGetAndAuthenticateUser(user, null);
                 }
             });
+        addAlways();
         stackedAuthService.getPrincipal(user);
     }
 
@@ -330,6 +360,8 @@ public class StackedAuthenticationServiceTest
             {
                 {
                     one(authService1).isRemote();
+                    one(authService1).isConfigured();
+                    will(returnValue(true));
                     one(authService1).supportsListingByUserId();
                     exactly(2).of(authService1).supportsListingByEmail();
                     will(returnValue(true));
@@ -337,6 +369,8 @@ public class StackedAuthenticationServiceTest
                     one(authService1).supportsListingByLastName();
 
                     one(authService2).isRemote();
+                    one(authService2).isConfigured();
+                    will(returnValue(true));
                     one(authService2).supportsListingByUserId();
                     exactly(2).of(authService2).supportsListingByEmail();
                     one(authService2).supportsAuthenticatingByEmail();
@@ -346,6 +380,7 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(Arrays.asList(principal1, principal2)));
                 }
             });
+        addAlways();
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
         final List<Principal> result = stackedAuthService.listPrincipalsByEmail(emailQuery);
@@ -369,12 +404,16 @@ public class StackedAuthenticationServiceTest
             {
                 {
                     one(authService1).isRemote();
+                    one(authService1).isConfigured();
+                    will(returnValue(true));
                     one(authService1).supportsListingByUserId();
                     exactly(2).of(authService1).supportsListingByEmail();
                     one(authService1).supportsAuthenticatingByEmail();
                     one(authService1).supportsListingByLastName();
-                    
+
                     one(authService2).isRemote();
+                    one(authService2).isConfigured();
+                    will(returnValue(true));
                     one(authService2).supportsListingByUserId();
                     exactly(2).of(authService2).supportsListingByEmail();
                     will(returnValue(true));
@@ -385,6 +424,7 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(Arrays.asList(principal)));
                 }
             });
+        addAlways();
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
         final List<Principal> result = stackedAuthService.listPrincipalsByEmail(emailQuery);
@@ -411,13 +451,17 @@ public class StackedAuthenticationServiceTest
             {
                 {
                     one(authService1).isRemote();
+                    one(authService1).isConfigured();
+                    will(returnValue(true));
                     one(authService1).supportsListingByUserId();
                     exactly(2).of(authService1).supportsListingByEmail();
                     will(returnValue(true));
                     one(authService1).supportsAuthenticatingByEmail();
                     one(authService1).supportsListingByLastName();
-                    
+
                     one(authService2).isRemote();
+                    one(authService2).isConfigured();
+                    will(returnValue(true));
                     one(authService2).supportsListingByUserId();
                     exactly(2).of(authService2).supportsListingByEmail();
                     will(returnValue(true));
@@ -430,6 +474,7 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(Arrays.asList(principal3)));
                 }
             });
+        addAlways();
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
         final List<Principal> result = stackedAuthService.listPrincipalsByEmail(emailQuery);
@@ -461,7 +506,7 @@ public class StackedAuthenticationServiceTest
                     one(authService1).supportsListingByEmail();
                     one(authService1).supportsListingByLastName();
                     one(authService1).supportsAuthenticatingByEmail();
-                    
+
                     one(authService2).isRemote();
                     exactly(2).of(authService2).supportsListingByUserId();
                     one(authService2).supportsListingByEmail();
@@ -472,6 +517,7 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(Arrays.asList(principal1, principal2)));
                 }
             });
+        addAlways();
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
         final List<Principal> result = stackedAuthService.listPrincipalsByUserId(userIdQuery);
@@ -499,7 +545,7 @@ public class StackedAuthenticationServiceTest
                     one(authService1).supportsListingByEmail();
                     one(authService1).supportsListingByLastName();
                     one(authService1).supportsAuthenticatingByEmail();
-                    
+
                     one(authService2).isRemote();
                     exactly(2).of(authService2).supportsListingByUserId();
                     will(returnValue(true));
@@ -511,6 +557,7 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(Arrays.asList(principal)));
                 }
             });
+        addAlways();
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
         final List<Principal> result = stackedAuthService.listPrincipalsByUserId(userIdQuery);
@@ -542,7 +589,7 @@ public class StackedAuthenticationServiceTest
                     one(authService1).supportsListingByEmail();
                     one(authService1).supportsListingByLastName();
                     one(authService1).supportsAuthenticatingByEmail();
-                    
+
                     one(authService2).isRemote();
                     exactly(2).of(authService2).supportsListingByUserId();
                     will(returnValue(true));
@@ -556,6 +603,7 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(Arrays.asList(principal3)));
                 }
             });
+        addAlways();
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
         final List<Principal> result = stackedAuthService.listPrincipalsByUserId(userIdQuery);
@@ -587,7 +635,7 @@ public class StackedAuthenticationServiceTest
                     exactly(2).of(authService1).supportsListingByLastName();
                     will(returnValue(true));
                     one(authService1).supportsAuthenticatingByEmail();
-                    
+
                     one(authService2).isRemote();
                     one(authService2).supportsListingByUserId();
                     one(authService2).supportsListingByEmail();
@@ -598,6 +646,7 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(Arrays.asList(principal1, principal2)));
                 }
             });
+        addAlways();
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
         final List<Principal> result = stackedAuthService.listPrincipalsByLastName(lastNameQuery);
@@ -625,7 +674,7 @@ public class StackedAuthenticationServiceTest
                     one(authService1).supportsListingByEmail();
                     exactly(2).of(authService1).supportsListingByLastName();
                     one(authService1).supportsAuthenticatingByEmail();
-                    
+
                     one(authService2).isRemote();
                     one(authService2).supportsListingByUserId();
                     one(authService2).supportsListingByEmail();
@@ -637,6 +686,7 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(Arrays.asList(principal)));
                 }
             });
+        addAlways();
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
         final List<Principal> result = stackedAuthService.listPrincipalsByLastName(lastNameQuery);
@@ -663,13 +713,17 @@ public class StackedAuthenticationServiceTest
             {
                 {
                     one(authService1).isRemote();
+                    one(authService1).isConfigured();
+                    will(returnValue(true));
                     one(authService1).supportsListingByUserId();
                     one(authService1).supportsListingByEmail();
                     one(authService1).supportsAuthenticatingByEmail();
                     exactly(2).of(authService1).supportsListingByLastName();
                     will(returnValue(true));
-                    
+
                     one(authService2).isRemote();
+                    one(authService2).isConfigured();
+                    will(returnValue(true));
                     one(authService2).supportsListingByUserId();
                     one(authService2).supportsListingByEmail();
                     one(authService2).supportsAuthenticatingByEmail();
@@ -682,6 +736,7 @@ public class StackedAuthenticationServiceTest
                     will(returnValue(Arrays.asList(principal3)));
                 }
             });
+        addAlways();
         stackedAuthService =
                 new StackedAuthenticationService(Arrays.asList(authService1, authService2));
         final List<Principal> result = stackedAuthService.listPrincipalsByLastName(lastNameQuery);
