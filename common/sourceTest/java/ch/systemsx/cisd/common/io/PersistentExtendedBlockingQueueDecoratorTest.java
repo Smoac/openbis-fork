@@ -256,7 +256,7 @@ public class PersistentExtendedBlockingQueueDecoratorTest
     {
         final PersistentExtendedBlockingQueueDecorator<Integer> queue =
                 PersistentExtendedBlockingQueueFactory.<Integer> createSmartPersist(queueFile);
-        final MessageChannel messageChannel = new MessageChannel(20000);
+        final MessageChannel messageChannel = new MessageChannel(30000);
         new Thread(new Runnable()
             {
                 @Override
