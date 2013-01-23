@@ -16,29 +16,25 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 
-import java.io.File;
-import java.io.InputStream;
-
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
+import java.io.Serializable;
 
 /**
- * Interface for cache for files remotely retrieved from Data Store Servers.
+ * Manages persistence of a statefull object.
  *
  * @author Franz-Josef Elmer
  */
-public interface IContentCache
+public interface IPersistenceManager
 {
-
-    public void lockDataSet(String dataSetCode);
-
-    public void unlockDataSet(String dataSetCode);
-
-    public boolean isDataSetLocked(String dataSetCode);
-
-    public File getFile(String sessionToken, IDatasetLocation dataSetLocation, DataSetPathInfo path);
-
-    public InputStream getInputStream(String sessionToken, IDatasetLocation dataSetLocation,
-            DataSetPathInfo path);
-
+    /**
+     * Loads and returns the persistent object.
+     * 
+     * @param defaultObject will be returned if loading failed.
+     */
+    public Serializable load(Serializable defaultObject);
+    
+    /**
+     * Requests for persisting the object. This can be done synchronously or asynchronously
+     * depending on the implementation.
+     */
+    public void requestPersistence();
 }

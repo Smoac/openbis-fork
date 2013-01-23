@@ -38,11 +38,11 @@ public class RemoteHierarchicalContentTest extends AbstractRemoteHierarchicalCon
         ContentCache cache = createCache();
         RemoteHierarchicalContent content = createContent(cache);
 
-        assertEquals(true, cache.isDataSetLocked(SESSION_TOKEN, DATA_SET_CODE));
+        assertEquals(true, cache.isDataSetLocked(DATA_SET_CODE));
 
         content.close();
 
-        assertEquals(false, cache.isDataSetLocked(SESSION_TOKEN, DATA_SET_CODE));
+        assertEquals(false, cache.isDataSetLocked(DATA_SET_CODE));
         context.assertIsSatisfied();
     }
 
@@ -75,20 +75,22 @@ public class RemoteHierarchicalContentTest extends AbstractRemoteHierarchicalCon
         RemoteHierarchicalContent content = createContent(cache);
         
         context.checking(new Expectations()
-        {
             {
-                one(pathInfoProvider).getRootPathInfo();
-                DataSetPathInfo pathInfo = new DataSetPathInfo();
-                pathInfo.setDirectory(true);
-                pathInfo.setRelativePath(remoteFile1.getName());
-                pathInfo.setFileName("root");
-                will(returnValue(pathInfo));
-                
-                one(remoteDss).getDownloadUrlForFileForDataSet(SESSION_TOKEN, DATA_SET_CODE,
-                        pathInfo.getRelativePath());
-                will(returnValue(remoteFile1.toURI().toURL().toString()));
-            }
-        });
+                {
+                    one(pathInfoProvider).getRootPathInfo();
+                    DataSetPathInfo pathInfo = new DataSetPathInfo();
+                    pathInfo.setDirectory(true);
+                    pathInfo.setRelativePath(remoteFile1.getName());
+                    pathInfo.setFileName("root");
+                    will(returnValue(pathInfo));
+
+                    one(remoteDss).getDownloadUrlForFileForDataSet(SESSION_TOKEN, DATA_SET_CODE,
+                            pathInfo.getRelativePath());
+                    will(returnValue(remoteFile1.toURI().toURL().toString()));
+                    
+                    one(persistenceManager).requestPersistence();
+                }
+            });
         
         IHierarchicalContentNode rootNode = content.getRootNode();
 

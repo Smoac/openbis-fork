@@ -64,10 +64,11 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
                     will(returnValue(remoteFile2.toURI().toURL().toString()));
                 }
             });
+        prepareRequestPersistence(2);
 
         File file1 = node1.getFile();
         
-        assertEquals(0, file1.getParentFile().lastModified());
+        assertEquals(1000, file1.getParentFile().lastModified());
         assertEquals(new File(workSpace, ContentCache.CACHE_FOLDER
                 + "/" + DATA_SET_CODE + "/" + remoteFile1.getName()).getAbsolutePath(),
                 file1.getAbsolutePath());
@@ -79,7 +80,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
         
         File file2 = node2.getFile();
 
-        assertEquals(60000, file2.getParentFile().lastModified());
+        assertEquals(61000, file2.getParentFile().lastModified());
         assertEquals(new File(workSpace, ContentCache.CACHE_FOLDER
                 + "/" + DATA_SET_CODE + "/" + remoteFile2.getName()).getAbsolutePath(),
                 file2.getAbsolutePath());
@@ -110,6 +111,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
                     inSequence(sequence);
                 }
             });
+        prepareRequestPersistence(1);
 
         try
         {
@@ -126,7 +128,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
         assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file).trim());
         context.assertIsSatisfied();
     }
-
+    
     @Test
     public void testGetTwoDifferentFilesInTwoThreads() throws Exception
     {
@@ -189,6 +191,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
                         });
                 }
             });
+        prepareRequestPersistence(2);
 
         thread1.start();
         thread2.start();
@@ -252,6 +255,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
                         });
                 }
             });
+        prepareRequestPersistence(2);
 
         thread1.start();
         thread2.start();
@@ -261,7 +265,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
 
         File file1 = fileRunnable1.tryGetResult();
         File file2 = fileRunnable2.tryGetResult();
-        assertEquals(60000, file1.getParentFile().lastModified());
+        assertEquals(61000, file1.getParentFile().lastModified());
         assertEquals(new File(workSpace, ContentCache.CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
                 + remoteFile1.getName()).getAbsolutePath(), file1.getAbsolutePath());
         assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file1).trim());
@@ -291,45 +295,46 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
                 new MessageChannelBuilder(10000).name("4").logger(logger).getChannel();
         GetFileRunnable fileRunnable1 = new GetFileRunnable(node1, channel1);
         GetFileRunnable fileRunnable2 = new GetFileRunnable(node2, channel2)
-        {
-            @Override
-            public void run()
             {
-                channel1.assertNextMessage(STARTED_MESSAGE);
-                channel2.send(STARTED_MESSAGE);
-                super.run();
-            }
-        };
+                @Override
+                public void run()
+                {
+                    channel1.assertNextMessage(STARTED_MESSAGE);
+                    channel2.send(STARTED_MESSAGE);
+                    super.run();
+                }
+            };
         GetFileRunnable fileRunnable3 = new GetFileRunnable(node3, channel3)
-        {
-            @Override
-            public void run()
             {
-                channel2.assertNextMessage(STARTED_MESSAGE);
-                channel3.send(STARTED_MESSAGE);
-                super.run();
-            }
-        };
+                @Override
+                public void run()
+                {
+                    channel2.assertNextMessage(STARTED_MESSAGE);
+                    channel3.send(STARTED_MESSAGE);
+                    super.run();
+                }
+            };
         final Thread thread1 = new Thread(fileRunnable1, "thread1");
         final Thread thread2 = new Thread(fileRunnable2, "thread2");
         final Thread thread3 = new Thread(fileRunnable3, "thread3");
         context.checking(new Expectations()
-        {
             {
-                one(remoteDss).getDownloadUrlForFileForDataSet(SESSION_TOKEN, DATA_SET_CODE,
-                        pathInfo.getRelativePath());
-                will(new ProxyAction(returnValue(remoteFile1.toURI().toURL().toString()))
                 {
-                    @Override
-                    protected void doBeforeReturn()
-                    {
-                        channel1.send(STARTED_MESSAGE);
-                        channel3.assertNextMessage(STARTED_MESSAGE);
-                        channel4.send(FINISHED_MESSAGE);
-                    }
-                });
-            }
-        });
+                    one(remoteDss).getDownloadUrlForFileForDataSet(SESSION_TOKEN, DATA_SET_CODE,
+                            pathInfo.getRelativePath());
+                    will(new ProxyAction(returnValue(remoteFile1.toURI().toURL().toString()))
+                        {
+                            @Override
+                            protected void doBeforeReturn()
+                            {
+                                channel1.send(STARTED_MESSAGE);
+                                channel3.assertNextMessage(STARTED_MESSAGE);
+                                channel4.send(FINISHED_MESSAGE);
+                            }
+                        });
+                }
+            });
+        prepareRequestPersistence(3);
         
         thread1.start();
         thread2.start();
@@ -344,7 +349,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
         File file3 = fileRunnable3.tryGetResult();
         assertEquals(new File(workSpace, ContentCache.CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
                 + remoteFile1.getName()).getAbsolutePath(), file1.getAbsolutePath());
-        assertEquals(120000, file1.getParentFile().lastModified());
+        assertEquals(121000, file1.getParentFile().lastModified());
         assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file1).trim());
         assertEquals(file1, file2);
         assertEquals(file1, file3);
@@ -411,6 +416,7 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
                     inSequence(sequence);
                 }
             });
+        prepareRequestPersistence(1);
 
         thread1.start();
         thread2.start();

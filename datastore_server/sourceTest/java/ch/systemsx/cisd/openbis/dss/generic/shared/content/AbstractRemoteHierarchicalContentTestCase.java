@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 
 import java.io.File;
+import java.util.HashMap;
 
+import org.apache.commons.io.FileUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -30,6 +32,7 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
+import ch.systemsx.cisd.openbis.dss.generic.shared.content.ContentCache.DataSetInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
@@ -77,6 +80,10 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
     protected File remoteFile2;
 
     private ITimeProvider timeProvider;
+
+    protected IPersistenceManager persistenceManager;
+
+    private HashMap<String, DataSetInfo> dataSetInfos;
     
     @BeforeMethod
     public void setUpBasicFixture()
@@ -86,17 +93,22 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
         serviceFactory = context.mock(IDssServiceRpcGenericFactory.class);
         remoteDss = context.mock(IDssServiceRpcGeneric.class, "remote DSS");
         pathInfoProvider = context.mock(ISingleDataSetPathInfoProvider.class);
-        timeProvider = new MockTimeProvider(0, 60000);
+        persistenceManager = context.mock(IPersistenceManager.class);
+        timeProvider = new MockTimeProvider(1000, 60000);
         workSpace = new File(workingDirectory, "workspace");
         sessionHolder = new OpenBISSessionHolder();
         sessionHolder.setSessionToken(SESSION_TOKEN);
+        dataSetInfos = new HashMap<String, ContentCache.DataSetInfo>();
         context.checking(new Expectations()
-        {
             {
-                allowing(serviceFactory).getService(DATA_STORE_URL);
-                will(returnValue(remoteDss));
-            }
-        });
+                {
+                    allowing(serviceFactory).getService(DATA_STORE_URL);
+                    will(returnValue(remoteDss));
+                    
+                    one(persistenceManager).load(dataSetInfos);
+                    will(returnValue(dataSetInfos));
+                }
+            });
         File remoteStore = new File(workingDirectory, "remote-store");
         File remoteDataSetFolder = new File(remoteStore, DATA_SET_CODE);
         remoteDataSetFolder.mkdirs();
@@ -113,6 +125,14 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
+    
+    protected void assertDataSetInfos(String dataSetCode, long expectedSize,
+            long expectedLastModified)
+    {
+        DataSetInfo dataSetInfo = dataSetInfos.get(dataSetCode);
+        assertEquals(expectedLastModified, dataSetInfo.lastModified);
+        assertEquals(expectedSize, dataSetInfo.size);
+    }
 
     protected ContentCache createCache()
     {
@@ -123,8 +143,21 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
                             new File(workSpace, ContentCache.DOWNLOADING_FOLDER));
                 }
             });
-        return new ContentCache(serviceFactory, workSpace, fileOperations, timeProvider);
+        ContentCache contentCache =
+                new ContentCache(serviceFactory, workSpace, FileUtils.ONE_MB, 600000, fileOperations,
+                        timeProvider, persistenceManager);
+        contentCache.afterPropertiesSet();
+        return contentCache;
     }
 
+    protected void prepareRequestPersistence(final int numberOfTimes)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    exactly(numberOfTimes).of(persistenceManager).requestPersistence();
+                }
+            });
+    }
 
 }

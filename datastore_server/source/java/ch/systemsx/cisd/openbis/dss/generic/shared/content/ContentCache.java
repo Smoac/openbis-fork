@@ -17,30 +17,44 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
@@ -52,24 +66,62 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
  * 
  * @author Franz-Josef Elmer
  */
-public class ContentCache implements IContentCache
+public class ContentCache implements IContentCache, InitializingBean
 {
+    private static final long MINIMUM_KEEPING_TIME = DateUtils.MILLIS_PER_DAY;
+
+    private static final int DEFAULT_MAX_WORKSPACE_SIZE = 1024;
+
+    private static final String DEFAULT_CACHE_WORKSPACE_FOLDER = "../../data/dss-cache";
+
     public static final String CACHE_WORKSPACE_FOLDER_KEY = "cache-workspace-folder";
+
+    public static final String CACHE_WORKSPACE_MAX_SIZE_KEY = "cache-workspace-max-size";
 
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ContentCache.class);
-    
+
     static final String CACHE_FOLDER = "cached";
 
     static final String DOWNLOADING_FOLDER = "downloading";
 
+    static final class DataSetInfo implements Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        long lastModified;
+
+        long size;
+
+        @Override
+        public String toString()
+        {
+            return size + ":" + lastModified;
+        }
+    }
+
+    private static final Comparator<Entry<String, DataSetInfo>> LAST_MODIFIED_COMPARATOR =
+            new Comparator<Entry<String, DataSetInfo>>()
+                {
+                    @Override
+                    public int compare(Entry<String, DataSetInfo> e1, Entry<String, DataSetInfo> e2)
+                    {
+                        return (int) (e1.getValue().lastModified - e2.getValue().lastModified);
+                    }
+                };
+
     public static ContentCache create(Properties properties)
     {
         String workspacePath =
-                properties.getProperty(CACHE_WORKSPACE_FOLDER_KEY, "../../data/dss-cache");
+                properties.getProperty(CACHE_WORKSPACE_FOLDER_KEY, DEFAULT_CACHE_WORKSPACE_FOLDER);
+        long maxWorkspaceSize =
+                PropertyUtils.getInt(properties, CACHE_WORKSPACE_MAX_SIZE_KEY,
+                        DEFAULT_MAX_WORKSPACE_SIZE) * FileUtils.ONE_MB;
         File cacheWorkspace = new File(workspacePath);
         return new ContentCache(new DssServiceRpcGenericFactory(), cacheWorkspace,
-                FileOperations.getInstance(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+                maxWorkspaceSize, MINIMUM_KEEPING_TIME, FileOperations.getInstance(),
+                SystemTimeProvider.SYSTEM_TIME_PROVIDER, new SimpleFileBasePersistenceManager(
+                        new File(cacheWorkspace, ".dataSetInfos"), "data set infos"));
     }
 
     private final Map<String, Integer> dataSetLocks = new HashMap<String, Integer>();
@@ -82,19 +134,76 @@ public class ContentCache implements IContentCache
 
     private final ITimeProvider timeProvider;
 
+    private final IFileOperations fileOperations;
+
+    private final IPersistenceManager persistenceManager;
+
+    private final long maxWorkspaceSize;
+
+    private final long minimumKeepingTime;
+
+    private HashMap<String, DataSetInfo> dataSetInfos;
+
     ContentCache(IDssServiceRpcGenericFactory serviceFactory, File cacheWorkspace,
-            IFileOperations fileOperations, ITimeProvider timeProvider)
+            long maxWorkspaceSize, long minimumKeepingTime, IFileOperations fileOperations,
+            ITimeProvider timeProvider, IPersistenceManager persistenceManager)
     {
         this.serviceFactory = serviceFactory;
         this.workspace = cacheWorkspace;
+        this.maxWorkspaceSize = maxWorkspaceSize;
+        this.minimumKeepingTime = minimumKeepingTime;
+        this.fileOperations = fileOperations;
         this.timeProvider = timeProvider;
-        fileOperations.removeRecursivelyQueueing(new File(cacheWorkspace, DOWNLOADING_FOLDER));
+        this.persistenceManager = persistenceManager;
         fileLockManager = new LockManager();
         operationLog.info("Content cache created. Workspace: " + cacheWorkspace.getAbsolutePath());
     }
 
     @Override
-    public void lockDataSet(String sessionToken, String dataSetCode)
+    public void afterPropertiesSet()
+    {
+        fileOperations.removeRecursivelyQueueing(new File(workspace, DOWNLOADING_FOLDER));
+        int dataSetCount = initializeDataSetInfos();
+        long totalSize = getTotalSize();
+        operationLog.info("Content cache initialized. It contains "
+                + FileUtilities.byteCountToDisplaySize(totalSize) + " from " + dataSetCount
+                + " data sets.");
+    }
+
+    private int initializeDataSetInfos()
+    {
+        dataSetInfos = loadDataSetSize();
+        File[] dataSetFolders =
+                new File(workspace, CACHE_FOLDER)
+                        .listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
+        if (dataSetFolders == null)
+        {
+            return 0;
+        }
+        boolean cachedFilesRemoved = false;
+        for (File dataSetFolder : dataSetFolders)
+        {
+            String dataSetCode = dataSetFolder.getName();
+            DataSetInfo dataSetInfo = dataSetInfos.get(dataSetCode);
+            if (dataSetInfo == null)
+            {
+                dataSetInfo = new DataSetInfo();
+                dataSetInfo.lastModified = dataSetFolder.lastModified();
+                dataSetInfo.size = FileUtilities.getSizeOf(dataSetFolder);
+                operationLog.info("Data set info recreated for data set " + dataSetCode + ".");
+                dataSetInfos.put(dataSetCode, dataSetInfo);
+                cachedFilesRemoved = true;
+            }
+        }
+        if (cachedFilesRemoved)
+        {
+            persistenceManager.requestPersistence();
+        }
+        return dataSetFolders.length;
+    }
+
+    @Override
+    public void lockDataSet(String dataSetCode)
     {
         String dataSetPath = createDataSetPath(CACHE_FOLDER, dataSetCode);
         synchronized (dataSetLocks)
@@ -110,7 +219,7 @@ public class ContentCache implements IContentCache
     }
 
     @Override
-    public void unlockDataSet(String sessionToken, String dataSetCode)
+    public void unlockDataSet(String dataSetCode)
     {
         String dataSetPath = createDataSetPath(CACHE_FOLDER, dataSetCode);
         synchronized (dataSetLocks)
@@ -124,7 +233,7 @@ public class ContentCache implements IContentCache
     }
 
     @Override
-    public boolean isDataSetLocked(String sessionToken, String dataSetCode)
+    public boolean isDataSetLocked(String dataSetCode)
     {
         String dataSetPath = createDataSetPath(CACHE_FOLDER, dataSetCode);
         synchronized (dataSetLocks)
@@ -144,8 +253,11 @@ public class ContentCache implements IContentCache
             if (file.exists() == false)
             {
                 downloadFile(sessionToken, dataSetLocation, path);
+            } else
+            {
+                touchDataSetFolder(dataSetLocation.getDataSetCode());
             }
-            touchDataSetFolder(dataSetLocation);
+            persistenceManager.requestPersistence();
             return file;
         } finally
         {
@@ -164,16 +276,13 @@ public class ContentCache implements IContentCache
         {
             try
             {
-                FileInputStream fileInputStream =
-                        new FileInputStream(getFile(sessionToken, dataSetLocation, path));
-                touchDataSetFolder(dataSetLocation);
-                return fileInputStream;
+                return new FileInputStream(getFile(sessionToken, dataSetLocation, path));
             } catch (FileNotFoundException ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             } finally
             {
-               fileLockManager.unlock(pathInWorkspace);
+                fileLockManager.unlock(pathInWorkspace);
             }
         }
         final File tempFile = createTempFile();
@@ -211,8 +320,9 @@ public class ContentCache implements IContentCache
                     }
                     inputStream.close();
                     fileOutputStream.close();
-                    moveDownloadedFileToCache(tempFile, pathInWorkspace);
-                    touchDataSetFolder(dataSetLocation);
+                    moveDownloadedFileToCache(tempFile, pathInWorkspace,
+                            dataSetLocation.getDataSetCode());
+                    persistenceManager.requestPersistence();
                     closed = true;
                     fileLockManager.unlock(pathInWorkspace);
                 }
@@ -238,7 +348,8 @@ public class ContentCache implements IContentCache
             input = createInputStream(sessionToken, dataSetLocation, path);
             File downloadedFile = createFileFromInputStream(dataSetLocation, path, input);
             String pathInWorkspace = createPathInWorkspace(CACHE_FOLDER, dataSetLocation, path);
-            moveDownloadedFileToCache(downloadedFile, pathInWorkspace);
+            moveDownloadedFileToCache(downloadedFile, pathInWorkspace,
+                    dataSetLocation.getDataSetCode());
         } catch (Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -248,7 +359,8 @@ public class ContentCache implements IContentCache
         }
     }
 
-    private void moveDownloadedFileToCache(File downloadedFile, String pathInWorkspace)
+    private void moveDownloadedFileToCache(File downloadedFile, String pathInWorkspace,
+            String dataSetCode)
     {
         File file = new File(workspace, pathInWorkspace);
         createFolder(file.getParentFile());
@@ -256,6 +368,13 @@ public class ContentCache implements IContentCache
         String msg = "'" + pathInWorkspace + "' successfully downloaded ";
         if (success)
         {
+            touchDataSetFolder(dataSetCode);
+            synchronized (dataSetInfos)
+            {
+                DataSetInfo dataSetInfo = getDataSetInfo(dataSetCode);
+                dataSetInfo.size += file.length();
+                maintainCacheSize();
+            }
             operationLog.debug(msg + "and successfully moved to cache.");
         } else
         {
@@ -263,12 +382,15 @@ public class ContentCache implements IContentCache
         }
     }
 
-    private void touchDataSetFolder(IDatasetLocation dataSetLocation)
+    private void touchDataSetFolder(String dataSetCode)
     {
-        File dataSetFolder =
-                new File(workspace, createDataSetPath(CACHE_FOLDER,
-                        dataSetLocation.getDataSetCode()));
-        dataSetFolder.setLastModified(timeProvider.getTimeInMilliseconds());
+        File dataSetFolder = new File(workspace, createDataSetPath(CACHE_FOLDER, dataSetCode));
+        long lastModified = timeProvider.getTimeInMilliseconds();
+        dataSetFolder.setLastModified(lastModified);
+        synchronized (dataSetInfos)
+        {
+            getDataSetInfo(dataSetCode).lastModified = lastModified;
+        }
     }
 
     private InputStream createInputStream(String sessionToken, IDatasetLocation dataSetLocation,
@@ -353,7 +475,7 @@ public class ContentCache implements IContentCache
             IOUtils.closeQuietly(ostream);
         }
     }
-    
+
     private File createTempFile()
     {
         String relativePath = DOWNLOADING_FOLDER + "/" + Thread.currentThread().getId();
@@ -372,6 +494,76 @@ public class ContentCache implements IContentCache
                 throw new EnvironmentFailureException("Couldn't create folder: " + folder);
             }
         }
+    }
+
+    private long getTotalSize()
+    {
+        synchronized (dataSetInfos)
+        {
+            long sum = 0;
+            Collection<DataSetInfo> infos = dataSetInfos.values();
+            for (DataSetInfo dataSetInfo : infos)
+            {
+                sum += dataSetInfo.size;
+            }
+            return sum;
+        }
+    }
+
+    private DataSetInfo getDataSetInfo(String dataSetCode)
+    {
+        synchronized (dataSetInfos)
+        {
+            DataSetInfo dataSetInfo = dataSetInfos.get(dataSetCode);
+            if (dataSetInfo == null)
+            {
+                dataSetInfo = new DataSetInfo();
+                dataSetInfos.put(dataSetCode, dataSetInfo);
+            }
+            return dataSetInfo;
+        }
+    }
+
+    private void maintainCacheSize()
+    {
+        long totalSize = getTotalSize();
+        if (totalSize < maxWorkspaceSize)
+        {
+            return;
+        }
+        List<Entry<String, DataSetInfo>> entrySet;
+        synchronized (dataSetInfos)
+        {
+            entrySet = new ArrayList<Map.Entry<String, DataSetInfo>>(dataSetInfos.entrySet());
+        }
+        Collections.sort(entrySet, LAST_MODIFIED_COMPARATOR);
+        long nowMinusKeepingTime = timeProvider.getTimeInMilliseconds() - minimumKeepingTime;
+        for (Entry<String, DataSetInfo> entry : entrySet)
+        {
+            DataSetInfo info = entry.getValue();
+            if (info.lastModified < nowMinusKeepingTime)
+            {
+                String dataSet = entry.getKey();
+                if (isDataSetLocked(dataSet) == false)
+                {
+                    fileOperations.removeRecursivelyQueueing(new File(workspace, dataSet));
+                    dataSetInfos.remove(dataSet);
+                    totalSize -= info.size;
+                    operationLog.info("Cached files for data set " + dataSet
+                            + " have been removed.");
+                    if (totalSize < maxWorkspaceSize)
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private HashMap<String, DataSetInfo> loadDataSetSize()
+    {
+        return (HashMap<String, DataSetInfo>) persistenceManager.load(new HashMap<String, DataSetInfo>());
     }
     
     private static final class LockManager
@@ -414,6 +606,6 @@ public class ContentCache implements IContentCache
             }
         }
 
-    }    
-    
+    }
+
 }

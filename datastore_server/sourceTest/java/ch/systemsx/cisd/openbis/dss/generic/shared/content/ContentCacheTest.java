@@ -44,38 +44,92 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
     {
         ContentCache cache = createCache();
 
-        cache.lockDataSet(SESSION_TOKEN, "DS-1");
+        cache.lockDataSet("DS-1");
 
-        assertEquals(true, cache.isDataSetLocked(SESSION_TOKEN, "DS-1"));
-        assertEquals(false, cache.isDataSetLocked(SESSION_TOKEN, "DS-2"));
+        assertEquals(true, cache.isDataSetLocked("DS-1"));
+        assertEquals(false, cache.isDataSetLocked("DS-2"));
 
-        cache.lockDataSet(SESSION_TOKEN, "DS-1");
+        cache.lockDataSet("DS-1");
 
-        assertEquals(true, cache.isDataSetLocked(SESSION_TOKEN, "DS-1"));
+        assertEquals(true, cache.isDataSetLocked("DS-1"));
 
-        cache.unlockDataSet(SESSION_TOKEN, "DS-1");
+        cache.unlockDataSet("DS-1");
 
-        assertEquals(true, cache.isDataSetLocked(SESSION_TOKEN, "DS-1"));
+        assertEquals(true, cache.isDataSetLocked("DS-1"));
 
-        cache.unlockDataSet(SESSION_TOKEN, "DS-1");
+        cache.unlockDataSet("DS-1");
 
-        assertEquals(false, cache.isDataSetLocked(SESSION_TOKEN, "DS-1"));
+        assertEquals(false, cache.isDataSetLocked("DS-1"));
 
         context.assertIsSatisfied();
     }
 
     @Test
-    public void testGetInputStream()
+    public void testGetFileWhichIsNotInCache()
     {
         final DataSetPathInfo pathInfo1 = prepareForDownloading(remoteFile1);
+        prepareRequestPersistence(1);
 
         ContentCache cache = createCache();
-        InputStream inputStream = cache.getInputStream(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
+        File file = cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
 
+        assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file).trim());
+        assertDataSetInfos(DATA_SET_CODE, FILE1_CONTENT.length(), 1000);
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetFileWhichIsInCache()
+    {
+        DataSetPathInfo pathInfo = new DataSetPathInfo();
+        pathInfo.setRelativePath(remoteFile1.getName());
+        pathInfo.setDirectory(false);
+        File fileInCache = new File(workSpace, ContentCache.CACHE_FOLDER + "/"
+                + DATA_SET_CODE + "/" + pathInfo.getRelativePath());
+        fileInCache.getParentFile().mkdirs();
+        FileUtilities.writeToFile(fileInCache, FILE1_CONTENT);
+        prepareRequestPersistence(2);
+        
+        ContentCache cache = createCache();
+        File file = cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo);
+        
+        assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file).trim());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetInputStreamForFileNotInCache()
+    {
+        final DataSetPathInfo pathInfo1 = prepareForDownloading(remoteFile1);
+        prepareRequestPersistence(1);
+        
+        ContentCache cache = createCache();
+        InputStream inputStream = cache.getInputStream(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
+        
         assertEquals(FILE1_CONTENT, readContent(inputStream, true));
+        assertDataSetInfos(DATA_SET_CODE, FILE1_CONTENT.length(), 1000);
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testGetInputStreamForFileInCache()
+    {
+        DataSetPathInfo pathInfo = new DataSetPathInfo();
+        pathInfo.setRelativePath(remoteFile1.getName());
+        pathInfo.setDirectory(false);
+        File fileInCache = new File(workSpace, ContentCache.CACHE_FOLDER + "/"
+                + DATA_SET_CODE + "/" + pathInfo.getRelativePath());
+        fileInCache.getParentFile().mkdirs();
+        FileUtilities.writeToFile(fileInCache, FILE1_CONTENT);
+        prepareRequestPersistence(2);
+        
+        ContentCache cache = createCache();
+        InputStream inputStream = cache.getInputStream(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo);
+        
+        assertEquals(FILE1_CONTENT, readContent(inputStream, true));
+        context.assertIsSatisfied();
+    }
+    
     @Test(invocationCount = 1, invocationTimeOut = 10000)
     public void testGetInputStreamForSameContentInTwoThreads()
     {
@@ -92,6 +146,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
                 new File(workSpace, ContentCache.CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
                         + remoteFile1.getName());
         assertEquals(false, fileInCache.exists());
+        prepareRequestPersistence(3);
 
         new Thread(new Runnable()
             {
@@ -159,6 +214,8 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
                         });
                 }
             });
+        prepareRequestPersistence(3);
+        
         File fileInCache =
                 new File(workSpace, ContentCache.CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
                         + remoteFile1.getName());
@@ -227,6 +284,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
                         });
                 }
             });
+        prepareRequestPersistence(3);
         File fileInCache =
                 new File(workSpace, ContentCache.CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
                         + remoteFile1.getName());

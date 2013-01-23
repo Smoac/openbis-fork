@@ -22,8 +22,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.BeforeMethod;
@@ -80,6 +82,10 @@ public class RemoteHierarchicalContentNodeTest
 
     private IDssServiceRpcGenericFactory serviceFactory;
 
+    private IPersistenceManager persistenceManager;
+
+    private HashMap<String, ContentCache.DataSetInfo> dataSetInfos;
+
     @BeforeMethod
     public void fixture() throws Exception
     {
@@ -87,6 +93,7 @@ public class RemoteHierarchicalContentNodeTest
         fileOperations = context.mock(IFileOperations.class);
 
         provider = context.mock(ISingleDataSetPathInfoProvider.class);
+        persistenceManager = context.mock(IPersistenceManager.class);
 
         remoteDss = context.mock(IDssServiceRpcGeneric.class, "remote dss");
 
@@ -103,6 +110,7 @@ public class RemoteHierarchicalContentNodeTest
         create(remoteFile);
         create(fileInSessionWorkspace);
         serviceFactory = context.mock(IDssServiceRpcGenericFactory.class);
+        dataSetInfos = new HashMap<String, ContentCache.DataSetInfo>();
         context.checking(new Expectations()
             {
                 {
@@ -111,10 +119,17 @@ public class RemoteHierarchicalContentNodeTest
                     
                     allowing(serviceFactory).getService(DATA_STORE_URL);
                     will(returnValue(remoteDss));
+                    
+                    one(persistenceManager).load(dataSetInfos);
+                    will(returnValue(dataSetInfos));
+                    
+                    one(persistenceManager).requestPersistence();
                 }
             });
         cache =
-                new ContentCache(serviceFactory, SESSION_WORKSPACE_DIR, fileOperations, SYSTEM_TIME_PROVIDER);
+                new ContentCache(serviceFactory, SESSION_WORKSPACE_DIR, FileUtils.ONE_MB, 100000,
+                        fileOperations, SYSTEM_TIME_PROVIDER, persistenceManager);
+        cache.afterPropertiesSet();
     }
 
     @Test
@@ -135,6 +150,8 @@ public class RemoteHierarchicalContentNodeTest
                     allowing(remoteDss).getDownloadUrlForFileForDataSet(with(any(String.class)),
                             with(any(String.class)), with(any(String.class)));
                     will(returnValue(remoteFile.toURI().toURL().toString()));
+                    
+                    one(persistenceManager).requestPersistence();
                 }
             });
 
@@ -155,6 +172,12 @@ public class RemoteHierarchicalContentNodeTest
         IHierarchicalContentNode node =
                 new RemoteHierarchicalContentNode(CACHED_DATASET_LOCATION, pathInfo, provider,
                         serviceFactory, sessionHolder, cache);
+        context.checking(new Expectations()
+            {
+                {
+                    one(persistenceManager).requestPersistence();
+                }
+            });
 
         File file = node.getFile();
         assertThat(file.getAbsolutePath(), is(fileInSessionWorkspace.getAbsolutePath()));
