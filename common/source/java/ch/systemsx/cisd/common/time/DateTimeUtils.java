@@ -19,6 +19,8 @@ package ch.systemsx.cisd.common.time;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.time.DateUtils;
 
@@ -30,6 +32,16 @@ import org.apache.commons.lang.time.DateUtils;
  */
 public final class DateTimeUtils
 {
+    private static final Pattern secPattern = Pattern.compile("([0-9]+)\\s*(|s|sec)");
+
+    private static final Pattern minPattern = Pattern.compile("([0-9]+) *(m|min)");
+
+    private static final Pattern hourPattern = Pattern.compile("([0-9]+) *(h|hours)");
+
+    private static final Pattern dayPattern = Pattern.compile("([0-9]+) *(d|days)");
+
+    private static final Pattern milliPattern = Pattern.compile("([0-9]+) *(ms|msec)");
+
     /**
      * Returns the time zone in the following form: <code>GMT+01:00</code> (could not be easily
      * performed using {@link DateFormat}).
@@ -94,6 +106,56 @@ public final class DateTimeUtils
     private static String render(long value, String unit)
     {
         return value + unit;
+    }
+
+    /**
+     * Parses a time duration to milli-seconds. The string will be trimmed and white spaces in
+     * between number and unit are ignored. Accepted numbers are:
+     * <ul>
+     * <li>ms, msec: milli-seconds</li>
+     * <li>s, sec or nothing: seconds</li>
+     * <li>m, min: minutes</li>
+     * <li>h, hours: hours</li>
+     * <li>d, days: days</li>
+     * </ul>
+     */
+    public static long parseDurationToMillis(String durationStr)
+    {
+        final String durationStrTrimmed = durationStr.trim();
+        Matcher m;
+        m = secPattern.matcher(durationStrTrimmed);
+        if (m.matches())
+        {
+            return Long.parseLong(m.group(1)) * 1000L;
+        }
+        m = minPattern.matcher(durationStrTrimmed);
+        if (m.matches())
+        {
+            return Long.parseLong(m.group(1)) * 60 * 1000L;
+        }
+        m = hourPattern.matcher(durationStrTrimmed);
+        if (m.matches())
+        {
+            return Long.parseLong(m.group(1)) * 3600 * 1000L;
+        }
+        m = dayPattern.matcher(durationStrTrimmed);
+        if (m.matches())
+        {
+            return Long.parseLong(m.group(1)) * 24 * 3600 * 1000L;
+        }
+        m = dayPattern.matcher(durationStrTrimmed);
+        if (m.matches())
+        {
+            return Long.parseLong(m.group(1)) * 24 * 3600 * 1000L;
+        }
+        m = milliPattern.matcher(durationStrTrimmed);
+        if (m.matches())
+        {
+            return Long.parseLong(m.group(1));
+        }
+
+        throw new IllegalArgumentException(String.format("'%s' is not a valid duration",
+                durationStrTrimmed));
     }
 
     /**
