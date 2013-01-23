@@ -201,6 +201,8 @@ public class SimpleImageDataSetRegistrator
             }
         }
 
+        imageDataset.setColorDepth(simpleImageConfig.getColorDepth());
+
         setRegistrationDetails(registrationDetails, imageDataset);
         return registrationDetails;
     }

@@ -250,6 +250,8 @@ abstract public class SimpleImageDataConfig
 
     private List<ChannelColorComponent> channelColorComponentsOrNull;
 
+    private Integer colorDepth;
+
     // --- getters & setters ----------------------------------------------
 
     public ImageStorageConfiguraton getImageStorageConfiguration()
@@ -985,4 +987,15 @@ abstract public class SimpleImageDataConfig
     {
         return this.thumbnailsFileFormat;
     }
+
+    public Integer getColorDepth()
+    {
+        return colorDepth;
+    }
+
+    public void setColorDepth(Integer colorDepth)
+    {
+        this.colorDepth = colorDepth;
+    }
+
 }

@@ -55,6 +55,8 @@ public class ImageDataSetInformation extends BasicDataSetInformation
 
     private int maximumImageHeight;
 
+    private Integer colorDepth;
+
     public File getIncomingDirectory()
     {
         return incomingDirectory;
@@ -162,6 +164,16 @@ public class ImageDataSetInformation extends BasicDataSetInformation
                 generateOverviewImagesFromRegisteredImages;
     }
 
+    public Integer getColorDepth()
+    {
+        return colorDepth;
+    }
+
+    public void setColorDepth(Integer colorDepth)
+    {
+        this.colorDepth = colorDepth;
+    }
+
     @Override
     public String toString()
     {
@@ -173,6 +185,10 @@ public class ImageDataSetInformation extends BasicDataSetInformation
         {
             appendNameAndObject(buffer, "bounding box", maximumImageWidth + "x"
                     + maximumImageHeight);
+        }
+        if (getColorDepth() != null)
+        {
+            appendNameAndObject(buffer, "color depth", this.getColorDepth());
         }
         if (getThumbnailsInfos() != null)
         {

@@ -209,12 +209,14 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
             Integer width = null;
             Integer height = null;
             boolean original = true;
+            Integer colorDepth = null;
             if (originalDataset instanceof ImageDataSetInformation)
             {
                 ImageDataSetInformation imageDataSet = (ImageDataSetInformation) originalDataset;
                 width = nullifyIfZero(imageDataSet.getMaximumImageWidth());
                 height = nullifyIfZero(imageDataSet.getMaximumImageHeight());
                 original = imageDataSet.getRegisterAsOverviewImageDataSet() == false;
+                colorDepth = imageDataSet.getColorDepth();
             }
 
             if (original)
@@ -222,7 +224,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                 @SuppressWarnings("unchecked")
                 ImageZoomLevel originalZoomLevel =
                         new ImageZoomLevel(originalDataset.getDataSetCode(), original,
-                                StringUtils.EMPTY_STRING, width, height, null, null,
+                                StringUtils.EMPTY_STRING, width, height, colorDepth, null,
                                 Collections.EMPTY_MAP);
                 zoomLevels.add(originalZoomLevel);
             }
@@ -246,9 +248,8 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                     }
                     String rootPath = thumbnailsInfosOrNull.getRootPath(permId);
 
-                    // TODO add color depth
                     ImageZoomLevel thumbnailZoomLevel =
-                            new ImageZoomLevel(permId, false, rootPath, width, height, null,
+                            new ImageZoomLevel(permId, false, rootPath, width, height, colorDepth,
                                     fileTypeString,
                                     thumbnailsInfosOrNull.getTransformations(permId));
                     zoomLevels.add(thumbnailZoomLevel);

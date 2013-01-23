@@ -130,6 +130,7 @@ if incoming.isDirectory():
   imageDataset = ImageDataSetFlexible()
   imageDataset.setRawImageDatasetType()
   imageDataset.setPlate("TEST", 'TRANSFORMED-THUMB-PLATE')
+  imageDataset.setColorDepth(8)
   transforms = getAvailableChannelTransformations()
   # We want thumbnails generarted for the following resolutions, and they should be JPEG and have the
   # Radial Blur transform applied
