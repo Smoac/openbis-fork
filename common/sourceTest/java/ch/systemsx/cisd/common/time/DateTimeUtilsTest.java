@@ -44,7 +44,7 @@ public class DateTimeUtilsTest extends AssertJUnit
         assertEquals("2min", DateTimeUtils.renderDuration(100 * 1000));
         assertEquals("42min", DateTimeUtils.renderDuration(42 * 1000 * 60));
         assertEquals("59min", DateTimeUtils.renderDuration(59 * 1000 * 60));
-        assertEquals("1h 0min", DateTimeUtils.renderDuration(60 * 1000 * 60));
+        assertEquals("1h", DateTimeUtils.renderDuration(60 * 1000 * 60));
         assertEquals("1h 1min", DateTimeUtils.renderDuration(61 * 1000 * 60));
         assertEquals("2h 3min", DateTimeUtils.renderDuration(123 * 1000 * 60));
     }

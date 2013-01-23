@@ -100,7 +100,13 @@ public final class DateTimeUtils
         }
         long minutes = durationInMinutes % 60;
         long hours = durationInMinutes / 60;
-        return render(hours, "h") + " " + render(minutes, "min");
+        if (minutes > 0)
+        {
+            return render(hours, "h") + " " + render(minutes, "min");
+        } else
+        {
+            return render(hours, "h");
+        }
     }
 
     private static String render(long value, String unit)
