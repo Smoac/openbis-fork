@@ -2306,27 +2306,34 @@ public final class FileUtilities
         {
             return file.length();
         }
-        if (OSUtilities.isUnix())
+        if (OSUtilities.isUnix() == false)
         {
-            ProcessResult result =
-                    ProcessExecutionHelper.run(Arrays.asList("du", "-k",
-                            OSUtilities.isMacOS() ? "-d0" : "--max-depth 0", file.toString()),
-                            operationLog, machineLog);
-            if (result.isOK())
-            {
-                return Long.parseLong(result.getOutput().get(0).split("\\t")[0]) * 1024;
-            }
-            Throwable exception = result.getProcessIOResult().tryGetException();
-            if (exception != null)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(exception);
-            }
-            throw new EnvironmentFailureException("The size of the folder '" + file
-                    + "' couldn't be determined:\n command: " + result.getCommandName() 
-                    + "\n commad line arguments: " + result.getCommandLine() 
-                    + "\n output: " + result.getOutput() 
-                    + "\n error output: "+ result.getErrorOutput());
+            return FileUtils.sizeOfDirectory(file);
         }
-        return FileUtils.sizeOfDirectory(file);
+        List<String> command =
+                new ArrayList<String>(Arrays.asList("du", "-k", file.toString()));
+        if (OSUtilities.isMacOS())
+        {
+            command.add(2, "-d0");
+        } else
+        {
+            command.add(2, "--max-depth");
+            command.add(3, "0");
+        }
+        ProcessResult result = ProcessExecutionHelper.run(command, operationLog, machineLog);
+        if (result.isOK())
+        {
+            return Long.parseLong(result.getOutput().get(0).split("\\t")[0]) * 1024;
+        }
+        Throwable exception = result.getProcessIOResult().tryGetException();
+        if (exception != null)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(exception);
+        }
+        throw new EnvironmentFailureException("The size of the folder '" + file
+                + "' couldn't be determined:\n command: " + result.getCommandName() 
+                + "\n commad line arguments: " + result.getCommandLine() 
+                + "\n output: " + result.getOutput() 
+                + "\n error output: "+ result.getErrorOutput());
     }
 }
