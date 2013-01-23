@@ -102,7 +102,7 @@ public class TestInitializer
 
         // make sure the search index is up-to-date
         // and in the right place when we run tests
-        restoreSearchIndex(hibernateIndexMode);
+        restoreSearchIndex();
 
         String projectName = System.getProperty("ant.project.name", "");
 
@@ -116,30 +116,27 @@ public class TestInitializer
     }
 
     // create a fresh copy of the Lucene index
-    public static void restoreSearchIndex(IndexMode indexMode)
+    public static void restoreSearchIndex()
     {
         File targetPath = new File(TestInitializer.LUCENE_INDEX_PATH).getAbsoluteFile();
         FileUtilities.deleteRecursively(targetPath);
         targetPath.mkdirs();
-        if (indexMode != IndexMode.NO_INDEX)
+        File srcPath = new File(LUCENE_INDEX_TEMPLATE_PATH).getAbsoluteFile();
+        try
         {
-            File srcPath = new File(LUCENE_INDEX_TEMPLATE_PATH).getAbsoluteFile();
-            try
-            {
-                FileUtils.copyDirectory(srcPath, targetPath, new FileFilter()
+            FileUtils.copyDirectory(srcPath, targetPath, new FileFilter()
+                {
+                    @Override
+                    public boolean accept(File path)
                     {
-                        @Override
-                        public boolean accept(File path)
-                        {
-                            return false == path.getName().equalsIgnoreCase(".svn");
-                        }
-                    });
-                new File(srcPath, FullTextIndexerRunnable.FULL_TEXT_INDEX_MARKER_FILENAME)
-                        .createNewFile();
-            } catch (IOException ex)
-            {
-                throw new IOExceptionUnchecked(ex);
-            }
+                        return false == path.getName().equalsIgnoreCase(".svn");
+                    }
+                });
+            new File(srcPath, FullTextIndexerRunnable.FULL_TEXT_INDEX_MARKER_FILENAME)
+                    .createNewFile();
+        } catch (IOException ex)
+        {
+            throw new IOExceptionUnchecked(ex);
         }
     }
 
