@@ -57,7 +57,7 @@ public class ServiceFinderTimeoutTest extends AssertJUnit
         server.stop();
     }
 
-    @Test(timeOut = 3 * ONE_SECOND_TIMEOUT)
+    @Test(timeOut = 5 * ONE_SECOND_TIMEOUT)
     public void testTimeout()
     {
         ServiceFinder finder = new ServiceFinder("", "");
