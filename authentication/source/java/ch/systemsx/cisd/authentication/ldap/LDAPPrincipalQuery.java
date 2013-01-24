@@ -399,8 +399,8 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         env.put(Context.REFERRAL, config.getReferral());
         env.put(Context.SECURITY_PRINCIPAL, dn);
         env.put(Context.SECURITY_CREDENTIALS, password);
-        env.put(LDAP_CONTEXT_READ_TIMEOUT, config.getTimeoutStr());
-        env.put(LDAP_CONTEXT_CONNECT_TIMEOUT, config.getTimeoutStr());
+        env.put(LDAP_CONTEXT_READ_TIMEOUT, Long.toString(config.getTimeout()));
+        env.put(LDAP_CONTEXT_CONNECT_TIMEOUT, Long.toString(config.getTimeout()));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("Try to login to %s with dn=%s",

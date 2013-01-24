@@ -328,12 +328,20 @@ public final class LDAPDirectoryConfiguration
     }
 
     /**
-     * The read timeout (in ms).
-     * Default value: <code>-1</code> (which means: wait forever)
+     * The read timeout (in s).
+     * Default value: <code>10s</code>
      */
     public String getTimeoutStr()
     {
         return Long.toString(timeout / 1000);
+    }
+    
+    /**
+     * Returns the timeout (in ms)
+     */
+    public long getTimeout()
+    {
+        return timeout;
     }
 
     /**
