@@ -15,6 +15,14 @@ source `dirname "$0"`/setup-env
 
 APPLICATION_NAME=openbis
 
+name=`basename "$0"`
+if [[ "$name" == *cache* ]]; then
+   pwd_prop="-DPASSWORD_CACHE_FILE=etc/passwd_cache"
+else
+   pwd_prop="-DPASSWORD_FILE=etc/passwd"
+fi
+
+
 #
 # change to installation directory
 #
@@ -35,4 +43,4 @@ LIB=webapps/$APPLICATION_NAME/WEB-INF/lib
 # Build classpath from $LIB content.
 CP=`echo $LIB/*.jar | sed 's/ /:/g'`
 
-$JVM -cp $CP ch.systemsx.cisd.authentication.file.PasswordEditorCommand "$@"
+$JVM $pwd_prop -cp $CP ch.systemsx.cisd.authentication.file.PasswordEditorCommand "$@"
