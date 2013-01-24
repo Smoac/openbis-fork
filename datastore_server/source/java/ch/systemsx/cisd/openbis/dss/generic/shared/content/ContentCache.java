@@ -129,8 +129,6 @@ public class ContentCache implements IContentCache, InitializingBean
                 SystemTimeProvider.SYSTEM_TIME_PROVIDER, persistenceManager);
     }
 
-    private final Map<String, Integer> dataSetLocks = new HashMap<String, Integer>();
-
     private final LockManager fileLockManager;
 
     private final IDssServiceRpcGenericFactory serviceFactory;
@@ -205,48 +203,6 @@ public class ContentCache implements IContentCache, InitializingBean
             persistenceManager.requestPersistence();
         }
         return dataSetFolders.length;
-    }
-
-    @Override
-    public void lockDataSet(String dataSetCode)
-    {
-        String dataSetPath = createDataSetPath(CACHE_FOLDER, dataSetCode);
-        synchronized (dataSetLocks)
-        {
-            System.out.println("locking " + dataSetCode+": "+dataSetLocks);
-            Integer count = dataSetLocks.get(dataSetPath);
-            if (count == null)
-            {
-                count = 0;
-            }
-            count++;
-            dataSetLocks.put(dataSetPath, count);
-        }
-    }
-
-    @Override
-    public void unlockDataSet(String dataSetCode)
-    {
-        String dataSetPath = createDataSetPath(CACHE_FOLDER, dataSetCode);
-        synchronized (dataSetLocks)
-        {
-            Integer count = dataSetLocks.remove(dataSetPath);
-            if (count != null && count > 1)
-            {
-                dataSetLocks.put(dataSetPath, count - 1);
-            }
-            System.out.println("unlocking " + dataSetCode+": "+dataSetLocks);
-        }
-    }
-
-    @Override
-    public boolean isDataSetLocked(String dataSetCode)
-    {
-        String dataSetPath = createDataSetPath(CACHE_FOLDER, dataSetCode);
-        synchronized (dataSetLocks)
-        {
-            return dataSetLocks.containsKey(dataSetPath);
-        }
     }
 
     @Override
@@ -588,27 +544,24 @@ public class ContentCache implements IContentCache, InitializingBean
             if (info.lastModified < nowMinusKeepingTime)
             {
                 String dataSet = entry.getKey();
-                if (isDataSetLocked(dataSet) == false)
+                File fileToRemove = new File(workspace, createDataSetPath(CACHE_FOLDER, dataSet));
+                boolean success = fileOperations.removeRecursivelyQueueing(fileToRemove);
+                if (success)
                 {
-                    File fileToRemove = new File(workspace, createDataSetPath(CACHE_FOLDER, dataSet));
-                    boolean success = fileOperations.removeRecursivelyQueueing(fileToRemove);
-                    if (success)
+                    synchronized (dataSetInfos)
                     {
-                        synchronized (dataSetInfos)
-                        {
-                            dataSetInfos.remove(dataSet);
-                        }
-                        totalSize -= info.size;
-                        operationLog.info("Cached files for data set " + dataSet
-                                + " have been removed.");
-                        if (totalSize < maxWorkspaceSize)
-                        {
-                            break;
-                        }
-                    } else
-                    {
-                        operationLog.error("Couldn't remove " + fileToRemove + ".");
+                        dataSetInfos.remove(dataSet);
                     }
+                    totalSize -= info.size;
+                    operationLog.info("Cached files for data set " + dataSet
+                            + " have been removed.");
+                    if (totalSize < maxWorkspaceSize)
+                    {
+                        break;
+                    }
+                } else
+                {
+                    operationLog.error("Couldn't remove " + fileToRemove + ".");
                 }
             }
         }

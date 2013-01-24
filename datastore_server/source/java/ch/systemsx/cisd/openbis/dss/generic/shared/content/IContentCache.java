@@ -29,13 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
  */
 public interface IContentCache
 {
-
-    public void lockDataSet(String dataSetCode);
-
-    public void unlockDataSet(String dataSetCode);
-
-    public boolean isDataSetLocked(String dataSetCode);
-
     public File getFile(String sessionToken, IDatasetLocation dataSetLocation, DataSetPathInfo path);
 
     public InputStream getInputStream(String sessionToken, IDatasetLocation dataSetLocation,

@@ -81,31 +81,6 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
     }
 
     @Test
-    public void testDataSetLocking()
-    {
-        ContentCache cache = createCache();
-
-        cache.lockDataSet("DS-1");
-
-        assertEquals(true, cache.isDataSetLocked("DS-1"));
-        assertEquals(false, cache.isDataSetLocked("DS-2"));
-
-        cache.lockDataSet("DS-1");
-
-        assertEquals(true, cache.isDataSetLocked("DS-1"));
-
-        cache.unlockDataSet("DS-1");
-
-        assertEquals(true, cache.isDataSetLocked("DS-1"));
-
-        cache.unlockDataSet("DS-1");
-
-        assertEquals(false, cache.isDataSetLocked("DS-1"));
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public void testGetFileWhichIsNotInCache()
     {
         final DataSetPathInfo pathInfo1 = prepareForDownloading(remoteFile1);
@@ -466,9 +441,8 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         FileUtilities.writeToFile(remoteFile1, createStringOfSize(25 * FileUtils.ONE_KB));
         DataSetPathInfo pathInfo1 = prepareForDownloading(remoteFile1);
         prepareRequestPersistence(1);
-        ContentCache cache = createCache(19 * FileUtils.ONE_KB, 1000);
+        ContentCache cache = createCache(19 * FileUtils.ONE_KB, 61000);
 
-        cache.lockDataSet(DATA_SET_CODE);
         cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
 
         assertEquals(createFirstLogLine()
@@ -489,10 +463,9 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         DataSetPathInfo pathInfo1 = prepareForDownloading(remoteFile1);
         prepareRequestPersistence(2);
         prepareForRemoving(dataSetFolder1, false);
-        ContentCache cache = createCache(19 * FileUtils.ONE_KB, 1000);
+        ContentCache cache = createCache(19 * FileUtils.ONE_KB, 61000);
         timeProvider.getTimeInMilliseconds(); // next timestamp for the new file will be 61000
         
-        cache.lockDataSet(DATA_SET_CODE);
         cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
         
         assertEquals(createFirstLogLine() + createRecreatedlogLine(DATA_SET_CODE1)
@@ -522,7 +495,6 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         ContentCache cache = createCache(19 * FileUtils.ONE_KB, 1000);
         timeProvider.getTimeInMilliseconds(); // next timestamp for the new file will be 61000
         
-        cache.lockDataSet(DATA_SET_CODE);
         cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
         
         assertEquals(createFirstLogLine() + createRecreatedlogLine(DATA_SET_CODE1)
@@ -530,37 +502,6 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
                 + createRemoveLogLine(DATA_SET_CODE1).trim(), logRecorder.getLogContent());
         assertEquals(null, dataSetInfos.get(DATA_SET_CODE1));
         assertEquals(2000, dataSetInfos.get(DATA_SET_CODE2).lastModified);
-        assertEquals(61000, dataSetInfos.get(DATA_SET_CODE).lastModified);
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testRemovingSecondOldestOfTwoDataSetsFromCacheBecauseOldestIsLocked()
-    {
-        File dataSetFolder1 = new File(workSpace, CACHE_FOLDER + "/" + DATA_SET_CODE1);
-        File file1 = new File(dataSetFolder1, "abc.txt");
-        file1.getParentFile().mkdirs();
-        FileUtilities.writeToFile(file1, createStringOfSize(8 * FileUtils.ONE_KB));
-        dataSetFolder1.setLastModified(1000);
-        File dataSetFolder2 = new File(workSpace, CACHE_FOLDER + "/" + DATA_SET_CODE2);
-        File file2 = new File(dataSetFolder2, "abc2.txt");
-        file2.getParentFile().mkdirs();
-        FileUtilities.writeToFile(file2, createStringOfSize(12 * FileUtils.ONE_KB));
-        dataSetFolder2.setLastModified(2000);
-        DataSetPathInfo pathInfo1 = prepareForDownloading(remoteFile1);
-        prepareRequestPersistence(2);
-        prepareForRemoving(dataSetFolder2, true);
-        ContentCache cache = createCache(19 * FileUtils.ONE_KB, 1000);
-        timeProvider.getTimeInMilliseconds(); // next timestamp for the new file will be 61000
-
-        cache.lockDataSet(DATA_SET_CODE1); // lock the oldest data set
-        cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
-
-        assertEquals(createFirstLogLine() + createRecreatedlogLine(DATA_SET_CODE1)
-                + createRecreatedlogLine(DATA_SET_CODE2) + createSizeLogLine(20, 2)
-                + createRemoveLogLine(DATA_SET_CODE2).trim(), logRecorder.getLogContent());
-        assertEquals(1000, dataSetInfos.get(DATA_SET_CODE1).lastModified);
-        assertEquals(null, dataSetInfos.get(DATA_SET_CODE2));
         assertEquals(61000, dataSetInfos.get(DATA_SET_CODE).lastModified);
         context.assertIsSatisfied();
     }
@@ -590,7 +531,6 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         ContentCache cache = createCache(19 * FileUtils.ONE_KB, 100000);
         timeProvider.getTimeInMilliseconds(); // next timestamp for the new file will be 61000
 
-        cache.lockDataSet(DATA_SET_CODE);
         cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
 
         assertEquals(createFirstLogLine() + createRecreatedlogLine(DATA_SET_CODE1)

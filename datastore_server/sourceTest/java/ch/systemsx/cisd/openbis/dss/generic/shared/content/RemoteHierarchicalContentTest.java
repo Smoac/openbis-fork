@@ -33,20 +33,6 @@ public class RemoteHierarchicalContentTest extends AbstractRemoteHierarchicalCon
 {
 
     @Test
-    public void testLockingUnlockingDataSet()
-    {
-        ContentCache cache = createCache();
-        RemoteHierarchicalContent content = createContent(cache);
-
-        assertEquals(true, cache.isDataSetLocked(DATA_SET_CODE));
-
-        content.close();
-
-        assertEquals(false, cache.isDataSetLocked(DATA_SET_CODE));
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public void testGetDefaultRootNode() throws Exception
     {
         ContentCache cache = createCache();

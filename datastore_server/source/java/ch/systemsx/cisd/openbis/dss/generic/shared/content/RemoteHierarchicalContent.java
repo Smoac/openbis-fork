@@ -54,7 +54,6 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
         this.serviceFactory = serviceFactory;
         this.sessionTokenProvider = sessionTokenProvider;
         this.cache = cache;
-        cache.lockDataSet(location.getLocation().getDataSetCode());
     }
 
     @Override
@@ -144,7 +143,6 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
     @Override
     public void close()
     {
-        cache.unlockDataSet(location.getLocation().getDataSetCode());
     }
 
     private IHierarchicalContentNode createNode(DataSetPathInfo info)
