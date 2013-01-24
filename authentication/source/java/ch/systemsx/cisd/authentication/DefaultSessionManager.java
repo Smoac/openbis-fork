@@ -174,7 +174,19 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                 .getClass().getName()));
         operationLog.info(String.format("Session expiration period: %s",
                 DurationFormatUtils.formatDurationHMS(sessionExpirationPeriodMillis)));
-        authenticationService.check();
+        try
+        {
+            authenticationService.check();
+        } catch (EnvironmentFailureException ex)
+        {
+            if (authenticationService.isRemote())
+            {
+                operationLog.warn("Remote authentication service check failed.", ex);
+            } else
+            {
+                throw ex;
+            }
+        }
     }
 
     private final T createAndStoreSession(final String user, final Principal principal,
