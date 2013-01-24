@@ -236,7 +236,7 @@ public class DefaultSessionManagerTest
     }
 
     @Test
-    public void testAuthenticationForUnavailableAuthenticationService()
+    public void testAuthenticationForUnavailableLocalAuthenticationService()
     {
         final String errorMsg = "I pretend to be not here!";
         context.checking(new Expectations()
@@ -244,6 +244,8 @@ public class DefaultSessionManagerTest
                 {
                     one(authenticationService).check();
                     will(throwException(new EnvironmentFailureException(errorMsg)));
+                    one(authenticationService).isRemote();
+                    will(returnValue(false));
                 }
             });
         try
@@ -254,6 +256,23 @@ public class DefaultSessionManagerTest
         {
             assertEquals(errorMsg, e.getMessage());
         }
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testAuthenticationForUnavailableRemoveAuthenticationService()
+    {
+        final String errorMsg = "I pretend to be not here!";
+        context.checking(new Expectations()
+            {
+                {
+                    one(authenticationService).check();
+                    will(throwException(new EnvironmentFailureException(errorMsg)));
+                    one(authenticationService).isRemote();
+                    will(returnValue(true));
+                }
+            });
+        createSessionManager(1);
         context.assertIsSatisfied();
     }
 
