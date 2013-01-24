@@ -296,12 +296,19 @@ public class ContentCache implements IContentCache, InitializingBean
         return new InputStream()
             {
                 private boolean closed;
+                private boolean eof;
 
                 @Override
                 public int read() throws IOException
                 {
                     int b = inputStream.read();
-                    fileOutputStream.write(b);
+                    if (b < 0)
+                    {
+                        eof = true;
+                    } else
+                    {
+                        fileOutputStream.write(b);
+                    }
                     return b;
                 }
 
@@ -312,6 +319,10 @@ public class ContentCache implements IContentCache, InitializingBean
                     if (count >= 0)
                     {
                         fileOutputStream.write(b, off, count);
+                        eof = count < len;
+                    } else
+                    {
+                        eof = true;
                     }
                     return count;
                 }
@@ -325,9 +336,12 @@ public class ContentCache implements IContentCache, InitializingBean
                     }
                     inputStream.close();
                     fileOutputStream.close();
-                    moveDownloadedFileToCache(tempFile, pathInWorkspace,
-                            dataSetLocation.getDataSetCode());
-                    persistenceManager.requestPersistence();
+                    if (eof)
+                    {
+                        moveDownloadedFileToCache(tempFile, pathInWorkspace,
+                                dataSetLocation.getDataSetCode());
+                        persistenceManager.requestPersistence();
+                    }
                     closed = true;
                     fileLockManager.unlock(pathInWorkspace);
                 }
@@ -351,8 +365,8 @@ public class ContentCache implements IContentCache, InitializingBean
         try
         {
             input = createInputStream(sessionToken, dataSetLocation, path);
-            File downloadedFile = createFileFromInputStream(dataSetLocation, path, input);
             String pathInWorkspace = createPathInWorkspace(CACHE_FOLDER, dataSetLocation, path);
+            File downloadedFile = createFileFromInputStream(input);
             moveDownloadedFileToCache(downloadedFile, pathInWorkspace,
                     dataSetLocation.getDataSetCode());
         } catch (Exception ex)
@@ -461,8 +475,7 @@ public class ContentCache implements IContentCache, InitializingBean
         }
     }
 
-    private File createFileFromInputStream(IDatasetLocation dataSetLocation, DataSetPathInfo path,
-            InputStream inputStream)
+    private File createFileFromInputStream(InputStream inputStream)
     {
         File file = createTempFile();
         OutputStream ostream = null;
@@ -483,10 +496,16 @@ public class ContentCache implements IContentCache, InitializingBean
 
     private File createTempFile()
     {
-        String relativePath = DOWNLOADING_FOLDER + "/" + Thread.currentThread().getId();
-        File file = new File(workspace, relativePath);
-        createFolder(file.getParentFile());
-        return file;
+        File downLoadingFolder = new File(workspace, DOWNLOADING_FOLDER);
+        createFolder(downLoadingFolder);
+        try
+        {
+            File file = File.createTempFile("file-", null, downLoadingFolder);
+            return file;
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 
     private void createFolder(File folder)
@@ -551,14 +570,24 @@ public class ContentCache implements IContentCache, InitializingBean
                 String dataSet = entry.getKey();
                 if (isDataSetLocked(dataSet) == false)
                 {
-                    fileOperations.removeRecursivelyQueueing(new File(workspace, dataSet));
-                    dataSetInfos.remove(dataSet);
-                    totalSize -= info.size;
-                    operationLog.info("Cached files for data set " + dataSet
-                            + " have been removed.");
-                    if (totalSize < maxWorkspaceSize)
+                    File fileToRemove = new File(workspace, dataSet);
+                    boolean success = fileOperations.removeRecursivelyQueueing(fileToRemove);
+                    if (success)
                     {
-                        break;
+                        synchronized (dataSetInfos)
+                        {
+                            dataSetInfos.remove(dataSet);
+                        }
+                        totalSize -= info.size;
+                        operationLog.info("Cached files for data set " + dataSet
+                                + " have been removed.");
+                        if (totalSize < maxWorkspaceSize)
+                        {
+                            break;
+                        }
+                    } else
+                    {
+                        operationLog.error("Couldn't remove " + fileToRemove);
                     }
                 }
             }

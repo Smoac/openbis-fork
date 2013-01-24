@@ -27,11 +27,13 @@ import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.concurrent.MessageChannelBuilder;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.ConsoleLogger;
 import ch.systemsx.cisd.common.test.ProxyAction;
+import ch.systemsx.cisd.openbis.dss.generic.shared.content.ContentCache.DataSetInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 
 /**
@@ -94,6 +96,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         File file = cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo);
         
         assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file).trim());
+        assertDataSetInfos(DATA_SET_CODE, 1, 1, 1000);
         context.assertIsSatisfied();
     }
     
@@ -110,7 +113,54 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         assertDataSetInfos(DATA_SET_CODE, FILE1_CONTENT.length(), 1000);
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testGetInputStreamForFileNotInCacheReadingBytePerByte() throws IOException
+    {
+        final DataSetPathInfo pathInfo1 = prepareForDownloading(remoteFile1);
+        prepareRequestPersistence(1);
+        
+        ContentCache cache = createCache();
+        InputStream inputStream = cache.getInputStream(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
+        
+        StringBuilder builder = new StringBuilder();
+        while (true)
+        {
+            int b = inputStream.read();
+            if (b < 0)
+            {
+                break;
+            }
+            builder.append((char) b);
+        }
+        inputStream.close();
+        
+        assertEquals(FILE1_CONTENT, builder.toString());
+        assertDataSetInfos(DATA_SET_CODE, FILE1_CONTENT.length(), 1000);
+        context.assertIsSatisfied();
+    }
 
+    @Test
+    public void testGetInputStreamForFileNotInCacheAndInterruptReading() throws IOException
+    {
+        prepareForDownloading(remoteFile1);
+        final DataSetPathInfo pathInfo1 = prepareForDownloading(remoteFile1);
+        prepareRequestPersistence(1);
+        
+        ContentCache cache = createCache();
+        InputStream inputStream = cache.getInputStream(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
+        
+        byte[] bytes = new byte[100];
+        assertEquals(11, inputStream.read(bytes, 0, 11));
+        assertEquals(FILE1_CONTENT.substring(0, 11), new String(bytes, 0, 11));
+        inputStream.close();
+        
+        inputStream = cache.getInputStream(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
+        assertEquals(FILE1_CONTENT, readContent(inputStream, true));
+        assertDataSetInfos(DATA_SET_CODE, FILE1_CONTENT.length(), 1000);
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public void testGetInputStreamForFileInCache()
     {
@@ -127,9 +177,46 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         InputStream inputStream = cache.getInputStream(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo);
         
         assertEquals(FILE1_CONTENT, readContent(inputStream, true));
+        assertDataSetInfos(DATA_SET_CODE, 1, 1, 1000);
         context.assertIsSatisfied();
     }
     
+    @Test
+    public void testGetInputStreamsForTwoFilesNotInCacheAndReadThemAtTheSameTime() throws IOException
+    {
+        final DataSetPathInfo pathInfo1 = prepareForDownloading(remoteFile1);
+        final DataSetPathInfo pathInfo2 = prepareForDownloading(remoteFile2);
+        prepareRequestPersistence(4);
+
+        ContentCache cache = createCache();
+        InputStream inputStream1 =
+                cache.getInputStream(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
+        InputStream inputStream2 =
+                cache.getInputStream(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo2);
+
+        byte[] bytes1 = new byte[100];
+        byte[] bytes2 = new byte[100];
+        assertEquals(11, inputStream1.read(bytes1, 0, 11));
+        assertEquals(11, inputStream2.read(bytes2, 0, 11));
+        assertEquals(3, inputStream1.read(bytes1, 11, 100 - 11));
+        assertEquals(3, inputStream2.read(bytes2, 11, 100 - 11));
+        inputStream1.close();
+        inputStream2.close();
+        
+        assertEquals(FILE1_CONTENT, new String(bytes1, 0, FILE1_CONTENT.length()));
+        assertEquals(FILE2_CONTENT, new String(bytes2, 0, FILE2_CONTENT.length()));
+        assertEquals(
+                FILE1_CONTENT,
+                FileUtilities.loadToString(
+                        cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1)).trim());
+        assertEquals(
+                FILE2_CONTENT,
+                FileUtilities.loadToString(
+                        cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo2)).trim());
+
+        context.assertIsSatisfied();
+    }
+
     @Test(invocationCount = 1, invocationTimeOut = 10000)
     public void testGetInputStreamForSameContentInTwoThreads()
     {
@@ -321,6 +408,25 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         File fileFromCache = cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo);
         assertEquals(fileInCache.getAbsolutePath(), fileFromCache.getAbsolutePath());
         context.assertIsSatisfied();
+    }
+
+    private void assertDataSetInfos(String dataSetCode, int expectedNumberOfSmallFiles, int expectedNumberOfFolders,
+            long expectedLastModified)
+    {
+        long expectedSize = expectedNumberOfSmallFiles;
+        if (OSUtilities.isMacOS() == false)
+        {
+            expectedSize += expectedNumberOfFolders;
+        }
+        assertDataSetInfos(dataSetCode, expectedSize * 4096, expectedLastModified);
+    }
+    
+    private void assertDataSetInfos(String dataSetCode, long expectedSize,
+            long expectedLastModified)
+    {
+        DataSetInfo dataSetInfo = dataSetInfos.get(dataSetCode);
+        assertEquals(expectedLastModified, dataSetInfo.lastModified);
+        assertEquals(expectedSize, dataSetInfo.size);
     }
 
     private String readContent(InputStream inputStream, boolean closeStream)

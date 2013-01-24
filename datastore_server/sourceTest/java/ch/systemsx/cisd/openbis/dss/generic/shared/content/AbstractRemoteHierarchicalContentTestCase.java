@@ -83,7 +83,7 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
 
     protected IPersistenceManager persistenceManager;
 
-    private HashMap<String, DataSetInfo> dataSetInfos;
+    protected HashMap<String, DataSetInfo> dataSetInfos;
     
     @BeforeMethod
     public void setUpBasicFixture()
@@ -126,14 +126,6 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
         context.assertIsSatisfied();
     }
     
-    protected void assertDataSetInfos(String dataSetCode, long expectedSize,
-            long expectedLastModified)
-    {
-        DataSetInfo dataSetInfo = dataSetInfos.get(dataSetCode);
-        assertEquals(expectedLastModified, dataSetInfo.lastModified);
-        assertEquals(expectedSize, dataSetInfo.size);
-    }
-
     protected ContentCache createCache()
     {
         context.checking(new Expectations()
