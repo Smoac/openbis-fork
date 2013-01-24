@@ -44,8 +44,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
-import ch.systemsx.cisd.openbis.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
+import ch.systemsx.cisd.openbis.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExpressionValidator;
@@ -345,6 +345,36 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         return person;
     }
 
+    private final void updatePersonIfNecessary(final PersonPE person, final Principal principal)
+    {
+        boolean changed = false;
+        if (person.getEmail().equals(principal.getEmail()) == false)
+        {
+            person.setEmail(principal.getEmail());
+            changed = true;
+        }
+        if (person.getFirstName().equals(principal.getFirstName()) == false)
+        {
+            person.setFirstName(principal.getFirstName());
+            changed = true;
+        }
+        if (person.getLastName().equals(principal.getLastName()) == false)
+        {
+            person.setLastName(principal.getLastName());
+            changed = true;
+        }
+        if (changed)
+        {
+            try
+            {
+                daoFactory.getPersonDAO().updatePerson(person);
+            } catch (final DataAccessException e)
+            {
+                throw new UserFailureException(e.getMessage(), e);
+            }
+        }
+    }
+
     protected final PersonPE getSystemUser()
     {
         return getSystemUser(daoFactory.getPersonDAO().listPersons());
@@ -502,6 +532,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             roles = Collections.emptySet();
         } else
         {
+            updatePersonIfNecessary(person, session.getPrincipal());
             roles = person.getAllPersonRoles();
             HibernateUtils.initialize(roles);
         }
