@@ -120,7 +120,7 @@
     <bean id="authentication-cache-configuration"
     		class="ch.systemsx.cisd.authentication.file.CachingAuthenticationConfiguration">
         <property name="delegate" ref="ldap-crowd-authentication-service" />
-        <property name="passwordCacheFile" value="etc/password_cache" />
+        <property name="passwordCacheFile" value="etc/passwd_cache" />
         <property name="cacheTimeStr" value="${authentication.cache.time}" />
         <property name="cacheTimeNoRevalidationStr" value="${authentication.cache.time-no-revalidation}" />
     </bean>
