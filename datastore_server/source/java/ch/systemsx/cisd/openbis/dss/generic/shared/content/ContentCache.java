@@ -587,7 +587,7 @@ public class ContentCache implements IContentCache, InitializingBean
                         }
                     } else
                     {
-                        operationLog.error("Couldn't remove " + fileToRemove);
+                        operationLog.error("Couldn't remove " + fileToRemove + ".");
                     }
                 }
             }
