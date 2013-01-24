@@ -125,9 +125,19 @@
         <property name="cacheTimeNoRevalidationStr" value="${authentication.cache.time-no-revalidation}" />
     </bean>
 
-    <bean id="file-ldap-crowd-caching-authentication-service" 
+    <bean id="ldap-crowd-caching-authentication-service" 
     			class = "ch.systemsx.cisd.authentication.file.CachingAuthenticationService">
         <constructor-arg ref="authentication-cache-configuration" />
+    </bean>
+    
+    <bean id="file-ldap-crowd-caching-authentication-service" 
+    			class = "ch.systemsx.cisd.authentication.stacked.StackedAuthenticationService">
+        <constructor-arg>
+            <list>
+                <ref bean="file-authentication-service" />
+                <ref bean="ldap-crowd-caching-authentication-service" />
+            </list>
+        </constructor-arg>
     </bean>
     
     <!-- Keep this for backward compatibility with old service.properties files. -->
