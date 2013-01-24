@@ -16,11 +16,16 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 
+import static ch.systemsx.cisd.openbis.dss.generic.shared.content.ContentCache.CACHE_FOLDER;
+import static ch.systemsx.cisd.openbis.dss.generic.shared.content.ContentCache.DOWNLOADING_FOLDER;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.jmock.Expectations;
@@ -41,6 +46,39 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
  */
 public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
 {
+    @Test
+    public void testCreateCacheInstanceForEmptyCache()
+    {
+        createCache();
+
+        assertEquals("Content cache created. Workspace: " + workSpace.getAbsolutePath()
+                + "\nContent cache initialized. It contains 0 bytes from 0 data sets.",
+                logRecorder.getLogContent());
+        assertEquals("{}", dataSetInfos.toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCreateCacheInstanceForOneDataSetInCache()
+    {
+        File dataSetFolder = new File(workSpace, CACHE_FOLDER + "/" + DATA_SET_CODE);
+        File file = new File(dataSetFolder, "abc.txt");
+        file.getParentFile().mkdirs();
+        FileUtilities.writeToFile(file, FILE1_CONTENT);
+        dataSetFolder.setLastModified(42000);
+        prepareRequestPersistence(1);
+        
+        createCache();
+
+        int size = (OSUtilities.isMacOS() ? 1 : 2) * 4;
+        assertEquals("Content cache created. Workspace: " + workSpace.getAbsolutePath()
+                + "\nData set info recreated for data set " + DATA_SET_CODE
+                + ".\nContent cache initialized. It contains " + size + ".00 KB from 1 data sets.",
+                logRecorder.getLogContent());
+        assertDataSetInfos(DATA_SET_CODE, 1, 1, 42000);
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public void testDataSetLocking()
     {
@@ -86,7 +124,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         DataSetPathInfo pathInfo = new DataSetPathInfo();
         pathInfo.setRelativePath(remoteFile1.getName());
         pathInfo.setDirectory(false);
-        File fileInCache = new File(workSpace, ContentCache.CACHE_FOLDER + "/"
+        File fileInCache = new File(workSpace, CACHE_FOLDER + "/"
                 + DATA_SET_CODE + "/" + pathInfo.getRelativePath());
         fileInCache.getParentFile().mkdirs();
         FileUtilities.writeToFile(fileInCache, FILE1_CONTENT);
@@ -167,7 +205,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         DataSetPathInfo pathInfo = new DataSetPathInfo();
         pathInfo.setRelativePath(remoteFile1.getName());
         pathInfo.setDirectory(false);
-        File fileInCache = new File(workSpace, ContentCache.CACHE_FOLDER + "/"
+        File fileInCache = new File(workSpace, CACHE_FOLDER + "/"
                 + DATA_SET_CODE + "/" + pathInfo.getRelativePath());
         fileInCache.getParentFile().mkdirs();
         FileUtilities.writeToFile(fileInCache, FILE1_CONTENT);
@@ -187,12 +225,16 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         final DataSetPathInfo pathInfo1 = prepareForDownloading(remoteFile1);
         final DataSetPathInfo pathInfo2 = prepareForDownloading(remoteFile2);
         prepareRequestPersistence(4);
-
         ContentCache cache = createCache();
+        File downloadingFolder = new File(workSpace, DOWNLOADING_FOLDER);
+        assertEquals(false, downloadingFolder.exists());
+        
         InputStream inputStream1 =
                 cache.getInputStream(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
+        assertEquals(1, new File(workSpace, DOWNLOADING_FOLDER).list().length);
         InputStream inputStream2 =
                 cache.getInputStream(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo2);
+        assertEquals(2, downloadingFolder.list().length);
 
         byte[] bytes1 = new byte[100];
         byte[] bytes2 = new byte[100];
@@ -201,7 +243,9 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         assertEquals(3, inputStream1.read(bytes1, 11, 100 - 11));
         assertEquals(3, inputStream2.read(bytes2, 11, 100 - 11));
         inputStream1.close();
+        assertEquals(1, new File(workSpace, DOWNLOADING_FOLDER).list().length);
         inputStream2.close();
+        assertEquals(0, new File(workSpace, DOWNLOADING_FOLDER).list().length);
         
         assertEquals(FILE1_CONTENT, new String(bytes1, 0, FILE1_CONTENT.length()));
         assertEquals(FILE2_CONTENT, new String(bytes2, 0, FILE2_CONTENT.length()));
@@ -230,7 +274,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
                 new MessageChannelBuilder(10000).name("3").logger(logger).getChannel();
         final ContentCache cache = createCache();
         File fileInCache =
-                new File(workSpace, ContentCache.CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
+                new File(workSpace, CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
                         + remoteFile1.getName());
         assertEquals(false, fileInCache.exists());
         prepareRequestPersistence(3);
@@ -304,7 +348,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         prepareRequestPersistence(3);
         
         File fileInCache =
-                new File(workSpace, ContentCache.CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
+                new File(workSpace, CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
                         + remoteFile1.getName());
         assertEquals(false, fileInCache.exists());
 
@@ -373,7 +417,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
             });
         prepareRequestPersistence(3);
         File fileInCache =
-                new File(workSpace, ContentCache.CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
+                new File(workSpace, CACHE_FOLDER + "/" + DATA_SET_CODE + "/"
                         + remoteFile1.getName());
         assertEquals(false, fileInCache.exists());
 
@@ -409,7 +453,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         assertEquals(fileInCache.getAbsolutePath(), fileFromCache.getAbsolutePath());
         context.assertIsSatisfied();
     }
-
+    
     private void assertDataSetInfos(String dataSetCode, int expectedNumberOfSmallFiles, int expectedNumberOfFolders,
             long expectedLastModified)
     {

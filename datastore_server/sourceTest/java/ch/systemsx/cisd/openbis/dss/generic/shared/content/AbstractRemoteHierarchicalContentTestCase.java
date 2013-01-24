@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.HashMap;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -28,6 +29,7 @@ import org.testng.annotations.BeforeMethod;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
@@ -61,6 +63,8 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
 
     protected static final String FILE2_CONTENT = "hello file two";
 
+    protected BufferedAppender logRecorder;
+    
     protected Mockery context;
 
     protected IFileOperations fileOperations;
@@ -84,11 +88,13 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
     protected IPersistenceManager persistenceManager;
 
     protected HashMap<String, DataSetInfo> dataSetInfos;
+
     
     @BeforeMethod
     public void setUpBasicFixture()
     {
         context = new Mockery();
+        logRecorder = new BufferedAppender(Level.INFO);
         fileOperations = context.mock(IFileOperations.class);
         serviceFactory = context.mock(IDssServiceRpcGenericFactory.class);
         remoteDss = context.mock(IDssServiceRpcGeneric.class, "remote DSS");
@@ -121,6 +127,7 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
     @AfterMethod
     public void tearDown()
     {
+        logRecorder.reset();
         // To following line of code should also be called at the end of each test method.
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
