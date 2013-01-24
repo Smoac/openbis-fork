@@ -95,7 +95,7 @@ public interface IQueryApiServer extends IRpcService
             String serviceKey, List<String> dataSetCodes);
 
     /**
-     * Returns metadata for all aggregation services.
+     * Returns metadata for all aggregation and ingestion services.
      * 
      * @since 1.3
      */
@@ -103,9 +103,10 @@ public interface IQueryApiServer extends IRpcService
     public List<AggregationServiceDescription> listAggregationServices(String sessionToken);
 
     /**
-     * Creates a report using the specified aggregation service. Available aggregation services can
-     * be obtained by {@link #listAggregationServices(String)}. The service resolved to by the
-     * serviceKey must be a service of type REPORT.
+     * Executes the specified aggregation or ingestion service for the specified parameters and
+     * creates a report. Available service descriptions can be obtained by
+     * {@link #listAggregationServices(String)}. The service resolved to by the serviceKey must be a
+     * service of type REPORT.
      * 
      * @param sessionToken A valid session token.
      * @param dataStoreCode Code of the data store.
