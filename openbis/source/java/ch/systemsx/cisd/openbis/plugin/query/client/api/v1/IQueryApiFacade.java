@@ -72,17 +72,19 @@ public interface IQueryApiFacade
     public IGeneralInformationService getGeneralInformationService();
 
     /**
-     * List the available aggregation services
+     * List the available aggregation and ingestion services
      */
     @Retry
     public List<AggregationServiceDescription> listAggregationServices();
 
     /**
-     * Creates for the specified data sets and specified report description a report. Available
-     * report descriptions can be obtained by {@link #listAggregationServices()}.
+     * Executes the specified aggregation or ingestion service for the specified parameters and
+     * creates a report. Available service descriptions can be obtained by
+     * {@link #listAggregationServices()}.
      */
     @Retry
-    public QueryTableModel createReportFromAggregationService(AggregationServiceDescription service, Map<String, Object> parameters);
+    public QueryTableModel createReportFromAggregationService(
+            AggregationServiceDescription service, Map<String, Object> parameters);
 
     /**
      * Logs current user out.
