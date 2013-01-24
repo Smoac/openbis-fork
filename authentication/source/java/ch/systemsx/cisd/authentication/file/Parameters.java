@@ -58,6 +58,8 @@ final class Parameters
     private final IExitHandler exitHandler;
 
     private final Command command;
+    
+    private final boolean cache;
 
     private String userId;
 
@@ -87,23 +89,30 @@ final class Parameters
     @Option(longName = "help", skipForExample = true, usage = "Prints out a description of the options.")
     void printHelp(boolean exit)
     {
-        parser.printHelp("passwd",
-                "list | [remove|show|test] <user> | [add|change] <user> [option [...]]", "",
-                ExampleMode.NONE);
+        if (cache)
+        {
+            System.err.println("passwd_cache list | [remove|show|test] <user>");
+        } else
+        {
+            parser.printHelp("passwd",
+                    "list | [remove|show|test] <user> | [add|change] <user> [option [...]]", "",
+                    ExampleMode.NONE);
+        }
         if (exit)
         {
             exitHandler.exit(0);
         }
     }
 
-    Parameters(String[] args)
+    Parameters(String[] args, boolean cache)
     {
-        this(args, SystemExit.SYSTEM_EXIT);
+        this(args, cache, SystemExit.SYSTEM_EXIT);
     }
 
-    Parameters(String[] args, IExitHandler systemExitHandler)
+    Parameters(String[] args, boolean cache, IExitHandler systemExitHandler)
     {
         this.exitHandler = systemExitHandler;
+        this.cache = cache;
         try
         {
             parser.parseArgument(args);

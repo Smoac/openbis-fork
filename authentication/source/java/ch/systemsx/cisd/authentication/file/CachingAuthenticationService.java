@@ -354,8 +354,18 @@ public class CachingAuthenticationService implements IAuthenticationService
         {
             return null;
         }
+        return createUserStore(new File(passwordCacheFileName));
+    }
+
+    static IUserStore<UserCacheEntry> createUserStore(
+            final File passwordCacheFile)
+    {
+        if (passwordCacheFile == null)
+        {
+            return null;
+        }
         final ILineStore lineStore =
-                new FileBasedLineStore(new File(passwordCacheFileName), "Password cache file");
+                new FileBasedLineStore(passwordCacheFile, "Password cache file");
         return new LineBasedUserStore<UserCacheEntry>(lineStore,
                 new IUserEntryFactory<UserCacheEntry>()
                     {

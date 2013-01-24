@@ -18,11 +18,15 @@ package ch.systemsx.cisd.authentication.file;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
+
+import org.apache.commons.lang.StringUtils;
 
 import jline.ConsoleReader;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
+import ch.systemsx.cisd.common.time.DateFormatThreadLocal;
 
 /**
  * A class to create and edit password entries.
@@ -37,6 +41,9 @@ public class PasswordEditorCommand
     private static final String ENTER_PASSWORD_MSG = "Enter the user's password: ";
 
     private final static File PASSWORD_FILE = new File("etc/passwd");
+
+    private static final boolean isCacheFile = StringUtils.isNotEmpty(System
+            .getProperty("PASSWORD_CACHE_FILE"));
 
     private static ConsoleReader consoleReader;
 
@@ -73,6 +80,10 @@ public class PasswordEditorCommand
 
     private static File getPasswordFile()
     {
+        if (isCacheFile)
+        {
+            return new File(System.getProperty("PASSWORD_CACHE_FILE"));
+        }
         if (System.getProperty("PASSWORD_FILE") != null)
         {
             return new File(System.getProperty("PASSWORD_FILE"));
@@ -88,130 +99,222 @@ public class PasswordEditorCommand
                 user.getLastName(), user.getEmail());
     }
 
+    private static void printUserCache(final UserCacheEntry user)
+    {
+        System.out.printf("%-20s  %-20s  %-20s  %-30s  %-20s\n", user.getUserId(), user
+                .getFirstName(), user.getLastName(), user.getEmail(),
+                DateFormatThreadLocal.DATE_FORMAT.get().format(new Date(user.getCachedAt())));
+    }
+
     private static void printHeader()
     {
         System.out.printf("%-20s  %-20s  %-20s  %-20s\n", "User ID", "First Name", "Last Name",
                 "Email");
     }
 
+    private static void printHeaderCache()
+    {
+        System.out.printf("%-20s  %-20s  %-20s  %-30s  %-20s\n", "User ID", "First Name",
+                "Last Name", "Email", "Cached At");
+    }
+
+    private static void execute(Parameters params)
+    {
+        final IUserStore<UserEntry> userStore =
+                FileAuthenticationService.createUserStore(getPasswordFile());
+        switch (params.getCommand())
+        {
+            case ADD:
+            {
+                final String userId = params.getUserId();
+                final UserEntry userOrNull = userStore.tryGetUserById(userId);
+                if (userOrNull != null)
+                {
+                    System.err.printf("User '%s' already exists.\n", userId);
+                    System.exit(1);
+                }
+                final String password;
+                if (params.tryGetPassword() != null)
+                {
+                    password = params.tryGetPassword();
+                } else
+                {
+                    password = readPassword(ENTER_NEW_PASSWORD_MSG);
+                }
+                final UserEntry user =
+                        new UserEntry(params.getUserId(), params.getEmail(), params
+                                .getFirstName(), params.getLastName(), password);
+                userStore.addOrUpdateUser(user);
+                break;
+            }
+            case CHANGE:
+            {
+                final String userId = params.getUserId();
+                final UserEntry userOrNull = userStore.tryGetUserById(userId);
+                if (userOrNull == null)
+                {
+                    System.err.printf("User '%s' does not exist.\n", userId);
+                    System.exit(1);
+                    return; // Fake: convince compiler that it is save to dereference userOrNull
+                }
+                if (params.getFirstName() != null)
+                {
+                    userOrNull.setFirstName(params.getFirstName());
+                }
+                if (params.getLastName() != null)
+                {
+                    userOrNull.setLastName(params.getLastName());
+                }
+                if (params.getEmail() != null)
+                {
+                    userOrNull.setEmail(params.getEmail());
+                }
+                if (params.tryGetPassword() != null)
+                {
+                    userOrNull.setPassword(params.tryGetPassword());
+                } else if (params.isChangePassword())
+                {
+                    userOrNull.setPassword(readPassword(ENTER_NEW_PASSWORD_MSG));
+                }
+                userStore.addOrUpdateUser(userOrNull);
+                break;
+            }
+            case LIST:
+            {
+                printHeader();
+                for (UserEntry user : userStore.listUsers())
+                {
+                    printUser(user);
+                }
+                break;
+            }
+            case REMOVE:
+            {
+                final String userId = params.getUserId();
+                if (userStore.removeUser(userId) == false)
+                {
+                    System.err.printf("User '%s' does not exist.\n", userId);
+                    System.exit(1);
+                }
+                break;
+            }
+            case SHOW:
+            {
+                final String userId = params.getUserId();
+                final UserEntry userOrNull = userStore.tryGetUserById(userId);
+                if (userOrNull == null)
+                {
+                    System.err.printf("User '%s' does not exist.\n", userId);
+                    System.exit(1);
+                    return; // Fake: convince compiler that it is save to dereference userOrNull
+                }
+                printHeader();
+                printUser(userOrNull);
+                break;
+            }
+            case TEST:
+            {
+                final String userId = params.getUserId();
+                final UserEntry userOrNull = userStore.tryGetUserById(userId);
+                if (userOrNull == null)
+                {
+                    System.err.printf("User '%s' does not exist.\n", userId);
+                    System.exit(1);
+                    return; // Fake: convince compiler that it is save to dereference userOrNull
+                }
+                final String password = readPassword(ENTER_PASSWORD_MSG);
+                if (userStore.isPasswordCorrect(userId, password))
+                {
+                    System.out.printf("User '%s' successfully authenticated.\n", userId);
+                } else
+                {
+                    System.out.printf("User '%s' authentication failed.\n", userId);
+                }
+                break;
+            }
+        }
+    }
+
+    private static void executeCache(Parameters params)
+    {
+        final IUserStore<UserCacheEntry> userStore =
+                CachingAuthenticationService.createUserStore(getPasswordFile());
+        switch (params.getCommand())
+        {
+            case ADD:
+            case CHANGE:
+            {
+                System.err.println(params.getCommand() + " not supported on password cache files.");
+                System.exit(1);
+                break; // to satisfy the compiler
+            }
+            case LIST:
+            {
+                printHeaderCache();
+                for (UserCacheEntry user : userStore.listUsers())
+                {
+                    printUserCache(user);
+                }
+                break;
+            }
+            case REMOVE:
+            {
+                final String userId = params.getUserId();
+                if (userStore.removeUser(userId) == false)
+                {
+                    System.err.printf("User '%s' does not exist.\n", userId);
+                    System.exit(1);
+                }
+                break;
+            }
+            case SHOW:
+            {
+                final String userId = params.getUserId();
+                final UserCacheEntry userOrNull = userStore.tryGetUserById(userId);
+                if (userOrNull == null)
+                {
+                    System.err.printf("User '%s' does not exist.\n", userId);
+                    System.exit(1);
+                    return; // Fake: convince compiler that it is save to dereference userOrNull
+                }
+                printHeader();
+                printUserCache(userOrNull);
+                break;
+            }
+            case TEST:
+            {
+                final String userId = params.getUserId();
+                final UserCacheEntry userOrNull = userStore.tryGetUserById(userId);
+                if (userOrNull == null)
+                {
+                    System.err.printf("User '%s' does not exist.\n", userId);
+                    System.exit(1);
+                    return; // Fake: convince compiler that it is save to dereference userOrNull
+                }
+                final String password = readPassword(ENTER_PASSWORD_MSG);
+                if (userStore.isPasswordCorrect(userId, password))
+                {
+                    System.out.printf("User '%s' successfully authenticated.\n", userId);
+                } else
+                {
+                    System.out.printf("User '%s' authentication failed.\n", userId);
+                }
+                break;
+            }
+        }
+    }
+
     public static void main(String[] args)
     {
         try
         {
-            final Parameters params = new Parameters(args);
-            final ILineStore lineStore = new FileBasedLineStore(getPasswordFile(), "Password file");
-            final IUserStore<UserEntry> userStore =
-                    FileAuthenticationService.createUserStore(lineStore);
-            switch (params.getCommand())
+            final Parameters params = new Parameters(args, isCacheFile);
+            if (isCacheFile)
             {
-                case ADD:
-                {
-                    final String userId = params.getUserId();
-                    final UserEntry userOrNull = userStore.tryGetUserById(userId);
-                    if (userOrNull != null)
-                    {
-                        System.err.printf("User '%s' already exists.\n", userId);
-                        System.exit(1);
-                    }
-                    final String password;
-                    if (params.tryGetPassword() != null)
-                    {
-                        password = params.tryGetPassword();
-                    } else
-                    {
-                        password = readPassword(ENTER_NEW_PASSWORD_MSG);
-                    }
-                    final UserEntry user =
-                            new UserEntry(params.getUserId(), params.getEmail(), params
-                                    .getFirstName(), params.getLastName(), password);
-                    userStore.addOrUpdateUser(user);
-                    break;
-                }
-                case CHANGE:
-                {
-                    final String userId = params.getUserId();
-                    final UserEntry userOrNull = userStore.tryGetUserById(userId);
-                    if (userOrNull == null)
-                    {
-                        System.err.printf("User '%s' does not exist.\n", userId);
-                        System.exit(1);
-                        return; // Fake: convince compiler that it is save to dereference userOrNull
-                    }
-                    if (params.getFirstName() != null)
-                    {
-                        userOrNull.setFirstName(params.getFirstName());
-                    }
-                    if (params.getLastName() != null)
-                    {
-                        userOrNull.setLastName(params.getLastName());
-                    }
-                    if (params.getEmail() != null)
-                    {
-                        userOrNull.setEmail(params.getEmail());
-                    }
-                    if (params.tryGetPassword() != null)
-                    {
-                        userOrNull.setPassword(params.tryGetPassword());
-                    } else if (params.isChangePassword())
-                    {
-                        userOrNull.setPassword(readPassword(ENTER_NEW_PASSWORD_MSG));
-                    }
-                    userStore.addOrUpdateUser(userOrNull);
-                    break;
-                }
-                case LIST:
-                {
-                    printHeader();
-                    for (UserEntry user : userStore.listUsers())
-                    {
-                        printUser(user);
-                    }
-                    break;
-                }
-                case REMOVE:
-                {
-                    final String userId = params.getUserId();
-                    if (userStore.removeUser(userId) == false)
-                    {
-                        System.err.printf("User '%s' does not exist.\n", userId);
-                        System.exit(1);
-                    }
-                    break;
-                }
-                case SHOW:
-                {
-                    final String userId = params.getUserId();
-                    final UserEntry userOrNull = userStore.tryGetUserById(userId);
-                    if (userOrNull == null)
-                    {
-                        System.err.printf("User '%s' does not exist.\n", userId);
-                        System.exit(1);
-                        return; // Fake: convince compiler that it is save to dereference userOrNull
-                    }
-                    printHeader();
-                    printUser(userOrNull);
-                    break;
-                }
-                case TEST:
-                {
-                    final String userId = params.getUserId();
-                    final UserEntry userOrNull = userStore.tryGetUserById(userId);
-                    if (userOrNull == null)
-                    {
-                        System.err.printf("User '%s' does not exist.\n", userId);
-                        System.exit(1);
-                        return; // Fake: convince compiler that it is save to dereference userOrNull
-                    }
-                    final String password = readPassword(ENTER_PASSWORD_MSG);
-                    if (userStore.isPasswordCorrect(userId, password))
-                    {
-                        System.out.printf("User '%s' successfully authenticated.\n", userId);
-                    } else
-                    {
-                        System.out.printf("User '%s' authentication failed.\n", userId);
-                    }
-                    break;
-                }
+                executeCache(params);
+            } else
+            {
+                execute(params);
             }
         } catch (HighLevelException ex)
         {

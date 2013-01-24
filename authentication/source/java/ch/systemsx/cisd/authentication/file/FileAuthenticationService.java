@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
  * An implementation of {@link IAuthenticationService} that gets the authentication information from
@@ -51,23 +52,37 @@ public class FileAuthenticationService implements IAuthenticationService
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, FileAuthenticationService.class);
 
-    private final IUserStore<? extends UserEntry> userStore;
+    private final IUserStore<UserEntry> userStore;
 
     private final IAuthenticationService listingServiceOrNull;
 
-    private static IUserStore<? extends UserEntry> createUserStore(final String passwordFileName)
+    /**
+     * Returns a "standard" line-based user store for {@link UserEntry}s.
+     */
+    static IUserStore<UserEntry> createUserStore(final String passwordFileName)
     {
-        if (passwordFileName == null)
+        if (StringUtils.isBlank(passwordFileName))
         {
             return null;
         }
-        final ILineStore lineStore =
-                new FileBasedLineStore(new File(passwordFileName), "Password file");
-        return createUserStore(lineStore);
+        return createUserStore(new File(passwordFileName));
     }
 
     /**
      * Returns a "standard" line-based user store for {@link UserEntry}s.
+     */
+    static IUserStore<UserEntry> createUserStore(final File passwordFile)
+    {
+        if (passwordFile == null)
+        {
+            return null;
+        }
+        final ILineStore lineStore = new FileBasedLineStore(passwordFile, "Password file");
+        return createUserStore(lineStore);
+    }
+
+    /**
+     * For unit tests.
      */
     static IUserStore<UserEntry> createUserStore(final ILineStore lineStore)
     {
@@ -86,7 +101,7 @@ public class FileAuthenticationService implements IAuthenticationService
         this(createUserStore(passwordFileName), null);
     }
 
-    public FileAuthenticationService(IUserStore<? extends UserEntry> userStore,
+    public FileAuthenticationService(IUserStore<UserEntry> userStore,
             IAuthenticationService listingServiceOrNull)
     {
         this.userStore = userStore;
