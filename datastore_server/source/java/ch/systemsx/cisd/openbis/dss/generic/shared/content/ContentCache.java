@@ -85,6 +85,8 @@ public class ContentCache implements IContentCache, InitializingBean
 
     static final String DOWNLOADING_FOLDER = "downloading";
 
+    static final String DATA_SET_INFOS_FILE = ".dataSetInfos";
+
     static final class DataSetInfo implements Serializable
     {
         private static final long serialVersionUID = 1L;
@@ -118,10 +120,13 @@ public class ContentCache implements IContentCache, InitializingBean
                 PropertyUtils.getInt(properties, CACHE_WORKSPACE_MAX_SIZE_KEY,
                         DEFAULT_MAX_WORKSPACE_SIZE) * FileUtils.ONE_MB;
         File cacheWorkspace = new File(workspacePath);
+        File dataSetInfosFile = new File(cacheWorkspace, DATA_SET_INFOS_FILE);
+        DelayedPersistenceManager persistenceManager =
+                new DelayedPersistenceManager(new SimpleFileBasePersistenceManager(
+                        dataSetInfosFile, "data set infos"));
         return new ContentCache(new DssServiceRpcGenericFactory(), cacheWorkspace,
                 maxWorkspaceSize, MINIMUM_KEEPING_TIME, FileOperations.getInstance(),
-                SystemTimeProvider.SYSTEM_TIME_PROVIDER, new SimpleFileBasePersistenceManager(
-                        new File(cacheWorkspace, ".dataSetInfos"), "data set infos"));
+                SystemTimeProvider.SYSTEM_TIME_PROVIDER, persistenceManager);
     }
 
     private final Map<String, Integer> dataSetLocks = new HashMap<String, Integer>();
@@ -563,9 +568,10 @@ public class ContentCache implements IContentCache, InitializingBean
     @SuppressWarnings("unchecked")
     private HashMap<String, DataSetInfo> loadDataSetSize()
     {
-        return (HashMap<String, DataSetInfo>) persistenceManager.load(new HashMap<String, DataSetInfo>());
+        return (HashMap<String, DataSetInfo>) persistenceManager
+                .load(new HashMap<String, DataSetInfo>());
     }
-    
+
     private static final class LockManager
     {
         private static final class LockWithCounter

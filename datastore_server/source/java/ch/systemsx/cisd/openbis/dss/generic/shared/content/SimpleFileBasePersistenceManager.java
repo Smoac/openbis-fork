@@ -102,8 +102,8 @@ public class SimpleFileBasePersistenceManager implements
                 }
             }
             FileUtilities.writeToFile(fileNew, object);
+            fileNew.renameTo(file);
         }
-        fileNew.renameTo(file);
     }
 
 }
