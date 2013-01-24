@@ -570,7 +570,7 @@ public class ContentCache implements IContentCache, InitializingBean
                 String dataSet = entry.getKey();
                 if (isDataSetLocked(dataSet) == false)
                 {
-                    File fileToRemove = new File(workspace, dataSet);
+                    File fileToRemove = new File(workspace, createDataSetPath(CACHE_FOLDER, dataSet));
                     boolean success = fileOperations.removeRecursivelyQueueing(fileToRemove);
                     if (success)
                     {

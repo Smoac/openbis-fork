@@ -24,9 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
@@ -46,14 +45,16 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
  */
 public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
 {
+    private static final String DATA_SET_CODE1 = "DS-1";
+    private static final String DATA_SET_CODE2 = "DS-2";
+
     @Test
     public void testCreateCacheInstanceForEmptyCache()
     {
         createCache();
 
-        assertEquals("Content cache created. Workspace: " + workSpace.getAbsolutePath()
-                + "\nContent cache initialized. It contains 0 bytes from 0 data sets.",
-                logRecorder.getLogContent());
+        assertEquals("Content cache created. Workspace: " + workSpace.getAbsolutePath() + "\n"
+                + createSizeLogLine(0, 0).trim(), logRecorder.getLogContent());
         assertEquals("{}", dataSetInfos.toString());
         context.assertIsSatisfied();
     }
@@ -70,15 +71,12 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         
         createCache();
 
-        int size = (OSUtilities.isMacOS() ? 1 : 2) * 4;
-        assertEquals("Content cache created. Workspace: " + workSpace.getAbsolutePath()
-                + "\nData set info recreated for data set " + DATA_SET_CODE
-                + ".\nContent cache initialized. It contains " + size + ".00 KB from 1 data sets.",
-                logRecorder.getLogContent());
+        assertEquals(createFirstLogLine() + createRecreatedlogLine(DATA_SET_CODE)
+                + createSizeLogLine(4, 1).trim(), logRecorder.getLogContent());
         assertDataSetInfos(DATA_SET_CODE, 1, 1, 42000);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDataSetLocking()
     {
@@ -454,6 +452,67 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         context.assertIsSatisfied();
     }
     
+    @Test
+    public void testCacheMaintenance()
+    {
+        File dataSetFolder1 = new File(workSpace, CACHE_FOLDER + "/" + DATA_SET_CODE1);
+        File file1 = new File(dataSetFolder1, "abc.txt");
+        file1.getParentFile().mkdirs();
+        FileUtilities.writeToFile(file1, createStringOfSize(8 * FileUtils.ONE_KB));
+        dataSetFolder1.setLastModified(1000);
+        File dataSetFolder2 = new File(workSpace, CACHE_FOLDER + "/" + DATA_SET_CODE2);
+        File file2 = new File(dataSetFolder2, "abc2.txt");
+        file2.getParentFile().mkdirs();
+        FileUtilities.writeToFile(file2, createStringOfSize(12 * FileUtils.ONE_KB));
+        dataSetFolder2.setLastModified(2000);
+        DataSetPathInfo pathInfo1 = prepareForDownloading(remoteFile1);
+        prepareRequestPersistence(2);
+        prepareForRemoving(dataSetFolder1, true);
+        ContentCache cache = createCache(19 * FileUtils.ONE_KB, 1000);
+        timeProvider.getTimeInMilliseconds(); // next timestamp for the new file will be 61000
+
+        File file = cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
+
+        assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file).trim());
+        assertEquals(createFirstLogLine() + createRecreatedlogLine(DATA_SET_CODE1)
+                + createRecreatedlogLine(DATA_SET_CODE2) + createSizeLogLine(20, 2)
+                + "Cached files for data set " + DATA_SET_CODE1 + " have been removed.",
+                logRecorder.getLogContent());
+        context.assertIsSatisfied();
+    }
+
+    private String createFirstLogLine()
+    {
+        return "Content cache created. Workspace: " + workSpace.getAbsolutePath() + "\n";
+    }
+    
+    private String createRecreatedlogLine(String dataSetCode)
+    {
+        return "Data set info recreated for data set " + dataSetCode + ".\n";
+    }
+
+    private String createSizeLogLine(int totalFileSize, int numberOfDataSets)
+    {
+        int size = totalFileSize;
+        if (OSUtilities.isMacOS() == false)
+        {
+            size += numberOfDataSets * 4;
+        }
+        return "Content cache initialized. It contains "
+                + (size == 0 ? "0 bytes" : size + ".00 KB") + " from " + numberOfDataSets
+                + " data sets.\n";
+    }
+    
+    private String createStringOfSize(long size)
+    {
+        StringBuilder builder = new StringBuilder();
+        for (long i = 0; i < size; i++)
+        {
+            builder.append(Long.toHexString(i & 0xf));
+        }
+        return builder.toString();
+    }
+    
     private void assertDataSetInfos(String dataSetCode, int expectedNumberOfSmallFiles, int expectedNumberOfFolders,
             long expectedLastModified)
     {
@@ -490,6 +549,17 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
                 IOUtils.closeQuietly(inputStream);
             }
         }
+    }
+    
+    private void prepareForRemoving(final File dataSetFolder, final boolean success)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(fileOperations).removeRecursivelyQueueing(dataSetFolder);
+                    will(returnValue(success));
+                }
+            });
     }
 
     private DataSetPathInfo prepareForDownloading(final File remoteFile)

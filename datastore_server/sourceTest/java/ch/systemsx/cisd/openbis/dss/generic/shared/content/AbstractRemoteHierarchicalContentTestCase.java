@@ -83,7 +83,7 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
     
     protected File remoteFile2;
 
-    private ITimeProvider timeProvider;
+    protected ITimeProvider timeProvider;
 
     protected IPersistenceManager persistenceManager;
 
@@ -135,6 +135,11 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
     
     protected ContentCache createCache()
     {
+        return createCache(FileUtils.ONE_MB, 600000);
+    }
+    
+    protected ContentCache createCache(long maxWorkspaceSize, long minimumKeepingTime)
+    {
         context.checking(new Expectations()
             {
                 {
@@ -143,8 +148,8 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
                 }
             });
         ContentCache contentCache =
-                new ContentCache(serviceFactory, workSpace, FileUtils.ONE_MB, 600000, fileOperations,
-                        timeProvider, persistenceManager);
+                new ContentCache(serviceFactory, workSpace, maxWorkspaceSize, minimumKeepingTime,
+                        fileOperations, timeProvider, persistenceManager);
         contentCache.afterPropertiesSet();
         return contentCache;
     }
