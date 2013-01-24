@@ -213,6 +213,7 @@ public class ContentCache implements IContentCache, InitializingBean
         String dataSetPath = createDataSetPath(CACHE_FOLDER, dataSetCode);
         synchronized (dataSetLocks)
         {
+            System.out.println("locking " + dataSetCode+": "+dataSetLocks);
             Integer count = dataSetLocks.get(dataSetPath);
             if (count == null)
             {
@@ -234,6 +235,7 @@ public class ContentCache implements IContentCache, InitializingBean
             {
                 dataSetLocks.put(dataSetPath, count - 1);
             }
+            System.out.println("unlocking " + dataSetCode+": "+dataSetLocks);
         }
     }
 
@@ -301,6 +303,10 @@ public class ContentCache implements IContentCache, InitializingBean
                 @Override
                 public int read() throws IOException
                 {
+                    if (eof)
+                    {
+                        return -1;
+                    }
                     int b = inputStream.read();
                     if (b < 0)
                     {
@@ -309,12 +315,17 @@ public class ContentCache implements IContentCache, InitializingBean
                     {
                         fileOutputStream.write(b);
                     }
+                    closeIfEndOfFile();
                     return b;
                 }
 
                 @Override
                 public int read(byte[] b, int off, int len) throws IOException
                 {
+                    if (eof)
+                    {
+                        return -1;
+                    }
                     int count = inputStream.read(b, off, len);
                     if (count >= 0)
                     {
@@ -324,9 +335,18 @@ public class ContentCache implements IContentCache, InitializingBean
                     {
                         eof = true;
                     }
+                    closeIfEndOfFile();
                     return count;
                 }
 
+                private void closeIfEndOfFile() throws IOException
+                {
+                    if (eof)
+                    {
+                        close();
+                    }
+                }
+                
                 @Override
                 public void close() throws IOException
                 {

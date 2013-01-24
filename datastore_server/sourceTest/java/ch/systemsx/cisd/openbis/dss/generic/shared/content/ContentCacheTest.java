@@ -245,9 +245,11 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         assertEquals(11, inputStream1.read(bytes1, 0, 11));
         assertEquals(11, inputStream2.read(bytes2, 0, 11));
         assertEquals(3, inputStream1.read(bytes1, 11, 100 - 11));
+        assertEquals(1, new File(workSpace, DOWNLOADING_FOLDER).list().length);
+        assertEquals(-1, inputStream1.read());
+        assertEquals(-1, inputStream1.read(bytes1, 11, 1));
         assertEquals(3, inputStream2.read(bytes2, 11, 100 - 11));
         inputStream1.close();
-        assertEquals(1, new File(workSpace, DOWNLOADING_FOLDER).list().length);
         inputStream2.close();
         assertEquals(0, new File(workSpace, DOWNLOADING_FOLDER).list().length);
 
