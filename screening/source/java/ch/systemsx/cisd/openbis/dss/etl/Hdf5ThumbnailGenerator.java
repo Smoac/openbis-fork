@@ -39,17 +39,17 @@ import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.process.ProcessIOStrategy;
+import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.openbis.common.hdf5.HDF5Container;
 import ch.systemsx.cisd.openbis.common.hdf5.HDF5Container.IHDF5WriterClient;
 import ch.systemsx.cisd.openbis.common.hdf5.IHDF5ContainerWriter;
 import ch.systemsx.cisd.openbis.common.io.ByteArrayBasedContentNode;
 import ch.systemsx.cisd.openbis.common.io.FileBasedContentNode;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
-import ch.systemsx.cisd.common.process.ProcessIOStrategy;
-import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.RelativeImageFile;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel;
@@ -80,13 +80,16 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
         private final int height;
 
+        private final int colorDepth;
+
         private final String channelCode;
 
-        private ThumbnailData(byte[] data, int width, int height, String channelCode)
+        private ThumbnailData(byte[] data, int width, int height, int colorDepth, String channelCode)
         {
             this.data = data;
             this.width = width;
             this.height = height;
+            this.colorDepth = colorDepth;
             this.channelCode = channelCode;
         }
     }
@@ -230,7 +233,8 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                 thumbnailPathCollector.saveThumbnailPath(thumbnailPhysicalDatasetPermId,
                         RelativeImageFile.create(image),
                         channelColors.get(thumbnailData.get(i).channelCode), thumbnailPaths.get(i),
-                        thumbnailData.get(i).width, thumbnailData.get(i).height);
+                        thumbnailData.get(i).width, thumbnailData.get(i).height,
+                        thumbnailData.get(i).colorDepth);
             }
 
             if (logger.isDebugEnabled())
@@ -322,10 +326,11 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         final File imageFile =
                 new File(imagesParentDirectory, imageFileInfo.getImageRelativePath());
         Size originalSize = loadUnchangedImageDimension(imageFileInfo.getImageRelativePath(), null);
+        int colorDepth = loadUnchangedImageColorDepth(imageFileInfo.getImageRelativePath(), null);
 
         return Collections.singletonList(new ThumbnailData(
                 FileUtilities.loadToByteArray(imageFile), originalSize.getWidth(), originalSize
-                        .getHeight(), imageFileInfo.getChannelCode()));
+                        .getHeight(), colorDepth, imageFileInfo.getChannelCode()));
     }
 
     private List<ThumbnailData> generateThumbnailWithImageMagic(ImageFileInfo imageFileInfo)
@@ -343,6 +348,8 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
             height = (int) Math.round(zoomLevel * originalSize.getHeight());
         }
         String size = width + "x" + height;
+
+        int colorDepth = loadUnchangedImageColorDepth(imageFileInfo.getImageRelativePath(), null);
 
         String imageFilePath = null;
         if (contentOrNull == null)
@@ -394,14 +401,14 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
                     thumbnailsStorageFormat.getFileFormat().writeImage(thumbnail,
                             bufferOutputStream);
                     thumbnails.add(new ThumbnailData(bufferOutputStream.toByteArray(), width,
-                            height, channelCode));
+                            height, colorDepth, channelCode));
 
                 }
                 return thumbnails;
             } else
             {
                 return Collections.singletonList(new ThumbnailData(result.getBinaryOutput(), width,
-                        height, imageFileInfo.getChannelCode()));
+                        height, colorDepth, imageFileInfo.getChannelCode()));
             }
         }
     }
@@ -443,7 +450,8 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
             thumbnailsStorageFormat.getFileFormat().writeImage(thumbnail, bufferOutputStream);
             thumbnails.add(new ThumbnailData(bufferOutputStream.toByteArray(),
-                    thumbnail.getWidth(), thumbnail.getHeight(), channelCode));
+                    thumbnail.getWidth(), thumbnail.getHeight(), thumbnail.getColorModel()
+                            .getPixelSize(), channelCode));
         }
         return thumbnails;
     }
@@ -539,6 +547,19 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         } else
         {
             return Utils.loadUnchangedImageSize(contentOrNull.getNode(imageRelativePath),
+                    imageIdOrNull, imageLibraryOrNull);
+        }
+    }
+
+    private int loadUnchangedImageColorDepth(String imageRelativePath, String imageIdOrNull)
+    {
+        if (contentOrNull == null)
+        {
+            return Utils.loadUnchangedImageColorDepth(new FileBasedContentNode(new File(
+                    imagesParentDirectory, imageRelativePath)), imageIdOrNull, imageLibraryOrNull);
+        } else
+        {
+            return Utils.loadUnchangedImageColorDepth(contentOrNull.getNode(imageRelativePath),
                     imageIdOrNull, imageLibraryOrNull);
         }
     }

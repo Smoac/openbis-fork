@@ -115,8 +115,8 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
         protected DatasetOwnerInformation(String dataSetCode, DataSetInformation dataSetOwner)
         {
             this(dataSetCode, dataSetOwner.tryGetContainerDataSet(), dataSetOwner.tryToGetSample(),
-                    dataSetOwner.getSampleIdentifier(), dataSetOwner.getSampleProperties(), dataSetOwner
-                            .tryToGetExperiment(), dataSetOwner.getExperimentIdentifier());
+                    dataSetOwner.getSampleIdentifier(), dataSetOwner.getSampleProperties(),
+                    dataSetOwner.tryToGetExperiment(), dataSetOwner.getExperimentIdentifier());
         }
 
         private DatasetOwnerInformation(String dataSetCode, ExternalData containerOrNull,
@@ -240,6 +240,8 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                         width = dimension.getWidth();
                         height = dimension.getHeight();
                     }
+                    colorDepth = thumbnailsInfosOrNull.tryGetColorDepth(permId);
+
                     String fileTypeString = null;
                     FileFormat fileType = thumbnailsInfosOrNull.getFileType(permId);
                     if (fileType != null)

@@ -30,8 +30,6 @@ public class ThumbnailsInfo implements Serializable
 
         private int thumbnailsHeight;
 
-        // TODO make use of color depth
-        @SuppressWarnings("unused")
         private Integer colorDepth;
 
         private FileFormat fileType;
@@ -69,7 +67,8 @@ public class ThumbnailsInfo implements Serializable
      * starts with the name of the thumbnail file.
      */
     public synchronized void saveThumbnailPath(String permId, RelativeImageFile image,
-            ColorComponent colorComponentOrNull, String thumbnailRelativePath, int width, int height)
+            ColorComponent colorComponentOrNull, String thumbnailRelativePath, int width,
+            int height, int colorDepth)
     {
         HashMap<ColorComponent, String> imageComponents = imageToThumbnailPathMap.get(image);
         if (imageComponents == null)
@@ -84,6 +83,7 @@ public class ThumbnailsInfo implements Serializable
         {
             datasetInfo.thumbnailsWidth = Math.max(datasetInfo.thumbnailsWidth, width);
             datasetInfo.thumbnailsHeight = Math.max(datasetInfo.thumbnailsHeight, height);
+            datasetInfo.colorDepth = colorDepth;
         }
     }
 
@@ -107,6 +107,16 @@ public class ThumbnailsInfo implements Serializable
             {
                 return new Size(datasetInfo.thumbnailsWidth, datasetInfo.thumbnailsHeight);
             }
+        }
+        return null;
+    }
+
+    public Integer tryGetColorDepth(String permId)
+    {
+        PhysicalDatasetInfo datasetInfo = datasetInfos.get(permId);
+        if (datasetInfo != null)
+        {
+            return datasetInfo.colorDepth;
         }
         return null;
     }
