@@ -19,6 +19,12 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.resource.IReleasable;
+import ch.systemsx.cisd.common.resource.Resources;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
@@ -34,6 +40,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 public class RemoteHierarchicalContent implements IHierarchicalContent
 {
 
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            RemoteHierarchicalContent.class);
+
     private final IDatasetLocationNode location;
 
     private final ISingleDataSetPathInfoProvider provider;
@@ -43,6 +52,8 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
     private final IContentCache cache;
 
     private final IDssServiceRpcGenericFactory serviceFactory;
+
+    private final Resources resources;
 
     public RemoteHierarchicalContent(IDatasetLocationNode location,
             ISingleDataSetPathInfoProvider pathInfoProvider,
@@ -54,6 +65,7 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
         this.serviceFactory = serviceFactory;
         this.sessionTokenProvider = sessionTokenProvider;
         this.cache = cache;
+        this.resources = new Resources(operationLog);
     }
 
     @Override
@@ -143,12 +155,23 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
     @Override
     public void close()
     {
+        resources.release();
     }
 
     private IHierarchicalContentNode createNode(DataSetPathInfo info)
     {
-        return new RemoteHierarchicalContentNode(location.getLocation(), info,
-                provider, serviceFactory, sessionTokenProvider, cache);
+        final RemoteHierarchicalContentNode node =
+                new RemoteHierarchicalContentNode(location.getLocation(), info, provider,
+                        serviceFactory, sessionTokenProvider, cache);
+        resources.add(new IReleasable()
+            {
+                @Override
+                public void release()
+                {
+                    node.close();
+                }
+            });
+        return node;
     }
 
     private List<IHierarchicalContentNode> createNodes(List<DataSetPathInfo> paths)

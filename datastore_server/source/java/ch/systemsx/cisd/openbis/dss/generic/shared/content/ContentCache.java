@@ -68,15 +68,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
  */
 public class ContentCache implements IContentCache, InitializingBean
 {
-    private static final long MINIMUM_KEEPING_TIME = DateUtils.MILLIS_PER_DAY;
 
     private static final int DEFAULT_MAX_WORKSPACE_SIZE = 1024;
 
     private static final String DEFAULT_CACHE_WORKSPACE_FOLDER = "../../data/dss-cache";
 
+    private static final long DEFAULT_MINIMUM_KEEPING_TIME_IN_MINUTES = 60 * 24;
+
     public static final String CACHE_WORKSPACE_FOLDER_KEY = "cache-workspace-folder";
 
     public static final String CACHE_WORKSPACE_MAX_SIZE_KEY = "cache-workspace-max-size";
+
+    public static final String CACHE_WORKSPACE_MIN_KEEPING_TIME_IN_MINUTES_KEY =
+            "cache-workspace-min-keeping-time";
 
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ContentCache.class);
@@ -119,13 +123,18 @@ public class ContentCache implements IContentCache, InitializingBean
         long maxWorkspaceSize =
                 PropertyUtils.getInt(properties, CACHE_WORKSPACE_MAX_SIZE_KEY,
                         DEFAULT_MAX_WORKSPACE_SIZE) * FileUtils.ONE_MB;
+        long minimumKeepingTimeInMinutes =
+                PropertyUtils.getLong(properties, CACHE_WORKSPACE_MIN_KEEPING_TIME_IN_MINUTES_KEY,
+                        DEFAULT_MINIMUM_KEEPING_TIME_IN_MINUTES);
+        long minimumKeepingTimeInMillis = minimumKeepingTimeInMinutes * DateUtils.MILLIS_PER_MINUTE;
+
         File cacheWorkspace = new File(workspacePath);
         File dataSetInfosFile = new File(cacheWorkspace, DATA_SET_INFOS_FILE);
         DelayedPersistenceManager persistenceManager =
                 new DelayedPersistenceManager(new SimpleFileBasePersistenceManager(
                         dataSetInfosFile, "data set infos"));
         return new ContentCache(new DssServiceRpcGenericFactory(), cacheWorkspace,
-                maxWorkspaceSize, MINIMUM_KEEPING_TIME, FileOperations.getInstance(),
+                maxWorkspaceSize, minimumKeepingTimeInMillis, FileOperations.getInstance(),
                 SystemTimeProvider.SYSTEM_TIME_PROVIDER, persistenceManager);
     }
 
@@ -254,6 +263,7 @@ public class ContentCache implements IContentCache, InitializingBean
         return new InputStream()
             {
                 private boolean closed;
+
                 private boolean eof;
 
                 @Override
@@ -286,7 +296,6 @@ public class ContentCache implements IContentCache, InitializingBean
                     if (count >= 0)
                     {
                         fileOutputStream.write(b, off, count);
-                        eof = count < len;
                     } else
                     {
                         eof = true;
@@ -302,7 +311,7 @@ public class ContentCache implements IContentCache, InitializingBean
                         close();
                     }
                 }
-                
+
                 @Override
                 public void close() throws IOException
                 {
@@ -317,6 +326,9 @@ public class ContentCache implements IContentCache, InitializingBean
                         moveDownloadedFileToCache(tempFile, pathInWorkspace,
                                 dataSetLocation.getDataSetCode());
                         persistenceManager.requestPersistence();
+                    } else
+                    {
+                        tempFile.delete();
                     }
                     closed = true;
                     fileLockManager.unlock(pathInWorkspace);
@@ -327,6 +339,7 @@ public class ContentCache implements IContentCache, InitializingBean
                 {
                     if (closed == false)
                     {
+                        tempFile.delete();
                         fileLockManager.unlock(pathInWorkspace);
                     }
                     super.finalize();

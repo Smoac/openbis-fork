@@ -17,14 +17,22 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.resource.IReleasable;
+import ch.systemsx.cisd.common.resource.Resources;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
@@ -42,6 +50,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
 {
 
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            RemoteHierarchicalContentNode.class);
+
     private ISingleDataSetPathInfoProvider provider;
 
     private ISessionTokenProvider sessionTokenProvider;
@@ -55,6 +66,8 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
     private final IDatasetLocation dataSetLocation;
 
     private final IDssServiceRpcGenericFactory serviceFactory;
+
+    private final Resources resources;
 
     public RemoteHierarchicalContentNode(IDatasetLocation dataSetetLocation, DataSetPathInfo path,
             ISingleDataSetPathInfoProvider provider, IDssServiceRpcGenericFactory serviceFactory,
@@ -76,6 +89,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
         this.serviceFactory = serviceFactory;
         this.cache = contentCache;
         this.parentRelativePath = parentRelativePath;
+        this.resources = new Resources(operationLog);
     }
 
     @Override
@@ -202,6 +216,27 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
     @Override
     public InputStream getInputStream() throws UnsupportedOperationException, IOExceptionUnchecked
     {
-        return cache.getInputStream(sessionTokenProvider.getSessionToken(), dataSetLocation, path);
+        final InputStream stream =
+                cache.getInputStream(sessionTokenProvider.getSessionToken(), dataSetLocation, path);
+        resources.add(new IReleasable()
+            {
+                @Override
+                public void release()
+                {
+                    try
+                    {
+                        stream.close();
+                    } catch (IOException e)
+                    {
+                        CheckedExceptionTunnel.wrapIfNecessary(e);
+                    }
+                }
+            });
+        return stream;
+    }
+
+    public void close()
+    {
+        resources.release();
     }
 }
