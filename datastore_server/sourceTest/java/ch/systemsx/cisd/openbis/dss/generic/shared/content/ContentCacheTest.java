@@ -197,7 +197,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(enabled=false)
     public void testGetInputStreamsForTwoFilesNotInCacheAndReadThemAtTheSameTime()
             throws IOException
     {
