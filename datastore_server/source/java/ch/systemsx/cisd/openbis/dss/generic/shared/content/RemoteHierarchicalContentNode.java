@@ -177,7 +177,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
                 DataSetPathInfo info = new DataSetPathInfo();
                 info.setChecksumCRC32(file.tryGetCrc32Checksum());
                 info.setDirectory(file.isDirectory());
-                info.setFileName(file.getPathInDataSet());
+                info.setFileName(file.getPathInListing());
                 info.setRelativePath(file.getPathInDataSet());
                 info.setSizeInBytes(file.getFileSize());
                 info.setLastModified(new Date(0L));
