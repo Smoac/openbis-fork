@@ -17,7 +17,7 @@
 	<property name="basic.path" value="ch/systemsx/cisd/imagereaders" />
 	<property name="manifest.path" value="./resource/manifest" />
 
-	<target name="ci" depends="build-common.ci, check-dependencies" />
+	<target name="ci" depends="build-common.ci, dist, check-dependencies" />
 		
 	<target name="dist" depends="compile-tests, jar, jai-jar, bioformats-jar, imagej-jar"/>
 
