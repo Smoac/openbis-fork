@@ -90,6 +90,8 @@ public class ImageUtil
         public BufferedImage load(IRandomAccessFile raf, ImageID imageID);
 
         public Dimension readDimension(IRandomAccessFile handle, ImageID imageID);
+
+        public int readColorDepth(IRandomAccessFile handle, ImageID imageID);
     }
 
     private static final class MagicNumber
@@ -175,10 +177,10 @@ public class ImageUtil
         }
     }
 
-    private static final MagicNumbersManager MAGIC_NUMBERS_MANAGER =
-            new MagicNumbersManager(new MagicNumber(GIF_FILE, "474946383961", "474946383761"),
-                    new MagicNumber(JPEG_FILE, "ffd8ff"), new MagicNumber(PNG_FILE,
-                            "89504e470d0a1a0a"), new MagicNumber(TIFF_FILE, "49492a00", "4d4d002a"));
+    private static final MagicNumbersManager MAGIC_NUMBERS_MANAGER = new MagicNumbersManager(
+            new MagicNumber(GIF_FILE, "474946383961", "474946383761"), new MagicNumber(JPEG_FILE,
+                    "ffd8ff"), new MagicNumber(PNG_FILE, "89504e470d0a1a0a"), new MagicNumber(
+                    TIFF_FILE, "49492a00", "4d4d002a"));
 
     private static final class TiffImageLoader implements ImageLoader
     {
@@ -239,6 +241,34 @@ public class ImageUtil
                 }
             }
         }
+
+        @Override
+        public int readColorDepth(IRandomAccessFile handle, ImageID imageID)
+        {
+            handle.mark(MAX_READ_AHEAD);
+            try
+            {
+                return loadColorDepthWithBioFormats(handle, imageID);
+            } catch (RuntimeException ex1)
+            {
+                try
+                {
+                    return loadColorDepthJavaAdvancedImagingTiff(handle, imageID);
+                } catch (RuntimeException ex2)
+                {
+                    if (imageID.equals(ImageID.NULL))
+                    {
+                        handle.reset();
+                        // There are some TIFF files which cannot be opened by JAI, try ImageJ
+                        // instead...
+                        return loadColorDepthWithImageJ(handle);
+                    } else
+                    {
+                        throw ex2;
+                    }
+                }
+            }
+        }
     }
 
     private static BufferedImage loadWithImageJ(IRandomAccessFile handle)
@@ -252,6 +282,12 @@ public class ImageUtil
                 "tiff");
     }
 
+    private static int loadColorDepthWithImageJ(IRandomAccessFile handle)
+    {
+        return loadColorDepthWithLibrary(handle, ImageID.NULL, ImageReaderConstants.IMAGEJ_LIBRARY,
+                "tiff");
+    }
+
     private static BufferedImage loadWithBioFormats(IRandomAccessFile handle, ImageID imageID)
     {
         return loadWithLibrary(handle, imageID, ImageReaderConstants.BIOFORMATS_LIBRARY,
@@ -261,6 +297,12 @@ public class ImageUtil
     private static Dimension loadDimensionWithBioFormats(IRandomAccessFile handle, ImageID imageID)
     {
         return loadDimensionWithLibrary(handle, imageID, ImageReaderConstants.BIOFORMATS_LIBRARY,
+                "TiffDelegateReader");
+    }
+
+    private static int loadColorDepthWithBioFormats(IRandomAccessFile handle, ImageID imageID)
+    {
+        return loadColorDepthWithLibrary(handle, imageID, ImageReaderConstants.BIOFORMATS_LIBRARY,
                 "TiffDelegateReader");
     }
 
@@ -280,6 +322,15 @@ public class ImageUtil
             ImageID imageID) throws EnvironmentFailureException
     {
         return loadDimensionWithLibrary(handle, imageID, ImageReaderConstants.JAI_LIBRARY, "tiff");
+    }
+
+    /**
+     * For experts only! Loads some kinds of TIFF images handled by JAI library.
+     */
+    public static int loadColorDepthJavaAdvancedImagingTiff(IRandomAccessFile handle,
+            ImageID imageID) throws EnvironmentFailureException
+    {
+        return loadColorDepthWithLibrary(handle, imageID, ImageReaderConstants.JAI_LIBRARY, "tiff");
     }
 
     private static BufferedImage loadWithLibrary(IRandomAccessFile handle, ImageID imageIDOrNull,
@@ -314,6 +365,25 @@ public class ImageUtil
         try
         {
             return imageReader.readDimensions(handle, imageIDOrNull);
+        } catch (Exception ex)
+        {
+            throw EnvironmentFailureException.fromTemplate("Cannot decode image.", ex);
+        }
+    }
+
+    private static int loadColorDepthWithLibrary(IRandomAccessFile handle, ImageID imageIDOrNull,
+            String libraryName, String readerName)
+    {
+        operationLog.debug("Load tiff image using " + libraryName);
+        IImageReader imageReader = ImageReaderFactory.tryGetReader(libraryName, readerName);
+        if (imageReader == null)
+        {
+            throw new IllegalStateException(String.format(
+                    "There is no reader '%s' in image library '%s'.", readerName, libraryName));
+        }
+        try
+        {
+            return imageReader.readColorDepth(handle, imageIDOrNull);
         } catch (Exception ex)
         {
             throw EnvironmentFailureException.fromTemplate("Cannot decode image.", ex);
@@ -368,6 +438,27 @@ public class ImageUtil
                 throw new UnsupportedOperationException();
             }
         }
+
+        @Override
+        public int readColorDepth(IRandomAccessFile handle, ImageID imageID)
+        {
+            if (imageID.equals(ImageID.NULL))
+            {
+                IImageReader imageReader =
+                        ImageReaderFactory.tryGetReader(ImageReaderConstants.IMAGEIO_LIBRARY,
+                                fileType);
+                if (imageReader == null)
+                {
+                    throw EnvironmentFailureException.fromTemplate(
+                            "Cannot find ImageIO reader for file type '%s'", fileType);
+                }
+                return imageReader.readColorDepth(handle, imageID);
+            } else
+            {
+                throw new UnsupportedOperationException();
+            }
+        }
+
     }
 
     private static final Map<String, ImageLoader> imageLoaders = new HashMap<String, ImageLoader>();
@@ -433,12 +524,10 @@ public class ImageUtil
     }
 
     /**
-     * Loads the image specified by <var>imageIdOrNull</var> from the given </var>inputStream</var>.
-     * Supported images formats are GIF, JPG, PNG, and TIFF. The input stream will be closed after
-     * loading.
+     * Loads the size of image specified by <var>imageIdOrNull</var> from the given
+     * </var>inputStream</var>. Supported images formats are GIF, JPG, PNG, and TIFF. The input
+     * stream will be closed after loading.
      * <p>
-     * Note that the original color depth will be kept, so e.g. 12 or 16 bit grayscale images will
-     * not be converted to RGB.
      * 
      * @throws IllegalArgumentException if the input stream doesn't start with a magic number
      *             identifying supported image format.
@@ -468,6 +557,42 @@ public class ImageUtil
             }
         }
         return loadImageDimensionGuessingLibrary(contentNode, imageID);
+    }
+
+    /**
+     * Loads the color depth of image specified by <var>imageIdOrNull</var> from the given
+     * </var>inputStream</var>. Supported images formats are GIF, JPG, PNG, and TIFF. The input
+     * stream will be closed after loading.
+     * <p>
+     * 
+     * @throws IllegalArgumentException if the input stream doesn't start with a magic number
+     *             identifying supported image format.
+     */
+    public static int loadUnchangedImageColorDepth(IHierarchicalContentNode contentNode,
+            String imageIdOrNull, String imageLibraryNameOrNull, String imageLibraryReaderNameOrNull)
+    {
+        assert (imageLibraryReaderNameOrNull == null || imageLibraryNameOrNull != null) : "if image reader "
+                + "is specified then library name should be specified as well";
+        ImageID imageID = parseImageID(imageIdOrNull, contentNode);
+
+        if (imageLibraryNameOrNull != null && imageLibraryReaderNameOrNull != null)
+        {
+            IImageReader reader =
+                    ImageReaderFactory.tryGetReader(imageLibraryNameOrNull,
+                            imageLibraryReaderNameOrNull);
+            if (reader != null)
+            {
+                IRandomAccessFile handle = contentNode.getFileContent();
+                try
+                {
+                    return reader.readColorDepth(handle, imageID);
+                } finally
+                {
+                    closeQuietly(handle);
+                }
+            }
+        }
+        return loadImageColorDepthGuessingLibrary(contentNode, imageID);
     }
 
     /**
@@ -667,6 +792,14 @@ public class ImageUtil
         return loadImageDimensionGuessingLibrary(handle, fileType, imageID);
     }
 
+    private static int loadImageColorDepthGuessingLibrary(IHierarchicalContentNode contentNode,
+            ImageID imageID)
+    {
+        IRandomAccessFile handle = contentNode.getFileContent();
+        String fileType = tryToFigureOutFileTypeOf(handle);
+        return loadImageColorDepthGuessingLibrary(handle, fileType, imageID);
+    }
+
     /**
      * Loads the image specified by <var>imageID</var> from the image from the given
      * </var>handle</var>. Supported images formats are GIF, JPG, PNG, and TIFF. The input stream
@@ -715,6 +848,29 @@ public class ImageUtil
                         + "'.");
             }
             return imageLoader.readDimension(handle, imageID);
+        } finally
+        {
+            closeQuietly(handle);
+        }
+    }
+
+    private static int loadImageColorDepthGuessingLibrary(IRandomAccessFile handle,
+            String fileType, ImageID imageID)
+    {
+        try
+        {
+            if (fileType == null)
+            {
+                throw new IllegalArgumentException(
+                        "File type of an image input stream couldn't be determined.");
+            }
+            ImageLoader imageLoader = imageLoaders.get(fileType);
+            if (imageLoader == null)
+            {
+                throw new IllegalArgumentException("Unable to load image of file type '" + fileType
+                        + "'.");
+            }
+            return imageLoader.readColorDepth(handle, imageID);
         } finally
         {
             closeQuietly(handle);
