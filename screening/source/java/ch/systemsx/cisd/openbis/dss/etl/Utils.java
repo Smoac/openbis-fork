@@ -21,9 +21,9 @@ import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
@@ -73,5 +73,27 @@ public class Utils
                 ImageUtil.loadUnchangedImageDimension(contentNode, imageIdOrNull,
                         imageLibraryNameOrNull, imageLibraryReaderNameOrNull);
         return new Size(dimension.width, dimension.height);
+    }
+
+    public static int loadUnchangedImageColorDepth(IHierarchicalContentNode contentNode,
+            String imageIdOrNull, ImageLibraryInfo imageLibraryOrNull)
+    {
+        try
+        {
+            operationLog.debug("Trying to process file: " + contentNode.getRelativePath());
+        } catch (Exception e)
+        {
+            // do nothing
+        }
+
+        String imageLibraryNameOrNull = null;
+        String imageLibraryReaderNameOrNull = null;
+        if (imageLibraryOrNull != null)
+        {
+            imageLibraryNameOrNull = imageLibraryOrNull.getName();
+            imageLibraryReaderNameOrNull = imageLibraryOrNull.getReaderName();
+        }
+        return ImageUtil.loadUnchangedImageColorDepth(contentNode, imageIdOrNull,
+                imageLibraryNameOrNull, imageLibraryReaderNameOrNull);
     }
 }

@@ -27,11 +27,11 @@ import net.lemnik.eodsql.QueryTool;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IDataStoreLockingMaintenanceTask;
 import ch.systemsx.cisd.common.utilities.Counters;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -58,17 +58,21 @@ public class ImageSizeFeedingMaintenanceTask implements IDataStoreLockingMainten
             ImageSizeFeedingMaintenanceTask.class);
 
     private static final int MAX_NUMBER_OF_EXCEPTIONS_SHOWN = 10;
+
     private static final Pattern DATA_SET_TYPE_PATTERN = Pattern.compile("HCS_IMAGE.*");
+
     private IImagingQueryDAO dao;
+
     private IEncapsulatedOpenBISService service;
+
     private IHierarchicalContentProvider contentProvider;
-    
+
     public ImageSizeFeedingMaintenanceTask()
     {
     }
 
-    ImageSizeFeedingMaintenanceTask(IImagingQueryDAO dao,
-            IEncapsulatedOpenBISService service, IHierarchicalContentProvider contentProvider)
+    ImageSizeFeedingMaintenanceTask(IImagingQueryDAO dao, IEncapsulatedOpenBISService service,
+            IHierarchicalContentProvider contentProvider)
     {
         this.dao = dao;
         this.service = service;
@@ -80,7 +84,7 @@ public class ImageSizeFeedingMaintenanceTask implements IDataStoreLockingMainten
     {
         return true;
     }
-    
+
     @Override
     public void setUp(String pluginName, Properties properties)
     {
@@ -125,12 +129,13 @@ public class ImageSizeFeedingMaintenanceTask implements IDataStoreLockingMainten
                 List<ImgImageZoomLevelDTO> zoomLevels = dao.listImageZoomLevels(dataSetId);
                 if (zoomLevels.isEmpty())
                 {
-                    IImagingDatasetLoader loader =
-                            createImageLoader(dataSetCode, content);
+                    IImagingDatasetLoader loader = createImageLoader(dataSetCode, content);
                     AbsoluteImageReference originalImage = loader.tryFindAnyOriginalImage();
-                    String logEntryOriginal = addZoomLevel(dataSetCode, dataSetId, originalImage, true);
+                    String logEntryOriginal =
+                            addZoomLevel(dataSetCode, dataSetId, originalImage, true);
                     AbsoluteImageReference thumbnail = loader.tryFindAnyThumbnail();
-                    String logEntryThumbnail = addZoomLevel(dataSetCode, dataSetId, thumbnail, false);
+                    String logEntryThumbnail =
+                            addZoomLevel(dataSetCode, dataSetId, thumbnail, false);
                     dao.commit();
                     if (logEntryOriginal != null)
                     {
@@ -189,12 +194,13 @@ public class ImageSizeFeedingMaintenanceTask implements IDataStoreLockingMainten
         Size size = image.getUnchangedImageSize();
         int width = size.getWidth();
         int height = size.getHeight();
+        int colorDepth = image.getColorDepth();
         dao.addImageZoomLevel(new ImgImageZoomLevelDTO(dataSetCode, original, "", width, height,
-                null, null, dataSetId));
+                colorDepth, null, dataSetId));
         return (original ? "Original" : "Thumbnail") + " size " + width + "x" + height
                 + " added for data set " + dataSetCode;
     }
-    
+
     private boolean matchingType(SimpleDataSetInformationDTO dataSet)
     {
         String dataSetType = dataSet.getDataSetType();

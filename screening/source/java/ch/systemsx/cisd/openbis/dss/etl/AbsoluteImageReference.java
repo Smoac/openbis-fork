@@ -125,6 +125,16 @@ public class AbsoluteImageReference extends AbstractImageReference
         return Utils.loadUnchangedImageSize(contentNode, tryGetImageID(), imageLibraryOrNull);
     }
 
+    public Integer getColorDepth()
+    {
+        if (image != null)
+        {
+            return image.getColorModel().getPixelSize();
+        }
+        return Utils.loadUnchangedImageColorDepth(contentNode, channelCodeOrNull,
+                imageLibraryOrNull);
+    }
+
     public RequestedImageSize getRequestedSize()
     {
         return imageSize;

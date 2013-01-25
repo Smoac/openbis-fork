@@ -41,6 +41,7 @@ import ch.systemsx.cisd.etlserver.registrator.v2.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.openbis.common.io.FileBasedContentNode;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.Hdf5ThumbnailGenerator;
 import ch.systemsx.cisd.openbis.dss.etl.Utils;
@@ -478,14 +479,8 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
             {
                 for (ImageFileInfo imageFileInfo : images)
                 {
-                    Size size =
-                            Utils.loadUnchangedImageSize(
-                                    content.getNode(imageFileInfo.getImageRelativePath()), null,
-                                    imageLibrary);
-                    imageDataSetInformation.setMaximumImageWidth(Math.max(
-                            imageDataSetInformation.getMaximumImageWidth(), size.getWidth()));
-                    imageDataSetInformation.setMaximumImageHeight(Math.max(
-                            imageDataSetInformation.getMaximumImageHeight(), size.getHeight()));
+                    setBoundingBox(imageDataSetInformation,
+                            content.getNode(imageFileInfo.getImageRelativePath()), imageLibrary);
                 }
             } finally
             {
@@ -499,15 +494,26 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
             for (ImageFileInfo imageFileInfo : images)
             {
                 File file = new File(incomingDirectory, imageFileInfo.getImageRelativePath());
-                Size size =
-                        Utils.loadUnchangedImageSize(new FileBasedContentNode(file), null,
-                                imageLibrary);
-                imageDataSetInformation.setMaximumImageWidth(Math.max(
-                        imageDataSetInformation.getMaximumImageWidth(), size.getWidth()));
-                imageDataSetInformation.setMaximumImageHeight(Math.max(
-                        imageDataSetInformation.getMaximumImageHeight(), size.getHeight()));
+                setBoundingBox(imageDataSetInformation, new FileBasedContentNode(file),
+                        imageLibrary);
             }
         }
+    }
+
+    private void setBoundingBox(ImageDataSetInformation imageDataSetInformation,
+            IHierarchicalContentNode content, ImageLibraryInfo imageLibrary)
+    {
+        Size size = Utils.loadUnchangedImageSize(content, null, imageLibrary);
+        imageDataSetInformation.setMaximumImageWidth(Math.max(
+                imageDataSetInformation.getMaximumImageWidth(), size.getWidth()));
+        imageDataSetInformation.setMaximumImageHeight(Math.max(
+                imageDataSetInformation.getMaximumImageHeight(), size.getHeight()));
+        if (imageDataSetInformation.getColorDepth() == null)
+        {
+            imageDataSetInformation.setColorDepth(Utils.loadUnchangedImageColorDepth(content, null,
+                    imageLibrary));
+        }
+
     }
 
     private File prependOriginalDirectory(String directoryPath)
