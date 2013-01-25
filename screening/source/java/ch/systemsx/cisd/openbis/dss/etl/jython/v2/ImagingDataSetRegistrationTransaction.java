@@ -718,8 +718,6 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     @Override
     public String moveFile(String src, IDataSet dst)
     {
-        System.out.println("MF:" + src);
-
         return moveFile(src, dst, new File(src).getName());
     }
 
@@ -730,8 +728,6 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     @Override
     public String moveFile(String src, IDataSet dst, String dstInDataset)
     {
-        System.out.println("MF3:" + dstInDataset);
-
         ImageContainerDataSet imageContainerDataset = tryAsImageContainerDataset(dst);
 
         if (imageContainerDataset != null)
