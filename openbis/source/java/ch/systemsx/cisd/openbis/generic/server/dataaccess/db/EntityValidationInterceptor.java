@@ -186,31 +186,11 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
                 EntityValidatorFactory.createEntityValidator(entity.getEntityType(), this);
         if (entityValidator != null)
         {
-            IEntityInformationWithPropertiesHolder regained = regainEntity(entity);
+            IEntityInformationWithPropertiesHolder regained =
+                    (IEntityInformationWithPropertiesHolder) daoFactory.getSessionFactory()
+                            .getCurrentSession().get(entity.getClass(), entity.getId());
             validateEntityWithScript(tx, entityValidator, regained, isNewEntity);
         }
-    }
-
-    private IEntityInformationWithPropertiesHolder regainEntity(
-            IEntityInformationWithPropertiesHolder entity)
-    {
-        if (entity instanceof SamplePE)
-        {
-            return daoFactory.getSampleDAO().tryGetByTechId(TechId.create(entity));
-        } else if (entity instanceof DataPE)
-        {
-            return daoFactory.getDataDAO().tryGetByTechId(TechId.create(entity));
-        } else if (entity instanceof ExperimentPE)
-        {
-            return daoFactory.getExperimentDAO().tryGetByTechId(TechId.create(entity));
-        } else if (entity instanceof MaterialPE)
-        {
-            return daoFactory.getMaterialDAO().tryGetByTechId(TechId.create(entity));
-        } else
-        {
-            throw new IllegalArgumentException("Unsupported entity type " + entity.getClass());
-        }
-
     }
 
     private void validateEntityWithScript(Transaction tx, IEntityValidator entityValidator,

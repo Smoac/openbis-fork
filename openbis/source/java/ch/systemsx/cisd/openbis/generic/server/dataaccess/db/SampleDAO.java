@@ -278,6 +278,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
         Criteria criteria = createSpaceCriteria(space);
         addSampleCodesCriterion(criteria, sampleCodes, containerCodeOrNull);
+        criteria.setFetchMode("contained", FetchMode.JOIN);
         List<SamplePE> result = cast(criteria.list());
         if (operationLog.isDebugEnabled())
         {
@@ -374,9 +375,6 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
             // need to deal with exception thrown by trigger checking code uniqueness
             flushWithSqlExceptionHandling(getHibernateTemplate());
             scheduleDynamicPropertiesEvaluation(samples);
-
-            // if session is not cleared registration of many samples slows down after each batch
-            hibernateTemplate.clear();
         } catch (DataAccessException e)
         {
             SampleDataAccessExceptionTranslator.translateAndThrow(e);
