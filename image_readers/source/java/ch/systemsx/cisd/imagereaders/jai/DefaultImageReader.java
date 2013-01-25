@@ -110,4 +110,20 @@ class DefaultImageReader extends AbstractImageReader
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
+
+    @Override
+    public Integer readColorDepth(IRandomAccessFile handle, ImageID imageID)
+    {
+        try
+        {
+            InputStream input = new AdapterIInputStreamToInputStream(handle);
+            ImageDecoder decoder = ImageCodec.createImageDecoder(getName(), input, null);
+            RenderedImage renderedImage =
+                    decoder.decodeAsRenderedImage(imageID.getTimeSeriesIndex());
+            return renderedImage.getColorModel().getPixelSize();
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
 }

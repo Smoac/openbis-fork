@@ -132,4 +132,13 @@ public interface IImageReader
      * @return dimensions of the image
      */
     public Dimension readDimensions(IRandomAccessFile handle, ImageID imageID);
+
+    /**
+     * Reads image color depth
+     * 
+     * @param handle the image file as {@link IRandomAccessFile}
+     * @param imageID the ID of the image to be read
+     * @return the size of the color component
+     */
+    public Integer readColorDepth(IRandomAccessFile handle, ImageID imageID);
 }

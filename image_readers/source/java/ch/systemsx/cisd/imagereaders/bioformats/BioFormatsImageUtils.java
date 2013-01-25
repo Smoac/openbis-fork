@@ -346,14 +346,44 @@ final class BioFormatsImageUtils
         }
     }
 
+    static Integer readImageColorDepth(IFormatReader reader, IRandomAccess handle, ImageID imageID)
+            throws IOExceptionUnchecked, IllegalArgumentException
+    {
+        // Add to static map.
+        String handleId = generateHandleId(reader, imageID);
+        Location.mapFile(handleId, handle);
+        try
+        {
+            // This does the actual parsing.
+            reader.setId(handleId);
+            reader.setSeries(imageID.getSeriesIndex());
+            int depth = reader.getBitsPerPixel();
+            reader.close();
+            return depth;
+        } catch (FormatException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            // Remove from static map.
+            Location.mapFile(handleId, null);
+        }
+    }
+
     public static String generateHandleId(IFormatHandler formatHandler, ImageID imageId)
     {
         String id = UUID.randomUUID().toString() + "." + formatHandler.getSuffixes()[0];
-        if (imageId != null && imageId.getFileName() != null && (imageId.getFileName().endsWith(".c01") || imageId.getFileName().endsWith("C01"))) {
+        if (imageId != null
+                && imageId.getFileName() != null
+                && (imageId.getFileName().endsWith(".c01") || imageId.getFileName().endsWith("C01")))
+        {
             id = imageId.getFileName();
         }
         return id;
-        
+
     }
 
     private static void nullSafeAddAll(HashMap<String, Object> accumulator,

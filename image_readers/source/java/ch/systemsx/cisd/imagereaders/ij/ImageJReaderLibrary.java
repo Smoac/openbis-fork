@@ -81,6 +81,18 @@ public class ImageJReaderLibrary implements IImageReaderLibrary
                 }
                 return new Dimension(imagePlus.getWidth(), imagePlus.getHeight());
             }
+
+            @Override
+            public Integer readColorDepth(IRandomAccessFile handle, ImageID imageID)
+            {
+                AdapterIInputStreamToInputStream is = new AdapterIInputStreamToInputStream(handle);
+                ImagePlus imagePlus = new Opener().openTiff(is, "");
+                if (imagePlus == null)
+                {
+                    throw new IllegalStateException("Cannot open the image file with ImageJ.");
+                }
+                return imagePlus.getBytesPerPixel();
+            }
         };
 
     private BufferedImage createBufferedImageOfSameType(ImagePlus imagePlus)

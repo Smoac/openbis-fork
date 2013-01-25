@@ -133,6 +133,20 @@ public class ImageIOReaderLibrary implements IImageReaderLibrary
                     }
                 }
 
+                @Override
+                public Integer readColorDepth(IRandomAccessFile handle, ImageID imageID)
+                {
+                    try
+                    {
+                        ImageInputStream imageInput = adaptHandle(handle);
+                        ioReader.setInput(imageInput);
+                        return ioReader.read(0).getColorModel().getPixelSize();
+                    } catch (IOException ex)
+                    {
+                        throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                    }
+                }
+
                 private ImageInputStream adaptHandle(IRandomAccessFile handle)
                 {
 

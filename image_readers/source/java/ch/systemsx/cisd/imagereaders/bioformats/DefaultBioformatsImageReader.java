@@ -100,4 +100,11 @@ class DefaultBioformatsImageReader extends AbstractMetaDataAwareImageReader
         IRandomAccess input = new BioFormatsRandomAccessAdapter(handle);
         return BioFormatsImageUtils.readImageDimensions(formatReader, input, imageID);
     }
+
+    @Override
+    public Integer readColorDepth(IRandomAccessFile handle, ImageID imageID)
+    {
+        IRandomAccess input = new BioFormatsRandomAccessAdapter(handle);
+        return BioFormatsImageUtils.readImageColorDepth(formatReader, input, imageID);
+    }
 }
