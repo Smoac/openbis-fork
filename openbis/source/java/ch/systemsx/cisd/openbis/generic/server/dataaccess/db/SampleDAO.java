@@ -375,6 +375,9 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
             // need to deal with exception thrown by trigger checking code uniqueness
             flushWithSqlExceptionHandling(getHibernateTemplate());
             scheduleDynamicPropertiesEvaluation(samples);
+
+            // if session is not cleared registration of many samples slows down after each batch
+            hibernateTemplate.clear();
         } catch (DataAccessException e)
         {
             SampleDataAccessExceptionTranslator.translateAndThrow(e);

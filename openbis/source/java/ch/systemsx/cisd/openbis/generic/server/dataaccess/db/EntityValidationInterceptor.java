@@ -17,14 +17,21 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
+import org.hibernate.Criteria;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
+import org.hibernate.classic.Session;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.Type;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -39,13 +46,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calcu
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.EntityValidatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * {@link Interceptor} which reacts to creation and update of entities, and calls the validation
@@ -60,6 +62,8 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         IValidationRequestDelegate<INonAbstractEntityAdapter>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    private static int BATCH_SIZE = 99;
 
     private IDAOFactory daoFactory;
 
@@ -82,17 +86,17 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
     /**
      * Used only to store information about whether some objects are new or not
      */
-    Set<IEntityInformationWithPropertiesHolder> newEntities;
+    Set<EntityIdentifier> newEntities;
 
     /**
      * Keeps the list of all items that should be validated
      */
-    LinkedHashSet<IEntityInformationWithPropertiesHolder> entitiesToValidate;
+    Set<EntityIdentifier> entitiesToValidate;
 
     /**
-     * Keeps the list of all items that should be validated
+     * Keeps the list of all items that have already been validated
      */
-    Set<IEntityInformationWithPropertiesHolder> validatedEntities;
+    Set<EntityIdentifier> validatedEntities;
 
     /**
      * WE get information about progress listener, form the caller of updates. Luckily the
@@ -144,53 +148,112 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void beforeTransactionCompletion(Transaction tx)
     {
-        while (hasMoreItemsToValidate())
+
+        Session session = daoFactory.getSessionFactory().getCurrentSession();
+
+        main: while (entitiesToValidate.size() > 0)
         {
-            IEntityInformationWithPropertiesHolder entity = nextItemToValidate();
-            validateEntity(tx, entity);
+            for (List<EntityIdentifier> identifiers : identifierBatchOf(BATCH_SIZE))
+            {
+                Class<? extends IEntityInformationWithPropertiesHolder> clazz =
+                        identifiers.get(0).getClazz();
+
+                Collection<Long> param = new HashSet<Long>();
+                for (EntityIdentifier identifier : identifiers)
+                {
+                    param.add(identifier.getId());
+                }
+
+                Criteria criteria = session.createCriteria(clazz);
+                criteria.add(Restrictions.in("id", param));
+                for (IEntityInformationWithPropertiesHolder entity : (List<IEntityInformationWithPropertiesHolder>) criteria
+                        .list())
+                {
+                    validateEntity(tx, entity);
+                    if (isRolledBack)
+                    {
+                        break main;
+                    }
+                }
+            }
         }
     }
 
-    private boolean hasMoreItemsToValidate()
+    private Iterable<List<EntityIdentifier>> identifierBatchOf(final int batchSize)
     {
-        return entitiesToValidate.size() > 0 && false == isRolledBack;
-    }
+        final List<EntityIdentifier> ids = new ArrayList<EntityIdentifier>(entitiesToValidate);
+        entitiesToValidate = new HashSet<EntityIdentifier>();
 
-    private IEntityInformationWithPropertiesHolder nextItemToValidate()
-    {
-        Iterator<IEntityInformationWithPropertiesHolder> iterator = entitiesToValidate.iterator();
-        IEntityInformationWithPropertiesHolder entity = iterator.next();
-        iterator.remove();
-        return entity;
+        Collections.sort(ids, new Comparator<EntityIdentifier>()
+            {
+                @Override
+                public int compare(EntityIdentifier arg0, EntityIdentifier arg1)
+                {
+                    return arg0.getClazz().getName().compareTo(arg1.getClazz().getName());
+                }
+            });
+
+        return new Iterable<List<EntityIdentifier>>()
+            {
+                @Override
+                public Iterator<List<EntityIdentifier>> iterator()
+                {
+                    return new Iterator<List<EntityIdentifier>>()
+                        {
+                            private int index = 0;
+
+                            @Override
+                            public boolean hasNext()
+                            {
+                                return index < ids.size();
+                            }
+
+                            @Override
+                            public List<EntityIdentifier> next()
+                            {
+                                if (index >= ids.size())
+                                {
+                                    return null;
+                                }
+                                List<EntityIdentifier> list = new ArrayList<EntityIdentifier>();
+                                Class<? extends IEntityInformationWithPropertiesHolder> clazz =
+                                        ids.get(index).getClazz();
+                                while (list.size() < batchSize
+                                        && index < ids.size()
+                                        && ids.get(index).getClazz().equals(clazz))
+                                {
+                                    list.add(ids.get(index));
+                                    index++;
+                                }
+                                return list;
+                            }
+
+                            @Override
+                            public void remove()
+                            {
+                                throw new UnsupportedOperationException();
+                            }
+                        };
+                }
+            };
     }
 
     private void validateEntity(Transaction tx, IEntityInformationWithPropertiesHolder entity)
     {
-        if (newEntities.contains(entity))
-        {
-            validateEntity(tx, entity, true);
-        } else
-        {
-            validateEntity(tx, entity, false);
-        }
-    }
-
-    private void validateEntity(Transaction tx, IEntityInformationWithPropertiesHolder entity,
-            boolean isNewEntity)
-    {
         validatedEntity(entity);
+        boolean isNewEntity = newEntities.contains(new EntityIdentifier(entity));
+
         IEntityValidator entityValidator =
                 EntityValidatorFactory.createEntityValidator(entity.getEntityType(), this);
         if (entityValidator != null)
         {
-            IEntityInformationWithPropertiesHolder regained =
-                    (IEntityInformationWithPropertiesHolder) daoFactory.getSessionFactory()
-                            .getCurrentSession().get(entity.getClass(), entity.getId());
-            validateEntityWithScript(tx, entityValidator, regained, isNewEntity);
+            validateEntityWithScript(tx, entityValidator, entity, isNewEntity);
         }
+
     }
 
     private void validateEntityWithScript(Transaction tx, IEntityValidator entityValidator,
@@ -239,11 +302,16 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         return entityValidator.validate(adaptor, isNewEntity);
     }
 
+    private boolean addToBeValidated(IEntityInformationWithPropertiesHolder entity)
+    {
+        return entitiesToValidate.add(new EntityIdentifier(entity));
+    }
+
     private void newEntity(IEntityInformationWithPropertiesHolder entity)
     {
-        if (entitiesToValidate.add(entity))
+        if (addToBeValidated(entity))
         {
-            newEntities.add(entity);
+            newEntities.add(new EntityIdentifier(entity));
             totalEntitiesToValidateCount++;
         }
     }
@@ -251,7 +319,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
     private void validatedEntity(IEntityInformationWithPropertiesHolder entity)
     {
         entitiesValidatedCount++;
-        if (false == validatedEntities.add(entity))
+        if (false == validatedEntities.add(new EntityIdentifier(entity)))
         {
             throw new IllegalStateException(
                     "Programming error - trying to validate the same entity twice!");
@@ -260,7 +328,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
 
     private void modifiedEntity(IEntityInformationWithPropertiesHolder entity)
     {
-        if (entitiesToValidate.add(entity))
+        if (addToBeValidated(entity))
         {
             totalEntitiesToValidateCount++;
         }
@@ -268,22 +336,72 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
 
     private void initializeLists()
     {
-        validatedEntities = new HashSet<IEntityInformationWithPropertiesHolder>();
-        newEntities = new HashSet<IEntityInformationWithPropertiesHolder>();
-        entitiesToValidate = new LinkedHashSet<IEntityInformationWithPropertiesHolder>();
+        validatedEntities = new HashSet<EntityIdentifier>();
+        newEntities = new HashSet<EntityIdentifier>();
+        entitiesToValidate = new HashSet<EntityIdentifier>();
     }
 
     @Override
     public void requestValidation(INonAbstractEntityAdapter entityAdapter)
     {
         IEntityInformationWithPropertiesHolder entity = entityAdapter.entityPE();
-        if (validatedEntities.contains(entity) || entitiesToValidate.contains(entity))
+        if (validatedEntities.contains(new EntityIdentifier(entity)) == false
+                && addToBeValidated(entity))
         {
-            // forcing validation of entity already listed for validation
-        } else
-        {
-            entitiesToValidate.add(entity);
             totalEntitiesToValidateCount++;
         }
     }
+
+    private static class EntityIdentifier
+    {
+        private final Class<? extends IEntityInformationWithPropertiesHolder> clazz;
+
+        private final Long id;
+
+        public EntityIdentifier(IEntityInformationWithPropertiesHolder entity)
+        {
+            this.clazz = entity.getClass();
+            this.id = entity.getId();
+        }
+
+        public Class<? extends IEntityInformationWithPropertiesHolder> getClazz()
+        {
+            return clazz;
+        }
+
+        public Long getId()
+        {
+            return id;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int hash = 17;
+            hash = 31 * id.hashCode() + 17;
+            hash = 31 * clazz.hashCode() + 17;
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (o instanceof EntityIdentifier)
+            {
+                EntityIdentifier e = (EntityIdentifier) o;
+                return (e.getId() == id)
+                        && e.getClazz().equals(clazz);
+            } else
+            {
+                throw new IllegalArgumentException(o.toString());
+            }
+        }
+
+        @Override
+        public String toString()
+        {
+            return clazz.getSimpleName() + ": " + id;
+        }
+    }
+
 }
