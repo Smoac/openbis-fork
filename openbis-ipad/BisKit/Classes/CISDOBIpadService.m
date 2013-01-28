@@ -63,6 +63,30 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 
 - (BOOL)isIpadSupported { return _ipadReadService != nil; }
 
+- (void)rememberClientPreferences:(NSDictionary *)clientPreferences notifying:(CISDOBIpadServiceCall *)iPadCall
+{    
+    _clientPreferences = [[CISDOBClientPreferences alloc] initWithRawPreferences: clientPreferences];
+    if (iPadCall.success) iPadCall.success(_connection.sessionToken);
+    
+}
+
+- (void)retrieveClientPreferences:(CISDOBIpadServiceCall *)iPadCall
+{
+    NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"ROOT" forKey: @"requestKey"];
+    CISDOBAsyncCall *connectionCall =
+        [_connection
+            createReportFromDataStore: [_ipadReadService objectForKey: @"dataStoreCode"]
+            aggregationService: [_ipadReadService objectForKey: @"serviceKey"]
+            parameters: parameters];
+    
+    iPadCall.connectionCall = connectionCall;
+    connectionCall.success = ^(id result) {
+        [self rememberClientPreferences: result notifying: iPadCall];
+    };
+    connectionCall.fail = ^(NSError *error) { if (iPadCall.fail) iPadCall.fail(error); };
+    [connectionCall start];
+}
+
 - (void)rememberIpadService:(NSArray *)services notifying:(CISDOBIpadServiceCall *)iPadCall
 {    
     for (NSDictionary *service in services) {
@@ -81,8 +105,7 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
         return;
     }
     
-    if (iPadCall.success) iPadCall.success(_connection.sessionToken);
-    
+    [self retrieveClientPreferences: iPadCall];
 }
 
 - (void)determineIsIpadSupported:(CISDOBIpadServiceCall *)iPadCall
@@ -289,5 +312,26 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 - (NSString *)imageUrl { return [self stringContentValueAtName: @"IMAGE_URL"]; }
 - (NSString *)properties { return [self stringContentValueAtName: @"PROPERTIES"]; }
 - (NSString *)rootLevel { return [self stringContentValueAtName: @"ROOT_LEVEL"]; }
+
+@end
+
+@implementation CISDOBClientPreferences
+
+- (id)initWithRawPreferences:(NSDictionary *)rawPreferences
+{
+    if (!(self = [super init])) return nil;
+    
+    _preferences = rawPreferences;
+    
+    return self;
+}
+
+- (NSTimeInterval)rootRefreshInterval
+{
+    // TODO Implement this by reading the value from the dictionary and converting it to a time interval
+    
+    // The default value is once every 30 min
+    return 60. * 30.;
+}
 
 @end

@@ -36,20 +36,23 @@ enum CISOBIpadServiceErrorCode {
  *
  * All calls to the connection are made asynchronously. Thus, the calls all return async call objects which can be configured.
  */
-@class CISDOBConnection, CISDOBAsyncCall;
+@class CISDOBConnection, CISDOBAsyncCall, CISDOBClientPreferences;
 @interface CISDOBIpadService : NSObject {
 @private
     // Internal State
     BOOL            _isLoggedIn;
-    NSDictionary*   _ipadReadService;
+    NSDictionary   *_ipadReadService;
+    
+    CISDOBClientPreferences *_clientPreferences;
 }
 
 @property(readonly) CISDOBConnection *connection;
+@property(readonly) CISDOBClientPreferences *clientPreferences;
 
 //! Designated initializer.
 - (id)initWithConnection:(CISDOBConnection *)connection;
 
-//! Log the user into the openBIS instance
+//! Log the user into the openBIS instance. The login procedure reqests the client preferences as well.
 - (CISDOBAsyncCall *)loginUser:(NSString *)user password:(NSString *)password;
 
 //! Get all root-level entities from the openBIS ipad service, possibly along with some children as well. The success block will be invoked with a collection of CISDOBIpadRawEntity objects.
@@ -95,5 +98,22 @@ enum CISOBIpadServiceErrorCode {
 @property(readonly) NSString *imageUrl;     //<! Deprecated
 @property(readonly) NSString *properties;   //<! The properties as a JSON string.
 @property(readonly) NSString *rootLevel;
+
+@end
+
+/**
+ * \brief The preferences for client behavior, as defined by the server.
+ */
+@interface CISDOBClientPreferences : NSObject {
+@private
+    // Internal state
+    NSDictionary    *_preferences;
+}
+
+@property(readonly) NSTimeInterval rootRefreshInterval;   //<! The min interval (in seconds) to wait between refreshes of the root data set.
+
+@property(readonly) NSDictionary *preferences; //<! Used to access the raw preferences dictionary. The recommended way to get preferences is with the above accessors.
+
+- (id)initWithRawPreferences:(NSDictionary *)rawPreferences;
 
 @end

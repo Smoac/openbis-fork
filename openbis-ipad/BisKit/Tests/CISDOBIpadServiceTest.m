@@ -59,6 +59,8 @@
     CISDOBAsyncCall *call;
     call = [_service loginUser: GetDefaultUserName() password: GetDefaultUserPassword()];
     [self configureAndRunCallSynchronously: call];
+    STAssertNotNil(_service.clientPreferences, @"The client preferences should have been initialized");
+    STAssertEquals(_service.clientPreferences.rootRefreshInterval, 60. * 30., @"The default root refresh interval should be 30 min");
     
     call = [_service listRootLevelEntities];
     [self configureAndRunCallSynchronously: call];
