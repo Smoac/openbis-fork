@@ -524,7 +524,7 @@ def plasmid_to_dict_with_images(plasmid, children_map, data_sets):
 			break
 	if plasmid_data_set is None:
 		return plasmid_dict
-	image_url = 'https://openbis-csb.ethz.ch/datastore_server/' + plasmid_data_set.getDataSetCode() + '/generated/'
+	image_url = 'https://openbis-csb.ethz.ch:8444/datastore_server/' + plasmid_data_set.getDataSetCode() + '/generated/'
 	image_url = image_url + plasmid.getCode() + '.svg'
 	plasmid_dict['IMAGE_URL'] = image_url
 	return plasmid_dict
