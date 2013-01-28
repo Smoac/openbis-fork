@@ -1374,6 +1374,9 @@ function filesForDataSet(d)
 	if (d.loadingFiles) return [{ pathInListing : "Loading..." }];
 	
 	var fileFilter = function(file) {
+		if (file.isDirectory) return false;
+		return true;
+/*		
 		if (!file.isDirectory) {
 			if (endsWith(file.pathInDataSet, "xls")) {
 				return true;
@@ -1383,6 +1386,7 @@ function filesForDataSet(d)
 			}
 		}
 		return false;
+*/
 	};
 	
 	return (d.files) ? d.files.filter(fileFilter) : [];
