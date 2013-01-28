@@ -28,6 +28,7 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -198,6 +199,7 @@ public class ContentCache implements IContentCache, InitializingBean
         {
             return 0;
         }
+        Arrays.asList(dataSetFolders);
         boolean cachedFilesRemoved = false;
         for (File dataSetFolder : dataSetFolders)
         {
