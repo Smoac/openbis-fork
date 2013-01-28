@@ -63,60 +63,6 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 
 - (BOOL)isIpadSupported { return _ipadReadService != nil; }
 
-- (void)rememberClientPreferences:(NSDictionary *)clientPreferences notifying:(CISDOBIpadServiceCall *)iPadCall
-{    
-    _clientPreferences = [[CISDOBClientPreferences alloc] initWithRawPreferences: clientPreferences];
-    if (iPadCall.success) iPadCall.success(_connection.sessionToken);
-    
-}
-
-- (void)retrieveClientPreferences:(CISDOBIpadServiceCall *)iPadCall
-{
-    NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"ROOT" forKey: @"requestKey"];
-    CISDOBAsyncCall *connectionCall =
-        [_connection
-            createReportFromDataStore: [_ipadReadService objectForKey: @"dataStoreCode"]
-            aggregationService: [_ipadReadService objectForKey: @"serviceKey"]
-            parameters: parameters];
-    
-    iPadCall.connectionCall = connectionCall;
-    connectionCall.success = ^(id result) {
-        [self rememberClientPreferences: result notifying: iPadCall];
-    };
-    connectionCall.fail = ^(NSError *error) { if (iPadCall.fail) iPadCall.fail(error); };
-    [connectionCall start];
-}
-
-- (void)rememberIpadService:(NSArray *)services notifying:(CISDOBIpadServiceCall *)iPadCall
-{    
-    for (NSDictionary *service in services) {
-        if ([@"ipad-read-service-v1" isEqualToString: [service objectForKey: @"serviceKey"]]) {
-            _ipadReadService = service;
-            break;
-        }
-    }
-    
-    if (_ipadReadService == nil) {
-        NSString *errorMessage = @"The iPad service is not installed on the selected server";
-        NSDictionary *userInfo =
-            [NSDictionary dictionaryWithObjectsAndKeys: errorMessage, NSLocalizedDescriptionKey, nil];
-        NSError *error = [NSError errorWithDomain: CISDOBIpadServiceErrorDomain code: kCISOBIpadServiceError_NoIpadServiceAvailable userInfo: userInfo];
-        if (iPadCall.fail) iPadCall.fail(error);
-        return;
-    }
-    
-    [self retrieveClientPreferences: iPadCall];
-}
-
-- (void)determineIsIpadSupported:(CISDOBIpadServiceCall *)iPadCall
-{
-    CISDOBAsyncCall *connectionCall = [_connection listAggregationServices];
-    iPadCall.connectionCall = connectionCall;
-    connectionCall.success = ^(id result) { [self rememberIpadService: result notifying: iPadCall]; };
-    connectionCall.fail = ^(NSError *error) { if (iPadCall.fail) iPadCall.fail(error); };
-    [connectionCall start];
-}
-
 - (CISDOBIpadServiceCall *)iPadCallWrappingConnectionCall:(CISDOBAsyncCall *)connectionCall
 {
     CISDOBIpadServiceCall *iPadCall = [[CISDOBIpadServiceCall alloc] initWithService: self connectionCall: connectionCall];
@@ -163,7 +109,8 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
         // Note that we are logged in, but wait until we figure out if the ipad is supported
         // to notify the client.
         _isLoggedIn = YES;
-        [self determineIsIpadSupported: iPadCall];
+        CISDOBIpadServicePostLoginCommand *command = [[CISDOBIpadServicePostLoginCommand alloc] initWithService: self ipadCall: iPadCall];
+        [command run];
     };
     
     return iPadCall;
@@ -332,6 +279,79 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
     
     // The default value is once every 30 min
     return 60. * 30.;
+}
+
+@end
+
+@implementation CISDOBIpadServicePostLoginCommand
+
+- (id)initWithService:(CISDOBIpadService *)service ipadCall:(CISDOBIpadServiceCall *)call
+{
+    if (!(self = [super init])) return nil;
+    
+    self.service = service;
+    self.ipadCall = call;
+    
+    return self;
+}
+
+- (void)rememberClientPreferences:(NSDictionary *)clientPreferences
+{    
+    self.service.clientPreferences = [[CISDOBClientPreferences alloc] initWithRawPreferences: clientPreferences];
+    if (self.ipadCall.success) self.ipadCall.success(self.service.connection.sessionToken);
+    
+}
+
+- (void)retrieveClientPreferences
+{
+    NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"ROOT" forKey: @"requestKey"];
+    CISDOBAsyncCall *connectionCall =
+        [self.service.connection
+            createReportFromDataStore: [self.service.ipadReadService objectForKey: @"dataStoreCode"]
+            aggregationService: [self.service.ipadReadService objectForKey: @"serviceKey"]
+            parameters: parameters];
+    
+    self.ipadCall.connectionCall = connectionCall;
+    connectionCall.success = ^(id result) {
+        [self rememberClientPreferences: result];
+    };
+    connectionCall.fail = ^(NSError *error) { if (self.ipadCall.fail) self.ipadCall.fail(error); };
+    [connectionCall start];
+}
+
+- (void)rememberIpadService:(NSArray *)services
+{    
+    for (NSDictionary *service in services) {
+        if ([@"ipad-read-service-v1" isEqualToString: [service objectForKey: @"serviceKey"]]) {
+            self.service.ipadReadService = service;
+            break;
+        }
+    }
+    
+    if (self.service.ipadReadService == nil) {
+        NSString *errorMessage = @"The iPad service is not installed on the selected server";
+        NSDictionary *userInfo =
+            [NSDictionary dictionaryWithObjectsAndKeys: errorMessage, NSLocalizedDescriptionKey, nil];
+        NSError *error = [NSError errorWithDomain: CISDOBIpadServiceErrorDomain code: kCISOBIpadServiceError_NoIpadServiceAvailable userInfo: userInfo];
+        if (self.ipadCall.fail) self.ipadCall.fail(error);
+        return;
+    }
+    
+    [self retrieveClientPreferences];
+}
+
+- (void)determineIsIpadSupported
+{
+    CISDOBAsyncCall *connectionCall = [self.service.connection listAggregationServices];
+    self.ipadCall.connectionCall = connectionCall;
+    connectionCall.success = ^(id result) { [self rememberIpadService: result]; };
+    connectionCall.fail = ^(NSError *error) { if (self.ipadCall.fail) self.ipadCall.fail(error); };
+    [connectionCall start];
+}
+
+- (void)run
+{
+    [self determineIsIpadSupported];
 }
 
 @end

@@ -24,11 +24,8 @@
 #import "CISDOBIpadService.h"
 
 // Internal service call that includes the private state
-@interface CISDOBIpadServiceCall : CISDOBAsyncCall {
-@private
-    // Internal state
-    CISDOBAsyncCall     *_connectionCall;
-}
+@interface CISDOBIpadServiceCall : CISDOBAsyncCall
+
 @property(weak, nonatomic) CISDOBIpadService *service;
 @property(strong, nonatomic) CISDOBAsyncCall *connectionCall;
 
@@ -37,6 +34,26 @@
 
 // Actions
 - (void)replaceSessionToken:(NSString *)oldSessionToken with:(NSString *)sessionToken;
+
+@end
+
+// An object that carries out all the steps that need to run after the user has logged into the server
+@interface CISDOBIpadServicePostLoginCommand : NSObject
+
+@property(weak, nonatomic) CISDOBIpadService *service;
+@property(weak, nonatomic) CISDOBIpadServiceCall *ipadCall;
+
+// Initialization
+- (id)initWithService:(CISDOBIpadService *)service ipadCall:(CISDOBIpadServiceCall *)call;
+
+// Actions
+- (void)run;
+
+@end
+
+@interface CISDOBIpadService()
+
+@property(strong, nonatomic) NSDictionary *ipadReadService;
 
 @end
 
