@@ -191,7 +191,10 @@ AppPresenter.prototype.refreshDataSetTypeTables = function() {
 	metabolomicsView.updateView();
 	transcriptomicsView.updateView();
 	proteomicsView.updateView();
-	sequencesView.updateView();
+	sequencesCm5View.updateView();
+	sequencesGenbankView.updateView();
+	intervalAnnotationsView.updateView();
+	metabolicModelView.updateView();		
 }
 
 AppPresenter.prototype.refreshOd600StrainTables = function() {
@@ -228,7 +231,10 @@ AppPresenter.prototype.createVis = function()
 	metabolomicsView = new DataSummaryView(dataSetTypeVis, "Metabolomics", "metabolomics", "METABOLITE_INTENSITIES");
 	transcriptomicsView = new DataSummaryView(dataSetTypeVis, "Transcriptomics", "transcriptomics", "TRANSCRIPTOMICS");
 	proteomicsView = new DataSummaryView(dataSetTypeVis, "Proteomics", "proteomics", "PROTEIN_QUANTIFICATIONS");
-	sequencesView = new DataSummaryView(dataSetTypeVis, "Sequences", "sequences", "SEQUENCE_CM5");
+	sequencesCm5View = new DataSummaryView(dataSetTypeVis, "Sequences (CM5)", "sequencesCm5", "SEQUENCE_CM5");
+	sequencesGenbankView = new DataSummaryView(dataSetTypeVis, "Sequences (Genbank)", "sequencesGenbank", "SEQUENCE_GENBANK");
+	intervalAnnotationsView = new DataSummaryView(dataSetTypeVis, "Interval Annotations", "intervalAnnotations", "INTERVAL_ANNOTATIONS");
+	metabolicModelView = new DataSummaryView(dataSetTypeVis, "Metabolic Model", "metabolicModel", "METABOLIC_MODEL");
 	
 	// Initially hide the strain view -- it is activated by the radio button
 	strainVis = tableRoot.append("div").style("display", "none");
@@ -1387,7 +1393,7 @@ var model = new AppModel();
 var presenter = new AppPresenter();
 
 // The data set type visualization
-var dataSetTypeVis, od600View, metabolomicsView, transcriptomicsView, proteomicsView, sequencesView;
+var dataSetTypeVis, od600View, metabolomicsView, transcriptomicsView, proteomicsView, sequencesCm5View, sequencesGenbankView, intervalAnnotationsView, metabolicModelView;
 
 // The strain visualization
 var strainVis, strainView;
