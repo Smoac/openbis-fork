@@ -24,11 +24,6 @@
 #import "CISDOBIpadEntity.h"
 #import "CISDOBIpadService.h"
 
-// In a preliminary version, the properties were trasmitted as a dictionary. The updated
-// version sends them as an array. Temporarily support both modes, but once all servers
-// have been updated to the array version, remove this code.
-#define SUPPORT_PROPERTIES_DICT 1
-
 ///! Convert a JSON string to objects. Returns nil if the string is nil.
 id ObjectFromJsonData(NSString *jsonDataString, NSError **error)
 {
@@ -87,27 +82,6 @@ id ObjectFromJsonData(NSString *jsonDataString, NSError **error)
     return refcon;
 }
 
-// This code is only temporarily necessary. See comment to SUPPORT_PROPERTIES_DICT.
-- (NSArray *)propertiesArrayFromDictionaryOrError:(NSError **)error
-{
-    NSMutableArray* properties;
-    NSDictionary *propertiesDict = ObjectFromJsonData(self.propertiesJson, error);
-    if (!propertiesDict) return nil;
-    properties = [[NSMutableArray alloc] init];
-    for (NSString *key in [propertiesDict allKeys]) {
-        NSDictionary *property = [NSDictionary dictionaryWithObjectsAndKeys:
-            key, @"key",
-            key, @"label",
-            [propertiesDict valueForKey: key], @"value", nil];
-        [properties addObject: property];
-    }
-    [properties sortUsingComparator: ^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
-        return [[obj1 valueForKey: @"key"] compare: [obj2 valueForKey: @"key"] options: NSNumericSearch];
-    }];
-    
-    return properties;
-}
-
 - (NSArray *)properties
 {
     [self willAccessValueForKey: @"properties"];
@@ -117,10 +91,6 @@ id ObjectFromJsonData(NSString *jsonDataString, NSError **error)
     if (nil == properties) {
         NSError *error;
         properties = ObjectFromJsonData(self.propertiesJson, &error);
-#if SUPPORT_PROPERTIES_DICT
-        if ([properties isKindOfClass: [NSDictionary class]])
-            properties = [self propertiesArrayFromDictionaryOrError: &error];
-#endif
         if (error) {
             NSLog(@"Could not deserialize properties %@", error);
         } else {
@@ -130,7 +100,6 @@ id ObjectFromJsonData(NSString *jsonDataString, NSError **error)
     
     return properties;
 }
-
 
 - (NSArray *)childrenPermIds
 {
