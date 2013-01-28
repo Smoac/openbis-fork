@@ -124,6 +124,7 @@ cp -p "$installation_folder/watchdog.sh" "$JETTY_BIN_DIR"
 cp -p "$installation_folder/register-master-data.sh" "$JETTY_BIN_DIR"
 cp -p "$installation_folder/export-master-data.sh" "$JETTY_BIN_DIR"
 cp -p "$installation_folder/export-master-data.py" "$JETTY_BIN_DIR"
+ln -s "$JETTY_BIN_DIR/passwd.sh" "$JETTY_BIN_DIR/passwd_cache.sh"
 chmod u+x $JETTY_BIN_DIR/*.sh
 
 # Create a file called 'jetty.properties'.
