@@ -126,6 +126,12 @@ public class ContentCache implements IContentCache, InitializingBean
         long minimumKeepingTimeInMinutes =
                 PropertyUtils.getLong(properties, CACHE_WORKSPACE_MIN_KEEPING_TIME_IN_MINUTES_KEY,
                         DEFAULT_MINIMUM_KEEPING_TIME_IN_MINUTES);
+        if (minimumKeepingTimeInMinutes <= 0)
+        {
+            throw new EnvironmentFailureException(
+                    "Minimum keeping time has to be a positive number: "
+                            + minimumKeepingTimeInMinutes);
+        }
         long minimumKeepingTimeInMillis = minimumKeepingTimeInMinutes * DateUtils.MILLIS_PER_MINUTE;
 
         File cacheWorkspace = new File(workspacePath);
