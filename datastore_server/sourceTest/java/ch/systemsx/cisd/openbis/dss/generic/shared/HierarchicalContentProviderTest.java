@@ -353,6 +353,12 @@ public class HierarchicalContentProviderTest extends AssertJUnit
         }
 
         @Override
+        public IHierarchicalContentNode tryGetNode(String relativePath)
+        {
+            return null;
+        }
+
+        @Override
         public List<IHierarchicalContentNode> listMatchingNodes(String relativePathPattern)
         {
             return null;

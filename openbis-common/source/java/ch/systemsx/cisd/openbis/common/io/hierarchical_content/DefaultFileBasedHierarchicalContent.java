@@ -74,20 +74,32 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
     @Override
     public IHierarchicalContentNode getNode(String relativePath)
     {
-        if (StringUtils.isBlank(relativePath))
+        final IHierarchicalContentNode nodeOrNull = tryGetNode(relativePath);
+        if (nodeOrNull == null)
         {
-            return getRootNode();
-        } else if (relativePath.startsWith("../") || relativePath.contains("/../"))
-        {
-            throw new IllegalArgumentException("Can't access resource '" + relativePath
-                    + "' which is above the root directory.");
-        } else
-        {
-            return asNode(new File(root, relativePath));
+            throw new IllegalArgumentException("Resource '" + relativePath + "' does not exist.");
         }
+        return nodeOrNull;
     }
 
-    private IHierarchicalContentNode asNode(File file)
+    @Override
+    public IHierarchicalContentNode tryGetNode(String relativePath)
+    {
+        final IHierarchicalContentNode node;
+        if (StringUtils.isBlank(relativePath))
+        {
+            node = getRootNode();
+        } else if (relativePath.startsWith("../") || relativePath.contains("/../"))
+        {
+            node = null;
+        } else
+        {
+            node = tryAsNode(new File(root, relativePath));
+        }
+        return node;
+    }
+
+    private IHierarchicalContentNode tryAsNode(File file)
     {
         if (file.exists())
         {
@@ -105,10 +117,11 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
             HDF5ContainerBasedHierarchicalContentNode containerNode =
                     new HDF5ContainerBasedHierarchicalContentNode(this, existingFile);
             String relativePath = FileUtilities.getRelativeFilePath(existingFile, file);
-            return containerNode.getChildNode(relativePath);
+            return containerNode.tryGetChildNode(relativePath);
+        } else
+        {
+            return null;
         }
-        throw new IllegalArgumentException("Resource '"
-                + FileUtilities.getRelativeFilePath(root, file) + "' does not exist.");
     }
 
     private IHierarchicalContentNode createFileNode(File file)

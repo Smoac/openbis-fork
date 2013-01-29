@@ -714,6 +714,12 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         }
 
         @Override
+        public IHierarchicalContentNode tryGetNode(String relativePath)
+        {
+            return nodes.get(relativePath);
+        }
+
+        @Override
         public List<IHierarchicalContentNode> listMatchingNodes(String relativePathPattern)
         {
             throw new UnsupportedOperationException();

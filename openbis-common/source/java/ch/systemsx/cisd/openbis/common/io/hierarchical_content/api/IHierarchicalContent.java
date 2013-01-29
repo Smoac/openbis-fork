@@ -40,6 +40,13 @@ public interface IHierarchicalContent
     IHierarchicalContentNode getNode(String relativePath) throws IllegalArgumentException;
 
     /**
+     * Returns node with specified <var>relativePath</var> starting from root node, or
+     * <code>null</code>, if this path does not exist. If the path is
+     * <code>null<code> or an empty string then the root node is returned.
+     */
+    IHierarchicalContentNode tryGetNode(String relativePath);
+
+    /**
      * Returns list of all file nodes in this hierarchy with relative paths matching given
      * <var>relativePathPattern</var>.
      * <p>

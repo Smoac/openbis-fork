@@ -78,31 +78,35 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
     @Override
     public IHierarchicalContentNode getNode(String relativePath)
     {
+        final IHierarchicalContentNode nodeOrNull = tryGetNode(relativePath);
+        if (nodeOrNull == null)
+        {
+            throw new IllegalArgumentException("Resource '" + relativePath + "' does not exist.");
+        }
+        return nodeOrNull;
+    }
+
+    @Override
+    public IHierarchicalContentNode tryGetNode(String relativePath)
+    {
         if (StringUtils.isBlank(relativePath))
         {
             return getRootNode();
         } else
         {
-            DataSetPathInfo pathInfo = findPathInfo(relativePath);
-            return asNode(pathInfo);
+            final DataSetPathInfo pathInfoOrNull =
+                    dataSetPathInfoProvider.tryGetPathInfoByRelativePath(relativePath);
+            if (pathInfoOrNull == null)
+            {
+                return null;
+            }
+            return asNode(pathInfoOrNull);
         }
     }
 
     private IHierarchicalContentNode asNode(DataSetPathInfo pathInfo)
     {
         return new PathInfoNode(pathInfo);
-    }
-
-    private DataSetPathInfo findPathInfo(String relativePath) throws IllegalArgumentException
-    {
-        DataSetPathInfo result = dataSetPathInfoProvider.tryGetPathInfoByRelativePath(relativePath);
-        if (result != null)
-        {
-            return result;
-        } else
-        {
-            throw new IllegalArgumentException("Resource '" + relativePath + "' does not exist.");
-        }
     }
 
     @Override
@@ -347,12 +351,21 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
             HDF5ContainerBasedHierarchicalContentNode containerNode =
                     new HDF5ContainerBasedHierarchicalContentNode(this, existingFile);
             String relativePath = FileUtilities.getRelativeFilePath(existingFile, file);
-            IHierarchicalContentNode node = containerNode.getChildNode(relativePath);
-            return asFileContentProvider(node);
+            IHierarchicalContentNode nodeOrNull = containerNode.tryGetChildNode(relativePath);
+            if (nodeOrNull != null)
+            {
+                return asFileContentProvider(nodeOrNull);
+            } else
+            {
+                throw new IllegalArgumentException("Resource '"
+                        + FileUtilities.getRelativeFilePath(root, file)
+                        + "' does not exist.");
+
+            }
         }
         throw new IllegalArgumentException("Resource '"
                 + FileUtilities.getRelativeFilePath(root, file)
-                + "' is currently unavailable. It might be in an archive.");
+                + "' is currently unavailable. It might be archived.");
     }
 
     private interface IFileContentProvider

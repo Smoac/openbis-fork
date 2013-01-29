@@ -32,6 +32,9 @@ public interface IFtpPathResolver
 
     /**
      * @param path a normalized path, containing no trailing slashes.
+     * 
+     * This method will return a {@link FtpPathResolverRegistry#getNonExistingFile(String, String)}
+     * when the file does not exist.
      */
     FtpFile resolve(String path, FtpPathResolverContext resolverContext);
 

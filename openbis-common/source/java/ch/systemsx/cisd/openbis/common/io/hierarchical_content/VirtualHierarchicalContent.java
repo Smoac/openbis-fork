@@ -82,7 +82,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
     {
         if (rootNode == null)
         {
-            rootNode = mergeNodes(new INodeProvider()
+            rootNode = tryMergeNodes(new INodeProvider()
                 {
                     @Override
                     public IHierarchicalContentNode tryGetNode(IHierarchicalContent content)
@@ -98,20 +98,26 @@ class VirtualHierarchicalContent implements IHierarchicalContent
     public IHierarchicalContentNode getNode(final String relativePath)
             throws IllegalArgumentException
     {
-        return mergeNodes(new INodeProvider()
+        final IHierarchicalContentNode nodeOrNull = tryGetNode(relativePath);
+        
+        if (nodeOrNull == null)
+        {
+            throw new IllegalArgumentException("Resource '" + relativePath + "' doesn't exist.");
+        }
+        return nodeOrNull;
+    }
+
+    @Override
+    public IHierarchicalContentNode tryGetNode(final String relativePath)
+    {
+        return tryMergeNodes(new INodeProvider()
+        {
+            @Override
+            public IHierarchicalContentNode tryGetNode(IHierarchicalContent content)
             {
-                @Override
-                public IHierarchicalContentNode tryGetNode(IHierarchicalContent content)
-                {
-                    try
-                    {
-                        return content.getNode(relativePath);
-                    } catch (IllegalArgumentException ex)
-                    {
-                        return null; // ignore (not all components need to contain the node)
-                    }
-                }
-            });
+                return content.tryGetNode(relativePath);
+            }
+        });
     }
 
     @Override
@@ -192,7 +198,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
         return components.equals(other.components);
     }
 
-    private IHierarchicalContentNode mergeNodes(INodeProvider provider)
+    private IHierarchicalContentNode tryMergeNodes(INodeProvider provider)
     {
         IVirtualNodeMerger merger = mergerFactory.createNodeMerger();
         for (IHierarchicalContent component : components)
@@ -203,7 +209,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
                 merger.addNode(componentNode);
             }
         }
-        return merger.createMergedNode();
+        return merger.tryCreateMergedNode();
     }
 
     private List<IHierarchicalContentNode> mergeNodeLists(INodeListProvider listProvider)
@@ -242,7 +248,7 @@ class VirtualHierarchicalContent implements IHierarchicalContent
     {
         void addNode(IHierarchicalContentNode node);
 
-        IHierarchicalContentNode createMergedNode();
+        IHierarchicalContentNode tryCreateMergedNode();
     }
 
     interface IVirtualNodeListMerger
@@ -280,9 +286,15 @@ class VirtualHierarchicalContent implements IHierarchicalContent
         }
 
         @Override
-        public IHierarchicalContentNode createMergedNode()
+        public IHierarchicalContentNode tryCreateMergedNode()
         {
-            return new VirtualNode(factory, nodes);
+            if (nodes.isEmpty())
+            {
+                return null;
+            } else
+            {
+                return new VirtualNode(factory, nodes);
+            }
         }
     }
 
@@ -324,7 +336,11 @@ class VirtualHierarchicalContent implements IHierarchicalContent
             List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
             for (IVirtualNodeMerger merger : mergers.values())
             {
-                result.add(merger.createMergedNode());
+                final IHierarchicalContentNode nodeOrNull = merger.tryCreateMergedNode();
+                if (nodeOrNull != null)
+                {
+                    result.add(nodeOrNull);
+                }
             }
             return result;
         }

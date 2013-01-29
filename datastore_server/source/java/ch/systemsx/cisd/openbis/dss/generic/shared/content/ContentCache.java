@@ -199,7 +199,7 @@ public class ContentCache implements IContentCache, InitializingBean
         {
             return 0;
         }
-        Arrays.asList(dataSetFolders, new Comparator<File>()
+        Arrays.sort(dataSetFolders, new Comparator<File>()
             {
                 @Override
                 public int compare(File f1, File f2)

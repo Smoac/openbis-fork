@@ -388,8 +388,7 @@ public class DefaultFileBasedHierarchicalContentTest extends AbstractFileSystemT
                         + incorrectPath);
             } catch (IllegalArgumentException ex)
             {
-                assertEquals("Can't access resource '" + incorrectPath
-                        + "' which is above the root directory.", ex.getMessage());
+                assertEquals("Resource '" + incorrectPath + "' does not exist.", ex.getMessage());
             }
         }
 

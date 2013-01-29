@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.AdapterIInputStreamToInputStream;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.io.IOUtilities;
@@ -95,8 +94,11 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         }
     }
 
-    /** @return child node with given path relative to this container */
-    public IHierarchicalContentNode getChildNode(String childPath)
+    /**
+     * @return child node with given path relative to this container, or null, if the path does not
+     *         exist.
+     */
+    public IHierarchicalContentNode tryGetChildNode(String childPath)
     {
         final IHDF5ContainerReader reader = createReader();
         try
@@ -104,7 +106,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
             final ArchiveEntry childEntry = reader.tryGetEntry(childPath);
             if (childEntry == null)
             {
-                throw new IOExceptionUnchecked("Path '" + childPath + "' does not exist.");
+                return null;
             }
             if (childEntry.isDirectory())
             {

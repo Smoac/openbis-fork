@@ -251,7 +251,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
 
             try
             {
-                return extractMatchingFileOrNull(path, experimentId, evalContext);
+                return extractMatchingFile(path, experimentId, evalContext);
             } finally
             {
                 evalContext.close();
@@ -319,27 +319,29 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         return null;
     }
 
-    private FtpFile extractMatchingFileOrNull(String path, String experimentId,
+    private FtpFile extractMatchingFile(String path, String experimentId,
             FtpFileEvaluationContext evalContext)
     {
-        EvaluatedElement matchingElement =
+        final EvaluatedElement matchingElement =
                 tryFindMatchingEvalElement(path, experimentId, evalContext);
 
-        String pathInDataSet = extractPathInDataSet(path);
-        String hierarchicalNodePath =
+        final String pathInDataSet = extractPathInDataSet(path);
+        final String hierarchicalNodePath =
                 constructHierarchicalNodePath(matchingElement.pathInDataSet, pathInDataSet);
 
-        ExternalData dataSet = matchingElement.dataSet;
-        IHierarchicalContentNodeFilter fileFilter = getFileFilter(dataSet);
-        IHierarchicalContent content = evalContext.getHierarchicalContent(dataSet);
-        IHierarchicalContentNode contentNode = content.getNode(hierarchicalNodePath);
-        if (fileFilter.accept(contentNode))
+        final ExternalData dataSet = matchingElement.dataSet;
+        final IHierarchicalContentNodeFilter fileFilter = getFileFilter(dataSet);
+        final IHierarchicalContent content = evalContext.getHierarchicalContent(dataSet);
+        final IHierarchicalContentNode contentNodeOrNull = content.tryGetNode(hierarchicalNodePath);
+        if (contentNodeOrNull != null && fileFilter.accept(contentNodeOrNull))
         {
-            return FtpFileFactory.createFtpFile(dataSet.getCode(), path, contentNode, content,
+            return FtpFileFactory.createFtpFile(dataSet.getCode(), path, contentNodeOrNull,
+                    content,
                     fileFilter);
         } else
         {
-            return null;
+            return FtpPathResolverRegistry.getNonExistingFile(path, "Resource '"
+                    + hierarchicalNodePath + "' does not exist.");
         }
     }
 
@@ -436,7 +438,8 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         }
     }
 
-    private List<FtpFile> createFtpFilesFromEvaluationResult(ISessionTokenProvider sessionTokenProvider,
+    private List<FtpFile> createFtpFilesFromEvaluationResult(
+            ISessionTokenProvider sessionTokenProvider,
             final String parentPath, FtpFileEvaluationContext evalResult)
     {
         ArrayList<FtpFile> result = new ArrayList<FtpFile>();
@@ -448,7 +451,8 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
                 String childPath =
                         parentPath + FtpConstants.FILE_SEPARATOR + evalElement.evaluatedTemplate;
                 String dataSetCode = evalElement.dataSet.getCode();
-                IHierarchicalContentProvider getContentProvider = getContentProvider(sessionTokenProvider);
+                IHierarchicalContentProvider getContentProvider =
+                        getContentProvider(sessionTokenProvider);
 
                 FtpFile childFtpFile =
                         FtpFileFactory.createFtpFile(dataSetCode, childPath,
@@ -461,7 +465,8 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         return result;
     }
 
-    private FtpFileEvaluationContext evaluateDataSetPaths(ISessionTokenProvider sessionTokenProvider,
+    private FtpFileEvaluationContext evaluateDataSetPaths(
+            ISessionTokenProvider sessionTokenProvider,
             List<ExternalData> dataSets)
     {
         FtpFileEvaluationContext evalContext = createFtpFileEvaluationContext(sessionTokenProvider);

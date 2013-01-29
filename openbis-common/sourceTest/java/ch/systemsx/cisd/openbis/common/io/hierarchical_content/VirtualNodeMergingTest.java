@@ -89,12 +89,12 @@ public class VirtualNodeMergingTest extends AssertJUnit
         return context.mock(IHierarchicalContentNode.class, mockName);
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class)
+    @Test
     public void testCreateEmptyNodeFails()
     {
         final IVirtualNodeMerger merger = createNodeMerger();
 
-        merger.createMergedNode();
+        assertNull(merger.tryCreateMergedNode());
 
         context.assertIsSatisfied();
     }
@@ -108,7 +108,7 @@ public class VirtualNodeMergingTest extends AssertJUnit
         merger.addNode(createNodeMock("node2"));
         merger.addNode(createNodeMock("node3"));
 
-        IHierarchicalContentNode mergedNode = merger.createMergedNode();
+        IHierarchicalContentNode mergedNode = merger.tryCreateMergedNode();
         // virtual node has the nodes in reversed order to make the first one the most important
         assertEquals("VirtualNode [nodes=[node3, node2, node1]]", mergedNode.toString());
 
@@ -172,7 +172,7 @@ public class VirtualNodeMergingTest extends AssertJUnit
                 private void createMergedNode(final IVirtualNodeMerger merger, String nodeName)
                 {
                     final IHierarchicalContentNode mergedNode = createNodeMock(nodeName);
-                    one(merger).createMergedNode();
+                    one(merger).tryCreateMergedNode();
                     will(returnValue(mergedNode));
                 }
             });

@@ -193,7 +193,7 @@ public class VirtualHierarchicalContentTest extends AssertJUnit
 
                     one(nodeMerger).addNode(node1);
                     one(nodeMerger).addNode(node2);
-                    one(nodeMerger).createMergedNode();
+                    one(nodeMerger).tryCreateMergedNode();
                     will(returnValue(mergedNode));
                 }
             });
@@ -229,7 +229,7 @@ public class VirtualHierarchicalContentTest extends AssertJUnit
 
                     one(nodeMerger).addNode(node1);
                     one(nodeMerger).addNode(node2);
-                    one(nodeMerger).createMergedNode();
+                    one(nodeMerger).tryCreateMergedNode();
                     will(returnValue(mergedNode));
                 }
             });
