@@ -219,13 +219,13 @@ public class VirtualHierarchicalContentTest extends AssertJUnit
                     one(mergerFactory).createNodeMerger();
                     will(returnValue(nodeMerger));
 
-                    one(component1).getNode(relativePath);
+                    one(component1).tryGetNode(relativePath);
                     will(returnValue(node1));
-                    one(component2).getNode(relativePath);
+                    one(component2).tryGetNode(relativePath);
                     will(returnValue(node2));
                     // component3 will not be added to merged nodes
-                    one(component3).getNode(relativePath);
-                    will(throwException(new IllegalArgumentException("")));
+                    one(component3).tryGetNode(relativePath);
+                    will(returnValue(null));
 
                     one(nodeMerger).addNode(node1);
                     one(nodeMerger).addNode(node2);
