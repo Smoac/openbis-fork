@@ -199,7 +199,14 @@ public class ContentCache implements IContentCache, InitializingBean
         {
             return 0;
         }
-        Arrays.asList(dataSetFolders);
+        Arrays.asList(dataSetFolders, new Comparator<File>()
+            {
+                @Override
+                public int compare(File f1, File f2)
+                {
+                    return f1.getName().compareTo(f2.getName());
+                }
+            });
         boolean cachedFilesRemoved = false;
         for (File dataSetFolder : dataSetFolders)
         {
