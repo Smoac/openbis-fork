@@ -23,6 +23,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +65,7 @@ public class FileCopyUtils
      * This method copies the contents of the specified source file to the specified destination
      * file. The directory holding the destination file is created if it does not exist. If the
      * destination file exists, then this method will overwrite it.
-     * <p> 
+     * <p>
      * The last modification time of the source is preserved in the copy.
      * 
      * @param source an existing file to copy, must not be <code>null</code>
@@ -89,7 +91,7 @@ public class FileCopyUtils
      * This method copies the contents of the specified source file to the specified destination
      * file. The directory holding the destination file is created if it does not exist. If the
      * destination file exists, then this method will overwrite it.
-     * <p> 
+     * <p>
      * The last modification time of the source is preserved in the copy.
      * 
      * @param source an existing file to copy, must not be <code>null</code>
@@ -107,7 +109,7 @@ public class FileCopyUtils
             copyDirectory(source, destination, observerOrNull);
         } else
         {
-            copyFile(source, destination);
+            copyFile(source, destination, observerOrNull);
         }
     }
 
@@ -117,7 +119,7 @@ public class FileCopyUtils
      * This method copies the contents of the specified source file to a file of the same name in
      * the specified destination directory. The destination directory is created if it does not
      * exist. If the destination file exists, then this method will overwrite it.
-     * <p> 
+     * <p>
      * The last modification time of the source is preserved in the copy.
      * 
      * @param source an existing file to copy, must not be <code>null</code>
@@ -143,7 +145,7 @@ public class FileCopyUtils
      * This method copies the contents of the specified source file to a file of the same name in
      * the specified destination directory. The destination directory is created if it does not
      * exist. If the destination file exists, then this method will overwrite it.
-     * <p> 
+     * <p>
      * The last modification time of the source is preserved in the copy.
      * 
      * @param source an existing file to copy, must not be <code>null</code>
@@ -171,7 +173,7 @@ public class FileCopyUtils
      * This method copies the contents of the specified source file to a file of the same name in
      * the specified destination directory. The destination directory is created if it does not
      * exist. If the destination file exists, then this method will overwrite it.
-     * <p> 
+     * <p>
      * The last modification time of the source is preserved in the copy.
      * 
      * @param srcFile an existing file to copy, must not be <code>null</code>
@@ -183,6 +185,28 @@ public class FileCopyUtils
      */
     public static void copyFileToDirectory(File srcFile, File destDir) throws IOException
     {
+        copyFileToDirectory(srcFile, destDir, null);
+    }
+
+    /**
+     * Copies a file to a directory preserving the file date.
+     * <p>
+     * This method copies the contents of the specified source file to a file of the same name in
+     * the specified destination directory. The destination directory is created if it does not
+     * exist. If the destination file exists, then this method will overwrite it.
+     * <p>
+     * The last modification time of the source is preserved in the copy.
+     * 
+     * @param srcFile an existing file to copy, must not be <code>null</code>
+     * @param destDir the directory to place the copy in, must not be <code>null</code>
+     * @param observerOrNull the activity observer to notify about copy progress.
+     * @throws NullPointerException if source or destination is <code>null</code>
+     * @throws IOException if source or destination is invalid
+     * @throws IOException if an IO error occurs during copying
+     */
+    public static void copyFileToDirectory(File srcFile, File destDir,
+            IActivityObserver observerOrNull) throws IOException
+    {
         if (destDir == null)
         {
             throw new NullPointerException("Destination must not be null");
@@ -191,7 +215,7 @@ public class FileCopyUtils
         {
             throw new IllegalArgumentException("Destination '" + destDir + "' is not a directory");
         }
-        copyFile(srcFile, new File(destDir, srcFile.getName()));
+        copyFile(srcFile, new File(destDir, srcFile.getName()), observerOrNull);
     }
 
     /**
@@ -200,7 +224,7 @@ public class FileCopyUtils
      * This method copies the contents of the specified source file to the specified destination
      * file. The directory holding the destination file is created if it does not exist. If the
      * destination file exists, then this method will overwrite it.
-     * <p> 
+     * <p>
      * The last modification time of the source is preserved in the copy.
      * 
      * @param srcFile an existing file to copy, must not be <code>null</code>
@@ -210,6 +234,28 @@ public class FileCopyUtils
      * @throws IOException if an IO error occurs during copying
      */
     public static void copyFile(File srcFile, File destFile) throws IOException
+    {
+        copyFile(srcFile, destFile, null);
+    }
+    
+    /**
+     * Copies a file to a new location, preserving the file date.
+     * <p>
+     * This method copies the contents of the specified source file to the specified destination
+     * file. The directory holding the destination file is created if it does not exist. If the
+     * destination file exists, then this method will overwrite it.
+     * <p>
+     * The last modification time of the source is preserved in the copy.
+     * 
+     * @param srcFile an existing file to copy, must not be <code>null</code>
+     * @param destFile the new file, must not be <code>null</code>
+     * @param observerOrNull the activity observer to notify about copy progress.
+     * @throws NullPointerException if source or destination is <code>null</code>
+     * @throws IOException if source or destination is invalid
+     * @throws IOException if an IO error occurs during copying
+     */
+    public static void copyFile(File srcFile, File destFile, IActivityObserver observerOrNull)
+            throws IOException
     {
         if (srcFile == null)
         {
@@ -243,7 +289,7 @@ public class FileCopyUtils
         {
             throw new IOException("Destination '" + destFile + "' exists but is read-only");
         }
-        doCopyFile(srcFile, destFile);
+        doCopyFile(srcFile, destFile, observerOrNull);
     }
 
     /**
@@ -251,9 +297,11 @@ public class FileCopyUtils
      * 
      * @param srcFile the validated source file, must not be <code>null</code>
      * @param destFile the validated destination file, must not be <code>null</code>
+     * @param observerOrNull the activity observer to notify about copy progress.
      * @throws IOException if an error occurs
      */
-    private static void doCopyFile(File srcFile, File destFile) throws IOException
+    private static void doCopyFile(File srcFile, File destFile, IActivityObserver observerOrNull)
+            throws IOException
     {
         if (destFile.exists() && destFile.isDirectory())
         {
@@ -266,7 +314,7 @@ public class FileCopyUtils
             FileOutputStream output = new FileOutputStream(destFile);
             try
             {
-                IOUtils.copy(input, output);
+                copy(input, output, observerOrNull);
                 output.close();
                 output = null;
             } finally
@@ -287,6 +335,35 @@ public class FileCopyUtils
     }
 
     /**
+     * The default buffer size to use.
+     */
+    private static final int DEFAULT_BUFFER_SIZE = 1024 * 16;
+
+    private static long copy(InputStream input, OutputStream output,
+            IActivityObserver observerOrNull)
+            throws IOException
+    {
+        final byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+        long count = 0;
+        int n = 0;
+        while (-1 != (n = input.read(buffer)))
+        {
+            output.write(buffer, 0, n);
+            count += n;
+            update(observerOrNull);
+        }
+        return count;
+    }
+
+    private static void update(IActivityObserver observerOrNull)
+    {
+        if (observerOrNull != null)
+        {
+            observerOrNull.update();
+        }
+    }
+
+    /**
      * Copies a directory to within another directory preserving the file dates.
      * <p>
      * This method copies the source directory and all its contents to a directory of the same name
@@ -295,7 +372,7 @@ public class FileCopyUtils
      * The destination directory is created if it does not exist. If the destination directory did
      * exist, then this method merges the source with the destination, with the source taking
      * precedence.
-     * <p> 
+     * <p>
      * The last modification time of the source is preserved in the copy.
      * 
      * @param srcDir an existing directory to copy, must not be <code>null</code>
@@ -319,7 +396,7 @@ public class FileCopyUtils
      * The destination directory is created if it does not exist. If the destination directory did
      * exist, then this method merges the source with the destination, with the source taking
      * precedence.
-     * <p> 
+     * <p>
      * The last modification time of the source is preserved in the copy.
      * 
      * @param srcDir an existing directory to copy, must not be <code>null</code>
@@ -361,7 +438,7 @@ public class FileCopyUtils
      * The destination directory is created if it does not exist. If the destination directory did
      * exist, then this method merges the source with the destination, with the source taking
      * precedence.
-     * <p> 
+     * <p>
      * The last modification time of the source is preserved in the copy.
      * 
      * @param srcDir an existing directory to copy, must not be <code>null</code>
@@ -387,7 +464,7 @@ public class FileCopyUtils
      * The destination directory is created if it does not exist. If the destination directory did
      * exist, then this method merges the source with the destination, with the source taking
      * precedence.
-     * <p> 
+     * <p>
      * The last modification time of the source is preserved in the copy.
      * 
      * @param srcDir an existing directory to copy, must not be <code>null</code>
@@ -411,7 +488,7 @@ public class FileCopyUtils
      * The destination directory is created if it does not exist. If the destination directory did
      * exist, then this method merges the source with the destination, with the source taking
      * precedence.
-     * <p> 
+     * <p>
      * The last modification time of the source is preserved in the copy.
      * <h4>Example: Copy directories only</h4>
      * 
@@ -455,7 +532,7 @@ public class FileCopyUtils
      * The destination directory is created if it does not exist. If the destination directory did
      * exist, then this method merges the source with the destination, with the source taking
      * precedence.
-     * <p> 
+     * <p>
      * The last modification time of the source is preserved in the copy.
      * <h4>Example: Copy directories only</h4>
      * 
@@ -537,7 +614,6 @@ public class FileCopyUtils
      * @param exclusionList List of files and directories to exclude from the copy, may be null
      * @param observerOrNull activity observer of the copy process
      * @throws IOException if an error occurs
-     * @since Commons IO 1.1
      */
     private static void doCopyDirectory(File srcDir, File destDir, FileFilter filter,
             List<String> exclusionList, IActivityObserver observerOrNull) throws IOException
@@ -580,7 +656,7 @@ public class FileCopyUtils
                     doCopyDirectory(files[i], copiedFile, filter, exclusionList, observerOrNull);
                 } else
                 {
-                    doCopyFile(files[i], copiedFile);
+                    doCopyFile(files[i], copiedFile, observerOrNull);
                 }
             }
         }

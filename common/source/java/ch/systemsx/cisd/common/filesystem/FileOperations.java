@@ -507,7 +507,7 @@ public class FileOperations implements IFileOperations, Serializable
     {
         try
         {
-            FileCopyUtils.copyFile(srcFile, destFile);
+            FileCopyUtils.copyFile(srcFile, destFile, observerOrNull);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -519,7 +519,7 @@ public class FileOperations implements IFileOperations, Serializable
     {
         try
         {
-            FileCopyUtils.copyFileToDirectory(srcFile, destDir);
+            FileCopyUtils.copyFileToDirectory(srcFile, destDir, observerOrNull);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -531,7 +531,7 @@ public class FileOperations implements IFileOperations, Serializable
     {
         try
         {
-            FileCopyUtils.copy(source, destination);
+            FileCopyUtils.copy(source, destination, observerOrNull);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -543,7 +543,7 @@ public class FileOperations implements IFileOperations, Serializable
     {
         try
         {
-            FileCopyUtils.copyToDirectory(source, destDir);
+            FileCopyUtils.copyToDirectory(source, destDir, observerOrNull);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
