@@ -348,17 +348,17 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     private final void updatePersonIfNecessary(final PersonPE person, final Principal principal)
     {
         boolean changed = false;
-        if (person.getEmail().equals(principal.getEmail()) == false)
+        if (updateNeeded(person.getEmail(), principal.getEmail()))
         {
             person.setEmail(principal.getEmail());
             changed = true;
         }
-        if (person.getFirstName().equals(principal.getFirstName()) == false)
+        if (updateNeeded(person.getFirstName(), principal.getFirstName()))
         {
             person.setFirstName(principal.getFirstName());
             changed = true;
         }
-        if (person.getLastName().equals(principal.getLastName()) == false)
+        if (updateNeeded(person.getLastName(), principal.getLastName()))
         {
             person.setLastName(principal.getLastName());
             changed = true;
@@ -373,6 +373,15 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                 throw new UserFailureException(e.getMessage(), e);
             }
         }
+    }
+
+    private boolean updateNeeded(String currentValue, String newValue)
+    {
+        if (newValue == null)
+        {
+            return false;
+        }
+        return currentValue == null || currentValue.equals(newValue) == false;
     }
 
     protected final PersonPE getSystemUser()

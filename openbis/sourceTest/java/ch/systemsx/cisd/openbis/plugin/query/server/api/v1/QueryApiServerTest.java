@@ -108,6 +108,8 @@ public class QueryApiServerTest extends AbstractServerTestCase
                     one(personDAO).tryFindPersonByUserId(session.getUserName());
                     will(returnValue(person));
 
+                    one(personDAO).updatePerson(person);
+
                     one(queryServer).initDatabases(SESSION_TOKEN);
                 }
             });
