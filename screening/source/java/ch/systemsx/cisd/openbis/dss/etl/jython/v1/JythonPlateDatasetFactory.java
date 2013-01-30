@@ -25,9 +25,9 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.v1.DataSetRegistrationService;
 import ch.systemsx.cisd.etlserver.registrator.v1.IDataSetRegistrationDetailsFactory;
-import ch.systemsx.cisd.etlserver.registrator.v1.AbstractOmniscientTopLevelDataSetRegistrator.OmniscientTopLevelDataSetRegistratorState;
 import ch.systemsx.cisd.etlserver.registrator.v1.JythonTopLevelDataSetHandler.ProgrammableDropboxObjectFactory;
 import ch.systemsx.cisd.openbis.dss.etl.PlateGeometryOracle;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.IFeaturesBuilder;
@@ -190,6 +190,10 @@ public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<
         featureVectorDataSet.setFeatures(featureDefinitions);
         registrationDetails.setDataSetType(ScreeningConstants.DEFAULT_ANALYSIS_WELL_DATASET_TYPE);
         registrationDetails.setMeasuredData(false);
+        if (false == featureVectorDataSet.isValid())
+        {
+            throw new UserFailureException("The feature vector dataset is invalid.");
+        }
         return registrationDetails;
     }
 

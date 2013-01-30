@@ -190,6 +190,10 @@ public class JythonPlateDatasetFactory extends ProgrammableDropboxObjectFactory<
         featureVectorDataSet.setFeatures(featureDefinitions);
         registrationDetails.setDataSetType(ScreeningConstants.DEFAULT_ANALYSIS_WELL_DATASET_TYPE);
         registrationDetails.setMeasuredData(false);
+        if (false == featureVectorDataSet.isValid())
+        {
+            throw new UserFailureException("The feature vector dataset is invalid.");
+        }
         return registrationDetails;
     }
 
