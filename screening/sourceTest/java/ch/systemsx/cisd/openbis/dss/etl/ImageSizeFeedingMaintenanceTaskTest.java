@@ -54,12 +54,15 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
 
         private final int height;
 
-        public MockAbsoluteImageReference(int width, int height)
+        private final int colorDepth;
+
+        public MockAbsoluteImageReference(int width, int height, int colorDepth)
         {
             super(null, null, null, null, new RequestedImageSize(null, false), null,
                     new ImageTransfomationFactories(), null, null, null);
             this.width = width;
             this.height = height;
+            this.colorDepth = colorDepth;
         }
 
         @Override
@@ -70,6 +73,16 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
                 throw new RuntimeException("Negative width: " + width);
             }
             return new Size(width, height);
+        }
+
+        @Override
+        public Integer getColorDepth()
+        {
+            if (colorDepth < 0)
+            {
+                throw new RuntimeException("Negative color depth: " + colorDepth);
+            }
+            return colorDepth;
         }
     }
 
@@ -187,13 +200,13 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
         prepareListZoomLevels(ds1, ds1Content, new ImgImageZoomLevelDTO("", true, "", 1, 2, null,
                 null, 12));
         prepareListZoomLevels(ds2, ds2Content);
-        prepareForTryFindAnyOriginal(ds2, imageLoader2, new MockAbsoluteImageReference(144, 89));
+        prepareForTryFindAnyOriginal(ds2, imageLoader2, new MockAbsoluteImageReference(144, 89, 8));
         prepareForAddZoomLevel(zoomLevelRecorder);
         prepareForTryFindAnyThumbnail(ds2, imageLoader2, null);
         prepareForCommit();
         prepareListZoomLevels(ds3, ds3Content);
         prepareForTryFindAnyOriginal(ds3, imageLoader3, null);
-        prepareForTryFindAnyThumbnail(ds3, imageLoader3, new MockAbsoluteImageReference(21, 34));
+        prepareForTryFindAnyThumbnail(ds3, imageLoader3, new MockAbsoluteImageReference(21, 34, 24));
         prepareForAddZoomLevel(zoomLevelRecorder);
         prepareForCommit();
 
@@ -206,9 +219,9 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
                 logRecorder.getLogContent());
         assertEquals(
                 "[ImgImageZoomLevelDTO{physicalDatasetPermId=ds2,isOriginal=true,"
-                        + "containerDatasetId=99715,rootPath=,width=144,height=89,colorDepth=<null>,fileType=<null>,id=0}, "
+                        + "containerDatasetId=99715,rootPath=,width=144,height=89,colorDepth=8,fileType=<null>,id=0}, "
                         + "ImgImageZoomLevelDTO{physicalDatasetPermId=ds3,isOriginal=false,"
-                        + "containerDatasetId=99716,rootPath=,width=21,height=34,colorDepth=<null>,fileType=<null>,id=0}]",
+                        + "containerDatasetId=99716,rootPath=,width=21,height=34,colorDepth=24,fileType=<null>,id=0}]",
                 zoomLevels.toString());
         context.assertIsSatisfied();
     }
@@ -228,12 +241,12 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
                 }
             });
         prepareListZoomLevels(ds1, ds1Content);
-        prepareForTryFindAnyOriginal(ds1, imageLoader1, new MockAbsoluteImageReference(-1, 0));
+        prepareForTryFindAnyOriginal(ds1, imageLoader1, new MockAbsoluteImageReference(-1, 0, 8));
         prepareForRollback();
         prepareListZoomLevels(ds2, ds2Content);
-        prepareForTryFindAnyOriginal(ds2, imageLoader2, new MockAbsoluteImageReference(1, 2));
+        prepareForTryFindAnyOriginal(ds2, imageLoader2, new MockAbsoluteImageReference(1, 2, 16));
         prepareForAddZoomLevel(zoomLevelRecorder);
-        prepareForTryFindAnyThumbnail(ds2, imageLoader2, new MockAbsoluteImageReference(-13, 0));
+        prepareForTryFindAnyThumbnail(ds2, imageLoader2, new MockAbsoluteImageReference(-13, 0, 24));
         prepareForRollback();
 
         maintenanceTask.execute();
@@ -246,7 +259,7 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
                 logRecorder.getLogContent());
         assertEquals(
                 "[ImgImageZoomLevelDTO{physicalDatasetPermId=ds2,isOriginal=true,"
-                        + "containerDatasetId=99715,rootPath=,width=1,height=2,colorDepth=<null>,fileType=<null>,id=0}]",
+                        + "containerDatasetId=99715,rootPath=,width=1,height=2,colorDepth=16,fileType=<null>,id=0}]",
                 zoomLevels.toString());
         context.assertIsSatisfied();
     }
