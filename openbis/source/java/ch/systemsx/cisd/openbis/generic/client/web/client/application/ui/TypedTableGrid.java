@@ -1834,6 +1834,24 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         return getVisibleColumns(availableColumnsMap, fullColumnModel);
     }
 
+    private List<IColumnDefinition<TableModelRowWithObject<T>>> getNonCustomColumns(
+            Set<IColumnDefinition<TableModelRowWithObject<T>>> availableColumns)
+    {
+
+        ArrayList<IColumnDefinition<TableModelRowWithObject<T>>> nonCustom =
+                new ArrayList<IColumnDefinition<TableModelRowWithObject<T>>>();
+
+        for (IColumnDefinition<TableModelRowWithObject<T>> c : availableColumns)
+        {
+            if (c.isCustom() == false)
+            {
+                nonCustom.add(c);
+            }
+        }
+
+        return nonCustom;
+    }
+
     private void saveCacheKey(final String newResultSetKey)
     {
         resultSetKeyOrNull = newResultSetKey;
@@ -1908,8 +1926,9 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
 
         final List<IColumnDefinition<TableModelRowWithObject<T>>> columnDefs =
                 TableExportType.VISIBLE.equals(type) ? getVisibleColumns(columnDefinitions)
-                        : new ArrayList<IColumnDefinition<TableModelRowWithObject<T>>>(
-                                columnDefinitions);
+                        : (TableExportType.FOR_UPDATE.equals(type) ? getNonCustomColumns(columnDefinitions)
+                                : new ArrayList<IColumnDefinition<TableModelRowWithObject<T>>>(
+                                        columnDefinitions));
         SortInfo sortInfo = getGridSortInfo();
         EntityKind entityKindForUpdateOrNull =
                 TableExportType.FOR_UPDATE.equals(type) ? getEntityKindOrNull() : null;
