@@ -984,15 +984,49 @@ public class DataBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
+    @Test
     public void testStorageConfirmed()
     {
-        // TODO:KUBA
-        // create a new data object with external data.
-        // check that externaldataPE has isstorage confirmed set to false
+        final DataSetTypePE dataSetType = createDataSetType();
+        final FileFormatTypePE fileFormatType = new FileFormatTypePE();
+        final VocabularyPE vocabulary = new VocabularyPE();
+        vocabulary.addTerm(new VocabularyTermPE());
+        VocabularyTermPE vocabularyTerm = new VocabularyTermPE();
+        vocabularyTerm.setCode(StorageFormat.PROPRIETARY.toString());
+        vocabulary.addTerm(vocabularyTerm);
+        final LocatorTypePE locatorType = new LocatorTypePE();
+        SamplePE sample = new SamplePE();
+        sample.setExperiment(new ExperimentPE());
+        final DataStorePE dataStore = new DataStorePE();
+        prepareDefineExternalData(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
 
-        // call dataBo. setstorageconfirmed on this instance of external data
+        final DataPE data = new ExternalDataPE();
+        data.setId(4711L);
+        data.setPlaceholder(true);
 
-        // check that the isstorage confirmed is now true on this element
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataDAO).tryToFindDataSetByCode(DATA_SET_CODE);
+
+                    will(returnValue(data));
+
+                    one(dataDAO).updateDataSet(with(new DataMatcher()), with(EXAMPLE_PERSON));
+
+                    expectMandatoryPropertiesCheck(this, dataSetType);
+                }
+
+            });
+
+        IDataBO dataBO = createDataBO();
+        dataBO.define(createDataSet(null), new ExperimentPE(), SourceType.DERIVED);
+        dataBO.save();
+
+        assertFalse(dataBO.isStorageConfirmed());
+
+        dataBO.setStorageConfirmed();
+
+        assertTrue(dataBO.isStorageConfirmed());
 
     }
 
