@@ -106,8 +106,6 @@ public class GeneralInformationServiceHttpInvokerApiTest extends
         assertNotNull(registrationDetails);
         assertEquals("test", registrationDetails.getUserId());
         assertEquals("franz-josef.elmer@systemsx.ch", registrationDetails.getUserEmail());
-        assertEquals("John", registrationDetails.getUserFirstName());
-        assertEquals("Doe", registrationDetails.getUserLastName());
         assertNotNull(registrationDetails.getRegistrationDate());
 
     }
