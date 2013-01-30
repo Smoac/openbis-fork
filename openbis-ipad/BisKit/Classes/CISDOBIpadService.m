@@ -122,7 +122,7 @@ static id OpenBisTableRowValueAtIndex(NSArray *rowData, NSUInteger index)
     return iPadCall;
 }
 
-- (CISDOBIpadServiceCall *)createIpadServiceCallWithParameters:(NSDictionary *)parameters
+- (CISDOBIpadServiceCall *)createIpadServiceCallWithParameters:(NSDictionary *)parameters updateRootSetTime:(BOOL)updateTime
 {
     CISDOBAsyncCall *connectionCall =
         [_connection
@@ -131,18 +131,41 @@ static id OpenBisTableRowValueAtIndex(NSArray *rowData, NSUInteger index)
             parameters: parameters];
     CISDOBIpadServiceCall *iPadCall = [self iPadCallWrappingConnectionCall: connectionCall];
     
+    __weak CISDOBIpadService *weakSelf = self;
     connectionCall.success = ^(id result) {
+        if (updateTime) weakSelf.lastRootSetUpdate = [NSDate date];
         if (iPadCall.success) {
-            iPadCall.success([self rawEntitiesFromResult: result]);
+            iPadCall.success([weakSelf rawEntitiesFromResult: result]);
         }
     };
     return iPadCall;
 }
 
-- (CISDOBAsyncCall *)listRootLevelEntities;
+- (CISDOBIpadServiceCall *)createIpadServiceCallWithParameters:(NSDictionary *)parameters
 {
-    NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"ROOT" forKey: @"requestKey"];
-    CISDOBIpadServiceCall *serviceCall = [self createIpadServiceCallWithParameters: parameters];
+    return [self createIpadServiceCallWithParameters: parameters updateRootSetTime: NO];
+}
+
+- (BOOL)shouldRefreshRootLevelEntitiesCall
+{
+    if (!self.lastRootSetUpdate) return YES;
+    if (!self.clientPreferences) return YES;
+    NSTimeInterval rootSetRefreshInterval = self.clientPreferences.rootSetRefreshInterval;
+    if ([[NSDate date] timeIntervalSinceDate: self.lastRootSetUpdate] < rootSetRefreshInterval) return NO;
+    return YES;
+}
+
+- (CISDOBAsyncCall *)listRootLevelEntities
+{
+    CISDOBIpadServiceCall *serviceCall;
+    // If we have recently update the root set, just do a ping call
+    if ([self shouldRefreshRootLevelEntitiesCall]) {
+        NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"ROOT" forKey: @"requestKey"];
+        serviceCall = [self createIpadServiceCallWithParameters: parameters updateRootSetTime: YES];
+    } else {
+        NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"PING" forKey: @"requestKey"];
+        serviceCall = [self createIpadServiceCallWithParameters: parameters updateRootSetTime: NO];
+    }
     // Make sure the timeout interval is at least 60s
     if (serviceCall.timeoutInterval < 60.) serviceCall.timeoutInterval = 60.;
     return serviceCall;

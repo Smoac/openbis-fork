@@ -57,3 +57,10 @@
 
 @end
 
+@interface CISDOBIpadService(CISDOBIpadServiceInternal)
+
+- (BOOL)shouldRefreshRootLevelEntitiesCall;
+- (CISDOBAsyncCall *)listRootLevelEntitiesFromServer;
+
+@end
+

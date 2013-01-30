@@ -346,6 +346,8 @@
     // The service parameters are always in the 4th position
     NSDictionary *oldServiceParams = [params objectAtIndex: 3];
     NSMutableDictionary *serviceParams = [NSMutableDictionary dictionaryWithDictionary: oldServiceParams];
+        // Force the root request, bypassing the timing checks
+    [serviceParams setObject: @"ROOT" forKey: @"requestKey"];
     [serviceParams setObject: removedEntities forKey: @"HIDE"];
     [params replaceObjectAtIndex: 3 withObject: serviceParams];
     connectionCall.params = params;

@@ -41,11 +41,12 @@ enum CISOBIpadServiceErrorCode {
 @private
     // Internal State
     BOOL            _isLoggedIn;
-    NSDictionary   *_ipadReadService;
+    NSDictionary    *_ipadReadService;
 }
 
 @property(readonly) CISDOBConnection *connection;
 @property(strong, nonatomic) CISDOBClientPreferences *clientPreferences;
+@property(strong, nonatomic) NSDate *lastRootSetUpdate;
 
 //! Designated initializer.
 - (id)initWithConnection:(CISDOBConnection *)connection;
