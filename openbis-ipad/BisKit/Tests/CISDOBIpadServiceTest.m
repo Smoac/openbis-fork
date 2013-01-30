@@ -63,14 +63,12 @@
     STAssertNotNil(_service.clientPreferences, @"The client preferences should have been initialized");
     STAssertEquals(_service.clientPreferences.rootSetRefreshInterval, 60. * 30., @"The default root refresh interval should be 30 min");
     
-    STAssertTrue([_service shouldRefreshRootLevelEntitiesCall], @"We have not yet initialized the root level entities, so we should do so now");
     call = [_service listRootLevelEntities];
     [self configureAndRunCallSynchronously: call];
     
     STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
     NSArray *rawEntities = _callResult;
     STAssertTrue([rawEntities count] > 0, @"The Pad service should have returned some entities.");
-    STAssertFalse([_service shouldRefreshRootLevelEntitiesCall], @"We have initialized the root level entities recently, no need to do it again.");
     
     for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
         NSString *summaryHeader = rawEntity.summaryHeader;

@@ -209,6 +209,8 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     
     serviceCall.success = ^(id result) {
         weakSelf.online = YES;
+        // We treat prune as a synonym for the root set update call
+        if (prune) weakSelf.lastRootSetUpdate = [NSDate date];
         // Update the cache and call the managerCall success when done
         [weakSelf syncEntities: result pruning: prune notifying: managerCall];
     };    
@@ -248,7 +250,16 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     return managerCall;
 }
 
-- (CISDOBAsyncCall *)retrieveRootLevelEntities
+- (BOOL)shouldRefreshRootLevelEntitiesCall
+{
+    if (!self.lastRootSetUpdate) return YES;
+    if (!self.service.clientPreferences) return YES;
+    NSTimeInterval rootSetRefreshInterval = self.service.clientPreferences.rootSetRefreshInterval;
+    if ([[NSDate date] timeIntervalSinceDate: self.lastRootSetUpdate] < rootSetRefreshInterval) return NO;
+    return YES;
+}
+
+- (CISDOBAsyncCall *)retrieveRootLevelEntitiesFromServer
 {
     CISDOBAsyncCall *call = [self.service listRootLevelEntities];
         // get rid of entities not mentioned in the original call
@@ -257,6 +268,17 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     managerCall.willCallNotificationName = CISDOBIpadServiceWillRetrieveRootLevelEntitiesNotification;
     managerCall.didCallNotificationName = CISDOBIpadServiceDidRetrieveRootLevelEntitiesNotification;
     
+    return managerCall;
+}
+
+- (CISDOBAsyncCall *)retrieveRootLevelEntities
+{
+    if ([self shouldRefreshRootLevelEntitiesCall]) return [self retrieveRootLevelEntitiesFromServer];
+    
+    // Make up a dummy call
+    CISDOBAsyncCall *call = [self.service heartbeat];
+    CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call pruning: NO];
+
     return managerCall;
 }
 

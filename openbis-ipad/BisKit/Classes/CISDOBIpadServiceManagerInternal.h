@@ -57,3 +57,9 @@
 - (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager entity:(CISDOBIpadEntity *)entity;
 
 @end
+
+// Internal methods of the service manager
+@interface CISDOBIpadServiceManager (CISDOBIpadServiceManagerInternal)
+- (BOOL)shouldRefreshRootLevelEntitiesCall;
+- (CISDOBAsyncCall *)retrieveRootLevelEntitiesFromServer;
+@end

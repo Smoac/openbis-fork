@@ -86,6 +86,8 @@ typedef void (^MocSaveBlock)(CISDOBIpadServiceManager *serviceManager, NSArray *
 @property (readonly) NSString *sessionToken;
 @property (nonatomic, getter=isOnline) BOOL online;
 
+@property(strong, nonatomic) NSDate *lastRootSetUpdate;
+
 //! Called when the service encounters an authentication challenge
 @property (copy, nonatomic) AuthenticationChallengeBlock authenticationChallengeBlock;
 

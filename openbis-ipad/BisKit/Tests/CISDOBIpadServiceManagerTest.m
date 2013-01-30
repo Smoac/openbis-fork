@@ -275,7 +275,9 @@
 - (void)testPersistEntities
 {
     [self performLogin];
+    STAssertTrue([self.serviceManager shouldRefreshRootLevelEntitiesCall], @"We have not yet initialized the root level entities, so we should do so now");
     [self performRootLevelCall];
+    STAssertFalse([self.serviceManager shouldRefreshRootLevelEntitiesCall], @"We have initialized the root level entities recently, no need to do it again.");
     
 
     // Get drill information on some entity
@@ -336,7 +338,7 @@
 {
     // Make a root level call, but do have some entities removed from the list
     CISDOBAsyncCall *call;
-    call = [self.serviceManager retrieveRootLevelEntities];
+    call = [self.serviceManager retrieveRootLevelEntitiesFromServer];
     
     NSArray *removedEntities = [self.serviceManager.service convertToEntitiesPermIds: [NSArray arrayWithObject: entityToRemove.permId] refcons: [NSArray arrayWithObject: entityToRemove.refcon] count: 1];
     CISDOBIpadServiceCall *serviceCall = (CISDOBIpadServiceCall *)((CISDOBIpadServiceManagerCall *)call).serviceCall;
@@ -347,7 +349,6 @@
     NSDictionary *oldServiceParams = [params objectAtIndex: 3];
     NSMutableDictionary *serviceParams = [NSMutableDictionary dictionaryWithDictionary: oldServiceParams];
         // Force the root request, bypassing the timing checks
-    [serviceParams setObject: @"ROOT" forKey: @"requestKey"];
     [serviceParams setObject: removedEntities forKey: @"HIDE"];
     [params replaceObjectAtIndex: 3 withObject: serviceParams];
     connectionCall.params = params;

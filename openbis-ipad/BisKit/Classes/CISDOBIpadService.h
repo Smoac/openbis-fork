@@ -46,13 +46,15 @@ enum CISOBIpadServiceErrorCode {
 
 @property(readonly) CISDOBConnection *connection;
 @property(strong, nonatomic) CISDOBClientPreferences *clientPreferences;
-@property(strong, nonatomic) NSDate *lastRootSetUpdate;
 
 //! Designated initializer.
 - (id)initWithConnection:(CISDOBConnection *)connection;
 
 //! Log the user into the openBIS instance. The login procedure reqests the client preferences as well.
 - (CISDOBAsyncCall *)loginUser:(NSString *)user password:(NSString *)password;
+
+//! A call that has no purpose except to inform the server that we are still here
+- (CISDOBAsyncCall *)heartbeat;
 
 //! Get all root-level entities from the openBIS ipad service, possibly along with some children as well. The success block will be invoked with a collection of CISDOBIpadRawEntity objects.
 - (CISDOBAsyncCall *)listRootLevelEntities;
