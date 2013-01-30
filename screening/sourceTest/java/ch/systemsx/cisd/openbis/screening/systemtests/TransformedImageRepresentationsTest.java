@@ -114,7 +114,16 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
                 new Dimension(256, 256), new Dimension(512, 512)));
         for (ImageRepresentationFormat format : formats)
         {
-            assertEquals(Integer.valueOf(8), format.getColorDepth());
+            if (format.getFileType() != null)
+            {
+                // jpg thumbnails
+                assertEquals(Integer.valueOf(32), format.getColorDepth());
+            } else
+            {
+                // original image
+                assertEquals(Integer.valueOf(8), format.getColorDepth());
+            }
+
             Dimension resolution = new Dimension(format.getWidth(), format.getHeight());
             // Make sure the resolution we specified was found
             assertTrue("" + resolution + " was not expected",
