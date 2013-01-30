@@ -115,8 +115,8 @@ public class SampleDetailsTest extends GenericSystemTestCase
         assertEquals(CONTROL_LAYOUT_EXAMPLE_PERMLINK, sDetails.getPermlink());
         assertEquals(sListed.getSampleType(), sDetails.getSampleType());
         assertEquals("CONTROL_LAYOUT", sDetails.getSampleType().getCode());
-        assertEquals(sListed.getRegistrator().toString(), sDetails.getRegistrator().toString());
-        assertEquals("John Doe", sDetails.getRegistrator().toString());
+        assertEquals(sListed.getRegistrator().getUserId(), sDetails.getRegistrator().getUserId());
+        assertEquals("test", sDetails.getRegistrator().getUserId());
         assertEquals(sListed.getProperties().size(), sDetails.getProperties().size());
         checkInternalProperty(sDetails.getProperties(), "PLATE_GEOMETRY", "384_WELLS_16X24");
         checkUserProperty(sDetails.getProperties(), "DESCRIPTION", "test control layout");
@@ -149,8 +149,8 @@ public class SampleDetailsTest extends GenericSystemTestCase
         assertEquals(CELL_PLATE_EXAMPLE_PERMLINK, sDetails.getPermlink());
         assertEquals(sListed.getSampleType(), sDetails.getSampleType());
         assertEquals("CELL_PLATE", sDetails.getSampleType().getCode());
-        assertEquals(sListed.getRegistrator().toString(), sDetails.getRegistrator().toString());
-        assertEquals("John Doe", sDetails.getRegistrator().toString());
+        assertEquals(sListed.getRegistrator().getUserId(), sDetails.getRegistrator().getUserId());
+        assertEquals("test", sDetails.getRegistrator().getUserId());
 
         assertEquals(sListed.getExperiment().getIdentifier(), sDetails.getExperiment()
                 .getIdentifier());
