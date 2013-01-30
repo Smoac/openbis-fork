@@ -154,9 +154,16 @@ static id OpenBisTableRowValueAtIndex(NSArray *rowData, NSUInteger index)
     return serviceCall;
 }
 
-- (CISDOBAsyncCall *)listRootLevelEntities
+- (CISDOBAsyncCall *)listRootLevelEntities:(NSArray *)permIds refcons:(NSArray *)refcons
 {
-    NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"ROOT" forKey: @"requestKey"];
+    NSUInteger count = [permIds count];
+    NSAssert([refcons count] == count, @"Drilling requires permIds and refcons. There must be an equal number of these.");
+    NSArray *entities;
+    entities = [self convertToEntitiesPermIds: permIds refcons: refcons count: count];
+    NSDictionary *parameters =
+        [NSDictionary dictionaryWithObjectsAndKeys:
+            @"ROOT", @"requestKey",
+            entities, @"entities", nil];
     CISDOBIpadServiceCall *serviceCall = [self createIpadServiceCallWithParameters: parameters];
     // Make sure the timeout interval is at least 60s
     if (serviceCall.timeoutInterval < 60.) serviceCall.timeoutInterval = 60.;

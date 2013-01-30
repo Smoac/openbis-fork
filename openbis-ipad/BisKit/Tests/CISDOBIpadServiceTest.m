@@ -55,6 +55,11 @@
     [self waitSeconds: waitTime forCallToComplete: call];
 }
 
+- (CISDOBIpadRawEntity *)entityForRootCall:(NSArray *)navigationalEntities
+{
+    return [navigationalEntities objectAtIndex: 1];
+}
+
 - (void)testListNavigationalEntities
 {
     CISDOBAsyncCall *call;
@@ -87,8 +92,11 @@
     [self configureAndRunCallSynchronously: call];
     STAssertNotNil(_service.clientPreferences, @"The client preferences should have been initialized");
     STAssertEquals(_service.clientPreferences.rootSetRefreshInterval, 60. * 30., @"The default root refresh interval should be 30 min");
-    
-    call = [_service listRootLevelEntities];
+
+    call = [_service listNavigationalEntities];
+    [self configureAndRunCallSynchronously: call];
+    CISDOBIpadRawEntity *entityForRoot = [self entityForRootCall: _callResult];
+    call = [_service listRootLevelEntities: [NSArray arrayWithObject: entityForRoot.permId] refcons: [NSArray arrayWithObject: entityForRoot.refcon]];
     [self configureAndRunCallSynchronously: call];
     
     STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
@@ -117,7 +125,10 @@
     call = [_service loginUser: GetDefaultUserName() password: GetDefaultUserPassword()];
     [self configureAndRunCallSynchronously: call];
     
-    call = [_service listRootLevelEntities];
+    call = [_service listNavigationalEntities];
+    [self configureAndRunCallSynchronously: call];
+    CISDOBIpadRawEntity *entityForRoot = [self entityForRootCall: _callResult];
+    call = [_service listRootLevelEntities: [NSArray arrayWithObject: entityForRoot.permId] refcons: [NSArray arrayWithObject: entityForRoot.refcon]];
     [self configureAndRunCallSynchronously: call];
     
     STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
@@ -160,7 +171,10 @@
     call = [_service loginUser: GetDefaultUserName() password: GetDefaultUserPassword()];
     [self configureAndRunCallSynchronously: call];
     
-    call = [_service listRootLevelEntities];
+    call = [_service listNavigationalEntities];
+    [self configureAndRunCallSynchronously: call];
+    CISDOBIpadRawEntity *entityForRoot = [self entityForRootCall: _callResult];
+    call = [_service listRootLevelEntities: [NSArray arrayWithObject: entityForRoot.permId] refcons: [NSArray arrayWithObject: entityForRoot.refcon]];
     [self configureAndRunCallSynchronously: call];
     
     STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");

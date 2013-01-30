@@ -193,8 +193,8 @@ The communication model between the iPad and the service has been designed to tr
 		</tr>		
 		<tr>
 			<td>ROOT</td>
-			<td>None</td>
-			<td>Return root entities.</td>
+			<td>entities : List of {"PERM_ID" : String, REFCON : String}</td>
+			<td>Return root entities for the specified navigational entities</td>
 			<td>Used to track which entities should be constantly available on the iPad.</td>
 			<td>PERM_ID, REFCON, CATEGORY, SUMMARY_HEADER, SUMMARY, CHILDREN, ROOT_LEVEL</td>
 		</tr>

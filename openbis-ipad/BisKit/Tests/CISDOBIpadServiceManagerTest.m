@@ -31,6 +31,16 @@
 #import "CISDOBConnectionInternal.h"
 #import "CISDOBIpadEntity.h"
 
+static BOOL IsPermIdCompound(NSString *permId)
+{
+    return [permId hasSuffix: @"5HT_COMPOUND)"];
+}
+
+static BOOL IsPermIdTarget(NSString *permId)
+{
+    return [permId hasSuffix: @"5HT_TARGET)"];
+}
+
 @implementation CISDOBIpadServiceManagerTest
 
 - (void)processNotification:(NSNotification *)note
@@ -132,6 +142,23 @@
     [self waitSeconds: waitTime forCallToComplete: call];
 }
 
+- (NSArray *)targetsAndCompounds
+{
+	NSError *error;
+	NSFetchRequest* request = [self.serviceManager fetchRequestForEntities];
+    
+   	NSArray *elements = [self.serviceManager executeFetchRequest: request error: &error];
+    
+    NSMutableArray *targetsAndCompounds = [NSMutableArray array];
+    for (CISDOBIpadEntity *entity in elements) {
+        if (IsPermIdCompound(entity.permId) || IsPermIdTarget(entity.permId)) {
+            [targetsAndCompounds addObject: entity];
+        }
+    }
+    
+    return targetsAndCompounds;
+}
+
 - (NSArray *)entitiesWithChildren
 {
 	NSError *error;
@@ -141,12 +168,29 @@
     
     NSMutableArray *entitiesWithChildren = [NSMutableArray array];
     for (CISDOBIpadEntity *entity in elements) {
-        if ([entity.childrenPermIds count] > 0) {
+        if ([entity.childrenPermIds count] > 0 && ![@"Navigation" isEqualToString: entity.category]) {
             [entitiesWithChildren addObject: entity];
         }
     }
     
     return entitiesWithChildren;
+}
+
+- (NSArray *)navigationEntities
+{
+	NSError *error;
+	NSFetchRequest* request = [self.serviceManager fetchRequestForEntities];
+    
+   	NSArray *elements = [self.serviceManager executeFetchRequest: request error: &error];
+    
+    NSMutableArray *navigationEntities = [NSMutableArray array];
+    for (CISDOBIpadEntity *entity in elements) {
+        if ([@"Navigation" isEqualToString: entity.category]) {
+            [navigationEntities addObject: entity];
+        }
+    }
+    
+    return navigationEntities;
 }
 
 - (void)checkFindingChildren
@@ -334,13 +378,13 @@
     NSLog(@"Error %@", _callError);
 }
 
-- (void)retrieveRootLevelEntitiesSimulatingRemovalOfEntity:(CISDOBIpadEntity *)entityToRemove
+- (void)retrieveRootLevelEntitiesSimulatingRemovalOfCategory:(CISDOBIpadEntity *)categoryToRemove
 {
     // Make a root level call, but do have some entities removed from the list
     CISDOBAsyncCall *call;
     call = [self.serviceManager retrieveRootLevelEntitiesFromServer];
     
-    NSArray *removedEntities = [self.serviceManager.service convertToEntitiesPermIds: [NSArray arrayWithObject: entityToRemove.permId] refcons: [NSArray arrayWithObject: entityToRemove.refcon] count: 1];
+    NSArray *removedEntities = [self.serviceManager.service convertToEntitiesPermIds: [NSArray arrayWithObject: categoryToRemove.permId] refcons: [NSArray arrayWithObject: categoryToRemove.refcon] count: 1];
     CISDOBIpadServiceCall *serviceCall = (CISDOBIpadServiceCall *)((CISDOBIpadServiceManagerCall *)call).serviceCall;
     CISDOBConnectionCall *connectionCall = (CISDOBConnectionCall *) serviceCall.connectionCall;
     NSArray *oldParams = connectionCall.params;
@@ -362,18 +406,42 @@
     [self performLogin];
     [self performRootLevelCall];
     
-    // Pick an entity to remove from the next result set to simulate deletion
-    NSArray *entitiesWithChildren = [self entitiesWithChildren];
-    CISDOBIpadEntity *entityToRemove = [entitiesWithChildren objectAtIndex: 0];
-    // Remember the permId before we refresh because the entity will be deleted
-    NSArray *removedPermIds = [NSArray arrayWithObject: entityToRemove.permId];
+    // Figure out how many targets and compounds are available
+    NSUInteger targetsAndCompoundsCount = [[self targetsAndCompounds] count];
     
+    // Pick an entity to remove from the next result set to simulate deletion
+    NSArray *navigationEntities = [self navigationEntities];
+    CISDOBIpadEntity *categoryToRemove;
+    for (CISDOBIpadEntity *entity in navigationEntities) {
+        if ([@"TARGETS AND COMPOUNDS" isEqualToString: entity.permId]) {
+            categoryToRemove = entity;
+            break;
+        }
+    }
+    // Remember the permId before we refresh because the entity will be deleted
+    NSMutableArray *removedPermIds = [NSMutableArray array];
     self.serviceManager.mocSaveBlock = ^(CISDOBIpadServiceManager *manager, NSArray *entitiesToDelete) {
-        STAssertEquals((NSUInteger) 1, [entitiesToDelete count], @"Only one entity should be deleted");
-        STAssertEqualObjects(entityToRemove.permId, [entitiesToDelete objectAtIndex: 0],  @"Only the specified object should be deleted");
+        // This block is invoked on each save. Not all saves will delete entities
+        if ([entitiesToDelete count] < 1) return;
+        
+        [removedPermIds addObjectsFromArray: entitiesToDelete];
+        STAssertEquals((NSUInteger) targetsAndCompoundsCount + 1, [entitiesToDelete count], @"All targets and compounds should be deleted.");
+        NSUInteger navCount = 0, compoundCount = 0, targetCount = 0;
+        for (NSString *entityPermId in entitiesToDelete) {
+            BOOL is5HTCompound = IsPermIdCompound(entityPermId);
+            BOOL is5HTTarget = IsPermIdTarget(entityPermId);
+            BOOL isNav = [@"TARGETS AND COMPOUNDS" isEqualToString: entityPermId];
+            STAssertTrue(is5HTCompound || is5HTTarget || isNav, @"The deleted entities should be either targets or compounds");
+            if (is5HTCompound) ++compoundCount;
+            if (is5HTTarget) ++targetCount;
+            if (isNav) ++navCount;
+        }
+        STAssertEquals((NSUInteger) 1, navCount, @"Only one navigational entity should have been deleted");
+        STAssertEquals((NSUInteger) 204, compoundCount, @"204 compound entities should have been deleted");
+        STAssertEquals((NSUInteger) 29, targetCount, @"29 target entities should have been deleted");
     };
 
-    [self retrieveRootLevelEntitiesSimulatingRemovalOfEntity: entityToRemove];
+    [self retrieveRootLevelEntitiesSimulatingRemovalOfCategory: categoryToRemove];
     
     // Check that the entityToRemove is no longer found
     NSError *error;
@@ -381,7 +449,7 @@
     STAssertEquals([removedEntities count], (NSUInteger) 0, @"Removed entities should not be found anymore");
 
     // Check that entityToRemove is still accessible
-    STAssertNil(entityToRemove.permId, @"The Entity's fields should have been set to nil");
+    STAssertNil(categoryToRemove.permId, @"The Entity's fields should have been set to nil");
 }
 
 - (void)testImageRetrieval

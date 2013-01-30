@@ -11,7 +11,7 @@ def json_encoded_value(coll):
 	"""Utility function for converting a list into a json-encoded list"""
 	return ObjectMapper().writeValueAsString(coll)
 
-class RequestHandler:
+class RequestHandler(object):
 	"""Abstract superclass for the handlers for concrete requests like ROOT.
 
 	This superclass defines behavior common to all requests.
@@ -34,6 +34,13 @@ class RequestHandler:
 		global searchService
 		self.searchService = searchService
 		self.headers = ['PERM_ID', 'REFCON'] + self.optional_headers()
+		
+	def entities_parameter(self):
+	  """A helper method to get the value of the entities parameter. Returns an empty list if no entities were specified"""
+	  entities = self.parameters.get('entities')
+	  if entities is None:
+	    return []
+	  return entities
 
 
 	def optional_headers(self):
@@ -97,7 +104,7 @@ class RequestHandler:
 		self.retrieve_data()
 		self.add_data_rows()
 
-class ClientPreferencesRequestHandler:
+class ClientPreferencesRequestHandler(object):
 	"""Abstract superclass for the handlers for CLIENT_PREFS request.
 
 	This request has a slightly different structure, since it does not return entities.
@@ -398,7 +405,19 @@ class ExampleClientPreferencesRequestHandler(ClientPreferencesRequestHandler):
 class ExampleRootRequestHandler(RootRequestHandler):
 	"""Handler for the ROOT request."""
 
+	def entities_parameter(self):
+		entities = super(ExampleRootRequestHandler, self).entities_parameter()
+		if len(entities) == 0:
+			materials_nav = navigation_dict('Targets and Compounds', [])
+			probe_nav = navigation_dict('Probes', [])
+			return [materials_nav, probe_nav]
+		return entities
+
 	def retrieve_data(self):
+		# Check which navigational entities are being requested here
+		nav_entities = self.entities_parameter()
+		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
+
 		# Get the data and add a row for each data item
 		self.samples = self.searchService.searchForSamples("DESC", "*", "5HT_PROBE")
 		material_identifiers = gather_materials(self.samples)
@@ -406,27 +425,28 @@ class ExampleRootRequestHandler(RootRequestHandler):
 		self.material_dict_array = materials_to_dict(materials, {})
 		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
 
-	def add_navigation_rows(self):
-		"""Add entities that are purely for navigation"""
-		children = [material_dict['PERM_ID'] for material_dict in self.material_dict_array]
-		materials_nav = navigation_dict('Targets and Compounds', children)
-
-		children = [sample.getPermId() for sample in self.samples]
-		probe_nav = navigation_dict('Probes', children)
-		self.add_rows([materials_nav, probe_nav])
-
-
 	def add_data_rows(self):
-		self.add_navigation_rows()
-		self.add_rows(self.material_dict_array)
-		self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id, {}))
+		nav_entities = self.entities_parameter()
+		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
+
+		if 'TARGETS AND COMPOUNDS' in nav_perm_ids:
+			children = [material_dict['PERM_ID'] for material_dict in self.material_dict_array]
+			materials_nav = navigation_dict('Targets and Compounds', children)
+			self.add_rows([materials_nav])
+			self.add_rows(self.material_dict_array)
+
+		if 'PROBES' in nav_perm_ids:
+			children = [sample.getPermId() for sample in self.samples]
+			probe_nav = navigation_dict('Probes', children)
+			self.add_rows([probe_nav])
+			self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id, {}))
 
 class ExampleDrillRequestHandler(DrillRequestHandler):
 	"""Handler for the DRILL request."""
 
 	def retrieve_data(self):
 		# Drill only happens on samples
-		drill_samples = self.parameters['entities']
+		drill_samples = self.entities_parameter()
 
 		self.samples = retrieve_samples(drill_samples)
 		material_identifiers = gather_materials(self.samples)
@@ -443,7 +463,7 @@ class ExampleDetailRequestHandler(DetailRequestHandler):
 
 	def retrieve_data(self):
 		# Get the data and add a row for each data item
-		entities = self.parameters['entities']
+		entities = self.entities_parameter()
 		detail_samples = [entity for entity in entities if 'SAMPLE' == entity['REFCON']['entityKind']]
 		detail_materials = [entity for entity in entities if 'MATERIAL' == entity['REFCON']['entityKind']]
 
@@ -475,38 +495,30 @@ class ExampleNavigationRequestHandler(NavigationRequestHandler):
 		probe_nav = navigation_dict('Probes', [])
 		self.add_rows([materials_nav, probe_nav])
 
-class TestingRootRequestHandler(ExampleRootRequestHandler):
-	"""A version of the root request handler designed for testing"""
+class TestingNavigationRequestHandler(ExampleNavigationRequestHandler):
+	"""A version of the NAVIGATION request handler designed for testing"""
 
-	def hide_hidden_samples(self):
-		"""A method used in testing to simulate the removal of a sample from the database.
-
-		Production code does not need to implement or use this method"""
-
+	def add_data_rows(self):
 		hidden_entities = self.parameters.get("HIDE")
 		if hidden_entities is None:
-			return
+			hidden_entities = []
 		hidden_perm_ids = set([entity["PERM_ID"] for entity in hidden_entities])
 
-		count = len(self.samples)
-		for indexPlus1 in range(count, 0, -1):
-			index = indexPlus1 - 1
-			if self.samples[index].getPermId() in hidden_perm_ids:
-				del self.samples[index]
-
-	def retrieve_data(self):
-		ExampleRootRequestHandler.retrieve_data(self)
-		# Used to simulate samples being removed from the database. Not designed for production code
-		self.hide_hidden_samples()
+		if 'TARGETS AND COMPOUNDS' not in hidden_perm_ids:
+			materials_nav = navigation_dict('Targets and Compounds', [])
+			self.add_rows([materials_nav])
+		if 'PROBES' not in hidden_perm_ids:
+			probe_nav = navigation_dict('Probes', [])
+			self.add_rows([probe_nav])
 
 def aggregate(parameters, builder):
 	request_key = parameters.get('requestKey')
 	if 'CLIENT_PREFS' == request_key:
 		handler = ExampleClientPreferencesRequestHandler(parameters, builder)
 	elif 'NAVIGATION' == request_key:
-		handler = ExampleNavigationRequestHandler(parameters, builder)
+		handler = TestingNavigationRequestHandler(parameters, builder)
 	elif 'ROOT' == request_key:
-		handler = TestingRootRequestHandler(parameters, builder)
+		handler = ExampleRootRequestHandler(parameters, builder)
 	elif 'DRILL' == request_key:
 		handler = ExampleDrillRequestHandler(parameters, builder)
 	elif 'DETAIL' == request_key:

@@ -30,13 +30,26 @@ IpadModel.prototype.selectEntity = function(d) {
 	this.selectedEntity = d;
 	var permId = d[0].value;
 	var refcon = parseJson(d[1].value);
+	var rootLevel = d[5].value;
+	if ("True" == rootLevel) {
+		this.selectNavigationEntity(permId, refcon);
+	} else {
+		this.selectNormalEntity(permId, refcon, d);
+	}
+}
+
+IpadModel.prototype.selectNavigationEntity = function(permId, refcon) {
+	listRootLevelEntities(permId, refcon);
+}
+
+IpadModel.prototype.selectNormalEntity = function(permId, refcon, d) {
 	var children = parseJson(d[5].value);
 	if (children.length > 0) {
 		drillOnEntity(permId, refcon);
 		detailsForEntity(permId, refcon);
 	} else {
 		detailsForEntity(permId, refcon);
-	}
+	}	
 }
 
 /// The model that manages state and implements the operations
@@ -45,7 +58,7 @@ model = new IpadModel();
 
 
 /// The visualization, referenced by functions that display content
-var root, drill, detail;
+var clientPrefs, navigation, root, drill, detail;
 
 /**
  * Create the DOM elements to store the visualization (tree + inspectors)
@@ -55,6 +68,8 @@ function createVis()
 	if (didCreateVis) return;
 	
 	// Create a div to house the tree visualization and the inspectors
+	clientPrefs = d3.select("#clientprefs");
+	navigation = d3.select("#navigation");
 	root = d3.select("#root");
 	drill = d3.select("#drill");	
 	detail = d3.select("#detail");
@@ -116,6 +131,17 @@ function displayResults(node, data)
 	showTableData(table);
 }
 
+function displayClientPreferences(data)
+{
+	displayResults(clientPrefs, data)
+}
+
+
+function displayNavigation(data)
+{
+	displayResults(navigation, data)
+}
+
 function displayRoot(data)
 {
 	displayResults(root, data)
@@ -123,7 +149,6 @@ function displayRoot(data)
 
 function displayDrill(data)
 {
-	console.log(data);
 	displayResults(drill, data)
 }
 
@@ -133,11 +158,32 @@ function displayDetail(data)
 }
 
 /**
- * Request samples matching some criteria from the server and show them in the Page.
+ * Request the client perferences and show them in the page.
  */
-function listRootLevelEntities()
+function listClientPreferences()
 {
-	var parameters = {requestKey : 'ROOT'};
+	var parameters = {requestKey : 'CLIENT_PREFS'};
+
+	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, displayClientPreferences);
+}
+
+/**
+ * Request the top-level navigational entities and show them in the page
+ */
+function listNavigationEntities()
+{
+	var parameters = {requestKey : 'NAVIGATION'};
+
+	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, displayNavigation);
+}
+
+/**
+ * Request samples matching some criteria from the server and show them in the page.
+ */
+function listRootLevelEntities(permId, refcon)
+{
+	var entities = [{"PERM_ID" : permId, "REFCON" : refcon}];
+	var parameters = {requestKey : 'ROOT', entities: entities};
 
 	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, displayRoot);
 }
@@ -171,5 +217,6 @@ function enterApp(data)
     $('#main').show();
 
     createVis();
-    listRootLevelEntities();
+    listClientPreferences();
+    listNavigationEntities();
 }

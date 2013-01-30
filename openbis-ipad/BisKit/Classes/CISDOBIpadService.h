@@ -59,8 +59,8 @@ enum CISOBIpadServiceErrorCode {
 //! Get all top-level categories from the openBIS ipad service. The success block will be invoked with a collection of CISDOBIpadRawEntity objects.
 - (CISDOBAsyncCall *)listNavigationalEntities;
 
-//! Get all root-level entities from the openBIS ipad service, possibly along with some children as well. The success block will be invoked with a collection of CISDOBIpadRawEntity objects.
-- (CISDOBAsyncCall *)listRootLevelEntities;
+//! Get all root-level entities from the openBIS ipad service for the specified navigational entities. This should return all the entities associated with that navigational entity that are considered part of the root set. The success block will be invoked with a collection of CISDOBIpadRawEntity objects.
+- (CISDOBAsyncCall *)listRootLevelEntities:(NSArray *)permIds refcons:(NSArray *)refcons;
 
 //! Get drill information from the openBIS ipad service -- this will include information about the children of the entity and possibly their children as well. The permIds and refcons collections must have the same cardinality. The success block will be invoked with a collection of CISDOBIpadRawEntity objects.
 - (CISDOBAsyncCall *)drillOnEntities:(NSArray *)permIds refcons:(NSArray *)refcons;

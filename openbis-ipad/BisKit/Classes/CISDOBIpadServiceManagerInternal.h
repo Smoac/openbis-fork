@@ -58,6 +58,22 @@
 
 @end
 
+// An object that carries out all the steps that need to run after the user has logged into the server
+@interface CISDOBIpadServiceManagerRetrieveRootSetCommand : NSObject
+
+// These properties must all be set before running the commmand
+@property(weak, nonatomic) CISDOBIpadServiceManager *serviceManager;
+@property(weak, nonatomic) CISDOBIpadServiceManagerCall *serviceManagerCall;
+@property(strong, nonatomic) NSArray *topLevelNavigationEntities;
+
+// This property is updated while running
+@property(nonatomic) NSUInteger currentIndex;
+
+// Actions
+- (void)run;
+
+@end
+
 // Internal methods of the service manager
 @interface CISDOBIpadServiceManager (CISDOBIpadServiceManagerInternal)
 - (BOOL)shouldRefreshRootLevelEntitiesCall;
