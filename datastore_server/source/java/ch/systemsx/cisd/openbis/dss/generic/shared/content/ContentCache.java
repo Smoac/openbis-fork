@@ -92,6 +92,112 @@ public class ContentCache implements IContentCache, InitializingBean
 
     static final String DATA_SET_INFOS_FILE = ".dataSetInfos";
 
+    private final class ProxyInputStream extends InputStream
+    {
+        private final InputStream inputStream;
+
+        private final OutputStream fileOutputStream;
+
+        private final IDatasetLocation dataSetLocation;
+
+        private final File tempFile;
+
+        private final String pathInWorkspace;
+
+        private boolean closed;
+
+        private boolean eof;
+
+        private ProxyInputStream(InputStream inputStream, OutputStream fileOutputStream,
+                IDatasetLocation dataSetLocation, File tempFile, String pathInWorkspace)
+        {
+            this.inputStream = inputStream;
+            this.fileOutputStream = fileOutputStream;
+            this.dataSetLocation = dataSetLocation;
+            this.tempFile = tempFile;
+            this.pathInWorkspace = pathInWorkspace;
+        }
+
+        @Override
+        public int read() throws IOException
+        {
+            if (eof)
+            {
+                return -1;
+            }
+            int b = inputStream.read();
+            if (b < 0)
+            {
+                eof = true;
+            } else
+            {
+                fileOutputStream.write(b);
+            }
+            closeIfEndOfFile();
+            return b;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException
+        {
+            if (eof)
+            {
+                return -1;
+            }
+            int count = inputStream.read(b, off, len);
+            if (count >= 0)
+            {
+                fileOutputStream.write(b, off, count);
+            } else
+            {
+                eof = true;
+            }
+            closeIfEndOfFile();
+            return count;
+        }
+
+        private void closeIfEndOfFile() throws IOException
+        {
+            if (eof)
+            {
+                close();
+            }
+        }
+
+        @Override
+        public void close() throws IOException
+        {
+            if (closed)
+            {
+                return;
+            }
+            inputStream.close();
+            fileOutputStream.close();
+            if (eof)
+            {
+                moveDownloadedFileToCache(tempFile, pathInWorkspace,
+                        dataSetLocation.getDataSetCode());
+                persistenceManager.requestPersistence();
+            } else
+            {
+                tempFile.delete();
+            }
+            closed = true;
+            fileLockManager.unlock(pathInWorkspace);
+        }
+
+        @Override
+        protected void finalize() throws Throwable
+        {
+            if (closed == false)
+            {
+                tempFile.delete();
+                fileLockManager.unlock(pathInWorkspace);
+            }
+            super.finalize();
+        }
+    }
+
     static final class DataSetInfo implements Serializable
     {
         private static final long serialVersionUID = 1L;
@@ -272,94 +378,18 @@ public class ContentCache implements IContentCache, InitializingBean
                 fileLockManager.unlock(pathInWorkspace);
             }
         }
-        final File tempFile = createTempFile();
-        final InputStream inputStream = createInputStream(sessionToken, dataSetLocation, path);
-        final OutputStream fileOutputStream = createFileOutputStream(tempFile);
-        return new InputStream()
-            {
-                private boolean closed;
-
-                private boolean eof;
-
-                @Override
-                public int read() throws IOException
-                {
-                    if (eof)
-                    {
-                        return -1;
-                    }
-                    int b = inputStream.read();
-                    if (b < 0)
-                    {
-                        eof = true;
-                    } else
-                    {
-                        fileOutputStream.write(b);
-                    }
-                    closeIfEndOfFile();
-                    return b;
-                }
-
-                @Override
-                public int read(byte[] b, int off, int len) throws IOException
-                {
-                    if (eof)
-                    {
-                        return -1;
-                    }
-                    int count = inputStream.read(b, off, len);
-                    if (count >= 0)
-                    {
-                        fileOutputStream.write(b, off, count);
-                    } else
-                    {
-                        eof = true;
-                    }
-                    closeIfEndOfFile();
-                    return count;
-                }
-
-                private void closeIfEndOfFile() throws IOException
-                {
-                    if (eof)
-                    {
-                        close();
-                    }
-                }
-
-                @Override
-                public void close() throws IOException
-                {
-                    if (closed)
-                    {
-                        return;
-                    }
-                    inputStream.close();
-                    fileOutputStream.close();
-                    if (eof)
-                    {
-                        moveDownloadedFileToCache(tempFile, pathInWorkspace,
-                                dataSetLocation.getDataSetCode());
-                        persistenceManager.requestPersistence();
-                    } else
-                    {
-                        tempFile.delete();
-                    }
-                    closed = true;
-                    fileLockManager.unlock(pathInWorkspace);
-                }
-
-                @Override
-                protected void finalize() throws Throwable
-                {
-                    if (closed == false)
-                    {
-                        tempFile.delete();
-                        fileLockManager.unlock(pathInWorkspace);
-                    }
-                    super.finalize();
-                }
-            };
+        try
+        {
+            final File tempFile = createTempFile();
+            final InputStream inputStream = createInputStream(sessionToken, dataSetLocation, path);
+            final OutputStream fileOutputStream = createFileOutputStream(tempFile);
+            return new ProxyInputStream(inputStream, fileOutputStream, dataSetLocation, tempFile,
+                    pathInWorkspace);
+        } catch (Throwable t)
+        {
+            fileLockManager.unlock(pathInWorkspace);
+            throw CheckedExceptionTunnel.wrapIfNecessary(t);
+        }
     }
 
     private void downloadFile(String sessionToken, IDatasetLocation dataSetLocation,
