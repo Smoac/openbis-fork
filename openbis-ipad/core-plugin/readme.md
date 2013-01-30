@@ -178,10 +178,24 @@ The communication model between the iPad and the service has been designed to tr
 	</thead>
 	<tbody>
 		<tr>
+			<td>CLIENT_PREFS</td>
+			<td>None</td>
+			<td>Return values for the client preferences.</td>
+			<td>Used to initialize client behavior</td>
+			<td>KEY, VALUE</td>
+		</tr>
+		<tr>
+			<td>CATEGORIES</td>
+			<td>None</td>
+			<td>Return the root categories.</td>
+			<td>Used to initialize the top level of the navigation view.</td>
+			<td>PERM_ID, REFCON, SUMMARY_HEADER, SUMMARY, CHILDREN</td>
+		</tr>		
+		<tr>
 			<td>ROOT</td>
 			<td>None</td>
 			<td>Return root entities.</td>
-			<td>Used to initialize the root navigation view.</td>
+			<td>Used to track which entities should be constantly available on the iPad.</td>
 			<td>PERM_ID, REFCON, CATEGORY, SUMMARY_HEADER, SUMMARY, CHILDREN, ROOT_LEVEL</td>
 		</tr>
 		<tr>
@@ -207,7 +221,7 @@ The communication model between the iPad and the service has been designed to tr
 Communication Model
 -------------------
 
-On startup, the iPad app requests the data it needs to initialize the UI by specifying `{ requestKey : ROOT}` as the request parameters.
+On startup, the iPad app requests the client preferences. These preferences configure how the client should behave. For example, the server can inform the client how often it should refresh its root set. This allows the server to control the load caused by ipad clients. Once the preferences have been retreieved, the client starts initializing its root data, if necessary. The root data contains all the entities that should be stored locally on the iPad. To initialize the root data, it first retrieves the categories from the server. The categories determine the groups shown at the very top level of navigation. These categories are typically not real openBIS entities; they are just there to aid navigation and group entities suitably. Once the categories have been retrieved, the client retrieves the root data for each category by specifying `{ requestKey : ROOT, category : [category ref con]}` as the request parameters.
 
 
 

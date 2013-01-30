@@ -108,10 +108,10 @@ enum CISOBIpadServiceErrorCode {
     NSDictionary    *_preferences;
 }
 
-@property(readonly) NSTimeInterval rootRefreshInterval;   //<! The min interval (in seconds) to wait between refreshes of the root data set.
+@property(readonly) NSTimeInterval rootSetRefreshInterval;   //<! The min interval (in seconds) to wait between refreshes of the root data set.
 
 @property(readonly) NSDictionary *preferences; //<! Used to access the raw preferences dictionary. The recommended way to get preferences is with the above accessors.
 
-- (id)initWithRawPreferences:(NSDictionary *)rawPreferences;
+- (id)initWithServerResult:(NSDictionary *)result;
 
 @end

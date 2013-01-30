@@ -37,6 +37,26 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 
 @end
 
+// Internal functions
+static NSDictionary* ComputeColumnsFieldMapFromColumns(NSArray *columns)
+{
+    // Convert the array to a map indexed by field name.
+    NSMutableDictionary *fieldMap = [[NSMutableDictionary alloc] initWithCapacity: [columns count]];
+    NSUInteger i = 0;
+    for (NSDictionary *col in columns) {
+        [fieldMap
+            setObject: [NSNumber numberWithUnsignedInteger: i++]
+            forKey: [col objectForKey: @"title"]];
+    }
+    
+    return fieldMap;
+}
+
+static id OpenBisTableRowValueAtIndex(NSArray *rowData, NSUInteger index)
+{
+    return [[rowData objectAtIndex: index] objectForKey: @"value"];
+}
+
 
 @implementation CISDOBIpadService
 
@@ -72,24 +92,10 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
     return iPadCall;
 }
 
-- (NSDictionary *)computeColumnsFieldMapFromColumns:(NSArray *)columns
-{
-    // Convert the array to a map indexed by field name.
-    NSMutableDictionary *fieldMap = [[NSMutableDictionary alloc] initWithCapacity: [columns count]];
-    NSUInteger i = 0;
-    for (NSDictionary *col in columns) {
-        [fieldMap
-            setObject: [NSNumber numberWithUnsignedInteger: i++]
-            forKey: [col objectForKey: @"title"]];
-    }
-    
-    return fieldMap;
-}
-
 - (NSArray *)rawEntitiesFromResult:(NSDictionary *)result
 {
     NSArray *columns = [result objectForKey: @"columns"];
-    NSDictionary *fieldMap = [self computeColumnsFieldMapFromColumns: columns];
+    NSDictionary *fieldMap = ComputeColumnsFieldMapFromColumns(columns);
     NSMutableArray *rawEntities = [[NSMutableArray alloc] init];
     NSArray *rows = [result objectForKey: @"rows"];
     for (NSArray *row in rows) {
@@ -245,7 +251,7 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
     // This value was not provided
     if (!indexHolder) return nil;
     NSUInteger index = [indexHolder unsignedIntegerValue];
-    return [[_content objectAtIndex: index] objectForKey: @"value"];
+    return OpenBisTableRowValueAtIndex(_content, index);
 }
 
 - (NSString *)permId { return [self stringContentValueAtName: @"PERM_ID"]; }
@@ -264,21 +270,47 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
 
 @implementation CISDOBClientPreferences
 
-- (id)initWithRawPreferences:(NSDictionary *)rawPreferences
+- (void)initializePreferencesFromResult:(NSDictionary *)result
+{
+    NSArray *columns = [result objectForKey: @"columns"];
+    NSDictionary *fieldMap = ComputeColumnsFieldMapFromColumns(columns);
+    
+    // Get the indices for the key and value columns
+    NSUInteger keyIndex = -1, valueIndex = -1;
+    NSNumber *indexHolder = [fieldMap objectForKey: @"KEY"];
+    keyIndex = (!indexHolder) ? -1 : [indexHolder unsignedIntegerValue];
+    indexHolder = [fieldMap objectForKey: @"VALUE"];
+    valueIndex = (!indexHolder) ? -1 : [indexHolder unsignedIntegerValue];
+
+    NSMutableDictionary *preferences = [[NSMutableDictionary alloc] init];
+    NSArray *rows = [result objectForKey: @"rows"];
+    for (NSArray *row in rows) {
+        NSString *key = OpenBisTableRowValueAtIndex(row, keyIndex);
+        id value = OpenBisTableRowValueAtIndex(row, valueIndex);
+        [preferences setObject: value forKey: key];
+    }
+
+    _preferences = preferences;
+}
+
+- (id)initWithServerResult:(NSDictionary *)result
 {
     if (!(self = [super init])) return nil;
     
-    _preferences = rawPreferences;
+    [self initializePreferencesFromResult: result];
     
     return self;
 }
 
-- (NSTimeInterval)rootRefreshInterval
+- (NSTimeInterval)rootSetRefreshInterval
 {
-    // TODO Implement this by reading the value from the dictionary and converting it to a time interval
+    NSNumber *refreshInterval = [_preferences objectForKey: @"ROOT_SET_REFRESH_INTERVAL"];
+    if (refreshInterval) {
+        return [refreshInterval doubleValue];
+    }
     
-    // The default value is once every 30 min
-    return 60. * 30.;
+    // The default value is once every hour
+    return 60. * 60.;
 }
 
 @end
@@ -295,16 +327,16 @@ NSString *const CISDOBIpadServiceErrorDomain = @"CISDOBIpadServiceErrorDomain";
     return self;
 }
 
-- (void)rememberClientPreferences:(NSDictionary *)clientPreferences
+- (void)rememberClientPreferences:(NSDictionary *)result
 {    
-    self.service.clientPreferences = [[CISDOBClientPreferences alloc] initWithRawPreferences: clientPreferences];
+    self.service.clientPreferences = [[CISDOBClientPreferences alloc] initWithServerResult: result];
     if (self.ipadCall.success) self.ipadCall.success(self.service.connection.sessionToken);
     
 }
 
 - (void)retrieveClientPreferences
 {
-    NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"ROOT" forKey: @"requestKey"];
+    NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"CLIENT_PREFS" forKey: @"requestKey"];
     CISDOBAsyncCall *connectionCall =
         [self.service.connection
             createReportFromDataStore: [self.service.ipadReadService objectForKey: @"dataStoreCode"]

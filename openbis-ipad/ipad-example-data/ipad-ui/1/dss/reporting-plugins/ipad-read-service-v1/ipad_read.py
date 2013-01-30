@@ -97,6 +97,58 @@ class RequestHandler:
 		self.retrieve_data()
 		self.add_data_rows()
 
+class ClientPreferencesRequestHandler:
+	"""Abstract superclass for the handlers for CLIENT_PREFS request.
+
+	This request has a slightly different structure, since it does not return entities.
+
+	Subclasses should override the preferences_dict method to return the preferences dictionary. The superclass
+	implements this method with the default values for the standard keys.
+	"""
+
+	def __init__(self, parameters, builder):
+		self.parameters = parameters
+		self.builder = builder
+		self.headers = ['KEY', 'VALUE']
+
+	def preferences_dict(self):
+		"""The dictionary containing the value for the client preferences. 
+
+		Subclasses may override if they want to change any of the values. The best way to override is to call
+		default_preferences_dict then modify/extend the resulting dictionary"""
+		return self.default_preferences_dict()
+
+	def default_preferences_dict(self):
+		"""The dictionary containing the standard keys and and default values for those keys"""
+		prefs = { 
+			# The refresh interval is a value in seconds
+			'ROOT_SET_REFRESH_INTERVAL' : 60 * 30 
+		}
+		return prefs
+
+	def add_data_rows(self):
+		"""Take the information from the preferences dict and put it into the table."""
+		prefs = self.preferences_dict()
+		for key in prefs:
+			row = self.builder.addRow()
+			row.setCell('KEY', key)
+			row.setCell('VALUE', prefs[key])
+
+	def add_headers(self):
+		"""Configure the headers for this request.
+
+		For preference request, the headers are 
+			KEY : The key of the preference.
+			VALUE : The value of the preference.
+		"""
+		for header in self.headers:
+			self.builder.addHeader(header)
+
+	def process_request(self):
+		"""Execute the steps necessary to process the request."""
+		self.add_headers()
+		self.add_data_rows()
+
 class AllDataRequestHandler(RequestHandler):
 	"""Abstract Handler for the ALLDATA request."""
 
@@ -333,6 +385,10 @@ def retrieve_data_sets_for_samples(samples):
 	data_set_sc.addSubCriteria(SearchSubCriteria.createExperimentCriteria(sc))
 	return searchService.searchForDataSets(data_set_sc)
 
+class ExampleClientPreferencesRequestHandler(ClientPreferencesRequestHandler):
+	"""Handler for the CLIENT_PREFS request."""
+
+
 class ExampleRootRequestHandler(RootRequestHandler):
 	"""Handler for the ROOT request."""
 
@@ -425,8 +481,6 @@ class TestingRootRequestHandler(ExampleRootRequestHandler):
 			if self.samples[index].getPermId() in hidden_perm_ids:
 				del self.samples[index]
 
-
-
 	def retrieve_data(self):
 		ExampleRootRequestHandler.retrieve_data(self)
 		# Used to simulate samples being removed from the database. Not designed for production code
@@ -434,12 +488,14 @@ class TestingRootRequestHandler(ExampleRootRequestHandler):
 
 def aggregate(parameters, builder):
 	request_key = parameters.get('requestKey')
-	if 'ROOT' == request_key:
+	if 'CLIENT_PREFS' == request_key:
+		handler = ExampleClientPreferencesRequestHandler(parameters, builder)
+	elif 'ROOT' == request_key:
 		handler = TestingRootRequestHandler(parameters, builder)
 	elif 'DRILL' == request_key:
 		handler = ExampleDrillRequestHandler(parameters, builder)
 	elif 'DETAIL' == request_key:
 		handler = ExampleDetailRequestHandler(parameters, builder)
-	else:		
+	else:
 		handler = EmptyDataRequestHandler(parameters, builder)
 	handler.process_request()		
