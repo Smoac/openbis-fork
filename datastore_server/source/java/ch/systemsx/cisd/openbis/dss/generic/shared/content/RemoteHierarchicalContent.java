@@ -100,15 +100,9 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
             info = provider.tryGetPathInfoByRelativePath(relativePath);
         }
 
-        // 2013-01-29, BR: check this: according to the contract this method should throw
-        // IllegalArgumentException if the path does not exist.
         if (info == null)
         {
-            info = new DataSetPathInfo();
-            info.setDirectory(true);
-            info.setRelativePath(relativePath);
-            info.setParent(null);
-            info.setFileName("");
+            throw new IllegalArgumentException("Resource '" + relativePath + "' does not exist.");
         }
 
         return createNode(info);
