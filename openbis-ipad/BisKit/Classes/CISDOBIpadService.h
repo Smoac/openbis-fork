@@ -56,6 +56,9 @@ enum CISOBIpadServiceErrorCode {
 //! A call that has no purpose except to inform the server that we are still here
 - (CISDOBAsyncCall *)heartbeat;
 
+//! Get all top-level categories from the openBIS ipad service. The success block will be invoked with a collection of CISDOBIpadRawEntity objects.
+- (CISDOBAsyncCall *)listNavigationalEntities;
+
 //! Get all root-level entities from the openBIS ipad service, possibly along with some children as well. The success block will be invoked with a collection of CISDOBIpadRawEntity objects.
 - (CISDOBAsyncCall *)listRootLevelEntities;
 

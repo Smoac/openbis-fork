@@ -185,11 +185,11 @@ The communication model between the iPad and the service has been designed to tr
 			<td>KEY, VALUE</td>
 		</tr>
 		<tr>
-			<td>CATEGORIES</td>
+			<td>NAVIGATION</td>
 			<td>None</td>
-			<td>Return the root categories.</td>
+			<td>Return the top-level categories used for navigation.</td>
 			<td>Used to initialize the top level of the navigation view.</td>
-			<td>PERM_ID, REFCON, SUMMARY_HEADER, SUMMARY, CHILDREN</td>
+			<td>PERM_ID, REFCON, CATEGORY, SUMMARY_HEADER, SUMMARY, ROOT_LEVEL</td>
 		</tr>		
 		<tr>
 			<td>ROOT</td>

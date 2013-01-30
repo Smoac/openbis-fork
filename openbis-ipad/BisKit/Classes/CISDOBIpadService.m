@@ -147,6 +147,13 @@ static id OpenBisTableRowValueAtIndex(NSArray *rowData, NSUInteger index)
     return serviceCall;
 }
 
+- (CISDOBAsyncCall *)listNavigationalEntities
+{
+    NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"NAVIGATION" forKey: @"requestKey"];
+    CISDOBIpadServiceCall *serviceCall = [self createIpadServiceCallWithParameters: parameters];
+    return serviceCall;
+}
+
 - (CISDOBAsyncCall *)listRootLevelEntities
 {
     NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"ROOT" forKey: @"requestKey"];

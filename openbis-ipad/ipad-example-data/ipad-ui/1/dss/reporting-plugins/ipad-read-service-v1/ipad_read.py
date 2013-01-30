@@ -179,6 +179,12 @@ class DetailRequestHandler(RequestHandler):
 	def optional_headers(self):
 		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "IDENTIFIER", "IMAGES", "PROPERTIES"]
 
+class NavigationRequestHandler(RequestHandler):
+	"""Abstract Handler for the NAVIGATION request."""
+
+	def optional_headers(self):
+		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "ROOT_LEVEL"]
+
 #
 # END Infrastructure
 #
@@ -462,6 +468,13 @@ class ExampleDetailRequestHandler(DetailRequestHandler):
 		self.add_rows(self.material_dict_array)
 		self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id, self.sample_type_properties_definitions))
 
+class ExampleNavigationRequestHandler(NavigationRequestHandler):
+	"""Handler for the NAVIGATION request"""
+	def add_data_rows(self):
+		materials_nav = navigation_dict('Targets and Compounds', [])
+		probe_nav = navigation_dict('Probes', [])
+		self.add_rows([materials_nav, probe_nav])
+
 class TestingRootRequestHandler(ExampleRootRequestHandler):
 	"""A version of the root request handler designed for testing"""
 
@@ -490,6 +503,8 @@ def aggregate(parameters, builder):
 	request_key = parameters.get('requestKey')
 	if 'CLIENT_PREFS' == request_key:
 		handler = ExampleClientPreferencesRequestHandler(parameters, builder)
+	elif 'NAVIGATION' == request_key:
+		handler = ExampleNavigationRequestHandler(parameters, builder)
 	elif 'ROOT' == request_key:
 		handler = TestingRootRequestHandler(parameters, builder)
 	elif 'DRILL' == request_key:

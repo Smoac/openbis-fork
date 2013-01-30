@@ -55,6 +55,31 @@
     [self waitSeconds: waitTime forCallToComplete: call];
 }
 
+- (void)testListNavigationalEntities
+{
+    CISDOBAsyncCall *call;
+    call = [_service loginUser: GetDefaultUserName() password: GetDefaultUserPassword()];
+    [self configureAndRunCallSynchronously: call];
+    call = [_service listNavigationalEntities];
+    [self configureAndRunCallSynchronously: call];
+    
+    STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
+    NSArray *rawEntities = _callResult;
+    STAssertTrue([rawEntities count] > 0, @"The Pad service should have returned some entities.");
+    
+    for (CISDOBIpadRawEntity *rawEntity in rawEntities) {
+        NSString *summaryHeader = rawEntity.summaryHeader;
+        STAssertNotNil(summaryHeader, @"The summary header should not be nil");
+        STAssertNotNil(rawEntity.permId, @"PermId should not be nil");
+        STAssertNotNil(rawEntity.refcon, @"Refcon should not be nil");
+//        STAssertNotNil(rawEntity.category, @"Group should not be nil");
+        STAssertTrue([summaryHeader length], @"Summary header should not be empty");
+        STAssertNotNil(rawEntity.summary, @"Summary should not be nil");
+        STAssertNotNil(rawEntity.rootLevel, @"RootLevel should not be nil");
+        STAssertEquals([rawEntity.rootLevel boolValue], YES, @"RootLevel should not be true");
+    }
+}
+
 - (void)testListRootEntities
 {
     CISDOBAsyncCall *call;
