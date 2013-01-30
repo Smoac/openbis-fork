@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityHistoryCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -45,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -63,7 +66,7 @@ public class PropertiesHistoryTest extends SystemTestCase
     public void testUpdateExperimentProperties()
     {
         TechId id = new TechId(2);
-        logIntoCommonClientService();
+        SessionContext session = logIntoCommonClientService();
         commonClientService.assignPropertyType(new NewETPTAssignment(EntityKind.EXPERIMENT,
                 "BACTERIUM", "SIRNA_HCS", false, "BACTERIUM-X", null, 1L, false, false, null, true,
                 false));
@@ -100,8 +103,9 @@ public class PropertiesHistoryTest extends SystemTestCase
 
         List<TableModelRowWithObject<EntityHistory>> sortedHistory =
                 getSortedHistory(propertyHistory);
-        assertEquals("[BACTERIUM, bacterium, , BACTERIUM-X [BACTERIUM], Doe, John]", sortedHistory
-                .get(0).getValues().subList(0, 5).toString());
+
+        assertEquals("[BACTERIUM, bacterium, , BACTERIUM-X [BACTERIUM], " + renderUser(session)
+                + "]", sortedHistory.get(0).getValues().subList(0, 5).toString());
         assertEquals("[DESCRIPTION, Description, , A simple experiment, System User]",
                 sortedHistory.get(1).getValues().subList(0, 5).toString());
         assertEquals("[GENDER, Gender, , MALE [GENDER], System User]", sortedHistory.get(2)
@@ -151,7 +155,7 @@ public class PropertiesHistoryTest extends SystemTestCase
     public void testUpdateSampleProperties()
     {
         TechId id = new TechId(1042);
-        logIntoCommonClientService();
+        SessionContext session = logIntoCommonClientService();
         commonClientService.assignPropertyType(new NewETPTAssignment(EntityKind.SAMPLE, "GENDER",
                 "CELL_PLATE", false, "male", null, 1L, false, false, null, true, false));
         Sample sample = genericClientService.getSampleInfo(id);
@@ -177,8 +181,8 @@ public class PropertiesHistoryTest extends SystemTestCase
 
         List<PropertyHistory> history = getSamplePropertiesHistory(id.getId());
         assertEquals(
-                "[BACTERIUM: material:BACTERIUM-X [BACTERIUM]<a:1>, COMMENT: very advanced stuff<a:1>, GENDER: term:MALE [GENDER]<a:2>]",
-                history.toString());
+                "[BACTERIUM: material:BACTERIUM-X [BACTERIUM]<a:1>, COMMENT: very advanced stuff<a:1>, "
+                        + "GENDER: term:MALE [GENDER]<a:2>]", history.toString());
 
         ListEntityHistoryCriteria criteria = new ListEntityHistoryCriteria();
         criteria.setEntityKind(EntityKind.SAMPLE);
@@ -192,8 +196,8 @@ public class PropertiesHistoryTest extends SystemTestCase
                 sortedHistory.get(0).getValues().subList(0, 5).toString());
         assertEquals("[COMMENT, Comment, , very advanced stuff, System User]", sortedHistory.get(1)
                 .getValues().subList(0, 5).toString());
-        assertEquals("[GENDER, Gender, , MALE [GENDER], Doe, John]", sortedHistory.get(2)
-                .getValues().subList(0, 5).toString());
+        assertEquals("[GENDER, Gender, , MALE [GENDER], " + renderUser(session) + "]",
+                sortedHistory.get(2).getValues().subList(0, 5).toString());
         assertEquals(3, sortedHistory.size());
         assertValidDates(sortedHistory.get(0));
         assertValidDates(sortedHistory.get(1));
@@ -367,6 +371,12 @@ public class PropertiesHistoryTest extends SystemTestCase
                 }
             });
         return sortedHistory;
+    }
+
+    private String renderUser(SessionContext session)
+    {
+        Person person = session.getUser().getUserPersonObject();
+        return StringEscapeUtils.escapeHtml(person.getLastName() + ", " + person.getFirstName());
     }
 
 }
