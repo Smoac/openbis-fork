@@ -116,9 +116,10 @@ public class SetSessionUserTest extends SystemTestCase
 
         commonServer.setSessionUser(sessionToken, "observer");
 
-        String[] logContent = logRecorder.getLogContent().split("\n");
-        assertEquals(3, logContent.length);
-        String logLine = logContent[2];
+        String logContentRaw = logRecorder.getLogContent();
+        String[] logContent = logContentRaw.split("\n");
+        assertEquals(logContentRaw, 4, logContent.length);
+        String logLine = logContent[3];
         assertTrue("Following log line does start as expected: " + logLine,
                 logLine.startsWith("[USER:'test' SPACE:'CISD' HOST:'localhost'"));
         assertTrue("Following log line does end as expected: " + logLine,
@@ -127,8 +128,8 @@ public class SetSessionUserTest extends SystemTestCase
         commonServer.logout(sessionToken);
 
         logContent = logRecorder.getLogContent().split("\n");
-        assertEquals(6, logContent.length);
-        logLine = logContent[5];
+        assertEquals(7, logContent.length);
+        logLine = logContent[6];
         assertEquals("LOGOUT: Session '" + sessionToken + "' of user 'observer' has been closed.",
                 logLine);
     }

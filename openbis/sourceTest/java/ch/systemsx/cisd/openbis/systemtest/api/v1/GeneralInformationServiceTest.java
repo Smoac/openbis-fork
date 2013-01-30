@@ -369,8 +369,6 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals("DILUTION_PLATE", samples.get(0).getSampleTypeCode());
         assertEquals(2L, samples.get(0).getSampleTypeId().longValue());
         assertEquals("test", samples.get(0).getRegistrationDetails().getUserId());
-        assertEquals("John", samples.get(0).getRegistrationDetails().getUserFirstName());
-        assertEquals("Doe", samples.get(0).getRegistrationDetails().getUserLastName());
         assertEquals("franz-josef.elmer@systemsx.ch", samples.get(0).getRegistrationDetails()
                 .getUserEmail());
         assertEquals("{OFFSET=49}", samples.get(0).getProperties().toString());
@@ -412,8 +410,6 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals("DILUTION_PLATE", samples.get(0).getSampleTypeCode());
         assertEquals(2L, samples.get(0).getSampleTypeId().longValue());
         assertEquals("test", samples.get(0).getRegistrationDetails().getUserId());
-        assertEquals("John", samples.get(0).getRegistrationDetails().getUserFirstName());
-        assertEquals("Doe", samples.get(0).getRegistrationDetails().getUserLastName());
         assertEquals("franz-josef.elmer@systemsx.ch", samples.get(0).getRegistrationDetails()
                 .getUserEmail());
         assertEquals("{OFFSET=49}", samples.get(0).getProperties().toString());

@@ -74,7 +74,7 @@ public class SamplesListingTest extends SystemTestCase
                 .getIdentifier());
         assertEquals(1, samples.get(0).getParents().size());
         assertEquals("CELL_PLATE", samples.get(0).getSampleType().getCode());
-        assertEquals("John Doe", samples.get(0).getRegistrator().toString());
+        assertEquals("test", samples.get(0).getRegistrator().getUserId());
     }
 
     private void assertSamples(TypedTableResultSet<Sample> actualSamples, String... expectedSamples)
