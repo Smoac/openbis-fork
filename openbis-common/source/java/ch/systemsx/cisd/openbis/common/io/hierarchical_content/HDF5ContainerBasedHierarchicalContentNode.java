@@ -372,7 +372,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         {
             if (contentOrNull == null)
             {
-                contentOrNull = extractFileContent(file, entry);
+                contentOrNull = extractFileContent(file, entry.getPath());
             }
             return contentOrNull;
         }
@@ -386,34 +386,36 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
 
     }
 
-    private static HDF5DataSetBasedContent extractFileContent(File hdf5File, ArchiveEntry entry)
+    private static HDF5DataSetBasedContent extractFileContent(File hdf5File, String  path)
     {
-        return new HDF5DataSetBasedContent(hdf5File, entry);
+        return new HDF5DataSetBasedContent(hdf5File, path);
     }
 
-    public static class HDF5DataSetBasedContent implements Closeable
+    public static class HDF5DataSetBasedContent implements IFileContentProvider, Closeable
     {
         private final File hdf5File;
 
-        private final ArchiveEntry entry;
+        private final String path;
 
         private final List<HDF5DataSetRandomAccessFile> randomAccessFiles;
 
-        public HDF5DataSetBasedContent(File hdf5File, ArchiveEntry entry)
+        public HDF5DataSetBasedContent(File hdf5File, String path)
         {
             this.hdf5File = hdf5File;
-            this.entry = entry;
+            this.path = path;
             this.randomAccessFiles = new ArrayList<HDF5DataSetRandomAccessFile>();
         }
 
+        @Override
         public IRandomAccessFile getReadOnlyRandomAccessFile()
         {
             final HDF5DataSetRandomAccessFile randomAccessFile =
-                    HDF5IOAdapterFactory.asRandomAccessFileReadOnly(hdf5File, entry.getPath());
+                    HDF5IOAdapterFactory.asRandomAccessFileReadOnly(hdf5File, path);
             randomAccessFiles.add(randomAccessFile);
             return randomAccessFile;
         }
 
+        @Override
         public InputStream getInputStream()
         {
             return new AdapterIInputStreamToInputStream(getReadOnlyRandomAccessFile());

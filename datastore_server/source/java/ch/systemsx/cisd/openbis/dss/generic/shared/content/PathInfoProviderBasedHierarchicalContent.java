@@ -31,7 +31,8 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.io.IOUtilities;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.AbstractHierarchicalContentNode;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HDF5ContainerBasedHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IFileContentProvider;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HDF5ContainerBasedHierarchicalContentNode.HDF5DataSetBasedContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
@@ -348,31 +349,12 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
         }
         if (existingFile != null && FileUtilities.isHDF5ContainerFile(existingFile))
         {
-            HDF5ContainerBasedHierarchicalContentNode containerNode =
-                    new HDF5ContainerBasedHierarchicalContentNode(this, existingFile);
-            String relativePath = FileUtilities.getRelativeFilePath(existingFile, file);
-            IHierarchicalContentNode nodeOrNull = containerNode.tryGetChildNode(relativePath);
-            if (nodeOrNull != null)
-            {
-                return asFileContentProvider(nodeOrNull);
-            } else
-            {
-                throw new IllegalArgumentException("Resource '"
-                        + FileUtilities.getRelativeFilePath(root, file)
-                        + "' does not exist.");
-
-            }
+            final String relativePath = FileUtilities.getRelativeFilePath(existingFile, file);
+            return new HDF5DataSetBasedContent(existingFile, relativePath);
         }
         throw new IllegalArgumentException("Resource '"
                 + FileUtilities.getRelativeFilePath(root, file)
                 + "' is currently unavailable. It might be archived.");
-    }
-
-    private interface IFileContentProvider
-    {
-        public IRandomAccessFile getReadOnlyRandomAccessFile();
-
-        public InputStream getInputStream();
     }
 
     private static IFileContentProvider asFileContentProvider(final File existingFile)
@@ -401,25 +383,4 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
 
             };
     }
-
-    private static IFileContentProvider asFileContentProvider(final IHierarchicalContentNode node)
-    {
-        return new IFileContentProvider()
-            {
-
-                @Override
-                public IRandomAccessFile getReadOnlyRandomAccessFile()
-                {
-                    return node.getFileContent();
-                }
-
-                @Override
-                public InputStream getInputStream()
-                {
-                    return node.getInputStream();
-                }
-
-            };
-    }
-
 }
