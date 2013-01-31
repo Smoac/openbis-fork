@@ -93,36 +93,37 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
     @Override
     public IHierarchicalContentNode getNode(String relativePath) throws IllegalArgumentException
     {
-        DataSetPathInfo info = null;
-
-        if (provider != null)
+        IHierarchicalContentNode node = tryGetNode(relativePath);
+        if (node == null)
         {
-            info = provider.tryGetPathInfoByRelativePath(relativePath);
+            throw new IllegalArgumentException("Resource '" + relativePath
+                    + "' does not exist.");
         }
-
-        if (info == null)
-        {
-            throw new IllegalArgumentException("Resource '" + relativePath + "' does not exist.");
-        }
-
-        return createNode(info);
+        return node;
     }
 
     @Override
     public IHierarchicalContentNode tryGetNode(String relativePath)
     {
-        if (provider == null)
+        DataSetPathInfo info = null;
+
+        if (provider != null)
         {
-            return null;
-        }
-        final DataSetPathInfo infoOrNull = provider.tryGetPathInfoByRelativePath(relativePath);
-        if (infoOrNull == null)
-        {
-            return null;
+            info = provider.tryGetPathInfoByRelativePath(relativePath);
+            if (info == null)
+            {
+                return null;
+            }
         } else
         {
-            return createNode(infoOrNull);
+            info = new DataSetPathInfo();
+            info.setDirectory(true);
+            info.setRelativePath(relativePath);
+            info.setParent(null);
+            info.setFileName("");
         }
+
+        return createNode(info);
     }
 
     @Override
