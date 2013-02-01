@@ -137,6 +137,7 @@
         <constructor-arg ref="last-modification-state" />
         <property name="userForAnonymousLogin" value="${user-for-anonymous-login}"/>
         <property name="CISDHelpdeskEmail" value="cisd.helpdesk@bsse.ethz.ch" />
+        <property name="defaultPutDataStoreServerCode" value="${dss-rpc.put.dss-code}" />
     </bean>
 
 		<bean id="web-client-configuration-provider"

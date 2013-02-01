@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -206,7 +207,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
     public final void setUserForAnonymousLogin(String userID)
     {
-        userForAnonymousLogin = userID != null && userID.startsWith("$") == false ? userID : null;
+        userForAnonymousLogin = isResolved(userID) ? userID : null;
     }
 
     public final void setCISDHelpdeskEmail(String cisdHelpdeskEmail)
@@ -996,4 +997,10 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     {
         return subject + " (initiated at " + startDate + ")";
     }
+
+    static boolean isResolved(String name)
+    {
+        return StringUtils.isNotBlank(name) && name.startsWith("${") == false;
+    }
+
 }

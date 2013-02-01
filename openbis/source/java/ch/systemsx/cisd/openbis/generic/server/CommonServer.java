@@ -39,7 +39,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
@@ -340,6 +340,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     private final LastModificationState lastModificationState;
 
     private final IDataStoreServiceRegistrator dataStoreServiceRegistrator;
+
+    private String defaultPutDataStoreServerCodeOrNull;
 
     public CommonServer(final IAuthenticationService authenticationService,
             final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
@@ -3461,14 +3463,42 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         checkSession(sessionToken);
         IDataStoreDAO dataStoreDAO = getDAOFactory().getDataStoreDAO();
         List<DataStorePE> dataStores = dataStoreDAO.listDataStores();
-        if (dataStores.size() != 1)
+        // Easy case: exactly one DSS
+        if (dataStores.size() == 1)
         {
-            throw EnvironmentFailureException
-                    .fromTemplate(
-                            "Expected exactly one Data Store Server to be registered in openBIS but found %s.",
+            return dataStores.get(0).getDownloadUrl();
+        }
+        // Error: No DSS at all
+        if (dataStores.isEmpty())
+        {
+            throw new ConfigurationFailureException("No Data Store Server registered to openBIS.");
+        }
+        // More than one DSS: see whether dss-rpc.put.dss-code is configured to tell us which one to
+        // use.
+        if (defaultPutDataStoreServerCodeOrNull == null)
+        {
+            throw ConfigurationFailureException
+                    .fromTemplate
+                    ("There are %d Data Store Servers registered in openBIS, but property dss-rpc.put.dss-code is not set.",
                             dataStores.size());
         }
-        return dataStores.get(0).getDownloadUrl();
+        for (DataStorePE store : dataStores)
+        {
+            if (defaultPutDataStoreServerCodeOrNull.equalsIgnoreCase(store.getCode()))
+            {
+                return store.getDownloadUrl();
+            }
+        }
+        throw ConfigurationFailureException
+                .fromTemplate(
+                        "Property dss-rpc.put.dss-code is set to '%s', but no Data Store Server with that code is known.",
+                        defaultPutDataStoreServerCodeOrNull);
+    }
+
+    public void setDefaultPutDataStoreServerCode(String defaultPutDataStoreServerCode)
+    {
+        this.defaultPutDataStoreServerCodeOrNull =
+                isResolved(defaultPutDataStoreServerCode) ? defaultPutDataStoreServerCode : null;
     }
 
     @Override
