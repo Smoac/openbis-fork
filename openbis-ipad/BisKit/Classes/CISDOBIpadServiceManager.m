@@ -72,9 +72,8 @@ NSString *const CISDOBIpadServiceManagerErrorDomain = @"CISDOBIpadServiceManager
 @property(strong, readonly) NSManagedObjectContext *managedObjectContext;
 @property(copy, nonatomic) NSError *error;
 
-@property(nonatomic) BOOL prune;
 @property(strong, nonatomic) NSDate *pruneCutoffDate;
-@property(readonly) NSArray *deletedEntities;
+@property(readonly) NSArray *deletedEntityPermIds;
 
 // Initialization
 - (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager;
@@ -159,6 +158,13 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
    return ((CISDOBLiveConnection *)(self.service.connection)).sessionToken;
 }
 
+// Save the MOC. The deletedEntities array should be non-nil
+- (BOOL)saveManagedObjectContextDeleting:(NSArray *)deletedEntities error:(NSError **)error
+{
+    if (self.mocSaveBlock) self.mocSaveBlock(self, deletedEntities);
+    return [self.managedObjectContext save: error];
+}
+
 - (void)syncEntities:(NSArray *)rawEntities pruning:(BOOL)prune notifying:(CISDOBIpadServiceManagerCall *)managerCall
 {
     void (^syncBlock)(void) = ^{
@@ -170,17 +176,21 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
         synchronizer.pruneCutoffDate = self.lastRootSetUpdateDate;
         [synchronizer run];
         
+        if (prune) {
+            CISDOBBackgroundDataPruner *pruner = [[CISDOBBackgroundDataPruner alloc] initWithServiceManager: self];
+            pruner.pruneCutoffDate = self.lastRootSetUpdateDate;
+            [pruner run];
+        }
+        
         [[NSNotificationCenter defaultCenter] postNotificationName: CISDOBIpadServiceDidSynchEntitiesNotification object: self];         
         
         void (^notifyBlock)(void) = ^ {
             // Save the MOC and notifiy the client on the main thread
             CISDOBBackgroundDataSynchronizer *notifySynchronizer = synchronizer;
             if(!notifySynchronizer.error) {
-                NSError *error;
-                if (self.mocSaveBlock) self.mocSaveBlock(self, notifySynchronizer.deletedEntities);
-                if (![self.managedObjectContext save: &error]) {
-                    notifySynchronizer.error = error;
-                }
+                NSError *error = nil;
+                [self saveManagedObjectContextDeleting: notifySynchronizer.deletedEntities error: &error];
+                notifySynchronizer.error = error;
             }
             [notifySynchronizer notifyCallOfResult];
         };
@@ -543,15 +553,15 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
         }
     }
     // If pruning is requested, remove entities that were not updated since the prune cutoff date
-    if (_prune && self.pruneCutoffDate) {
-        // Remove all entities that were not mentioned
-        NSFetchRequest *fetchRequest = [self.serviceManager fetchRequestForEntitiesNotUpdatedSince: self.pruneCutoffDate];
-        NSArray *entitiesToDelete = [self.managedObjectContext executeFetchRequest: fetchRequest error: &error];
-        for (CISDOBIpadEntity *entity in entitiesToDelete) {
-            [(NSMutableArray *)_deletedEntities addObject: entity.permId];
-            [self.managedObjectContext deleteObject: entity];
-        }
-    }
+//    if (_prune && self.pruneCutoffDate) {
+//        // Remove all entities that were not mentioned
+//        NSFetchRequest *fetchRequest = [self.serviceManager fetchRequestForEntitiesNotUpdatedSince: self.pruneCutoffDate];
+//        NSArray *entitiesToDelete = [self.managedObjectContext executeFetchRequest: fetchRequest error: &error];
+//        for (CISDOBIpadEntity *entity in entitiesToDelete) {
+//            [(NSMutableArray *)_deletedEntities addObject: entity.permId];
+//            [self.managedObjectContext deleteObject: entity];
+//        }
+//    }
     
     success = [self.managedObjectContext save: &error];
     if (!success) {
@@ -586,7 +596,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType: NSConfinementConcurrencyType];
     _managedObjectContext.parentContext = _serviceManager.managedObjectContext;
     _error = nil;
-    _deletedEntities = [NSMutableArray array];
+    _deletedEntityPermIds = [NSMutableArray array];
     
     return self;
 }
@@ -594,17 +604,17 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 // Actions
 - (void)run
 {
+    if (!self.pruneCutoffDate) return;
+    
     BOOL success;
     NSError *error;
-    // If pruning is requested, remove entities that were not updated since the prune cutoff date
-    if (_prune && self.pruneCutoffDate) {
-        // Remove all entities that were not mentioned
-        NSFetchRequest *fetchRequest = [self.serviceManager fetchRequestForEntitiesNotUpdatedSince: self.pruneCutoffDate];
-        NSArray *entitiesToDelete = [self.managedObjectContext executeFetchRequest: fetchRequest error: &error];
-        for (CISDOBIpadEntity *entity in entitiesToDelete) {
-            [(NSMutableArray *)_deletedEntities addObject: entity.permId];
-            [self.managedObjectContext deleteObject: entity];
-        }
+    // Remove entities that were not updated since the prune cutoff date
+    // Remove all entities that were not mentioned
+    NSFetchRequest *fetchRequest = [self.serviceManager fetchRequestForEntitiesNotUpdatedSince: self.pruneCutoffDate];
+    NSArray *entitiesToDelete = [self.managedObjectContext executeFetchRequest: fetchRequest error: &error];
+    for (CISDOBIpadEntity *entity in entitiesToDelete) {
+        [(NSMutableArray *)_deletedEntityPermIds addObject: entity.permId];
+        [self.managedObjectContext deleteObject: entity];
     }
     
     success = [self.managedObjectContext save: &error];
