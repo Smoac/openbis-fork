@@ -189,7 +189,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     [_queue addOperationWithBlock: syncBlock];
 }
 
-- (void)syncEntities:(NSArray *)rawEntities pruning:(BOOL)prune notifying:(CISDOBIpadServiceManagerCall *)managerCall
+- (void)syncEntities:(NSArray *)rawEntities notifying:(CISDOBIpadServiceManagerCall *)managerCall
 {
     void (^syncBlock)(void) = ^{
         [[NSNotificationCenter defaultCenter] postNotificationName: CISDOBIpadServiceWillSynchEntitiesNotification object: self];
@@ -198,19 +198,13 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
         CISDOBBackgroundDataSynchronizer *synchronizer = [[CISDOBBackgroundDataSynchronizer alloc] initWithServiceManager: self managerCall: managerCall rawEntities: rawEntities];
         [synchronizer run];
         
-        CISDOBBackgroundDataPruner *pruner = [[CISDOBBackgroundDataPruner alloc] initWithServiceManager: self managerCall: managerCall];
-        pruner.pruneCutoffDate = self.lastRootSetUpdateDate;
-        if (prune) {
-            [pruner run];
-        }
-        
         [[NSNotificationCenter defaultCenter] postNotificationName: CISDOBIpadServiceDidSynchEntitiesNotification object: self];         
         
         void (^notifyBlock)(void) = ^ {
             // Save the MOC and notifiy the client on the main thread
             if(!synchronizer.error) {
                 NSError *error = nil;
-                [self saveManagedObjectContextDeleting: pruner.deletedEntityPermIds error: &error];
+                [self saveManagedObjectContextDeleting: [NSArray array] error: &error];
                 synchronizer.error = error;
             }
             [synchronizer notifyCallOfResult];
@@ -283,7 +277,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     serviceCall.success = ^(id result) {
         weakSelf.online = YES;
         // Update the cache and call the managerCall success when done
-        [weakSelf syncEntities: result pruning: NO notifying: managerCall];
+        [weakSelf syncEntities: result notifying: managerCall];
     };    
     
     [self initializeFailureBlockOnServiceCall: serviceCall managerCall: managerCall];
@@ -782,11 +776,10 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     NSArray *refcons = [NSArray arrayWithObject: navEntity.refcon];
     CISDOBAsyncCall *call = [self.serviceManager.service listRootLevelEntities: permIds refcons: refcons];
     call.success = ^(id result) {
+        [self.serviceManager syncEntities: result notifying: nil];
         if (currentIndex+1 == count) {
-            [self.serviceManager syncEntities: result pruning: NO notifying: nil];
             [self.serviceManager pruneEntitiesNotifying: self.serviceManagerCall];
         } else {
-            [self.serviceManager syncEntities: result pruning: NO notifying: nil];
             [self runNextCall];
         }
     };    
@@ -806,7 +799,8 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
         CISDOBAsyncCall *call = [self.serviceManager.service listRootLevelEntities: permIds refcons: refcons];
     
         call.success = ^(id result) {
-           [self.serviceManager syncEntities: result pruning: YES notifying: self.serviceManagerCall];
+           [self.serviceManager syncEntities: result notifying: nil];
+           [self.serviceManager pruneEntitiesNotifying: self.serviceManagerCall];
         };
         [self.serviceManager initializeFailureBlockOnServiceCall: call managerCall: self.serviceManagerCall];
         [call start];
@@ -814,7 +808,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     }
     
     // First add the navigation entities
-    [self.serviceManager syncEntities: self.topLevelNavigationEntities pruning: NO notifying: nil];
+    [self.serviceManager syncEntities: self.topLevelNavigationEntities notifying: nil];
     
     // Go through each of the navigation entities and get the roots for them
     [self runNextCall];
