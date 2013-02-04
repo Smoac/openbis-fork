@@ -51,10 +51,6 @@ NSString *const CISDOBIpadServiceManagerErrorDomain = @"CISDOBIpadServiceManager
 @property(strong, readonly) NSManagedObjectContext *managedObjectContext;
 @property(copy, nonatomic) NSError *error;
 
-@property(nonatomic) BOOL prune;
-@property(strong, nonatomic) NSDate *pruneCutoffDate;
-@property(readonly) NSArray *deletedEntities;
-
 // Initialization
 - (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager managerCall:(CISDOBIpadServiceManagerCall *)call rawEntities:(NSArray *)rawEntities;
 
@@ -172,13 +168,11 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
         
         // Run the synchronizer in the background thread
         CISDOBBackgroundDataSynchronizer *synchronizer = [[CISDOBBackgroundDataSynchronizer alloc] initWithServiceManager: self managerCall: managerCall rawEntities: rawEntities];
-        synchronizer.prune = prune;
-        synchronizer.pruneCutoffDate = self.lastRootSetUpdateDate;
         [synchronizer run];
         
+        CISDOBBackgroundDataPruner *pruner = [[CISDOBBackgroundDataPruner alloc] initWithServiceManager: self];
+        pruner.pruneCutoffDate = self.lastRootSetUpdateDate;
         if (prune) {
-            CISDOBBackgroundDataPruner *pruner = [[CISDOBBackgroundDataPruner alloc] initWithServiceManager: self];
-            pruner.pruneCutoffDate = self.lastRootSetUpdateDate;
             [pruner run];
         }
         
@@ -186,13 +180,12 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
         
         void (^notifyBlock)(void) = ^ {
             // Save the MOC and notifiy the client on the main thread
-            CISDOBBackgroundDataSynchronizer *notifySynchronizer = synchronizer;
-            if(!notifySynchronizer.error) {
+            if(!synchronizer.error) {
                 NSError *error = nil;
-                [self saveManagedObjectContextDeleting: notifySynchronizer.deletedEntities error: &error];
-                notifySynchronizer.error = error;
+                [self saveManagedObjectContextDeleting: pruner.deletedEntityPermIds error: &error];
+                synchronizer.error = error;
             }
-            [notifySynchronizer notifyCallOfResult];
+            [synchronizer notifyCallOfResult];
         };
         [[NSOperationQueue mainQueue] addOperationWithBlock: notifyBlock];
     };
@@ -511,9 +504,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     _rawEntities = rawEntities;
     _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType: NSConfinementConcurrencyType];
     _managedObjectContext.parentContext = _serviceManager.managedObjectContext;
-    _prune = NO;
     _error = nil;
-    _deletedEntities = [NSMutableArray array];
     
     return self;
 }
