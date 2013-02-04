@@ -601,7 +601,6 @@ public class ContentCache implements IContentCache, InitializingBean
         {
             DataSetInfo info = entry.getValue();
             String dataSet = entry.getKey();
-            System.out.println(Thread.currentThread()+" "+dataSet+" "+info+" "+nowMinusKeepingTime);
             if (info.lastModified < nowMinusKeepingTime
                     && fileLockManager.isDataSetLocked(dataSet) == false)
             {

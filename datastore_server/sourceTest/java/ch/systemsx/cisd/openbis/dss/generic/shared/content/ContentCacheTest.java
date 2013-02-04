@@ -608,8 +608,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
 
         assertEquals(FILE1_CONTENT, FileUtilities.loadToString(runnable1.tryGetResult()).trim());
         assertEquals(FILE2_CONTENT, FileUtilities.loadToString(file).trim());
-        System.out
-                .println("ContentCacheTest.testRemovingDataSetFromCacheWhichIsLockedByAnotherThread()" +this.dataSetInfos);
+        assertEquals(2, dataSetInfos.size());
         context.assertIsSatisfied();
     }
 
