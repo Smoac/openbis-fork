@@ -501,6 +501,8 @@ def westernBlottings_to_dict(samples, want_props):
 	return result
 
 def retrieve_samples(sample_perm_ids_and_ref_cons):
+	if len(sample_perm_ids_and_ref_cons) < 1:
+		return []
 	sc = SearchCriteria()
 	sc.setOperator(sc.SearchOperator.MATCH_ANY_CLAUSES)
 	for sample in sample_perm_ids_and_ref_cons:
@@ -548,9 +550,20 @@ class YeastLabNavigationRequestHandler(NavigationRequestHandler):
 class YeastLabRootRequestHandler(RootRequestHandler):
 	"""Handler for the ROOT request."""
 
+	def add_match_clause_for_type(self, all_samples_sc, sample_type):
+		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, sample_type))	
+
 	def add_match_clause(self, all_samples_sc, sample_type, nav_perm_ids):
 		if sample_type in nav_perm_ids:
-			all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, sample_type))
+			self.add_match_clause_for_type(all_samples_sc, sample_type)
+
+	def add_nav_layer_and_data_rows(self, nav_layer, rows):
+		self.add_rows([nav_layer])
+		self.add_rows(rows)
+
+	def add_requested_data_rows(self, nav_layer, rows, sample_type, nav_perm_ids):
+		if sample_type in nav_perm_ids:
+			self.add_nav_layer_and_data_rows(nav_layer, rows)
 
 	def retrieve_data(self):
 		all_samples_sc = SearchCriteria()
@@ -566,8 +579,9 @@ class YeastLabRootRequestHandler(RootRequestHandler):
 		self.add_match_clause(all_samples_sc, "MEDIA", nav_perm_ids)
 		self.add_match_clause(all_samples_sc, "PCR", nav_perm_ids)
 		self.add_match_clause(all_samples_sc, "SOLUTIONS_BUFFERS", nav_perm_ids)
-		self.add_match_clause(all_samples_sc, "PLASMID", nav_perm_ids)
-		self.add_match_clause(all_samples_sc, "YEAST", nav_perm_ids)
+		if "PLASMID" in nav_perm_ids or "YEAST" in nav_perm_ids:
+			self.add_match_clause_for_type(all_samples_sc, "PLASMID")
+			self.add_match_clause_for_type(all_samples_sc, "YEAST")
 		self.add_match_clause(all_samples_sc, "BACTERIA", nav_perm_ids)
 		self.add_match_clause(all_samples_sc, "ENZYME", nav_perm_ids)
 		self.add_match_clause(all_samples_sc, "WESTERN_BLOTTING", nav_perm_ids)
@@ -587,19 +601,23 @@ class YeastLabRootRequestHandler(RootRequestHandler):
 				children.append(yeast)			
 
 	def add_data_rows(self):
-		self.add_rows(navigation_layer(self.oligos, self.antibodies, self.chemicals, self.protocols, self.medias, self.pcrs, self.buffers, self.plasmids, self.yeasts, self.bacterias, self.enzymes, self.westernBlottings))
-		self.add_rows(oligos_to_dict(self.oligos, False))
-		self.add_rows(antibodies_to_dict(self.antibodies, False))
-		self.add_rows(chemicals_to_dict(self.chemicals, False))
-		self.add_rows(protocols_to_dict(self.protocols, False))
-		self.add_rows(medias_to_dict(self.medias, False))
-		self.add_rows(pcrs_to_dict(self.pcrs, False))
-		self.add_rows(buffers_to_dict(self.buffers, False))
-		self.add_rows(plasmids_to_dict(self.plasmids, self.children_map, False))            	
-		self.add_rows(yeasts_to_dict(self.yeasts, self.children_map, False))
-		self.add_rows(bacterias_to_dict(self.bacterias, False))
-		self.add_rows(enzymes_to_dict(self.enzymes, False))
-		self.add_rows(westernBlottings_to_dict(self.westernBlottings, False))
+		nav_entities = self.entities_parameter()
+		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
+
+		self.add_requested_data_rows(oligo_navigation_layer(self.oligos), oligos_to_dict(self.oligos, False), "OLIGO", nav_perm_ids)
+		self.add_requested_data_rows(antibody_navigation_layer(self.antibodies), antibodies_to_dict(self.antibodies, False), "ANTIBODY", nav_perm_ids)
+		self.add_requested_data_rows(chemical_navigation_layer(self.chemicals), chemicals_to_dict(self.chemicals, False), "CHEMICAL", nav_perm_ids)
+		self.add_requested_data_rows(protocol_navigation_layer(self.protocols), protocols_to_dict(self.protocols, False), "GENERAL_PROTOCOL", nav_perm_ids)
+		self.add_requested_data_rows(media_navigation_layer(self.medias), medias_to_dict(self.medias, False), "MEDIA", nav_perm_ids)
+		self.add_requested_data_rows(pcr_navigation_layer(self.pcrs), pcrs_to_dict(self.pcrs, False), "PCR", nav_perm_ids)
+		self.add_requested_data_rows(buffer_navigation_layer(self.buffers), buffers_to_dict(self.buffers, False), "SOLUTIONS_BUFFERS", nav_perm_ids)
+		if "PLASMID" in nav_perm_ids or "YEAST" in nav_perm_ids:
+			self.add_nav_layer_and_data_rows(plasmid_navigation_layer(self.plasmids), plasmids_to_dict(self.plasmids, self.children_map, False))
+			self.add_nav_layer_and_data_rows(yeast_navigation_layer(self.yeasts), yeasts_to_dict(self.yeasts, self.children_map, False))
+		self.add_requested_data_rows(bacteria_navigation_layer(self.bacterias), bacterias_to_dict(self.bacterias, False), "BACTERIA", nav_perm_ids)
+		self.add_requested_data_rows(enzyme_navigation_layer(self.enzymes), enzymes_to_dict(self.enzymes, False), "ENZYME", nav_perm_ids)
+		self.add_requested_data_rows(western_blotting_navigation_layer(self.westernBlottings), westernBlottings_to_dict(self.westernBlottings, False), "WESTERN_BLOTTING", nav_perm_ids)		
+
 
 class YeastLabDrillRequestHandler(DrillRequestHandler):
 	"""Handler for the DRILL request."""
@@ -614,7 +632,7 @@ class YeastLabDrillRequestHandler(DrillRequestHandler):
 		drill_medias = [entity for entity in entities if 'MEDIA' == entity['REFCON']['entityType']]	
 		drill_pcrs = [entity for entity in entities if 'PCR' == entity['REFCON']['entityType']]	
 		drill_buffers = [entity for entity in entities if 'SOLUTIONS_BUFFERS' == entity['REFCON']['entityType']]	
-		#drill_plasmids = [entity for entity in entities if 'PLASMID' == entity['REFCON']['entityType']]
+		drill_plasmids = [entity for entity in entities if 'PLASMID' == entity['REFCON']['entityType']]
 		drill_bacterias = [entity for entity in entities if 'BACTERIA' == entity['REFCON']['entityType']]	
 		drill_enzymes = [entity for entity in entities if 'ENZYME' == entity['REFCON']['entityType']]	
 		drill_westernBlottings = [entity for entity in entities if 'WESTERN_BLOTTING' == entity['REFCON']['entityType']]	
