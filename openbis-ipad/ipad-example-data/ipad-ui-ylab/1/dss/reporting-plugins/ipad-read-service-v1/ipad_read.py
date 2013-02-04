@@ -547,6 +547,11 @@ class YeastLabNavigationRequestHandler(NavigationRequestHandler):
 
 class YeastLabRootRequestHandler(RootRequestHandler):
 	"""Handler for the ROOT request."""
+
+	def add_match_clause(self, all_samples_sc, sample_type, nav_perm_ids):
+		if sample_type in nav_perm_ids:
+			all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, sample_type))
+
 	def retrieve_data(self):
 		all_samples_sc = SearchCriteria()
 		all_samples_sc.setOperator(SearchCriteria.SearchOperator.MATCH_ANY_CLAUSES)
@@ -554,18 +559,18 @@ class YeastLabRootRequestHandler(RootRequestHandler):
 			# Check which navigational entities are being requested here
 		nav_entities = self.entities_parameter()
 		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
-		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "OLIGO"))
-		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "ANTIBODY"))
-		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "CHEMICAL"))
-		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "GENERAL_PROTOCOL"))
-		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "MEDIA"))
-		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "PCR"))
-		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "SOLUTIONS_BUFFERS"))
-		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "PLASMID"))
-		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "YEAST"))
-		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "BACTERIA"))
-		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "ENZYME"))
-		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "WESTERN_BLOTTING"))
+		self.add_match_clause(all_samples_sc, "OLIGO", nav_perm_ids)
+		self.add_match_clause(all_samples_sc, "ANTIBODY", nav_perm_ids)
+		self.add_match_clause(all_samples_sc, "CHEMICAL", nav_perm_ids)
+		self.add_match_clause(all_samples_sc, "GENERAL_PROTOCOL", nav_perm_ids)
+		self.add_match_clause(all_samples_sc, "MEDIA", nav_perm_ids)
+		self.add_match_clause(all_samples_sc, "PCR", nav_perm_ids)
+		self.add_match_clause(all_samples_sc, "SOLUTIONS_BUFFERS", nav_perm_ids)
+		self.add_match_clause(all_samples_sc, "PLASMID", nav_perm_ids)
+		self.add_match_clause(all_samples_sc, "YEAST", nav_perm_ids)
+		self.add_match_clause(all_samples_sc, "BACTERIA", nav_perm_ids)
+		self.add_match_clause(all_samples_sc, "ENZYME", nav_perm_ids)
+		self.add_match_clause(all_samples_sc, "WESTERN_BLOTTING", nav_perm_ids)
 		self.samples = self.searchService.searchForSamples(all_samples_sc)
 
 		# Sort out the results
