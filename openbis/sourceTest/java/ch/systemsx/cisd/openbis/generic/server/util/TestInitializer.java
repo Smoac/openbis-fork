@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.util;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -29,6 +31,8 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.dbmigration.postgresql.DumpPreparator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IndexCreationUtil;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexerRunnable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
@@ -90,8 +94,19 @@ public class TestInitializer
 
                 System.setProperty("script-folder", SCRIPT_FOLDER_TEST_DB);
 
-                IndexCreationUtil.main("test", temporaryFile.getAbsolutePath(), "true");
-
+                String databaseKind =
+                        "indexing_" + (System.currentTimeMillis() % (24 * 60 * 60 * 1000L));
+                IndexCreationUtil.main(databaseKind, temporaryFile.getAbsolutePath(), "true");
+                String psql = DumpPreparator.getPSQLExecutable();
+                String databaseName = "openbis_" + databaseKind;
+                String sql = "drop database " + databaseName;
+                List<String> cmd = Arrays.asList(psql, "-U", "postgres", "-c", sql);
+                boolean result = ProcessExecutionHelper.runAndLog(cmd, operationLog, operationLog);
+                if (result == false)
+                {
+                    operationLog.error("Couldn't drop database created for indexing: "
+                            + databaseName);
+                }
             } catch (Exception ex)
             {
                 operationLog.error(ex);
