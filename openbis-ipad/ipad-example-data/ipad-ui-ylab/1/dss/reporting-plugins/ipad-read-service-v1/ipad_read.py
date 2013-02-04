@@ -270,190 +270,36 @@ def properties_for_entity(entity, property_definitions, prop_names_set):
 def marquee_image_spec_for_url(image_url):
 	return { 'MARQUEE' : { 'URL' : image_url } }
 
+def navigation_layer_simple(summary_header, summary, code, children):
+	nav_dict = {}
+	nav_dict["SUMMARY_HEADER"] = summary_header
+	nav_dict["SUMMARY"] = summary
+	nav_dict['PERM_ID'] = code
+	refcon_nav = {}
+	refcon_nav['code'] = code
+	refcon_nav['entityKind'] = 'NAVIGATION'
+	refcon_nav['entityType'] = 'NAVIGATION'
+	nav_dict['REFCON'] = json_encoded_value(refcon_nav)
+	nav_dict['CATEGORY'] = None
+	children_permids = [entity.getPermId() for entity in children]
+	nav_dict['CHILDREN'] = json_encoded_value(children_permids)
+	nav_dict['PROPERTIES'] = json_encoded_value([])
+	nav_dict['ROOT_LEVEL'] = True
+	return nav_dict
+
 def navigation_layer(oligos, antibodies, chemicals, protocols, medias, pcrs, buffers, plasmids, yeasts, bacterias, enzymes, westernBlottings):
-	oligo_dict = {}
-	oligo_dict["SUMMARY_HEADER"] = "oligo"
-	oligo_dict["SUMMARY"] = "Oligos in YeastLab"
-	oligo_dict['PERM_ID'] = "OLIGO"
-	refcon_oligo = {}
-	refcon_oligo['code'] =	"OLIGO"
-	refcon_oligo['entityKind'] = 'NAVIGATION'
-	refcon_oligo['entityType'] = 'NAVIGATION'
-	oligo_dict['REFCON'] = json_encoded_value(refcon_oligo)
-	oligo_dict['CATEGORY'] = None
-	children = [oligo.getPermId() for oligo in oligos]
-	oligo_dict['CHILDREN'] = json_encoded_value(children)
-	oligo_dict['PROPERTIES'] = json_encoded_value([])
-	oligo_dict['ROOT_LEVEL'] = True
-
- 
-	antibody_dict = {}
-	antibody_dict["SUMMARY_HEADER"] = "antibody"
-	antibody_dict["SUMMARY"] = "Antibodies in YeastLab"
-	antibody_dict['PERM_ID'] = "ANTIBODY"
-	refcon_antibody = {}
-	refcon_antibody['code'] =  "ANTIBODY"
-	refcon_antibody['entityKind'] = 'NAVIGATION'
-	refcon_antibody['entityType'] = 'NAVIGATION'
-	antibody_dict['REFCON'] = json_encoded_value(refcon_antibody)
-	antibody_dict['CATEGORY'] = None
-	children = [antibody.getPermId() for antibody in antibodies]
-	antibody_dict['CHILDREN'] = json_encoded_value(children)
-	antibody_dict['PROPERTIES'] = json_encoded_value([])
-	antibody_dict['ROOT_LEVEL'] = True
-	chemical_dict = {}
-
-	chemical_dict["SUMMARY_HEADER"] = "chemical"
-	chemical_dict["SUMMARY"] = "Chemicals in YeastLab"
-	chemical_dict['PERM_ID'] = "CHEMICAL"
-	refcon_chemical = {}
-	refcon_chemical['code'] =  "CHEMICAL"
-	refcon_chemical['entityKind'] = 'NAVIGATION'
-	refcon_chemical['entityType'] = 'NAVIGATION'
-	chemical_dict['REFCON'] = json_encoded_value(refcon_chemical)
-	chemical_dict['CATEGORY'] = None
-	children = [chemical.getPermId() for chemical in chemicals]
-	chemical_dict['CHILDREN'] = json_encoded_value(children)
-	chemical_dict['PROPERTIES'] = json_encoded_value([])
-	chemical_dict['ROOT_LEVEL'] = True
-	
-	protocol_dict = {}
-	protocol_dict["SUMMARY_HEADER"] = "protocol"
-	protocol_dict["SUMMARY"] = "Protocols in YeastLab"
-	protocol_dict['PERM_ID'] = "GENERAL_PROTOCOL"
-	refcon_protocol = {}
-	refcon_protocol['code'] =  "GENERAL_PROTOCOL"
-	refcon_protocol['entityKind'] = 'NAVIGATION'
-	refcon_protocol['entityType'] = 'NAVIGATION'
-	protocol_dict['REFCON'] = json_encoded_value(refcon_protocol)
-	protocol_dict['CATEGORY'] = None
-	children = [protocol.getPermId() for protocol in protocols]
-	protocol_dict['CHILDREN'] = json_encoded_value(children)
-	protocol_dict['PROPERTIES'] = json_encoded_value([])
-	protocol_dict['ROOT_LEVEL'] = True	
-
-	media_dict = {}
-	media_dict["SUMMARY_HEADER"] = "media"
-	media_dict["SUMMARY"] = "Medias in YeastLab"
-	media_dict['PERM_ID'] = "MEDIA"
-	refcon_media = {}
-	refcon_media['code'] =	"MEDIA"
-	refcon_media['entityKind'] = 'NAVIGATION'
-	refcon_media['entityType'] = 'NAVIGATION'
-	media_dict['REFCON'] = json_encoded_value(refcon_media)
-	media_dict['CATEGORY'] = None
-	children = [media.getPermId() for media in medias]
-	media_dict['CHILDREN'] = json_encoded_value(children)
-	media_dict['PROPERTIES'] = json_encoded_value([])
-	media_dict['ROOT_LEVEL'] = True 
-
-	pcr_dict = {}
-	pcr_dict["SUMMARY_HEADER"] = "pcr"
-	pcr_dict["SUMMARY"] = "PCR in YeastLab"
-	pcr_dict['PERM_ID'] = "PCR"
-	refcon_pcr = {}
-	refcon_pcr['code'] =  "PCR"
-	refcon_pcr['entityKind'] = 'NAVIGATION'
-	refcon_pcr['entityType'] = 'NAVIGATION'
-	pcr_dict['REFCON'] = json_encoded_value(refcon_pcr)
-	pcr_dict['CATEGORY'] = None
-	children = [pcr.getPermId() for pcr in pcrs]
-	pcr_dict['CHILDREN'] = json_encoded_value(children)
-	pcr_dict['PROPERTIES'] = json_encoded_value([])
-	pcr_dict['ROOT_LEVEL'] = True	
-
-	buffer_dict = {}
-	buffer_dict["SUMMARY_HEADER"] = "buffer"
-	buffer_dict["SUMMARY"] = "Solution Buffers in YeastLab"
-	buffer_dict['PERM_ID'] = "SOLUTIONS_BUFFERS"
-	refcon_buffer = {}
-	refcon_buffer['code'] =	 "SOLUTIONS_BUFFERS"
-	refcon_buffer['entityKind'] = 'NAVIGATION'
-	refcon_buffer['entityType'] = 'NAVIGATION'
-	buffer_dict['REFCON'] = json_encoded_value(refcon_buffer)
-	buffer_dict['CATEGORY'] = None
-	children = [buffer.getPermId() for buffer in buffers]
-	buffer_dict['CHILDREN'] = json_encoded_value(children)
-	buffer_dict['PROPERTIES'] = json_encoded_value([])
-	buffer_dict['ROOT_LEVEL'] = True		
-	
-	plasmid_dict = {}
-	plasmid_dict["SUMMARY_HEADER"] = "plasmid"
-	plasmid_dict["SUMMARY"] = "Plasmids in YeastLab"
-	plasmid_dict['PERM_ID'] = "PLASMID"
-	refcon_plasmid = {}
-	refcon_plasmid['code'] =  "PLASMID"
-	refcon_plasmid['entityKind'] = 'NAVIGATION'
-	refcon_plasmid['entityType'] = 'NAVIGATION'
-	plasmid_dict['REFCON'] = json_encoded_value(refcon_plasmid)
-	plasmid_dict['CATEGORY'] = None
-	children = [plasmid.getPermId() for plasmid in plasmids]
-	plasmid_dict['CHILDREN'] = json_encoded_value(children)
-	plasmid_dict['PROPERTIES'] = json_encoded_value([])
-	plasmid_dict['ROOT_LEVEL'] = True	
-		
-	yeast_dict = {}
-	yeast_dict["SUMMARY_HEADER"] = "yeast"
-	yeast_dict["SUMMARY"] = "Yeasts in YeastLab"
-	yeast_dict['PERM_ID'] = "YEAST"
-	refcon_yeast = {}
-	refcon_yeast['code'] =	"YEAST"
-	refcon_yeast['entityKind'] = 'NAVIGATION'
-	refcon_yeast['entityType'] = 'NAVIGATION'
-	yeast_dict['REFCON'] = json_encoded_value(refcon_yeast)
-	yeast_dict['CATEGORY'] = None
-	children = [yeast.getPermId() for yeast in yeasts]
-	yeast_dict['CHILDREN'] = json_encoded_value(children)
-	yeast_dict['PROPERTIES'] = json_encoded_value([])
-	yeast_dict['ROOT_LEVEL'] = True	   
-	
-	
-	bacteria_dict = {}
-	bacteria_dict["SUMMARY_HEADER"] = "bacteria"
-	bacteria_dict["SUMMARY"] = "Bacteria in YeastLab"
-	bacteria_dict['PERM_ID'] = "BACTERIA"
-	refcon_bacteria = {}
-	refcon_bacteria['code'] =  "BACTERIA"
-	refcon_bacteria['entityKind'] = 'NAVIGATION'
-	refcon_bacteria['entityType'] = 'NAVIGATION'
-	bacteria_dict['REFCON'] = json_encoded_value(refcon_bacteria)
-	bacteria_dict['CATEGORY'] = None
-	children = [bacteria.getPermId() for bacteria in bacterias]
-	bacteria_dict['CHILDREN'] = json_encoded_value(children)
-	bacteria_dict['PROPERTIES'] = json_encoded_value([])
-	bacteria_dict['ROOT_LEVEL'] = True	  
-
-	enzyme_dict = {}
-	enzyme_dict["SUMMARY_HEADER"] = "enzyme"
-	enzyme_dict["SUMMARY"] = "Enzymes in YeastLab"
-	enzyme_dict['PERM_ID'] = "ENZYME"
-	refcon_enzyme = {}
-	refcon_enzyme['code'] =	 "ENZYME"
-	refcon_enzyme['entityKind'] = 'NAVIGATION'
-	refcon_enzyme['entityType'] = 'NAVIGATION'
-	enzyme_dict['REFCON'] = json_encoded_value(refcon_enzyme)
-	enzyme_dict['CATEGORY'] = None
-	children = [enzyme.getPermId() for enzyme in enzymes]
-	enzyme_dict['CHILDREN'] = json_encoded_value(children)
-	enzyme_dict['PROPERTIES'] = json_encoded_value([])
-	enzyme_dict['ROOT_LEVEL'] = True	
-
-
-	westernBlotting_dict = {}
-	westernBlotting_dict["SUMMARY_HEADER"] = "western blotting"
-	westernBlotting_dict["SUMMARY"] = "Western Blotting in YeastLab"
-	westernBlotting_dict['PERM_ID'] = "WESTERN_BLOTTING"
-	refcon_westernBlotting = {}
-	refcon_westernBlotting['code'] =  "WESTERN_BLOTTING"
-	refcon_westernBlotting['entityKind'] = 'NAVIGATION'
-	refcon_westernBlotting['entityType'] = 'NAVIGATION'
-	westernBlotting_dict['REFCON'] = json_encoded_value(refcon_westernBlotting)
-	westernBlotting_dict['CATEGORY'] = None
-	children = [westernBlotting.getPermId() for westernBlotting in westernBlottings]
-	westernBlotting_dict['CHILDREN'] = json_encoded_value(children)
-	westernBlotting_dict['PROPERTIES'] = json_encoded_value([])
-	westernBlotting_dict['ROOT_LEVEL'] = True 
-
+	oligo_dict = navigation_layer_simple("oligo", "Oligos in YeastLab", "OLIGO", oligos)
+	antibody_dict = navigation_layer_simple("antibody", "Antibodies in YeastLab", "ANTIBODY", antibodies)
+	chemical_dict = navigation_layer_simple("chemical", "Chemicals in YeastLab", "CHEMICAL", chemicals)
+	protocol_dict = navigation_layer_simple("protocol", "Protocols in YeastLab", "GENERAL_PROTOCOL", protocols)
+	media_dict = navigation_layer_simple("media", "Medias in YeastLab", "MEDIA", medias)
+	pcr_dict = navigation_layer_simple("pcr", "PCR in YeastLab", "PCR", pcrs)
+	buffer_dict =  navigation_layer_simple("buffer", "Solution Buffers in YeastLab", "SOLUTIONS_BUFFERS", buffers)
+	plasmid_dict = navigation_layer_simple("plasmid", "Plasmids in YeastLab", "PLASMID", plasmids)
+	yeast_dict = navigation_layer_simple("yeast", "Yeasts in YeastLab", "YEAST", yeasts)
+	bacteria_dict = navigation_layer_simple("bacteria", "Bacteria in YeastLab", "BACTERIA", bacterias)
+	enzyme_dict = navigation_layer_simple("enzyme", "Enzymes in YeastLab", "ENZYME", enzymes)
+	westernBlotting_dict = navigation_layer_simple("western blotting", "Western Blotting in YeastLab", "WESTERN_BLOTTING", westernBlottings)
 	return [oligo_dict, antibody_dict, chemical_dict, protocol_dict, media_dict, pcr_dict, buffer_dict, plasmid_dict, yeast_dict, bacteria_dict, enzyme_dict, westernBlotting_dict]
 
 def sample_to_dict_with_props(sample, want_props):
