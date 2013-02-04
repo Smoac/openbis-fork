@@ -115,9 +115,11 @@ function displayResults(node, data)
 {
 	if (data.error) {
 		console.log(data.error);
-		root.append("p").text("Could not retrieve data.");
+		node.append("p").text("Could not retrieve data.");
 		return;
 	}
+
+	node.selectAll("p").data([]).exit().remove();
 	
 	// This will show the object in the log -- helpful for debugging
 	// console.log(data.result);
@@ -131,31 +133,25 @@ function displayResults(node, data)
 	showTableData(table);
 }
 
-function displayClientPreferences(data)
+/**
+ * Display that the call is in progress
+ */
+function displayCallInProgress(node)
 {
-	displayResults(clientPrefs, data)
+	// Display the rows in a table
+	var table = node.selectAll("table").data([]);
+	// Code under enter is run if there is no HTML element for a data element
+	table.enter().append("table").attr("class", "table");
+	table.exit().remove();
+	node.append("p").text("Getting data...");
 }
 
 
-function displayNavigation(data)
-{
-	displayResults(navigation, data)
-}
-
-function displayRoot(data)
-{
-	displayResults(root, data)
-}
-
-function displayDrill(data)
-{
-	displayResults(drill, data)
-}
-
-function displayDetail(data)
-{
-	displayResults(detail, data)
-}
+function displayClientPreferences(data) { displayResults(clientPrefs, data) }
+function displayNavigation(data) { displayResults(navigation, data) }
+function displayRoot(data) { displayResults(root, data) }
+function displayDrill(data) { displayResults(drill, data) }
+function displayDetail(data) { displayResults(detail, data) }
 
 /**
  * Request the client perferences and show them in the page.
@@ -163,7 +159,7 @@ function displayDetail(data)
 function listClientPreferences()
 {
 	var parameters = {requestKey : 'CLIENT_PREFS'};
-
+	displayCallInProgress(clientPrefs);
 	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, displayClientPreferences);
 }
 
@@ -173,7 +169,7 @@ function listClientPreferences()
 function listNavigationEntities()
 {
 	var parameters = {requestKey : 'NAVIGATION'};
-
+	displayCallInProgress(navigation);
 	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, displayNavigation);
 }
 
@@ -185,6 +181,7 @@ function listRootLevelEntities(permId, refcon)
 	var entities = [{"PERM_ID" : permId, "REFCON" : refcon}];
 	var parameters = {requestKey : 'ROOT', entities: entities};
 
+	displayCallInProgress(root);
 	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, displayRoot);
 }
 
@@ -193,6 +190,7 @@ function drillOnEntity(permId, refcon)
 	var entities = [{"PERM_ID" : permId, "REFCON" : refcon}];
 	var parameters = {requestKey : 'DRILL', entities: entities};
 
+	displayCallInProgress(drill);
 	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, displayDrill);
 }
 
@@ -201,6 +199,7 @@ function detailsForEntity(permId, refcon)
 	var entities = [{"PERM_ID" : permId, "REFCON" : refcon}];
 	var parameters = {requestKey : 'DETAIL', entities: entities};
 
+	displayCallInProgress(detail);
 	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, displayDetail);
 }
 
