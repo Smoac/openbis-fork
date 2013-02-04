@@ -784,8 +784,8 @@ class YeastLabRootRequestHandler(RootRequestHandler):
 
 	def retrieve_data(self):
 		# Get the data and add a row for each data item
-        	sc_oligo = SearchCriteria()
-       		sc_oligo.addMatchClause(sc_oligo.MatchClause.createAttributeMatch(sc_oligo.MatchClauseAttribute.TYPE, "OLIGO"))
+		sc_oligo = SearchCriteria()
+		sc_oligo.addMatchClause(sc_oligo.MatchClause.createAttributeMatch(sc_oligo.MatchClauseAttribute.TYPE, "OLIGO"))
 		self.oligos = self.searchService.searchForSamples(sc_oligo)
 
 		sc_antibody = SearchCriteria()
@@ -847,17 +847,17 @@ class YeastLabRootRequestHandler(RootRequestHandler):
 	def add_data_rows(self):
 		self.add_rows(navigation_layer(self.oligos, self.antibodies, self.chemicals, self.protocols, self.medias, self.pcrs, self.buffers, self.plasmids, self.yeasts, self.bacterias, self.enzymes, self.westernBlottings))
 		self.add_rows(oligos_to_dict(self.oligos))
-        	self.add_rows(antibodies_to_dict(self.antibodies))
-        	self.add_rows(chemicals_to_dict(self.chemicals))
-        	self.add_rows(protocols_to_dict(self.protocols))
-       	 	self.add_rows(medias_to_dict(self.medias))
-        	self.add_rows(pcrs_to_dict(self.pcrs))
-        	self.add_rows(buffers_to_dict(self.buffers))
-            	self.add_rows(plasmids_to_dict(self.plasmids, self.children_map))
-            	self.add_rows(yeasts_to_dict(self.yeasts, self.children_map))
-        	self.add_rows(bacterias_to_dict(self.bacterias))
-        	self.add_rows(enzymes_to_dict(self.enzymes))
-        	self.add_rows(westernBlottings_to_dict(self.westernBlottings))
+		self.add_rows(antibodies_to_dict(self.antibodies))
+		self.add_rows(chemicals_to_dict(self.chemicals))
+		self.add_rows(protocols_to_dict(self.protocols))
+		self.add_rows(medias_to_dict(self.medias))
+		self.add_rows(pcrs_to_dict(self.pcrs))
+		self.add_rows(buffers_to_dict(self.buffers))
+		self.add_rows(plasmids_to_dict(self.plasmids, self.children_map))
+		self.add_rows(yeasts_to_dict(self.yeasts, self.children_map))
+		self.add_rows(bacterias_to_dict(self.bacterias))
+		self.add_rows(enzymes_to_dict(self.enzymes))
+		self.add_rows(westernBlottings_to_dict(self.westernBlottings))
 
 class YeastLabDrillRequestHandler(DrillRequestHandler):
 	"""Handler for the DRILL request."""
@@ -876,10 +876,6 @@ class YeastLabDrillRequestHandler(DrillRequestHandler):
 		drill_bacterias = [entity for entity in entities if 'BACTERIA' == entity['REFCON']['entityType']]	
 		drill_enzymes = [entity for entity in entities if 'ENZYME' == entity['REFCON']['entityType']]	
 		drill_westernBlottings = [entity for entity in entities if 'WESTERN_BLOTTING' == entity['REFCON']['entityType']]	
-                
-                
-                			
-		
 
 		# No information to return for navigation, oligos, or antibodies
 		
@@ -903,27 +899,27 @@ class YeastLabDetailRequestHandler(DetailRequestHandler):
 		self.medias = [sample for sample in self.samples if 'MEDIA' == sample.getSampleType()]
 		self.pcrs = [sample for sample in self.samples if 'PCR' == sample.getSampleType()]
 		self.buffers = [sample for sample in self.samples if 'SOLUTIONS_BUFFERS' == sample.getSampleType()]
-        	self.plasmids = [sample for sample in self.samples if 'PLASMID' == sample.getSampleType()]
-        	self.yeasts = [sample for sample in self.samples if 'YEAST' == sample.getSampleType()]
+		self.plasmids = [sample for sample in self.samples if 'PLASMID' == sample.getSampleType()]
+		self.yeasts = [sample for sample in self.samples if 'YEAST' == sample.getSampleType()]
 		self.plasmid_data_sets = retrieve_seq_data_sets(self.plasmids)
-        	self.bacterias = [sample for sample in self.samples if 'BACTERIA' == sample.getSampleType()]
-        	self.enzymes = [sample for sample in self.samples if 'ENZYME' == sample.getSampleType()]
-        	self.westernBlottings = [sample for sample in self.samples if 'WESTERN_BLOTTING' == sample.getSampleType()]
+		self.bacterias = [sample for sample in self.samples if 'BACTERIA' == sample.getSampleType()]
+		self.enzymes = [sample for sample in self.samples if 'ENZYME' == sample.getSampleType()]
+		self.westernBlottings = [sample for sample in self.samples if 'WESTERN_BLOTTING' == sample.getSampleType()]
 		
 
 	def add_data_rows(self):
 		self.add_rows(oligos_to_dict(self.oligos))
-        	self.add_rows(antibodies_to_dict(self.antibodies))
-        	self.add_rows(chemicals_to_dict(self.chemicals))
-        	self.add_rows(protocols_to_dict(self.protocols))
-        	self.add_rows(medias_to_dict(self.medias))
-        	self.add_rows(pcrs_to_dict(self.pcrs))
-        	self.add_rows(buffers_to_dict(self.buffers))
-            	self.add_rows(plasmids_to_dict_with_images(self.plasmids, {}, self.plasmid_data_sets))
-            	self.add_rows(yeasts_to_dict(self.yeasts, {}))
-        	self.add_rows(bacterias_to_dict(self.bacterias))
-        	self.add_rows(enzymes_to_dict(self.enzymes))
-        	self.add_rows(westernBlottings_to_dict(self.westernBlottings))            
+		self.add_rows(antibodies_to_dict(self.antibodies))
+		self.add_rows(chemicals_to_dict(self.chemicals))
+		self.add_rows(protocols_to_dict(self.protocols))
+		self.add_rows(medias_to_dict(self.medias))
+		self.add_rows(pcrs_to_dict(self.pcrs))
+		self.add_rows(buffers_to_dict(self.buffers))
+		self.add_rows(plasmids_to_dict_with_images(self.plasmids, {}, self.plasmid_data_sets))
+		self.add_rows(yeasts_to_dict(self.yeasts, {}))
+		self.add_rows(bacterias_to_dict(self.bacterias))
+		self.add_rows(enzymes_to_dict(self.enzymes))
+		self.add_rows(westernBlottings_to_dict(self.westernBlottings))            
             
             
             
