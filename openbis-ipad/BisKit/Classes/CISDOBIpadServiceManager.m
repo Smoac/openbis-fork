@@ -121,6 +121,8 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     _managedObjectModel = [_ipadEntityDescription managedObjectModel];
     
     _queue = [[NSOperationQueue alloc] init];
+        // Restrict this queue to processing operations serially
+    [_queue setMaxConcurrentOperationCount: 1];
     self.online = NO;
     
     return self;
@@ -246,7 +248,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     };
 }
 
-- (CISDOBIpadServiceManagerCall *)managerCallWrappingServiceCall:(CISDOBAsyncCall *)serviceCall pruning:(BOOL)prune
+- (CISDOBIpadServiceManagerCall *)managerCallWrappingServiceCall:(CISDOBAsyncCall *)serviceCall
 {
     CISDOBIpadServiceManagerCall *managerCall = [[CISDOBIpadServiceManagerCall alloc] initWithServiceManager: self serviceCall: serviceCall];
     
@@ -254,20 +256,13 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     
     serviceCall.success = ^(id result) {
         weakSelf.online = YES;
-        // We treat prune as a synonym for the root set update call
-        if (prune) weakSelf.lastRootSetUpdateDate = [NSDate date];
         // Update the cache and call the managerCall success when done
-        [weakSelf syncEntities: result pruning: prune notifying: managerCall];
+        [weakSelf syncEntities: result pruning: NO notifying: managerCall];
     };    
     
     [self initializeFailureBlockOnServiceCall: serviceCall managerCall: managerCall];
     
     return managerCall;
-}
-
-- (CISDOBIpadServiceManagerCall *)managerCallWrappingServiceCall:(CISDOBAsyncCall *)serviceCall
-{
-    return [self managerCallWrappingServiceCall: serviceCall pruning: NO];
 }
 
 - (CISDOBAsyncCall *)loginUser:(NSString *)user password:(NSString *)password
@@ -276,7 +271,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     // Remember the username and password so we can reauthenticate if necessary
     _username = user;
     _password = password;
-    CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call pruning: NO];
+    CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call];
     call.success = ^(id result) { [managerCall notifySuccess: result]; };
     managerCall.willCallNotificationName = CISDOBIpadServiceWillLoginNotification;
     managerCall.didCallNotificationName = CISDOBIpadServiceDidLoginNotification;
@@ -325,7 +320,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     
     // Make up a dummy call
     CISDOBAsyncCall *call = [self.service heartbeat];
-    CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call pruning: NO];
+    CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call];
 
     return managerCall;
 }
