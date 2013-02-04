@@ -130,8 +130,11 @@ public class FtpPathResolverContext implements ISessionTokenProvider
                     service.listExperiments(sessionToken,
                             Collections.singletonList(experimentIdentifier),
                             new ExperimentFetchOptions());
-            experiment = result.isEmpty() ? null : result.get(0);
-            cache.putExperiment(experiment);
+            if (result.isEmpty())
+            {
+                throw new IllegalArgumentException("Unknown experiment " + experimentId);
+            }
+            cache.putExperiment(result.get(0));
         }
         return experiment;
     }
