@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -489,7 +490,7 @@ public class ContentCache implements IContentCache, InitializingBean
         return createDataSetPath(folder, dataSetCode + "/" + path.getRelativePath());
     }
 
-    private String createDataSetPath(String folder, String dataSetCode)
+    private static String createDataSetPath(String folder, String dataSetCode)
     {
         return folder + "/" + dataSetCode;
     }
@@ -599,9 +600,11 @@ public class ContentCache implements IContentCache, InitializingBean
         for (Entry<String, DataSetInfo> entry : entrySet)
         {
             DataSetInfo info = entry.getValue();
-            if (info.lastModified < nowMinusKeepingTime)
+            String dataSet = entry.getKey();
+            System.out.println(Thread.currentThread()+" "+dataSet+" "+info+" "+nowMinusKeepingTime);
+            if (info.lastModified < nowMinusKeepingTime
+                    && fileLockManager.isDataSetLocked(dataSet) == false)
             {
-                String dataSet = entry.getKey();
                 File fileToRemove = new File(workspace, createDataSetPath(CACHE_FOLDER, dataSet));
                 boolean success = fileOperations.removeRecursivelyQueueing(fileToRemove);
                 if (success)
@@ -670,6 +673,19 @@ public class ContentCache implements IContentCache, InitializingBean
                     locks.remove(path);
                 }
             }
+        }
+        
+        synchronized boolean isDataSetLocked(String dataSetCode)
+        {
+            Set<String> keySet = locks.keySet();
+            for (String key : keySet)
+            {
+                if (key.startsWith(createDataSetPath(CACHE_FOLDER, dataSetCode) + "/"))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
     }

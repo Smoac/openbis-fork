@@ -47,8 +47,6 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
 {
     private static final String DATA_SET_CODE1 = "DS-1";
 
-    private static final String DATA_SET_CODE2 = "DS-2";
-
     private static final String DATA_SET_CODE3 = "DS-3";
 
     @Test
@@ -447,13 +445,12 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
 
         cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
 
-        assertEquals(createFirstLogLine()
-                + createSizeLogLine(0, 0).trim(),
+        assertEquals(createFirstLogLine() + createSizeLogLine(0, 0).trim(),
                 logRecorder.getLogContent());
         assertEquals(1000, dataSetInfos.get(DATA_SET_CODE).lastModified);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testTryToRemoveDataSetFromCacheFails()
     {
@@ -467,9 +464,9 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         prepareForRemoving(dataSetFolder1, false);
         ContentCache cache = createCache(19 * FileUtils.ONE_KB, 61000);
         timeProvider.getTimeInMilliseconds(); // next timestamp for the new file will be 61000
-        
+
         cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
-        
+
         assertEquals(createFirstLogLine() + createRecreatedlogLine(DATA_SET_CODE1)
                 + createSizeLogLine(28, 1) + "Couldn't remove " + dataSetFolder1 + ".",
                 logRecorder.getLogContent());
@@ -477,7 +474,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         assertEquals(61000, dataSetInfos.get(DATA_SET_CODE).lastModified);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRemovingOldestOfTwoDataSetsFromCache()
     {
@@ -496,9 +493,9 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         prepareForRemoving(dataSetFolder1, true);
         ContentCache cache = createCache(19 * FileUtils.ONE_KB, 1000);
         timeProvider.getTimeInMilliseconds(); // next timestamp for the new file will be 61000
-        
+
         cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
-        
+
         assertEquals(createFirstLogLine() + createRecreatedlogLine(DATA_SET_CODE1)
                 + createRecreatedlogLine(DATA_SET_CODE2) + createSizeLogLine(20, 2)
                 + createRemoveLogLine(DATA_SET_CODE1).trim(), logRecorder.getLogContent());
@@ -543,6 +540,76 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
         assertEquals(null, dataSetInfos.get(DATA_SET_CODE2));
         assertEquals(100000, dataSetInfos.get(DATA_SET_CODE3).lastModified);
         assertEquals(61000, dataSetInfos.get(DATA_SET_CODE).lastModified);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testRemovingDataSetFromCacheWhichIsLocked()
+    {
+        DataSetPathInfo pathInfo = prepareForDownloading(remoteFile1);
+        prepareRequestPersistence(1);
+        ContentCache cache = createCache(0, 0);
+
+        File file = cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo);
+
+        assertEquals(FILE1_CONTENT, FileUtilities.loadToString(file).trim());
+        context.assertIsSatisfied();
+    }
+
+    @Test(invocationCount = 1, invocationTimeOut = 10000)
+    public void testRemovingDataSetFromCacheWhichIsLockedByAnotherThread() throws Exception
+    {
+        File dataSetFolder1 =
+                new File(workSpace, CACHE_FOLDER + "/" + DATA_SET_LOCATION.getDataSetCode());
+        File file1 = new File(dataSetFolder1, "abc.txt");
+        file1.getParentFile().mkdirs();
+        FileUtilities.writeToFile(file1, createStringOfSize(18 * FileUtils.ONE_KB));
+        dataSetFolder1.setLastModified(0);
+        ConsoleLogger logger = new ConsoleLogger();
+        final MessageChannel channel1 =
+                new MessageChannelBuilder(10000).name("rdscwilbat-1").logger(logger).getChannel();
+        final MessageChannel channel2 =
+                new MessageChannelBuilder(10000).name("rdscwilbat-2").logger(logger).getChannel();
+        final DataSetPathInfo pathInfo1 = new DataSetPathInfo();
+        pathInfo1.setRelativePath(remoteFile1.getName());
+        pathInfo1.setDirectory(false);
+        context.checking(new Expectations()
+            {
+                {
+                    one(remoteDss).getDownloadUrlForFileForDataSet(SESSION_TOKEN, DATA_SET_CODE,
+                            pathInfo1.getRelativePath());
+                    will(new ProxyAction(returnValue(remoteFile1.toURI().toURL().toString()))
+                        {
+                            @Override
+                            protected void doBeforeReturn()
+                            {
+                                channel2.assertNextMessage(STARTED_MESSAGE);
+                                channel1.send(STARTED_MESSAGE);
+                                channel2.assertNextMessage(FINISHED_MESSAGE);
+                            }
+                        });
+                }
+            });
+        DataSetPathInfo pathInfo2 =
+                prepareForDownloading(remoteFile2, DATA_SET_LOCATION2.getDataSetCode());
+        prepareRequestPersistence(3);
+        timeProvider.getTimeInMilliseconds();
+        timeProvider.getTimeInMilliseconds(); // next timestamp for the new file will be 121000
+        final ContentCache cache = createCache(10 * FileUtils.ONE_KB, 180000);
+
+        GetFileRunnable runnable1 =
+                new GetFileRunnable(cache, SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1, channel1);
+        new Thread(runnable1, "THREAD-1").start();
+        channel2.send(STARTED_MESSAGE);
+        channel1.assertNextMessage(STARTED_MESSAGE);
+        File file = cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION2, pathInfo2);
+        channel2.send(FINISHED_MESSAGE);
+        channel1.assertNextMessage(FINISHED_MESSAGE);
+
+        assertEquals(FILE1_CONTENT, FileUtilities.loadToString(runnable1.tryGetResult()).trim());
+        assertEquals(FILE2_CONTENT, FileUtilities.loadToString(file).trim());
+        System.out
+                .println("ContentCacheTest.testRemovingDataSetFromCacheWhichIsLockedByAnotherThread()" +this.dataSetInfos);
         context.assertIsSatisfied();
     }
 
@@ -633,13 +700,18 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
 
     private DataSetPathInfo prepareForDownloading(final File remoteFile)
     {
+        return prepareForDownloading(remoteFile, DATA_SET_CODE);
+    }
+
+    private DataSetPathInfo prepareForDownloading(final File remoteFile, final String dataSetCode)
+    {
         final DataSetPathInfo pathInfo = new DataSetPathInfo();
         pathInfo.setRelativePath(remoteFile.getName());
         pathInfo.setDirectory(false);
         context.checking(new Expectations()
             {
                 {
-                    one(remoteDss).getDownloadUrlForFileForDataSet(SESSION_TOKEN, DATA_SET_CODE,
+                    one(remoteDss).getDownloadUrlForFileForDataSet(SESSION_TOKEN, dataSetCode,
                             pathInfo.getRelativePath());
                     try
                     {

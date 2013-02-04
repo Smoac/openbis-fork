@@ -27,14 +27,17 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.ContentCache.DataSetInfo;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
@@ -47,14 +50,19 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
     protected static final String DATA_STORE_URL = "http://a.b.c";
 
     protected static final String SESSION_TOKEN = "token";
-    
+
     private static final String DATA_STORE_CODE = "DSS";
-    
+
     protected static final String DATA_SET_CODE = "DS-123";
-    
-    protected static final IDatasetLocation DATA_SET_LOCATION = new DatasetLocation(
-            DATA_SET_CODE, "a/b/c", DATA_STORE_CODE, DATA_STORE_URL);
-    
+
+    protected static final IDatasetLocation DATA_SET_LOCATION = new DatasetLocation(DATA_SET_CODE,
+            "a/b/c", DATA_STORE_CODE, DATA_STORE_URL);
+
+    protected static final String DATA_SET_CODE2 = "DS-234";
+
+    protected static final IDatasetLocation DATA_SET_LOCATION2 = new DatasetLocation(
+            DATA_SET_CODE2, "b/c/d", DATA_STORE_CODE, DATA_STORE_URL);
+
     protected static final String STARTED_MESSAGE = "started";
 
     protected static final String FINISHED_MESSAGE = "finished";
@@ -64,7 +72,7 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
     protected static final String FILE2_CONTENT = "hello file two";
 
     protected BufferedAppender logRecorder;
-    
+
     protected Mockery context;
 
     protected IFileOperations fileOperations;
@@ -76,11 +84,11 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
     protected ISingleDataSetPathInfoProvider pathInfoProvider;
 
     protected OpenBISSessionHolder sessionHolder;
-    
+
     protected File workSpace;
 
     protected File remoteFile1;
-    
+
     protected File remoteFile2;
 
     protected ITimeProvider timeProvider;
@@ -89,7 +97,6 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
 
     protected HashMap<String, DataSetInfo> dataSetInfos;
 
-    
     @BeforeMethod
     public void setUpBasicFixture()
     {
@@ -110,7 +117,7 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
                 {
                     allowing(serviceFactory).getService(DATA_STORE_URL);
                     will(returnValue(remoteDss));
-                    
+
                     one(persistenceManager).load(dataSetInfos);
                     will(returnValue(dataSetInfos));
                 }
@@ -123,7 +130,7 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
         remoteFile2 = new File(remoteDataSetFolder, "file2.txt");
         FileUtilities.writeToFile(remoteFile2, FILE2_CONTENT);
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
@@ -132,12 +139,12 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     protected ContentCache createCache()
     {
         return createCache(FileUtils.ONE_MB, 600000);
     }
-    
+
     protected ContentCache createCache(long maxWorkspaceSize, long minimumKeepingTime)
     {
         context.checking(new Expectations()
@@ -164,4 +171,69 @@ public abstract class AbstractRemoteHierarchicalContentTestCase extends Abstract
             });
     }
 
+    protected static interface IRunnableWithResult<T> extends Runnable
+    {
+        public T tryGetResult();
+    }
+
+    protected static class GetFileRunnable implements IRunnableWithResult<File>
+    {
+        private final IHierarchicalContentNode node;
+
+        private final IContentCache cacheOrNull;
+
+        private final MessageChannel channel;
+
+        private final String sessionToken;
+
+        private final IDatasetLocation dataSetLocation;
+
+        private final DataSetPathInfo path;
+
+        private File file;
+
+        GetFileRunnable(IHierarchicalContentNode node, MessageChannel channel)
+        {
+            this(node, null, null, null, null, channel);
+        }
+
+        GetFileRunnable(IContentCache cache, String sessionToken, IDatasetLocation dataSetLocation,
+                DataSetPathInfo path, MessageChannel channel)
+        {
+            this(null, cache, sessionToken, dataSetLocation, path, channel);
+        }
+
+        private GetFileRunnable(IHierarchicalContentNode nodeOrNull, IContentCache cacheOrNull,
+                String sessionToken, IDatasetLocation dataSetLocation, DataSetPathInfo path,
+                MessageChannel channel)
+        {
+            this.node = nodeOrNull;
+            this.cacheOrNull = cacheOrNull;
+            this.sessionToken = sessionToken;
+            this.dataSetLocation = dataSetLocation;
+            this.path = path;
+            this.channel = channel;
+        }
+
+        @Override
+        public void run()
+        {
+            try
+            {
+                file =
+                        node == null ? cacheOrNull.getFile(sessionToken, dataSetLocation, path)
+                                : node.getFile();
+                channel.send(FINISHED_MESSAGE);
+            } catch (Throwable ex)
+            {
+                channel.send(ex);
+            }
+        }
+
+        @Override
+        public File tryGetResult()
+        {
+            return file;
+        }
+    }
 }

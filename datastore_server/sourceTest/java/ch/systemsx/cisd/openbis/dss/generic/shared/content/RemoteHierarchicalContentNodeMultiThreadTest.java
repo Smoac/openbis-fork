@@ -439,42 +439,4 @@ public class RemoteHierarchicalContentNodeMultiThreadTest extends AbstractRemote
                 serviceFactory, sessionHolder, cache);
     }
 
-    private static interface IRunnableWithResult<T> extends Runnable
-    {
-        public T tryGetResult();
-    }
-
-    private static class GetFileRunnable implements IRunnableWithResult<File>
-    {
-        private final IHierarchicalContentNode node;
-
-        private final MessageChannel channel;
-
-        private File file;
-
-        GetFileRunnable(IHierarchicalContentNode node, MessageChannel channel)
-        {
-            this.node = node;
-            this.channel = channel;
-        }
-
-        @Override
-        public void run()
-        {
-            try
-            {
-                file = node.getFile();
-                channel.send(FINISHED_MESSAGE);
-            } catch (Throwable ex)
-            {
-                channel.send(ex);
-            }
-        }
-
-        @Override
-        public File tryGetResult()
-        {
-            return file;
-        }
-    }
 }
