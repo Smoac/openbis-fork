@@ -91,8 +91,12 @@ class RequestHandler(object):
 		"""Append a row of data to the table"""
 		row = self.builder.addRow()
 		for header in self.headers:
-			if entry.get(header):
-				row.setCell(header, str(entry.get(header)))
+			value = entry.get(header)
+			if value is not None:
+				if type(value) is bool:
+					row.setCell(header, value)
+				else:
+					row.setCell(header, value.encode('utf-8'))
 			else:
 				row.setCell(header, "")
 
@@ -106,6 +110,47 @@ class RequestHandler(object):
 		self.add_headers()
 		self.retrieve_data()
 		self.add_data_rows()
+
+	def sort_samples_by_type(self, allSamples):
+
+		self.oligos = []
+		self.antibodies = []
+		self.chemicals = []
+		self.protocols = []
+		self.medias = []
+		self.pcrs = []
+		self.buffers = []
+		self.plasmids = []
+		self.yeasts = []
+		self.bacterias = []
+		self.enzymes = []
+		self.westernBlottings = []
+
+		for sample in allSamples:
+			if 'OLIGO' == sample.getSampleType():
+				self.oligos.append(sample)
+			elif 'ANTIBODY' == sample.getSampleType():
+				self.antibodies.append(sample)
+			elif 'CHEMICAL' == sample.getSampleType():
+				self.chemicals.append(sample)
+			elif 'GENERAL_PROTOCOL' == sample.getSampleType():
+				self.protocols.append(sample)
+			elif 'MEDIA' == sample.getSampleType():
+				self.medias.append(sample)
+			elif 'PCR' == sample.getSampleType():
+				self.pcrs.append(sample)
+			elif 'SOLUTIONS_BUFFERS' == sample.getSampleType():
+				self.buffers.append(sample)
+			elif 'PLASMID' == sample.getSampleType():
+				self.plasmids.append(sample)
+			elif 'YEAST' == sample.getSampleType():
+				self.yeasts.append(sample)
+			elif 'BACTERIA' == sample.getSampleType():
+				self.bacterias.append(sample)
+			elif 'ENZYME' == sample.getSampleType():
+				self.enzymes.append(sample)
+			elif 'WESTERN_BLOTTING' == sample.getSampleType():
+				self.westernBlottings.append(sample)		
 
 class ClientPreferencesRequestHandler(object):
 	"""Abstract superclass for the handlers for CLIENT_PREFS request.
@@ -202,47 +247,6 @@ class NavigationRequestHandler(RequestHandler):
 #
 # Helper Methods
 # 
-
-def sort_samples_by_type(self, allSamples):
-
-	self.oligos = []
-	self.antibodies = []
-	self.chemicals = []
-	self.protocols = []
-	self.medias = []
-	self.pcrs = []
-	self.buffers = []
-	self.plasmids = []
-	self.yeasts = []
-	self.bacterias = []
-	self.enzymes = []
-	self.westernBlottings = []
-
-	for sample in allSamples:
-		if 'OLIGO' == sample.getSampleType():
-			self.oligos.append(sample)
-		elif 'ANTIBODY' == sample.getSampleType():
-			self.antibodies.append(sample)
-		elif 'CHEMICAL' == sample.getSampleType():
-			self.chemicals.append(sample)
-		elif 'GENERAL_PROTOCOL' == sample.getSampleType():
-			self.protocols.append(sample)
-		elif 'MEDIA' == sample.getSampleType():
-			self.medias.append(sample)
-		elif 'PCR' == sample.getSampleType():
-			self.pcrs.append(sample)
-		elif 'SOLUTIONS_BUFFERS' == sample.getSampleType():
-			self.buffers.append(sample)
-		elif 'PLASMID' == sample.getSampleType():
-			self.plasmids.append(sample)
-		elif 'YEAST' == sample.getSampleType():
-			self.yeasts.append(sample)
-		elif 'BACTERIA' == sample.getSampleType():
-			self.bacterias.append(sample)
-		elif 'ENZYME' == sample.getSampleType():
-			self.enzymes.append(sample)
-		elif 'WESTERN_BLOTTING' == sample.getSampleType():
-			self.westernBlottings.append(sample)
 
 def retrieve_sample_type_properties_definitions(sample_type):
 	"""Return the property definitions for each of the referenced entity types.
@@ -362,6 +366,7 @@ def sample_to_dict_with_props(sample, want_props):
 
 		sample_dict['ROOT_LEVEL'] = None
 		return sample_dict
+	return sample_dict
 	
 
 def oligo_to_dict(oligo, want_props):
@@ -545,6 +550,10 @@ class YeastLabRootRequestHandler(RootRequestHandler):
 	def retrieve_data(self):
 		all_samples_sc = SearchCriteria()
 		all_samples_sc.setOperator(SearchCriteria.SearchOperator.MATCH_ANY_CLAUSES)
+
+			# Check which navigational entities are being requested here
+		nav_entities = self.entities_parameter()
+		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
 		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "OLIGO"))
 		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "ANTIBODY"))
 		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.TYPE, "CHEMICAL"))
