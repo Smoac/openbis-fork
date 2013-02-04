@@ -72,7 +72,7 @@ NSString *const CISDOBIpadServiceManagerErrorDomain = @"CISDOBIpadServiceManager
 @property(readonly) NSArray *deletedEntityPermIds;
 
 // Initialization
-- (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager;
+- (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager managerCall:(CISDOBIpadServiceManagerCall *)call;
 
 // Actions
 - (void)run;
@@ -163,6 +163,32 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     return [self.managedObjectContext save: error];
 }
 
+- (void)pruneEntitiesNotifying:(CISDOBIpadServiceManagerCall *)managerCall
+{
+    void (^syncBlock)(void) = ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName: CISDOBIpadServiceWillSynchEntitiesNotification object: self];
+        
+        CISDOBBackgroundDataPruner *pruner = [[CISDOBBackgroundDataPruner alloc] initWithServiceManager: self managerCall: managerCall];
+        pruner.pruneCutoffDate = self.lastRootSetUpdateDate;
+        [pruner run];
+
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName: CISDOBIpadServiceDidSynchEntitiesNotification object: self];         
+        
+        void (^notifyBlock)(void) = ^ {
+            // Save the MOC and notifiy the client on the main thread
+            if(!pruner.error) {
+                NSError *error = nil;
+                [self saveManagedObjectContextDeleting: pruner.deletedEntityPermIds error: &error];
+                pruner.error = error;
+            }
+            [pruner notifyCallOfResult];
+        };
+        [[NSOperationQueue mainQueue] addOperationWithBlock: notifyBlock];
+    };
+    [_queue addOperationWithBlock: syncBlock];
+}
+
 - (void)syncEntities:(NSArray *)rawEntities pruning:(BOOL)prune notifying:(CISDOBIpadServiceManagerCall *)managerCall
 {
     void (^syncBlock)(void) = ^{
@@ -172,7 +198,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
         CISDOBBackgroundDataSynchronizer *synchronizer = [[CISDOBBackgroundDataSynchronizer alloc] initWithServiceManager: self managerCall: managerCall rawEntities: rawEntities];
         [synchronizer run];
         
-        CISDOBBackgroundDataPruner *pruner = [[CISDOBBackgroundDataPruner alloc] initWithServiceManager: self];
+        CISDOBBackgroundDataPruner *pruner = [[CISDOBBackgroundDataPruner alloc] initWithServiceManager: self managerCall: managerCall];
         pruner.pruneCutoffDate = self.lastRootSetUpdateDate;
         if (prune) {
             [pruner run];
@@ -574,11 +600,12 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 @implementation CISDOBBackgroundDataPruner
 
 // Initialization
-- (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager
+- (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager managerCall:(CISDOBIpadServiceManagerCall *)call
 {
     if (!(self = [super init])) return nil;
     
     _serviceManager = serviceManager;
+    _managerCall = call;
     _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType: NSConfinementConcurrencyType];
     _managedObjectContext.parentContext = _serviceManager.managedObjectContext;
     _error = nil;
@@ -617,7 +644,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     if (self.error) {
         [self.managerCall notifyFailure: self.error];
     } else if (self.managerCall.success) {
-        [self.managerCall notifySuccess: nil];
+        [self.managerCall notifySuccess: [NSArray array]];
     }
     
 }
@@ -756,7 +783,8 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     CISDOBAsyncCall *call = [self.serviceManager.service listRootLevelEntities: permIds refcons: refcons];
     call.success = ^(id result) {
         if (currentIndex+1 == count) {
-            [self.serviceManager syncEntities: result pruning: YES notifying: self.serviceManagerCall];
+            [self.serviceManager syncEntities: result pruning: NO notifying: nil];
+            [self.serviceManager pruneEntitiesNotifying: self.serviceManagerCall];
         } else {
             [self.serviceManager syncEntities: result pruning: NO notifying: nil];
             [self runNextCall];
