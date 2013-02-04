@@ -31,7 +31,7 @@ IpadModel.prototype.selectEntity = function(d) {
 	var permId = d[0].value;
 	var refcon = parseJson(d[1].value);
 	var rootLevel = d[5].value;
-	if ("True" == rootLevel) {
+	if ("[]" != rootLevel) {
 		this.selectNavigationEntity(permId, refcon);
 	} else {
 		this.selectNormalEntity(permId, refcon, d);
