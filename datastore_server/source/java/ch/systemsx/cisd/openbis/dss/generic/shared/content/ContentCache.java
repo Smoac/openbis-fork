@@ -56,6 +56,7 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.time.DateTimeUtils;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
@@ -74,13 +75,13 @@ public class ContentCache implements IContentCache, InitializingBean
 
     private static final String DEFAULT_CACHE_WORKSPACE_FOLDER = "../../data/dss-cache";
 
-    private static final long DEFAULT_MINIMUM_KEEPING_TIME_IN_MINUTES = 60 * 24;
+    private static final long DEFAULT_MINIMUM_KEEPING_TIME = DateUtils.MILLIS_PER_DAY;
 
     public static final String CACHE_WORKSPACE_FOLDER_KEY = "cache-workspace-folder";
 
     public static final String CACHE_WORKSPACE_MAX_SIZE_KEY = "cache-workspace-max-size";
 
-    public static final String CACHE_WORKSPACE_MIN_KEEPING_TIME_IN_MINUTES_KEY =
+    public static final String CACHE_WORKSPACE_MIN_KEEPING_TIME_KEY =
             "cache-workspace-min-keeping-time";
 
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -230,16 +231,15 @@ public class ContentCache implements IContentCache, InitializingBean
         long maxWorkspaceSize =
                 PropertyUtils.getInt(properties, CACHE_WORKSPACE_MAX_SIZE_KEY,
                         DEFAULT_MAX_WORKSPACE_SIZE) * FileUtils.ONE_MB;
-        long minimumKeepingTimeInMinutes =
-                PropertyUtils.getLong(properties, CACHE_WORKSPACE_MIN_KEEPING_TIME_IN_MINUTES_KEY,
-                        DEFAULT_MINIMUM_KEEPING_TIME_IN_MINUTES);
-        if (minimumKeepingTimeInMinutes <= 0)
+        long minimumKeepingTimeInMillis =
+                DateTimeUtils.getDurationInMillis(properties, CACHE_WORKSPACE_MIN_KEEPING_TIME_KEY,
+                        DEFAULT_MINIMUM_KEEPING_TIME);
+        if (minimumKeepingTimeInMillis <= DateUtils.MILLIS_PER_MINUTE)
         {
             throw new EnvironmentFailureException(
-                    "Minimum keeping time has to be a positive number: "
-                            + minimumKeepingTimeInMinutes);
+                    "Minimum keeping time has to be a larger than a minute: "
+                            + minimumKeepingTimeInMillis);
         }
-        long minimumKeepingTimeInMillis = minimumKeepingTimeInMinutes * DateUtils.MILLIS_PER_MINUTE;
 
         File cacheWorkspace = new File(workspacePath);
         File dataSetInfosFile = new File(cacheWorkspace, DATA_SET_INFOS_FILE);

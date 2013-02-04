@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.time;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,6 +113,19 @@ public final class DateTimeUtils
     private static String render(long value, String unit)
     {
         return value + unit;
+    }
+    
+    /**
+     * Gets from specified properties the specified property as a duration time in milliseconds. The
+     * duration can be specified with time unit as explained in the method
+     * {@link #parseDurationToMillis(String)}.
+     * 
+     * @return <code>defaultValue</code> if property doesn't exist
+     */
+    public static long getDurationInMillis(Properties properties, String key, long defaultValue)
+    {
+        String value = properties.getProperty(key);
+        return value == null ? defaultValue : parseDurationToMillis(value);
     }
 
     /**
