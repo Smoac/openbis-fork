@@ -287,19 +287,55 @@ def navigation_layer_simple(summary_header, summary, code, children):
 	nav_dict['ROOT_LEVEL'] = True
 	return nav_dict
 
+def oligo_navigation_layer(oligos):
+	return navigation_layer_simple("oligo", "Oligos in YeastLab", "OLIGO", oligos)
+
+def antibody_navigation_layer(antibodies):
+	return navigation_layer_simple("antibody", "Antibodies in YeastLab", "ANTIBODY", antibodies)
+
+def chemical_navigation_layer(chemicals):
+	return navigation_layer_simple("chemical", "Chemicals in YeastLab", "CHEMICAL", chemicals)
+
+def protocol_navigation_layer(protocols):
+	return navigation_layer_simple("protocol", "Protocols in YeastLab", "GENERAL_PROTOCOL", protocols)
+
+def media_navigation_layer(medias):
+	return navigation_layer_simple("media", "Medias in YeastLab", "MEDIA", medias)
+
+def pcr_navigation_layer(pcrs):
+	return navigation_layer_simple("pcr", "PCR in YeastLab", "PCR", pcrs)
+
+def buffer_navigation_layer(buffers):
+	return navigation_layer_simple("buffer", "Solution Buffers in YeastLab", "SOLUTIONS_BUFFERS", buffers)
+
+def plasmid_navigation_layer(plasmids):
+	return navigation_layer_simple("plasmid", "Plasmids in YeastLab", "PLASMID", plasmids)
+
+def yeast_navigation_layer(yeasts):
+	return navigation_layer_simple("yeast", "Yeasts in YeastLab", "YEAST", yeasts)
+
+def bacteria_navigation_layer(bacterias):
+	return navigation_layer_simple("bacteria", "Bacteria in YeastLab", "BACTERIA", bacterias)
+
+def enzyme_navigation_layer(enzymes):
+	return navigation_layer_simple("enzyme", "Enzymes in YeastLab", "ENZYME", enzymes)
+
+def western_blotting_navigation_layer(westernBlottings):
+	return navigation_layer_simple("western blotting", "Western Blotting in YeastLab", "WESTERN_BLOTTING", westernBlottings)
+
 def navigation_layer(oligos, antibodies, chemicals, protocols, medias, pcrs, buffers, plasmids, yeasts, bacterias, enzymes, westernBlottings):
-	oligo_dict = navigation_layer_simple("oligo", "Oligos in YeastLab", "OLIGO", oligos)
-	antibody_dict = navigation_layer_simple("antibody", "Antibodies in YeastLab", "ANTIBODY", antibodies)
-	chemical_dict = navigation_layer_simple("chemical", "Chemicals in YeastLab", "CHEMICAL", chemicals)
-	protocol_dict = navigation_layer_simple("protocol", "Protocols in YeastLab", "GENERAL_PROTOCOL", protocols)
-	media_dict = navigation_layer_simple("media", "Medias in YeastLab", "MEDIA", medias)
-	pcr_dict = navigation_layer_simple("pcr", "PCR in YeastLab", "PCR", pcrs)
-	buffer_dict =  navigation_layer_simple("buffer", "Solution Buffers in YeastLab", "SOLUTIONS_BUFFERS", buffers)
-	plasmid_dict = navigation_layer_simple("plasmid", "Plasmids in YeastLab", "PLASMID", plasmids)
-	yeast_dict = navigation_layer_simple("yeast", "Yeasts in YeastLab", "YEAST", yeasts)
-	bacteria_dict = navigation_layer_simple("bacteria", "Bacteria in YeastLab", "BACTERIA", bacterias)
-	enzyme_dict = navigation_layer_simple("enzyme", "Enzymes in YeastLab", "ENZYME", enzymes)
-	westernBlotting_dict = navigation_layer_simple("western blotting", "Western Blotting in YeastLab", "WESTERN_BLOTTING", westernBlottings)
+	oligo_dict = oligo_navigation_layer(oligos)
+	antibody_dict = antibody_navigation_layer(antibodies)
+	chemical_dict = chemical_navigation_layer(chemicals)
+	protocol_dict = protocol_navigation_layer(protocols)
+	media_dict = media_navigation_layer(medias)
+	pcr_dict = pcr_navigation_layer(pcrs)
+	buffer_dict = buffer_navigation_layer(buffers)
+	plasmid_dict = plasmid_navigation_layer(plasmids)
+	yeast_dict = yeast_navigation_layer(yeasts)
+	bacteria_dict = bacteria_navigation_layer(bacterias)
+	enzyme_dict = enzyme_navigation_layer(enzymes)
+	westernBlotting_dict = western_blotting_navigation_layer(westernBlottings)
 	return [oligo_dict, antibody_dict, chemical_dict, protocol_dict, media_dict, pcr_dict, buffer_dict, plasmid_dict, yeast_dict, bacteria_dict, enzyme_dict, westernBlotting_dict]
 
 def sample_to_dict_with_props(sample, want_props):
@@ -489,7 +525,20 @@ class YeastLabClientPreferencesRequestHandler(ClientPreferencesRequestHandler):
 class YeastLabNavigationRequestHandler(NavigationRequestHandler):
 	"""Handler for the NAVIGATION request"""
 	def add_data_rows(self):
-		self.add_rows(navigation_layer([], [], [], [], [], [], [], [], [], [], [], []))
+		oligo_dict = oligo_navigation_layer([])
+		antibody_dict = antibody_navigation_layer([])
+		chemical_dict = chemical_navigation_layer([])
+		protocol_dict = protocol_navigation_layer([])
+		media_dict = media_navigation_layer([])
+		pcr_dict = pcr_navigation_layer([])
+		buffer_dict = buffer_navigation_layer([])
+		plasmid_dict = plasmid_navigation_layer([])
+		yeast_dict = yeast_navigation_layer([])
+		bacteria_dict = bacteria_navigation_layer([])
+		enzyme_dict = enzyme_navigation_layer([])
+		westernBlotting_dict = western_blotting_navigation_layer([])
+		navigation_rows = [oligo_dict, antibody_dict, chemical_dict, protocol_dict, media_dict, pcr_dict, buffer_dict, plasmid_dict, yeast_dict, bacteria_dict, enzyme_dict, westernBlotting_dict]
+		self.add_rows(navigation_rows)
 
 class YeastLabRootRequestHandler(RootRequestHandler):
 	"""Handler for the ROOT request."""
