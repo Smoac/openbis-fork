@@ -202,6 +202,7 @@
 
 - (void)initializeRootFetchedResultsController
 {
+    [NSFetchedResultsController deleteCacheWithName: @"Root"];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: self.managedObjectContext];
     [fetchRequest setEntity:entity];
