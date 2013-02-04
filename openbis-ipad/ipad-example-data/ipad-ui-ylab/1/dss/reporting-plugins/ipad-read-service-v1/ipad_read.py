@@ -5,6 +5,7 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
 
 import codecs
+
 #
 # BEGIN Infrastructure
 #
@@ -13,7 +14,7 @@ def json_encoded_value(coll):
 	"""Utility function for converting a list into a json-encoded list"""
 	return ObjectMapper().writeValueAsString(coll)
 
-class RequestHandler:
+class RequestHandler(object):
 	"""Abstract superclass for the handlers for concrete requests like ROOT.
 
 	This superclass defines behavior common to all requests.
@@ -36,6 +37,13 @@ class RequestHandler:
 		global searchService
 		self.searchService = searchService
 		self.headers = ['PERM_ID', 'REFCON'] + self.optional_headers()
+		
+	def entities_parameter(self):
+	  """A helper method to get the value of the entities parameter. Returns an empty list if no entities were specified"""
+	  entities = self.parameters.get('entities')
+	  if entities is None:
+	    return []
+	  return entities
 
 
 	def optional_headers(self):
@@ -68,8 +76,9 @@ class RequestHandler:
 			SUMMARY : A potentially longer summary of the entity.
 			CHILDREN : The permIds of the children of this entity. Transmitted as JSON.
 			IDENTIFIER : An identifier for the object.
-			IMAGE_URL : A url for an image associated with this entity. If None or empty, no
-				image is shown.
+			IMAGES : A map with keys coming from the set 'MARQUEE', 'TILED'. The values are image specs or lists of image specs.
+				Image specs are maps with the keys: 'URL' (a URL for the iamge) or 'DATA'. The data key contains a map that
+				includes the image data and may include some image metadata as well. This format has not yet been specified.
 			PROPERTIES : Properties (metadata) that should be displayed for this entity. Transmitted as JSON.
 			ROOT_LEVEL : True if the entity should be shown on the root level.
 
@@ -82,9 +91,8 @@ class RequestHandler:
 		"""Append a row of data to the table"""
 		row = self.builder.addRow()
 		for header in self.headers:
-			value = entry.get(header)
-			if value is not None:
-				row.setCell(header, entry.get(header))
+			if entry.get(header):
+				row.setCell(header, str(entry.get(header)))
 			else:
 				row.setCell(header, "")
 
@@ -99,11 +107,63 @@ class RequestHandler:
 		self.retrieve_data()
 		self.add_data_rows()
 
+class ClientPreferencesRequestHandler(object):
+	"""Abstract superclass for the handlers for CLIENT_PREFS request.
+
+	This request has a slightly different structure, since it does not return entities.
+
+	Subclasses should override the preferences_dict method to return the preferences dictionary. The superclass
+	implements this method with the default values for the standard keys.
+	"""
+
+	def __init__(self, parameters, builder):
+		self.parameters = parameters
+		self.builder = builder
+		self.headers = ['KEY', 'VALUE']
+
+	def preferences_dict(self):
+		"""The dictionary containing the value for the client preferences. 
+
+		Subclasses may override if they want to change any of the values. The best way to override is to call
+		default_preferences_dict then modify/extend the resulting dictionary"""
+		return self.default_preferences_dict()
+
+	def default_preferences_dict(self):
+		"""The dictionary containing the standard keys and and default values for those keys"""
+		prefs = { 
+			# The refresh interval is a value in seconds
+			'ROOT_SET_REFRESH_INTERVAL' : 60 * 30 
+		}
+		return prefs
+
+	def add_data_rows(self):
+		"""Take the information from the preferences dict and put it into the table."""
+		prefs = self.preferences_dict()
+		for key in prefs:
+			row = self.builder.addRow()
+			row.setCell('KEY', key)
+			row.setCell('VALUE', prefs[key])
+
+	def add_headers(self):
+		"""Configure the headers for this request.
+
+		For preference request, the headers are 
+			KEY : The key of the preference.
+			VALUE : The value of the preference.
+		"""
+		for header in self.headers:
+			self.builder.addHeader(header)
+
+	def process_request(self):
+		"""Execute the steps necessary to process the request."""
+		self.add_headers()
+		self.add_data_rows()
+
 class AllDataRequestHandler(RequestHandler):
 	"""Abstract Handler for the ALLDATA request."""
 
 	def optional_headers(self):
-		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "CHILDREN", "IDENTIFIER", "IMAGE_URL", "PROPERTIES"]
+		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "CHILDREN", "IDENTIFIER", "IMAGES", "PROPERTIES"]
 
 class EmptyDataRequestHandler(RequestHandler):
 	"""Return nothing to the caller."""
@@ -127,8 +187,17 @@ class DetailRequestHandler(RequestHandler):
 	"""Abstract Handler for the DETAIL request."""
 
 	def optional_headers(self):
-		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "IDENTIFIER", "IMAGE_URL", "PROPERTIES"]
+		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "IDENTIFIER", "IMAGES", "PROPERTIES"]
 
+class NavigationRequestHandler(RequestHandler):
+	"""Abstract Handler for the NAVIGATION request."""
+
+	def optional_headers(self):
+		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "ROOT_LEVEL"]
+
+#
+# END Infrastructure
+#
 #
 # END Infrastructure
 #
@@ -157,7 +226,8 @@ def navigation_layer(oligos, antibodies, chemicals, protocols, medias, pcrs, buf
 	oligo_dict['PROPERTIES'] = json_encoded_value([])
 	oligo_dict['ROOT_LEVEL'] = True
 
-    	antibody_dict = {}
+ 
+	antibody_dict = {}
 	antibody_dict["SUMMARY_HEADER"] = "antibody"
 	antibody_dict["SUMMARY"] = "Antibodies in YeastLab"
 	antibody_dict['PERM_ID'] = "ANTIBODY"
@@ -699,6 +769,16 @@ def retrieve_seq_data_sets(samples):
 #
 # YeastLab iPad Service
 #
+
+class YeastLabClientPreferencesRequestHandler(ClientPreferencesRequestHandler):
+	"""Handler for the CLIENT_PREFS request."""
+
+class YeastLabNavigationRequestHandler(NavigationRequestHandler):
+	"""Handler for the NAVIGATION request"""
+	def add_data_rows(self):
+		self.add_rows(navigation_layer([], [], [], [], [], [], [], [], [], [], [], []))
+
+
 class YeastLabRootRequestHandler(RootRequestHandler):
 	"""Handler for the ROOT request."""
 
@@ -850,7 +930,11 @@ class YeastLabDetailRequestHandler(DetailRequestHandler):
 
 def aggregate(parameters, builder):
 	request_key = parameters.get('requestKey')
-	if 'ROOT' == request_key:
+	if 'CLIENT_PREFS' == request_key:
+		handler = YeastLabClientPreferencesRequestHandler(parameters, builder)
+	elif 'NAVIGATION' == request_key:
+		handler = YeastLabNavigationRequestHandler(parameters, builder)
+	elif 'ROOT' == request_key:
 		handler = YeastLabRootRequestHandler(parameters, builder)
 	elif 'DRILL' == request_key:
 		handler = YeastLabDrillRequestHandler(parameters, builder)
