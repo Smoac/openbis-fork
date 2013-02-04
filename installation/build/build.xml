@@ -114,11 +114,11 @@
 		    </fileset>
 		</copy>
   	
-  	<java classpath="${ecp}" classname="ch.systemsx.cisd.common.utilities.PropertiesFileMerger">
+  	<java classpath="${ecp}" classname="ch.systemsx.cisd.common.properties.PropertiesFileMerger">
 		  <arg value="${installer.dist.dir}/openBIS-server/service.properties"/>
 		  <arg value="${installer.dist.dir}/bis-service.properties"/>
   	</java>
-  	<java classpath="${ecp}" classname="ch.systemsx.cisd.common.utilities.PropertiesFileMerger">
+  	<java classpath="${ecp}" classname="ch.systemsx.cisd.common.properties.PropertiesFileMerger">
 	    <arg value="${installer.dist.dir}/datastore_server/etc/service.properties"/>
 	    <arg value="${installer.dist.dir}/dss-service.properties"/>
   	</java>

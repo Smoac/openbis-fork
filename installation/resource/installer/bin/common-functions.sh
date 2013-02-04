@@ -1,3 +1,31 @@
+POSTGRES_BIN=`cat $BASE/postgres_bin_path.txt`
+
+#
+# Run psql command using POSTGRES_BIN path
+#
+exe_psql()
+{
+  executable="$POSTGRES_BIN/psql"
+  if [ -x "$executable" ]; then
+    "$executable" "$@"
+  else
+    psql "$@"
+  fi
+}
+
+#
+# Run pg_dump command using POSTGRES_BIN path
+#
+exe_pg_dump()
+{
+  executable="$POSTGRES_BIN/pg_dump"
+  if [ -x "$executable" ]; then
+    "$executable" "$@"
+  else
+    pg_dump "$@"
+  fi
+}
+
 #
 # Default openBIS operations like creating a backup or upgrading to a newer version often
 # need to be customized by a specific project (e.g. screening). This function provides 

@@ -13,6 +13,8 @@ INSTALL_TMPEXTRACT=$1
 DATA_TMPEXTRACT=$2
 DSS_ROOT_DIR=$3
 
+echo $4 > $BASE/postgres_bin_path.txt
+
 echo Finish installation...
 source $BASE/chmodx-all-scripts.sh
 

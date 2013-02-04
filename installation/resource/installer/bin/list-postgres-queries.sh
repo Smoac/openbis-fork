@@ -6,7 +6,7 @@ echo Remove 'exit' after configuring existing database username ($DB_USERNAME) a
 exit 1
 
 DB_USER_NAME=$(whoami)
-OPENBIS_DB=openbis_screening
+OPENBIS_DB=openbis_prod
 
 if [ -n "$(readlink $0)" ]; then
    # handle symbolic links
@@ -22,5 +22,6 @@ BASE=`dirname "$scriptName"`
 if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
+source $BASE/common-functions.sh
 
-psql -U $DB_USER_NAME -d $OPENBIS_DB -c "select datname,procpid,usename,current_query,waiting,xact_start FROM pg_catalog.pg_stat_activity"
+exe_psql -U $DB_USER_NAME -d $OPENBIS_DB -c "select datname,procpid,usename,current_query,waiting,xact_start FROM pg_catalog.pg_stat_activity"

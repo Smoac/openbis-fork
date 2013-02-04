@@ -46,14 +46,14 @@ function backupDatabase() {
   
   getProperty $DB_PROPS "database"
   database=$propValue
-  if [ `psql -U postgres -l | eval "awk '/$database /'" | wc -l` -gt 0 ]; then
+  if [ `exe_psql -U postgres -l | eval "awk '/$database /'" | wc -l` -gt 0 ]; then
     getProperty $DB_PROPS "username"
     username=$propValue
   
     local dumpFile=$BACKUP_DIR/$database.dmp
   
     echo "Backing up database $database to $dumpFile..."
-    pg_dump -U $username -Fc $database > $dumpFile
+    exe_pg_dump -U $username -Fc $database > $dumpFile
   
     if [ "$?" -ne 0 ]; then
       echo "Failed to backup database '$database' !"
@@ -66,6 +66,7 @@ BASE=`dirname "$0"`
 if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
+source $BASE/common-functions.sh
 
 BACKUP_DIR=$1
 if [ "$BACKUP_DIR" == "" ]; then

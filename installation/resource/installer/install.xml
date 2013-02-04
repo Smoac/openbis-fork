@@ -184,6 +184,7 @@
           <arg value="$INSTALL_TMPEXTRACT" />
           <arg value="$DATA_TMPEXTRACT" />
           <arg value="$DSS_ROOT_DIR" />
+          <arg value="$POSTGRES_BIN" />
         </args>
       </executable>
     </pack>

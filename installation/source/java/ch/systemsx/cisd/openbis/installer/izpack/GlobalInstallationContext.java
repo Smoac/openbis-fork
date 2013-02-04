@@ -20,6 +20,7 @@ import java.io.File;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
 
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.security.PasswordGenerator;
 
 /**
@@ -81,7 +82,16 @@ public class GlobalInstallationContext
         isFirstTimeInstallation = (installDir.exists() == false);
         isUpdateInstallation = installDir.exists();
 
-        data.setVariable(POSTGRES_BIN_VARNAME, "");
+        String postgresBinPath = "";
+        if (isFirstTimeInstallation == false)
+        {
+            File pathFile = new File(installDir, "bin/postgres_bin_path.txt");
+            if (pathFile.isFile())
+            {
+                postgresBinPath = FileUtilities.loadToString(pathFile).trim();
+            }
+        }
+        data.setVariable(POSTGRES_BIN_VARNAME, postgresBinPath);
 
         if (isFirstTimeInstallation)
         {
@@ -90,7 +100,7 @@ public class GlobalInstallationContext
     }
 
     /**
-     * Return the data directory chosen for this intallation.
+     * Return the data directory chosen for this installation.
      */
     public static String getDataDir(AutomatedInstallData data)
     {

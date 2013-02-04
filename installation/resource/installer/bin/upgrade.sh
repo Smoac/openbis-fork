@@ -57,8 +57,6 @@ mv $TARBALL $BACKUP_DIR
 
 
 ensureToolOnPath "java" 
-ensureToolOnPath "psql"
-ensureToolOnPath "pg_dump"
 
 if [ -n "$(readlink $0)" ]; then
    # handle symbolic links
