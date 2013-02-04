@@ -54,6 +54,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.io.FullLengthReadingStream;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
@@ -461,7 +462,7 @@ public class ContentCache implements IContentCache, InitializingBean
         try
         {
             openStream = url.openStream();
-            return openStream;
+            return new FullLengthReadingStream(openStream);
         } catch (IOException ex)
         {
             IOUtils.closeQuietly(openStream);
