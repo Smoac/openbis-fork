@@ -1,4 +1,10 @@
 <userInput>
+  <panel id="UserInputPanel.DB_CHECK">
+    <field type="staticText" align="left"
+      txt="Click on 'Next' to perform the check for the owner and the admin user specified in service.properties." />
+    <field type="title" txt="Database access check" bold="true" size="2" />
+  </panel>
+
   <panel id="UserInputPanel.PSQL_PATH">
     <field type="staticText" align="left"
       txt="The openBIS installation process requires access to the PostreSQL command line tools 'psql' and 'pg_dump'. Please specify their location:" />

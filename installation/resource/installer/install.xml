@@ -99,6 +99,10 @@
         <validator classname="ch.systemsx.cisd.openbis.installer.izpack.DBConnectionValidator"/>
     </panel>
     
+    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.DB_CHECK" condition="isUpdateInstallation">
+        <validator classname="ch.systemsx.cisd.openbis.installer.izpack.DBConnectionValidator"/>
+    </panel>
+    
     <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.PSQL_PATH" condition="noPsqlToolsOnPath">
         <validator classname="ch.systemsx.cisd.openbis.installer.izpack.PostgresToolsPathValidator"/>
     </panel>

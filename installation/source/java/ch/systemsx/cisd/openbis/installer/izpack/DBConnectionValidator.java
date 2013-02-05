@@ -71,14 +71,78 @@ public class DBConnectionValidator implements DataValidator
     @Override
     public Status validateData(AutomatedInstallData data)
     {
-        if (testConnectionOK(POSTGRES_USER, NO_PASSWORD))
+        String admin = getAdmin();
+        String adminPassword = getAdminPassword();
+        String owner = getOwner();
+        String ownerPassword = getOwnerPassword();
+        if (testConnectionOK(admin, adminPassword, "admin user") == false)
         {
-                return Status.OK;
+            return Status.ERROR;
         }
-        return Status.ERROR;
+        if (testConnectionOK(owner, ownerPassword, "owner") == false)
+        {
+            return Status.ERROR;
+        }
+        return Status.OK;
     }
 
-    private boolean testConnectionOK(String username, String password)
+    private String getOwner()
+    {
+        String user = System.getProperty("user.name").toLowerCase();
+        if (GlobalInstallationContext.isFirstTimeInstallation)
+        {
+            return user;
+        }
+        String owner =
+                Utils.tryToGetServicePropertyOfAS(GlobalInstallationContext.installDir,
+                        "database.owner");
+        if (owner != null && owner.length() > 0)
+        {
+            return owner;
+        }
+        return user;
+    }
+
+    private String getOwnerPassword()
+    {
+        if (GlobalInstallationContext.isFirstTimeInstallation)
+        {
+            return NO_PASSWORD;
+        }
+        String password =
+                Utils.tryToGetServicePropertyOfAS(GlobalInstallationContext.installDir,
+                        "database.owner-password");
+        return password == null ? "" : password;
+    }
+
+    private String getAdmin()
+    {
+        String defaultAdmin = POSTGRES_USER;
+        if (GlobalInstallationContext.isFirstTimeInstallation)
+        {
+            return defaultAdmin;
+        }
+        String admin =
+                Utils.tryToGetServicePropertyOfAS(GlobalInstallationContext.installDir,
+                        "database.admin-user");
+        if (admin != null && admin.length() > 0)
+        {
+            return admin;
+        }
+        return defaultAdmin;
+    }
+
+    private String getAdminPassword()
+    {
+        if (GlobalInstallationContext.isFirstTimeInstallation)
+        {
+            return NO_PASSWORD;
+        }
+        return Utils.tryToGetServicePropertyOfAS(GlobalInstallationContext.installDir,
+                "database.admin-password");
+    }
+
+    private boolean testConnectionOK(String username, String password, String messagePostfix)
     {
         boolean connected = false;
         try
@@ -93,12 +157,18 @@ public class DBConnectionValidator implements DataValidator
             }
         } catch (ClassNotFoundException cnfe)
         {
-            errorMessage = cnfe.getMessage();
+            errorMessage = createMessage(cnfe, messagePostfix);
         } catch (SQLException e)
         {
-            errorMessage = e.getMessage();
+            errorMessage = createMessage(e, messagePostfix);
         }
 
         return connected;
+    }
+
+    private String createMessage(Exception exception, String messagePostfix)
+    {
+        return exception.getMessage() + ".\nThe error is probably caused by an illconfigured "
+                + messagePostfix + ".";
     }
 }
