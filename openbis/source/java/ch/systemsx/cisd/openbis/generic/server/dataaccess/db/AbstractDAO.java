@@ -73,6 +73,8 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     /** The original source database instance. */
     private DatabaseInstancePE databaseInstance;
 
+    private static ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+
     protected AbstractDAO(final SessionFactory sessionFactory,
             final DatabaseInstancePE databaseInstance)
     {
@@ -95,7 +97,6 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     protected final static <E> void validatePE(final E pe) throws DataIntegrityViolationException
     {
 
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
 
         final Set<ConstraintViolation<E>> violations = validator.validate(pe);
