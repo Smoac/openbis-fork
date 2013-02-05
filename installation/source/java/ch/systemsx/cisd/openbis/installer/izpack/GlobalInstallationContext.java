@@ -79,8 +79,8 @@ public class GlobalInstallationContext
     {
         String installPath = data.getInstallPath();
         installDir = new File(installPath);
-        isFirstTimeInstallation = (installDir.exists() == false);
-        isUpdateInstallation = installDir.exists();
+        isUpdateInstallation = installationExists();
+        isFirstTimeInstallation = isUpdateInstallation == false;
 
         String postgresBinPath = "";
         if (isFirstTimeInstallation == false)
@@ -97,6 +97,33 @@ public class GlobalInstallationContext
         {
             populateFirstTimeInstallVariables(data);
         }
+    }
+
+    private static boolean installationExists()
+    {
+        if (installDir.exists() == false)
+        {
+            return false;
+        }
+        File[] files = installDir.listFiles();
+        boolean binExists = false;
+        boolean serversExists = false;
+        if (files != null)
+        {
+            for (File file : files)
+            {
+                String fileName = file.getName();
+                if (fileName.equals("bin"))
+                {
+                    binExists = true;
+                }
+                if (fileName.equals("servers"))
+                {
+                    serversExists = true;
+                }
+            }
+        }
+        return binExists && serversExists;
     }
 
     /**
