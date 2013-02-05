@@ -57,7 +57,7 @@ public class BackupDatabaseDescriptionGenerator
                 BackupDatabaseParser.getAppServerDatabaseDescription(properties, AS_DB_KEY_PREFIX,
                         AS_BASIC_DB_NAME);
         addIfFound(openBisDatabase);
-        
+
         List<String> descriptions =
                 BackupDatabaseParser.getDssServerDatabaseDescriptions(properties);
         for (String description : descriptions)
@@ -89,7 +89,7 @@ public class BackupDatabaseDescriptionGenerator
             }
         }
     }
-    
+
     private Properties readPropertiesAndInjectCorePluginsIfDSS(File propertiesFile)
     {
         Properties properties = PropertyIOUtils.loadProperties(propertiesFile);
@@ -107,7 +107,7 @@ public class BackupDatabaseDescriptionGenerator
         }
         return ExtendedProperties.createWith(properties);
     }
-    
+
     private boolean isDSSPropertiesFile(File propertiesFile)
     {
         String grandParentName = propertiesFile.getParentFile().getParentFile().getName();
@@ -119,8 +119,9 @@ public class BackupDatabaseDescriptionGenerator
         {
             return false;
         }
-        throw new IllegalArgumentException("Neither DSS nor AS service.properties file: " + propertiesFile.getAbsolutePath());
-        
+        throw new IllegalArgumentException("Neither DSS nor AS service.properties file: "
+                + propertiesFile.getAbsolutePath());
+
     }
 
     String getResult()
@@ -144,19 +145,23 @@ public class BackupDatabaseDescriptionGenerator
             System.err.println("Please specify a list of properties files to be parsed.");
             System.exit(1);
         }
-        BackupDatabaseDescriptionGenerator generator = new BackupDatabaseDescriptionGenerator();
-        
+
         try
         {
-            generator.process(args);
+            System.out.println(getDescriptions(args));
         } catch (IOExceptionUnchecked e)
         {
             System.err.println(e.getMessage());
             System.exit(2);
         }
 
-        String generatorResult = generator.getResult();
-        System.out.println(generatorResult);
+    }
+
+    public static String getDescriptions(String[] args)
+    {
+        BackupDatabaseDescriptionGenerator generator = new BackupDatabaseDescriptionGenerator();
+        generator.process(args);
+        return generator.getResult();
     }
 
 }
