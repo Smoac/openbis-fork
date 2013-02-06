@@ -93,10 +93,7 @@ class RequestHandler(object):
 		for header in self.headers:
 			value = entry.get(header)
 			if value is not None:
-				if type(value) is bool:
-					row.setCell(header, value)
-				else:
-					row.setCell(header, value.encode('utf-8'))
+				row.setCell(header, value)
 			else:
 				row.setCell(header, "")
 
@@ -267,6 +264,8 @@ def properties_for_entity(entity, property_definitions, prop_names_set):
 		if check_prop_names_set and propcode not in prop_names_set:
 			continue
 		value = entity.getPropertyValue(propcode)
+		if value == u'\ufffd(undefined)':
+			value = None
 		prop = {'key' : propcode, 'label' : propdef.getPropertyTypeLabel(), 'value' : value }
 		properties.append(prop)
 	return properties
@@ -346,7 +345,7 @@ def sample_to_dict_with_props(sample, want_props):
 	"""Convert a sample to a dictionary. Uses the NAME property to construct the summary. Returns empty children. Callers may need to modify the summary and children as well"""
 	sample_dict = {}
 	sample_dict['SUMMARY_HEADER'] = sample.getCode()
-	summary = "Name: " + unicode(sample.getPropertyValue("NAME"))
+	summary = u"Name: " + sample.getPropertyValue("NAME")
 	sample_dict['SUMMARY'] = summary
 	sample_dict['IDENTIFIER'] = sample.getSampleIdentifier()
 	sample_dict['PERM_ID'] = sample.getPermId()
@@ -371,7 +370,7 @@ def sample_to_dict_with_props(sample, want_props):
 
 def oligo_to_dict(oligo, want_props):
 	sample_dict = sample_to_dict_with_props(oligo, want_props)
-	summary = "Project: " + str(oligo.getPropertyValue("PROJECT"))
+	summary = u"Project: " + oligo.getPropertyValue("PROJECT")
 	summary = summary + "\n"
 	summary = summary + "Target: " + oligo.getPropertyValue("TARGET")
 	sample_dict['SUMMARY'] = summary
@@ -379,9 +378,9 @@ def oligo_to_dict(oligo, want_props):
 
 def antibody_to_dict(antibody, want_props):
 	sample_antibody_dict = sample_to_dict_with_props(antibody, want_props)
-	summary = "Name: " + str(antibody.getPropertyValue("NAME"))
-	summary = summary + "\n"
-	summary = summary + "Epitope: " + str(antibody.getPropertyValue("EPITOPE"))
+	summary = u"Name: " + antibody.getPropertyValue("NAME")
+	summary = summary + u"\n"
+	summary = summary + u"Epitope: " + antibody.getPropertyValue("EPITOPE")
 	sample_antibody_dict['SUMMARY'] = summary
 	return sample_antibody_dict
 
@@ -403,7 +402,7 @@ def buffer_to_dict(buffer, want_props):
 def plasmid_to_dict(plasmid, children_map, want_props):
 	sample_dict = sample_to_dict_with_props(plasmid, want_props)
 
-	summary = "Name: " + str(plasmid.getPropertyValue("PLASMID_NAME"))
+	summary = u"Name: " + plasmid.getPropertyValue("PLASMID_NAME")
 	sample_dict['SUMMARY'] = summary
 	children = [child.getPermId() for child in children_map.get(plasmid.getSampleIdentifier(), [])]
 	sample_dict['CHILDREN'] = json_encoded_value(children)
@@ -426,7 +425,7 @@ def plasmid_to_dict_with_images(plasmid, children_map, data_sets):
 	
 def yeast_to_dict(yeast, children_map, want_props):
 		sample_dict = sample_to_dict_with_props(yeast, want_props)
-		summary = "Name: " + str(yeast.getPropertyValue("YEAST_STRAIN_NAME"))
+		summary = u"Name: " + yeast.getPropertyValue("YEAST_STRAIN_NAME")
 		sample_dict['SUMMARY'] = summary
 
 		children = [child.getPermId() for child in children_map.get(yeast.getSampleIdentifier(), [])]
@@ -436,8 +435,8 @@ def yeast_to_dict(yeast, children_map, want_props):
 
 def bacteria_to_dict(bacteria, with_props):
 	sample_dict = sample_to_dict_with_props(bacteria, with_props)
-	name = str(bacteria.getPropertyValue("BACTERIA_STRAIN_NAME").encode('utf-8'))
-	summary = "Name: " + name
+	name = bacteria.getPropertyValue("BACTERIA_STRAIN_NAME")
+	summary = u"Name: " + name
 	sample_dict['SUMMARY'] = summary
 	return sample_dict
 
