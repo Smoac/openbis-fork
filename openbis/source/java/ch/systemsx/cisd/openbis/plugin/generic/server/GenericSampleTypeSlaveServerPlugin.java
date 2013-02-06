@@ -77,13 +77,13 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
 
     @Override
     public final void registerSamples(final Session session, final List<NewSample> newSamples,
-            PersonPE registratorOrNUll) throws UserFailureException
+            PersonPE registratorOrNull) throws UserFailureException
     {
         assert session != null : "Unspecified session.";
         assert newSamples != null && newSamples.size() > 0 : "Unspecified sample or empty samples.";
 
         BatchOperationExecutor.executeInBatches(new SampleBatchRegistration(businessObjectFactory
-                .createSampleTable(session), newSamples, registratorOrNUll));
+                .createSampleTable(session), newSamples, registratorOrNull), 999999);
     }
 
     @Override
@@ -93,6 +93,6 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         assert updateSamples != null && updateSamples.size() > 0 : "Unspecified sample or empty samples.";
 
         BatchOperationExecutor.executeInBatches(new SampleBatchUpdate(businessObjectFactory
-                .createSampleTable(session), updateSamples));
+                .createSampleTable(session), updateSamples), 999999);
     }
 }

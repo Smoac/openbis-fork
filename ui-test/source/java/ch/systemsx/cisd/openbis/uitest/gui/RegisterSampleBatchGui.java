@@ -60,7 +60,7 @@ public class RegisterSampleBatchGui implements Command<Void>
             throw new RuntimeException(ex);
         }
 
-        console.setTimeOut(900000);
+        console.setTimeOut(3600000);
         if (file.hasMultipleTypes())
         {
             List<Integer> sizes = file.getSizes();
@@ -74,8 +74,7 @@ public class RegisterSampleBatchGui implements Command<Void>
         {
             console.startBuffering();
             page.upload(samples.get(0).getType(), file.getAbsolutePath());
-            console.waitFor("sample registration progress: " + samples.size() + "/"
-                    + samples.size());
+            console.waitFor(samples.get(0).getType().getCode() + ":" + samples.size());
         }
         return null;
     }

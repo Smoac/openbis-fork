@@ -82,6 +82,9 @@ public class PropertyTypeBuilder implements Builder<PropertyType>
         if (Ui.WEB.equals(ui))
         {
             return openbis.execute(new CreatePropertyTypeGui(type));
+        } else if (Ui.DUMMY.equals(ui))
+        {
+            return type;
         } else if (Ui.PUBLIC_API.equals(ui))
         {
             throw new UnsupportedOperationException();

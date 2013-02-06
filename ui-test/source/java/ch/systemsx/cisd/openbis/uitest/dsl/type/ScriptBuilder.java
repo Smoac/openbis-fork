@@ -63,7 +63,7 @@ public class ScriptBuilder implements Builder<Script>
         return this;
     }
 
-    public ScriptBuilder withImplentation(String fileName)
+    public ScriptBuilder withImplementation(String fileName)
     {
         this.content = readFile(fileName);
         return this;

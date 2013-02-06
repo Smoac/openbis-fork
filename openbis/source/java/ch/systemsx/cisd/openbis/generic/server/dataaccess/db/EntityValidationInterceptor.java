@@ -28,10 +28,15 @@ import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.EmptyInterceptor;
+import org.hibernate.EntityMode;
+import org.hibernate.FetchMode;
 import org.hibernate.Interceptor;
 import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.engine.EntityKey;
+import org.hibernate.engine.SessionFactoryImplementor;
+import org.hibernate.impl.SessionImpl;
 import org.hibernate.type.Type;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -63,7 +68,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private static int BATCH_SIZE = 99;
+    private static int BATCH_SIZE = 1000;
 
     private IDAOFactory daoFactory;
 
@@ -148,19 +153,49 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         return false;
     }
 
+    private boolean isCached(Session session, EntityIdentifier identifier)
+    {
+        return ((SessionImpl) session).getEntityUsingInterceptor(new EntityKey(identifier
+                .getId(), ((SessionFactoryImplementor) daoFactory.getSessionFactory())
+                .getEntityPersister(identifier.getEntityClass().getName()),
+                EntityMode.POJO)) != null;
+    }
+
+    private Collection<EntityIdentifier> cachedEntities(Session session)
+    {
+        Set<EntityIdentifier> cached = new HashSet<EntityIdentifier>();
+        for (EntityIdentifier identifier : entitiesToValidate)
+        {
+            if (isCached(session, identifier))
+            {
+                cached.add(identifier);
+            }
+        }
+        return cached;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public void beforeTransactionCompletion(Transaction tx)
     {
-
         Session session = daoFactory.getSessionFactory().getCurrentSession();
 
-        main: while (entitiesToValidate.size() > 0)
+        for (EntityIdentifier identifier : cachedEntities(session))
+        {
+            validateEntity(tx, (IEntityInformationWithPropertiesHolder) session.get(
+                    identifier.getEntityClass(), identifier.getId()));
+            if (isRolledBack)
+            {
+                return;
+            }
+        }
+
+        while (entitiesToValidate.size() > 0)
         {
             for (List<EntityIdentifier> identifiers : identifierBatchOf(BATCH_SIZE))
             {
                 Class<? extends IEntityInformationWithPropertiesHolder> clazz =
-                        identifiers.get(0).getClazz();
+                        identifiers.get(0).getEntityClass();
 
                 Collection<Long> param = new HashSet<Long>();
                 for (EntityIdentifier identifier : identifiers)
@@ -170,13 +205,15 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
 
                 Criteria criteria = session.createCriteria(clazz);
                 criteria.add(Restrictions.in("id", param));
+                criteria.setFetchMode("sampleProperties", FetchMode.JOIN);
+                criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
                 for (IEntityInformationWithPropertiesHolder entity : (List<IEntityInformationWithPropertiesHolder>) criteria
                         .list())
                 {
                     validateEntity(tx, entity);
                     if (isRolledBack)
                     {
-                        break main;
+                        return;
                     }
                 }
             }
@@ -186,14 +223,14 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
     private Iterable<List<EntityIdentifier>> identifierBatchOf(final int batchSize)
     {
         final List<EntityIdentifier> ids = new ArrayList<EntityIdentifier>(entitiesToValidate);
-        entitiesToValidate = new HashSet<EntityIdentifier>();
 
         Collections.sort(ids, new Comparator<EntityIdentifier>()
             {
                 @Override
                 public int compare(EntityIdentifier arg0, EntityIdentifier arg1)
                 {
-                    return arg0.getClazz().getName().compareTo(arg1.getClazz().getName());
+                    return arg0.getEntityClass().getName().compareTo(
+                            arg1.getEntityClass().getName());
                 }
             });
 
@@ -221,10 +258,10 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
                                 }
                                 List<EntityIdentifier> list = new ArrayList<EntityIdentifier>();
                                 Class<? extends IEntityInformationWithPropertiesHolder> clazz =
-                                        ids.get(index).getClazz();
+                                        ids.get(index).getEntityClass();
                                 while (list.size() < batchSize
                                         && index < ids.size()
-                                        && ids.get(index).getClazz().equals(clazz))
+                                        && ids.get(index).getEntityClass().equals(clazz))
                                 {
                                     list.add(ids.get(index));
                                     index++;
@@ -322,7 +359,15 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         if (false == validatedEntities.add(new EntityIdentifier(entity)))
         {
             throw new IllegalStateException(
-                    "Programming error - trying to validate the same entity twice!");
+                    "Programming error - trying to validate the same entity twice ("
+                            + entity + ")");
+        }
+
+        if (false == entitiesToValidate.remove(new EntityIdentifier(entity)))
+        {
+            throw new IllegalStateException(
+                    "Programming error - could not remove entity from to be validated list ("
+                            + entity + ")");
         }
     }
 
@@ -345,7 +390,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
     public void requestValidation(INonAbstractEntityAdapter entityAdapter)
     {
         IEntityInformationWithPropertiesHolder entity = entityAdapter.entityPE();
-        if (validatedEntities.contains(new EntityIdentifier(entity)) == false
+        if ((validatedEntities.contains(new EntityIdentifier(entity)) == false)
                 && addToBeValidated(entity))
         {
             totalEntitiesToValidateCount++;
@@ -364,7 +409,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
             this.id = entity.getId();
         }
 
-        public Class<? extends IEntityInformationWithPropertiesHolder> getClazz()
+        public Class<? extends IEntityInformationWithPropertiesHolder> getEntityClass()
         {
             return clazz;
         }
@@ -378,8 +423,8 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         public int hashCode()
         {
             int hash = 17;
-            hash = 31 * id.hashCode() + 17;
-            hash = 31 * clazz.hashCode() + 17;
+            hash += 31 * id.hashCode() + 17;
+            hash += 31 * clazz.getSimpleName().hashCode() + 17;
             return hash;
         }
 
@@ -389,8 +434,8 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
             if (o instanceof EntityIdentifier)
             {
                 EntityIdentifier e = (EntityIdentifier) o;
-                return (e.getId() == id)
-                        && e.getClazz().equals(clazz);
+                return (e.getId().equals(id))
+                        && e.getEntityClass().getSimpleName().equals(clazz.getSimpleName());
             } else
             {
                 throw new IllegalArgumentException(o.toString());

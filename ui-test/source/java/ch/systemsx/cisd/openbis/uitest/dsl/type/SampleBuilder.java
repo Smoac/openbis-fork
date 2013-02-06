@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeDataType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
@@ -121,7 +122,14 @@ public class SampleBuilder implements Builder<Sample>
             if (assignment.isMandatory()
                     && properties.get(assignment.getPropertyType()) == null)
             {
-                throw new IllegalStateException("missing property");
+                if (assignment.getPropertyType().getDataType().equals(PropertyTypeDataType.VARCHAR))
+                {
+                    properties.put(assignment.getPropertyType(), uid.uid());
+                } else
+                {
+                    throw new UnsupportedOperationException("autogeneration of properties of type "
+                            + assignment.getPropertyType().getDataType() + " is not implemented.");
+                }
             }
         }
 

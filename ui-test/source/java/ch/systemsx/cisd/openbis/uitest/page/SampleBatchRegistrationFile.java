@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.uitest.rmi.Identifiers;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyTypeAssignment;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 
 /**
@@ -55,6 +56,8 @@ public class SampleBatchRegistrationFile
             samplesOfType.add(sample);
         }
         samples = new ArrayList<List<Sample>>(map.values());
+
+        // Containers have to be specified before components.
         Collections.sort(samples, new Comparator<List<Sample>>()
             {
                 @Override
@@ -108,7 +111,21 @@ public class SampleBatchRegistrationFile
                 writer.newLine();
             }
 
-            writer.write("identifier\tcontainer\tparents\texperiment\tdefault_space");
+            String header = "identifier\tcontainer\tparents\texperiment\tdefault_space";
+            List<String> propertyColumns = new ArrayList<String>();
+
+            for (PropertyTypeAssignment assignment : samplesOfType.get(0).getType()
+                    .getPropertyTypeAssignments())
+            {
+                propertyColumns.add(assignment.getPropertyType().getCode());
+            }
+
+            for (String column : propertyColumns)
+            {
+                header += "\t" + column;
+            }
+
+            writer.write(header);
             writer.newLine();
             for (Sample sample : samplesOfType)
             {
@@ -132,6 +149,13 @@ public class SampleBatchRegistrationFile
                 } else if (sample.getExperiment() != null)
                 {
                     writer.write(sample.getExperiment().getProject().getSpace().getCode());
+                }
+
+                for (PropertyTypeAssignment assignment : samplesOfType.get(0).getType()
+                        .getPropertyTypeAssignments())
+                {
+                    writer.write("\t" + assignment.getPropertyType().getCode() + ":"
+                            + UUID.randomUUID().toString());
                 }
 
                 writer.newLine();
