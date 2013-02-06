@@ -302,7 +302,9 @@ def replace_link_props_with_desc(entity, props_list, link_props):
 		for element in elements:
 			line = u"" + element.getAttribute("name")
 			line = line + " [" + element.getAttribute("code") + "]"
-			line = line + " : " + element.getAttribute("quantity")
+			quantity = element.getAttribute("quantity", None)
+			if quantity:
+				line = line + " : " + quantity
 			lines.append(line)
 		desc = u'\n'.join(lines)
 		for prop in props_list:
