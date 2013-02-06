@@ -3,6 +3,7 @@ from ch.systemsx.cisd.openbis.generic.shared.basic.dto import MaterialIdentifier
 from com.fasterxml.jackson.databind import ObjectMapper 
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
+from ch.systemsx.cisd.openbis.generic.shared.managed_property import ManagedPropertyFunctions
 
 import codecs
 
@@ -262,14 +263,16 @@ def retrieve_sample_type_properties_definitions(sample_type):
 	definitions.sort(lambda x, y: cmp(x.getPositionInForms(), y.getPositionInForms()))
 	return definitions
 
-def properties_for_entity(entity, property_definitions, prop_names_set):
-	"""Extract the properties, in the correct order, for the entity. Restricting them to those in the prop_names_set, if it is non-empty"""
+def properties_for_entity_ignoring(entity, property_definitions, ignored_properties):
+	"""Extract the properties, in the correct order, for the entity. 
+
+	If ignored_properties is non-empty, do not include those"""
 	properties = []
-	check_prop_names_set = len(prop_names_set) > 0
+	check_ignored_properties = len(ignored_properties) > 0
 	for propdef in property_definitions:
 		propcode = propdef.getPropertyTypeCode()
-		# Only include the properties we explicitly specify
-		if check_prop_names_set and propcode not in prop_names_set:
+		# Skip the properties that are designated to be ignored
+		if check_ignored_properties and propcode in ignored_properties:
 			continue
 		value = entity.getPropertyValue(propcode)
 		if value == u'\ufffd(undefined)':
@@ -277,6 +280,35 @@ def properties_for_entity(entity, property_definitions, prop_names_set):
 		prop = {'key' : propcode, 'label' : propdef.getPropertyTypeLabel(), 'value' : value }
 		properties.append(prop)
 	return properties
+
+def ordered_properties_for_sample_ignoring(sample, props_to_ignore):
+	property_definitions = retrieve_sample_type_properties_definitions(sample.getSampleType())
+	properties = properties_for_entity_ignoring(sample, property_definitions, props_to_ignore)
+	return properties
+
+def json_encoded_children_from_link_props(entity, link_props):
+	children = []
+	converter = ManagedPropertyFunctions.xmlPropertyConverter()
+	for prop in link_props:
+		elements = converter.convertStringToElements(entity.getPropertyValue(prop))
+		children.extend([element.getAttribute("permId") for element in elements])
+	return json_encoded_value(children)
+
+def replace_link_props_with_desc(entity, props_list, link_props):
+	converter = ManagedPropertyFunctions.xmlPropertyConverter()
+	for prop_key in link_props:
+		lines = []
+		elements = converter.convertStringToElements(entity.getPropertyValue(prop_key))
+		for element in elements:
+			line = u"" + element.getAttribute("name")
+			line = line + " [" + element.getAttribute("code") + "]"
+			line = line + " : " + element.getAttribute("quantity")
+			lines.append(line)
+		desc = u'\n'.join(lines)
+		for prop in props_list:
+			if prop['key'] == prop_key:
+				prop['value'] = desc
+				break
 
 def marquee_image_spec_for_url(image_url):
 	return { 'MARQUEE' : { 'URL' : image_url } }
@@ -349,8 +381,13 @@ def navigation_layer(oligos, antibodies, chemicals, protocols, medias, pcrs, buf
 	westernBlotting_dict = western_blotting_navigation_layer(westernBlottings)
 	return [oligo_dict, antibody_dict, chemical_dict, protocol_dict, media_dict, pcr_dict, buffer_dict, plasmid_dict, yeast_dict, bacteria_dict, enzyme_dict, westernBlotting_dict]
 
-def sample_to_dict_with_props(sample, want_props):
-	"""Convert a sample to a dictionary. Uses the NAME property to construct the summary. Returns empty children. Callers may need to modify the summary and children as well"""
+def sample_to_dict_with_props_ignoring(sample, want_props, props_to_ignore):
+	"""Convert a sample to a dictionary, ignoring the specified properties.
+
+	Uses the NAME property to construct the summary. 
+	Returns empty children. 
+	Callers may need to modify the summary and children as well
+	"""
 	sample_dict = {}
 	sample_dict['SUMMARY_HEADER'] = sample.getCode()
 	name = sample.getPropertyValue("NAME")
@@ -371,13 +408,20 @@ def sample_to_dict_with_props(sample, want_props):
 	sample_dict['CHILDREN'] = json_encoded_value(children)
 
 	if want_props:
-		property_definitions = retrieve_sample_type_properties_definitions(sample.getSampleType())
-		properties_sample = properties_for_entity(sample, property_definitions, [])
+		properties_sample = ordered_properties_for_sample_ignoring(sample, props_to_ignore)
 		sample_dict['PROPERTIES'] = json_encoded_value(properties_sample)
 
-		sample_dict['ROOT_LEVEL'] = None
-		return sample_dict
+	sample_dict['ROOT_LEVEL'] = None
 	return sample_dict
+
+def sample_to_dict_with_props(sample, want_props):
+	"""Convert a sample to a dictionary. 
+
+	Uses the NAME property to construct the summary. 
+	Returns empty children. 
+	Callers may need to modify the summary and children as well
+	"""
+	return sample_to_dict_with_props_ignoring(sample, want_props, [])
 	
 
 def oligo_to_dict(oligo, want_props):
@@ -400,7 +444,14 @@ def chemical_to_dict(chemical, want_props):
 	return sample_to_dict_with_props(chemical, want_props)
 
 def protocol_to_dict(protocol, want_props):
-		return sample_to_dict_with_props(protocol, want_props)
+	protocol_dict = sample_to_dict_with_props(protocol, False)
+	link_props = ["CHEMICALS", "SOLUTIONS_BUFFERS", "MEDIA", "GENERAL_PROTOCOL", "ENZYMES"]
+	protocol_dict['CHILDREN'] = json_encoded_children_from_link_props(protocol, link_props)
+	if want_props:
+		props = ordered_properties_for_sample_ignoring(protocol, [])
+		replace_link_props_with_desc(protocol, props, link_props)
+		protocol_dict['PROPERTIES'] = json_encoded_value(props)
+	return protocol_dict
 
 def media_to_dict(media, want_props):
 		return sample_to_dict_with_props(media, want_props)
