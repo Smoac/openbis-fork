@@ -88,7 +88,7 @@ public class TestInitializer
 
         if (firstTry && System.getProperty("rebuild-index", "true").equals("true"))
         {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MMDDHHmmssS");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssS");
             String timestamp = dateFormat.format(new Date());
             String databaseKind = "indexing_" + timestamp;
             try
