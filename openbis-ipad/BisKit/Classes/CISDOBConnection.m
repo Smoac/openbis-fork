@@ -69,10 +69,11 @@ NSString *const CISDOBConnectionErrorDomain = @"CISDOBConnectionErrorDomain";
     NSArray* params = [NSArray arrayWithObjects: user, password, nil];
     
     CISDOBConnectionCall *call = [self callWithMethod: method params: params];
+    __weak CISDOBConnectionCall *weakCall = call;
     call.successWrapper = ^(id result) { 
-        if (!call.success) return;
+        if (!weakCall.success) return;
         _sessionToken = result;
-        call.success(result); 
+        weakCall.success(result); 
     };
     
     return call;

@@ -135,7 +135,12 @@ id ObjectFromJsonData(NSString *jsonDataString, NSError **error)
     if (rawEntity.category) self.category = rawEntity.category;
     if (rawEntity.summaryHeader) self.summaryHeader = rawEntity.summaryHeader;
     if (rawEntity.summary) self.summary = rawEntity.summary;
-    if (rawEntity.children) self.childrenPermIdsJson = rawEntity.children;
+    if (rawEntity.children) {
+        [self willChangeValueForKey: @"childrenPermIds"];
+        self.childrenPermIdsJson = rawEntity.children;
+        [self setPrimitiveValue: nil forKey: @"childrenPermIds"];
+        [self didChangeValueForKey: @"childrenPermIds"];
+    }
     if (rawEntity.identifier) self.identifier = rawEntity.identifier;
     if (rawEntity.imageUrl) self.imageUrlString = rawEntity.imageUrl;
     if (rawEntity.images && [rawEntity.images length] > 0) {
@@ -150,7 +155,12 @@ id ObjectFromJsonData(NSString *jsonDataString, NSError **error)
             }
         }
     }
-    if (rawEntity.properties) self.propertiesJson = rawEntity.properties;
+    if (rawEntity.properties) {
+        [self willChangeValueForKey: @"properties"];
+        self.propertiesJson = rawEntity.properties;
+        [self setPrimitiveValue: nil forKey: @"properties"];
+        [self didChangeValueForKey: @"properties"];
+    }
     if (rawEntity.rootLevel) {
         BOOL rootLevel = [rawEntity.rootLevel length] > 0;
         self.rootLevel = [NSNumber numberWithBool: rootLevel];
