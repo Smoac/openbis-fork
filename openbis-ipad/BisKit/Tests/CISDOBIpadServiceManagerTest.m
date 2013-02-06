@@ -484,6 +484,24 @@ static BOOL IsPermIdTarget(NSString *permId)
     STAssertNil(image.textEncodingName, @"Text encoding should be nil");
 }
 
+- (void)testUnicode
+{
+    
+    [self performLogin];
+    [self performRootLevelCall];
+    
+    NSArray *targetsAndCompounds = [self targetsAndCompounds];
+    CISDOBIpadEntity *targetOrCompound = [targetsAndCompounds objectAtIndex: 0];
+    
+    [self performDetails: targetOrCompound];
+    STAssertNotNil(targetOrCompound.properties, @"Properties should have been retrieved");
+    NSDictionary *unicodeProperty = [targetOrCompound.properties objectAtIndex: 4];
+    NSString *unicodeValue = [unicodeProperty objectForKey: @"value"];
+    NSString *expectedValue = [NSString stringWithFormat: @"A pr%Cperty w%Cth accents.", (unsigned short) 0x00F6, (unsigned short) 0x00EF];
+    STAssertEqualObjects(expectedValue, unicodeValue, @"Property should equal");
+}
+
+
 
 - (void)testNilUrl
 {

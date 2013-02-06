@@ -273,7 +273,8 @@ static id OpenBisTableRowValueAtIndex(NSArray *rowData, NSUInteger index)
     // This value was not provided
     if (!indexHolder) return nil;
     NSUInteger index = [indexHolder unsignedIntegerValue];
-    return OpenBisTableRowValueAtIndex(_content, index);
+    NSString *rowValue = OpenBisTableRowValueAtIndex(_content, index);
+    return rowValue;
 }
 
 - (NSString *)permId { return [self stringContentValueAtName: @"PERM_ID"]; }

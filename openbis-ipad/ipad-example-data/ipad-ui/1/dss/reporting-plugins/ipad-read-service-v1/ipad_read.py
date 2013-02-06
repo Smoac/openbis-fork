@@ -11,6 +11,14 @@ def json_encoded_value(coll):
 	"""Utility function for converting a list into a json-encoded list"""
 	return ObjectMapper().writeValueAsString(coll)
 
+def json_empty_list():
+  """Utility function to return an json-encoded empty list"""
+  return json_encoded_value([])
+
+def json_empty_dict():
+  """Utility function to return an json-encoded empty dictionary"""
+  return json_encoded_value({})
+
 class RequestHandler(object):
 	"""Abstract superclass for the handlers for concrete requests like ROOT.
 
@@ -263,10 +271,10 @@ def material_to_dict(material, material_type_properties_definitions):
 		material_dict['IMAGES'] = json_encoded_value(marquee_image_spec_for_url(image_url_for_compound(material)))
 	else:
 		material_dict['SUMMARY'] = material.getPropertyValue("DESC")
-		material_dict['IMAGES'] = []
+		material_dict['IMAGES'] = json_empty_dict()
 		material_dict['ROOT_LEVEL'] = None
 
-	material_dict['CHILDREN'] = json_encoded_value([])
+	material_dict['CHILDREN'] = json_empty_list()
 
 	prop_names = set(["NAME", "PROT_NAME", "GENE_NAME", "LENGTH", "CHEMBL", "DESC", "FORMULA", "WEIGHT", "SMILES"])
 	property_definitions = material_type_properties_definitions.get(material.getMaterialType(), [])
