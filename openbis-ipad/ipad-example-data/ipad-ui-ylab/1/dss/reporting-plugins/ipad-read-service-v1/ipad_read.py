@@ -14,6 +14,14 @@ def json_encoded_value(coll):
 	"""Utility function for converting a list into a json-encoded list"""
 	return ObjectMapper().writeValueAsString(coll)
 
+def json_empty_list():
+  """Utility function to return an json-encoded empty list"""
+  return json_encoded_value([])
+
+def json_empty_dict():
+  """Utility function to return an json-encoded empty dictionary"""
+  return json_encoded_value({})
+
 class RequestHandler(object):
 	"""Abstract superclass for the handlers for concrete requests like ROOT.
 
@@ -286,7 +294,7 @@ def navigation_layer_simple(summary_header, summary, code, children):
 	nav_dict['CATEGORY'] = None
 	children_permids = [entity.getPermId() for entity in children]
 	nav_dict['CHILDREN'] = json_encoded_value(children_permids)
-	nav_dict['PROPERTIES'] = json_encoded_value([])
+	nav_dict['PROPERTIES'] = json_empty_list()
 	nav_dict['ROOT_LEVEL'] = True
 	return nav_dict
 
@@ -345,7 +353,11 @@ def sample_to_dict_with_props(sample, want_props):
 	"""Convert a sample to a dictionary. Uses the NAME property to construct the summary. Returns empty children. Callers may need to modify the summary and children as well"""
 	sample_dict = {}
 	sample_dict['SUMMARY_HEADER'] = sample.getCode()
-	summary = u"Name: " + sample.getPropertyValue("NAME")
+	name = sample.getPropertyValue("NAME")
+	if name is not None:
+		summary = u"Name: " + name
+	else:
+		summary = u"??"
 	sample_dict['SUMMARY'] = summary
 	sample_dict['IDENTIFIER'] = sample.getSampleIdentifier()
 	sample_dict['PERM_ID'] = sample.getPermId()
@@ -370,17 +382,17 @@ def sample_to_dict_with_props(sample, want_props):
 
 def oligo_to_dict(oligo, want_props):
 	sample_dict = sample_to_dict_with_props(oligo, want_props)
-	summary = u"Project: " + oligo.getPropertyValue("PROJECT")
+	summary = u"Project: " + unicode(oligo.getPropertyValue("PROJECT"))
 	summary = summary + "\n"
-	summary = summary + "Target: " + oligo.getPropertyValue("TARGET")
+	summary = summary + "Target: " + unicode(oligo.getPropertyValue("TARGET"))
 	sample_dict['SUMMARY'] = summary
 	return sample_dict
 
 def antibody_to_dict(antibody, want_props):
 	sample_antibody_dict = sample_to_dict_with_props(antibody, want_props)
-	summary = u"Name: " + antibody.getPropertyValue("NAME")
+	summary = u"Name: " + unicode(antibody.getPropertyValue("NAME"))
 	summary = summary + u"\n"
-	summary = summary + u"Epitope: " + antibody.getPropertyValue("EPITOPE")
+	summary = summary + u"Epitope: " + unicode(antibody.getPropertyValue("EPITOPE"))
 	sample_antibody_dict['SUMMARY'] = summary
 	return sample_antibody_dict
 
@@ -425,7 +437,7 @@ def plasmid_to_dict_with_images(plasmid, children_map, data_sets):
 	
 def yeast_to_dict(yeast, children_map, want_props):
 		sample_dict = sample_to_dict_with_props(yeast, want_props)
-		summary = u"Name: " + yeast.getPropertyValue("YEAST_STRAIN_NAME")
+		summary = u"Name: " + unicode(yeast.getPropertyValue("YEAST_STRAIN_NAME"))
 		sample_dict['SUMMARY'] = summary
 
 		children = [child.getPermId() for child in children_map.get(yeast.getSampleIdentifier(), [])]
@@ -436,7 +448,7 @@ def yeast_to_dict(yeast, children_map, want_props):
 def bacteria_to_dict(bacteria, with_props):
 	sample_dict = sample_to_dict_with_props(bacteria, with_props)
 	name = bacteria.getPropertyValue("BACTERIA_STRAIN_NAME")
-	summary = u"Name: " + name
+	summary = u"Name: " + unicode(name)
 	sample_dict['SUMMARY'] = summary
 	return sample_dict
 
