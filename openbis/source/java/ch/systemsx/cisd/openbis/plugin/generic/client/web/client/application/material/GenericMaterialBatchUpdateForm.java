@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material;
 
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
@@ -47,16 +45,17 @@ public class GenericMaterialBatchUpdateForm extends AbstractMaterialBatchRegistr
     }
 
     @Override
-    protected void addSpecificFormFields(FormPanel form)
+    protected void addOnlyFormFields(boolean forceAddEmailField)
     {
-        form.add(ignoreUnregisteredMaterialsCheckBox);
+        formPanel.add(ignoreUnregisteredMaterialsCheckBox);
+        super.addOnlyFormFields(forceAddEmailField);
     }
 
     @Override
     protected void save()
     {
-        viewContext.getService().updateMaterials(materialType, SESSION_KEY,
-                ignoreUnregisteredMaterialsCheckBox.getValue(),
-                new RegisterMaterialsCallback(viewContext));
+        genericViewContext.getService().updateMaterials(materialType, SESSION_KEY,
+                ignoreUnregisteredMaterialsCheckBox.getValue(), asynchronous.getValue(),
+                emailField.getValue(), new BatchRegistrationCallback(genericViewContext));
     }
 }

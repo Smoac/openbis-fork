@@ -120,8 +120,19 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     public int updateMaterials(String sessionToken, List<NewMaterialsWithTypes> newMaterials,
             boolean ignoreUnregisteredMaterials) throws UserFailureException
     {
-        logTracking(sessionToken, "update_materials", getMaterials(newMaterials));
+        logTracking(sessionToken, "update_materials",
+                "MATERIALS(%S) IGNORE_UNREGISTERED_MATERIALS(%S)", getMaterials(newMaterials),
+                ignoreUnregisteredMaterials);
         return 0;
+    }
+
+    @Override
+    public void updateMaterialsAsync(String sessionToken, List<NewMaterialsWithTypes> newMaterials,
+            boolean ignoreUnregisteredMaterials, String userEmail) throws UserFailureException
+    {
+        logTracking(sessionToken, "update_materials_async",
+                "MATERIALS(%S) IGNORE_UNREGISTERED_MATERIALS(%S) USER_EMAIL(%S)",
+                getMaterials(newMaterials), ignoreUnregisteredMaterials, userEmail);
     }
 
     @Override
@@ -220,6 +231,19 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
             logTracking(sessionToken, "registerOrUpdateMaterials",
                     "type(%s) numberOfMaterials(%s)", materialsWithType.getEntityType().getCode(),
                     materialsWithType.getNewEntities().size());
+        }
+    }
+
+    @Override
+    public void registerOrUpdateMaterialsAsync(String sessionToken,
+            List<NewMaterialsWithTypes> materials, String userEmail)
+    {
+        for (NewMaterialsWithTypes materialsWithType : materials)
+        {
+            logTracking(sessionToken, "registerOrUpdateMaterialsAsync",
+                    "type(%s) numberOfMaterials(%s) userEmail(%s)", materialsWithType
+                            .getEntityType().getCode(), materialsWithType.getNewEntities().size(),
+                    userEmail);
         }
     }
 

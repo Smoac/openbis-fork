@@ -194,6 +194,14 @@ public interface IGenericServer extends IServer
             boolean ignoreUnregisteredMaterials) throws UserFailureException;
 
     /**
+     * Asynchronously updates materials in batch.
+     */
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
+    public void updateMaterialsAsync(String sessionToken, List<NewMaterialsWithTypes> newMaterials,
+            boolean ignoreUnregisteredMaterials, String userEmail) throws UserFailureException;
+
+    /**
      * Registers new materials or if they exist updates in batch their properties (properties which
      * are not mentioned stay unchanged).
      */
@@ -201,6 +209,15 @@ public interface IGenericServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
     public void registerOrUpdateMaterials(String sessionToken, List<NewMaterialsWithTypes> materials)
             throws UserFailureException;
+
+    /**
+     * Asynchronously registers new materials or if they exist updates in batch their properties
+     * (properties which are not mentioned stay unchanged).
+     */
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
+    public void registerOrUpdateMaterialsAsync(String sessionToken,
+            List<NewMaterialsWithTypes> materials, String userEmail) throws UserFailureException;
 
     /**
      * Returns attachment described by given sample identifier, filename and version.

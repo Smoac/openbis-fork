@@ -132,7 +132,8 @@ public interface IGenericClientService extends IClientService
      *            of throwing the exception and breaking the whole operation).
      */
     public List<BatchRegistrationResult> registerMaterials(final MaterialType materialType,
-            boolean updateExisting, final String sessionKey) throws UserFailureException;
+            boolean updateExisting, final String sessionKey, boolean async, String userEmail)
+            throws UserFailureException;
 
     /**
      * Updates materials from a file which has been previously uploaded.
@@ -141,7 +142,8 @@ public interface IGenericClientService extends IClientService
      *            be ignored if they are not already registered.
      */
     public List<BatchRegistrationResult> updateMaterials(MaterialType materialType,
-            String sessionKey, boolean ignoreUnregisteredMaterials) throws UserFailureException;
+            String sessionKey, boolean ignoreUnregisteredMaterials, boolean async, String userEmail)
+            throws UserFailureException;
 
     /**
      * Updates experiment.

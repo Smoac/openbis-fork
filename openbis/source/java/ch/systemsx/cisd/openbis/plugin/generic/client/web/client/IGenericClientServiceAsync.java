@@ -102,16 +102,17 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             NewExperiment newExp, AsyncCallback<Void> assyncCallback) throws UserFailureException;
 
     /**
-     * @see IGenericClientService#registerMaterials(MaterialType, boolean, String)
+     * @see IGenericClientService#registerMaterials(MaterialType, boolean, String, boolean, String)
      */
     public void registerMaterials(MaterialType materialType, boolean updateExisting,
-            String sessionKey, final AsyncCallback<List<BatchRegistrationResult>> asyncCallback);
+            String sessionKey, boolean async, String userEmail,
+            final AsyncCallback<List<BatchRegistrationResult>> asyncCallback);
 
     /**
-     * @see IGenericClientService#updateMaterials(MaterialType, String, boolean)
+     * @see IGenericClientService#updateMaterials(MaterialType, String, boolean, boolean, String)
      */
     public void updateMaterials(MaterialType materialType, String sessionKey,
-            boolean ignoreUnregisteredMaterials,
+            boolean ignoreUnregisteredMaterials, boolean async, String userEmail,
             final AsyncCallback<List<BatchRegistrationResult>> asyncCallback);
 
     /**

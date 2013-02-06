@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailure
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.exception.SampleUniqueCodeViolationExceptionAbstract;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AsyncBatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -52,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialBatchUpdateResultMessage;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
@@ -239,12 +241,9 @@ public class GenericClientService extends AbstractClientService implements IGene
                     genericServer.registerOrUpdateSamplesAndMaterialsAsync(sessionToken,
                             samplesInfo.getSamples(), materialsInfo.getMaterials(), userEmail);
                 }
-                List<BatchRegistrationResult> results = new ArrayList<BatchRegistrationResult>();
-                results.add(new BatchRegistrationResult(uploadedFiles.iterable().iterator().next()
-                        .getOriginalFilename(),
-                        "When the import is complete the confirmation or failure report will be sent by email."));
 
-                return results;
+                String fileName = uploadedFiles.iterable().iterator().next().getOriginalFilename();
+                return AsyncBatchRegistrationResult.singletonList(fileName);
             } else
             {
                 if (materialsInfo.getMaterials().isEmpty())
@@ -403,13 +402,23 @@ public class GenericClientService extends AbstractClientService implements IGene
 
     @Override
     public final List<BatchRegistrationResult> registerMaterials(final MaterialType materialType,
-            boolean updateExisting, final String sessionKey)
+            boolean updateExisting, final String sessionKey, boolean async, String userEmail)
     {
         String sessionToken = getSessionToken();
         BatchMaterialsOperation results =
                 parseMaterials(sessionKey, materialType, null, updateExisting);
+        String fileName = results.getResultList().get(0).getFileName();
         List<NewMaterialsWithTypes> materials = results.getMaterials();
-        genericServer.registerOrUpdateMaterials(sessionToken, materials);
+
+        if (async)
+        {
+            genericServer.registerOrUpdateMaterialsAsync(sessionToken, materials, userEmail);
+            return AsyncBatchRegistrationResult.singletonList(fileName);
+        } else
+        {
+            genericServer.registerOrUpdateMaterials(sessionToken, materials);
+        }
+
         return results.getResultList();
     }
 
@@ -428,35 +437,27 @@ public class GenericClientService extends AbstractClientService implements IGene
 
     @Override
     public List<BatchRegistrationResult> updateMaterials(MaterialType materialType,
-            String sessionKey, boolean ignoreUnregisteredMaterials)
+            String sessionKey, boolean ignoreUnregisteredMaterials, boolean async, String userEmail)
     {
         String sessionToken = getSessionToken();
-
         BatchMaterialsOperation results = parseMaterials(sessionKey, materialType, null, true);
-        int updateCount =
-                genericServer.updateMaterials(sessionToken, results.getMaterials(),
-                        ignoreUnregisteredMaterials);
-        String message = updateCount + " material(s) updated";
-        if (ignoreUnregisteredMaterials)
+        String fileName = results.getResultList().get(0).getFileName();
+
+        if (async)
         {
-            int ignoredCount = -updateCount;
-            for (NewMaterialsWithTypes m : results.getMaterials())
-            {
-                ignoredCount += m.getNewEntities().size();
-            }
-            if (ignoredCount > 0)
-            {
-                message += ", " + ignoredCount + " ignored.";
-            } else
-            {
-                message += ", non ignored.";
-            }
+            genericServer.updateMaterialsAsync(sessionToken, results.getMaterials(),
+                    ignoreUnregisteredMaterials, userEmail);
+            return AsyncBatchRegistrationResult.singletonList(fileName);
         } else
         {
-            message += ".";
+            int updateCount =
+                    genericServer.updateMaterials(sessionToken, results.getMaterials(),
+                            ignoreUnregisteredMaterials);
+            MaterialBatchUpdateResultMessage message =
+                    new MaterialBatchUpdateResultMessage(results.getMaterials(), updateCount,
+                            ignoreUnregisteredMaterials);
+            return Arrays.asList(new BatchRegistrationResult(fileName, message.toString()));
         }
-        return Arrays.asList(new BatchRegistrationResult(results.getResultList().get(0)
-                .getFileName(), message));
     }
 
     private ExperimentLoader parseExperiments(String sessionKey)

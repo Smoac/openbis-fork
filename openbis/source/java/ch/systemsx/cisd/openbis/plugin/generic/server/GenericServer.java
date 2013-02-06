@@ -33,10 +33,11 @@ import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.generic.server.AbstractASyncAction;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
-import ch.systemsx.cisd.openbis.generic.server.IASyncAction;
 import ch.systemsx.cisd.openbis.generic.server.MaterialHelper;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
@@ -76,6 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialBatchUpdateResultMessage;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
@@ -684,6 +686,45 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("WRITE_MATERIAL")
+    public void updateMaterialsAsync(final String sessionToken,
+            final List<NewMaterialsWithTypes> newMaterials,
+            final boolean ignoreUnregisteredMaterials, final String userEmail)
+            throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        checkSession(sessionToken);
+
+        executeASync(userEmail, new AbstractASyncAction()
+            {
+                @Override
+                public String getName()
+                {
+                    return "Material Batch Update";
+                }
+
+                @Override
+                protected void doActionOrThrowException(Writer messageWriter)
+                {
+                    try
+                    {
+                        int updateCount =
+                                genericServer.updateMaterials(sessionToken, newMaterials,
+                                        ignoreUnregisteredMaterials);
+                        MaterialBatchUpdateResultMessage message =
+                                new MaterialBatchUpdateResultMessage(newMaterials, updateCount,
+                                        ignoreUnregisteredMaterials);
+                        messageWriter.write(message.toString());
+                    } catch (IOException e)
+                    {
+                        CheckedExceptionTunnel.wrapIfNecessary(e);
+                    }
+                }
+            });
+    }
+
+    @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public AttachmentWithContent getProjectFileAttachment(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class)
@@ -790,6 +831,32 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 registerMaterials(materialHelper, materialsWithTypes);
             }
         }
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("WRITE_MATERIAL")
+    public void registerOrUpdateMaterialsAsync(final String sessionToken,
+            final List<NewMaterialsWithTypes> materials, final String userEmail)
+            throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        checkSession(sessionToken);
+
+        executeASync(userEmail, new AbstractASyncAction()
+            {
+                @Override
+                public String getName()
+                {
+                    return "Material Batch Registration";
+                }
+
+                @Override
+                protected void doActionOrThrowException(Writer messageWriter)
+                {
+                    genericServer.registerOrUpdateMaterials(sessionToken, materials);
+                }
+            });
     }
 
     @Override
@@ -957,7 +1024,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final List<NewMaterialsWithTypes> newMaterialsWithType, String userEmail)
             throws UserFailureException
     {
-        executeASync(userEmail, new IASyncAction()
+        executeASync(userEmail, new AbstractASyncAction()
             {
                 @Override
                 public String getName()
@@ -966,29 +1033,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 }
 
                 @Override
-                public boolean doAction(Writer messageWriter)
+                protected void doActionOrThrowException(Writer messageWriter)
                 {
-                    try
-                    {
-                        genericServer.registerOrUpdateSamplesAndMaterials(sessionToken,
-                                newSamplesWithType, newMaterialsWithType);
-                    } catch (RuntimeException ex)
-                    {
-                        try
-                        {
-                            messageWriter.write(getName()
-                                    + " has failed with a following exception: ");
-                            messageWriter.write(ex.getMessage());
-                            messageWriter
-                                    .write("\n\nPlease correct the error or contact your administrator.");
-                        } catch (IOException writingEx)
-                        {
-                            throw new UserFailureException(writingEx.getMessage()
-                                    + " when trying to throw exception: " + ex.getMessage(), ex);
-                        }
-                        throw ex;
-                    }
-                    return true;
+                    genericServer.registerOrUpdateSamplesAndMaterials(sessionToken,
+                            newSamplesWithType, newMaterialsWithType);
                 }
             });
     }
@@ -1001,7 +1049,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final List<NewSamplesWithTypes> newSamplesWithType, String userEmail)
             throws UserFailureException
     {
-        executeASync(userEmail, new IASyncAction()
+        executeASync(userEmail, new AbstractASyncAction()
             {
                 @Override
                 public String getName()
@@ -1010,28 +1058,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 }
 
                 @Override
-                public boolean doAction(Writer messageWriter)
+                protected void doActionOrThrowException(Writer messageWriter)
                 {
-                    try
-                    {
-                        genericServer.registerOrUpdateSamples(sessionToken, newSamplesWithType);
-                    } catch (RuntimeException ex)
-                    {
-                        try
-                        {
-                            messageWriter.write(getName()
-                                    + " has failed with a following exception: ");
-                            messageWriter.write(ex.getMessage());
-                            messageWriter
-                                    .write("\n\nPlease correct the error or contact your administrator.");
-                        } catch (IOException writingEx)
-                        {
-                            throw new UserFailureException(writingEx.getMessage()
-                                    + " when trying to throw exception: " + ex.getMessage(), ex);
-                        }
-                        throw ex;
-                    }
-                    return true;
+                    genericServer.registerOrUpdateSamples(sessionToken, newSamplesWithType);
                 }
             });
     }

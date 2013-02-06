@@ -615,7 +615,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 
         List<BatchRegistrationResult> results =
                 genericClientService.updateMaterials(MATERIAL_TYPE, sessionKey,
-                        ignoreUnregisteredMaterials);
+                        ignoreUnregisteredMaterials, false, null);
 
         assertEquals(1, results.size());
         assertEquals(updateCount + " material(s) updated.", results.get(0).getMessage());
@@ -632,7 +632,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 
         List<BatchRegistrationResult> results =
                 genericClientService.updateMaterials(MATERIAL_TYPE, sessionKey,
-                        ignoreUnregisteredMaterials);
+                        ignoreUnregisteredMaterials, false, null);
 
         assertEquals(1, results.size());
         assertEquals(updateCount + " material(s) updated, non ignored.", results.get(0)
@@ -650,7 +650,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 
         List<BatchRegistrationResult> results =
                 genericClientService.updateMaterials(MATERIAL_TYPE, sessionKey,
-                        ignoreUnregisteredMaterials);
+                        ignoreUnregisteredMaterials, false, null);
 
         assertEquals(1, results.size());
         assertEquals(updateCount + " material(s) updated, 1 ignored.", results.get(0).getMessage());

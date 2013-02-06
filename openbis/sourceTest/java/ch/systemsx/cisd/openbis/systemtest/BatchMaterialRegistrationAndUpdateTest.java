@@ -263,7 +263,8 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
         uploadFile("my-file", materialBatchData);
         MaterialType materialType = new MaterialType();
         materialType.setCode(materialTypeCode);
-        return genericClientService.registerMaterials(materialType, false, SESSION_KEY);
+        return genericClientService
+                .registerMaterials(materialType, false, SESSION_KEY, false, null);
     }
 
     private List<BatchRegistrationResult> updateMaterials(String materialBatchData,
@@ -272,7 +273,8 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
         uploadFile("my-file", materialBatchData);
         MaterialType materialType = new MaterialType();
         materialType.setCode(materialTypeCode);
-        return genericClientService.updateMaterials(materialType, SESSION_KEY, ignoreUnregistered);
+        return genericClientService.updateMaterials(materialType, SESSION_KEY, ignoreUnregistered,
+                false, null);
     }
 
 }
