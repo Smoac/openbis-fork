@@ -88,8 +88,9 @@ class RequestHandler(object):
 		"""Append a row of data to the table"""
 		row = self.builder.addRow()
 		for header in self.headers:
-			if entry.get(header):
-				row.setCell(header, str(entry.get(header)))
+			value = entry.get(header)
+			if value is not None:
+				row.setCell(header, value)
 			else:
 				row.setCell(header, "")
 
@@ -271,6 +272,7 @@ def material_to_dict(material, material_type_properties_definitions):
 	property_definitions = material_type_properties_definitions.get(material.getMaterialType(), [])
 	properties = properties_for_entity(material, property_definitions, prop_names)	
 	properties.append({'key' : 'VERY_LONG_PROPERTY_NAME', 'label' : 'Very Long Property Name', 'value' : "This is a very long text that should span multiple lines to see if this thing works, you know, the thing that causes the other thing to place text on multiple lines and stuff like that, etc., etc., so on and so forth."})
+	properties.append({'key' : 'UNICODE_PROPERTY', 'label' : 'Unicode Property', 'value' : u'A pr\u00F6perty w\u00EFth accents.'})
 	material_dict['PROPERTIES'] = json_encoded_value(properties)
 	return material_dict
 
