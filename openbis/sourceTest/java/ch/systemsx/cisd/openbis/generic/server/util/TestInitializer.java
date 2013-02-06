@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.generic.server.util;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -86,6 +88,9 @@ public class TestInitializer
 
         if (firstTry && System.getProperty("rebuild-index", "true").equals("true"))
         {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMDDHHmmssS");
+            String timestamp = dateFormat.format(new Date());
+            String databaseKind = "indexing_" + timestamp;
             try
             {
                 File temporaryFile = new File(LUCENE_INDEX_TEMPLATE_PATH);
@@ -94,12 +99,16 @@ public class TestInitializer
 
                 System.setProperty("script-folder", SCRIPT_FOLDER_TEST_DB);
 
-                String databaseKind =
-                        "indexing_" + (System.currentTimeMillis() % (24 * 60 * 60 * 1000L));
                 IndexCreationUtil.main(databaseKind, temporaryFile.getAbsolutePath(), "true");
+            } catch (Exception ex)
+            {
+                operationLog.error(ex);
+                CheckedExceptionTunnel.wrapIfNecessary(ex);
+            } finally
+            {
                 String psql = DumpPreparator.getPSQLExecutable();
                 String databaseName = "openbis_" + databaseKind;
-                String sql = "drop database " + databaseName;
+                String sql = "drop database if exists " + databaseName;
                 List<String> cmd = Arrays.asList(psql, "-U", "postgres", "-c", sql);
                 boolean result = ProcessExecutionHelper.runAndLog(cmd, operationLog, operationLog);
                 if (result == false)
@@ -107,10 +116,6 @@ public class TestInitializer
                     operationLog.error("Couldn't drop database created for indexing: "
                             + databaseName);
                 }
-            } catch (Exception ex)
-            {
-                operationLog.error(ex);
-                CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
             firstTry = false;
         }
