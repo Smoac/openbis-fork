@@ -1,6 +1,68 @@
 POSTGRES_BIN=`cat $BASE/postgres_bin_path.txt`
 
 #
+# Removes white trailing and leading white spaces.
+#
+# This function should be used as follows:
+#
+# trimmedString=$(trim $someString)
+#
+trim()
+{
+  echo "$1" | sed 's/^ *//g' | sed 's/ *$//g'
+}
+
+#
+# Checks whether the first argument, a comma-separated list of items contains the second argument
+# as an item. Returns TRUE if this is the case or the list is empty. Trailing and leading
+# whitespace of list items are ignored. 
+#
+# This function should be used as follows:
+#
+# result=$(isEmptyOrContains " abc,  def , ghi " "abc")
+#
+isEmptyOrContains()
+{
+  if [ "$(trim "$1")" == "" ]; then
+    echo "TRUE"
+    return
+  fi
+  local list="$1"
+  local item="$2"
+  while true; do
+    local part="${list%%,*}"
+    local firstItem=$(trim $part)
+    list="${list#*,}"
+    if [ "$firstItem" == "$item" ]; then
+      echo "TRUE"
+      return
+    fi
+    if [ "$part" == "$list" ]; then
+      echo "FALSE"
+      return
+    fi
+  done
+}
+
+#
+# Returns TRUE if the specified database exists.
+#
+# This function should be used as follows:
+#
+# if [ $(databaseExist "openbis_prod") == "TRUE" ]; then doBackup; fi
+#
+databaseExist()
+{
+  local database=$1
+  if [ `exe_psql -U postgres -l | eval "awk '/$database /'" | wc -l` -gt 0 ]; then
+    echo "TRUE"
+  else
+    echo "FALSE"
+  fi
+}
+
+
+#
 # Run psql command using POSTGRES_BIN path
 #
 exe_psql()

@@ -38,7 +38,15 @@ public class ExecuteBackupAction extends AbstractScriptExecutor implements Panel
     {
         String script = getAdminScript(data, CREATE_BACKUP_SCRIPT);
         String backupFolder = data.getVariable(GlobalInstallationContext.BACKUP_FOLDER_VARNAME);
-        executeAdminScript(null, script, backupFolder);
+        String dataBasesToBackup = data.getVariable(SetDatabasesToBackupAction.DATABASES_TO_BACKUP_VARNAME);
+        System.out.println("dbs:"+dataBasesToBackup+"<");
+        if (dataBasesToBackup == null)
+        {
+            executeAdminScript(null, script, backupFolder);
+        } else
+        {
+            executeAdminScript(null, script, backupFolder, dataBasesToBackup);
+        }
     }
 
     @Override

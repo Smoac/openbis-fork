@@ -26,14 +26,12 @@ function listDatabases() {
 # $1 - a semi-color delimited string of properties (e.g. "key1=value1;key2=value2")
 # $2 - the name of the property (e.g. "key1")
 #
-# The result is returned via the variable "propValue" 
 #
 function getProperty() {
 
   local properties=$1
   local propName=$2
-  propValue=$(echo $properties | tr ";" "\n" | grep "$propName=" | sed "s/$propName=//")
-  
+  echo $properties | tr ";" "\n" | grep "$propName=" | sed "s/$propName=//"
 }
 
 #
@@ -44,11 +42,12 @@ function backupDatabase() {
 
   DB_PROPS=$1
   
-  getProperty $DB_PROPS "database"
-  database=$propValue
-  if [ `exe_psql -U postgres -l | eval "awk '/$database /'" | wc -l` -gt 0 ]; then
-    getProperty $DB_PROPS "username"
-    username=$propValue
+  database=$(getProperty $DB_PROPS "database")
+  if [ $(isEmptyOrContains "$DATABASES_TO_BACKUP" $database) == "FALSE" ]; then
+    return
+  fi
+  if [ $(databaseExist $database) == "TRUE" ]; then
+    username=$(getProperty $DB_PROPS "username")
   
     local dumpFile=$BACKUP_DIR/$database.dmp
   
@@ -73,6 +72,7 @@ if [ "$BACKUP_DIR" == "" ]; then
 	echo ERROR: directory in which configuration should be stored has not been specified! 
 	exit 1
 fi
+DATABASES_TO_BACKUP="$2"
 
 SERVERS=$BASE/../servers
 AS_SERVER=$SERVERS/openBIS-server/

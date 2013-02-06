@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.installer.izpack;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.OutputStream;
 import java.util.Map;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
@@ -35,11 +35,22 @@ public abstract class AbstractScriptExecutor
 
     protected String getAdminScript(AutomatedInstallData data, String scriptFileName)
     {
-        File adminScriptFile = new File(data.getVariable(INSTALL_BIN_PATH_VARNAME), scriptFileName);
+        File adminScriptFile = getAdminScriptFile(data, scriptFileName);
         return adminScriptFile.getAbsolutePath();
     }
 
+    protected File getAdminScriptFile(AutomatedInstallData data, String scriptFileName)
+    {
+        return new File(data.getVariable(INSTALL_BIN_PATH_VARNAME), scriptFileName);
+    }
+
     protected void executeAdminScript(Map<String, String> customEnv, String... command)
+    {
+        executeAdminScript(customEnv, System.out, System.err, command);
+    }
+
+    protected void executeAdminScript(Map<String, String> customEnv, OutputStream out,
+            OutputStream err, String... command)
     {
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.environment().putAll(System.getenv());
@@ -50,8 +61,8 @@ public abstract class AbstractScriptExecutor
         try
         {
             Process process = pb.start();
-            pipe(process.getErrorStream(), System.err);
-            pipe(process.getInputStream(), System.out);
+            pipe(process.getErrorStream(), err);
+            pipe(process.getInputStream(), out);
             int returnValue = process.waitFor();
             if (returnValue != 0)
             {
@@ -66,7 +77,7 @@ public abstract class AbstractScriptExecutor
     }
     
 
-    private void pipe(final InputStream src, final PrintStream dest)
+    private void pipe(final InputStream src, final OutputStream dest)
     {
         new Thread(new Runnable() 
         {

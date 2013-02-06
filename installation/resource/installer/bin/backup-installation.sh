@@ -21,6 +21,7 @@ if [ "$BACKUP_DIR" == "" ]; then
 	echo ERROR: directory in which configuration should be stored has not been specified! 
 	exit 1
 fi
+DATABASES_TO_BACKUP="$2"
 
 $BASE/alldown.sh
 
@@ -31,7 +32,7 @@ echo "Creating backup folder $BACKUP_DIR ..."
 mkdir -p $CONFIG
 $BASE/backup-config.sh $CONFIG
 
-$BASE/backup-databases.sh $BACKUP_DIR 
+$BASE/backup-databases.sh $BACKUP_DIR "$DATABASES_TO_BACKUP"
 if [ $? -ne "0" ]; then
   echo "Creating database backups had failed. Aborting ..."
   exit 1

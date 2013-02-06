@@ -58,6 +58,9 @@ public class GlobalInstallationContext
      */
     public static boolean isUpdateInstallation = false;
 
+    public static boolean isUpdateInstallationWithoutDatabaseSelection = false;
+    public static boolean isUpdateInstallationWithDatabaseSelection = false;
+    
     /**
      * set to true if this is the first openBIS installation on the machine.
      */
@@ -89,6 +92,17 @@ public class GlobalInstallationContext
             if (pathFile.isFile())
             {
                 postgresBinPath = FileUtilities.loadToString(pathFile).trim();
+            }
+            String backupScript =
+                    FileUtilities.loadToString(new File(installDir, "bin/backup-installation.sh"));
+            boolean canBackupDatabasesSelectively =
+                    backupScript.contains(SetDatabasesToBackupAction.DATABASES_TO_BACKUP_VARNAME);
+            if (canBackupDatabasesSelectively)
+            {
+                isUpdateInstallationWithDatabaseSelection = true;
+            } else
+            {
+                isUpdateInstallationWithoutDatabaseSelection = true;
             }
         }
         data.setVariable(POSTGRES_BIN_VARNAME, postgresBinPath);

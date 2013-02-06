@@ -29,7 +29,6 @@
     <res id="TargetPanel.dir" src="@{installer.dist.dir}/default-install-dir.txt" />
     <res id="Heading.image" src="@{installer.dist.dir}/openBIS_logo_229x100.png"/>
     <res id="userInputSpec.xml" src="@{installer.dist.dir}/userInputSpec.xml" />
-    <res id="ProcessPanel.Spec.xml" src="@{installer.dist.dir}/backup-installation.xml"/>
   </resources>
 
   <variables>
@@ -84,6 +83,20 @@
       </java>
       <returnvalue type="boolean">true</returnvalue>
     </condition>
+    <condition type="java" id="isUpdateInstallationWithDatabaseSelection">
+      <java>
+        <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
+        <field>isUpdateInstallationWithDatabaseSelection</field>
+      </java>
+      <returnvalue type="boolean">true</returnvalue>
+    </condition>
+    <condition type="java" id="isUpdateInstallationWithoutDatabaseSelection">
+      <java>
+        <class>ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContext</class>
+        <field>isUpdateInstallationWithoutDatabaseSelection</field>
+      </java>
+      <returnvalue type="boolean">true</returnvalue>
+    </condition>
   </conditions>
 
   <!-- The panels section. We indicate here which panels we want to use. The order will be respected. -->
@@ -130,8 +143,15 @@
       </actions>
     </panel>
     
-    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.BACKUP" condition="isUpdateInstallation">
+    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.BACKUP_OLD" condition="isUpdateInstallationWithoutDatabaseSelection">
       <actions>
+        <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.ExecuteBackupAction" />
+      </actions>
+    </panel>
+    
+    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.BACKUP" condition="isUpdateInstallationWithDatabaseSelection">
+      <actions>
+        <action stage="preactivate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetDatabasesToBackupAction" />
         <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.ExecuteBackupAction" />
       </actions>
     </panel>
