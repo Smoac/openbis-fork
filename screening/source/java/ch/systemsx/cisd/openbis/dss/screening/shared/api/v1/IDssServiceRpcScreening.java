@@ -586,4 +586,38 @@ public interface IDssServiceRpcScreening extends IRpcService
             String sessionToken, @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
             List<? extends IDatasetIdentifier> imageDatasets);
 
+    /**
+     * /** Returns the same images as
+     * {@link IDssServiceRpcScreening#loadPhysicalThumbnails(String, List, ImageRepresentationFormat)}
+     * but the result is a list of base64 encoded strings that contain the image data.
+     * 
+     * @since 1.12
+     */
+    @MinimalMinorVersion(12)
+    @DataSetAccessGuard
+    public List<String> loadPhysicalThumbnailsBase64(String sessionToken,
+            @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
+            List<PlateImageReference> imageReferences, ImageRepresentationFormat format);
+
+    /**
+     * The fast method to provide registered thumbnail images (without calculating them) for the
+     * specified list of image references (specified by data set code, well position, channel and
+     * tile) and specified image representation format. The {@link ImageRepresentationFormat}
+     * argument should be an object returned by
+     * {@link #listAvailableImageRepresentationFormats(String, List)}. This method assumes that all
+     * image references belong to the same data set which has image representations of specified
+     * format.
+     * <p>
+     * This method gets the images directly from the data store in the format in which they are
+     * stored there.
+     * 
+     * @throws UserFailureException if the specified format refers to an image representations
+     *             unknown by at least one plate image reference.
+     * @since 1.12
+     */
+    @MinimalMinorVersion(12)
+    @DataSetAccessGuard
+    public InputStream loadPhysicalThumbnails(String sessionToken,
+            @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
+            List<PlateImageReference> imageReferences, ImageRepresentationFormat format);
 }

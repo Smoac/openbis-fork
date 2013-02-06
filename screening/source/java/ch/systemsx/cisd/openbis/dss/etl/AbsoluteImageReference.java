@@ -87,6 +87,14 @@ public class AbsoluteImageReference extends AbstractImageReference
     }
 
     /**
+     * @return unchanged image content to allow the fastest possible access to any stored image.
+     */
+    public IHierarchicalContentNode getRawContent()
+    {
+        return contentNode;
+    }
+
+    /**
      * @return unchanged image content if the image does not have to be extracted from the original
      *         content. This method is provided to allow the fastest possible access to original
      *         images.

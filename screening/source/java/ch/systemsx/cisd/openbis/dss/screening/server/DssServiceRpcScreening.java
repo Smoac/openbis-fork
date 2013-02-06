@@ -128,7 +128,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 11;
+    public static final int MINOR_VERSION = 12;
 
     // this dao will hold one connection to the database
     private IImagingReadonlyQueryDAO dao;
@@ -930,6 +930,106 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             IDatasetIdentifier dataSetIdentifier, List<String> channels)
     {
         return convertToBase64(loadThumbnailImages(sessionToken, dataSetIdentifier, channels));
+    }
+
+    @Override
+    public List<String> loadPhysicalThumbnailsBase64(String sessionToken,
+            java.util.List<PlateImageReference> imageReferences, ImageRepresentationFormat format)
+    {
+        return convertToBase64(loadPhysicalThumbnails(sessionToken, imageReferences, format));
+    }
+
+    @Override
+    public InputStream loadPhysicalThumbnails(String sessionToken,
+            List<PlateImageReference> imageReferences, final ImageRepresentationFormat format)
+    {
+        for (PlateImageReference plateImageReference : imageReferences)
+        {
+            if (plateImageReference.getDatasetCode().equals(format.getDataSetCode()) == false)
+            {
+                throw new UserFailureException(
+                        "At least for one plate image reference the image representation format "
+                                + "is unknown: Plate image reference: " + plateImageReference
+                                + ", format: " + format);
+            }
+        }
+        IImageRepresentationFormatSelectionCriterion criterion =
+                new AbstractFormatSelectionCriterion()
+                    {
+                        private static final long serialVersionUID = 1L;
+
+                        @Override
+                        protected boolean accept(ImageRepresentationFormat availableFormat)
+                        {
+                            return format.getId() == availableFormat.getId();
+                        }
+                    };
+        return loadPhysicalThumbnails(sessionToken, imageReferences, criterion);
+    }
+
+    public InputStream loadPhysicalThumbnails(String sessionToken,
+            List<PlateImageReference> imageReferences,
+            IImageRepresentationFormatSelectionCriterion... criteria)
+    {
+        final Map<String, IImagingDatasetLoader> imageLoadersMap =
+                getImageDatasetsMap(sessionToken, imageReferences);
+        Map<String, ImgImageDatasetDTO> imageDataSetMap =
+                createDataSetCodeToImageDataSetMap(imageReferences);
+        ImageRepresentationFormatFinder finder = new ImageRepresentationFormatFinder(criteria);
+        Map<String, ImageRepresentationFormat> dataSetToImageReferenceFormatMap =
+                new HashMap<String, ImageRepresentationFormat>();
+        for (Entry<String, ImgImageDatasetDTO> entry : imageDataSetMap.entrySet())
+        {
+            String dataSetCode = entry.getKey();
+            List<ImageRepresentationFormat> filteredFormats =
+                    finder.find(getImageRepresentationFormats(entry.getValue()));
+            if (filteredFormats.isEmpty())
+            {
+                throw new UserFailureException(
+                        "No image representation format fitting criteria found for data set "
+                                + dataSetCode + ".");
+            }
+            if (filteredFormats.size() > 1)
+            {
+                throw new UserFailureException(
+                        "To many image representation formats fitting criteria for data set "
+                                + dataSetCode + ": " + filteredFormats);
+            }
+            dataSetToImageReferenceFormatMap.put(dataSetCode, filteredFormats.get(0));
+        }
+        List<IHierarchicalContentNode> imageContents = new ArrayList<IHierarchicalContentNode>();
+        for (PlateImageReference imageReference : imageReferences)
+        {
+            String datasetCode = imageReference.getDatasetCode();
+            IImagingDatasetLoader loader = imageLoadersMap.get(datasetCode);
+            ImageRepresentationFormat format = dataSetToImageReferenceFormatMap.get(datasetCode);
+            Size size = new Size(format.getWidth(), format.getHeight());
+
+            String transformation = tryGetTransformation(imageReference, format);
+
+            final ImageChannelStackReference channelStackRef =
+                    getImageChannelStackReference(loader, imageReference);
+
+            AbsoluteImageReference imr =
+                    loader.tryGetThumbnail(imageReference.getChannel(), channelStackRef,
+                            new RequestedImageSize(size, false, false), transformation);
+
+            imageContents.add(imr.getRawContent());
+        }
+        return new ConcatenatedContentInputStream(true, imageContents);
+    }
+
+    protected String tryGetTransformation(PlateImageReference imageReference,
+            ImageRepresentationFormat format)
+    {
+        for (ImageRepresentationTransformation t : format.getTransformations())
+        {
+            if (t.getChannelCode().equals(imageReference.getChannel()))
+            {
+                return t.getTransformationCode();
+            }
+        }
+        return null;
     }
 
     @Override

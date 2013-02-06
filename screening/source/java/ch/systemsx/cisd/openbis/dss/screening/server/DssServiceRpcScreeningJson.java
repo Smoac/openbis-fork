@@ -316,6 +316,20 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
                 service.listAvailableImageRepresentationFormats(sessionToken, imageDatasets));
     }
 
+    @Override
+    public List<String> loadPhysicalThumbnailsBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageRepresentationFormat format)
+    {
+        return service.loadPhysicalThumbnailsBase64(sessionToken, imageReferences, format);
+    }
+
+    @Override
+    public InputStream loadPhysicalThumbnails(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageRepresentationFormat format)
+    {
+        return handleNotSupportedMethod();
+    }
+
     private <T> T handleNotSupportedMethod()
     {
         throw new UnsupportedOperationException("This method is not supported in JSON API yet");

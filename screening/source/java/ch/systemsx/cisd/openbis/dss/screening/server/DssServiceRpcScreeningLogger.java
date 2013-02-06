@@ -388,4 +388,22 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    @Override
+    public List<String> loadPhysicalThumbnailsBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageRepresentationFormat format)
+    {
+        logAccess(sessionToken, "load_physical_thumbnails_base64",
+                "IMAGE_REFERENCES(%s) FORMAT(%s)", imageReferences, format);
+        return null;
+    }
+
+    @Override
+    public InputStream loadPhysicalThumbnails(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageRepresentationFormat format)
+    {
+        logAccess(sessionToken, "load_physical_thumbnails", "IMAGE_REFERENCES(%s) FORMAT(%s)",
+                imageReferences, format);
+        return null;
+    }
+
 }
