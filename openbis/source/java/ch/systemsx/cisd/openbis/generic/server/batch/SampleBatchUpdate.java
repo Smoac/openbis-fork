@@ -36,17 +36,21 @@ public class SampleBatchUpdate implements IBatchOperation<SampleBatchUpdatesDTO>
 
     private int maxIndex;
 
-    public SampleBatchUpdate(ISampleTable businessTable, List<SampleBatchUpdatesDTO> entities)
+    int limit;
+
+    public SampleBatchUpdate(ISampleTable businessTable, List<SampleBatchUpdatesDTO> entities,
+            int limit)
     {
         this.businessTable = businessTable;
         this.entities = entities;
+        this.limit = limit;
     }
 
     @Override
     public void execute(List<SampleBatchUpdatesDTO> updates)
     {
         businessTable.prepareForUpdate(updates);
-        businessTable.save(maxIndex - endIndex > 50000);
+        businessTable.save(maxIndex - endIndex > limit);
     }
 
     @Override

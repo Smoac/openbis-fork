@@ -17,12 +17,15 @@
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import java.util.List;
+import java.util.Properties;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.SampleBatchRegistration;
@@ -53,8 +56,29 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
     @Resource(name = ComponentNames.DAO_FACTORY)
     private IDAOFactory daoFactory;
 
+    @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
+    protected ExposablePropertyPlaceholderConfigurer configurer;
+
+    private int sessionCacheEntityLimit = 50000;
+
     private GenericSampleTypeSlaveServerPlugin()
     {
+    }
+
+    @PostConstruct
+    public void init()
+    {
+        Properties props = this.configurer.getResolvedProps();
+        String text = props.getProperty("hibernate.batch.sessionCache.maxEntities");
+        if (text != null)
+        {
+            try
+            {
+                sessionCacheEntityLimit = Integer.parseInt(text);
+            } catch (NumberFormatException e)
+            {
+            }
+        }
     }
 
     //
@@ -82,8 +106,10 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         assert session != null : "Unspecified session.";
         assert newSamples != null && newSamples.size() > 0 : "Unspecified sample or empty samples.";
 
-        BatchOperationExecutor.executeInBatches(new SampleBatchRegistration(businessObjectFactory
-                .createSampleTable(session), newSamples, registratorOrNull));
+        BatchOperationExecutor
+                .executeInBatches(new SampleBatchRegistration(businessObjectFactory
+                        .createSampleTable(session), newSamples, registratorOrNull,
+                        sessionCacheEntityLimit));
     }
 
     @Override
@@ -93,6 +119,6 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         assert updateSamples != null && updateSamples.size() > 0 : "Unspecified sample or empty samples.";
 
         BatchOperationExecutor.executeInBatches(new SampleBatchUpdate(businessObjectFactory
-                .createSampleTable(session), updateSamples));
+                .createSampleTable(session), updateSamples, sessionCacheEntityLimit));
     }
 }

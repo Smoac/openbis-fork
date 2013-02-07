@@ -39,19 +39,28 @@ public class SampleBatchRegistration implements IBatchOperation<NewSample>, IPro
 
     private int maxIndex;
 
+    private int limit;
+
     public SampleBatchRegistration(ISampleTable businessTable, List<NewSample> entities,
             PersonPE registratorOrNull)
+    {
+        this(businessTable, entities, registratorOrNull, 50000);
+    }
+
+    public SampleBatchRegistration(ISampleTable businessTable, List<NewSample> entities,
+            PersonPE registratorOrNull, int limit)
     {
         this.businessTable = businessTable;
         this.entities = entities;
         this.registratorOrNull = registratorOrNull;
+        this.limit = limit;
     }
 
     @Override
     public void execute(List<NewSample> batch)
     {
         businessTable.prepareForRegistration(batch, registratorOrNull);
-        businessTable.save(maxIndex - endIndex > 50000);
+        businessTable.save(maxIndex - endIndex > limit);
     }
 
     @Override
