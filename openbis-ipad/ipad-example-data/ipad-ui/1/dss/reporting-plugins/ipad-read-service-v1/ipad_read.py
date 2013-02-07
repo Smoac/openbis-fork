@@ -3,6 +3,8 @@ from ch.systemsx.cisd.openbis.generic.shared.basic.dto import MaterialIdentifier
 from com.fasterxml.jackson.databind import ObjectMapper 
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria, SearchSubCriteria
 
+from datetime import datetime
+
 #
 # BEGIN Infrastructure
 #
@@ -305,7 +307,7 @@ def sample_to_dict(five_ht_sample, material_by_perm_id, data_sets, sample_type_p
 	prop_names = set(["DESC"])
 	property_definitions = sample_type_properties_definitions.get(five_ht_sample.getSampleType(), [])
 	properties = properties_for_entity(five_ht_sample, property_definitions, prop_names)
-
+	properties.append({'key' : 'TIMESTAMP', 'label' : 'Timestamp', 'value' : datetime.today().strftime('%Y-%m-%d %H:%M:%S')})
 	sample_dict['PROPERTIES'] = json_encoded_value(properties)
 	sample_dict['ROOT_LEVEL'] = None
 	# Need to handle the material links as entity links: "TARGET", "COMPOUND"

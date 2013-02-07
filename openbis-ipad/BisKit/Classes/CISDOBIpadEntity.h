@@ -65,6 +65,9 @@
 - (void)initializeFromRawEntity:(CISDOBIpadRawEntity *)rawEntity;
 - (void)updateFromRawEntity:(CISDOBIpadRawEntity *)rawEntity;
 
+//! There can be multiple instances of the same object. CoreData keeps the persistent information consistent, but the locally cached information can become inconsistent. Call this to update the cached information.
+- (void)refreshCachedInformation;
+
 @end
 
 

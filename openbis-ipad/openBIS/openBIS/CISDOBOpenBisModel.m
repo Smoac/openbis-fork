@@ -163,6 +163,7 @@
     SuccessBlock localSuccess = success;
     call.success = ^(id result) {
         // Update the UI
+        [_selectedObject refreshCachedInformation];
         localSuccess(_selectedObject);
     };
     [call start];
@@ -172,10 +173,11 @@
 - (void)syncSelectedObjectForNavigationOnSuccess:(SuccessBlock)success
 {
     // Call the server to get the children.
-    CISDOBAsyncCall *call = [self.serviceManager imagesForEntity: _selectedObject];
+    CISDOBAsyncCall *call = [self.serviceManager drillOnEntity: _selectedObject];
     // Assign this to a local var to get the compiler to copy it
     SuccessBlock localSuccess = success;
     call.success = ^(id result) {
+        [_selectedObject refreshCachedInformation];
         localSuccess(_selectedObject);
     };
     [call start];
@@ -234,7 +236,7 @@
     
     [self applyStandardSortDescriptorsToFetchRequest: fetchRequest];
     
-    NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"category" cacheName: _parentModel.selectedObject.permId];
+    NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"category" cacheName: nil];
     aFetchedResultsController.delegate = self;
     self.fetchedResultsController = aFetchedResultsController;
     

@@ -167,4 +167,15 @@ id ObjectFromJsonData(NSString *jsonDataString, NSError **error)
     }
 }
 
+- (void)refreshCachedInformation
+{
+    [self willChangeValueForKey: @"childrenPermIds"];
+    [self setPrimitiveValue: nil forKey: @"childrenPermIds"];
+    [self didChangeValueForKey: @"childrenPermIds"];
+    
+    [self willChangeValueForKey: @"properties"];
+    [self setPrimitiveValue: nil forKey: @"properties"];
+    [self didChangeValueForKey: @"properties"];    
+}
+
 @end
