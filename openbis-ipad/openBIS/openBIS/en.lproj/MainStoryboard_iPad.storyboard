@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="2844" systemVersion="11G63" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="5">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="3084" systemVersion="11G63" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="5">
     <dependencies>
         <development version="4500" identifier="xcode"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="1930"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="2083"/>
     </dependencies>
     <scenes>
         <!--Navigation Controller-->
@@ -169,6 +169,7 @@
                         <outlet property="goOnlineButton" destination="na8-i7-eex" id="5HV-bs-81p"/>
                         <outlet property="identifierLabel" destination="gor-tF-mFh" id="NCy-K7-tLT"/>
                         <outlet property="propertiesTableView" destination="bUx-j7-YCF" id="QW1-J0-g9j"/>
+                        <outlet property="refreshButton" destination="EsV-dr-0BO" id="DIU-Qn-GtN"/>
                         <outlet property="statusLabel" destination="xTL-xF-3F3" id="EHS-uA-baK"/>
                         <outlet property="summaryHeaderLabel" destination="27" id="f5M-Ao-eBL"/>
                         <outlet property="summaryLabel" destination="T4E-dH-b3j" id="qVC-t4-llZ"/>
@@ -177,6 +178,11 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="15" sceneMemberID="firstResponder"/>
+                <barButtonItem systemItem="refresh" id="EsV-dr-0BO" userLabel="Bar Button Item - Item">
+                    <connections>
+                        <action selector="refreshFromServer:" destination="4" id="ELj-pB-cHh"/>
+                    </connections>
+                </barButtonItem>
             </objects>
             <point key="canvasLocation" x="448" y="248"/>
         </scene>
@@ -391,7 +397,13 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
                             <outlet property="delegate" destination="19" id="21"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="All" id="40"/>
+                    <navigationItem key="navigationItem" title="All" id="40">
+                        <barButtonItem key="rightBarButtonItem" systemItem="refresh" id="6pq-Cj-Rqi">
+                            <connections>
+                                <action selector="refreshFromServer:" destination="19" id="090-XN-gvu"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="browseTableView" destination="20" id="lPH-EN-X8X"/>
                         <outlet property="searchDisplayController" destination="DJu-Ev-v3F" id="4kh-TV-kFh"/>
@@ -453,9 +465,11 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
             <source key="sourceIdentifier" type="project" relativePath="./Classes/CISDOBDetailViewController.h"/>
             <relationships>
                 <relationship kind="action" name="goOnline:"/>
+                <relationship kind="action" name="refreshFromServer:"/>
                 <relationship kind="outlet" name="goOnlineButton" candidateClass="UIBarButtonItem"/>
                 <relationship kind="outlet" name="identifierLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="propertiesTableView" candidateClass="UITableView"/>
+                <relationship kind="outlet" name="refreshButton" candidateClass="UIBarButtonItem"/>
                 <relationship kind="outlet" name="statusLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="summaryHeaderLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="summaryLabel" candidateClass="UILabel"/>
@@ -482,6 +496,7 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
         <class className="CISDOBMasterViewController" superclassName="UITableViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/CISDOBMasterViewController.h"/>
             <relationships>
+                <relationship kind="action" name="refreshFromServer:"/>
                 <relationship kind="outlet" name="browseTableView" candidateClass="UITableView"/>
             </relationships>
         </class>

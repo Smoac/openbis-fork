@@ -303,6 +303,7 @@ def sample_to_dict(five_ht_sample, material_by_perm_id, data_sets, sample_type_p
 
 	children = [five_ht_sample.getPropertyValue("TARGET"), five_ht_sample.getPropertyValue("COMPOUND")]
 	sample_dict['CHILDREN'] = json_encoded_value(children)
+#	sample_dict['CHILDREN'] = json_encoded_value([])
 
 	prop_names = set(["DESC"])
 	property_definitions = sample_type_properties_definitions.get(five_ht_sample.getSampleType(), [])

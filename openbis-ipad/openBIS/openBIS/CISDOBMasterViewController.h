@@ -37,6 +37,8 @@
 
 @property (weak, nonatomic) IBOutlet UITableView *browseTableView;
 
+- (IBAction)refreshFromServer:(id)sender;
+
 // Server Communication
 - (void)didConnectServiceManager:(CISDOBIpadServiceManager *)serviceManager;
 

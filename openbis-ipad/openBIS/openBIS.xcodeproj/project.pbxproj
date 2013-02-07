@@ -92,6 +92,7 @@
 		3656C9B3165A7A7E00E9B0FA /* CISDOBImageViewPopoverController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBImageViewPopoverController.m; sourceTree = "<group>"; };
 		3656C9C5165ABC5D00E9B0FA /* Zoom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Zoom.png; sourceTree = "<group>"; };
 		3656C9C8165ABD4C00E9B0FA /* Zoom-small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Zoom-small.png"; sourceTree = "<group>"; };
+		36596BE416C3B7B900AD7CB7 /* CISDOBIpadServiceManagerInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBIpadServiceManagerInternal.h; sourceTree = "<group>"; };
 		3687D8FD162D3AB500622690 /* openbis-icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "openbis-icon-72.png"; sourceTree = "<group>"; };
 		3687D8FE162D3AB500622690 /* openbis-icon-144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "openbis-icon-144.png"; sourceTree = "<group>"; };
 		36BDE5FE16555869007EC62A /* CISDOBLoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBLoginViewController.h; sourceTree = "<group>"; };
@@ -312,6 +313,7 @@
 				36F71ED2161C453D00C87277 /* CISDOBIpadService.m */,
 				362B81EA163FFB6C00127554 /* CISDOBIpadServiceManager.h */,
 				362B81EB163FFB6C00127554 /* CISDOBIpadServiceManager.m */,
+				36596BE416C3B7B900AD7CB7 /* CISDOBIpadServiceManagerInternal.h */,
 				36F71ED3161C453D00C87277 /* CISDOBJsonRpcCall.h */,
 				36F71ED4161C453D00C87277 /* CISDOBJsonRpcCall.m */,
 				36F71ED6161C453D00C87277 /* persistent-data-model.xcdatamodeld */,

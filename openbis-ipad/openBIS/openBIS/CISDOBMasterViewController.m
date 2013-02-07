@@ -61,6 +61,14 @@
     
 }
 
+- (IBAction)refreshFromServer:(id)sender
+{
+    [self.openBisModel refreshParentFromServer: ^(id result) {
+        [self refreshTable];
+    }];
+    
+}
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];

@@ -24,6 +24,7 @@
 #import "CISDOBIpadEntity.h"
 #import "CISDOBAppDelegate.h"
 #import "CISDOBIpadServiceManager.h"
+#import "CISDOBIpadServiceManagerInternal.h"
 #import "CISDOBAsyncCall.h"
 
 @implementation CISDOBOpenBisModel
@@ -54,6 +55,7 @@
 - (CISDOBIpadServiceManager *)serviceManager { return self.appDelegate.serviceManager; }
 - (NSManagedObjectContext *)managedObjectContext { return self.appDelegate.managedObjectContext; }
 - (BOOL)isOnline { return self.appDelegate.online; }
+- (BOOL)isRootModel { return self.parentModel == nil; }
 
 #pragma mark - Model
 - (NSInteger)numberOfSections
@@ -147,11 +149,53 @@
 }
 
 #pragma mark - Server Communication
+- (void)refreshParentFromServer:(SuccessBlock)success;
+{
+    if ([self isRootModel]) {
+        [self forceSyncRootEntities: success];
+        return;
+    }
+
+    [self.parentModel syncSelectedObjectForNavigationOnSuccess: success];
+}
+
+- (void)refreshFromServer:(SuccessBlock)success;
+{
+    if ([self isRootModel]) {
+        [self forceSyncRootEntities: success];
+        return;
+    }
+    
+    [self syncSelectedObjectForDetailOnSuccess: success];
+}
+
+- (void)forceSyncRootEntities:(SuccessBlock)success;
+{
+    // The manager has connected, initialize the root
+    CISDOBAsyncCall *call = [self.serviceManager retrieveRootLevelEntitiesFromServer];
+    // Assign this to a local var to get the compiler to copy it
+    SuccessBlock localSuccess = success;
+    __weak CISDOBOpenBisModel *weakSelf = self;
+    call.success = ^(id result) {
+        // Update the UI
+        [weakSelf refreshResults];
+        localSuccess(_selectedObject);
+    };
+    [call start];
+}
+
 - (void)syncRootEntities:(SuccessBlock)success;
 {
     // The manager has connected, initialize the root
     CISDOBAsyncCall *call = [self.serviceManager retrieveRootLevelEntities];
-    call.success = success;
+    // Assign this to a local var to get the compiler to copy it
+    SuccessBlock localSuccess = success;
+    __weak CISDOBOpenBisModel *weakSelf = self;
+    call.success = ^(id result) {
+        // Update the UI
+        [weakSelf refreshResults];
+        localSuccess(_selectedObject);
+    };
     [call start];
 }
 
@@ -167,7 +211,6 @@
         localSuccess(_selectedObject);
     };
     [call start];
-
 }
 
 - (void)syncSelectedObjectForNavigationOnSuccess:(SuccessBlock)success

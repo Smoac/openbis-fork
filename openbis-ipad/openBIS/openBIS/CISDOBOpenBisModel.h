@@ -67,6 +67,9 @@
 - (NSURL *)urlFromUrlString:(NSString *)urlString;
 
 // Server Communication
+- (void)refreshParentFromServer:(SuccessBlock)success;
+- (void)refreshFromServer:(SuccessBlock)success;
+
 - (void)syncRootEntities:(SuccessBlock)success;
 
 //! Get the full selected object from the server and invoke the success block when the data is here

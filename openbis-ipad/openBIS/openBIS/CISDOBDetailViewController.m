@@ -50,6 +50,14 @@
     [self.appDelegate goOnline];
 }
 
+- (IBAction)refreshFromServer:(id)sender
+{
+    [self.openBisModel refreshFromServer: ^(id result) {
+        [self configureView]; [self requestImage];
+    }];
+    
+}
+
 #pragma mark - Managing the detail item
 - (void)requestServerSync
 {
@@ -125,21 +133,22 @@
     return [NSString stringWithFormat: @"%@ %@", titleRoot, onlineStatus];
 }
 
-- (void)configureGoOnlineButton
+- (void)configureToolbarButtons
 {
-    // Remove the go online button if we are already online
+    // Put in the refresh button if we are already online
     if (!self.openBisModel || self.openBisModel.online) {
-        [self.navigationItem setRightBarButtonItem: nil animated: NO];
+        [self.navigationItem setRightBarButtonItem: self.refreshButton animated: NO];
         return;
     }
-    
+
+    // Put in the go online button if we are not online
     [self.navigationItem setRightBarButtonItem: self.goOnlineButton animated: NO];
     return;
 }
 
 - (void)configureView
 {
-    [self configureGoOnlineButton];
+    [self configureToolbarButtons];
     self.title = [self titleString];
     if (!self.detailItem) {
         self.summaryHeaderLabel.text = @"";
