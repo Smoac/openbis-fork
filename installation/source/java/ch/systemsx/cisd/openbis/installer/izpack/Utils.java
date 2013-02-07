@@ -223,4 +223,9 @@ class Utils
     {
         return new File(installDir, AS_PATH + KEYSTORE_PATH);
     }
+    
+    static boolean isASInstalled(File installDir)
+    {
+        return new File(installDir, AS_PATH).exists();
+    }
 }

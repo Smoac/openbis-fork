@@ -42,8 +42,10 @@ OLD_BIS=$BACKUP_DIR/openBIS-server
 
 echo "Moving old installation to backup dir"
 
-echo "mv $ROOT_DIR/openBIS-server $OLD_BIS"
-mv $ROOT_DIR/openBIS-server $OLD_BIS
+if [ -d $ROOT_DIR/openBIS-server ]; then
+  echo "mv $ROOT_DIR/openBIS-server $OLD_BIS"
+  mv $ROOT_DIR/openBIS-server $OLD_BIS
+fi
  
 echo "mv $ROOT_DIR/datastore_server $BACKUP_DIR/datastore_server"
 mv $ROOT_DIR/datastore_server $BACKUP_DIR/datastore_server

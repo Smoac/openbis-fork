@@ -36,7 +36,6 @@
     <variable name="ShowCreateDirectoryMessage"  value="false" />
     <variable name="data.validation.error.title"  value="Error" />
     <variable name="VERSION_NUMBER"  value="@{version.number}" />
-    <variable name="IS_STANDARD_TECHNOLOGIES" value="is-standard-technologies-value-created-by-ant-script" />
   </variables>
 
   <dynamicvariables>
@@ -71,10 +70,6 @@
         <field>noPsqlToolsOnPath</field>
       </java>
       <returnvalue type="boolean">true</returnvalue>
-    </condition>
-    <condition type="variable" id="isStandardTechnologies">
-      <name>IS_STANDARD_TECHNOLOGIES</name>
-      <value>true</value>
     </condition>
     <condition type="java" id="presentKeyStoreFile">
       <java>
@@ -130,7 +125,7 @@
       <validator classname="ch.systemsx.cisd.openbis.installer.izpack.KeyStoreValidator" />
     </panel>
     
-    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.TECHNOLOGIES" condition="isStandardTechnologies">
+    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.TECHNOLOGIES">
       <actions>
         <action stage="preactivate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetTechnologyCheckBoxesAction" />
         <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetEnableTechnologiesVariableAction" />
@@ -171,7 +166,7 @@
 
   <!-- The packs (packages) to be installed. -->
   <packs>
-    <pack name="openBIS Server" required="yes" loose="yes">
+    <pack name="openBIS Server" required="no" loose="yes">
       <description>The openBIS application server</description>
       <file src="@{installer.dist.dir}/openBIS-server" targetdir="$INSTALL_TMPEXTRACT"/>
       <parsable targetfile="$INSTALL_OPENBIS_TMPEXTRACT/service.properties" />

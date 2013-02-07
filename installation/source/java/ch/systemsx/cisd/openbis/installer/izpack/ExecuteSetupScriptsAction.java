@@ -53,7 +53,7 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements
     private static final String RESTORE_CONFIG_FROM_BACKUP_SCRIPT = "restore-config-from-backup.sh";
 
     @Override
-    public synchronized void executeAction(AutomatedInstallData data, AbstractUIHandler arg1)
+    public synchronized void executeAction(AutomatedInstallData data, AbstractUIHandler handler)
     {
         if (GlobalInstallationContext.isFirstTimeInstallation)
         {
@@ -69,8 +69,14 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements
         String certificatePassword =
                 data.getVariable(GlobalInstallationContext.KEY_PASSWORD_VARNAME);
         File installDir = GlobalInstallationContext.installDir;
-        installKeyStore(keyStoreFileName, installDir);
-        injectPasswords(keyStorePassword, certificatePassword, installDir);
+        try
+        {
+            installKeyStore(keyStoreFileName, installDir);
+            injectPasswords(keyStorePassword, certificatePassword, installDir);
+        } catch (Exception ex)
+        {
+            handler.emitErrorAndBlockNext("Fatal Error", ex.toString());
+        }
     }
 
     void installKeyStore(String keyStoreFileName, File installDir)
@@ -80,8 +86,11 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements
             try
             {
                 File keyStoreFile = new File(keyStoreFileName);
-                File keystoreFileAS = Utils.getKeystoreFileForAS(installDir);
-                FileUtils.copyFile(keyStoreFile, keystoreFileAS);
+                if (Utils.isASInstalled(installDir))
+                {
+                    File keystoreFileAS = Utils.getKeystoreFileForAS(installDir);
+                    FileUtils.copyFile(keyStoreFile, keystoreFileAS);
+                }
                 File keystoreFileDSS = Utils.getKeystoreFileForDSS(installDir);
                 FileUtils.copyFile(keyStoreFile, keystoreFileDSS);
             } catch (IOException ex)
@@ -100,21 +109,24 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements
         Utils.updateOrAppendProperty(dssServicePropertiesFile, Utils.DSS_KEYSTORE_KEY_PASSWORD_KEY,
                 keyPassword);
         
-        File jettyXMLFile = new File(installDir, Utils.AS_PATH + Utils.JETTY_XML_PATH);
-        try
+        if (Utils.isASInstalled(installDir))
         {
-            String jettyXML = FileUtils.readFileToString(jettyXMLFile);
-            jettyXML =
-                    jettyXML.replaceAll("<Set name=\"Password\">.*</Set>",
-                            "<Set name=\"Password\"><![CDATA[" + keyStorePassword + "]]></Set>")
-                            .replaceAll(
-                                    "<Set name=\"KeyPassword\">.*</Set>",
-                                    "<Set name=\"KeyPassword\"><![CDATA[" + keyPassword
-                                            + "]]></Set>");
-            FileUtils.writeStringToFile(jettyXMLFile, jettyXML);
-        } catch (IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            File jettyXMLFile = new File(installDir, Utils.AS_PATH + Utils.JETTY_XML_PATH);
+            try
+            {
+                String jettyXML = FileUtils.readFileToString(jettyXMLFile);
+                jettyXML =
+                        jettyXML.replaceAll("<Set name=\"Password\">.*</Set>",
+                                "<Set name=\"Password\"><![CDATA[" + keyStorePassword + "]]></Set>")
+                                .replaceAll(
+                                        "<Set name=\"KeyPassword\">.*</Set>",
+                                        "<Set name=\"KeyPassword\"><![CDATA[" + keyPassword
+                                        + "]]></Set>");
+                FileUtils.writeStringToFile(jettyXMLFile, jettyXML);
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
         }
     }
     

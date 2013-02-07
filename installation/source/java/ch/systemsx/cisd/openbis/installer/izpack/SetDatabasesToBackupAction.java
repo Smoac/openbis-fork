@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.installer.izpack;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
@@ -99,14 +101,15 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
 
     private Object[] createArguments()
     {
-        String asServicePropertiesPath =
-                new File(GlobalInstallationContext.installDir, Utils.AS_PATH
-                        + Utils.SERVICE_PROPERTIES_PATH).getAbsolutePath();
-        String dssServicePropertiesPath =
-                new File(GlobalInstallationContext.installDir, Utils.DSS_PATH
-                        + Utils.SERVICE_PROPERTIES_PATH).getAbsolutePath();
+        List<String> paths = new ArrayList<String>();
+        if (Utils.isASInstalled(GlobalInstallationContext.installDir))
+        {
+            paths.add(new File(GlobalInstallationContext.installDir, Utils.AS_PATH
+                    + Utils.SERVICE_PROPERTIES_PATH).getAbsolutePath());
+        }
+        paths.add(new File(GlobalInstallationContext.installDir, Utils.DSS_PATH
+                + Utils.SERVICE_PROPERTIES_PATH).getAbsolutePath());
         return new Object[]
-                { new String[]
-                        { asServicePropertiesPath, dssServicePropertiesPath } };
+            { paths.toArray(new String[0]) };
     }
 }

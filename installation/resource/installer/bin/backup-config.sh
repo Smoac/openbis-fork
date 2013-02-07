@@ -27,21 +27,23 @@ source $BASE/common-functions.sh
 ROOT=$BASE/../servers
 
 # -- AS
-copyFileIfExists $ROOT/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/service.properties $CONF/
-copyFileIfExists $ROOT/openBIS-server/jetty/etc/service.properties $CONF/
-copyFileIfExists $ROOT/openBIS-server/jetty/etc/capabilities $CONF/
-copyFileIfExists $ROOT/openBIS-server/jetty/etc/dss-datasource-mapping $CONF/
-copyFileIfExists $ROOT/openBIS-server/jetty/etc/log.xml $CONF/
-copyFileIfExists $ROOT/openBIS-server/jetty/bin/openbis.conf $CONF/
-copyFileIfExists $ROOT/openBIS-server/jetty/etc/openbis.conf $CONF/
-cp $ROOT/openBIS-server/jetty/etc/jetty.xml $CONF/
-copyFileIfExists $ROOT/openBIS-server/jetty/bin/jetty.properties $CONF/
-copyFileIfExists $ROOT/openBIS-server/jetty/etc/jetty.properties $CONF/
-cp $ROOT/openBIS-server/jetty/webapps/openbis/welcomePageSimple.html $CONF/
-# not always present
-copyIfExists $ROOT/openBIS-server/jetty/etc/openBIS.keystore $CONF/.keystore 
-copyIfExists $ROOT/openBIS-server/jetty/etc/passwd $CONF/
-copyIfExists $ROOT/openBIS-server/jetty/etc/web-client.properties $CONF/
+if [ -d $ROOT/openBIS-server ]; then
+    copyFileIfExists $ROOT/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/service.properties $CONF/
+    copyFileIfExists $ROOT/openBIS-server/jetty/etc/service.properties $CONF/
+    copyFileIfExists $ROOT/openBIS-server/jetty/etc/capabilities $CONF/
+    copyFileIfExists $ROOT/openBIS-server/jetty/etc/dss-datasource-mapping $CONF/
+    copyFileIfExists $ROOT/openBIS-server/jetty/etc/log.xml $CONF/
+    copyFileIfExists $ROOT/openBIS-server/jetty/bin/openbis.conf $CONF/
+    copyFileIfExists $ROOT/openBIS-server/jetty/etc/openbis.conf $CONF/
+    cp $ROOT/openBIS-server/jetty/etc/jetty.xml $CONF/
+    copyFileIfExists $ROOT/openBIS-server/jetty/bin/jetty.properties $CONF/
+    copyFileIfExists $ROOT/openBIS-server/jetty/etc/jetty.properties $CONF/
+    cp $ROOT/openBIS-server/jetty/webapps/openbis/welcomePageSimple.html $CONF/
+    # not always present
+    copyIfExists $ROOT/openBIS-server/jetty/etc/openBIS.keystore $CONF/.keystore 
+    copyIfExists $ROOT/openBIS-server/jetty/etc/passwd $CONF/
+    copyIfExists $ROOT/openBIS-server/jetty/etc/web-client.properties $CONF/
+fi
 
 # -- DSS
 cp $ROOT/datastore_server/etc/service.properties $CONF/dss-service.properties

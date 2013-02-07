@@ -71,6 +71,10 @@ public class DBConnectionValidator implements DataValidator
     @Override
     public Status validateData(AutomatedInstallData data)
     {
+        if (Utils.isASInstalled(GlobalInstallationContext.installDir) == false)
+        {
+            return Status.OK;
+        }
         String admin = getAdmin();
         String adminPassword = getAdminPassword();
         String owner = getOwner();

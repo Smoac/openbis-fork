@@ -24,6 +24,10 @@ if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
 
+if [ ! -d "$BASE/../../servers/openBIS-server" ]; then
+    exit
+fi
+
 #
 # create 'admin' user
 #

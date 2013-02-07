@@ -29,18 +29,20 @@ ROOT=$BASE/../servers
 echo "Restoring configuration backup from $CONF to $ROOT ..."
 
 # -- AS
-cp $CONF/service.properties $ROOT/openBIS-server/jetty/etc/
-cp $CONF/log.xml $ROOT/openBIS-server/jetty/etc/ 
-cp $CONF/openbis.conf $ROOT/openBIS-server/jetty/etc/
-cp $CONF/jetty.xml $ROOT/openBIS-server/jetty/etc/
-cp $CONF/jetty.properties $ROOT/openBIS-server/jetty/etc/
-cp $CONF/welcomePageSimple.html $ROOT/openBIS-server/jetty/webapps/openbis/ 
-# not always present
-copyIfExists $CONF/.keystore $ROOT/openBIS-server/jetty/etc/openBIS.keystore
-copyIfExists $CONF/passwd $ROOT/openBIS-server/jetty/etc/
-copyIfExists $CONF/web-client.properties $ROOT/openBIS-server/jetty/etc/
-copyIfExists $CONF/capabilities $ROOT/openBIS-server/jetty/etc/
-copyIfExists $CONF/dss-datasource-mapping $ROOT/openBIS-server/jetty/etc/
+if [ -d $ROOT/openBIS-server ]; then
+    cp $CONF/service.properties $ROOT/openBIS-server/jetty/etc/
+    cp $CONF/log.xml $ROOT/openBIS-server/jetty/etc/ 
+    cp $CONF/openbis.conf $ROOT/openBIS-server/jetty/etc/
+    cp $CONF/jetty.xml $ROOT/openBIS-server/jetty/etc/
+    cp $CONF/jetty.properties $ROOT/openBIS-server/jetty/etc/
+    cp $CONF/welcomePageSimple.html $ROOT/openBIS-server/jetty/webapps/openbis/ 
+    # not always present
+    copyIfExists $CONF/.keystore $ROOT/openBIS-server/jetty/etc/openBIS.keystore
+    copyIfExists $CONF/passwd $ROOT/openBIS-server/jetty/etc/
+    copyIfExists $CONF/web-client.properties $ROOT/openBIS-server/jetty/etc/
+    copyIfExists $CONF/capabilities $ROOT/openBIS-server/jetty/etc/
+    copyIfExists $CONF/dss-datasource-mapping $ROOT/openBIS-server/jetty/etc/
+fi
 
 # -- DSS
 cp $CONF/dss-service.properties $ROOT/datastore_server/etc/service.properties
