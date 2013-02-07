@@ -81,8 +81,8 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     /**
      * Inserts or updates given list of {@link SamplePE} into the database in one go.
      */
-    void createOrUpdateSamples(final List<SamplePE> samples, final PersonPE modifier)
-            throws DataAccessException;
+    void createOrUpdateSamples(final List<SamplePE> samples, final PersonPE modifier,
+            boolean clearCache) throws DataAccessException;
 
     /**
      * Updates given <var>sample</var>.

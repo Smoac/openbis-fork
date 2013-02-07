@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener;
 
 /**
  * Executes provided operation in batches of chosen size (by default 1000).
@@ -73,6 +73,12 @@ public class BatchOperationExecutor
                 endIndex, endIndex = Math.min(startIndex + batchSize, maxIndex))
         {
             final List<S> batch = allEntities.subList(startIndex, endIndex);
+
+            if (strategy instanceof IProgressAware)
+            {
+                ((IProgressAware) strategy).setNextChunk(startIndex, endIndex, maxIndex);
+            }
+
             strategy.execute(batch);
             notifyProgressListener(progressListenerOrNull, progressPhaseOrNull, maxIndex, endIndex);
             operationLog.info(String.format("%s %s progress: %d/%d", strategy.getEntityName(),
@@ -89,7 +95,8 @@ public class BatchOperationExecutor
         return DEFAULT_BATCH_SIZE;
     }
 
-    private static void notifyProgressListener(IServiceConversationProgressListener progressListenerOrNull,
+    private static void notifyProgressListener(
+            IServiceConversationProgressListener progressListenerOrNull,
             String progressPhaseOrNull, int maxIndex, int currentIndex)
     {
         if (null != progressListenerOrNull)

@@ -27,13 +27,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * 
  * @author Izabela Adamczyk
  */
-public class SampleBatchRegistration implements IBatchOperation<NewSample>
+public class SampleBatchRegistration implements IBatchOperation<NewSample>, IProgressAware
 {
     private final ISampleTable businessTable;
 
     private final List<NewSample> entities;
 
     private final PersonPE registratorOrNull;
+
+    private int endIndex;
+
+    private int maxIndex;
 
     public SampleBatchRegistration(ISampleTable businessTable, List<NewSample> entities,
             PersonPE registratorOrNull)
@@ -47,7 +51,7 @@ public class SampleBatchRegistration implements IBatchOperation<NewSample>
     public void execute(List<NewSample> batch)
     {
         businessTable.prepareForRegistration(batch, registratorOrNull);
-        businessTable.save();
+        businessTable.save(maxIndex - endIndex > 50000);
     }
 
     @Override
@@ -66,6 +70,13 @@ public class SampleBatchRegistration implements IBatchOperation<NewSample>
     public String getOperationName()
     {
         return "registration";
+    }
+
+    @Override
+    public void setNextChunk(int startIndex, int endIndex, int maxIndex)
+    {
+        this.endIndex = endIndex;
+        this.maxIndex = maxIndex;
     }
 
 }

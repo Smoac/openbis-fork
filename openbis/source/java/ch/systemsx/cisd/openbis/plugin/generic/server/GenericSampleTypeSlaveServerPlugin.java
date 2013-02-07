@@ -83,7 +83,7 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         assert newSamples != null && newSamples.size() > 0 : "Unspecified sample or empty samples.";
 
         BatchOperationExecutor.executeInBatches(new SampleBatchRegistration(businessObjectFactory
-                .createSampleTable(session), newSamples, registratorOrNull), 999999);
+                .createSampleTable(session), newSamples, registratorOrNull));
     }
 
     @Override
@@ -93,6 +93,6 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         assert updateSamples != null && updateSamples.size() > 0 : "Unspecified sample or empty samples.";
 
         BatchOperationExecutor.executeInBatches(new SampleBatchUpdate(businessObjectFactory
-                .createSampleTable(session), updateSamples), 999999);
+                .createSampleTable(session), updateSamples));
     }
 }

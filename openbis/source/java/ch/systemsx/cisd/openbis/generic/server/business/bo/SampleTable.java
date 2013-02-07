@@ -219,6 +219,12 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     @Override
     public void save() throws UserFailureException
     {
+        save(false);
+    }
+
+    @Override
+    public void save(boolean clearCache) throws UserFailureException
+    {
         assert samples != null : "Samples not loaded.";
 
         if (dataChanged)
@@ -229,7 +235,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                 {
                     checkAllBusinessRules();
                 }
-                getSampleDAO().createOrUpdateSamples(samples, findPerson());
+                getSampleDAO().createOrUpdateSamples(samples, findPerson(), clearCache);
             } catch (final DataAccessException ex)
             {
                 throwException(ex, String.format("One of samples"));

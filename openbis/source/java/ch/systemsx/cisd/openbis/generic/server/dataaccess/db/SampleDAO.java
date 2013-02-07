@@ -356,42 +356,33 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     }
 
     @Override
-    public final void createOrUpdateSamples(final List<SamplePE> samples, final PersonPE modifier)
+    public final void createOrUpdateSamples(final List<SamplePE> samples, final PersonPE modifier,
+            boolean clearCache)
             throws DataAccessException
     {
         assert samples != null && samples.size() > 0 : "Unspecified or empty samples.";
 
-        int SESSION_CACHE_LIMIT = 50000;
         try
         {
             final HibernateTemplate hibernateTemplate = getHibernateTemplate();
 
-            int count = SESSION_CACHE_LIMIT - (samples.size() % SESSION_CACHE_LIMIT);
             for (final SamplePE samplePE : samples)
             {
-                if (count % 1000 == 0)
-                {
-                    if (operationLog.isInfoEnabled())
-                    {
-                        operationLog.info(String.format("Added %d/%d samples", count
-                                - (SESSION_CACHE_LIMIT - (samples.size() % SESSION_CACHE_LIMIT)),
-                                samples.size()));
-                    }
-
-                    flushWithSqlExceptionHandling(getHibernateTemplate());
-                }
-
-                if (count % SESSION_CACHE_LIMIT == 0 && count >= SESSION_CACHE_LIMIT)
-                {
-                    hibernateTemplate.clear();
-                }
                 internalCreateOrUpdateSample(samplePE, modifier, hibernateTemplate, false);
-                count++;
             }
-            flushWithSqlExceptionHandling(getHibernateTemplate());
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format("ADD: %d samples.", samples.size()));
+            }
 
             // need to deal with exception thrown by trigger checking code uniqueness
+            flushWithSqlExceptionHandling(getHibernateTemplate());
             scheduleDynamicPropertiesEvaluation(samples);
+
+            if (clearCache)
+            {
+                hibernateTemplate.clear();
+            }
         } catch (DataAccessException e)
         {
             SampleDataAccessExceptionTranslator.translateAndThrow(e);

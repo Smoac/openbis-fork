@@ -76,9 +76,14 @@ public interface ISampleTable
             throws UserFailureException;
 
     /**
-     * Writes added data to the Data Access Layers.
+     * Writes added data to the Data Access Layers, clearing cache after the write.
      */
     public void save() throws UserFailureException;
+
+    /**
+     * Writes added data to the Data Access Layers.
+     */
+    public void save(boolean clearCache) throws UserFailureException;
 
     /**
      * Deletes samples for specified reason.

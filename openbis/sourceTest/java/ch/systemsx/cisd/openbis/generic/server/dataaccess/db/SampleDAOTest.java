@@ -589,7 +589,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         if (samples.length > 1)
         {
-            sampleDAO.createOrUpdateSamples(Arrays.asList(samples), getTestPerson());
+            sampleDAO.createOrUpdateSamples(Arrays.asList(samples), getTestPerson(), true);
         } else
         {
             sampleDAO.createOrUpdateSample(samples[0], getTestPerson());

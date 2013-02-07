@@ -26,11 +26,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
  * 
  * @author Izabela Adamczyk
  */
-public class SampleBatchUpdate implements IBatchOperation<SampleBatchUpdatesDTO>
+public class SampleBatchUpdate implements IBatchOperation<SampleBatchUpdatesDTO>, IProgressAware
 {
     private final ISampleTable businessTable;
 
     private final List<SampleBatchUpdatesDTO> entities;
+
+    private int endIndex;
+
+    private int maxIndex;
 
     public SampleBatchUpdate(ISampleTable businessTable, List<SampleBatchUpdatesDTO> entities)
     {
@@ -42,7 +46,7 @@ public class SampleBatchUpdate implements IBatchOperation<SampleBatchUpdatesDTO>
     public void execute(List<SampleBatchUpdatesDTO> updates)
     {
         businessTable.prepareForUpdate(updates);
-        businessTable.save();
+        businessTable.save(maxIndex - endIndex > 50000);
     }
 
     @Override
@@ -61,6 +65,13 @@ public class SampleBatchUpdate implements IBatchOperation<SampleBatchUpdatesDTO>
     public String getOperationName()
     {
         return "update";
+    }
+
+    @Override
+    public void setNextChunk(int startIndex, int endIndex, int maxIndex)
+    {
+        this.endIndex = endIndex;
+        this.maxIndex = maxIndex;
     }
 
 }
