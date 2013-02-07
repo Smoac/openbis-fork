@@ -615,7 +615,14 @@ public interface ICommonServer extends IServer
             String description, String leaderId, Collection<NewAttachment> attachments);
 
     /**
-     * Searches for samples that fulfill the specified search criteria.
+     * Searches for experiments that fulfill the specified search criteria.
+     */
+    @Transactional(readOnly = true)
+    public List<Experiment> searchForExperiments(String sessionToken,
+            DetailedSearchCriteria criteria);
+
+    /**
+     * Searches for data sets that fulfill the specified search criteria.
      */
     @Transactional(readOnly = true)
     public List<ExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria);

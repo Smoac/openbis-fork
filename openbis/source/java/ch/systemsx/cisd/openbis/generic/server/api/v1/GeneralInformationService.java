@@ -120,7 +120,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class GeneralInformationService extends AbstractServer<IGeneralInformationService> implements
         IGeneralInformationService
 {
-    public static final int MINOR_VERSION = 20;
+    public static final int MINOR_VERSION = 21;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;
@@ -954,6 +954,22 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment> experiments =
                 commonServer.listExperiments(sessionToken, parsedIdentifiers);
 
+        return Translator.translateExperiments(experiments);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
+    public List<Experiment> searchForExperiments(String sessionToken, SearchCriteria searchCriteria)
+    {
+        checkSession(sessionToken);
+
+        DetailedSearchCriteria detailedSearchCriteria =
+                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
+                        SearchableEntityKind.EXPERIMENT, searchCriteria);
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment> experiments =
+                commonServer.searchForExperiments(sessionToken, detailedSearchCriteria);
         return Translator.translateExperiments(experiments);
     }
 

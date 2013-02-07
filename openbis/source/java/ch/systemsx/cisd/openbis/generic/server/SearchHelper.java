@@ -19,10 +19,12 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.search.DataSetSearchManager;
+import ch.systemsx.cisd.openbis.generic.server.business.search.ExperimentSearchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.search.MaterialSearchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.search.SampleSearchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -31,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -87,6 +90,15 @@ class SearchHelper
         IHibernateSearchDAO searchDAO = daoFactory.getHibernateSearchDAO();
         IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
         return new MaterialSearchManager(searchDAO, materialLister).searchForMaterials(userId,
+                detailedSearchCriteria);
+    }
+
+    public List<ExperimentPE> searchForExperiments(String userId,
+            DetailedSearchCriteria detailedSearchCriteria)
+    {
+        IHibernateSearchDAO searchDAO = daoFactory.getHibernateSearchDAO();
+        IExperimentTable experimentTable = businessObjectFactory.createExperimentTable(session);
+        return new ExperimentSearchManager(searchDAO, experimentTable).searchForExperiments(userId,
                 detailedSearchCriteria);
     }
 }

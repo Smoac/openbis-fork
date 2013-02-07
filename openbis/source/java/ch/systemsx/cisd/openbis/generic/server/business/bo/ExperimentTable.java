@@ -86,6 +86,12 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     //
 
     @Override
+    public void loadByIds(Collection<Long> experimentIds)
+    {
+        experiments = getExperimentDAO().listByIDs(experimentIds);
+    }
+
+    @Override
     public final void load(final String experimentTypeCode,
             final ProjectIdentifier projectIdentifier)
     {

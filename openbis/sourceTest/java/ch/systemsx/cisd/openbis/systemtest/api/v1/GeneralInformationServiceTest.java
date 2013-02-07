@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.AfterMethod;
@@ -1151,6 +1152,58 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(
                 "[DataSet[20110509092359990-11,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=non-virtual comment}], DataSet[20110509092359990-12,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=non-virtual comment}]]",
                 dataSets.toString());
+    }
+
+    @Test
+    public void testSearchForExperimentsByCode()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "EXP1*"));
+
+        List<Experiment> experiments =
+                generalInformationService.searchForExperiments(sessionToken, searchCriteria);
+
+        assertEntities("[/CISD/NEMO/EXP1, /CISD/NEMO/EXP10, /CISD/NEMO/EXP11]", experiments);
+    }
+
+    @Test
+    public void testSearchForExperimentsByProject()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.PROJECT, "NOE"));
+
+        List<Experiment> experiments =
+                generalInformationService.searchForExperiments(sessionToken, searchCriteria);
+
+        assertEntities("[/CISD/NOE/EXP-TEST-2]", experiments);
+    }
+
+    @Test
+    public void testSearchForExperimentsByProperty()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createPropertyMatch("GENDER", "FEMALE"));
+
+        List<Experiment> experiments =
+                generalInformationService.searchForExperiments(sessionToken, searchCriteria);
+
+        assertEquals("/CISD/NEMO/EXP-TEST-2", experiments.get(0).getIdentifier());
+        assertEquals("SIRNA_HCS", experiments.get(0).getExperimentTypeCode());
+        List<Entry<String, String>> list =
+                new ArrayList<Entry<String, String>>(experiments.get(0).getProperties().entrySet());
+        Collections.sort(list, new Comparator<Entry<String, String>>()
+            {
+                @Override
+                public int compare(Entry<String, String> e1, Entry<String, String> e2)
+                {
+                    return e1.getKey().compareTo(e2.getKey());
+                }
+            });
+        assertEquals("[DESCRIPTION=very important expertiment, GENDER=FEMALE, "
+                + "PURCHASE_DATE=2009-02-09 00:00:00 +0100]", list.toString());
+        assertEquals(1, experiments.size());
     }
 
     @Test

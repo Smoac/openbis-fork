@@ -36,6 +36,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 public interface IExperimentTable
 {
     /**
+     * Loads all experiments specified by their ids.
+     */
+    public void loadByIds(Collection<Long> experimentIds);
+
+    /**
      * Loads all experiments of given type and from given project together with all their
      * properties.
      * 

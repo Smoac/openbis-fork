@@ -298,6 +298,13 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public List<Experiment> searchForExperiments(String sessionToken, SearchCriteria searchCriteria)
+    {
+        logAccess(sessionToken, "search-for-experiments", "SEARCH_CRITERIA(%s)", searchCriteria);
+        return null;
+    }
+
+    @Override
     public List<Experiment> filterExperimentsVisibleToUser(String sessionToken,
             List<Experiment> allExperiments, String userId)
     {

@@ -632,6 +632,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
+    public List<Experiment> searchForExperiments(String sessionToken,
+            DetailedSearchCriteria criteria)
+    {
+        logAccess(sessionToken, "search_for_experiments", "criteria(%s)", criteria);
+        return null;
+    }
+
+    @Override
     public List<ExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria)
     {
         logAccess(sessionToken, "search_for_datasets", "criteria(%s)", criteria);

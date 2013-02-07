@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.remoteapitest.api.v1;
 
-import static junit.framework.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.testng.annotations.AfterMethod;
@@ -148,6 +149,32 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
             }
         }
         fail("result didn't contain project " + expectedSampleIdentifier);
+    }
+
+    @Test
+    public void testSearchForExperiments()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createPropertyMatch("GENDER", "FEMALE"));
+
+        List<Experiment> experiments =
+                generalInformationService.searchForExperiments(sessionToken, searchCriteria);
+
+        assertEquals("/CISD/NEMO/EXP-TEST-2", experiments.get(0).getIdentifier());
+        assertEquals("SIRNA_HCS", experiments.get(0).getExperimentTypeCode());
+        List<Entry<String, String>> list =
+                new ArrayList<Entry<String, String>>(experiments.get(0).getProperties().entrySet());
+        Collections.sort(list, new Comparator<Entry<String, String>>()
+            {
+                @Override
+                public int compare(Entry<String, String> e1, Entry<String, String> e2)
+                {
+                    return e1.getKey().compareTo(e2.getKey());
+                }
+            });
+        assertEquals("[DESCRIPTION=very important expertiment, GENDER=FEMALE, "
+                + "PURCHASE_DATE=2009-02-09 00:00:00 +0100]", list.toString());
+        assertEquals(1, experiments.size());
     }
 
     @Test

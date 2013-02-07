@@ -75,6 +75,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTec
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DeletionValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExternalDataValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.MatchingEntityValidator;
@@ -1414,6 +1415,20 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
         projectBO.save();
 
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
+    public List<Experiment> searchForExperiments(String sessionToken,
+            DetailedSearchCriteria criteria)
+    {
+        final Session session = getSession(sessionToken);
+        SearchHelper searchHelper =
+                new SearchHelper(session, businessObjectFactory, getDAOFactory());
+        String userId = session.getUserName();
+        List<ExperimentPE> experiments = searchHelper.searchForExperiments(userId, criteria);
+        return translateExperiments(sessionToken, experiments);
     }
 
     @Override
@@ -3478,8 +3493,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         if (defaultPutDataStoreServerCodeOrNull == null)
         {
             throw ConfigurationFailureException
-                    .fromTemplate
-                    ("There are %d Data Store Servers registered in openBIS, but property dss-rpc.put.dss-code is not set.",
+                    .fromTemplate(
+                            "There are %d Data Store Servers registered in openBIS, but property dss-rpc.put.dss-code is not set.",
                             dataStores.size());
         }
         for (DataStorePE store : dataStores)

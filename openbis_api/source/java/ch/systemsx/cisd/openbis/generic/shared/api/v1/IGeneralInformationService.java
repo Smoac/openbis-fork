@@ -439,6 +439,14 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.9
      */
     public List<Experiment> listExperiments(String sessionToken, List<String> experimentIdentifiers);
+    
+    /**
+     * Returns all experiments matching specified search criteria. Note, that sub criterias are not
+     * supported. 
+     * 
+     * @since 1.21
+     */
+    public List<Experiment> searchForExperiments(String sessionToken, SearchCriteria searchCriteria);
 
     /**
      * Returns all available projects.
