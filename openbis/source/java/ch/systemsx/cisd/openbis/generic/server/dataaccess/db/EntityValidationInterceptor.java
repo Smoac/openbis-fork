@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.Enti
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * {@link Interceptor} which reacts to creation and update of entities, and calls the validation
@@ -229,8 +230,8 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
                 @Override
                 public int compare(EntityIdentifier arg0, EntityIdentifier arg1)
                 {
-                    return arg0.getEntityClass().getName().compareTo(
-                            arg1.getEntityClass().getName());
+                    return arg0.getKind().toString().compareTo(
+                            arg1.getKind().toString());
                 }
             });
 
@@ -257,11 +258,10 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
                                     return null;
                                 }
                                 List<EntityIdentifier> list = new ArrayList<EntityIdentifier>();
-                                Class<? extends IEntityInformationWithPropertiesHolder> clazz =
-                                        ids.get(index).getEntityClass();
+                                EntityKind kind = ids.get(index).getKind();
                                 while (list.size() < batchSize
                                         && index < ids.size()
-                                        && ids.get(index).getEntityClass().equals(clazz))
+                                        && ids.get(index).getKind().equals(kind))
                                 {
                                     list.add(ids.get(index));
                                     index++;
@@ -281,14 +281,23 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
 
     private void validateEntity(Transaction tx, IEntityInformationWithPropertiesHolder entity)
     {
-        validatedEntity(entity);
         boolean isNewEntity = newEntities.contains(new EntityIdentifier(entity));
 
         IEntityValidator entityValidator =
                 EntityValidatorFactory.createEntityValidator(entity.getEntityType(), this);
         if (entityValidator != null)
         {
-            validateEntityWithScript(tx, entityValidator, entity, isNewEntity);
+            try
+            {
+                validatedEntity(entity);
+                validateEntityWithScript(tx, entityValidator, entity, isNewEntity);
+            } catch (Throwable e)
+            {
+                setRollback(tx, entity, " resulted in error. " + e.getMessage());
+            }
+        } else
+        {
+            entitiesToValidate.remove(new EntityIdentifier(entity));
         }
 
     }
@@ -297,18 +306,14 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
             IEntityInformationWithPropertiesHolder entity, boolean isNewEntity)
     {
         String result = null;
-        try
+
+        if (progressListener != null)
         {
-            if (progressListener != null)
-            {
-                progressListener.update("Validation of entities", totalEntitiesToValidateCount,
-                        entitiesValidatedCount);
-            }
-            result = calculate(entityValidator, entity, isNewEntity);
-        } catch (Throwable e)
-        {
-            setRollback(tx, entity, " resulted in error. " + e.getMessage());
+            progressListener.update("Validation of entities", totalEntitiesToValidateCount,
+                    entitiesValidatedCount);
         }
+        result = calculate(entityValidator, entity, isNewEntity);
+
         if (result != null)
         {
             setRollback(tx, entity, " failed. " + result);
@@ -401,11 +406,17 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
     {
         private final Class<? extends IEntityInformationWithPropertiesHolder> clazz;
 
+        private final String code;
+
+        private final EntityKind kind;
+
         private final Long id;
 
         public EntityIdentifier(IEntityInformationWithPropertiesHolder entity)
         {
             this.clazz = entity.getClass();
+            this.code = entity.getCode();
+            this.kind = entity.getEntityKind();
             this.id = entity.getId();
         }
 
@@ -419,13 +430,15 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
             return id;
         }
 
+        public EntityKind getKind()
+        {
+            return kind;
+        }
+
         @Override
         public int hashCode()
         {
-            int hash = 17;
-            hash += 31 * id.hashCode() + 17;
-            hash += 31 * clazz.getSimpleName().hashCode() + 17;
-            return hash;
+            return code.hashCode() + kind.hashCode();
         }
 
         @Override
@@ -434,8 +447,8 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
             if (o instanceof EntityIdentifier)
             {
                 EntityIdentifier e = (EntityIdentifier) o;
-                return (e.getId().equals(id))
-                        && e.getEntityClass().getSimpleName().equals(clazz.getSimpleName());
+                return (e.code.equals(code))
+                        && e.kind.equals(kind);
             } else
             {
                 throw new IllegalArgumentException(o.toString());
@@ -445,7 +458,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         @Override
         public String toString()
         {
-            return clazz.getSimpleName() + ": " + id;
+            return clazz.getSimpleName() + ": " + code;
         }
     }
 
