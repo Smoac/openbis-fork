@@ -160,4 +160,12 @@ public interface IDataDAO extends IGenericDAO<DataPE>
      */
     void delete(List<TechId> dataIds, PersonPE registrator, String reason)
             throws DataAccessException;
+
+    /**
+     * Confirms storage for the specified data set.
+     * 
+     * @return Returns true if the storage confirmed value has been changed.
+     */
+    boolean confirmStorage(String dataSetCode);
+
 }

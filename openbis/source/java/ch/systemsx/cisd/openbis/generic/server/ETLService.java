@@ -2389,18 +2389,15 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public void setStorageConfirmed(String sessionToken, String dataSetCode)
     {
-        assert sessionToken != null : "Unspecified session token.";
+        checkSession(sessionToken);
 
-        final Session session = getSession(sessionToken);
-
-        final IDataBO dataBO = businessObjectFactory.createDataBO(session);
-
-        dataBO.loadByCode(dataSetCode);
-
-        if (false == dataBO.isStorageConfirmed())
+        if (daoFactory.getDataDAO().confirmStorage(dataSetCode))
         {
-            dataBO.setStorageConfirmed();
-            daoFactory.getPostRegistrationDAO().addDataSet(dataBO.getData());
+            daoFactory.getPostRegistrationDAO().addDataSet(dataSetCode);
+        } else
+        {
+            throw new UserFailureException("Storage confirmation for a dataset: " + dataSetCode
+                    + " failed because the data set has been already deleted.");
         }
     }
 
@@ -2408,18 +2405,9 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public void markSuccessfulPostRegistration(String sessionToken, String dataSetCode)
     {
-        assert sessionToken != null : "Unspecified session token.";
+        checkSession(sessionToken);
 
-        final Session session = getSession(sessionToken);
-
-        final IDataBO dataBO = businessObjectFactory.createDataBO(session);
-        dataBO.loadByCode(dataSetCode);
-        DataPE data = dataBO.getData();
-
-        if (data != null)
-        {
-            daoFactory.getPostRegistrationDAO().removeDataSet(data);
-        }
+        daoFactory.getPostRegistrationDAO().removeDataSet(dataSetCode);
     }
 
     @Override

@@ -2,18 +2,16 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Criteria;
+import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.Restrictions;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPostRegistrationDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PostRegistrationPE;
 
@@ -29,57 +27,63 @@ public class PostRegistrationDAO extends AbstractGenericEntityDAO<PostRegistrati
     }
 
     @Override
-    public void addDataSet(DataPE dataset)
+    public void addDataSet(String dataSetCode)
     {
-        PostRegistrationPE element = new PostRegistrationPE();
+        // add the data set to the queue even if it is in the trash
+        // (data sets in the trash might be reverted and processed later)
+        SQLQuery query =
+                getSession()
+                        .createSQLQuery(
+                                "insert into post_registration_dataset_queue (select nextval('post_registration_dataset_queue_id_seq'), id from data_all where code = :code)");
+        query.setString("code", dataSetCode);
+        int count = query.executeUpdate();
 
-        element.setDataSet(dataset);
-        HibernateTemplate template = getHibernateTemplate();
-        template.persist(element);
-        template.flush();
+        if (count > 0)
+        {
+            operationLog.debug(String.format(
+                    "Post registration entry has been added for dataSet '%s'.", dataSetCode));
+        }
     }
 
     @Override
-    public void removeDataSet(DataPE dataSet)
+    public void removeDataSet(String dataSetCode)
     {
-        PostRegistrationPE p = tryFindByDataSet(dataSet);
+        // remove the data set from the queue only if it is not in the trash
+        // (data sets in the trash might have not been processed yet)
+        SQLQuery query =
+                getSession()
+                        .createSQLQuery(
+                                "delete from post_registration_dataset_queue where ds_id in (select id from data where code = :code)");
+        query.setString("code", dataSetCode);
+        int count = query.executeUpdate();
 
-        if (p != null)
+        if (count > 0)
         {
-            HibernateTemplate template = getHibernateTemplate();
-            template.delete(p);
+            operationLog.debug(String.format(
+                    "Post registration entry has been removed for dataSet '%s'.", dataSetCode));
         }
-    }
-
-    public PostRegistrationPE tryFindByDataSet(final DataPE dataSet)
-    {
-        assert dataSet != null : "Unspecified dataset.";
-
-        final Criteria criteria = getSession().createCriteria(getEntityClass());
-        criteria.add(Restrictions.eq("dataSet", dataSet));
-        final PostRegistrationPE pr = (PostRegistrationPE) criteria.uniqueResult();
-        if (operationLog.isDebugEnabled())
-        {
-            if (pr == null)
-                operationLog.debug(String.format(
-                        "Post registration entry has been found for dataSet '%s'.", dataSet));
-        }
-        return pr;
     }
 
     @Override
     public Collection<Long> listDataSetsForPostRegistration()
     {
-        final List<PostRegistrationPE> list =
-                cast(getHibernateTemplate().loadAll(PostRegistrationPE.class));
+        // list only data sets that are not in the trash
+        // (data sets in the trash are visible to the post registration tasks)
+        SQLQuery query =
+                getSession()
+                        .createSQLQuery(
+                                "select ds_id from post_registration_dataset_queue q, data d where q.ds_id = d.id");
 
-        ArrayList<Long> idList = new ArrayList<Long>(list.size());
+        Iterator<?> iterator = query.list().iterator();
+        List<Long> list = new ArrayList<Long>();
 
-        for (PostRegistrationPE pr : list)
+        while (iterator.hasNext())
         {
-            idList.add(pr.getDataSet().getId());
+            Number id = (Number) iterator.next();
+            list.add(Long.valueOf(id.longValue()));
         }
-        return idList;
+
+        return list;
     }
 
 }

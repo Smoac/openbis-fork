@@ -1283,4 +1283,14 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
     }
 
+    @Override
+    public boolean confirmStorage(String dataSetCode)
+    {
+        SQLQuery query =
+                getSession()
+                        .createSQLQuery(
+                                "update external_data set storage_confirmation = true where storage_confirmation = false and data_id in (select id from data_all where code = :code)");
+        query.setString("code", dataSetCode);
+        return query.executeUpdate() > 0;
+    }
 }
