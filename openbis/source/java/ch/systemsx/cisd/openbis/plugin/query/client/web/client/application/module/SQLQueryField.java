@@ -39,9 +39,9 @@ public class SQLQueryField extends MultilineVarcharField
     private final static String EMPTY_TEXT_WITH_KEY_AND_TYPE = EMPTY_TEXT_WITH_KEY
             + " ... '${type}'";
 
-    private static final String TYPE_REGEX = "'\\$\\{type\\}'";
+    private static final String TYPE_REGEX = "\\$\\{type(::[^{}]+){0,1}\\}";
 
-    private static final String KEY_REGEX = "'\\$\\{key\\}'";
+    private static final String KEY_REGEX = "\\$\\{key(::[^{}]+){0,1}\\}";
 
     private static final String ANY_REGEX = "(.|[\\n\\r])*";
 
