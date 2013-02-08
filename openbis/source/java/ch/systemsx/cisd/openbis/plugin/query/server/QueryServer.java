@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -144,7 +145,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
                 {
                     final String queryEntityTypeCodePatternOrNull =
                             query.getEntityTypeCodePattern();
-                    if (queryEntityTypeCodePatternOrNull == null
+                    if (StringUtils.isEmpty(queryEntityTypeCodePatternOrNull)
                             || entityTypeCode.matches(queryEntityTypeCodePatternOrNull))
                     {
                         filtered.add(query);
