@@ -192,11 +192,12 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
             };
         for (String parameterName : query.getParameters())
         {
+            final String strippedParameterName = stripMetadata(parameterName);
             final QueryParameterValue initialValueOrNull =
-                    tryGetInitialValue(stripMetadata(parameterName));
+                    tryGetInitialValue(strippedParameterName);
             if (initialValueOrNull != null && initialValueOrNull.isFixed())
             {
-                addInitialBinding(parameterName, initialValueOrNull.getValue());
+                addInitialBinding(strippedParameterName, initialValueOrNull.getValue());
             } else
             {
                 addParameterField(ParameterField.create(viewContext, parameterName,
