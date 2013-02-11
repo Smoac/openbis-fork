@@ -132,6 +132,21 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
     }
 
     @Test
+    public void testUnicode()
+    {
+        SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
+        builder.addHeader("unicode");
+        IRowBuilder row = builder.addRow();
+        row.setCell("unicode", "\u00C4 str\u00EFng");
+
+        TableModel tableModel = builder.getTableModel();
+
+        assertEquals(1, tableModel.getHeader().size());
+        List<TableModelRow> rows = tableModel.getRows();
+        assertEquals(new StringTableCell("\u00C4 str\u00EFng"), rows.get(0).getValues().get(0));
+    }
+
+    @Test
     public void testAddRowWithWrongNumberOfCells()
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
