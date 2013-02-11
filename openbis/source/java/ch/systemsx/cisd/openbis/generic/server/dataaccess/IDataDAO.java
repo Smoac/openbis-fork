@@ -162,10 +162,20 @@ public interface IDataDAO extends IGenericDAO<DataPE>
             throws DataAccessException;
 
     /**
-     * Confirms storage for the specified data set.
+     * Confirms a storage for the specified data set. It confirms the storage even if the data set
+     * is in the trash.
      * 
-     * @return Returns true if the storage confirmed value has been changed.
+     * @return Returns true if the data sets exists and the storage confirmed value has been
+     *         changed.
      */
     boolean confirmStorage(String dataSetCode);
+
+    /**
+     * Checks whether a data set with the specified code exists. It takes into consideration also
+     * data sets that are in the trash.
+     * 
+     * @return Returns true if the data set exists.
+     */
+    boolean exists(String dataSetCode);
 
 }

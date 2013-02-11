@@ -2394,7 +2394,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         if (daoFactory.getDataDAO().confirmStorage(dataSetCode))
         {
             daoFactory.getPostRegistrationDAO().addDataSet(dataSetCode);
-        } else
+        } else if (daoFactory.getDataDAO().exists(dataSetCode) == false)
         {
             throw new UserFailureException("Storage confirmation for a dataset: " + dataSetCode
                     + " failed because the data set has been already deleted.");

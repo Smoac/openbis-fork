@@ -1293,4 +1293,15 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         query.setString("code", dataSetCode);
         return query.executeUpdate() > 0;
     }
+
+    @Override
+    public boolean exists(String dataSetCode)
+    {
+        SQLQuery query =
+                getSession().createSQLQuery("select count(*) from data_all where code = :code");
+        query.setString("code", dataSetCode);
+        Number count = (Number) query.uniqueResult();
+        return count != null && count.intValue() > 0;
+    }
+
 }
