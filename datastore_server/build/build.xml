@@ -254,7 +254,8 @@
     <copy file="${lib}/eodsql/eodsql.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/imagej/ij.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/bioformats/bioformats.jar" todir="${dist.datastore_server.lib}" />
-    <copy file="${lib}/jai/jai_core.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/cisd-hotdeploy/cisd-hotdeploy.jar" todir="${dist.datastore_server.lib}" />
+	<copy file="${lib}/jai/jai_core.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/jai/jai_codec.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/pngj/pngj.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/jaxb/jaxb-api.jar" todir="${dist.datastore_server.lib}" />
