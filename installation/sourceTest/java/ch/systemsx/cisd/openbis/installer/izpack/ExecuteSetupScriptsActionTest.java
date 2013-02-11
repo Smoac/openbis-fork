@@ -87,7 +87,7 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
     {
         Properties properties = loadProperties(dssServicePropertiesFile);
         assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_DATA_SOURCE,
-                properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY));
+                properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY).trim());
         assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_FEEDING_TASK,
                 properties.getProperty(ExecuteSetupScriptsAction.POST_REGISTRATION_TASKS_KEY));
         assertEquals("post-registration, " + ExecuteSetupScriptsAction.PATHINFO_DB_DELETION_TASK,
@@ -119,7 +119,7 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
     {
         Properties properties = loadProperties(dssServicePropertiesFile);
         assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_DATA_SOURCE,
-                properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY));
+                properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY).trim());
         assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_FEEDING_TASK,
                 properties.getProperty(ExecuteSetupScriptsAction.POST_REGISTRATION_TASKS_KEY));
         assertEquals("post-registration, " + ExecuteSetupScriptsAction.PATHINFO_DB_DELETION_TASK,
@@ -129,7 +129,7 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
         
         properties = loadProperties(dssServicePropertiesFile);
         assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_DATA_SOURCE,
-                properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY));
+                properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY).trim());
         assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_FEEDING_TASK,
                 properties.getProperty(ExecuteSetupScriptsAction.POST_REGISTRATION_TASKS_KEY));
         assertEquals("post-registration, " + ExecuteSetupScriptsAction.PATHINFO_DB_DELETION_TASK,
