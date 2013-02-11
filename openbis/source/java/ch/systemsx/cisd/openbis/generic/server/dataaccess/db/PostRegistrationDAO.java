@@ -69,7 +69,7 @@ public class PostRegistrationDAO extends AbstractGenericEntityDAO<PostRegistrati
     public Collection<Long> listDataSetsForPostRegistration()
     {
         // list only data sets that are not in the trash
-        // (data sets in the trash are visible to the post registration tasks)
+        // (data sets in the trash are not visible to the post registration tasks)
         SQLQuery query =
                 getSession()
                         .createSQLQuery(
