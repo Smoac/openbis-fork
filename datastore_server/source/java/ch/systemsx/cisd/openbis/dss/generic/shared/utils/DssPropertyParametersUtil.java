@@ -17,10 +17,12 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import ch.ethz.cisd.hotdeploy.PluginContainer;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
@@ -97,7 +99,21 @@ public class DssPropertyParametersUtil
         ExtendedProperties serviceProperties = extendProperties(properties);
         CorePluginsInjector injector =
                 new CorePluginsInjector(ScannerType.DSS, DssPluginType.values());
-        injector.injectCorePlugins(serviceProperties);
+        Map<String, File> pluginFolders =
+                injector.injectCorePlugins(serviceProperties);
+
+        if (PluginContainer.tryGetInstance() == null)
+        {
+            PluginContainer.initHotDeployment();
+
+            for (String name : pluginFolders.keySet())
+            {
+                PluginContainer pluginContainer = PluginContainer.initHotDeployment(name);
+                pluginContainer.addPluginDirectory(pluginFolders.get(name));
+                pluginContainer.refresh(true);
+            }
+        }
+
         return serviceProperties;
     }
 

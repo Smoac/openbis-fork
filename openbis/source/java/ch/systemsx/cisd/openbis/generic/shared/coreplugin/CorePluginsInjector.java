@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -94,14 +95,15 @@ public class CorePluginsInjector
         }
     }
 
-    public void injectCorePlugins(Properties properties)
+    public Map<String, File> injectCorePlugins(Properties properties)
     {
         String corePluginsFolderPath =
                 CorePluginsUtils.getCorePluginsFolder(properties, scannerType);
-        injectCorePlugins(properties, corePluginsFolderPath);
+        return injectCorePlugins(properties, corePluginsFolderPath);
     }
 
-    public void injectCorePlugins(Properties properties, String corePluginsFolderPath)
+    public Map<String, File> injectCorePlugins(Properties properties,
+            String corePluginsFolderPath)
     {
         ModuleEnabledChecker moduleEnabledChecker = new ModuleEnabledChecker(properties);
         List<String> disabledPlugins = PropertyUtils.getList(properties, DISABLED_CORE_PLUGINS_KEY);
@@ -155,6 +157,17 @@ public class CorePluginsInjector
             }
         }
         pluginKeyBundles.addOrReplaceKeyBundleIn(properties);
+
+        Map<String, File> pluginFolders = new HashMap<String, File>();
+        for (Map<String, NamedCorePluginFolder> map : plugins.values())
+        {
+            for (String name : map.keySet())
+            {
+                pluginFolders.put(name, map.get(name).getDefiningFolder());
+            }
+        }
+        return pluginFolders;
+
     }
 
     private void injectProperty(Properties properties, String key, String value)

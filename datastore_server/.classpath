@@ -88,5 +88,6 @@
 	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-servlet.jar" sourcepath="/libraries/jetty8/src/jetty_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/servlet-api-3.0.jar" sourcepath="/libraries/jetty8/src/jetty_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-continuation.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-hotdeploy/cisd-hotdeploy.jar" sourcepath="/libraries/cisd-hotdeploy/cisd-hotdeploy-src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

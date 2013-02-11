@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
+import ch.ethz.cisd.hotdeploy.Plugin;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 
@@ -26,7 +27,7 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
  * 
  * @author Pawel Glyzewski
  */
-public interface IJavaDataSetRegistrationDropboxV2
+public interface IJavaDataSetRegistrationDropboxV2 extends Plugin
 {
 
     /**

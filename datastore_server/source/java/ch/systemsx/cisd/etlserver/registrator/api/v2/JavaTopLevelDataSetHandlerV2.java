@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
 import java.io.File;
 
+import ch.ethz.cisd.hotdeploy.PluginContainer;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -52,14 +53,28 @@ public class JavaTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
         String className =
                 PropertyUtils.getMandatoryProperty(globalState.getThreadParameters()
                         .getThreadProperties(), PROGRAM_CLASS_KEY);
-        try
+
+        PluginContainer container =
+                PluginContainer.tryGetInstance(globalState.getThreadParameters().getThreadName());
+
+        if (container != null)
         {
-            programClass =
-                    (Class<? extends IJavaDataSetRegistrationDropboxV2>) Class.forName(className);
-        } catch (ClassNotFoundException ex)
+            programClass = (Class<? extends IJavaDataSetRegistrationDropboxV2>) container
+                    .tryGetPluginClassByClassname(className);
+        }
+
+        if (programClass == null)
         {
-            throw ConfigurationFailureException.fromTemplate("Class '%s' does not exist!",
-                    className);
+            try
+            {
+                programClass =
+                        (Class<? extends IJavaDataSetRegistrationDropboxV2>) Class
+                                .forName(className);
+            } catch (ClassNotFoundException ex)
+            {
+                throw ConfigurationFailureException.fromTemplate("Class '%s' does not exist!",
+                        className);
+            }
         }
 
         DssRegistrationHealthMonitor.getInstance(globalState.getOpenBisService(),
