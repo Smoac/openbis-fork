@@ -12,6 +12,7 @@ import org.hibernate.SessionFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPostRegistrationDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PostRegistrationPE;
 
@@ -35,7 +36,7 @@ public class PostRegistrationDAO extends AbstractGenericEntityDAO<PostRegistrati
                 getSession()
                         .createSQLQuery(
                                 "insert into post_registration_dataset_queue (select nextval('post_registration_dataset_queue_id_seq'), id from data_all where code = :code)");
-        query.setString("code", dataSetCode);
+        query.setString("code", CodeConverter.tryToDatabase(dataSetCode));
         int count = query.executeUpdate();
 
         if (count > 0)
@@ -54,7 +55,7 @@ public class PostRegistrationDAO extends AbstractGenericEntityDAO<PostRegistrati
                 getSession()
                         .createSQLQuery(
                                 "delete from post_registration_dataset_queue where ds_id in (select id from data where code = :code)");
-        query.setString("code", dataSetCode);
+        query.setString("code", CodeConverter.tryToDatabase(dataSetCode));
         int count = query.executeUpdate();
 
         if (count > 0)
