@@ -1,7 +1,7 @@
 <userInput>
   <panel id="UserInputPanel.DB_CHECK">
     <field type="staticText" align="left"
-      txt="PLease, click next to perform the check for the owner and the admin user specified in service.properties." />
+      txt="We will verify that the database owner and database admin users specified in the service.properties file have access to the database." />
     <field type="title" txt="Database access check" bold="true" size="2" />
   </panel>
 
