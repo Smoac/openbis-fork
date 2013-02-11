@@ -16,7 +16,7 @@
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-library.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
-	<classpathentry kind="lib" path="/libraries/hibernate-validator/hibernate-validator.jar" sourcepath="/libraries/hibernate-validator/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/hibernate-validator/hibernate-validator.jar" sourcepath="/libraries/hibernate-validator/src.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-logging/commons-logging.jar" sourcepath="/libraries/commons-logging/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/dom4j/dom4j.jar"/>
@@ -54,7 +54,7 @@
 	<classpathentry kind="lib" path="/libraries/jython/jython.jar" sourcepath="/libraries/jython/jython_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/gwt2.4/gwt-user.jar"/>
 	<classpathentry kind="lib" path="/libraries/gxt2.2.5/gxt.jar"/>
-	<classpathentry kind="lib" path="/libraries/gwt2.4/validation-api-1.0.0.GA.jar"/>
+	<classpathentry kind="lib" path="/libraries/gwt2.4/validation-api-1.0.0.GA.jar" sourcepath="/libraries/gwt2.4/validation-api-1.0.0.GA-sources.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt2.4/validation-api-1.0.0.GA-sources.jar"/>
 	<classpathentry kind="lib" path="/libraries/hibernate-commons-annotations/hibernate-commons-annotations.jar"/>
 	<classpathentry kind="lib" path="/libraries/jta/jta.jar"/>
