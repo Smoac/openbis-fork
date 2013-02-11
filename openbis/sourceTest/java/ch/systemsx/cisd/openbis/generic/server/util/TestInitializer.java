@@ -110,11 +110,30 @@ public class TestInitializer
                 String databaseName = "openbis_" + databaseKind;
                 String sql = "drop database if exists " + databaseName;
                 List<String> cmd = Arrays.asList(psql, "-U", "postgres", "-c", sql);
-                boolean result = ProcessExecutionHelper.runAndLog(cmd, operationLog, operationLog);
-                if (result == false)
+                for (int i = 0, n = 10; i < n; i++)
                 {
-                    operationLog.error("Couldn't drop database created for indexing: "
-                            + databaseName);
+                    boolean result =
+                            ProcessExecutionHelper.runAndLog(cmd, operationLog, operationLog);
+                    if (result == false)
+                    {
+                        operationLog.error("Couldn't drop database created for indexing: "
+                                + databaseName);
+                        if (i < n - 1)
+                        {
+                            operationLog.info("Try it again after some waiting time");
+                            try
+                            {
+                                Thread.sleep(2000);
+                            } catch (InterruptedException ex)
+                            {
+                                // ignored silently
+                            }
+                        }
+                    } else
+                    {
+                        operationLog.info("Database for indexing ropped: " + databaseName);
+                        break;
+                    }
                 }
             }
             firstTry = false;
