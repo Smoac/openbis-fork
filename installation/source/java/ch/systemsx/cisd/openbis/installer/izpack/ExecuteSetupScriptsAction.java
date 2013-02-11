@@ -42,6 +42,13 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
  */
 public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements PanelAction
 {
+    static final String DATA_SOURCES_KEY = "data-sources";
+    static final String PATHINFO_DB_DATA_SOURCE = "path-info-db";
+    static final String POST_REGISTRATION_TASKS_KEY = "post-registration.post-registration-tasks";
+    static final String PATHINFO_DB_FEEDING_TASK = "pathinfo-feeding";
+    static final String MAINTENANCE_PLUGINS_KEY = "maintenance-plugins";
+    static final String PATHINFO_DB_DELETION_TASK = "path-info-deletion";
+
     /**
      * executed for first time installations.
      */
@@ -71,6 +78,9 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements
         File installDir = GlobalInstallationContext.installDir;
         try
         {
+            enablePathinfoDB(
+                    "true".equals(data.getVariable(GlobalInstallationContext.PATHINFO_DB_ENABLED)),
+                    installDir);
             installKeyStore(keyStoreFileName, installDir);
             injectPasswords(keyStorePassword, certificatePassword, installDir);
         } catch (Exception ex)
@@ -97,6 +107,29 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
+        }
+    }
+    
+    void enablePathinfoDB(boolean enableFlag, File installDir)
+    {
+        File dssServicePropertiesFile =
+                new File(installDir, Utils.DSS_PATH + Utils.SERVICE_PROPERTIES_PATH);
+        if (enableFlag)
+        {
+            Utils.addTermToPropertyList(dssServicePropertiesFile, DATA_SOURCES_KEY,
+                    PATHINFO_DB_DATA_SOURCE);
+            Utils.addTermToPropertyList(dssServicePropertiesFile, POST_REGISTRATION_TASKS_KEY,
+                    PATHINFO_DB_FEEDING_TASK);
+            Utils.addTermToPropertyList(dssServicePropertiesFile, MAINTENANCE_PLUGINS_KEY,
+                    PATHINFO_DB_DELETION_TASK);
+        } else
+        {
+            Utils.removeTermFromPropertyList(dssServicePropertiesFile, DATA_SOURCES_KEY,
+                    PATHINFO_DB_DATA_SOURCE);
+            Utils.removeTermFromPropertyList(dssServicePropertiesFile, POST_REGISTRATION_TASKS_KEY,
+                    PATHINFO_DB_FEEDING_TASK);
+            Utils.removeTermFromPropertyList(dssServicePropertiesFile, MAINTENANCE_PLUGINS_KEY,
+                    PATHINFO_DB_DELETION_TASK);
         }
     }
 

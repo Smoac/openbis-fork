@@ -37,7 +37,6 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
 {
     private static final String HELPER_CLASS =
             "ch.systemsx.cisd.openbis.dss.generic.server.dbbackup.BackupDatabaseDescriptionGenerator";
-    
 
     static final String DATABASES_TO_BACKUP_VARNAME = "DATABASES_TO_BACKUP";
 
@@ -52,7 +51,7 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
     {
         try
         {
-            String descriptions = extractDescriptions();
+            String descriptions = extractDescriptions().trim();
             String databases = extractDatabases(data, descriptions);
             data.setVariable(DATABASES_TO_BACKUP_VARNAME, databases);
             return;
@@ -62,21 +61,30 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
             handler.emitError("Exception", ex.toString());
         }
     }
-    
+
     private String extractDatabases(AutomatedInstallData data, String descriptions)
     {
         CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
-        for (String description : descriptions.split("\n"))
+        if (descriptions.length() > 0)
         {
-            String database = description.split(";")[0].split("=")[1].trim();
-            if (databaseExists(data, database))
+            for (String description : descriptions.split("\n"))
             {
-                builder.append(database);
+                String[] splitted = description.split(";")[0].split("=");
+                if (splitted.length < 2)
+                {
+                    throw new IllegalArgumentException("Invalid database description: "
+                            + description);
+                }
+                String database = splitted[1].trim();
+                if (databaseExists(data, database))
+                {
+                    builder.append(database);
+                }
             }
         }
         return builder.toString();
     }
-    
+
     private boolean databaseExists(AutomatedInstallData data, String database)
     {
         File scriptFile = getAdminScriptFile(data, "database-existence-check.sh");
@@ -87,7 +95,7 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         executeAdminScript(null, outputStream, outputStream, scriptFile.getAbsolutePath(), database);
         return outputStream.toString().trim().equals("FALSE") == false;
-        
+
     }
 
     private String extractDescriptions() throws Exception
@@ -109,6 +117,7 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
         }
         paths.add(new File(GlobalInstallationContext.installDir, Utils.DSS_PATH
                 + Utils.SERVICE_PROPERTIES_PATH).getAbsolutePath());
+        System.out.println("Scan following properties file for data source definitions: " + paths);
         return new Object[]
             { paths.toArray(new String[0]) };
     }

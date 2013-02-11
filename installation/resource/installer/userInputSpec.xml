@@ -47,12 +47,10 @@
         <param name="pattern" value="^.+$" />
       </validator>
     </field>
-    
-    
   </panel>
 
   <panel id="UserInputPanel.TECHNOLOGIES">
-    <field type="title" txt="Technologies" bold="true" size="2" />
+    <field type="title" txt="Technologies and Fast File Browsing" bold="true" size="2" />
     <field type="staticText" align="left"
       txt="Please, deselect those technologies which are not needed. Later, at the next upgrade, the selection can be changed:" />
     <field type="check" variable="PROTEOMICS">
@@ -63,6 +61,13 @@
     </field>
     <field type="check" variable="ILLUMINA-NGS">
       <spec txt="Illumina NGS (ETH BSSE Setup)" true="true" false="false"/>
+    </field>
+    
+    <field type="space"/>
+    <field type="staticText" align="left"
+      txt="Please, select or deselect fast data set file browsing. This feature improves file browsing of data sets with a large number of files." />
+    <field type="check" variable="PATHINFO_DB_ENABLED">
+      <spec txt="Fast data set file browsing (recommended, especially for screening)" true="true" false="false"/>
     </field>
   </panel>
 

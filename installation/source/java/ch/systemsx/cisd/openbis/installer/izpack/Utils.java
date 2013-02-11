@@ -31,6 +31,7 @@ import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 
 /**
  * Utility functions for exploring <code>service.properties</code> files of an installation.
@@ -213,7 +214,57 @@ class Utils
             appendEntryToConfigFile(configFile, propertiesEntry);
         }
     }
+    
+    static void addTermToPropertyList(File configFile, String propertyKey, String newTerm)
+    {
+        Properties properties = tryToGetProperties(configFile);
+        if (properties == null)
+        {
+            return;
+        }
+        String property = properties.getProperty(propertyKey);
+        CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
+        if (property != null)
+        {
+            String[] terms = property.split(",");
+            for (String term : terms)
+            {
+                String trimmedTerm = term.trim();
+                if (trimmedTerm.equals(newTerm))
+                {
+                    return;
+                }
+                builder.append(trimmedTerm);
+            }
+        }
+        builder.append(newTerm);
+        updateOrAppendProperty(configFile, propertyKey, builder.toString());
+    }
 
+    static void removeTermFromPropertyList(File configFile, String propertyKey, String termToRemove)
+    {
+        Properties properties = tryToGetProperties(configFile);
+        if (properties == null)
+        {
+            return;
+        }
+        String property = properties.getProperty(propertyKey);
+        CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
+        if (property != null)
+        {
+            String[] terms = property.split(",");
+            for (String term : terms)
+            {
+                String trimmedTerm = term.trim();
+                if (trimmedTerm.equals(termToRemove) == false)
+                {
+                    builder.append(trimmedTerm);
+                }
+            }
+        }
+        updateOrAppendProperty(configFile, propertyKey, builder.toString());
+    }
+    
     static File getKeystoreFileForDSS(File installDir)
     {
         return new File(installDir, DSS_PATH + KEYSTORE_PATH);

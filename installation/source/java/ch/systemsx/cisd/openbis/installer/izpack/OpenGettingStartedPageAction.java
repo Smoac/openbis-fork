@@ -41,7 +41,8 @@ public class OpenGettingStartedPageAction implements PanelAction
     @Override
     public synchronized void executeAction(AutomatedInstallData data, AbstractUIHandler arg1)
     {
-        if (GlobalInstallationContext.isUpdateInstallation || data.isInstallSuccess() == false)
+        if (GlobalInstallationContext.isUpdateInstallation || data.isInstallSuccess() == false
+                || Utils.isASInstalled(GlobalInstallationContext.installDir) == false)
         {
             return;
         }

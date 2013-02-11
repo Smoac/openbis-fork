@@ -50,6 +50,8 @@ public class GlobalInstallationContext
     
     public static final String TECHNOLOGY_ILLUMINA_NGS = "ILLUMINA-NGS";
     
+    public static final String PATHINFO_DB_ENABLED = "PATHINFO_DB_ENABLED";
+    
     public static final String[] TECHNOLOGIES =
         { TECHNOLOGY_PROTEOMICS, TECHNOLOGY_SCREENING, TECHNOLOGY_ILLUMINA_NGS };
     

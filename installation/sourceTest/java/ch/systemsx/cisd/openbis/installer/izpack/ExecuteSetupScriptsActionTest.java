@@ -51,7 +51,7 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
         dssServicePropertiesFile =
                 new File(workingDirectory, Utils.DSS_PATH + Utils.SERVICE_PROPERTIES_PATH);
         jettyXMLFile = new File(workingDirectory, Utils.AS_PATH + Utils.JETTY_XML_PATH);
-        FileUtils.copyFile(new File("../datastore_server/dist/etc/service.properties/"),
+        FileUtils.copyFile(new File("../openbis_standard_technologies/dist/etc/service.properties/"),
                 dssServicePropertiesFile);
         FileUtils.copyFile(new File("../openbis/dist/server/jetty.xml/"), jettyXMLFile);
 
@@ -80,6 +80,60 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
         assertEquals("my-keys", FileUtils.readFileToString(keystoreFileAS));
         assertEquals(true, keystoreFileDSS.exists());
         assertEquals("my-keys", FileUtils.readFileToString(keystoreFileDSS));
+    }
+    
+    @Test
+    public void testDisableAndEnablePathinfoDB() throws Exception
+    {
+        Properties properties = loadProperties(dssServicePropertiesFile);
+        assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_DATA_SOURCE,
+                properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY));
+        assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_FEEDING_TASK,
+                properties.getProperty(ExecuteSetupScriptsAction.POST_REGISTRATION_TASKS_KEY));
+        assertEquals("post-registration, " + ExecuteSetupScriptsAction.PATHINFO_DB_DELETION_TASK,
+                properties.getProperty(ExecuteSetupScriptsAction.MAINTENANCE_PLUGINS_KEY));
+        
+        action.enablePathinfoDB(false, workingDirectory);
+
+        properties = loadProperties(dssServicePropertiesFile);
+        assertEquals("",
+                properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY));
+        assertEquals("",
+                properties.getProperty(ExecuteSetupScriptsAction.POST_REGISTRATION_TASKS_KEY));
+        assertEquals("post-registration",
+                properties.getProperty(ExecuteSetupScriptsAction.MAINTENANCE_PLUGINS_KEY));
+        
+        action.enablePathinfoDB(true, workingDirectory);
+        
+        properties = loadProperties(dssServicePropertiesFile);
+        assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_DATA_SOURCE,
+                properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY));
+        assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_FEEDING_TASK,
+                properties.getProperty(ExecuteSetupScriptsAction.POST_REGISTRATION_TASKS_KEY));
+        assertEquals("post-registration, " + ExecuteSetupScriptsAction.PATHINFO_DB_DELETION_TASK,
+                properties.getProperty(ExecuteSetupScriptsAction.MAINTENANCE_PLUGINS_KEY));
+}
+    
+    @Test
+    public void testEnableAlreadyEnabledPathinfoDB() throws Exception
+    {
+        Properties properties = loadProperties(dssServicePropertiesFile);
+        assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_DATA_SOURCE,
+                properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY));
+        assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_FEEDING_TASK,
+                properties.getProperty(ExecuteSetupScriptsAction.POST_REGISTRATION_TASKS_KEY));
+        assertEquals("post-registration, " + ExecuteSetupScriptsAction.PATHINFO_DB_DELETION_TASK,
+                properties.getProperty(ExecuteSetupScriptsAction.MAINTENANCE_PLUGINS_KEY));
+        
+        action.enablePathinfoDB(true, workingDirectory);
+        
+        properties = loadProperties(dssServicePropertiesFile);
+        assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_DATA_SOURCE,
+                properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY));
+        assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_FEEDING_TASK,
+                properties.getProperty(ExecuteSetupScriptsAction.POST_REGISTRATION_TASKS_KEY));
+        assertEquals("post-registration, " + ExecuteSetupScriptsAction.PATHINFO_DB_DELETION_TASK,
+                properties.getProperty(ExecuteSetupScriptsAction.MAINTENANCE_PLUGINS_KEY));
     }
     
     @Test
