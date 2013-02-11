@@ -42,6 +42,10 @@ public class JavaTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
 
     private Class<? extends IJavaDataSetRegistrationDropboxV2> programClass;
 
+    private String className;
+
+    private String dropboxName;
+
     /**
      * @param globalState
      */
@@ -50,12 +54,14 @@ public class JavaTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
     {
         super(globalState);
 
-        String className =
+        className =
                 PropertyUtils.getMandatoryProperty(globalState.getThreadParameters()
                         .getThreadProperties(), PROGRAM_CLASS_KEY);
 
+        dropboxName = globalState.getThreadParameters().getThreadName();
+
         PluginContainer container =
-                PluginContainer.tryGetInstance(globalState.getThreadParameters().getThreadName());
+                PluginContainer.tryGetInstance(dropboxName);
 
         if (container != null)
         {
@@ -160,6 +166,22 @@ public class JavaTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
     {
         try
         {
+
+            PluginContainer container =
+                    PluginContainer.tryGetInstance(dropboxName);
+
+            if (container != null)
+            {
+                @SuppressWarnings("unchecked")
+                Class<? extends IJavaDataSetRegistrationDropboxV2> clazz =
+                        (Class<? extends IJavaDataSetRegistrationDropboxV2>) container
+                                .tryGetPluginClassByClassname(className);
+                if (clazz != null)
+                {
+                    return clazz.newInstance();
+                }
+            }
+
             return programClass.newInstance();
         } catch (InstantiationException ex)
         {
