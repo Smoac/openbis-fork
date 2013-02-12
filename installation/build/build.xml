@@ -114,15 +114,6 @@
 		    </fileset>
 		</copy>
   	
-  	<java classpath="${ecp}" classname="ch.systemsx.cisd.common.properties.PropertiesFileMerger">
-		  <arg value="${installer.dist.dir}/openBIS-server/service.properties"/>
-		  <arg value="${installer.dist.dir}/bis-service.properties"/>
-  	</java>
-  	<java classpath="${ecp}" classname="ch.systemsx.cisd.common.properties.PropertiesFileMerger">
-	    <arg value="${installer.dist.dir}/datastore_server/etc/service.properties"/>
-	    <arg value="${installer.dist.dir}/dss-service.properties"/>
-  	</java>
-		
 		<!-- this suffix will be used by the installer to check if there are database connections -->
 	  <property name="installer.database.kind" value="${database.kind}" />
   	<replace file="${installer.dist.dir}/install.xml" token="is-standard-technologies-value-created-by-ant-script" value="${is-standard-technologies}"/>
