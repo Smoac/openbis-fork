@@ -107,18 +107,18 @@
   
   <panel id="UserInputPanel.BACKUP_OLD">
     <field type="title" txt="Detected existing openBIS installation" bold="true" size="2" />
-    <field type="staticText" align="left" txt="Please, click next to create a backup of the existing installation." />
+    <field type="staticText" align="left" txt="Please click next to create a backup of the existing installation." />
   </panel>  
   
   <panel id="UserInputPanel.BACKUP">
     <field type="title" txt="Detected existing openBIS installation" bold="true" size="2" />
-    <field type="staticText" align="left" txt="Configuration files and the following databases are backuped:" />
+    <field type="staticText" align="left" txt="Configuration files will be backed up, as will the following databases:" />
     <field type="text" align="left" variable="DATABASES_TO_BACKUP">
       <spec txt="Databases:" size="39" set="$DATABASES_TO_BACKUP" mustExist="true" allowEmptyValue="false"/>
     </field>
-    <field type="staticText" align="left" txt="Databases can be removed from this list if backup isn't required for them." />
+    <field type="staticText" align="left" txt="Databases can be removed from this list if backup is not required." />
     <field type="space"/>
-    <field type="staticText" align="left" txt="Please, click next to create a backup of the existing installation." />
+    <field type="staticText" align="left" txt="Click next to create a backup of the existing installation." />
     
   </panel>  
 
