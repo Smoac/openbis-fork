@@ -59,6 +59,7 @@ public interface IDataStoreService
      * @param ignoreNonExistingLocation specifies if non-existing locations should be ignored.
      * @return locations (as strings) of known data sets
      * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
+     * @deprecated
      */
     @Conversational(progress = Progress.MANUAL)
     public List<String> getKnownDataSets(String sessionToken,

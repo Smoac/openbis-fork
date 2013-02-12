@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -46,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionDisallowedTypesException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDeletionUnknownLocationsException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEventBuilder;
@@ -297,10 +295,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         assertDatasetsWithDisallowedTypes(dataSets, forceDisallowedTypes);
 
         Map<DataStorePE, List<DataPE>> allToBeDeleted = groupDataSetsByDataStores();
-        Map<DataStorePE, List<ExternalDataPE>> availableDatasets =
-                filterAvailableDatasets(allToBeDeleted);
-
-        assertDataSetsAreKnown(availableDatasets, true);
         for (Map.Entry<DataStorePE, List<DataPE>> entry : allToBeDeleted.entrySet())
         {
             List<DataPE> allDataSets = entry.getValue();
@@ -311,28 +305,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                 deleteDataSetLocally(dataSet, reason);
             }
         }
-    }
-
-    private Map<DataStorePE, List<ExternalDataPE>> filterAvailableDatasets(
-            Map<DataStorePE, List<DataPE>> map)
-    {
-        Map<DataStorePE, List<ExternalDataPE>> result =
-                new HashMap<DataStorePE, List<ExternalDataPE>>();
-        for (Map.Entry<DataStorePE, List<DataPE>> entry : map.entrySet())
-        {
-            ArrayList<ExternalDataPE> available = new ArrayList<ExternalDataPE>();
-            for (DataPE data : entry.getValue())
-            {
-                ExternalDataPE externalData = data.tryAsExternalData();
-                if (externalData != null && externalData.isAvailable())
-                {
-
-                    available.add(externalData);
-                }
-            }
-            result.put(entry.getKey(), available);
-        }
-        return result;
     }
 
     private void deleteDataSetLocally(DataPE dataSet, String reason) throws UserFailureException
@@ -364,7 +336,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     {
         assertDatasetsAreAvailable(dataSets);
         Map<DataStorePE, List<DataPE>> map = groupDataByDataStores();
-        assertDataSetsAreKnown(map, false);
         uploadContext.setUserEMail(session.getPrincipal().getEmail());
         uploadContext.setSessionUserID(session.getUserName());
         if (StringUtils.isBlank(uploadContext.getComment()))
@@ -410,50 +381,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             }
         }
         return builder.toString();
-    }
-
-    private <D extends DataPE> void assertDataSetsAreKnown(Map<DataStorePE, List<D>> map,
-            boolean ignoreNonExistingLocation)
-    {
-        // Set<String> knownLocations = new LinkedHashSet<String>();
-        List<String> unknownDataSets = new ArrayList<String>();
-        for (Map.Entry<DataStorePE, List<D>> entry : map.entrySet())
-        {
-            DataStorePE dataStore = entry.getKey();
-            List<ExternalDataPE> externalDatas = filterRealDataSets(entry.getValue());
-            Set<String> knownLocations =
-                    getKnownDataSets(dataStore,
-                            DataSetTranslator.translateToDescriptions(externalDatas),
-                            ignoreNonExistingLocation);
-            for (ExternalDataPE dataSet : externalDatas)
-            {
-                if (dataSet.getStatus() == DataSetArchivingStatus.ARCHIVED)
-                {
-                    // archived datasets are currently not available in the data store
-                    // but can be deleted
-                } else if (knownLocations.contains(dataSet.getLocation()) == false)
-                {
-                    unknownDataSets.add(dataSet.getCode());
-                }
-            }
-        }
-        if (unknownDataSets.isEmpty() == false)
-        {
-            throw new DataSetDeletionUnknownLocationsException(unknownDataSets);
-        }
-    }
-
-    private List<ExternalDataPE> filterRealDataSets(List<? extends DataPE> mixedDataSets)
-    {
-        List<ExternalDataPE> realDataSets = new ArrayList<ExternalDataPE>();
-        for (DataPE dataSet : mixedDataSets)
-        {
-            if (dataSet instanceof ExternalDataPE)
-            {
-                realDataSets.add((ExternalDataPE) dataSet);
-            }
-        }
-        return realDataSets;
     }
 
     /** groups data sets by data stores */
@@ -535,28 +462,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             return null;
         }
         return dssFactory.create(remoteURL);
-    }
-
-    private Set<String> getKnownDataSets(DataStorePE dataStore,
-            List<DatasetDescription> dataSetDescriptions, boolean ignoreNonExistingLocation)
-    {
-        String remoteURL = dataStore.getRemoteUrl();
-        if (StringUtils.isBlank(remoteURL))
-        {
-            // Assuming dummy data store "knows" all locations
-            Set<String> locations = new HashSet<String>();
-            for (DatasetDescription dataSet : dataSetDescriptions)
-            {
-                locations.add(dataSet.getDataSetLocation());
-            }
-            return locations;
-        }
-
-        IDataStoreService service =
-                getConversationClient().getDataStoreService(remoteURL, session.getSessionToken());
-        String sessionToken = dataStore.getSessionToken();
-        return new HashSet<String>(service.getKnownDataSets(sessionToken, dataSetDescriptions,
-                ignoreNonExistingLocation));
     }
 
     @Override

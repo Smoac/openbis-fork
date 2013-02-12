@@ -273,11 +273,6 @@ public final class DataSetTableTest extends AbstractBOTest
                 {
                     prepareFindFullDatasets(new ExternalDataPE[]
                         { d1, d2 }, false, false);
-
-                    one(dataStoreServiceConversational2).getKnownDataSets(
-                            with(dss2.getSessionToken()),
-                            with(createDatasetDescriptionsMatcher(d2)), with(true));
-                    will(returnValue(Arrays.asList()));
                 }
             });
 
@@ -339,13 +334,6 @@ public final class DataSetTableTest extends AbstractBOTest
                     prepareFindFullDatasets(new ExternalDataPE[]
                         { d1, d2 }, false, false);
 
-                    BaseMatcher<List<DatasetDescription>> dataSets =
-                            createDatasetDescriptionsMatcher(d2);
-
-                    one(dataStoreServiceConversational2).getKnownDataSets(
-                            with(dss2.getSessionToken()), with(dataSets), with(true));
-                    will(returnValue(Arrays.asList(d2.getLocation())));
-
                     PersonPE person = EXAMPLE_SESSION.tryGetPerson();
                     one(eventDAO).persist(createDeletionEvent(d1, person, reason));
                     one(dataDAO).delete(d1);
@@ -383,11 +371,6 @@ public final class DataSetTableTest extends AbstractBOTest
                 {
                     prepareFindFullDatasets(new ExternalDataPE[]
                         { d1PE, d2PE }, true, false);
-
-                    one(dataStoreServiceConversational2).getKnownDataSets(
-                            with(dss2.getSessionToken()),
-                            with(createDatasetDescriptionsMatcher(d2PE)), with(false));
-                    will(returnValue(Arrays.asList(d2PE.getLocation())));
 
                     one(dataStoreServiceConversational2).uploadDataSetsToCIFEX(
                             with(equal(dss2.getSessionToken())),
