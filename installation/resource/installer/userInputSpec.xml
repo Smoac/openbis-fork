@@ -52,7 +52,7 @@
   <panel id="UserInputPanel.TECHNOLOGIES">
     <field type="title" txt="Technologies and Fast File Browsing" bold="true" size="2" />
     <field type="staticText" align="left"
-      txt="Please, deselect those technologies which are not needed. Later, at the next upgrade, the selection can be changed:" />
+      txt="Select any technology-specific modules that should installed along with openBIS. The selection can be altered at the next upgrade:" />
     <field type="check" variable="PROTEOMICS">
       <spec txt="Proteomics" true="true" false="false"/>
     </field>
@@ -65,9 +65,9 @@
     
     <field type="space"/>
     <field type="staticText" align="left"
-      txt="Please, select or deselect fast data set file browsing. This feature improves file browsing of data sets with a large number of files." />
+      txt="Fast data set file browsing improves the performance of browsing of data sets with a large number of files. We recommend leaving it on for all instances, and especially screening instances." />
     <field type="check" variable="PATHINFO_DB_ENABLED">
-      <spec txt="Fast data set file browsing (recommended, especially for screening)" true="true" false="false"/>
+      <spec txt="Fast data set file browsing" true="true" false="false"/>
     </field>
   </panel>
 
