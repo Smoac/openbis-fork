@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
-import java.net.URLDecoder;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
@@ -28,7 +26,6 @@ import org.springframework.web.servlet.mvc.AbstractCommandController;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractFileDownloadServlet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
@@ -72,13 +69,12 @@ public class AttachmentDownloadServlet extends AbstractFileDownloadServlet
             versionOrNull = Integer.parseInt(versionStringOrNull);
         }
 
-        String name = request.getParameter(GenericConstants.FILE_NAME_PARAMETER);
+        String fileName = request.getParameter(GenericConstants.FILE_NAME_PARAMETER);
         String encoding = request.getCharacterEncoding();
         if (encoding == null)
         {
             encoding = "ISO-8859-1";
         }
-        final String fileName = StringEscapeUtils.unescapeHtml(URLDecoder.decode(name, encoding));
         final String techIdString = request.getParameter(GenericConstants.TECH_ID_PARAMETER);
         final String attachmentHolderKind =
                 request.getParameter(GenericConstants.ATTACHMENT_HOLDER_PARAMETER);
