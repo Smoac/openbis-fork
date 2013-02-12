@@ -10,7 +10,10 @@
 
 [generic.client] = ${generic}.client.*
 [generic.server] = ${generic}.server.*
-[generic.shared] = ${generic}.shared.* excluding ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory
+[generic.shared] = ${generic}.shared.* excluding ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory \
+																				 ch.systemsx.cisd.openbis.generic.shared.managed_property.JythonManagedPropertyEvaluator \
+																				 ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluator \
+																				 ch.systemsx.cisd.openbis.generic.shared.translator.PropertyTranslatorUtils
 
 check sets [generic.client] [generic.server] [generic.shared]
 
