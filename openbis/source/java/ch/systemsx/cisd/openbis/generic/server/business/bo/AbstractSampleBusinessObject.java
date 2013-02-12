@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * An <i>abstract</i> {@link AbstractSampleIdentifierBusinessObject} extension for <i>Business
@@ -81,18 +82,22 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     protected IEntityOperationChecker entityOperationChecker;
 
     AbstractSampleBusinessObject(final IDAOFactory daoFactory, final Session session,
-            IRelationshipService relationshipService, IEntityOperationChecker entityOperationChecker)
+            IRelationshipService relationshipService,
+            IEntityOperationChecker entityOperationChecker,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session, EntityKind.SAMPLE);
+        super(daoFactory, session, EntityKind.SAMPLE, managedPropertyEvaluatorFactory);
         this.relationshipService = relationshipService;
         this.entityOperationChecker = entityOperationChecker;
     }
 
     AbstractSampleBusinessObject(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter,
-            IRelationshipService relationshipService, IEntityOperationChecker entityOperationChecker)
+            IRelationshipService relationshipService,
+            IEntityOperationChecker entityOperationChecker,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session, entityPropertiesConverter);
+        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory);
         this.relationshipService = relationshipService;
         this.entityOperationChecker = entityOperationChecker;
     }

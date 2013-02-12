@@ -37,20 +37,22 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.builders.EntityTypePropertyTy
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SamplePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SampleTypePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SpacePEBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinRelatedSample;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.SampleAbundance;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.SamplePeptideModification;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ProteinRelatedSampleTableTest extends AbstractBOTestCase
 {
     private ProteinRelatedSampleTable table;
+
     private SamplePE sample1;
+
     private SamplePE sample2;
+
     private SamplePE sample3;
 
     @Override
@@ -58,7 +60,9 @@ public class ProteinRelatedSampleTableTest extends AbstractBOTestCase
     public void setUp()
     {
         super.setUp();
-        table = new ProteinRelatedSampleTable(daoFactory, specificDAOFactory);
+        table =
+                new ProteinRelatedSampleTable(daoFactory, specificDAOFactory,
+                        new ManagedPropertyEvaluatorFactory(null, null));
 
         SpacePE space =
                 new SpacePEBuilder()
@@ -93,12 +97,12 @@ public class ProteinRelatedSampleTableTest extends AbstractBOTestCase
                 {
                     one(specificDAOFactory).getProteinQueryDAO(experimentID);
                     will(returnValue(proteinDAO));
-                    
+
                     one(experimentDAO).getByTechId(experimentID);
                     ExperimentPE experiment = new ExperimentPE();
                     experiment.setPermId("exp-1");
                     will(returnValue(experiment));
-                    
+
                     one(proteinDAO).listSampleAbundanceByProtein(experiment.getPermId(),
                             proteinReferenceID.getId());
                     MockDataSet<SampleAbundance> sampleAbundances =
@@ -118,28 +122,34 @@ public class ProteinRelatedSampleTableTest extends AbstractBOTestCase
 
                     one(sampleDAO).tryToFindByPermID("s-1");
                     will(returnValue(sample1));
-                    
+
                     one(sampleDAO).tryToFindByPermID("s-2");
                     will(returnValue(sample2));
-                    
+
                     one(sampleDAO).tryToFindByPermID("s-3");
                     will(returnValue(sample3));
                 }
             });
-        
+
         table.load(experimentID, proteinReferenceID, "abcdefabcab");
-        
+
         List<ProteinRelatedSample> samples = table.getSamples();
-        assertEquals("1:s-1:S1:MY-DB:/s/S1:SAMPLE:my-type:[A: hello]:0.25::null:null:null", render(samples.get(0)));
-        assertEquals("2:s-2:S2:MY-DB:/s/S2:SAMPLE:my-type:[]:0.75:a:1:21.5:0.25", render(samples.get(1)));
-        assertEquals("2:s-2:S2:MY-DB:/s/S2:SAMPLE:my-type:[]:0.75:a:7:21.5:0.25", render(samples.get(2)));
-        assertEquals("2:s-2:S2:MY-DB:/s/S2:SAMPLE:my-type:[]:0.75:a:10:21.5:0.25", render(samples.get(3)));
-        assertEquals("3:s-3:S3:MY-DB:/s/S3:SAMPLE:my-type:[]:null:d:4:12.375:0.5", render(samples.get(4)));
-        assertEquals("3:s-3:S3:MY-DB:/s/S3:SAMPLE:my-type:[]:null:f:6:-1.5:0.75", render(samples.get(5)));
+        assertEquals("1:s-1:S1:MY-DB:/s/S1:SAMPLE:my-type:[A: hello]:0.25::null:null:null",
+                render(samples.get(0)));
+        assertEquals("2:s-2:S2:MY-DB:/s/S2:SAMPLE:my-type:[]:0.75:a:1:21.5:0.25",
+                render(samples.get(1)));
+        assertEquals("2:s-2:S2:MY-DB:/s/S2:SAMPLE:my-type:[]:0.75:a:7:21.5:0.25",
+                render(samples.get(2)));
+        assertEquals("2:s-2:S2:MY-DB:/s/S2:SAMPLE:my-type:[]:0.75:a:10:21.5:0.25",
+                render(samples.get(3)));
+        assertEquals("3:s-3:S3:MY-DB:/s/S3:SAMPLE:my-type:[]:null:d:4:12.375:0.5",
+                render(samples.get(4)));
+        assertEquals("3:s-3:S3:MY-DB:/s/S3:SAMPLE:my-type:[]:null:f:6:-1.5:0.75",
+                render(samples.get(5)));
         assertEquals(6, samples.size());
         context.assertIsSatisfied();
     }
-    
+
     private String render(ProteinRelatedSample sample)
     {
         char modifiedAminoAcid = sample.getModifiedAminoAcid();
@@ -151,7 +161,7 @@ public class ProteinRelatedSampleTableTest extends AbstractBOTestCase
                 + sample.getModificationPosition() + ":" + sample.getModificationMass() + ":"
                 + sample.getModificationFraction();
     }
-    
+
     private SampleAbundance sampleAbundance(String permID, double abundance)
     {
         SampleAbundance sampleAbundance = new SampleAbundance();
@@ -159,7 +169,7 @@ public class ProteinRelatedSampleTableTest extends AbstractBOTestCase
         sampleAbundance.setAbundance(abundance);
         return sampleAbundance;
     }
-    
+
     private SamplePeptideModification modification(String permID, String sequence, int position,
             double mass, double fraction)
     {

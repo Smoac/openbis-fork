@@ -89,6 +89,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 
 /**
@@ -104,20 +105,27 @@ abstract class AbstractBusinessObject implements IDAOFactory
 
     protected final IEntityPropertiesConverter entityPropertiesConverter;
 
-    AbstractBusinessObject(final IDAOFactory daoFactory, final Session session)
+    protected final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
+    AbstractBusinessObject(final IDAOFactory daoFactory, final Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        this(daoFactory, session, (IEntityPropertiesConverter) null);
+        this(daoFactory, session, (IEntityPropertiesConverter) null,
+                managedPropertyEvaluatorFactory);
     }
 
     AbstractBusinessObject(final IDAOFactory daoFactory, final Session session,
-            EntityKind entityKindOrNull)
+            EntityKind entityKindOrNull,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         this(daoFactory, session, entityKindOrNull == null ? null : new EntityPropertiesConverter(
-                entityKindOrNull, daoFactory));
+                entityKindOrNull, daoFactory, managedPropertyEvaluatorFactory),
+                managedPropertyEvaluatorFactory);
     }
 
     AbstractBusinessObject(final IDAOFactory daoFactory, final Session session,
-            IEntityPropertiesConverter converter)
+            IEntityPropertiesConverter converter,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         assert daoFactory != null : "Given DAO factory can not be null.";
         assert session != null : "Given session can not be null.";
@@ -125,6 +133,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
         this.daoFactory = daoFactory;
         this.session = session;
         entityPropertiesConverter = converter;
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     @Override

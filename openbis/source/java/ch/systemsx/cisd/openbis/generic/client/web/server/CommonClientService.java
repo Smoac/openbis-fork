@@ -187,6 +187,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -2804,5 +2805,11 @@ public final class CommonClientService extends AbstractClientService implements
         Metaproject metaproject = new Metaproject();
         metaproject.setName(name);
         commonServer.registerMetaproject(getSessionToken(), metaproject);
+    }
+
+    @Override
+    public List<String> listPredeployedPlugins(ScriptType scriptType)
+    {
+        return commonServer.listPredeployedPlugins(getSessionToken(), scriptType);
     }
 }

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 
 /**
@@ -38,7 +39,8 @@ public class ExperimentLoaderTest extends AbstractLoaderTestCase
     @Test
     public void test()
     {
-        ExperimentLoader loader = new ExperimentLoader(daoFactory);
+        ExperimentLoader loader =
+                new ExperimentLoader(daoFactory, new ManagedPropertyEvaluatorFactory(null, null));
         List<Sample> samples = loadSamples(980L, 981L, 986L);
 
         loader.enrichWithExperiments(samples);
@@ -66,7 +68,8 @@ public class ExperimentLoaderTest extends AbstractLoaderTestCase
         List<Sample> list = new ArrayList<Sample>();
         for (Long id : ids)
         {
-            list.add(SampleTranslator.translate(sampleDAO.tryGetByTechId(new TechId(id)), "", null));
+            list.add(SampleTranslator.translate(sampleDAO.tryGetByTechId(new TechId(id)), "", null,
+                    new ManagedPropertyEvaluatorFactory(null, null)));
 
         }
         return list;

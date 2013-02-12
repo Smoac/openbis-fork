@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -198,9 +199,11 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
 
     public DataSetTable(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
             Session session, IRelationshipService relationshipService,
-            IServiceConversationClientManagerLocal conversationClient)
+            IServiceConversationClientManagerLocal conversationClient,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session, relationshipService, conversationClient);
+        super(daoFactory, session, relationshipService, conversationClient,
+                managedPropertyEvaluatorFactory);
         this.dssFactory = dssFactory;
     }
 
@@ -449,7 +452,8 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                         session.getSessionToken());
         String sessionToken = dataStore.getSessionToken();
         List<ExternalData> cleanDataSets =
-                DataSetTranslator.translate(list, "?", "?", new HashMap<Long, Set<Metaproject>>());
+                DataSetTranslator.translate(list, "?", "?", new HashMap<Long, Set<Metaproject>>(),
+                        managedPropertyEvaluatorFactory);
         service.uploadDataSetsToCIFEX(sessionToken, cleanDataSets, context);
     }
 

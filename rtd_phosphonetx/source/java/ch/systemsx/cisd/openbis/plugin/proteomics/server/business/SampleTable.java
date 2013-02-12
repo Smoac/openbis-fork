@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -47,10 +48,14 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
 
     private SampleIDProvider sampleIDProvider;
 
-    SampleTable(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory, Session session)
+    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
+    SampleTable(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory, Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         super(daoFactory, specificDAOFactory, session);
         sampleIDProvider = new SampleIDProvider(daoFactory.getSampleDAO());
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     @Override
@@ -80,7 +85,7 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
                 String samplePermID = sampleAbundance.getSamplePermID();
                 long sampleID = sampleIDProvider.getSampleIDOrParentSampleID(samplePermID);
                 SamplePE samplePE = sampleDAO.getByTechId(new TechId(sampleID));
-                fillSampleData(sample, samplePE);
+                fillSampleData(sample, samplePE, managedPropertyEvaluatorFactory);
                 samples.add(sample);
             }
         } finally
@@ -90,7 +95,8 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
     }
 
     private final static void fillSampleData(final SampleWithPropertiesAndAbundance result,
-            final SamplePE samplePE)
+            final SamplePE samplePE,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         result.setId(HibernateUtils.getId(samplePE));
         result.setPermId(samplePE.getPermId());
@@ -99,6 +105,6 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
         result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType(),
                 new HashMap<PropertyTypePE, PropertyType>()));
         result.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
-                new HashMap<PropertyTypePE, PropertyType>()));
+                new HashMap<PropertyTypePE, PropertyType>(), managedPropertyEvaluatorFactory));
     }
 }

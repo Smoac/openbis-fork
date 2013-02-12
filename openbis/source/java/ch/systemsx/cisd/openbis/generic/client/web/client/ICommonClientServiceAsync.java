@@ -109,6 +109,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -1102,7 +1103,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /**
-     * @see ICommonClientService#evaluate(DynamicPropertyEvaluationInfo)
+     * @see ICommonClientService#evaluate(EntityValidationEvaluationInfo)
      */
     public void evaluate(EntityValidationEvaluationInfo entityValidationEvaluationInfo,
             AsyncCallback<String> callback);
@@ -1155,4 +1156,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#registerMetaProject(String)
      */
     public void registerMetaProject(String name, AsyncCallback<Void> callback);
+
+    /**
+     * @see ICommonClientService#listPredeployedPlugins(ScriptType)
+     */
+    public void listPredeployedPlugins(ScriptType scriptType, AsyncCallback<List<String>> callback);
 }

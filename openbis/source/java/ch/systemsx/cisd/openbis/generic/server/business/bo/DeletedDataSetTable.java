@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * BO for handling {@link DataPE}.
@@ -92,9 +93,11 @@ public final class DeletedDataSetTable extends AbstractDataSetBusinessObject imp
 
     public DeletedDataSetTable(final IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
             final Session session, IRelationshipService relationshipService,
-            IServiceConversationClientManagerLocal conversationClient)
+            IServiceConversationClientManagerLocal conversationClient,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session, relationshipService, conversationClient);
+        super(daoFactory, session, relationshipService, conversationClient,
+                managedPropertyEvaluatorFactory);
     }
 
     //

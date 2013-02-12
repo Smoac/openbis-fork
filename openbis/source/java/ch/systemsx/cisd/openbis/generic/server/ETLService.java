@@ -220,6 +220,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypePropertyTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
@@ -268,13 +269,16 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     private IServiceConversationServerManagerLocal conversationServer;
 
+    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
     public ETLService(IAuthenticationService authenticationService,
             ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory,
             TrustedCrossOriginDomainsProvider trustedOriginDomainProvider,
             IETLEntityOperationChecker entityOperationChecker,
             IDataStoreServiceRegistrator dataStoreServiceRegistrator,
-            IDataStoreDataSourceManager dataSourceManager)
+            IDataStoreDataSourceManager dataSourceManager,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         this(authenticationService, sessionManager, daoFactory, null, boFactory, dssFactory,
                 trustedOriginDomainProvider, entityOperationChecker, dataStoreServiceRegistrator,
@@ -287,7 +291,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                                 {
                                     return null;
                                 }
-                            }), 30));
+                            }), 30), managedPropertyEvaluatorFactory);
     }
 
     ETLService(IAuthenticationService authenticationService,
@@ -298,7 +302,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             IETLEntityOperationChecker entityOperationChecker,
             IDataStoreServiceRegistrator dataStoreServiceRegistrator,
             IDataStoreDataSourceManager dataSourceManager,
-            ISessionManager<Session> sessionManagerForEntityOperation)
+            ISessionManager<Session> sessionManagerForEntityOperation,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         super(authenticationService, sessionManager, daoFactory, propertiesBatchManager, boFactory);
         this.daoFactory = daoFactory;
@@ -308,6 +313,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         this.dataStoreServiceRegistrator = dataStoreServiceRegistrator;
         this.dataSourceManager = dataSourceManager;
         this.sessionManagerForEntityOperation = sessionManagerForEntityOperation;
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     @Override
@@ -539,7 +545,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                         session.tryGetPerson(), experiment);
 
         return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
-                MetaprojectTranslator.translate(metaprojectPEs), LoadableFields.PROPERTIES);
+                MetaprojectTranslator.translate(metaprojectPEs), managedPropertyEvaluatorFactory,
+                LoadableFields.PROPERTIES);
     }
 
     @Override
@@ -576,7 +583,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                             session.tryGetPerson(), sample);
         }
         return SampleTranslator.translate(sample, session.getBaseIndexURL(), true, true,
-                MetaprojectTranslator.translate(metaprojects));
+                MetaprojectTranslator.translate(metaprojects), managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -768,7 +775,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         Map<Long, Set<Metaproject>> assignments =
                 MetaprojectTranslator.translateMetaprojectAssignments(assignmentPEs);
         Collections.sort(experiments);
-        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL(), assignments);
+        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL(), assignments,
+                managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -793,7 +801,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         Set<SamplePropertyPE> properties = top.getProperties();
         HibernateUtils.initialize(properties);
         return EntityPropertyTranslator.translate(properties.toArray(new SamplePropertyPE[0]),
-                new HashMap<PropertyTypePE, PropertyType>());
+                new HashMap<PropertyTypePE, PropertyType>(), managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -817,7 +825,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         Set<SamplePropertyPE> properties = sample.getProperties();
         HibernateUtils.initialize(properties);
         return EntityPropertyTranslator.translate(properties.toArray(new SamplePropertyPE[0]),
-                new HashMap<PropertyTypePE, PropertyType>());
+                new HashMap<PropertyTypePE, PropertyType>(), managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -1071,7 +1079,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                 getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
                         session.tryGetPerson(), dataPE);
         return DataSetTranslator.translate(dataPE, session.getBaseIndexURL(),
-                MetaprojectTranslator.translate(metaprojects));
+                MetaprojectTranslator.translate(metaprojects), managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -1142,7 +1150,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         Map<Long, Set<Metaproject>> assignments =
                 MetaprojectTranslator.translateMetaprojectAssignments(assignmentPEs);
 
-        return SampleTranslator.translate(samples, "", assignments);
+        return SampleTranslator
+                .translate(samples, "", assignments, managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -1341,7 +1350,9 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
         // Register the data set
         registerDataSetInternal(sessionToken, externalData, samplePE);
-        Sample result = SampleTranslator.translate(samplePE, session.getBaseIndexURL(), null);
+        Sample result =
+                SampleTranslator.translate(samplePE, session.getBaseIndexURL(), null,
+                        managedPropertyEvaluatorFactory);
         return result;
     }
 
@@ -1366,7 +1377,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
         Sample result =
                 SampleTranslator.translate(samplePE, session.getBaseIndexURL(),
-                        MetaprojectTranslator.translate(metaprojectPEs));
+                        MetaprojectTranslator.translate(metaprojectPEs),
+                        managedPropertyEvaluatorFactory);
         return result;
     }
 
@@ -1485,7 +1497,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                                 session.tryGetPerson(), materialPE);
             }
             return MaterialTranslator.translate(materialPE,
-                    MetaprojectTranslator.translate(metaprojectPEs));
+                    MetaprojectTranslator.translate(metaprojectPEs),
+                    managedPropertyEvaluatorFactory);
         } catch (UserFailureException ufe)
         {
             // material does not exist
@@ -1698,7 +1711,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         MaterialHelper materialHelper =
                 new MaterialHelper(session, businessObjectFactory, getDAOFactory(),
-                        getPropertiesBatchManager());
+                        getPropertiesBatchManager(), managedPropertyEvaluatorFactory);
         Map<String, List<NewMaterial>> materialRegs = operationDetails.getMaterialRegistrations();
         if (authorize)
         {
@@ -1720,7 +1733,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         MaterialHelper materialHelper =
                 new MaterialHelper(session, businessObjectFactory, getDAOFactory(),
-                        getPropertiesBatchManager());
+                        getPropertiesBatchManager(), managedPropertyEvaluatorFactory);
 
         List<MaterialUpdateDTO> allMaterialUpdates = operationDetails.getMaterialUpdates();
 
@@ -2590,7 +2603,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                     name);
         }
 
-        MetaprojectAssignmentsHelper helper = new MetaprojectAssignmentsHelper(daoFactory);
+        MetaprojectAssignmentsHelper helper =
+                new MetaprojectAssignmentsHelper(daoFactory, managedPropertyEvaluatorFactory);
         return helper.getMetaprojectAssignments(getSession(systemSessionToken), metaproject,
                 userName, fetchOptions);
     }

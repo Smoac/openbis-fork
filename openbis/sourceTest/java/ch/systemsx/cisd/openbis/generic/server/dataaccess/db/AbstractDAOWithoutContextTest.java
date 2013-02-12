@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Code;
@@ -248,6 +249,7 @@ public abstract class AbstractDAOWithoutContextTest extends
         result.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         result.setRegistrator(getSystemPerson());
         result.setEntityKind(kind);
+        result.setPluginType(PluginType.JYTHON);
         return result;
     }
 

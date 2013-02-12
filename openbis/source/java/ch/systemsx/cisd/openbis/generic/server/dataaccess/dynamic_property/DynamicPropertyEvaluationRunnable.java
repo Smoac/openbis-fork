@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvalua
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * @author Piotr Buczek
@@ -58,12 +59,16 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
     public DynamicPropertyEvaluationRunnable(final SessionFactory sessionFactory,
             final IDAOFactory daoFactory,
             final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler,
-            final IDynamicPropertyEvaluationSchedulerWithQueue evaluationQueue)
+            final IDynamicPropertyEvaluationSchedulerWithQueue evaluationQueue,
+            final IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory,
+            final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
         this.evaluationQueue = evaluationQueue;
         setSessionFactory(sessionFactory);
-        evaluator = new DefaultBatchDynamicPropertyEvaluator(BATCH_SIZE, daoFactory);
+        evaluator =
+                new DefaultBatchDynamicPropertyEvaluator(BATCH_SIZE, daoFactory,
+                        dynamicPropertyCalculatorFactory, managedPropertyEvaluatorFactory);
     }
 
     //

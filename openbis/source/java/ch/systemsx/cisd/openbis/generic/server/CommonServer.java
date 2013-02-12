@@ -133,13 +133,15 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SampleDataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.DynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityAdaptorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.INonAbstractEntityAdapter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonDynamicPropertyCalculator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonEntityValidationCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonEntityValidationCalculator.IValidationRequestDelegate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.IEntityValidatorFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
@@ -304,7 +306,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluator;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
@@ -342,16 +344,26 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     private final IDataStoreServiceRegistrator dataStoreServiceRegistrator;
 
+    private final IEntityValidatorFactory entityValidationFactory;
+
+    private final IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory;
+
+    private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
     private String defaultPutDataStoreServerCodeOrNull;
 
     public CommonServer(final IAuthenticationService authenticationService,
             final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
             final ICommonBusinessObjectFactory businessObjectFactory,
             IDataStoreServiceRegistrator dataStoreServiceRegistrator,
-            final LastModificationState lastModificationState)
+            final LastModificationState lastModificationState,
+            IEntityValidatorFactory entityValidationFactory,
+            IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         this(authenticationService, sessionManager, daoFactory, null, businessObjectFactory,
-                dataStoreServiceRegistrator, lastModificationState);
+                dataStoreServiceRegistrator, lastModificationState, entityValidationFactory,
+                dynamicPropertyCalculatorFactory, managedPropertyEvaluatorFactory);
     }
 
     CommonServer(final IAuthenticationService authenticationService,
@@ -359,12 +371,18 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             IPropertiesBatchManager propertiesBatchManager,
             final ICommonBusinessObjectFactory businessObjectFactory,
             IDataStoreServiceRegistrator dataStoreServiceRegistrator,
-            final LastModificationState lastModificationState)
+            final LastModificationState lastModificationState,
+            IEntityValidatorFactory entityValidationFactory,
+            IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         super(authenticationService, sessionManager, daoFactory, propertiesBatchManager,
                 businessObjectFactory);
         this.dataStoreServiceRegistrator = dataStoreServiceRegistrator;
         this.lastModificationState = lastModificationState;
+        this.entityValidationFactory = entityValidationFactory;
+        this.dynamicPropertyCalculatorFactory = dynamicPropertyCalculatorFactory;
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     ICommonBusinessObjectFactory getBusinessObjectFactory()
@@ -653,7 +671,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             if (entityTypePropertyType.isManaged())
             {
                 IManagedPropertyEvaluator evaluator =
-                        ManagedPropertyEvaluatorFactory
+                        managedPropertyEvaluatorFactory
                                 .createManagedPropertyEvaluator(entityTypePropertyType);
                 List<IManagedInputWidgetDescription> inputWidgetDescriptions =
                         evaluator.getInputWidgetDescriptions();
@@ -867,7 +885,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         List<AbstractEntityPropertyHistoryPE> result =
                 entityPropertyHistoryDAO.getPropertyHistory(
                         DtoConverters.convertEntityKind(entityKind), entityID);
-        return EntityHistoryTranslator.translate(result, session.getBaseIndexURL());
+        return EntityHistoryTranslator.translate(result, session.getBaseIndexURL(),
+                managedPropertyEvaluatorFactory);
     }
 
     private static List<EntityTypePropertyType<?>> extractAssignments(EntityType entityTypeOrNull,
@@ -953,8 +972,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         Metaproject metaproject = getMetaproject(sessionToken, metaprojectId);
         Collection<MetaprojectAssignmentPE> assignments =
-                new MetaprojectAssignmentsHelper(getDAOFactory()).getMetaprojectAssignments(
-                        metaproject.getId(), EntityKind.EXPERIMENT);
+                new MetaprojectAssignmentsHelper(getDAOFactory(), managedPropertyEvaluatorFactory)
+                        .getMetaprojectAssignments(metaproject.getId(), EntityKind.EXPERIMENT);
         List<ExperimentPE> experimentsPE = new ArrayList<ExperimentPE>();
 
         for (MetaprojectAssignmentPE assignment : assignments)
@@ -1042,7 +1061,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Map<Long, Set<Metaproject>> assignments =
                 MetaprojectTranslator.translateMetaprojectAssignments(assignmentPEs);
         Collections.sort(experiments);
-        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL(), assignments);
+        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL(), assignments,
+                managedPropertyEvaluatorFactory);
     }
 
     private final List<Experiment> listExperiments(final String sessionToken,
@@ -1079,7 +1099,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Map<Long, Set<Metaproject>> assignments =
                 MetaprojectTranslator.translateMetaprojectAssignments(assignmentPEs);
         Collections.sort(experiments);
-        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL(), assignments);
+        return ExperimentTranslator.translate(experiments, session.getBaseIndexURL(), assignments,
+                managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -1488,7 +1509,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
                         session.tryGetPerson(), dataset);
         return DataSetTranslator.translate(dataset, session.getBaseIndexURL(),
-                MetaprojectTranslator.translate(metaprojectPEs));
+                MetaprojectTranslator.translate(metaprojectPEs), managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -1536,7 +1557,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             HibernateUtils.initialize(hit.getChildRelationships());
             list.add(DataSetTranslator.translate(hit, session.getBaseIndexURL(), withDetails,
-                    translation.get(hit.getId())));
+                    translation.get(hit.getId()), managedPropertyEvaluatorFactory));
         }
         return list;
     }
@@ -1569,7 +1590,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             HibernateUtils.initialize(hit.getChildRelationships());
             list.add(DataSetTranslator.translate(hit, session.getBaseIndexURL(), withDetails,
-                    translation.get(hit.getId())));
+                    translation.get(hit.getId()), managedPropertyEvaluatorFactory));
         }
         return list;
     }
@@ -2252,7 +2273,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                         session.tryGetPerson(), sample);
         return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
                 .getSampleInfo(session, sample), session.getBaseIndexURL(), MetaprojectTranslator
-                .translate(metaprojectPEs));
+                .translate(metaprojectPEs), managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -2298,7 +2319,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                         session.tryGetPerson(), experiment);
 
         return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
-                MetaprojectTranslator.translate(metaprojects),
+                MetaprojectTranslator.translate(metaprojects), managedPropertyEvaluatorFactory,
                 ExperimentTranslator.LoadableFields.PROPERTIES,
                 ExperimentTranslator.LoadableFields.ATTACHMENTS);
     }
@@ -2321,7 +2342,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                         session.tryGetPerson(), experiment);
 
         return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
-                MetaprojectTranslator.translate(metaprojects),
+                MetaprojectTranslator.translate(metaprojects), managedPropertyEvaluatorFactory,
                 ExperimentTranslator.LoadableFields.PROPERTIES,
                 ExperimentTranslator.LoadableFields.ATTACHMENTS);
     }
@@ -2396,7 +2417,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                         session.tryGetPerson(), materialPE);
 
         return MaterialTranslator.translate(materialPE,
-                MetaprojectTranslator.translate(metaprojectPEs));
+                MetaprojectTranslator.translate(metaprojectPEs), managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -2412,7 +2433,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
                         session.tryGetPerson(), material);
         return MaterialTranslator.translate(material, true,
-                MetaprojectTranslator.translate(metaprojectPEs));
+                MetaprojectTranslator.translate(metaprojectPEs), managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -2729,7 +2750,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 if (etpt.isManaged())
                 {
                     IManagedPropertyEvaluator evaluator =
-                            ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(etpt);
+                            managedPropertyEvaluatorFactory.createManagedPropertyEvaluator(etpt);
                     List<String> batchColumnNames = evaluator.getBatchColumnNames();
                     if (batchColumnNames.isEmpty())
                     {
@@ -3232,7 +3253,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             JythonDynamicPropertyCalculator calculator =
                     JythonDynamicPropertyCalculator.create(info.getScript());
             IDynamicPropertyEvaluator evaluator =
-                    new DynamicPropertyEvaluator(getDAOFactory(), null);
+                    new DynamicPropertyEvaluator(getDAOFactory(), null,
+                            dynamicPropertyCalculatorFactory, managedPropertyEvaluatorFactory);
             IEntityAdaptor adaptor =
                     EntityAdaptorFactory.create(entity, evaluator, getDAOFactory()
                             .getSessionFactory().getCurrentSession());
@@ -3254,28 +3276,28 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             final List<String> objectsWhichValidationWouldBeForced = new LinkedList<String>();
 
-            JythonEntityValidationCalculator calculator =
-                    JythonEntityValidationCalculator.create(info.getScript(),
-                            new IValidationRequestDelegate<INonAbstractEntityAdapter>()
-                                {
-                                    @Override
-                                    public void requestValidation(
-                                            INonAbstractEntityAdapter entityAdaptor)
-                                    {
-                                        IEntityInformationWithPropertiesHolder localEntity =
-                                                entityAdaptor.entityPE();
-                                        objectsWhichValidationWouldBeForced.add(localEntity
-                                                .getEntityKind()
-                                                + " "
-                                                + localEntity.getIdentifier());
-                                    }
-                                });
+            IEntityValidator entityValidator =
+                    entityValidationFactory.createEntityValidator(info.getPluginType(),
+                            info.getScriptName(), info.getScript());
+            entityValidator.init(new IValidationRequestDelegate<INonAbstractEntityAdapter>()
+                {
+                    @Override
+                    public void requestValidation(INonAbstractEntityAdapter entityAdaptor)
+                    {
+                        IEntityInformationWithPropertiesHolder localEntity =
+                                entityAdaptor.entityPE();
+                        objectsWhichValidationWouldBeForced.add(localEntity.getEntityKind() + " "
+                                + localEntity.getIdentifier());
+                    }
+                });
+
             IDynamicPropertyEvaluator evaluator =
-                    new DynamicPropertyEvaluator(getDAOFactory(), null);
+                    new DynamicPropertyEvaluator(getDAOFactory(), null,
+                            dynamicPropertyCalculatorFactory, managedPropertyEvaluatorFactory);
             IEntityAdaptor adaptor =
                     EntityAdaptorFactory.create(entity, evaluator, getDAOFactory()
                             .getSessionFactory().getCurrentSession());
-            String result = calculator.eval(adaptor, info.isNew());
+            String result = entityValidator.validate(adaptor, info.isNew());
 
             if (result != null)
             {
@@ -3467,7 +3489,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         }
 
-        return ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(managedPropertyPE
+        return managedPropertyEvaluatorFactory.createManagedPropertyEvaluator(managedPropertyPE
                 .getEntityTypePropertyType());
     }
 
@@ -3952,7 +3974,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         Session session = getSession(sessionToken);
 
-        MetaprojectAssignmentsHelper helper = new MetaprojectAssignmentsHelper(getDAOFactory());
+        MetaprojectAssignmentsHelper helper =
+                new MetaprojectAssignmentsHelper(getDAOFactory(), managedPropertyEvaluatorFactory);
 
         return helper.getMetaprojectAssignments(session, metaproject, session.getUserName(),
                 fetchOptions);
@@ -4130,4 +4153,22 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return new AuthorizationServiceUtils(getDAOFactory(), session.tryGetPerson());
     }
 
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<String> listPredeployedPlugins(String sessionToken, ScriptType scriptType)
+    {
+        checkSession(sessionToken);
+
+        switch (scriptType)
+        {
+            case ENTITY_VALIDATION:
+                return entityValidationFactory.listPredeployedPlugins();
+            case DYNAMIC_PROPERTY:
+                return dynamicPropertyCalculatorFactory.listPredeployedPlugins();
+            case MANAGED_PROPERTY:
+                return managedPropertyEvaluatorFactory.listPredeployedPlugins();
+        }
+
+        return null;
+    }
 }

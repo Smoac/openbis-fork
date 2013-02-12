@@ -1,7 +1,8 @@
 SET statement_timeout = 0;
-SET standard_conforming_strings = on;
+SET standard_conforming_strings = off;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
+SET escape_string_warning = off;
 SET search_path = public, pg_catalog;
 CREATE DOMAIN archiving_status AS character varying(100)
 	CONSTRAINT archiving_status_check CHECK (((VALUE)::text = ANY (ARRAY[('LOCKED'::character varying)::text, ('AVAILABLE'::character varying)::text, ('ARCHIVED'::character varying)::text, ('ARCHIVE_PENDING'::character varying)::text, ('UNARCHIVE_PENDING'::character varying)::text, ('BACKUP_PENDING'::character varying)::text])));
@@ -31,6 +32,8 @@ CREATE DOMAIN identifier AS character varying(200);
 CREATE DOMAIN object_name AS character varying(50);
 CREATE DOMAIN ordinal_int AS bigint
 	CONSTRAINT ordinal_int_check CHECK ((VALUE > 0));
+CREATE DOMAIN plugin_type AS character varying(40)
+	CONSTRAINT plugin_type_check CHECK (((VALUE)::text = ANY ((ARRAY['JYTHON'::character varying, 'PREDEPLOYED'::character varying])::text[])));
 CREATE DOMAIN query_type AS character varying(40)
 	CONSTRAINT query_type_check CHECK (((VALUE)::text = ANY (ARRAY[('GENERIC'::character varying)::text, ('EXPERIMENT'::character varying)::text, ('SAMPLE'::character varying)::text, ('DATA_SET'::character varying)::text, ('MATERIAL'::character varying)::text])));
 CREATE DOMAIN real_value AS real;
@@ -1426,11 +1429,13 @@ CREATE TABLE scripts (
     dbin_id tech_id NOT NULL,
     name character varying(200) NOT NULL,
     description description_2000,
-    script text_value NOT NULL,
+    script text_value,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     pers_id_registerer tech_id NOT NULL,
     entity_kind entity_kind,
-    script_type script_type NOT NULL
+    script_type script_type NOT NULL,
+    plugin_type plugin_type DEFAULT 'JYTHON'::character varying NOT NULL,
+    CONSTRAINT script_nn_ck CHECK ((((plugin_type)::text = 'PREDEPLOYED'::text) OR (script IS NOT NULL)))
 );
 CREATE SEQUENCE space_id_seq
     START WITH 1

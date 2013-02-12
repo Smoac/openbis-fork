@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -72,9 +73,10 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     private IRelationshipService relationshipService;
 
     public ProjectBO(final IDAOFactory daoFactory, final Session session,
-            IRelationshipService relationshipService)
+            IRelationshipService relationshipService,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
         this.relationshipService = relationshipService;
     }
 
@@ -128,8 +130,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
 
     @Override
     public void define(ProjectIdentifier projectIdentifier, String description,
-            List<NewAttachment> attachmentsOrNull, String creatorId)
-            throws UserFailureException
+            List<NewAttachment> attachmentsOrNull, String creatorId) throws UserFailureException
     {
         assert projectIdentifier != null : "Unspecified project identifier.";
         this.project = createProject(projectIdentifier, description, attachmentsOrNull, creatorId);

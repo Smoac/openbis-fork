@@ -24,7 +24,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
 /**
@@ -41,7 +43,7 @@ public class ScriptEditForm extends AbstractScriptEditRegisterForm
 
     protected ScriptEditForm(IViewContext<ICommonClientServiceAsync> viewContext, TechId scriptId)
     {
-        super(viewContext, scriptId, null, null);
+        super(viewContext, scriptId, null, null, null);
         setRevertButtonVisible(true);
         this.scriptId = scriptId;
     }
@@ -59,17 +61,31 @@ public class ScriptEditForm extends AbstractScriptEditRegisterForm
         Script script = new Script();
         script.setId(scriptId.getId());
         script.setDescription(descriptionField.getValue());
-        script.setScript(scriptField.getValue());
-        script.setName(nameField.getValue());
+        if (originalScript.getPluginType() == PluginType.JYTHON)
+        {
+            script.setScript(scriptField.getValue());
+            script.setName(nameField.getValue());
+        } else
+        {
+            script.setName(predeployedPluginsWidget.getValue().getValue());
+        }
         return script;
     }
 
     @Override
     protected void setValues()
     {
+        predeployedPluginsWidget.updateScriptType(originalScript.getScriptType());
         FieldUtil.setValueWithUnescaping(descriptionField, originalScript.getDescription());
         FieldUtil.setValueWithUnescaping(scriptField, originalScript.getScript());
-        FieldUtil.setValueWithUnescaping(nameField, originalScript.getName());
+        if (originalScript.getPluginType() == PluginType.JYTHON)
+        {
+            FieldUtil.setValueWithUnescaping(nameField, originalScript.getName());
+        } else
+        {
+            predeployedPluginsWidget.setSelectedValue(StringEscapeUtils.unescapeHtml(originalScript
+                    .getName()));
+        }
         String entityKind =
                 originalScript.getEntityKind() == null ? GenericConstants.ALL_ENTITY_KINDS
                         : originalScript.getEntityKind().name();
@@ -93,7 +109,8 @@ public class ScriptEditForm extends AbstractScriptEditRegisterForm
     void setOriginalScript(Script script)
     {
         this.originalScript = script;
-        onScriptTypeChanged(script.getScriptType());
+        onPluginOrScriptTypeChanged(script.getPluginType(), script.getScriptType());
+        scriptExecution.update(script.getName(), script.getScript(), script.getPluginType());
     }
 
     private final class ScriptEditCallback extends

@@ -27,11 +27,13 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calcu
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonEntityValidationCalculator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.JythonManagedPropertyEvaluator;
 
 /**
@@ -47,16 +49,18 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
 
     private final IScriptFactory scriptFactory;
 
-    public ScriptBO(final IDAOFactory daoFactory, final Session session)
+    public ScriptBO(final IDAOFactory daoFactory, final Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        this(daoFactory, session, new ScriptFactory());
+        this(daoFactory, session, new ScriptFactory(), managedPropertyEvaluatorFactory);
     }
 
     @Private
     // for testing
-    ScriptBO(final IDAOFactory daoFactory, final Session session, IScriptFactory scriptFactory)
+    ScriptBO(final IDAOFactory daoFactory, final Session session, IScriptFactory scriptFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
         this.scriptFactory = scriptFactory;
     }
 
@@ -106,7 +110,8 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         assert script != null : "Script not defined";
         try
         {
-            checkScriptCompilation(script.getScriptType(), script.getScript());
+            checkScriptCompilation(script.getScriptType(), script.getPluginType(),
+                    script.getScript());
             getScriptDAO().createOrUpdate(script);
         } catch (final DataAccessException e)
         {
@@ -125,6 +130,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         script.setRegistrator(findPerson());
         script.setScript(newScript.getScript());
         script.setScriptType(newScript.getScriptType());
+        script.setPluginType(newScript.getPluginType());
         script.setEntityKind(newScript.getEntityKind());
     }
 
@@ -135,11 +141,13 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         script.setName(updates.getName());
         script.setDescription(updates.getDescription());
         boolean scriptChanged = false;
-        if (script.getScript().equals(updates.getScript()) == false)
+        if (script.getScript() != updates.getScript()
+                && script.getScript().equals(updates.getScript()) == false)
         {
             scriptChanged = true;
             script.setScript(updates.getScript());
-            checkScriptCompilation(script.getScriptType(), updates.getScript());
+            checkScriptCompilation(script.getScriptType(), script.getPluginType(),
+                    updates.getScript());
         }
         getScriptDAO().createOrUpdate(script);
 
@@ -154,9 +162,14 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         }
     }
 
-    private void checkScriptCompilation(ScriptType scriptType, String scriptExpression)
-            throws EvaluatorException
+    private void checkScriptCompilation(ScriptType scriptType, PluginType pluginType,
+            String scriptExpression) throws EvaluatorException
     {
+        if (pluginType == PluginType.PREDEPLOYED)
+        {
+            return;
+        }
+
         if (scriptType == ScriptType.MANAGED_PROPERTY)
         {
             new JythonManagedPropertyEvaluator(scriptExpression);

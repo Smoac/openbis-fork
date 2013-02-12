@@ -40,7 +40,8 @@ public final class RoleAssignmentTableTest extends AbstractBOTest
 
     private final RoleAssignmentTable createRoleAssignmentTable()
     {
-        return new RoleAssignmentTable(daoFactory, ManagerTestTool.EXAMPLE_SESSION);
+        return new RoleAssignmentTable(daoFactory, ManagerTestTool.EXAMPLE_SESSION,
+                managedPropertyEvaluatorFactory);
     }
 
     @Test

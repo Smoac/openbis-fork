@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.ExperimentTypePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SampleTypePEBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 
 /**
  * @author felmer
@@ -77,8 +78,8 @@ public class PropertiesBatchManagerTest extends AssertJUnit
         PropertyBuilder p5 = new PropertyBuilder(MANAGED_SUBCOLUMNS + ":2").value("12");
         addProperties(e2, p3, p4, p5);
 
-        new PropertiesBatchManager().manageProperties(builder.getExperimentTypePE(),
-                Arrays.asList(e1, e2), null);
+        new PropertiesBatchManager(new ManagedPropertyEvaluatorFactory(null, null))
+                .manageProperties(builder.getExperimentTypePE(), Arrays.asList(e1, e2), null);
 
         assertProperties("UN-MANAGED:hello, MANAGED-NO-SUBCOLUMNS:hi", e1);
         assertProperties("MANAGED-NO-SUBCOLUMNS-BUT-UPDATE:hi alpha, MANAGED_SUBCOLUMNS:ab12", e2);
@@ -99,8 +100,8 @@ public class PropertiesBatchManagerTest extends AssertJUnit
         PropertyBuilder p2 = new PropertyBuilder(MANAGED_ACCESS_OTHER_COLUMNS).value("ptr");
         addProperties(e1, p1, p2);
 
-        new PropertiesBatchManager().manageProperties(builder.getExperimentTypePE(),
-                Arrays.asList(e1), null);
+        new PropertiesBatchManager(new ManagedPropertyEvaluatorFactory(null, null))
+                .manageProperties(builder.getExperimentTypePE(), Arrays.asList(e1), null);
 
         assertProperties("UN-MANAGED:hello, MANAGED_ACCESS_OTHER_COLUMNS:hello ptr", e1);
     }
@@ -122,8 +123,8 @@ public class PropertiesBatchManagerTest extends AssertJUnit
 
         try
         {
-            new PropertiesBatchManager().manageProperties(builder.getSampleType(),
-                    Arrays.asList(s1, s2), null);
+            new PropertiesBatchManager(new ManagedPropertyEvaluatorFactory(null, null))
+                    .manageProperties(builder.getSampleType(), Arrays.asList(s1, s2), null);
         } catch (UserFailureException ufe)
         {
             assertEquals(
@@ -151,8 +152,8 @@ public class PropertiesBatchManagerTest extends AssertJUnit
 
         try
         {
-            new PropertiesBatchManager().manageProperties(builder.getExperimentTypePE(),
-                    Arrays.asList(e1), null);
+            new PropertiesBatchManager(new ManagedPropertyEvaluatorFactory(null, null))
+                    .manageProperties(builder.getExperimentTypePE(), Arrays.asList(e1), null);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {

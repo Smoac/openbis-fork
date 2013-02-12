@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 
@@ -36,10 +37,13 @@ public class ExperimentLoader
 {
     private final IDAOFactory daoFactory;
 
-    public ExperimentLoader(IDAOFactory daoFactory)
+    private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
+    public ExperimentLoader(IDAOFactory daoFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         this.daoFactory = daoFactory;
-
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     public void enrichWithExperiments(Collection<Sample> samples)
@@ -65,7 +69,8 @@ public class ExperimentLoader
         for (ExperimentPE experiment : experiments)
         {
             Experiment e =
-                    ExperimentTranslator.translate(experiment, "", null, LoadableFields.PROPERTIES);
+                    ExperimentTranslator.translate(experiment, "", null,
+                            managedPropertyEvaluatorFactory, LoadableFields.PROPERTIES);
             List<Sample> list = samplesByID.get(experiment.getId());
             for (Sample sample : list)
             {

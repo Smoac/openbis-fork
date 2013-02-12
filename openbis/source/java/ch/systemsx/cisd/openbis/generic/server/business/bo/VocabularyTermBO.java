@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * The only productive implementation of {@link IVocabularyTermBO}.
@@ -37,9 +38,10 @@ public final class VocabularyTermBO extends AbstractBusinessObject implements IV
 {
     private VocabularyTermPE vocabularyTermPE;
 
-    public VocabularyTermBO(final IDAOFactory daoFactory, final Session session)
+    public VocabularyTermBO(final IDAOFactory daoFactory, final Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
     }
 
     //

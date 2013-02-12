@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -67,18 +68,21 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
 
     public SampleBO(final IDAOFactory daoFactory, final Session session,
             final IRelationshipService relationshipService,
-            final IEntityOperationChecker entityOperationChecker)
+            final IEntityOperationChecker entityOperationChecker,
+            final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session, relationshipService, entityOperationChecker);
+        super(daoFactory, session, relationshipService, entityOperationChecker,
+                managedPropertyEvaluatorFactory);
     }
 
     SampleBO(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter,
             IRelationshipService relationshipService,
-            final IEntityOperationChecker entityOperationChecker)
+            final IEntityOperationChecker entityOperationChecker,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         super(daoFactory, session, entityPropertiesConverter, relationshipService,
-                entityOperationChecker);
+                entityOperationChecker, managedPropertyEvaluatorFactory);
     }
 
     //

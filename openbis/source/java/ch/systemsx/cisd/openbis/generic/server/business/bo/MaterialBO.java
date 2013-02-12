@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -54,9 +55,10 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
 
     private boolean dataChanged;
 
-    public MaterialBO(final IDAOFactory daoFactory, final Session session)
+    public MaterialBO(final IDAOFactory daoFactory, final Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
     }
 
     @Override

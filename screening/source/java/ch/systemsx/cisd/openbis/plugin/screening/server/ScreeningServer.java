@@ -33,6 +33,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
@@ -69,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MetaprojectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
@@ -165,6 +167,9 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Resource(name = ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER)
     private IGenericServer genericServer;
 
+    @Resource(name = ComponentNames.MANAGED_PROPERTY_EVALUATOR_FACTORY)
+    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
     private AnalysisSettings analysisSettings;
 
     public ScreeningServer()
@@ -227,7 +232,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                         session.tryGetPerson(), sample);
         return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
                 .getSampleInfo(session, sample), session.getBaseIndexURL(), MetaprojectTranslator
-                .translate(metaprojectPEs));
+                .translate(metaprojectPEs), managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -237,7 +242,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             TechId plateId)
     {
         Session session = getSession(sessionToken);
-        return PlateContentLoader.loadImagesAndMetadata(session, businessObjectFactory, plateId);
+        return PlateContentLoader.loadImagesAndMetadata(session, businessObjectFactory,
+                managedPropertyEvaluatorFactory, plateId);
     }
 
     @Override
@@ -247,8 +253,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             DatasetReference dataset, CodeAndLabel featureName)
     {
         Session session = getSession(sessionToken);
-        return PlateContentLoader.loadFeatureVectorDataset(session, businessObjectFactory, dataset,
-                featureName);
+        return PlateContentLoader.loadFeatureVectorDataset(session, businessObjectFactory,
+                managedPropertyEvaluatorFactory, dataset, featureName);
     }
 
     @Override
@@ -259,7 +265,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         Session session = getSession(sessionToken);
         return PlateContentLoader.loadImagesAndMetadataForDataset(session, businessObjectFactory,
-                datasetId);
+                managedPropertyEvaluatorFactory, datasetId);
     }
 
     @Override
@@ -314,8 +320,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             String datasetCode, String datastoreCode, WellLocation wellLocationOrNull)
     {
         Session session = getSession(sessionToken);
-        return LogicalImageLoader.loadLogicalImageInfo(session, businessObjectFactory, datasetCode,
-                datastoreCode, wellLocationOrNull);
+        return LogicalImageLoader.loadLogicalImageInfo(session, businessObjectFactory,
+                managedPropertyEvaluatorFactory, datasetCode, datastoreCode, wellLocationOrNull);
     }
 
     @Override
@@ -326,7 +332,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         Session session = getSession(sessionToken);
         return LogicalImageLoader.getImageDatasetReference(session, businessObjectFactory,
-                datasetCode, datastoreCode);
+                managedPropertyEvaluatorFactory, datasetCode, datastoreCode);
     }
 
     @Override
@@ -349,7 +355,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         Session session = getSession(sessionToken);
         return PlateContentLoader.getImageDatasetInfosForSample(session, businessObjectFactory,
-                sampleId, wellLocationOrNull);
+                managedPropertyEvaluatorFactory, sampleId, wellLocationOrNull);
     }
 
     @Override
@@ -658,7 +664,8 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     private ScreeningApiImpl createScreeningApiImpl(String sessionToken)
     {
         final Session session = getSession(sessionToken);
-        return new ScreeningApiImpl(session, businessObjectFactory, getDAOFactory());
+        return new ScreeningApiImpl(session, businessObjectFactory, getDAOFactory(),
+                managedPropertyEvaluatorFactory);
     }
 
     @Override

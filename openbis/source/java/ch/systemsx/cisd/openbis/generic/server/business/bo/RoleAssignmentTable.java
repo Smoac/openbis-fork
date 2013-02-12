@@ -29,13 +29,14 @@ import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * The only productive implementation of {@link IRoleAssignmentTable}. We are using an interface
@@ -52,9 +53,10 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
 
     private TableMap<String, AuthorizationGroupPE> authorizationGroupsByCode;
 
-    public RoleAssignmentTable(final IDAOFactory daoFactory, final Session session)
+    public RoleAssignmentTable(final IDAOFactory daoFactory, final Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
     }
 
     private final PersonPE getPerson(final String userId)

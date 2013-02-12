@@ -50,18 +50,18 @@ public final class ScriptBOTest extends AbstractBOTest
     {
         return new Object[][]
             {
-                    {
-                            ScriptType.DYNAMIC_PROPERTY,
-                            "Error evaluating '1+': SyntaxError: "
-                                    + "(\"no viable alternative at input ')'\", "
-                                    + "('expression: 1+', 1, 14, '__result__=(1+)\\n'))" },
-                    {
-                            ScriptType.MANAGED_PROPERTY,
-                            "SyntaxError: (\"no viable alternative at input '\\\\n\\\\n'\", "
-                                    + "('<string>', 1, 2, '1+\\n'))" }
+                        {
+                                ScriptType.DYNAMIC_PROPERTY,
+                                "Error evaluating '1+': SyntaxError: "
+                                        + "(\"no viable alternative at input ')'\", "
+                                        + "('expression: 1+', 1, 14, '__result__=(1+)\\n'))" },
+                        {
+                                ScriptType.MANAGED_PROPERTY,
+                                "SyntaxError: (\"no viable alternative at input '\\\\n\\\\n'\", "
+                                        + "('<string>', 1, 2, '1+\\n'))" }
 
-        };
-}
+            };
+    }
 
     private static final String SCRIPT = "1+1";
 
@@ -71,7 +71,8 @@ public final class ScriptBOTest extends AbstractBOTest
 
     private final ScriptBO createScriptBO()
     {
-        return new ScriptBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, scriptFactory);
+        return new ScriptBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, scriptFactory,
+                managedPropertyEvaluatorFactory);
     }
 
     @Test

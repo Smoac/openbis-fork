@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -54,24 +55,28 @@ public final class MaterialTranslator
     }
 
     public final static List<Material> translate(final List<MaterialPE> materials,
-            Map<Long, Set<Metaproject>> metaprojects)
+            Map<Long, Set<Metaproject>> metaprojects,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         final List<Material> result = new ArrayList<Material>();
         for (final MaterialPE material : materials)
         {
-            result.add(MaterialTranslator.translate(material, metaprojects.get(material.getId())));
+            result.add(MaterialTranslator.translate(material, metaprojects.get(material.getId()),
+                    managedPropertyEvaluatorFactory));
         }
         return result;
     }
 
     public final static Material translate(final MaterialPE materialPE,
-            Collection<Metaproject> metaprojects)
+            Collection<Metaproject> metaprojects,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        return translate(materialPE, true, metaprojects);
+        return translate(materialPE, true, metaprojects, managedPropertyEvaluatorFactory);
     }
 
     public final static Material translate(final MaterialPE materialPE,
-            final boolean withProperties, Collection<Metaproject> metaprojects)
+            final boolean withProperties, Collection<Metaproject> metaprojects,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         if (materialPE == null)
         {
@@ -89,7 +94,7 @@ public final class MaterialTranslator
         result.setRegistrationDate(materialPE.getRegistrationDate());
         if (withProperties)
         {
-            setProperties(materialPE, result);
+            setProperties(materialPE, result, managedPropertyEvaluatorFactory);
         }
 
         if (metaprojects != null)
@@ -100,12 +105,13 @@ public final class MaterialTranslator
         return result;
     }
 
-    private static void setProperties(final MaterialPE materialPE, final Material result)
+    private static void setProperties(final MaterialPE materialPE, final Material result,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         if (materialPE.isPropertiesInitialized())
         {
             result.setProperties(EntityPropertyTranslator.translate(materialPE.getProperties(),
-                    new HashMap<PropertyTypePE, PropertyType>()));
+                    new HashMap<PropertyTypePE, PropertyType>(), managedPropertyEvaluatorFactory));
         } else
         {
             result.setProperties(new ArrayList<IEntityProperty>());

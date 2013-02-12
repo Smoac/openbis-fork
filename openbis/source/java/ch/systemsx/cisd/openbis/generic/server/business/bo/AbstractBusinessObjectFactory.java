@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * An <i>abstract</i> <i>Business Object</i> factory.
@@ -44,6 +45,9 @@ public abstract class AbstractBusinessObjectFactory
 
     private IServiceConversationClientManagerLocal conversationClient;
 
+    @Resource(name = ComponentNames.MANAGED_PROPERTY_EVALUATOR_FACTORY)
+    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
     protected AbstractBusinessObjectFactory()
     {
     }
@@ -51,13 +55,15 @@ public abstract class AbstractBusinessObjectFactory
     protected AbstractBusinessObjectFactory(final IDAOFactory daoFactory,
             IDataStoreServiceFactory dssFactory, IRelationshipService relationshipService,
             IEntityOperationChecker entityOperationChecker,
-            IServiceConversationClientManagerLocal conversationClient)
+            IServiceConversationClientManagerLocal conversationClient,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         this.daoFactory = daoFactory;
         this.dssFactory = dssFactory;
         this.relationshipService = relationshipService;
         this.entityOperationChecker = entityOperationChecker;
         this.conversationClient = conversationClient;
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     protected final IDAOFactory getDaoFactory()
@@ -85,4 +91,8 @@ public abstract class AbstractBusinessObjectFactory
         return conversationClient;
     }
 
+    protected IManagedPropertyEvaluatorFactory getManagedPropertyEvaluatorFactory()
+    {
+        return managedPropertyEvaluatorFactory;
+    }
 }

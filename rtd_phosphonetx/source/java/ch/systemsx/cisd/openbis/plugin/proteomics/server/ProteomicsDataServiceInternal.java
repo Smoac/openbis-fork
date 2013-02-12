@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MetaprojectTranslator;
@@ -94,26 +95,32 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
 
     private IBusinessObjectFactory boFactory;
 
+    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
     public ProteomicsDataServiceInternal()
     {
     }
 
     public ProteomicsDataServiceInternal(ISessionManager<Session> sessionManager,
             IDAOFactory daoFactory, ICommonBusinessObjectFactory businessObjectFactory,
-            IBusinessObjectFactory boFactory)
+            IBusinessObjectFactory boFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        this(sessionManager, daoFactory, null, businessObjectFactory, boFactory);
+        this(sessionManager, daoFactory, null, businessObjectFactory, boFactory,
+                managedPropertyEvaluatorFactory);
     }
 
     ProteomicsDataServiceInternal(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             IPropertiesBatchManager propertiesBatchManager,
-            ICommonBusinessObjectFactory businessObjectFactory, IBusinessObjectFactory boFactory)
+            ICommonBusinessObjectFactory businessObjectFactory, IBusinessObjectFactory boFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         super(sessionManager, daoFactory, propertiesBatchManager);
         sessionManagerFromConstructor = sessionManager;
         this.commonBoFactory = businessObjectFactory;
         this.boFactory = boFactory;
-        experimentLoader = new ExperimentLoader(getDAOFactory());
+        experimentLoader = new ExperimentLoader(getDAOFactory(), managedPropertyEvaluatorFactory);
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     public void replaceAutoWiredSesseionManagerByConstructorSessionManager()
@@ -194,7 +201,8 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
                         session.tryGetPerson(), experiments, EntityKind.EXPERIMENT);
         Map<Long, Set<Metaproject>> assignments =
                 MetaprojectTranslator.translateMetaprojectAssignments(assignmentPEs);
-        return ExperimentTranslator.translate(experiments, "", assignments);
+        return ExperimentTranslator.translate(experiments, "", assignments,
+                managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -212,7 +220,8 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
                 getDAOFactory().getMetaprojectDAO().listMetaprojectAssignmentsForEntities(
                         session.tryGetPerson(), dataSetPEs, EntityKind.DATA_SET);
         return DataSetTranslator.translate(dataSetPEs, "", "",
-                MetaprojectTranslator.translateMetaprojectAssignments(assignmentPEs));
+                MetaprojectTranslator.translateMetaprojectAssignments(assignmentPEs),
+                managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -236,7 +245,9 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
                         + " [" + experiment.getIdentifier() + "] is not of type " + experimentType
                         + " but of type " + actualExperimentTypeCode + ".");
             }
-            Experiment translatedExperiment = ExperimentTranslator.translate(experiment, "", null);
+            Experiment translatedExperiment =
+                    ExperimentTranslator.translate(experiment, "", null,
+                            managedPropertyEvaluatorFactory);
             if (EXPERIMENT_VALIDATOR.isValid(person, translatedExperiment))
             {
                 List<DataPE> dataSets = dataSetDAO.listDataSets(experiment);

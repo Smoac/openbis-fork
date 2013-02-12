@@ -44,4 +44,9 @@ public final class ComponentNames
     public static final String COMMON_BUSINESS_OBJECT_FACTORY = "common-business-object-factory";
 
     public static final String REMOTE_HOST_VALIDATOR = "remote-host-validator";
+
+    public static final String MANAGED_PROPERTY_EVALUATOR_FACTORY =
+            "managed-property-evaluator-factory";
+
+    public static final String PROPERTIES_BATCH_MANAGER = "properties-batch-manager";
 }

@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractASyncAction;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.MaterialHelper;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
@@ -118,6 +119,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MetaprojectTranslator;
@@ -143,6 +145,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     @Resource(name = ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER)
     private IGenericServer genericServer;
+
+    @Resource(name = ComponentNames.MANAGED_PROPERTY_EVALUATOR_FACTORY)
+    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
     public GenericServer()
     {
@@ -194,7 +199,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                         session.tryGetPerson(), sample);
         return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
                 .getSampleInfo(session, sample), session.getBaseIndexURL(), MetaprojectTranslator
-                .translate(metaprojectPEs));
+                .translate(metaprojectPEs), managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -240,7 +245,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                     "No experiment could be found with given identifier '%s'.", identifier);
         }
         return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
-                MetaprojectTranslator.translate(metaprojectPEs),
+                MetaprojectTranslator.translate(metaprojectPEs), managedPropertyEvaluatorFactory,
                 ExperimentTranslator.LoadableFields.PROPERTIES,
                 ExperimentTranslator.LoadableFields.ATTACHMENTS);
     }
@@ -257,7 +262,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
                         session.tryGetPerson(), experiment);
         return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
-                MetaprojectTranslator.translate(metaprojectPEs),
+                MetaprojectTranslator.translate(metaprojectPEs), managedPropertyEvaluatorFactory,
                 ExperimentTranslator.LoadableFields.PROPERTIES,
                 ExperimentTranslator.LoadableFields.ATTACHMENTS);
     }
@@ -985,7 +990,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     {
         final MaterialHelper materialHelper =
                 new MaterialHelper(session, businessObjectFactory, getDAOFactory(),
-                        getPropertiesBatchManager());
+                        getPropertiesBatchManager(), managedPropertyEvaluatorFactory);
         return materialHelper;
     }
 

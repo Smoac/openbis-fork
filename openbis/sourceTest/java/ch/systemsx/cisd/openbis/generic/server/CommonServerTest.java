@@ -35,6 +35,8 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculatorFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.EntityValidatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
@@ -96,6 +98,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.builders.ExperimentTypePEBuil
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
@@ -128,7 +131,10 @@ public final class CommonServerTest extends AbstractServerTestCase
         CommonServer server =
                 new CommonServer(authenticationService, sessionManager, daoFactory,
                         propertiesBatchManager, commonBusinessObjectFactory,
-                        dataStoreServiceRegistrator, new LastModificationState());
+                        dataStoreServiceRegistrator, new LastModificationState(),
+                        new EntityValidatorFactory(null, null),
+                        new DynamicPropertyCalculatorFactory(null, null),
+                        new ManagedPropertyEvaluatorFactory(null, null));
         server.setSampleTypeSlaveServerPlugin(sampleTypeSlaveServerPlugin);
         server.setDataSetTypeSlaveServerPlugin(dataSetTypeSlaveServerPlugin);
         server.setBaseIndexURL(SESSION_TOKEN, BASE_INDEX_URL);
@@ -575,7 +581,8 @@ public final class CommonServerTest extends AbstractServerTestCase
         dataStorePE.setCode("DST");
         externalDataPE.setDataStore(dataStorePE);
         final ExternalData externalData =
-                DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null);
+                DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
+                        new ManagedPropertyEvaluatorFactory(null, null));
         prepareGetSession();
         final boolean showOnlyDirectlyConnected = true;
         context.checking(new Expectations()
@@ -614,7 +621,8 @@ public final class CommonServerTest extends AbstractServerTestCase
         dataStorePE.setCode("DST");
         externalDataPE.setDataStore(dataStorePE);
         final ExternalData externalData =
-                DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null);
+                DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
+                        new ManagedPropertyEvaluatorFactory(null, null));
         prepareGetSession();
         context.checking(new Expectations()
             {

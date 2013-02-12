@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -77,16 +78,18 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
 
     private VocabularyPE vocabularyPE;
 
-    public VocabularyBO(final IDAOFactory daoFactory, final Session session)
+    public VocabularyBO(final IDAOFactory daoFactory, final Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
     }
 
     // For tests only
     @Private
-    VocabularyBO(final IDAOFactory daoFactory, final Session session, VocabularyPE vocabulary)
+    VocabularyBO(final IDAOFactory daoFactory, final Session session, VocabularyPE vocabulary,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
         vocabularyPE = vocabulary;
     }
 

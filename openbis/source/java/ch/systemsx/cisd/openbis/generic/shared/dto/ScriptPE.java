@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.collection.UnmodifiableListDecorator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
@@ -64,6 +65,8 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
     protected Long id;
 
     private ScriptType scriptType;
+
+    private PluginType pluginType;
 
     private String name;
 
@@ -144,7 +147,6 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
     }
 
     @Column(name = ColumnNames.SCRIPT_COLUMN)
-    @NotNull(message = ValidationMessages.SCRIPT_NOT_NULL_MESSAGE)
     @Length(min = 1, message = ValidationMessages.EXPRESSION_LENGTH_MESSAGE)
     public String getScript()
     {
@@ -295,6 +297,19 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
     public void setScriptType(ScriptType scriptType)
     {
         this.scriptType = scriptType;
+    }
+
+    @NotNull(message = ValidationMessages.PLUGIN_TYPE_NOT_NULL_MESSAGE)
+    @Column(name = ColumnNames.PLUGIN_TYPE)
+    @Enumerated(EnumType.STRING)
+    public PluginType getPluginType()
+    {
+        return pluginType;
+    }
+
+    public void setPluginType(PluginType pluginType)
+    {
+        this.pluginType = pluginType;
     }
 
     @Transient

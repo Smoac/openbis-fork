@@ -101,6 +101,9 @@ class ReflectionStringTraverser
             LogUtils.logErrorWithFailingAssertion(log,
                     "Cannot traverse primitive collections or primitives " + object);
             return;
+        } else if (isArrayList(object))
+        {
+            traverseArrayList(object);
         } else if (clazz.isArray())
         {
             traverseArray(clazz);
@@ -272,7 +275,7 @@ class ReflectionStringTraverser
     private boolean isMutable(Object element)
     {
         return isString(element) == false && element.getClass().isPrimitive() == false
-                && isStringCollection(element) == false;
+                && (isStringCollection(element) == false || isArrayList(element));
     }
 
     private Collection<String> visitStringCollection(Object collection)
@@ -319,11 +322,51 @@ class ReflectionStringTraverser
         }
     }
 
+    private void traverseArrayList(Object arrayListObject)
+    {
+        ArrayList<?> arrayList = (ArrayList<?>) arrayListObject;
+        int length = arrayList.size();
+
+        for (int index = 0; index < length; ++index)
+        {
+            Object element = arrayList.get(index);
+            if (element == null)
+            {
+                continue;
+            }
+            if (element.getClass().isPrimitive())
+            {
+                return; // do nothing
+            } else if (isString(element))
+            {
+                visitStringArrayListElement(arrayList, index, (String) element);
+            } else
+            {
+                if (isStringCollection(element))
+                {
+                    visitStringCollectionArrayListElement(arrayList, index, element);
+                } else
+                {
+                    traverseMutable(element, element.getClass());
+                }
+            }
+        }
+    }
+
     // array[index] contains collection of primitive types which will be modified if necessary
     private void visitStringCollectionArrayElement(Object array, int index, Object collection)
     {
         Collection<String> newCollection = visitStringCollection(collection);
         Array.set(array, index, newCollection);
+    }
+
+    // arrayList[index] contains collection of primitive types which will be modified if necessary
+    @SuppressWarnings("unchecked")
+    private void visitStringCollectionArrayListElement(@SuppressWarnings("rawtypes")
+    ArrayList arrayList, int index, Object collection)
+    {
+        Collection<String> newCollection = visitStringCollection(collection);
+        arrayList.set(index, newCollection);
     }
 
     // array[index] contains a value of primitive type which will be modified if necessary
@@ -334,6 +377,18 @@ class ReflectionStringTraverser
         if (newElement != null)
         {
             Array.set(array, index, newElement);
+        }
+    }
+
+    // arrayList[index] contains a value of primitive type which will be modified if necessary
+    @SuppressWarnings("unchecked")
+    private void visitStringArrayListElement(@SuppressWarnings("rawtypes")
+    ArrayList arrayList, int index, String element)
+    {
+        String newElement = tryVisitString(element);
+        if (newElement != null)
+        {
+            arrayList.set(index, newElement);
         }
     }
 
@@ -407,5 +462,10 @@ class ReflectionStringTraverser
     private static boolean isCollection(final Object o)
     {
         return o instanceof Collection<?>;
+    }
+
+    private static boolean isArrayList(final Object o)
+    {
+        return o instanceof ArrayList<?>;
     }
 }

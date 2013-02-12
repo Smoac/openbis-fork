@@ -124,6 +124,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatabaseInstancePEBu
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 
 /**
  * @author Franz-Josef Elmer
@@ -167,6 +169,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private ISessionManager<Session> sessionManagerForEntityOperations;
 
+    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
     private PersonPE sessionPerson;
 
     private IDataStoreDataSourceManager dataSourceManager;
@@ -189,6 +193,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                 context.mock(ISessionManager.class, "sessionManagerForEntityOperations");
         sessionPerson = new PersonPE();
         session.setPerson(sessionPerson);
+        managedPropertyEvaluatorFactory = new ManagedPropertyEvaluatorFactory(null, null);
     }
 
     @Test
@@ -1520,7 +1525,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                 new ETLService(authenticationService, sessionManager, daoFactory,
                         propertiesBatchManager, boFactory, dssfactory, null,
                         entityOperationChecker, dataStoreServiceRegistrator, dataSourceManager,
-                        sessionManagerForEntityOperations);
+                        sessionManagerForEntityOperations, managedPropertyEvaluatorFactory);
         etlService.setConversationClient(conversationClient);
         etlService.setConversationServer(conversationServer);
         etlService.setDisplaySettingsProvider(new DisplaySettingsProvider());

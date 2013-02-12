@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * The only productive implementation of {@link IExperimentTable}.
@@ -69,15 +70,17 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     private IRelationshipService relationshipService;
 
     ExperimentTable(final IDAOFactory daoFactory, final Session session,
-            IEntityPropertiesConverter converter)
+            IEntityPropertiesConverter converter,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session, converter);
+        super(daoFactory, session, converter, managedPropertyEvaluatorFactory);
     }
 
     public ExperimentTable(final IDAOFactory daoFactory, final Session session,
-            IRelationshipService relationshipService)
+            IRelationshipService relationshipService,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session, EntityKind.EXPERIMENT);
+        super(daoFactory, session, EntityKind.EXPERIMENT, managedPropertyEvaluatorFactory);
         this.relationshipService = relationshipService;
     }
 

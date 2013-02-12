@@ -97,36 +97,42 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
 
         for (EntityPropertyPE property : propertiesHolder.getProperties())
         {
-            EntityTypePropertyTypePE etpt = property.getEntityTypePropertyType();
-            final PropertyTypePE propertyType = etpt.getPropertyType();
-            final String propertyTypeCode = propertyType.getCode();
-            if (etpt.isDynamic())
+            addProperty(adaptEntityProperty(property, this, evaluator));
+        }
+    }
+
+    public static IEntityPropertyAdaptor adaptEntityProperty(EntityPropertyPE property,
+            IEntityAdaptor entityAdaptor, IDynamicPropertyEvaluator evaluator)
+    {
+        EntityTypePropertyTypePE etpt = property.getEntityTypePropertyType();
+        final PropertyTypePE propertyType = etpt.getPropertyType();
+        final String propertyTypeCode = propertyType.getCode();
+        if (etpt.isDynamic())
+        {
+            return new DynamicPropertyAdaptor(propertyTypeCode, entityAdaptor, property, evaluator);
+        } else
+        {
+            final String value;
+            if (property.getMaterialValue() != null)
             {
-                addProperty(new DynamicPropertyAdaptor(propertyTypeCode, this, property, evaluator));
+                final MaterialPE material = property.getMaterialValue();
+                value =
+                        MaterialIdentifier.print(material.getCode(), material.getEntityType()
+                                .getCode());
+            } else if (property.getVocabularyTerm() != null)
+            {
+                value = property.getVocabularyTerm().getCode();
             } else
             {
-                final String value;
-                if (property.getMaterialValue() != null)
-                {
-                    final MaterialPE material = property.getMaterialValue();
-                    value =
-                            MaterialIdentifier.print(material.getCode(), material.getEntityType()
-                                    .getCode());
-                } else if (property.getVocabularyTerm() != null)
-                {
-                    value = property.getVocabularyTerm().getCode();
-                } else
-                {
-                    value = property.getValue();
-                }
-                if (propertyType.getTransformation() == null)
-                {
-                    addProperty(new BasicPropertyAdaptor(propertyTypeCode, value, property));
-                } else
-                {
-                    addProperty(new XmlPropertyAdaptor(propertyTypeCode, value, property,
-                            propertyType.getTransformation()));
-                }
+                value = property.getValue();
+            }
+            if (propertyType.getTransformation() == null)
+            {
+                return new BasicPropertyAdaptor(propertyTypeCode, value, property);
+            } else
+            {
+                return new XmlPropertyAdaptor(propertyTypeCode, value, property,
+                        propertyType.getTransformation());
             }
         }
     }

@@ -95,7 +95,7 @@ public class GridCustomFilterBOTest extends AbstractBOTest
 
     private final IGridCustomFilterOrColumnBO createFilterBO()
     {
-        return new GridCustomFilterBO(daoFactory, EXAMPLE_SESSION);
+        return new GridCustomFilterBO(daoFactory, EXAMPLE_SESSION, managedPropertyEvaluatorFactory);
     }
 
 }

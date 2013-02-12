@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.ICorePluginResourceLoader;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.CorePluginTranslator;
 
 /**
@@ -52,9 +53,10 @@ public final class CorePluginTable extends AbstractBusinessObject implements ICo
     private final IMasterDataScriptRegistrationRunner masterDataScriptRunner;
 
     public CorePluginTable(IDAOFactory daoFactory, Session session,
-            IMasterDataScriptRegistrationRunner masterDataScriptRunner)
+            IMasterDataScriptRegistrationRunner masterDataScriptRunner,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
         this.masterDataScriptRunner = masterDataScriptRunner;
     }
 

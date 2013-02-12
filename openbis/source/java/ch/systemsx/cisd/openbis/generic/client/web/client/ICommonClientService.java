@@ -107,6 +107,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -1263,4 +1264,9 @@ public interface ICommonClientService extends IClientService
      * already exists.
      */
     public void registerMetaProject(String name) throws UserFailureException;
+
+    /**
+     * Lists all the available predeployed plugin names for given script type.
+     */
+    public List<String> listPredeployedPlugins(ScriptType scriptType);
 }

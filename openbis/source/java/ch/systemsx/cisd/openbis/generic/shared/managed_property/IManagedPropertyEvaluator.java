@@ -19,20 +19,19 @@ package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityPropertyAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 
 /**
  * @author Jakub Straszewski
  */
 public interface IManagedPropertyEvaluator
 {
-
     public void configureUI(final IManagedProperty managedProperty,
-            final EntityPropertyPE entityPropertyPE);
+            final IEntityPropertyAdaptor entityProperty);
 
     public void updateFromUI(final IManagedProperty managedProperty, final IPerson person,
             final IManagedUiAction action);

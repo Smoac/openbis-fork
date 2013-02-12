@@ -59,7 +59,9 @@ public class CorePluginTableTest extends AbstractBOTest
         logRecorder = new BufferedAppender();
         scriptRunner = context.mock(IMasterDataScriptRegistrationRunner.class);
         pluginResourceLoader = context.mock(ICorePluginResourceLoader.class);
-        pluginTable = new CorePluginTable(daoFactory, EXAMPLE_SESSION, scriptRunner);
+        pluginTable =
+                new CorePluginTable(daoFactory, EXAMPLE_SESSION, scriptRunner,
+                        managedPropertyEvaluatorFactory);
         createdPluginsMatcher = new RecordingMatcher<List<CorePluginPE>>();
     }
 

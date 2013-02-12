@@ -79,12 +79,13 @@ public final class VocabularyBOTest extends AbstractBOTest
 
     private final VocabularyBO createVocabularyBO()
     {
-        return new VocabularyBO(daoFactory, EXAMPLE_SESSION);
+        return new VocabularyBO(daoFactory, EXAMPLE_SESSION, managedPropertyEvaluatorFactory);
     }
 
     private final VocabularyBO createVocabularyBO(VocabularyPE vocabulary)
     {
-        return new VocabularyBO(daoFactory, EXAMPLE_SESSION, vocabulary);
+        return new VocabularyBO(daoFactory, EXAMPLE_SESSION, vocabulary,
+                managedPropertyEvaluatorFactory);
     }
 
     static final NewVocabulary createVocabulary()
@@ -331,8 +332,8 @@ public final class VocabularyBOTest extends AbstractBOTest
             vocabularyBO.addNewTerms(newTerms, 0L);
         } catch (UserFailureException e)
         {
-            assertEquals("Not allowed to add terms to an internally managed vocabulary.", e
-                    .getMessage());
+            assertEquals("Not allowed to add terms to an internally managed vocabulary.",
+                    e.getMessage());
         }
         context.assertIsSatisfied();
     }
@@ -354,12 +355,12 @@ public final class VocabularyBOTest extends AbstractBOTest
         vocabularyBO.load("voc-code");
         try
         {
-            vocabularyBO.delete(Collections.<VocabularyTerm> emptyList(), Collections
-                    .<VocabularyTermReplacement> emptyList());
+            vocabularyBO.delete(Collections.<VocabularyTerm> emptyList(),
+                    Collections.<VocabularyTermReplacement> emptyList());
         } catch (UserFailureException e)
         {
-            assertEquals("Not allowed to delete terms from an internally managed vocabulary.", e
-                    .getMessage());
+            assertEquals("Not allowed to delete terms from an internally managed vocabulary.",
+                    e.getMessage());
         }
         context.assertIsSatisfied();
     }
@@ -382,8 +383,8 @@ public final class VocabularyBOTest extends AbstractBOTest
         vocabularyBO.load("voc-code");
         try
         {
-            vocabularyBO.delete(Arrays.asList(term1), Collections
-                    .<VocabularyTermReplacement> emptyList());
+            vocabularyBO.delete(Arrays.asList(term1),
+                    Collections.<VocabularyTermReplacement> emptyList());
         } catch (IllegalArgumentException e)
         {
             assertEquals("Deletion of all 1 terms are not allowed.", e.getMessage());
@@ -415,8 +416,8 @@ public final class VocabularyBOTest extends AbstractBOTest
         vocabularyBO.load("voc-code");
         try
         {
-            vocabularyBO.delete(Arrays.asList(term1), Arrays.asList(createTermWithReplacement(
-                    term2, term1)));
+            vocabularyBO.delete(Arrays.asList(term1),
+                    Arrays.asList(createTermWithReplacement(term2, term1)));
             fail("IllegalArgumentException expected.");
         } catch (IllegalArgumentException e)
         {
@@ -447,8 +448,8 @@ public final class VocabularyBOTest extends AbstractBOTest
         vocabularyBO.load("voc-code");
         try
         {
-            vocabularyBO.delete(Collections.<VocabularyTerm> emptyList(), Arrays
-                    .asList(createTermWithReplacement(term1, term3)));
+            vocabularyBO.delete(Collections.<VocabularyTerm> emptyList(),
+                    Arrays.asList(createTermWithReplacement(term1, term3)));
             fail("IllegalArgumentException expected.");
         } catch (IllegalArgumentException e)
         {
@@ -476,8 +477,8 @@ public final class VocabularyBOTest extends AbstractBOTest
 
         VocabularyBO vocabularyBO = createVocabularyBO();
         vocabularyBO.load("voc-code");
-        vocabularyBO.delete(Arrays.asList(term1), Collections
-                .<VocabularyTermReplacement> emptyList());
+        vocabularyBO.delete(Arrays.asList(term1),
+                Collections.<VocabularyTermReplacement> emptyList());
 
         assertEquals(1, vocabulary.getTerms().size());
         context.assertIsSatisfied();
@@ -517,8 +518,8 @@ public final class VocabularyBOTest extends AbstractBOTest
 
         VocabularyBO vocabularyBO = createVocabularyBO();
         vocabularyBO.load("voc-code");
-        vocabularyBO.delete(Arrays.asList(term1), Arrays.asList(createTermWithReplacement(term2,
-                term3)));
+        vocabularyBO.delete(Arrays.asList(term1),
+                Arrays.asList(createTermWithReplacement(term2, term3)));
 
         assertEquals(term3.getCode(), entityPropertyPE.getVocabularyTerm().getCode());
         assertEquals(1, vocabulary.getTerms().size());
@@ -580,8 +581,9 @@ public final class VocabularyBOTest extends AbstractBOTest
         vocabulary.setTerms(Arrays.asList(createTermPE(RED, 1)));
         VocabularyBO bo = createVocabularyBO(vocabulary);
         VocabularyTermBatchUpdateDetails details = new VocabularyTermBatchUpdateDetails(true, true);
-        bo.updateTerms(convertToUpdatedTerms(Arrays.asList(createTerm(RED, 1),
-                createTerm(WHITE, 2), createTerm(YELLOW, 3)), details));
+        bo.updateTerms(convertToUpdatedTerms(
+                Arrays.asList(createTerm(RED, 1), createTerm(WHITE, 2), createTerm(YELLOW, 3)),
+                details));
         List<VocabularyTermPE> sorted = sortByOrdinal(bo.getVocabulary().getTerms());
 
         assertEquals(RED, sorted.get(0).getCode());
@@ -598,8 +600,9 @@ public final class VocabularyBOTest extends AbstractBOTest
                 createTermPE(YELLOW, 3)));
         VocabularyBO bo = createVocabularyBO(vocabulary);
         VocabularyTermBatchUpdateDetails details = new VocabularyTermBatchUpdateDetails(true, true);
-        bo.updateTerms(convertToUpdatedTerms(Arrays.asList(createTerm(WHITE, 1), createTerm(YELLOW,
-                2), createTerm(RED, 3)), details));
+        bo.updateTerms(convertToUpdatedTerms(
+                Arrays.asList(createTerm(WHITE, 1), createTerm(YELLOW, 2), createTerm(RED, 3)),
+                details));
         List<VocabularyTermPE> sorted = sortByOrdinal(bo.getVocabulary().getTerms());
 
         assertEquals(WHITE, sorted.get(0).getCode());
@@ -613,13 +616,15 @@ public final class VocabularyBOTest extends AbstractBOTest
         // change label but leave description untouched
         VocabularyPE vocabulary = new VocabularyPE();
         vocabulary.setManagedInternally(false);
-        vocabulary.setTerms(Arrays.asList(createTermPEWithLabelAndDescription(RED, LABEL_A, DESC_A,
-                1), createTermPEWithLabelAndDescription(WHITE, LABEL_B, DESC_B, 2)));
+        vocabulary.setTerms(Arrays.asList(
+                createTermPEWithLabelAndDescription(RED, LABEL_A, DESC_A, 1),
+                createTermPEWithLabelAndDescription(WHITE, LABEL_B, DESC_B, 2)));
         VocabularyBO bo = createVocabularyBO(vocabulary);
         VocabularyTermBatchUpdateDetails details =
                 new VocabularyTermBatchUpdateDetails(true, false);
-        bo.updateTerms(convertToUpdatedTerms(Arrays.asList(createTermWithLabel(RED, LABEL_C, 1),
-                createTermWithLabel(WHITE, LABEL_D, 2)), details));
+        bo.updateTerms(convertToUpdatedTerms(
+                Arrays.asList(createTermWithLabel(RED, LABEL_C, 1),
+                        createTermWithLabel(WHITE, LABEL_D, 2)), details));
         List<VocabularyTermPE> sorted = sortByOrdinal(bo.getVocabulary().getTerms());
 
         assertEquals(RED, sorted.get(0).getCode());
@@ -637,14 +642,15 @@ public final class VocabularyBOTest extends AbstractBOTest
         // change description but leave label untouched
         VocabularyPE vocabulary = new VocabularyPE();
         vocabulary.setManagedInternally(false);
-        vocabulary.setTerms(Arrays.asList(createTermPEWithLabelAndDescription(RED, LABEL_A, DESC_A,
-                1), createTermPEWithLabelAndDescription(WHITE, LABEL_B, DESC_B, 2)));
+        vocabulary.setTerms(Arrays.asList(
+                createTermPEWithLabelAndDescription(RED, LABEL_A, DESC_A, 1),
+                createTermPEWithLabelAndDescription(WHITE, LABEL_B, DESC_B, 2)));
         VocabularyBO bo = createVocabularyBO(vocabulary);
         VocabularyTermBatchUpdateDetails details =
                 new VocabularyTermBatchUpdateDetails(false, true);
-        bo.updateTerms(convertToUpdatedTerms(Arrays.asList(
-                createTermWithDescription(RED, DESC_C, 1), createTermWithDescription(WHITE, DESC_D,
-                        2)), details));
+        bo.updateTerms(convertToUpdatedTerms(
+                Arrays.asList(createTermWithDescription(RED, DESC_C, 1),
+                        createTermWithDescription(WHITE, DESC_D, 2)), details));
         List<VocabularyTermPE> sorted = sortByOrdinal(bo.getVocabulary().getTerms());
 
         assertEquals(RED, sorted.get(0).getCode());

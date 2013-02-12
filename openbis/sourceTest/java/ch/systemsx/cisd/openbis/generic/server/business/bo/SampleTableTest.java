@@ -86,7 +86,8 @@ public final class SampleTableTest extends AbstractBOTest
 
     private final SampleTable createSampleTableBO()
     {
-        return new SampleTable(daoFactory, EXAMPLE_SESSION, null, entityOperationChecker);
+        return new SampleTable(daoFactory, EXAMPLE_SESSION, null, entityOperationChecker,
+                managedPropertyEvaluatorFactory);
     }
 
     private final static SampleIdentifier getSharedSampleIdentifier(final String code)

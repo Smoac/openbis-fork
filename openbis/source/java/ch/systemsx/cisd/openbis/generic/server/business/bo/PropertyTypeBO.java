@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.XmlUtils;
 
 /**
@@ -59,9 +60,10 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
 {
     private PropertyTypePE propertyTypePE;
 
-    public PropertyTypeBO(final IDAOFactory daoFactory, final Session session)
+    public PropertyTypeBO(final IDAOFactory daoFactory, final Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
     }
 
     //

@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvider;
@@ -74,22 +75,27 @@ public class MaterialHelper
 
     private final MaterialConfigurationProvider materialConfig;
 
+    private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
     public MaterialHelper(Session session, IAbstractBussinessObjectFactory businessObjectFactory,
-            IDAOFactory daoFactory, IPropertiesBatchManager propertiesBatchManager)
+            IDAOFactory daoFactory, IPropertiesBatchManager propertiesBatchManager,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         this(session, businessObjectFactory, daoFactory, propertiesBatchManager,
-                MaterialConfigurationProvider.getInstance());
+                MaterialConfigurationProvider.getInstance(), managedPropertyEvaluatorFactory);
     }
 
     MaterialHelper(Session session, IAbstractBussinessObjectFactory businessObjectFactory,
             IDAOFactory daoFactory, IPropertiesBatchManager propertiesBatchManager,
-            MaterialConfigurationProvider materialConfig)
+            MaterialConfigurationProvider materialConfig,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
         this.daoFactory = daoFactory;
         this.propertiesBatchManager = propertiesBatchManager;
         this.materialConfig = materialConfig;
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     public List<Material> registerMaterials(String materialTypeCode,
@@ -142,7 +148,7 @@ public class MaterialHelper
         BatchOperationExecutor.executeInBatches(strategy);
 
         return MaterialTranslator.translate(registeredMaterials,
-                new HashMap<Long, Set<Metaproject>>());
+                new HashMap<Long, Set<Metaproject>>(), managedPropertyEvaluatorFactory);
     }
 
     public int updateMaterials(String materialTypeCode, final List<NewMaterial> newMaterials,

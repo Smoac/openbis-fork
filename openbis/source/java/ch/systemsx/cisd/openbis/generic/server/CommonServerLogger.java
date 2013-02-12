@@ -1685,4 +1685,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 metaprojectId, notNullUpdate.getName(), notNullUpdate.getDescription());
         return null;
     }
+
+    @Override
+    public List<String> listPredeployedPlugins(String sessionToken, ScriptType scriptType)
+    {
+        logAccess(sessionToken, "list_predeployed_plugins", "SCRIPT_TYPE(%s)", scriptType);
+        return null;
+    }
 }

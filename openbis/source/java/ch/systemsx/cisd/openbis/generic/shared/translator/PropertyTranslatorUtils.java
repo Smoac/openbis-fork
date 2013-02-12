@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.AbstractEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -29,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermEntityPro
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluator;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * Some utility methods for entity property translations.
@@ -74,16 +75,21 @@ final class PropertyTranslatorUtils
      * Creates a managed {@link IEntityProperty} wrapping given <var>basicProperty</var>.
      */
     static IEntityProperty createManagedEntityProperty(EntityPropertyPE property,
-            IEntityProperty basicProperty)
+            IEntityProperty basicProperty,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         final ManagedEntityProperty result = new ManagedEntityProperty(basicProperty);
         try
         {
             // TODO move this outside of translator
             IManagedPropertyEvaluator evaluator =
-                    ManagedPropertyEvaluatorFactory.createManagedPropertyEvaluator(property
+                    managedPropertyEvaluatorFactory.createManagedPropertyEvaluator(property
                             .getEntityTypePropertyType());
-            evaluator.configureUI(result, property);
+
+            // we can provide null parameters, as we are sure, that this is a managed property (so
+            // it can't be dynamic property)
+            evaluator.configureUI(result,
+                    AbstractEntityAdaptor.adaptEntityProperty(property, null, null));
         } catch (EvaluatorException ex)
         {
             result.setValue(BasicConstant.ERROR_PROPERTY_PREFIX + ex.getMessage());

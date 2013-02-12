@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * The only productive implementation of {@link IAttachmentBO}.
@@ -43,9 +44,10 @@ public final class AttachmentBO extends AbstractBusinessObject implements IAttac
 
     private boolean dataChanged;
 
-    public AttachmentBO(final IDAOFactory daoFactory, final Session session)
+    public AttachmentBO(final IDAOFactory daoFactory, final Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
     }
 
     @Override

@@ -24,14 +24,15 @@ import ch.systemsx.cisd.openbis.plugin.AbstractPluginBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.dataaccess.IPhosphoNetXDAOFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class BusinessObjectFactory  extends AbstractPluginBusinessObjectFactory implements IBusinessObjectFactory
+public class BusinessObjectFactory extends AbstractPluginBusinessObjectFactory implements
+        IBusinessObjectFactory
 {
     private final IDAOFactory daoFactory;
+
     private final IPhosphoNetXDAOFactory specificDAOFactory;
+
     private final ICommonBusinessObjectFactory businessObjectFactory;
 
     public BusinessObjectFactory(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory,
@@ -65,7 +66,7 @@ public class BusinessObjectFactory  extends AbstractPluginBusinessObjectFactory 
     {
         return new ProteinSummaryTable(daoFactory, specificDAOFactory, session);
     }
-    
+
     @Override
     public IProteinSequenceTable createProteinSequenceTable(Session session)
     {
@@ -87,13 +88,15 @@ public class BusinessObjectFactory  extends AbstractPluginBusinessObjectFactory 
     @Override
     public IProteinRelatedSampleTable createProteinRelatedSampleTable(Session session)
     {
-        return new ProteinRelatedSampleTable(daoFactory, specificDAOFactory);
+        return new ProteinRelatedSampleTable(daoFactory, specificDAOFactory,
+                getManagedPropertyEvaluatorFactory());
     }
 
     @Override
     public ISampleTable createSampleTable(Session session)
     {
-        return new SampleTable(daoFactory, specificDAOFactory, session);
+        return new SampleTable(daoFactory, specificDAOFactory, session,
+                getManagedPropertyEvaluatorFactory());
     }
 
     @Override
@@ -113,7 +116,5 @@ public class BusinessObjectFactory  extends AbstractPluginBusinessObjectFactory 
     {
         return new SampleLoader(session, daoFactory, businessObjectFactory);
     }
-    
-    
 
 }

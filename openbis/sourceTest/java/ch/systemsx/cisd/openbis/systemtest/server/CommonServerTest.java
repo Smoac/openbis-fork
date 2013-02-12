@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluationInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
 /**
@@ -176,7 +177,8 @@ public class CommonServerTest extends SystemTestCase
                         + getResourceAsString(scriptName);
 
         EntityValidationEvaluationInfo info =
-                new EntityValidationEvaluationInfo(entityKind, entityIdentifier, false, script);
+                new EntityValidationEvaluationInfo(entityKind, entityIdentifier, false,
+                        PluginType.JYTHON, "common_adaptor_test.py", script);
 
         String result = commonServer.evaluate(sessionToken, info);
         Assert.assertEquals("Validation OK", result);

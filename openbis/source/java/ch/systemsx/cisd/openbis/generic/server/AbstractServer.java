@@ -51,7 +51,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnVa
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
-import ch.systemsx.cisd.openbis.generic.server.business.PropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -158,6 +157,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     protected ExposablePropertyPlaceholderConfigurer configurer;
 
+    @Resource(name = ComponentNames.PROPERTIES_BATCH_MANAGER)
     private IPropertiesBatchManager propertiesBatchManager;
 
     private String userForAnonymousLogin;
@@ -198,10 +198,6 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
     protected IPropertiesBatchManager getPropertiesBatchManager()
     {
-        if (propertiesBatchManager == null)
-        {
-            propertiesBatchManager = new PropertiesBatchManager();
-        }
         return propertiesBatchManager;
     }
 

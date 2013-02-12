@@ -32,7 +32,8 @@ public final class SpaceBOTest extends AbstractBOTest
 {
     private final SpaceBO createSpaceBO()
     {
-        return new SpaceBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION);
+        return new SpaceBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION,
+                managedPropertyEvaluatorFactory);
     }
 
     @Test

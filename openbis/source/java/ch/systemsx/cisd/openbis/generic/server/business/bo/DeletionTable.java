@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IDeletablePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DeletionTranslator;
 
 /**
@@ -43,9 +44,10 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
 {
     private List<Deletion> deletions;
 
-    public DeletionTable(IDAOFactory daoFactory, Session session)
+    public DeletionTable(IDAOFactory daoFactory, Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
     }
 
     @Override

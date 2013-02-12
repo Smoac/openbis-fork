@@ -23,7 +23,11 @@ public class EntityValidationEvaluationInfo extends BasicEntityDescription
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    private String scriptName;
+
     private String script;
+
+    private PluginType pluginType;
 
     private boolean isNew;
 
@@ -32,10 +36,12 @@ public class EntityValidationEvaluationInfo extends BasicEntityDescription
     }
 
     public EntityValidationEvaluationInfo(EntityKind entityKind, String entityIdentifier,
-            boolean isNew, String script)
+            boolean isNew, PluginType pluginType, String scriptName, String script)
     {
         super(entityKind, entityIdentifier);
         this.script = script;
+        this.scriptName = scriptName;
+        this.pluginType = pluginType;
         this.isNew = isNew;
     }
 
@@ -59,4 +65,23 @@ public class EntityValidationEvaluationInfo extends BasicEntityDescription
         this.isNew = isNew;
     }
 
+    public PluginType getPluginType()
+    {
+        return pluginType;
+    }
+
+    public void setPluginType(PluginType pluginType)
+    {
+        this.pluginType = pluginType;
+    }
+
+    public String getScriptName()
+    {
+        return scriptName;
+    }
+
+    public void setScriptName(String scriptName)
+    {
+        this.scriptName = scriptName;
+    }
 }

@@ -16,18 +16,77 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import ch.ethz.cisd.hotdeploy.PluginMapHolder;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
+import ch.systemsx.cisd.openbis.generic.server.IHotDeploymentController;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 
 /**
+ * The class is responsible for getting a dynamic property calculator.
+ * 
  * @author Pawel Glyzewski
  */
 public class DynamicPropertyCalculatorFactory implements IDynamicPropertyCalculatorFactory
 {
+    private PluginMapHolder<IDynamicPropertyCalculator> predeployedPlugins;
+
+    public DynamicPropertyCalculatorFactory(IHotDeploymentController hotDeploymentController,
+            String pluginDirectoryPath)
+    {
+        if (false == StringUtils.isBlank(pluginDirectoryPath))
+        {
+            hotDeploymentController.addPluginDirectory(new File(pluginDirectoryPath));
+            this.predeployedPlugins =
+                    hotDeploymentController.getPluginMap(IDynamicPropertyCalculator.class);
+        } else
+        {
+            this.predeployedPlugins = null;
+        }
+    }
+
     @Override
     /** Returns a calculator for given script (creates a new one if nothing is found in cache). */
     public IDynamicPropertyCalculator getCalculator(EntityTypePropertyTypePE etpt)
     {
-        return JythonDynamicPropertyCalculator.create(etpt.getScript().getScript());
+        switch (etpt.getScript().getPluginType())
+        {
+            case JYTHON:
+                return JythonDynamicPropertyCalculator.create(etpt.getScript().getScript());
+            case PREDEPLOYED:
+                if (predeployedPlugins == null)
+                {
+                    throw new UserFailureException(
+                            "Predeployed dynamic property calculator plugins are not configured properly.");
+                }
+                IDynamicPropertyCalculator dynamicPropertyCalculator =
+                        predeployedPlugins.tryGet(etpt.getScript().getName());
+                if (dynamicPropertyCalculator == null)
+                {
+                    throw new UserFailureException("Couldn't find plugin named '"
+                            + etpt.getScript().getName() + "'.");
+                }
+
+                return dynamicPropertyCalculator;
+        }
+
+        return null;
+    }
+
+    @Override
+    public List<String> listPredeployedPlugins()
+    {
+        if (predeployedPlugins == null)
+        {
+            return Collections.emptyList();
+        }
+
+        return new ArrayList<String>(predeployedPlugins.getPluginNames());
     }
 }

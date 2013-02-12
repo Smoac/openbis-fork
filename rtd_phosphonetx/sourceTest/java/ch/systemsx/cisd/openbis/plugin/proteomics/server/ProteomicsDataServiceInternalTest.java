@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.business.ISampleLoader;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.IProteomicsDataServiceInternal;
@@ -98,7 +99,8 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         sampleLoader = context.mock(ISampleLoader.class);
         service =
                 new ProteomicsDataServiceInternal(sessionManager, daoFactory,
-                        propertiesBatchManager, commonBoFactory, boFactory);
+                        propertiesBatchManager, commonBoFactory, boFactory,
+                        new ManagedPropertyEvaluatorFactory(null, null));
         experimentType = new ExperimentTypePE();
         experimentType.setCode(EXPERIMENT_TYPE);
         experimentType.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
@@ -283,7 +285,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
 
                     one(experimentDAO).listExperimentsWithProperties(experimentType, null, null);
                     will(returnValue(Arrays.asList(experiments)));
-                    
+
                     one(metaprojectDAO).listMetaprojectAssignmentsForEntities(
                             session.tryGetPerson(), Arrays.asList(experiments),
                             EntityKind.EXPERIMENT);

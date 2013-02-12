@@ -1060,6 +1060,8 @@ public abstract class Dict
 
     public static final String SCRIPT_TYPE = "script_type";
 
+    public static final String PLUGIN_TYPE = "plugin_type";
+
     //
     // Material Chooser
     //
@@ -1406,6 +1408,10 @@ public abstract class Dict
     public static final String PROGRESS_UPLOADING = "progress_uploading";
 
     public static final String PROGRESS_PROCESSING = "progress_processing";
+
+    // Predeployed plugins
+
+    public static final String PREDEPLOYED_PLUGIN_NAME = "predeployed_plugin_name";
 
     // ----- end generic ------------------
 }

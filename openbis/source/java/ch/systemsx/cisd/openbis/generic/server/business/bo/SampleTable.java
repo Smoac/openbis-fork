@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * The unique {@link ISampleBO} implementation.
@@ -74,9 +75,12 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     private boolean businessRulesChecked;
 
     public SampleTable(final IDAOFactory daoFactory, final Session session,
-            IRelationshipService relationshipService, IEntityOperationChecker entityOperationChecker)
+            IRelationshipService relationshipService,
+            IEntityOperationChecker entityOperationChecker,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session, relationshipService, entityOperationChecker);
+        super(daoFactory, session, relationshipService, entityOperationChecker,
+                managedPropertyEvaluatorFactory);
     }
 
     @Override
@@ -455,8 +459,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                     samplesByIdentifiers.get(sampleUpdates.getOldSampleIdentifierOrNull());
             final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
             prepareBatchUpdate(sample, attachments, sampleUpdates, sampleOwnerCache,
-                    experimentCache,
-                    propertiesCache);
+                    experimentCache, propertiesCache);
             attachmentListsOrNull.add(attachments);
         }
 

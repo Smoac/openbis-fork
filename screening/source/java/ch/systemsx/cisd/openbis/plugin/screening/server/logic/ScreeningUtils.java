@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
@@ -61,13 +62,15 @@ public class ScreeningUtils
         }
     }
 
-    public static DatasetReference createDatasetReference(DataPE dataset, String baseIndexURL)
+    public static DatasetReference createDatasetReference(DataPE dataset, String baseIndexURL,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         DataStore dataStore = DataStoreTranslator.translate(dataset.getDataStore());
         String dataTypeCode = dataset.getDataSetType().getCode();
         String fileTypeCode = null;
         Experiment experiment =
-                ExperimentTranslator.translate(dataset.getExperiment(), baseIndexURL, null);
+                ExperimentTranslator.translate(dataset.getExperiment(), baseIndexURL, null,
+                        managedPropertyEvaluatorFactory);
         String analysisProcedureOrNull =
                 EntityHelper.tryFindPropertyValue(dataset, ScreeningConstants.ANALYSIS_PROCEDURE);
         return createDatasetReference(dataset.getId(), dataset.getCode(), analysisProcedureOrNull,

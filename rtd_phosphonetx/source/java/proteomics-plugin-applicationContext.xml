@@ -47,6 +47,7 @@
         <constructor-arg ref="dao-factory"/>
         <constructor-arg ref="common-business-object-factory" />
         <constructor-arg ref="proteomics-bo-factory" />
+        <constructor-arg ref="managed-property-evaluator-factory" />
     </bean>
     
     <bean id="proteomics-data-service-web" 

@@ -44,16 +44,18 @@ import ch.systemsx.cisd.openbis.common.conversation.context.ServiceConversations
 import ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.DynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityAdaptorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.INonAbstractEntityAdapter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonEntityValidationCalculator.IValidationRequestDelegate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.EntityValidatorFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.IEntityValidatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * {@link Interceptor} which reacts to creation and update of entities, and calls the validation
@@ -73,11 +75,22 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
 
     private IDAOFactory daoFactory;
 
+    private final IEntityValidatorFactory entityValidationFactory;
+
+    private final IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory;
+
+    private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
     public EntityValidationInterceptor(IHibernateTransactionManagerCallback callback,
-            IDAOFactory daoFactory)
+            IDAOFactory daoFactory, IEntityValidatorFactory entityValidationFactory,
+            IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         this.callback = callback;
         this.daoFactory = daoFactory;
+        this.entityValidationFactory = entityValidationFactory;
+        this.dynamicPropertyCalculatorFactory = dynamicPropertyCalculatorFactory;
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
         initializeLists();
 
         totalEntitiesToValidateCount = 0;
@@ -156,10 +169,11 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
 
     private boolean isCached(Session session, EntityIdentifier identifier)
     {
-        return ((SessionImpl) session).getEntityUsingInterceptor(new EntityKey(identifier
-                .getId(), ((SessionFactoryImplementor) daoFactory.getSessionFactory())
-                .getEntityPersister(identifier.getEntityClass().getName()),
-                EntityMode.POJO)) != null;
+        return ((SessionImpl) session)
+                .getEntityUsingInterceptor(new EntityKey(identifier.getId(),
+                        ((SessionFactoryImplementor) daoFactory.getSessionFactory())
+                                .getEntityPersister(identifier.getEntityClass().getName()),
+                        EntityMode.POJO)) != null;
     }
 
     private Collection<EntityIdentifier> cachedEntities(Session session)
@@ -183,8 +197,10 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
 
         for (EntityIdentifier identifier : cachedEntities(session))
         {
-            validateEntity(tx, (IEntityInformationWithPropertiesHolder) session.get(
-                    identifier.getEntityClass(), identifier.getId()));
+            validateEntity(
+                    tx,
+                    (IEntityInformationWithPropertiesHolder) session.get(
+                            identifier.getEntityClass(), identifier.getId()));
             if (isRolledBack)
             {
                 return;
@@ -230,8 +246,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
                 @Override
                 public int compare(EntityIdentifier arg0, EntityIdentifier arg1)
                 {
-                    return arg0.getKind().toString().compareTo(
-                            arg1.getKind().toString());
+                    return arg0.getKind().toString().compareTo(arg1.getKind().toString());
                 }
             });
 
@@ -259,8 +274,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
                                 }
                                 List<EntityIdentifier> list = new ArrayList<EntityIdentifier>();
                                 EntityKind kind = ids.get(index).getKind();
-                                while (list.size() < batchSize
-                                        && index < ids.size()
+                                while (list.size() < batchSize && index < ids.size()
                                         && ids.get(index).getKind().equals(kind))
                                 {
                                     list.add(ids.get(index));
@@ -284,7 +298,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         boolean isNewEntity = newEntities.contains(new EntityIdentifier(entity));
 
         IEntityValidator entityValidator =
-                EntityValidatorFactory.createEntityValidator(entity.getEntityType(), this);
+                entityValidationFactory.createEntityValidator(entity.getEntityType(), this);
         if (entityValidator != null)
         {
             try
@@ -336,7 +350,9 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
     private String calculate(IEntityValidator entityValidator,
             IEntityInformationWithPropertiesHolder entity, boolean isNewEntity)
     {
-        IDynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator(daoFactory, null);
+        IDynamicPropertyEvaluator evaluator =
+                new DynamicPropertyEvaluator(daoFactory, null, dynamicPropertyCalculatorFactory,
+                        managedPropertyEvaluatorFactory);
         IEntityAdaptor adaptor =
                 EntityAdaptorFactory.create(entity, evaluator, daoFactory.getSessionFactory()
                         .getCurrentSession());
@@ -364,8 +380,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
         if (false == validatedEntities.add(new EntityIdentifier(entity)))
         {
             throw new IllegalStateException(
-                    "Programming error - trying to validate the same entity twice ("
-                            + entity + ")");
+                    "Programming error - trying to validate the same entity twice (" + entity + ")");
         }
 
         if (false == entitiesToValidate.remove(new EntityIdentifier(entity)))
@@ -447,8 +462,7 @@ public class EntityValidationInterceptor extends EmptyInterceptor implements
             if (o instanceof EntityIdentifier)
             {
                 EntityIdentifier e = (EntityIdentifier) o;
-                return (e.code.equals(code))
-                        && e.kind.equals(kind);
+                return (e.code.equals(code)) && e.kind.equals(kind);
             } else
             {
                 throw new IllegalArgumentException(o.toString());

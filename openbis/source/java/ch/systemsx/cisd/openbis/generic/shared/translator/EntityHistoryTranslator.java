@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * @author Franz-Josef Elmer
@@ -37,19 +38,21 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public class EntityHistoryTranslator
 {
     public static List<EntityHistory> translate(List<AbstractEntityPropertyHistoryPE> history,
-            String baseIndexURL)
+            String baseIndexURL, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         List<EntityHistory> result = new ArrayList<EntityHistory>();
         HashMap<PropertyTypePE, PropertyType> cache = new HashMap<PropertyTypePE, PropertyType>();
         for (AbstractEntityPropertyHistoryPE entityPropertyHistory : history)
         {
-            result.add(translate(entityPropertyHistory, cache, baseIndexURL));
+            result.add(translate(entityPropertyHistory, cache, baseIndexURL,
+                    managedPropertyEvaluatorFactory));
         }
         return result;
     }
 
     private static EntityHistory translate(AbstractEntityPropertyHistoryPE entityPropertyHistory,
-            Map<PropertyTypePE, PropertyType> cache, String baseIndexURL)
+            Map<PropertyTypePE, PropertyType> cache, String baseIndexURL,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         EntityHistory result = new EntityHistory();
         result.setAuthor(PersonTranslator.translate(entityPropertyHistory.getAuthor()));
@@ -81,12 +84,14 @@ public class EntityHistoryTranslator
                     case EXPERIMENT:
                         entityType = EntityKind.EXPERIMENT.getDescription();
                         result.setRelatedEntity(ExperimentTranslator.translate(
-                                (ExperimentPE) entityHistory.getRelatedEntity(), baseIndexURL, null));
+                                (ExperimentPE) entityHistory.getRelatedEntity(), baseIndexURL,
+                                null, managedPropertyEvaluatorFactory));
                         break;
                     case SAMPLE:
                         entityType = EntityKind.SAMPLE.getDescription();
                         result.setRelatedEntity(SampleTranslator.translate(
-                                (SamplePE) entityHistory.getRelatedEntity(), baseIndexURL, null));
+                                (SamplePE) entityHistory.getRelatedEntity(), baseIndexURL, null,
+                                managedPropertyEvaluatorFactory));
                         break;
                     case MATERIAL:
                 }

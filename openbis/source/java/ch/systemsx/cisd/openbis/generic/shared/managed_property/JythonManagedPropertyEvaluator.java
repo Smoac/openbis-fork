@@ -28,12 +28,12 @@ import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityPropertyAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedUiActionDescriptionFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 
 /**
  * Class for evaluating scripts that control managed properties.
@@ -279,7 +279,7 @@ public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
 
     @Override
     public void configureUI(final IManagedProperty managedProperty,
-            final EntityPropertyPE entityPropertyPE)
+            final IEntityPropertyAdaptor entityProperty)
     {
         if (operationLog.isDebugEnabled())
         {
@@ -293,7 +293,7 @@ public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
                 public Void evaluate(Evaluator evaluator)
                 {
                     evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
-                    evaluator.set(PROPERTY_PE_VARIABLE_NAME, entityPropertyPE);
+                    evaluator.set(PROPERTY_PE_VARIABLE_NAME, entityProperty);
                     evaluator.evalFunction(CONFIGURE_UI_FUNCTION);
                     return null;
                 }

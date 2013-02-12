@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
@@ -87,30 +88,34 @@ public class PlateContentLoader
      * image analysis datasets.
      */
     public static PlateContent loadImagesAndMetadata(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, TechId plateId)
+            IScreeningBusinessObjectFactory businessObjectFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, TechId plateId)
     {
-        return new PlateContentLoader(session, businessObjectFactory).getPlateContent(plateId);
+        return new PlateContentLoader(session, businessObjectFactory,
+                managedPropertyEvaluatorFactory).getPlateContent(plateId);
     }
 
     /**
      * Loads feature vector of specified dataset with one feature specified by name.
      */
     public static FeatureVectorDataset loadFeatureVectorDataset(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, DatasetReference dataset,
-            CodeAndLabel featureName)
+            IScreeningBusinessObjectFactory businessObjectFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            DatasetReference dataset, CodeAndLabel featureName)
     {
-        return new PlateContentLoader(session, businessObjectFactory).fetchFeatureVector(dataset,
-                featureName);
+        return new PlateContentLoader(session, businessObjectFactory,
+                managedPropertyEvaluatorFactory).fetchFeatureVector(dataset, featureName);
     }
 
     /**
      * Loads data about the plate for a specified dataset, which is supposed to contain images.
      */
     public static PlateImages loadImagesAndMetadataForDataset(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, TechId datasetId)
+            IScreeningBusinessObjectFactory businessObjectFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, TechId datasetId)
     {
-        return new PlateContentLoader(session, businessObjectFactory)
-                .getPlateContentForDataset(datasetId);
+        return new PlateContentLoader(session, businessObjectFactory,
+                managedPropertyEvaluatorFactory).getPlateContentForDataset(datasetId);
     }
 
     /**
@@ -119,18 +124,21 @@ public class PlateContentLoader
      * sample (restricted to one well in HCS case).
      */
     public static ImageSampleContent getImageDatasetInfosForSample(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, TechId sampleId,
+            IScreeningBusinessObjectFactory businessObjectFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, TechId sampleId,
             WellLocation wellLocationOrNull)
     {
-        return new PlateContentLoader(session, businessObjectFactory)
-                .getImageDatasetInfosForSample(sampleId, wellLocationOrNull);
+        return new PlateContentLoader(session, businessObjectFactory,
+                managedPropertyEvaluatorFactory).getImageDatasetInfosForSample(sampleId,
+                wellLocationOrNull);
     }
 
     public static List<PlateMetadata> loadPlateMetadata(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, List<TechId> plateIds)
+            IScreeningBusinessObjectFactory businessObjectFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, List<TechId> plateIds)
     {
-        return new PlateContentLoader(session, businessObjectFactory).getPlateMetadatas(plateIds);
-
+        return new PlateContentLoader(session, businessObjectFactory,
+                managedPropertyEvaluatorFactory).getPlateMetadatas(plateIds);
     }
 
     private final Session session;
@@ -139,12 +147,18 @@ public class PlateContentLoader
 
     private final LogicalImageLoader imageLoader;
 
+    private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
     private PlateContentLoader(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory)
+            IScreeningBusinessObjectFactory businessObjectFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
-        this.imageLoader = new LogicalImageLoader(session, businessObjectFactory);
+        this.imageLoader =
+                new LogicalImageLoader(session, businessObjectFactory,
+                        managedPropertyEvaluatorFactory);
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     private PlateImages getPlateContentForDataset(TechId datasetId)
@@ -174,7 +188,8 @@ public class PlateContentLoader
     private Geometry getPlateGeometry(SamplePE plate)
     {
         List<IEntityProperty> properties =
-                EntityPropertyTranslator.translate(plate.getProperties(), null);
+                EntityPropertyTranslator.translate(plate.getProperties(), null,
+                        managedPropertyEvaluatorFactory);
         return PlateDimensionParser.getPlateGeometry(properties);
     }
 
@@ -359,7 +374,7 @@ public class PlateContentLoader
         for (T dataset : datasets)
         {
             datasetReferences.add(ScreeningUtils.createDatasetReference(dataset,
-                    session.getBaseIndexURL()));
+                    session.getBaseIndexURL(), managedPropertyEvaluatorFactory));
         }
         return datasetReferences;
     }
@@ -380,7 +395,8 @@ public class PlateContentLoader
 
     private Sample translate(SamplePE sample)
     {
-        return SampleTranslator.translate(sample, session.getBaseIndexURL(), null);
+        return SampleTranslator.translate(sample, session.getBaseIndexURL(), null,
+                managedPropertyEvaluatorFactory);
     }
 
     private List<WellMetadata> loadWells(TechId plateId)

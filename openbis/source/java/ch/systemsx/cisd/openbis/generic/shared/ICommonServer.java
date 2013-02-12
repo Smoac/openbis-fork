@@ -1511,4 +1511,9 @@ public interface ICommonServer extends IServer
     public Metaproject updateMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             IMetaprojectUpdates updates);
 
+    /**
+     * Lists all the predeployed plugin names for given script type.
+     */
+    @Transactional(readOnly = true)
+    public List<String> listPredeployedPlugins(String sessionToken, ScriptType scriptType);
 }

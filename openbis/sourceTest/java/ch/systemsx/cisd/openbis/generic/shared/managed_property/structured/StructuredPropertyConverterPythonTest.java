@@ -21,6 +21,7 @@ import java.util.List;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.BasicPropertyAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedEntityProperty;
@@ -50,7 +51,8 @@ public class StructuredPropertyConverterPythonTest extends AssertJUnit
                 CommonTestUtils.getResourceAsString(SCRIPT_FOLDER, "structured-property-test.py");
         JythonManagedPropertyEvaluator evaluator = new JythonManagedPropertyEvaluator(script);
 
-        evaluator.configureUI(managedProperty, new SamplePropertyPE());
+        evaluator.configureUI(managedProperty, new BasicPropertyAdaptor("CODE", "value",
+                new SamplePropertyPE()));
 
         // the script will create several elements and serialize them in the property value
         List<IElement> elements =

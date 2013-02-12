@@ -64,7 +64,9 @@ public final class TrashBOTest extends AbstractBOTest
         super.beforeMethod();
         boFactory = context.mock(ICommonBusinessObjectFactory.class);
         dataSetTable = context.mock(IDataSetTable.class);
-        trashBO = new TrashBO(daoFactory, boFactory, ManagerTestTool.EXAMPLE_SESSION);
+        trashBO =
+                new TrashBO(daoFactory, boFactory, ManagerTestTool.EXAMPLE_SESSION,
+                        managedPropertyEvaluatorFactory);
         context.checking(new Expectations()
             {
                 {

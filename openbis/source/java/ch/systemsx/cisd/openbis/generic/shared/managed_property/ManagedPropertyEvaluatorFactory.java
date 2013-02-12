@@ -16,8 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import ch.ethz.cisd.hotdeploy.PluginMapHolder;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
+import ch.systemsx.cisd.openbis.generic.server.IHotDeploymentController;
 import ch.systemsx.cisd.openbis.generic.server.JythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
@@ -29,18 +40,71 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
  * @author Jakub Straszewski
  * @author Pawel Glyzewski
  */
-public class ManagedPropertyEvaluatorFactory
+public class ManagedPropertyEvaluatorFactory implements IManagedPropertyEvaluatorFactory
 {
+    private PluginMapHolder<IManagedPropertyEvaluator> predeployedPlugins;
 
-    public static IManagedPropertyEvaluator createManagedPropertyEvaluator(
+    public ManagedPropertyEvaluatorFactory(IHotDeploymentController hotDeploymentController,
+            String pluginDirectoryPath)
+    {
+        if (false == StringUtils.isBlank(pluginDirectoryPath))
+        {
+            hotDeploymentController.addPluginDirectory(new File(pluginDirectoryPath));
+            this.predeployedPlugins =
+                    hotDeploymentController.getPluginMap(IManagedPropertyEvaluator.class);
+        } else
+        {
+            this.predeployedPlugins = null;
+        }
+    }
+
+    @Override
+    public IManagedPropertyEvaluator createManagedPropertyEvaluator(
             EntityTypePropertyTypePE entityTypePropertyTypePE)
     {
         final ScriptPE scriptPE = entityTypePropertyTypePE.getScript();
         assert scriptPE != null && scriptPE.getScriptType() == ScriptType.MANAGED_PROPERTY;
 
-        String script = scriptPE.getScript();
+        return getManagedPropertyEvaluator(scriptPE.getPluginType(), scriptPE.getName(),
+                scriptPE.getScript());
+    }
 
-        return createJythonManagedPropertyEvaluator(script);
+    @Override
+    public IManagedPropertyEvaluator createManagedPropertyEvaluator(
+            EntityTypePropertyType<?> entityTypePropertyType)
+    {
+        Script script = entityTypePropertyType.getScript();
+
+        return getManagedPropertyEvaluator(script.getPluginType(), script.getName(),
+                script.getScript());
+    }
+
+    private IManagedPropertyEvaluator getManagedPropertyEvaluator(PluginType pluginType,
+            String scriptName, String scriptBody)
+    {
+        switch (pluginType)
+        {
+            case JYTHON:
+                return createJythonManagedPropertyEvaluator(scriptBody);
+            case PREDEPLOYED:
+                if (predeployedPlugins == null)
+                {
+                    throw new UserFailureException(
+                            "Predeployed managed property evaluator plugins are not configured properly.");
+                }
+                IManagedPropertyEvaluator managedPropertyEvaluator =
+                        predeployedPlugins.tryGet(scriptName);
+                if (managedPropertyEvaluator == null)
+                {
+                    throw new UserFailureException("Couldn't find plugin named '" + scriptName
+                            + "'.");
+                }
+
+                return managedPropertyEvaluator;
+
+        }
+
+        return null;
     }
 
     private static JythonManagedPropertyEvaluator createJythonManagedPropertyEvaluator(String script)
@@ -55,9 +119,14 @@ public class ManagedPropertyEvaluatorFactory
         }
     }
 
-    public static IManagedPropertyEvaluator createManagedPropertyEvaluator(
-            EntityTypePropertyType<?> entityTypePropertyType)
+    @Override
+    public List<String> listPredeployedPlugins()
     {
-        return createJythonManagedPropertyEvaluator(entityTypePropertyType.getScript().getScript());
+        if (predeployedPlugins == null)
+        {
+            return Collections.emptyList();
+        }
+
+        return new ArrayList<String>(predeployedPlugins.getPluginNames());
     }
 }

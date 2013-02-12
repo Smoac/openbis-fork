@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluator;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyFunctions;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 
@@ -70,6 +70,13 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
     }
 
     private final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY, getClass());
+
+    private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
+    public PropertiesBatchManager(IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+    {
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
+    }
 
     @Override
     public void manageProperties(SampleTypePE sampleType, List<NewSample> samples,
@@ -261,7 +268,7 @@ public class PropertiesBatchManager implements IPropertiesBatchManager
                 String propertyTypeCode = entityTypePropertyType.getPropertyType().getCode();
                 EvaluationContext context = new EvaluationContext();
                 context.evaluator =
-                        ManagedPropertyEvaluatorFactory
+                        managedPropertyEvaluatorFactory
                                 .createManagedPropertyEvaluator(entityTypePropertyType);
                 context.scriptPEorNull = entityTypePropertyType.getScript();
                 result.put(propertyTypeCode, context);

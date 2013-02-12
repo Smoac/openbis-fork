@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * Manipulations on {@link EntityTypePE} subclasses.
@@ -66,9 +67,10 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
 
     private EntityKind entityKind;
 
-    public EntityTypeBO(final IDAOFactory daoFactory, final Session session)
+    public EntityTypeBO(final IDAOFactory daoFactory, final Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
     }
 
     private ScriptPE getValidationScriptPE(EntityType entityType)
@@ -80,8 +82,8 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
             return null;
         } else
         {
-            ScriptPE script = getScriptDAO()
-                    .tryFindByName(entityType.getValidationScript().getName());
+            ScriptPE script =
+                    getScriptDAO().tryFindByName(entityType.getValidationScript().getName());
 
             if (script != null && entityType.isEntityKind(script.getEntityKind()))
             {

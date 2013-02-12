@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConver
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter.IHibernateSessionProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityAdaptorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.IDynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
@@ -45,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * Default implementation of {@link IDynamicPropertyEvaluator}. For efficient evaluation of
@@ -59,8 +59,9 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
 
     public static final String ERROR_PREFIX = "ERROR: ";
 
-    private final IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory =
-            new DynamicPropertyCalculatorFactory();
+    private final IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory;
+
+    private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
     /** path of evaluation - used to generate meaningful error message for cyclic dependencies */
     private final List<EntityTypePropertyTypePE> evaluationPath =
@@ -69,12 +70,16 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
     private EntityPropertiesConverterDelegatorFacade entityPropertiesConverter;
 
     public DynamicPropertyEvaluator(IDAOFactory daoFactory,
-            IHibernateSessionProvider customSessionProviderOrNull)
+            IHibernateSessionProvider customSessionProviderOrNull,
+            IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         assert daoFactory != null;
         this.entityPropertiesConverter =
                 new EntityPropertiesConverterDelegatorFacade(daoFactory,
-                        customSessionProviderOrNull);
+                        customSessionProviderOrNull, managedPropertyEvaluatorFactory);
+        this.dynamicPropertyCalculatorFactory = dynamicPropertyCalculatorFactory;
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     @Override
@@ -195,7 +200,8 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
         private final ComplexPropertyValueHelper complexPropertyValueHelper;
 
         public EntityPropertiesConverterDelegatorFacade(IDAOFactory daoFactory,
-                IHibernateSessionProvider customSessionProviderOrNull)
+                IHibernateSessionProvider customSessionProviderOrNull,
+                IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
         {
             this.complexPropertyValueHelper =
                     new EntityPropertiesConverter.ComplexPropertyValueHelper(daoFactory,
@@ -203,7 +209,7 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             for (EntityKind entityKind : EntityKind.values())
             {
                 convertersByEntityKind.put(entityKind, new EntityPropertiesConverter(entityKind,
-                        daoFactory));
+                        daoFactory, managedPropertyEvaluatorFactory));
             }
         }
 

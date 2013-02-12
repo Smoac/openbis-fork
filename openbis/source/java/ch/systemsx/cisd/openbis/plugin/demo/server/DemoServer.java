@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewSamplePredicate;
@@ -47,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MetaprojectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.plugin.demo.shared.IDemoServer;
@@ -62,6 +64,9 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
 {
     @Resource(name = ResourceNames.DEMO_BUSINESS_OBJECT_FACTORY)
     private IDemoBusinessObjectFactory businessObjectFactory;
+
+    @Resource(name = ComponentNames.MANAGED_PROPERTY_EVALUATOR_FACTORY)
+    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
     public DemoServer()
     {
@@ -128,7 +133,7 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
                 getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
                         session.tryGetPerson(), sample);
         return SampleTranslator.translate(sampleInfo, session.getBaseIndexURL(),
-                MetaprojectTranslator.translate(metaprojectPEs));
+                MetaprojectTranslator.translate(metaprojectPEs), managedPropertyEvaluatorFactory);
     }
 
     @Override

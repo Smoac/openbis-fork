@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * Operations on grid custom columns.
@@ -43,9 +44,10 @@ public class GridCustomColumnBO extends AbstractBusinessObject implements
 
     private GridCustomColumnPE column;
 
-    public GridCustomColumnBO(IDAOFactory daoFactory, Session session)
+    public GridCustomColumnBO(IDAOFactory daoFactory, Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
     }
 
     @Override

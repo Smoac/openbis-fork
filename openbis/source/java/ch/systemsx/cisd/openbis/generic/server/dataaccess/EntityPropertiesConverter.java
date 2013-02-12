@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluator;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 
 /**
@@ -111,15 +111,20 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
     private final IPropertyPlaceholderCreator placeholderCreator;
 
-    public EntityPropertiesConverter(final EntityKind entityKind, final IDAOFactory daoFactory)
+    private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
+    public EntityPropertiesConverter(final EntityKind entityKind, final IDAOFactory daoFactory,
+            final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        this(entityKind, daoFactory, new PropertyValidator(), new PlaceholderPropertyCreator());
+        this(entityKind, daoFactory, new PropertyValidator(), new PlaceholderPropertyCreator(),
+                managedPropertyEvaluatorFactory);
     }
 
     @Private
     EntityPropertiesConverter(final EntityKind entityKind, final IDAOFactory daoFactory,
             final IPropertyValueValidator propertyValueValidator,
-            IPropertyPlaceholderCreator placeholderCreator)
+            IPropertyPlaceholderCreator placeholderCreator,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         assert entityKind != null : "Unspecified entity kind.";
         assert daoFactory != null : "Unspecified DAO factory.";
@@ -130,6 +135,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         this.propertyValueValidator = propertyValueValidator;
         this.placeholderCreator = placeholderCreator;
         this.complexPropertyValueHelper = new ComplexPropertyValueHelper(daoFactory, null);
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     private final Set<String> getDynamicProperties(final EntityTypePE entityTypePE)
@@ -247,7 +253,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 new ArrayList<ExtendedEntityTypePropertyType>();
         for (EntityTypePropertyTypePE entityTypePropertyTypePE : entityPropertyTypes)
         {
-            result.add(new ExtendedEntityTypePropertyType(entityTypePropertyTypePE));
+            result.add(new ExtendedEntityTypePropertyType(entityTypePropertyTypePE,
+                    managedPropertyEvaluatorFactory));
         }
         return result;
     }
@@ -561,13 +568,14 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
         private IManagedPropertyEvaluator evaluator;
 
-        ExtendedEntityTypePropertyType(EntityTypePropertyTypePE entityTypePropertyTypePE)
+        ExtendedEntityTypePropertyType(EntityTypePropertyTypePE entityTypePropertyTypePE,
+                IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
         {
             this.entityTypePropertyTypePE = entityTypePropertyTypePE;
             if (entityTypePropertyTypePE.isManaged())
             {
                 evaluator =
-                        ManagedPropertyEvaluatorFactory
+                        managedPropertyEvaluatorFactory
                                 .createManagedPropertyEvaluator(entityTypePropertyTypePE);
                 inputWidgetDescriptions = evaluator.getInputWidgetDescriptions();
             } else

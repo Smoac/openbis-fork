@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * {@link IAuthorizationGroupBO} implementation.
@@ -53,15 +54,18 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
 
     // For tests only
     @Private
-    AuthorizationGroupBO(IDAOFactory daoFactory, Session session, IAuthorizationGroupFactory factory)
+    AuthorizationGroupBO(IDAOFactory daoFactory, Session session,
+            IAuthorizationGroupFactory factory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
         this.groupFactory = factory;
     }
 
-    public AuthorizationGroupBO(IDAOFactory daoFactory, Session session)
+    public AuthorizationGroupBO(IDAOFactory daoFactory, Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        this(daoFactory, session, new AuthorizationGroupFactory());
+        this(daoFactory, session, new AuthorizationGroupFactory(), managedPropertyEvaluatorFactory);
     }
 
     interface IAuthorizationGroupFactory

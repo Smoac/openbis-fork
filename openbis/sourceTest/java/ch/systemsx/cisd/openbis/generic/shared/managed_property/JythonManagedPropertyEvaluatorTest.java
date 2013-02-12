@@ -24,6 +24,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.BasicPropertyAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedComboBoxInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ManagedHtmlWidgetDescription;
@@ -91,7 +92,8 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
                 CommonTestUtils.getResourceAsString(SCRIPT_FOLDER, CONFIGURE_UI_OUTPUT_TEST_PY);
         JythonManagedPropertyEvaluator evaluator = new JythonManagedPropertyEvaluator(script);
 
-        evaluator.configureUI(managedProperty, new SamplePropertyPE());
+        evaluator.configureUI(managedProperty, new BasicPropertyAdaptor("CODE", "value",
+                new SamplePropertyPE()));
         assertEquals(true, managedProperty.isOwnTab());
         IManagedOutputWidgetDescription outputWidgetDescripion =
                 managedProperty.getUiDescription().getOutputWidgetDescription();
@@ -149,7 +151,8 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
                         .getResourceAsString(SCRIPT_FOLDER, CONFIGURE_UI_OUTPUT_HTML_TEST_PY);
         JythonManagedPropertyEvaluator evaluator = new JythonManagedPropertyEvaluator(script);
 
-        evaluator.configureUI(managedProperty, new SamplePropertyPE());
+        evaluator.configureUI(managedProperty, new BasicPropertyAdaptor("CODE", "value",
+                new SamplePropertyPE()));
         assertEquals(true, managedProperty.isOwnTab());
         IManagedOutputWidgetDescription outputWidgetDescripion =
                 managedProperty.getUiDescription().getOutputWidgetDescription();
@@ -179,7 +182,8 @@ public class JythonManagedPropertyEvaluatorTest extends AssertJUnit
                 CommonTestUtils.getResourceAsString(SCRIPT_FOLDER, CONFIGURE_UI_INPUT_TEST_PY);
         JythonManagedPropertyEvaluator evaluator = new JythonManagedPropertyEvaluator(script);
 
-        evaluator.configureUI(managedProperty, new SamplePropertyPE());
+        evaluator.configureUI(managedProperty, new BasicPropertyAdaptor("CODE", "value",
+                new SamplePropertyPE()));
         assertEquals(false, managedProperty.isOwnTab());
 
         List<IManagedUiAction> actions = managedProperty.getUiDescription().getActions();

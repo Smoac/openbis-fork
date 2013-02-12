@@ -19,9 +19,35 @@
 
 	<bean id="memory-monitor" class="ch.systemsx.cisd.common.monitoring.JMXMemoryMonitorSpringBean" />
 
+  <bean id="hot-deployment-plugin-container" class="ch.systemsx.cisd.openbis.generic.server.HotDeploymentController" />
+
+  <bean id="entity-validation-factory" class="ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.EntityValidatorFactory" >
+    <constructor-arg ref="hot-deployment-plugin-container" />
+    <constructor-arg value="${entity-validation-plugins-directory}" />
+  </bean>
+  
+  <bean id="dynamic-property-calculator-factory"
+        class="ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculatorFactory">
+        <constructor-arg ref="hot-deployment-plugin-container" />
+        <constructor-arg value="${dynamic-property-plugins-directory}" />
+  </bean>
+  
+  <bean id="managed-property-evaluator-factory"
+        class="ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory">
+        <constructor-arg ref="hot-deployment-plugin-container" />
+        <constructor-arg value="${managed-property-plugins-directory}" />
+  </bean>
+  
+  <bean id="properties-batch-manager" class="ch.systemsx.cisd.openbis.generic.server.business.PropertiesBatchManager" >
+        <constructor-arg ref="managed-property-evaluator-factory" />
+  </bean>
+
     <bean id="transaction-manager"
         class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.OpenBISHibernateTransactionManager">
         <constructor-arg ref="dao-factory" />
+        <constructor-arg ref="entity-validation-factory" />
+        <constructor-arg ref="dynamic-property-calculator-factory" />
+        <constructor-arg ref="managed-property-evaluator-factory" />
         <property name="sessionFactory" ref="hibernate-session-factory" />
         <property name="jdbcExceptionTranslator" ref="exception-translator" />
         <property name="dynamicPropertiesInterceptor">
@@ -40,6 +66,8 @@
         <constructor-arg ref="dao-factory" />
         <constructor-arg ref="full-text-index-updater" />
         <constructor-arg ref="dynamic-property-scheduler" />
+        <constructor-arg ref="dynamic-property-calculator-factory" />
+        <constructor-arg ref="managed-property-evaluator-factory" />
     </bean>
     
     <bean id="relationship-service"
@@ -108,6 +136,7 @@
         <constructor-arg ref="relationship-service" />
         <constructor-arg ref="entity-operation-checker" />
         <constructor-arg ref="service-conversation-client-manager" />
+        <constructor-arg ref="managed-property-evaluator-factory" />
     </bean>
 
     <bean id="last-modification-state"
@@ -135,6 +164,9 @@
         <constructor-arg ref="common-business-object-factory" />
         <constructor-arg ref="data-store-service-registrator" />
         <constructor-arg ref="last-modification-state" />
+        <constructor-arg ref="entity-validation-factory" />
+        <constructor-arg ref="dynamic-property-calculator-factory" />
+        <constructor-arg ref="managed-property-evaluator-factory" />
         <property name="userForAnonymousLogin" value="${user-for-anonymous-login}"/>
         <property name="CISDHelpdeskEmail" value="cisd.helpdesk@bsse.ethz.ch" />
         <property name="defaultPutDataStoreServerCode" value="${dss-rpc.put.dss-code}" />
@@ -206,6 +238,7 @@
         <constructor-arg ref="etl-entity-operation-checker" />
         <constructor-arg ref="data-store-service-registrator" />
         <constructor-arg ref="dss-based-data-source-provider" />
+        <constructor-arg ref="managed-property-evaluator-factory" />
         <property name="conversationClient" ref="service-conversation-client-manager" />
         <property name="conversationServer" ref="service-conversation-server-manager" />
     </bean>

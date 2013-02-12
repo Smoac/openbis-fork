@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * The unique {@link IEntityTypePropertyTypeBO} implementation.
@@ -61,17 +62,21 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
 
     @Private
     EntityTypePropertyTypeBO(IDAOFactory daoFactory, Session session, EntityKind entityKind,
-            IEntityPropertiesConverter converter)
+            IEntityPropertiesConverter converter,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
         propertiesConverter = converter;
         this.entityKind = entityKind;
     }
 
-    public EntityTypePropertyTypeBO(IDAOFactory daoFactory, Session session, EntityKind entityKind)
+    public EntityTypePropertyTypeBO(IDAOFactory daoFactory, Session session, EntityKind entityKind,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
-        propertiesConverter = new EntityPropertiesConverter(entityKind, daoFactory);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
+        propertiesConverter =
+                new EntityPropertiesConverter(entityKind, daoFactory,
+                        managedPropertyEvaluatorFactory);
         this.entityKind = entityKind;
     }
 

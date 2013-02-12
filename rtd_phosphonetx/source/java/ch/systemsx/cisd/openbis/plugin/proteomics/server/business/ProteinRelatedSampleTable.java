@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.plugin.proteomics.server.dataaccess.IPhosphoNetXDAOFactory;
@@ -43,23 +44,27 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.SamplePeptideModifi
 
 /**
  * Implementation of {@link IProteinRelatedSampleTable}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 class ProteinRelatedSampleTable implements IProteinRelatedSampleTable
 {
     private final IDAOFactory daoFactory;
-    
+
     private final IPhosphoNetXDAOFactory specificDAOFactory;
-    
+
+    private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
     private List<ProteinRelatedSample> result;
 
-    ProteinRelatedSampleTable(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory)
+    ProteinRelatedSampleTable(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         this.daoFactory = daoFactory;
         this.specificDAOFactory = specificDAOFactory;
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
-    
+
     @Override
     public List<ProteinRelatedSample> getSamples()
     {
@@ -164,7 +169,7 @@ class ProteinRelatedSampleTable implements IProteinRelatedSampleTable
         s.setModificationPosition((long) position);
         return s;
     }
-    
+
     private ProteinRelatedSample createFrom(SamplePE sample, Map<PropertyTypePE, PropertyType> cache)
     {
         ProteinRelatedSample s = new ProteinRelatedSample();
@@ -173,7 +178,8 @@ class ProteinRelatedSampleTable implements IProteinRelatedSampleTable
         s.setId(sample.getId());
         s.setIdentifier(sample.getIdentifier());
         s.setPermId(sample.getPermId());
-        s.setProperties(EntityPropertyTranslator.translate(sample.getProperties(), cache));
+        s.setProperties(EntityPropertyTranslator.translate(sample.getProperties(), cache,
+                managedPropertyEvaluatorFactory));
         return s;
     }
 

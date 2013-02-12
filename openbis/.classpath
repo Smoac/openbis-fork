@@ -32,7 +32,7 @@
 	<classpathentry kind="lib" path="/libraries/javassist/javassist.jar" sourcepath="/libraries/javassist/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/lucene/lucene-core.jar" sourcepath="/libraries/lucene/lucene-2.4.1-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-fileupload/commons-fileupload.jar" sourcepath="/libraries/commons-fileupload/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/lucene-highlighter/lucene-highlighter.jar"/>
+	<classpathentry kind="lib" path="/libraries/lucene-highlighter/lucene-highlighter.jar" sourcepath="/libraries/lucene-highlighter/lucene-highlighter-javadoc.jar"/>
 	<classpathentry kind="lib" path="/libraries/apgdiff/apgdiff.jar" sourcepath="/libraries/apgdiff/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/eodsql/eodsql.jar" sourcepath="/libraries/eodsql/eodsql_src.zip"/>
@@ -82,5 +82,6 @@
 	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-deploy.jar"/>
 	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-webapp.jar"/>
 	<classpathentry kind="lib" path="/libraries/lucene-queries/lucene-queries.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-hotdeploy/cisd-hotdeploy.jar" sourcepath="/libraries/cisd-hotdeploy/cisd-hotdeploy-src.zip"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>

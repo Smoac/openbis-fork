@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
@@ -108,12 +109,15 @@ public class ScreeningApiImpl
 
     private final IDAOFactory daoFactory;
 
+    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
     public ScreeningApiImpl(Session session, IScreeningBusinessObjectFactory businessObjectFactory,
-            IDAOFactory daoFactory)
+            IDAOFactory daoFactory, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
         this.daoFactory = daoFactory;
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
@@ -440,7 +444,9 @@ public class ScreeningApiImpl
             SampleIdentifier sampleIdentifier = createSampleIdentifier(plateIdentifier);
             ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
             sampleBO.loadBySampleIdentifier(sampleIdentifier);
-            sample = SampleTranslator.translate(sampleBO.getSample(), "", null);
+            sample =
+                    SampleTranslator.translate(sampleBO.getSample(), "", null,
+                            managedPropertyEvaluatorFactory);
         }
         return sample;
     }
@@ -472,7 +478,8 @@ public class ScreeningApiImpl
 
     private Sample translate(SamplePE sample)
     {
-        return SampleTranslator.translate(sample, session.getBaseIndexURL(), null);
+        return SampleTranslator.translate(sample, session.getBaseIndexURL(), null,
+                managedPropertyEvaluatorFactory);
     }
 
     private static SampleIdentifier createSampleIdentifier(PlateIdentifier plate)
@@ -884,7 +891,8 @@ public class ScreeningApiImpl
         }
 
         List<ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata> plateMetadatas =
-                PlateContentLoader.loadPlateMetadata(session, businessObjectFactory, techIds);
+                PlateContentLoader.loadPlateMetadata(session, businessObjectFactory,
+                        managedPropertyEvaluatorFactory, techIds);
 
         List<PlateMetadata> result = new ArrayList<PlateMetadata>();
         Map<Long, Material> materialsCache = new HashMap<Long, Material>();

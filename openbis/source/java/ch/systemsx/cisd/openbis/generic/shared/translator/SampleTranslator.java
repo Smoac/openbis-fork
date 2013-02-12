@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -52,12 +53,14 @@ public final class SampleTranslator
     }
 
     public static List<Sample> translate(final List<SamplePE> samples, String baseIndexURL,
-            Map<Long, Set<Metaproject>> metaprojects)
+            Map<Long, Set<Metaproject>> metaprojects,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         final List<Sample> list = new ArrayList<Sample>(samples.size());
         for (final SamplePE sample : samples)
         {
-            list.add(translate(sample, baseIndexURL, metaprojects.get(sample.getId())));
+            list.add(translate(sample, baseIndexURL, metaprojects.get(sample.getId()),
+                    managedPropertyEvaluatorFactory));
         }
         return list;
     }
@@ -87,14 +90,17 @@ public final class SampleTranslator
     }
 
     public final static Sample translate(final SamplePE samplePE, String baseIndexURL,
-            Collection<Metaproject> metaprojects)
+            Collection<Metaproject> metaprojects,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        return translate(samplePE, baseIndexURL, true, false, metaprojects);
+        return translate(samplePE, baseIndexURL, true, false, metaprojects,
+                managedPropertyEvaluatorFactory);
     }
 
     public final static Sample translate(final SamplePE samplePE, String baseIndexURL,
             final boolean withDetails, boolean withContainedSamples,
-            Collection<Metaproject> metaprojects)
+            Collection<Metaproject> metaprojects,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         if (samplePE == null)
         {
@@ -106,13 +112,14 @@ public final class SampleTranslator
         final int generatedFromDep =
                 getPositiveIntegerValue(samplePE.getSampleType().getGeneratedFromHierarchyDepth());
         return translate(samplePE, baseIndexURL, containerDep, generatedFromDep, withDetails,
-                withContainedSamples, metaprojects);
+                withContainedSamples, metaprojects, managedPropertyEvaluatorFactory);
 
     }
 
     private final static Sample translate(final SamplePE samplePE, String baseIndexURL,
             final int containerDep, final int generatedFromDep, final boolean withDetails,
-            final boolean withContainedSamples, Collection<Metaproject> metaprojects)
+            final boolean withContainedSamples, Collection<Metaproject> metaprojects,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         final Sample result = new Sample();
         setCodes(result, samplePE);
@@ -137,9 +144,9 @@ public final class SampleTranslator
             result.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
             result.setModifier(PersonTranslator.translate(samplePE.getModifier()));
             result.setRegistrationDate(samplePE.getRegistrationDate());
-            setProperties(result, samplePE);
+            setProperties(result, samplePE, managedPropertyEvaluatorFactory);
             result.setExperiment(ExperimentTranslator.translate(samplePE.getExperiment(),
-                    baseIndexURL, null, LoadableFields.PROPERTIES));
+                    baseIndexURL, null, managedPropertyEvaluatorFactory, LoadableFields.PROPERTIES));
             List<Attachment> attachments;
             if (samplePE.attachmentsInitialized() == false)
             {
@@ -156,7 +163,7 @@ public final class SampleTranslator
             if (HibernateUtils.isInitialized(samplePE.getContainer()))
             {
                 result.setContainer(translate(samplePE.getContainer(), baseIndexURL,
-                        containerDep - 1, 0, false, false, null));
+                        containerDep - 1, 0, false, false, null, managedPropertyEvaluatorFactory));
             }
         }
         if (generatedFromDep > 0 && samplePE.getParentRelationships() != null)
@@ -166,7 +173,7 @@ public final class SampleTranslator
                 for (SamplePE parent : samplePE.getParents())
                 {
                     result.addParent(translate(parent, baseIndexURL, 0, generatedFromDep - 1,
-                            false, false, null));
+                            false, false, null, managedPropertyEvaluatorFactory));
                 }
             }
         }
@@ -177,7 +184,8 @@ public final class SampleTranslator
             for (SamplePE containedPE : samplePE.getContained())
             {
                 Sample containedSample =
-                        translate(containedPE, baseIndexURL, 0, 0, false, false, null);
+                        translate(containedPE, baseIndexURL, 0, 0, false, false, null,
+                                managedPropertyEvaluatorFactory);
                 containedSamples.add(containedSample);
 
             }
@@ -198,12 +206,13 @@ public final class SampleTranslator
         result.setCode(IdentifierHelper.extractCode(samplePE));
     }
 
-    private static void setProperties(final Sample result, final SamplePE samplePE)
+    private static void setProperties(final Sample result, final SamplePE samplePE,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         if (samplePE.isPropertiesInitialized())
         {
             result.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
-                    new HashMap<PropertyTypePE, PropertyType>()));
+                    new HashMap<PropertyTypePE, PropertyType>(), managedPropertyEvaluatorFactory));
         } else
         {
             result.setProperties(new ArrayList<IEntityProperty>());
@@ -212,17 +221,19 @@ public final class SampleTranslator
 
     public final static SampleParentWithDerived translate(
             final SampleParentWithDerivedDTO sampleGenerationDTO, String baseIndexURL,
-            Collection<Metaproject> metaprojects)
+            Collection<Metaproject> metaprojects,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         final SampleParentWithDerived sampleGeneration = new SampleParentWithDerived();
 
         sampleGeneration.setParent(SampleTranslator.translate(sampleGenerationDTO.getParent(),
-                baseIndexURL, metaprojects));
+                baseIndexURL, metaprojects, managedPropertyEvaluatorFactory));
 
         final List<Sample> generated = new ArrayList<Sample>();
         for (SamplePE samplePE : sampleGenerationDTO.getDerived())
         {
-            generated.add(SampleTranslator.translate(samplePE, baseIndexURL, false, false, null));
+            generated.add(SampleTranslator.translate(samplePE, baseIndexURL, false, false, null,
+                    managedPropertyEvaluatorFactory));
         }
         sampleGeneration.setDerived(generated.toArray(new Sample[generated.size()]));
         return sampleGeneration;

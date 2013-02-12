@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -46,16 +47,17 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
     private final SampleOwnerFinder sampleOwnerFinder;
 
     AbstractSampleIdentifierBusinessObject(final IDAOFactory daoFactory, final Session session,
-            EntityKind entityKind)
+            EntityKind entityKind, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session, entityKind);
+        super(daoFactory, session, entityKind, managedPropertyEvaluatorFactory);
         sampleOwnerFinder = new SampleOwnerFinder(daoFactory, findPerson());
     }
 
     public AbstractSampleIdentifierBusinessObject(IDAOFactory daoFactory, Session session,
-            IEntityPropertiesConverter converter)
+            IEntityPropertiesConverter converter,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session, converter);
+        super(daoFactory, session, converter, managedPropertyEvaluatorFactory);
         sampleOwnerFinder = new SampleOwnerFinder(daoFactory, findPerson());
     }
 

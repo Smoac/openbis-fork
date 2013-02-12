@@ -61,6 +61,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 
 /**
  * An <i>abstract</i> test for <i>Business Object</i>.
@@ -142,6 +144,8 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     protected IExternalDataManagementSystemDAO dataManagementSystemDAO;
 
+    protected IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -181,6 +185,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         sampleLister = context.mock(ISampleLister.class);
         datasetLister = context.mock(IDatasetLister.class);
         dataManagementSystemDAO = context.mock(IExternalDataManagementSystemDAO.class);
+        managedPropertyEvaluatorFactory = new ManagedPropertyEvaluatorFactory(null, null);
         context.checking(new Expectations()
             {
                 {

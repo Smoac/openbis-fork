@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * Operations on grid custom filters.
@@ -37,9 +38,10 @@ public class GridCustomFilterBO extends AbstractBusinessObject implements
 {
     private GridCustomFilterPE filter;
 
-    public GridCustomFilterBO(IDAOFactory daoFactory, Session session)
+    public GridCustomFilterBO(IDAOFactory daoFactory, Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
     }
 
     @Override

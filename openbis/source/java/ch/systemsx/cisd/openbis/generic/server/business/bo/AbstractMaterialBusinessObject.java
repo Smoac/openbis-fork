@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * Generic operations on materials.
@@ -31,15 +32,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public class AbstractMaterialBusinessObject extends AbstractBusinessObject
 {
-    protected AbstractMaterialBusinessObject(final IDAOFactory daoFactory, final Session session)
+    protected AbstractMaterialBusinessObject(final IDAOFactory daoFactory, final Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session, EntityKind.MATERIAL);
+        super(daoFactory, session, EntityKind.MATERIAL, managedPropertyEvaluatorFactory);
     }
 
     protected AbstractMaterialBusinessObject(final IDAOFactory daoFactory, final Session session,
-            final IEntityPropertiesConverter entityPropertiesConverter)
+            final IEntityPropertiesConverter entityPropertiesConverter,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session, entityPropertiesConverter);
+        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory);
     }
 
     private static final String PROPERTY_TYPES = "materialType.materialTypePropertyTypesInternal";

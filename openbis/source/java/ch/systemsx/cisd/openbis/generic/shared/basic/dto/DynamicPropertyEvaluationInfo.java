@@ -23,16 +23,21 @@ public class DynamicPropertyEvaluationInfo extends BasicEntityDescription
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    private String sciptName;
+
     private String script;
+
+    private PluginType pluginType;
 
     public DynamicPropertyEvaluationInfo()
     {
     }
 
     public DynamicPropertyEvaluationInfo(EntityKind entityKind, String entityIdentifier,
-            String script)
+            PluginType pluginType, String scriptName, String script)
     {
         super(entityKind, entityIdentifier);
+        this.sciptName = scriptName;
         this.script = script;
     }
 
@@ -46,4 +51,23 @@ public class DynamicPropertyEvaluationInfo extends BasicEntityDescription
         this.script = script;
     }
 
+    public PluginType getPluginType()
+    {
+        return pluginType;
+    }
+
+    public void setPluginType(PluginType pluginType)
+    {
+        this.pluginType = pluginType;
+    }
+
+    public String getSciptName()
+    {
+        return sciptName;
+    }
+
+    public void setSciptName(String sciptName)
+    {
+        this.sciptName = sciptName;
+    }
 }

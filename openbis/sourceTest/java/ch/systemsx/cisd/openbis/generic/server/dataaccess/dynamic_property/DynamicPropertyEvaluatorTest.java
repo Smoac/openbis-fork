@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBOTest;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter.IHibernateSessionProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.AbstractEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.BasicPropertyAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityPropertyAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
@@ -76,7 +77,10 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
                     return session;
                 }
             };
-        evaluator = new DynamicPropertyEvaluator(daoFactory, sessionProvider);
+        evaluator =
+                new DynamicPropertyEvaluator(daoFactory, sessionProvider,
+                        new DynamicPropertyCalculatorFactory(null, null),
+                        managedPropertyEvaluatorFactory);
     }
 
     @Test

@@ -42,6 +42,8 @@ public class Script extends AbstractRegistrationHolder implements Comparable<Scr
 
     private EntityKind entityKind;
 
+    private PluginType pluginType;
+
     public Script()
     {
     }
@@ -113,6 +115,16 @@ public class Script extends AbstractRegistrationHolder implements Comparable<Scr
     public void setScriptType(ScriptType scriptType)
     {
         this.scriptType = scriptType;
+    }
+
+    public PluginType getPluginType()
+    {
+        return pluginType;
+    }
+
+    public void setPluginType(PluginType pluginType)
+    {
+        this.pluginType = pluginType;
     }
 
     @Override

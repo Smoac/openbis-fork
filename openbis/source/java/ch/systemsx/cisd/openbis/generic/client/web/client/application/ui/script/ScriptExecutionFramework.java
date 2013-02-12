@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluationInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 
 /**
@@ -99,7 +100,11 @@ public class ScriptExecutionFramework
 
     private static class State
     {
+        private String scriptName;
+
         private String script;
+
+        private PluginType pluginType;
 
         public String getScript()
         {
@@ -111,6 +116,25 @@ public class ScriptExecutionFramework
             this.script = script;
         }
 
+        public PluginType getPluginType()
+        {
+            return pluginType;
+        }
+
+        public void setPluginType(PluginType pluginType)
+        {
+            this.pluginType = pluginType;
+        }
+
+        public String getScriptName()
+        {
+            return scriptName;
+        }
+
+        public void setScriptName(String scriptName)
+        {
+            this.scriptName = scriptName;
+        }
     }
 
     public ScriptExecutionFramework(IViewContext<ICommonClientServiceAsync> viewContext,
@@ -318,9 +342,15 @@ public class ScriptExecutionFramework
         return set;
     }
 
-    public void update(String script)
+    public void update(String scriptName, String script, PluginType pluginTypeOrNull)
     {
+        state.setScriptName(scriptName);
         state.setScript(script);
+
+        if (pluginTypeOrNull != null)
+        {
+            state.setPluginType(pluginTypeOrNull);
+        }
     }
 
     public void updateEntityKind(EntityKind kind)
@@ -341,11 +371,13 @@ public class ScriptExecutionFramework
         if (selectedEntityOrNull != null)
         {
             evaluate(selectedEntityOrNull.getEntityKind(),
-                    selectedEntityOrNull.getEntityIdentifier(), state.getScript());
+                    selectedEntityOrNull.getEntityIdentifier(), state.getPluginType(),
+                    state.getScriptName(), state.getScript());
         }
     }
 
-    private void evaluate(EntityKind kind, String entity, String script)
+    private void evaluate(EntityKind kind, String entity, PluginType pluginType, String scriptName,
+            String script)
     {
         if (entity == null)
         {
@@ -354,8 +386,31 @@ public class ScriptExecutionFramework
         if (this.scriptType == ScriptType.DYNAMIC_PROPERTY)
         {
             updateEvaluationResultField(viewContext.getMessage(Dict.EVALUATION_IN_PROGRESS));
+            viewContext.getCommonService()
+                    .evaluate(
+                            new DynamicPropertyEvaluationInfo(kind, entity, pluginType, scriptName,
+                                    script), new AbstractAsyncCallback<String>(viewContext)
+                                {
+
+                                    @Override
+                                    protected void process(String result)
+                                    {
+                                        updateEvaluationResultField(result);
+                                    }
+
+                                    @Override
+                                    public void finishOnFailure(Throwable caught)
+                                    {
+                                        updateEvaluationResultField("");
+                                        evaluationResultPanel.setVisible(false);
+                                    }
+                                });
+        } else if (this.scriptType == ScriptType.ENTITY_VALIDATION)
+        {
+            updateEvaluationResultField(viewContext.getMessage(Dict.EVALUATION_IN_PROGRESS));
             viewContext.getCommonService().evaluate(
-                    new DynamicPropertyEvaluationInfo(kind, entity, script),
+                    new EntityValidationEvaluationInfo(kind, entity, isNewEntity.getValue(),
+                            pluginType, scriptName, script),
                     new AbstractAsyncCallback<String>(viewContext)
                         {
 
@@ -372,29 +427,6 @@ public class ScriptExecutionFramework
                                 evaluationResultPanel.setVisible(false);
                             }
                         });
-        } else if (this.scriptType == ScriptType.ENTITY_VALIDATION)
-        {
-            updateEvaluationResultField(viewContext.getMessage(Dict.EVALUATION_IN_PROGRESS));
-            viewContext.getCommonService()
-                    .evaluate(
-                            new EntityValidationEvaluationInfo(kind, entity,
-                                    isNewEntity.getValue(), script),
-                            new AbstractAsyncCallback<String>(viewContext)
-                                {
-
-                                    @Override
-                                    protected void process(String result)
-                                    {
-                                        updateEvaluationResultField(result);
-                                    }
-
-                                    @Override
-                                    public void finishOnFailure(Throwable caught)
-                                    {
-                                        updateEvaluationResultField("");
-                                        evaluationResultPanel.setVisible(false);
-                                    }
-                                });
         }
     }
 

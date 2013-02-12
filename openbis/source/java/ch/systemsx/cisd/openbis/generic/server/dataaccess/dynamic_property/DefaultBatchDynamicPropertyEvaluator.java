@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropert
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * A default {@link IBatchDynamicPropertyEvaluator}.
@@ -72,11 +73,19 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
 
     private final IDAOFactory daoFactory;
 
-    DefaultBatchDynamicPropertyEvaluator(final int batchSize, IDAOFactory daoFactory)
+    private final IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory;
+
+    private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
+    DefaultBatchDynamicPropertyEvaluator(final int batchSize, IDAOFactory daoFactory,
+            IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         assert batchSize > -1 : "Batch size can not be negative.";
         this.batchSize = batchSize;
         this.daoFactory = daoFactory;
+        this.dynamicPropertyCalculatorFactory = dynamicPropertyCalculatorFactory;
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     private DynamicPropertyEvaluator createEvaluator(final Session hibernateSession)
@@ -88,7 +97,7 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
                 {
                     return hibernateSession;
                 }
-            });
+            }, dynamicPropertyCalculatorFactory, managedPropertyEvaluatorFactory);
     }
 
     //

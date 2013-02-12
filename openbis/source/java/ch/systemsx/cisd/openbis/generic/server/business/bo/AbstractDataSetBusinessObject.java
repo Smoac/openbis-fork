@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -57,9 +58,10 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
 
     public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session,
             IRelationshipService relationshipService,
-            IServiceConversationClientManagerLocal conversationClient)
+            IServiceConversationClientManagerLocal conversationClient,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session, EntityKind.DATA_SET);
+        super(daoFactory, session, EntityKind.DATA_SET, managedPropertyEvaluatorFactory);
         this.relationshipService = relationshipService;
         this.conversationClient = conversationClient;
     }
@@ -67,9 +69,10 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
     public AbstractDataSetBusinessObject(IDAOFactory daoFactory, Session session,
             IEntityPropertiesConverter entityPropertiesConverter,
             IRelationshipService relationshipService,
-            IServiceConversationClientManagerLocal conversationClient)
+            IServiceConversationClientManagerLocal conversationClient,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session, entityPropertiesConverter);
+        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory);
         this.relationshipService = relationshipService;
         this.conversationClient = conversationClient;
     }

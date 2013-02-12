@@ -109,6 +109,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MetaprojectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -127,6 +128,9 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
     private ICommonBusinessObjectFactory boFactory;
+
+    @Resource(name = ComponentNames.MANAGED_PROPERTY_EVALUATOR_FACTORY)
+    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
     // Default constructor needed by Spring
     public GeneralInformationService()
@@ -819,7 +823,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                             session.tryGetPerson(), dataPE);
             ExternalData ds =
                     DataSetTranslator.translate(dataPE, session.getBaseIndexURL(),
-                            MetaprojectTranslator.translate(metaprojects));
+                            MetaprojectTranslator.translate(metaprojects),
+                            managedPropertyEvaluatorFactory);
             result.add(Translator.translate(ds, connections));
         }
         return result;

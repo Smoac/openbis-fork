@@ -20,7 +20,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.DynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 
 /**
  * @author Piotr Buczek
@@ -34,7 +35,9 @@ public class DynamicPropertyEvaluatorDbTest extends AbstractDAOTest
     @BeforeMethod
     public void beforeClass() throws Exception
     {
-        evaluator = new DynamicPropertyEvaluator(daoFactory, null);
+        evaluator =
+                new DynamicPropertyEvaluator(daoFactory, null,
+                        new DynamicPropertyCalculatorFactory(null, null),
+                        new ManagedPropertyEvaluatorFactory(null, null));
     }
-
 }

@@ -33,7 +33,10 @@ import org.springframework.transaction.support.DefaultTransactionStatus;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.HibernateInterceptorsWrapper;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyCalculatorFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.IEntityValidatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * An implementation of {@link HibernateTransactionManager} that:
@@ -55,9 +58,21 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
 
     private DynamicPropertiesInterceptor dynamicPropertiesInterceptor;
 
-    public OpenBISHibernateTransactionManager(IDAOFactory daoFactory)
+    private IEntityValidatorFactory entityValidationFactory;
+
+    private IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory;
+
+    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
+    public OpenBISHibernateTransactionManager(IDAOFactory daoFactory,
+            IEntityValidatorFactory entityValidationFactory,
+            IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         this.daoFactory = daoFactory;
+        this.entityValidationFactory = entityValidationFactory;
+        this.dynamicPropertyCalculatorFactory = dynamicPropertyCalculatorFactory;
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     public void setDynamicPropertiesInterceptor(
@@ -103,7 +118,8 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
     public Interceptor getEntityInterceptor() throws IllegalStateException, BeansException
     {
         EntityValidationInterceptor entityValidationInterceptor =
-                new EntityValidationInterceptor(this, daoFactory);
+                new EntityValidationInterceptor(this, daoFactory, entityValidationFactory,
+                        dynamicPropertyCalculatorFactory, managedPropertyEvaluatorFactory);
 
         return new HibernateInterceptorsWrapper(dynamicPropertiesInterceptor,
                 entityValidationInterceptor);

@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -48,12 +49,14 @@ public class LogicalImageLoader
      * in HCS case).
      */
     public static LogicalImageInfo loadLogicalImageInfo(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, String datasetCode,
+            IScreeningBusinessObjectFactory businessObjectFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String datasetCode,
             String datastoreCode, WellLocation wellLocationOrNull)
     {
         LogicalImageInfo logicalImageInfo =
-                new LogicalImageLoader(session, businessObjectFactory).tryLoadLogicalImageInfo(
-                        datasetCode, datastoreCode, wellLocationOrNull);
+                new LogicalImageLoader(session, businessObjectFactory,
+                        managedPropertyEvaluatorFactory).tryLoadLogicalImageInfo(datasetCode,
+                        datastoreCode, wellLocationOrNull);
         if (logicalImageInfo == null)
         {
             throw new IllegalStateException(String.format("Dataset '%s' is not an image dataset.",
@@ -63,21 +66,28 @@ public class LogicalImageLoader
     }
 
     public static ImageDatasetEnrichedReference getImageDatasetReference(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, String datasetCode,
+            IScreeningBusinessObjectFactory businessObjectFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String datasetCode,
             String datastoreCode)
     {
-        return new LogicalImageLoader(session, businessObjectFactory).getImageDatasetReference(
-                datasetCode, datastoreCode);
+        return new LogicalImageLoader(session, businessObjectFactory,
+                managedPropertyEvaluatorFactory).getImageDatasetReference(datasetCode,
+                datastoreCode);
     }
 
     private final Session session;
 
     private final IScreeningBusinessObjectFactory businessObjectFactory;
 
-    public LogicalImageLoader(Session session, IScreeningBusinessObjectFactory businessObjectFactory)
+    private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
+    public LogicalImageLoader(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
+        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     private ImageDatasetEnrichedReference getImageDatasetReference(String datasetCode,
@@ -223,6 +233,7 @@ public class LogicalImageLoader
 
     private ExternalData translate(DataPE dataSet)
     {
-        return DataSetTranslator.translate(dataSet, session.getBaseIndexURL(), null);
+        return DataSetTranslator.translate(dataSet, session.getBaseIndexURL(), null,
+                managedPropertyEvaluatorFactory);
     }
 }

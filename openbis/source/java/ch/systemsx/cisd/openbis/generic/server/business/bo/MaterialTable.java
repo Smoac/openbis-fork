@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * The only productive implementation of {@link IMaterialTable}.
@@ -54,18 +55,19 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
 
     private boolean dataChanged;
 
-    public MaterialTable(final IDAOFactory daoFactory, final Session session)
+    public MaterialTable(final IDAOFactory daoFactory, final Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
     }
 
     @Private
     // for tests only
     MaterialTable(final IDAOFactory daoFactory, final Session session,
             final IEntityPropertiesConverter entityPropertiesConverter, List<MaterialPE> materials,
-            boolean dataChanged)
+            boolean dataChanged, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session, entityPropertiesConverter);
+        super(daoFactory, session, entityPropertiesConverter, managedPropertyEvaluatorFactory);
         this.materials = materials;
         this.dataChanged = dataChanged;
     }

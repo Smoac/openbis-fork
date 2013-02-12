@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.IDynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 
@@ -25,4 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 public interface IDynamicPropertyCalculatorFactory
 {
     public IDynamicPropertyCalculator getCalculator(EntityTypePropertyTypePE etpt);
+
+    public List<String> listPredeployedPlugins();
 }

@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * @author Pawel Glyzewski
@@ -79,9 +80,10 @@ public class MetaprojectBO extends AbstractBusinessObject implements IMetaprojec
     private boolean dataChanged;
 
     public MetaprojectBO(final IDAOFactory daoFactory, IExperimentBO experimentBO,
-            ISampleBO sampleBO, IDataBO dataBO, IMaterialBO materialBO, final Session session)
+            ISampleBO sampleBO, IDataBO dataBO, IMaterialBO materialBO, final Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
 
         this.experimentBO = experimentBO;
         this.sampleBO = sampleBO;

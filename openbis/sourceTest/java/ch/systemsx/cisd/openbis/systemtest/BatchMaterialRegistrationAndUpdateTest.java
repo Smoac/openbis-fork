@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -76,6 +77,7 @@ public class BatchMaterialRegistrationAndUpdateTest extends SystemTestCase
         deleteTestMaterials();
         Script script = new Script();
         script.setScriptType(ScriptType.MANAGED_PROPERTY);
+        script.setPluginType(PluginType.JYTHON);
         script.setName("batch script");
         script.setScript("def batchColumnNames():\n  return ['A', 'B']\n"
                 + "def updateFromBatchInput(bindings):\n"

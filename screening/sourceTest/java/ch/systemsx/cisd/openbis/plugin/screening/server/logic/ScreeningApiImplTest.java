@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
@@ -77,7 +78,9 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     public void beforeMethod()
     {
         screeningBOFactory = context.mock(IScreeningBusinessObjectFactory.class);
-        screeningApi = new ScreeningApiImpl(session, screeningBOFactory, daoFactory);
+        screeningApi =
+                new ScreeningApiImpl(session, screeningBOFactory, daoFactory,
+                        new ManagedPropertyEvaluatorFactory(null, null));
     }
 
     @Test

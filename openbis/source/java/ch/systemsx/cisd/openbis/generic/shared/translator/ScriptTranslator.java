@@ -53,6 +53,7 @@ public final class ScriptTranslator
         final Script result = new Script();
         result.setId(HibernateUtils.getId(script));
         result.setScriptType(script.getScriptType());
+        result.setPluginType(script.getPluginType());
         result.setEntityKind(script.getEntityKind());
         result.setName(script.getName());
         result.setDescription(script.getDescription());

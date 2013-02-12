@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 
 /**
@@ -144,7 +145,8 @@ public class DatasetListerTest extends AbstractDAOTest
                 new HashSet<String>(Arrays.asList("200902091250077-1026", "200902091225616-1027"));
         List<SamplePE> samplePEs = daoFactory.getSampleDAO().listByPermID(samplePermIDs);
         List<Sample> samples =
-                SampleTranslator.translate(samplePEs, "", new HashMap<Long, Set<Metaproject>>());
+                SampleTranslator.translate(samplePEs, "", new HashMap<Long, Set<Metaproject>>(),
+                        new ManagedPropertyEvaluatorFactory(null, null));
 
         Map<Sample, List<ExternalData>> dataSets = lister.listAllDataSetsFor(samples);
 

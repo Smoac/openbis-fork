@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -54,18 +55,21 @@ public final class ExperimentTranslator
     }
 
     private static void setProperties(final ExperimentPE experiment, final Experiment result,
-            final boolean rawManagedProperties)
+            final boolean rawManagedProperties,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         if (experiment.isPropertiesInitialized())
         {
             if (rawManagedProperties)
             {
                 result.setProperties(EntityPropertyTranslator.translateRaw(
-                        experiment.getProperties(), new HashMap<PropertyTypePE, PropertyType>()));
+                        experiment.getProperties(), new HashMap<PropertyTypePE, PropertyType>(),
+                        managedPropertyEvaluatorFactory));
             } else
             {
                 result.setProperties(EntityPropertyTranslator.translate(experiment.getProperties(),
-                        new HashMap<PropertyTypePE, PropertyType>()));
+                        new HashMap<PropertyTypePE, PropertyType>(),
+                        managedPropertyEvaluatorFactory));
             }
         } else
         {
@@ -99,13 +103,17 @@ public final class ExperimentTranslator
     }
 
     public final static Experiment translate(final ExperimentPE experiment, String baseIndexURL,
-            Collection<Metaproject> metaprojects, final LoadableFields... withFields)
+            Collection<Metaproject> metaprojects,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            final LoadableFields... withFields)
     {
-        return translate(experiment, baseIndexURL, false, metaprojects, withFields);
+        return translate(experiment, baseIndexURL, false, metaprojects,
+                managedPropertyEvaluatorFactory, withFields);
     }
 
     public final static Experiment translate(final ExperimentPE experiment, String baseIndexURL,
             final boolean rawManagedProperties, Collection<Metaproject> metaprojects,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
             final LoadableFields... withFields)
     {
         if (experiment == null)
@@ -133,7 +141,8 @@ public final class ExperimentTranslator
             switch (field)
             {
                 case PROPERTIES:
-                    setProperties(experiment, result, rawManagedProperties);
+                    setProperties(experiment, result, rawManagedProperties,
+                            managedPropertyEvaluatorFactory);
                     break;
                 case ATTACHMENTS:
                     result.setAttachments(AttachmentTranslator.translate(
@@ -154,14 +163,16 @@ public final class ExperimentTranslator
 
     // NOTE: when translating list of experiments managed properties will contain raw value
     public final static List<Experiment> translate(final List<ExperimentPE> experiments,
-            String baseIndexURL, Map<Long, Set<Metaproject>> metaprojects)
+            String baseIndexURL, Map<Long, Set<Metaproject>> metaprojects,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         final List<Experiment> result = new ArrayList<Experiment>(experiments.size());
         for (final ExperimentPE experiment : experiments)
         {
             HibernateUtils.initialize(experiment.getProperties());
             result.add(ExperimentTranslator.translate(experiment, baseIndexURL, true,
-                    metaprojects.get(experiment.getId()), LoadableFields.PROPERTIES));
+                    metaprojects.get(experiment.getId()), managedPropertyEvaluatorFactory,
+                    LoadableFields.PROPERTIES));
         }
         return result;
     }

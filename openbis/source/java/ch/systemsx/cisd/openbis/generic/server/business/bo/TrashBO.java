@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
  * @author Piotr Buczek
@@ -54,9 +55,10 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
 
     private DeletionPE deletion;
 
-    public TrashBO(IDAOFactory daoFactory, ICommonBusinessObjectFactory boFactory, Session session)
+    public TrashBO(IDAOFactory daoFactory, ICommonBusinessObjectFactory boFactory, Session session,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        super(daoFactory, session);
+        super(daoFactory, session, managedPropertyEvaluatorFactory);
         this.boFactory = boFactory;
     }
 

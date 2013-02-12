@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCa
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 
 /**
@@ -33,7 +34,7 @@ public class ExternalDataValidatorTest extends AuthorizationTestCase
     {
         DataSet data = new DataSet();
         data.setExperiment(ExperimentTranslator.translate(createExperiment(group),
-                "http://someURL", null));
+                "http://someURL", null, new ManagedPropertyEvaluatorFactory(null, null)));
         return data;
     }
 

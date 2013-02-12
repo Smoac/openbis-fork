@@ -39,7 +39,8 @@ public class EntityTypeBOTest extends AbstractBOTest
     public void testDeleteReferencedFromTrashCan()
     {
         final String sampleTypeCode = "SAMPLE_TYPE";
-        final IEntityTypeBO entityTypeBO = new EntityTypeBO(daoFactory, EXAMPLE_SESSION);
+        final IEntityTypeBO entityTypeBO =
+                new EntityTypeBO(daoFactory, EXAMPLE_SESSION, managedPropertyEvaluatorFactory);
         final EntityKind entityKind = EntityKind.SAMPLE;
         final SampleTypePE sampleType =
                 new SampleTypePEBuilder().id(1).code(sampleTypeCode).getSampleType();
