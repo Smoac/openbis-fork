@@ -1662,6 +1662,74 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     @Override
+    public void loadPhysicalThumbnails(List<PlateImageReference> imageReferences,
+            final ImageRepresentationFormat format, final IPlateImageHandler plateImageHandler)
+            throws IOException
+    {
+        plateImageReferencesMultiplexer.process(imageReferences,
+                new IReferenceHandler<PlateImageReference>()
+                    {
+                        @Override
+                        public void handle(DssServiceRpcScreeningHolder dssService,
+                                List<PlateImageReference> references)
+                        {
+                            checkDSSMinimalMinorVersion(dssService, "loadPhysicalThumbnails",
+                                    List.class, ImageRepresentationFormat.class);
+                            final InputStream stream =
+                                    dssService.getService().loadPhysicalThumbnails(sessionToken,
+                                            references, format);
+                            processImagesStreamUnchecked(plateImageHandler, references, stream);
+
+                        }
+                    });
+    }
+
+    @Override
+    public void loadPhysicalThumbnails(List<PlateImageReference> imageReferences,
+            final ImageRepresentationFormat format,
+            final IImageOutputStreamProvider outputStreamProvider) throws IOException
+    {
+        plateImageReferencesMultiplexer.process(imageReferences,
+                new IReferenceHandler<PlateImageReference>()
+                    {
+                        @Override
+                        public void handle(DssServiceRpcScreeningHolder dssService,
+                                List<PlateImageReference> references)
+                        {
+                            checkDSSMinimalMinorVersion(dssService, "loadPhysicalThumbnails",
+                                    List.class, ImageRepresentationFormat.class);
+                            final InputStream stream =
+                                    dssService.getService().loadPhysicalThumbnails(sessionToken,
+                                            references, format);
+                            try
+                            {
+                                final ConcatenatedFileOutputStreamWriter imagesWriter =
+                                        new ConcatenatedFileOutputStreamWriter(stream);
+                                for (PlateImageReference imageRef : references)
+                                {
+                                    OutputStream output =
+                                            outputStreamProvider.getOutputStream(imageRef);
+                                    imagesWriter.writeNextBlock(output);
+                                }
+                            } catch (IOException ex)
+                            {
+                                throw new WrappedIOException(ex);
+                            } finally
+                            {
+                                try
+                                {
+                                    stream.close();
+                                } catch (IOException ex)
+                                {
+                                    throw new WrappedIOException(ex);
+                                }
+                            }
+
+                        }
+                    });
+    }
+
+    @Override
     public void saveImageTransformerFactory(List<IDatasetIdentifier> dataSetIdentifiers,
             String channel, IImageTransformerFactory transformerFactoryOrNull)
     {

@@ -902,4 +902,32 @@ public interface IScreeningOpenbisServiceFacade
     public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
             List<? extends IDatasetIdentifier> dataSetIdentifiers);
 
+    /**
+     * Retrieves images for the specified image references and invokes the plateImageHandler passing
+     * in image data. <br/>
+     * If no images are stored for a particular combination of image reference and format, empty
+     * images (length 0) will be returned.
+     * 
+     * @param imageReferences The data set, well, channel, and tile of the image to be returned.
+     * @param format The format of the image to return.
+     * @param plateImageHandler Handles delivered images.
+     */
+    void loadPhysicalThumbnails(List<PlateImageReference> imageReferences,
+            ImageRepresentationFormat format, IPlateImageHandler plateImageHandler)
+            throws IOException;
+
+    /**
+     * Retrieves images for the specified image references and invokes the
+     * IImageOutputStreamProvider passing in image data. <br/>
+     * If no images are stored for a particular combination of image reference and format, empty
+     * images (length 0) will be returned.
+     * 
+     * @param imageReferences The data set, well, channel, and tile of the image to be returned.
+     * @param format The format of the image to return.
+     * @param plateImageHandler Handles delivered images.
+     */
+    void loadPhysicalThumbnails(List<PlateImageReference> imageReferences,
+            ImageRepresentationFormat format, IImageOutputStreamProvider outputStreamProvider)
+            throws IOException;
+
 }

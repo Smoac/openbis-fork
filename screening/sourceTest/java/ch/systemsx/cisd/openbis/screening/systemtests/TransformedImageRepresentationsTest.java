@@ -20,6 +20,7 @@ import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,15 +34,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import com.googlecode.jsonrpc4j.Base64;
-import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
-import com.googlecode.jsonrpc4j.ProxyUtil;
-
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IPlateImageHandler;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
@@ -54,6 +52,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresen
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
+
+import com.googlecode.jsonrpc4j.Base64;
+import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
+import com.googlecode.jsonrpc4j.ProxyUtil;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -118,7 +120,14 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
         }
     }
 
-    String expectedThumbnail(String dataSetCode, int size) throws IOException
+    private byte[] expectedThumbnailBytes(String dataSetCode, int size) throws IOException
+    {
+        IDataSetDss ds = screeningFacade.getDataSet(dataSetCode);
+        return getImageBaseBytes(ds, "thumbnails_" + size + "x" + size
+                + "__CONVERT_2.h5ar/wA1_d1-1_cCy5.jpg");
+    }
+
+    private String expectedThumbnail(String dataSetCode, int size) throws IOException
     {
         IDataSetDss ds = screeningFacade.getDataSet(dataSetCode);
         return getImageBase64(ds, "thumbnails_" + size + "x" + size
@@ -128,7 +137,15 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
     /**
      * get the base64 encoded data of the image taken directly from the file system.
      */
-    String getImageBase64(IDataSetDss ds, String pathInDataSet) throws IOException
+    private byte[] getImageBaseBytes(IDataSetDss ds, String pathInDataSet) throws IOException
+    {
+        return IOUtils.toByteArray(ds.getFile(pathInDataSet));
+    }
+
+    /**
+     * get the base64 encoded data of the image taken directly from the file system.
+     */
+    private String getImageBase64(IDataSetDss ds, String pathInDataSet) throws IOException
     {
         return Base64.encodeBytes(IOUtils.toByteArray(ds.getFile(pathInDataSet)));
     }
@@ -161,10 +178,20 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
         {
             if (false == format.isOriginal())
             {
-                List<String> thumbnails =
-                        screeningJsonApi.loadPhysicalThumbnailsBase64(sessionToken, plateRefs,
-                                format);
-                String expectedThumbnailImage = expectedThumbnail(dataSetCode, format.getWidth());
+                final List<byte[]> thumbnails = new ArrayList<byte[]>(1);
+                screeningFacade.loadPhysicalThumbnails(plateRefs, format, new IPlateImageHandler()
+                    {
+
+                        @Override
+                        public void handlePlateImage(PlateImageReference plateImageReference,
+                                byte[] imageFileBytes)
+                        {
+                            thumbnails.add(imageFileBytes);
+                        }
+
+                    });
+                byte[] expectedThumbnailImage =
+                        expectedThumbnailBytes(dataSetCode, format.getWidth());
                 assertEquals(1, thumbnails.size());
                 assertEquals(expectedThumbnailImage, thumbnails.get(0));
             }
