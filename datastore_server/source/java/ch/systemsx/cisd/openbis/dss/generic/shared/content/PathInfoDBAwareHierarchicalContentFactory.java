@@ -37,7 +37,7 @@ public class PathInfoDBAwareHierarchicalContentFactory extends
     {
         if (PathInfoDataSourceProvider.isDataSourceDefined())
         {
-            operationLog.info("Path Info DB is properly configured");
+            operationLog.debug("Path Info DB is properly configured");
             return new PathInfoDBAwareHierarchicalContentFactory(
                     ServiceProvider.getDataSetPathInfoProvider());
         } else
