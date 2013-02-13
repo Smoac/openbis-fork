@@ -49,9 +49,9 @@ public class ManagedPropertyEvaluatorFactory implements IManagedPropertyEvaluato
     {
         if (false == StringUtils.isBlank(pluginDirectoryPath))
         {
-            hotDeploymentController.addPluginDirectory(new File(pluginDirectoryPath));
             this.predeployedPlugins =
                     hotDeploymentController.getPluginMap(IManagedPropertyEvaluator.class);
+            hotDeploymentController.addPluginDirectory(new File(pluginDirectoryPath));
         } else
         {
             this.predeployedPlugins = null;

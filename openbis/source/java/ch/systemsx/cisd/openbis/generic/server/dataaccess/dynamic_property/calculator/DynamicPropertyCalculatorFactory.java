@@ -42,9 +42,9 @@ public class DynamicPropertyCalculatorFactory implements IDynamicPropertyCalcula
     {
         if (false == StringUtils.isBlank(pluginDirectoryPath))
         {
-            hotDeploymentController.addPluginDirectory(new File(pluginDirectoryPath));
             this.predeployedPlugins =
                     hotDeploymentController.getPluginMap(IDynamicPropertyCalculator.class);
+            hotDeploymentController.addPluginDirectory(new File(pluginDirectoryPath));
         } else
         {
             this.predeployedPlugins = null;

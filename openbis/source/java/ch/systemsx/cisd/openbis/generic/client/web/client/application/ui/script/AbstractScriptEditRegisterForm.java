@@ -177,14 +177,14 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
                                         .getSimpleValue();
                     }
                     scriptExecution.update(nameField.isVisible() ? nameField.getValue()
-                            : predeployedPluginsWidget.getValue().getValue(), scriptField
+                            : predeployedPluginsWidget.tryGetSelectedValue(), scriptField
                             .getValue(), pluginTypeOrNull);
                 }
             };
 
         scriptField.addListener(Events.Change, scriptParametersListener);
         nameField.addListener(Events.Change, scriptParametersListener);
-        predeployedPluginsWidget.addListener(Events.Change, scriptParametersListener);
+        predeployedPluginsWidget.addListener(Events.SelectionChange, scriptParametersListener);
     }
 
     private SelectionChangedListener<SimpleComboValue<ScriptType>> createScriptTypeChangedListener()
@@ -241,7 +241,9 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
             scriptField.setValidator(null);
         }
 
-        scriptExecution.update(nameField.getValue(), scriptField.getValue(), pluginType);
+        scriptExecution.update(nameField.isVisible() ? nameField.getValue()
+                : predeployedPluginsWidget.tryGetSelectedValue(), scriptField.getValue(),
+                pluginType);
     }
 
     private IValidable asValidable(final FormPanel panel)

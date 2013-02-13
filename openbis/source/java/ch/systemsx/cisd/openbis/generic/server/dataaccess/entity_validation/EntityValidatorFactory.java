@@ -44,8 +44,8 @@ public class EntityValidatorFactory implements IEntityValidatorFactory
     {
         if (false == StringUtils.isBlank(pluginDirectoryPath))
         {
-            hotDeploymentController.addPluginDirectory(new File(pluginDirectoryPath));
             this.predeployedPlugins = hotDeploymentController.getPluginMap(IEntityValidator.class);
+            hotDeploymentController.addPluginDirectory(new File(pluginDirectoryPath));
         } else
         {
             this.predeployedPlugins = null;

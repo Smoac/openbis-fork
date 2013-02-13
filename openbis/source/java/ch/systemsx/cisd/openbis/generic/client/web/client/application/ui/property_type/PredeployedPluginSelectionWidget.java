@@ -45,6 +45,8 @@ public class PredeployedPluginSelectionWidget extends
                 "plugin", "plugins");
 
         this.viewContext = viewContext;
+
+        setAutoSelectFirst(false);
     }
 
     @Override
@@ -90,7 +92,19 @@ public class PredeployedPluginSelectionWidget extends
 
     public void setSelectedValue(String value)
     {
+        clearSelections();
         setSelection(convertItems(Collections.singletonList(value)));
+    }
+
+    public String tryGetSelectedValue()
+    {
+        SimpleComboValue<String> selection = getValue();
+        if (selection != null)
+        {
+            return selection.getValue();
+        }
+
+        return null;
     }
 
     private class ListPredeployedPluginsCallback extends
