@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.builders;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -23,35 +24,37 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
  * Builder for {@link EntityTypePropertyTypePE} instances.
- *
+ * 
  * @author felmer
  */
 public class EntityTypePropertyTypePEBuilder
 {
     private final EntityTypePropertyTypePE entityTypePropertyTypePE;
 
-    EntityTypePropertyTypePEBuilder(EntityTypePropertyTypePE entityTypePropertyTypePE, PropertyTypePE propertyType)
+    EntityTypePropertyTypePEBuilder(EntityTypePropertyTypePE entityTypePropertyTypePE,
+            PropertyTypePE propertyType)
     {
         this.entityTypePropertyTypePE = entityTypePropertyTypePE;
         entityTypePropertyTypePE.setPropertyType(propertyType);
     }
-    
+
     public EntityTypePropertyTypePE getEntityTypePropertyType()
     {
         return entityTypePropertyTypePE;
     }
-    
+
     public EntityTypePropertyTypePEBuilder ordinal(int ordinal)
     {
         entityTypePropertyTypePE.setOrdinal((long) ordinal);
         return this;
     }
-    
+
     public EntityTypePropertyTypePEBuilder script(ScriptType scriptType, String script)
     {
         ScriptPE scriptPE = new ScriptPE();
         scriptPE.setScript(script);
         scriptPE.setScriptType(scriptType);
+        scriptPE.setPluginType(PluginType.JYTHON);
         entityTypePropertyTypePE.setScript(scriptPE);
         return this;
     }
