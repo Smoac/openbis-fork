@@ -166,6 +166,7 @@
         return;
     }
     
+    [self syncSelectedObjectForNavigationOnSuccess: ^(id result){}];
     [self syncSelectedObjectForDetailOnSuccess: success];
 }
 
