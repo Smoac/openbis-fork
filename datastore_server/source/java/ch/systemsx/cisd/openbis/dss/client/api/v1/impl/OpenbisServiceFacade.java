@@ -554,6 +554,12 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     }
 
     @Override
+    public List<Experiment> searchForExperiments(SearchCriteria searchCriteria)
+    {
+        return service.searchForExperiments(sessionToken, searchCriteria);
+    }
+
+    @Override
     public List<Sample> searchForSamples(SearchCriteria searchCriteria)
     {
         return service.searchForSamples(sessionToken, searchCriteria);

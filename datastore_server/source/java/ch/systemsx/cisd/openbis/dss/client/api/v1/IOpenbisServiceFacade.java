@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.api.retry.Retry;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
@@ -59,6 +60,11 @@ public interface IOpenbisServiceFacade extends ISimpleOpenbisServiceFacade
      */
     public void setWebAppSettings(WebAppSettings customDisplaySettings);
 
+    /**
+     * Returns all experiments matching specified search criteria.
+     */
+    public List<Experiment> searchForExperiments(SearchCriteria searchCriteria);
+    
     /**
      * Return all samples that match the search criteria.
      * This is a short cut for
