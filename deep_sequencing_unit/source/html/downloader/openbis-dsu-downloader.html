@@ -13,11 +13,11 @@
   <script type="text/javascript" src="d3.js"></script>
   <script type="text/javascript" src="d3.layout.js"></script>
   <script type="text/javascript" src="d3.time.js"></script>
-  <script type="text/javascript" src="jquery.js"></script>
-  <script type="text/javascript" src="openbis.js"></script>
+  <script type="text/javascript" src="/openbis/resources/js/jquery.js"></script>
+  <script type="text/javascript" src="/openbis/resources/js/openbis.js"></script>
   <script type="text/javascript" src="openbis-dsu.js"></script>
   <!-- To speed development, cache the requests -->
-  <!-- <script type="text/javascript" src="openbis-request-cache.js"></script> -->
+  <!-- <script type="text/javascript" src="/openbis/resources/js/openbis-request-cache.js"></script> -->
   <script>
 
 dsu = new openbis_dsu('https://openbis-dsu.ethz.ch/openbis/openbis', 'https://openbis-dsu.ethz.ch/datastore_server');
@@ -486,7 +486,7 @@ function loadHasFilesForSample(sample, callback){
 	                    if (!files || files.length == 0) {
 	                      if(datasets.length > 0){
 	                    	  log("Sample: " + sample.bis.code + " no files found yet - will try in the next dataset");
-	                        listFilesFunction(datasets.pop());
+	                        listFiles(datasets.pop());
 	                      }else{
 	                    	  log("Sample: " + sample.bis.code + " HAS_NO_FILES");
 	                    	  sample.hasFiles = false;

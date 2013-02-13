@@ -68,9 +68,12 @@ function openbis(openbisUrl, dssUrl) {
 	this.dssUrl = dssUrl;
 	
 	this.generalInfoServiceUrl = openbisUrl + "/rmi-general-information-v1.json";
+	this.generalInfoChangingServiceUrl = openbisUrl + "/rmi-general-information-changing-v1.json";
 	this.queryServiceUrl = openbisUrl + "/rmi-query-v1.json";
 	this.dssApiUrl = dssUrl + "/rmi-dss-api-v1.json";
 	this.webInfoServiceUrl = openbisUrl + "/rmi-web-information-v1.json"
+    this.screeningUrl = openbisUrl + "/rmi-screening-api-v1.json"
+	this.dssScreeningUrl = dssUrl + "/rmi-datastore-server-screening-api-v1.json"
 }
 
 
@@ -230,6 +233,25 @@ openbis.prototype.searchForSamples = function(searchCriteria, action) {
 }
 
 /**
+ * See ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService.searchForSamples(String, SearchCriteria, EnumSet<SampleFetchOption>)
+ * 
+ * @method
+ */
+openbis.prototype.searchForSamplesWithFetchOptions = function(searchCriteria, fetchOptions, action) {
+	ajaxRequest({
+		url: this.generalInfoServiceUrl,
+		data: { 
+				"method" : "searchForSamples",
+				"params" : [ 
+					this.sessionToken,
+					searchCriteria,
+					fetchOptions ] 
+		},
+		success: action
+	 });
+}
+
+/**
  * See ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService.searchForDataSets(String, SearchCriteria)
  * 
  * @method
@@ -313,6 +335,42 @@ openbis.prototype.executeQuery = function(queryId, parameterBindings, action) {
 		url: this.queryServiceUrl,
 		data: { "method" : "executeQuery",
 				"params" : [ this.sessionToken, queryId, parameterBindings ] },
+		success: action
+	});
+}
+
+/**
+ * See ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer.createReportFromAggregationService(String, String, String, Map<String, Object>)
+ */
+openbis.prototype.createReportFromAggregationService = function(dataStoreCode, serviceKey, parameters, action) {
+	ajaxRequest({
+		url: this.queryServiceUrl,
+		data: { "method" : "createReportFromAggregationService",
+		params : [ this.sessionToken, dataStoreCode, serviceKey, parameters ] },
+		success: action
+	});
+}
+
+/**
+ * See ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService.getWebAppSettings(String, String)
+ */
+openbis.prototype.getWebAppSettings = function(webappId, action) {
+	ajaxRequest({
+		url: this.generalInfoChangingServiceUrl,
+		data: { "method" : "getWebAppSettings",
+		params : [ this.sessionToken, webappId ] },
+		success: action
+	});
+}
+
+/**
+ * See ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService.setWebAppSettings(String, WebAppSettings)
+ */
+openbis.prototype.setWebAppSettings = function(webappSettings, action) {
+	ajaxRequest({
+		url: this.generalInfoChangingServiceUrl,
+		data: { "method" : "setWebAppSettings",
+		params : [ this.sessionToken, webappSettings ] },
 		success: action
 	});
 }
@@ -427,6 +485,49 @@ actionDeferrer.prototype.dependencyCompleted = function(key) {
 		this.pendingAction();
 	}
 }
+
+
+/**
+ * See ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening.loadImagesBase64(String sessionToken, List<PlateImageReference> imageReferences, boolean convertToPng)
+ * 
+ * @method
+ */
+openbis.prototype.loadImagesBase64 = function(imageReferences, convertToPng, action) {
+	ajaxRequest({
+		url: this.dssScreeningUrl,
+		data: { "method" : "loadImagesBase64",
+				"params" : [ this.sessionToken, imageReferences, convertToPng ] },
+		success: action
+	});
+}
+
+openbis.prototype.listPlates = function(action) {
+    ajaxRequest({
+            url: this.screeningUrl,
+            data: { "method" : "listPlates",
+                    "params" : [ this.sessionToken ] },
+            success: action
+    });
+}
+
+openbis.prototype.listRawImageDatasets = function(plates, action) {
+    ajaxRequest({
+            url: this.screeningUrl,
+            data: { "method" : "listRawImageDatasets",
+                    "params" : [ this.sessionToken, plates ] },
+            success: action
+    });
+}
+
+openbis.prototype.listPlateImageReferences = function(dataSetIdentifier, wellPositions, channel, action) {
+    ajaxRequest({
+            url: this.dssScreeningUrl,
+            data: { "method" : "listPlateImageReferences",
+                    "params" : [ this.sessionToken, dataSetIdentifier, wellPositions, channel ] },
+            success: action
+    });
+}
+
 
 /**
  * Provides a context information for webapps that are embedded inside the OpenBIS UI.
