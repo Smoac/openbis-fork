@@ -82,8 +82,6 @@ public class TestInitializer
 
     private static boolean firstTry = true;
 
-    private static Object indexingDatabaseDropper;
-
     private static void init(IndexMode hibernateIndexMode, String scriptFolder)
     {
         LogInitializer.init();
@@ -117,20 +115,19 @@ public class TestInitializer
                 {
                     operationLog.error("Couldn't drop database created for indexing: "
                             + databaseName);
-                    indexingDatabaseDropper = new Object()
+                    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable()
                         {
                             @Override
-                            protected void finalize() throws Throwable
+                            public void run()
                             {
                                 operationLog.info("Try to drop indexing database " + databaseName);
                                 boolean ok =
                                         ProcessExecutionHelper.runAndLog(cmd, operationLog,
                                                 operationLog);
                                 operationLog.info("Dropping indexing database " + databaseName
-                                        + (ok ? "was" : "wasn't") + " successfull.");
-
+                                        + (ok ? "was" : "wasn't") + " successful.");
                             }
-                        };
+                        }, "dropping-indexing-database-shutdown"));
                 }
             }
             firstTry = false;
