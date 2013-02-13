@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
@@ -222,6 +223,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     sampleTypePropertyTypePE.setMandatory(true);
                     ScriptPE script = new ScriptPE();
                     script.setScriptType(ScriptType.MANAGED_PROPERTY);
+                    script.setPluginType(PluginType.JYTHON);
                     script.setScript("def batchColumnNames():\n return ['A']\n"
                             + "def updateFromBatchInput(bindings):\n None\n"
                             + "def updateFromRegistrationForm(bindings):\n"
