@@ -53,7 +53,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
-import com.googlecode.jsonrpc4j.Base64;
 import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
 import com.googlecode.jsonrpc4j.ProxyUtil;
 
@@ -127,27 +126,12 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
                 + "__CONVERT_2.h5ar/wA1_d1-1_cCy5.jpg");
     }
 
-    private String expectedThumbnail(String dataSetCode, int size) throws IOException
-    {
-        IDataSetDss ds = screeningFacade.getDataSet(dataSetCode);
-        return getImageBase64(ds, "thumbnails_" + size + "x" + size
-                + "__CONVERT_2.h5ar/wA1_d1-1_cCy5.jpg");
-    }
-
     /**
      * get the base64 encoded data of the image taken directly from the file system.
      */
     private byte[] getImageBaseBytes(IDataSetDss ds, String pathInDataSet) throws IOException
     {
         return IOUtils.toByteArray(ds.getFile(pathInDataSet));
-    }
-
-    /**
-     * get the base64 encoded data of the image taken directly from the file system.
-     */
-    private String getImageBase64(IDataSetDss ds, String pathInDataSet) throws IOException
-    {
-        return Base64.encodeBytes(IOUtils.toByteArray(ds.getFile(pathInDataSet)));
     }
 
     @Test
