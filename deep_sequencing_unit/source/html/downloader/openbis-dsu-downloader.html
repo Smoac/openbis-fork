@@ -1,6 +1,12 @@
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <title>Quantitative Genomics Facility</title>
+
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="google" value="notranslate">
+
   <link type="text/css" rel="stylesheet" href="body-style.css" />
   <link type="text/css" rel="stylesheet" href="button.css" />
   <link type="text/css" rel="stylesheet" href="tree.css" />
@@ -743,7 +749,7 @@ function enterApp(data)
 {
 	if(data.result == null){
 		alert("Login or password incorrect");
-		$("#username").focus();
+		$("#loginname").focus();
 		return;
 	}
 	
@@ -753,6 +759,8 @@ function enterApp(data)
 	initTree();
 	
 	$('#openbis-logo').height(30);
+        $('#openbis-logo').hide();
+        
 }
 
 
@@ -767,7 +775,7 @@ $(document).ready(function() {
          });
 	
 	$('#login-form').submit(function() {
-		 dsu.server.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { enterApp(data) })
+		 dsu.server.login( $.trim($('#loginname').val()), $.trim($('#password').val()), function(data) { enterApp(data) })
 	});
 	
 	dsu.server.ifRestoredSessionActive(function(data) { enterApp(data) });
@@ -775,12 +783,12 @@ $(document).ready(function() {
 
 // set the focus 
 function onPageLoad(){
-	var username = $("#username").value;
-	if(username == null || username.length==0) {
-		$("#username").focus();
-	} else {
-		$("#login-button").focus();
-	}
+          if(loginname.value.length==0) {
+            $("#loginname").focus();
+          }
+          else {
+            $("#login-button").focus();
+          }
 }
 
 function log(msg){
@@ -795,18 +803,24 @@ function log(msg){
  </script>
 </head>
 <body onload="onPageLoad()">
-<img id="openbis-logo" src="images/openBIS_Logo.svg" alt="openBIS" style="position: absolute; right: 10px; height: 100px;"/>
+<img id="openbis-logo" src="images/openBIS_Logo.svg" alt="openBIS" style="position: absolute; left: 330px; top: 230px; height: 70px;"/>
 <link rel="shortcut icon" href="../images/favicon.ico" /> 
 <link rel="icon" type="image/png" href="../images/favicon.png" /> 
 
 <div id="login-form-div">
-  <h1>Quantitative Genomics Facility - BSSE</h1>
+  <h1>BSSE - Quantitative Genomics Facility</h1>
   <form id="login-form" action="javascript:">
-    <input id="username" type="text" required="required"> <input id="password" type="password" required="required"> </input>
-    <button id="login-button" type="submit">Login</button>
+    <div class="box greytext loginname">
+      <input value="Login Name" type="text" required="required" maxlength="40" size="40" onfocus="this.value=(this.value=='Login Name') ? '' : this.value;" onblur="this.value=(this.value=='') ? 'Login Name' : this.value;" id="loginname"> </input>
+    </div>
+    <div class="box greytext password">
+      <input value="Password" id="password" type="password" required="required" size="40" onfocus="this.value=(this.value=='Password') ? '' : this.value;" onblur="this.value=(this.value=='') ? 'Password' : this.value;" id="password"> </input>
+    </div>
+    <div class="loginbutton">
+      <button id="login-button" type="submit">Login</button>
+    </div>
     <br>
-    <br>
-    <a href="https://crowd-bsse.ethz.ch/crowd/console/forgottenlogindetails!default.action" id="resetpassword" class="resetpassword">Reset password</a>
+    <a href="https://crowd-bsse.ethz.ch/crowd/console/forgottenlogindetails!default.action" id="resetpassword" class="greytext">Reset password</a>
   </form>
 </div>
 

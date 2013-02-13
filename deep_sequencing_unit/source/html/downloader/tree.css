@@ -120,11 +120,6 @@ input:focus{
 background-color: white;
 }
 
-.resetpassword:link {color:#BDBDBD; text-decoration:none}
-.resetpassword:visited {color:#BDBDBD; text-decoration:none}
-.resetpassword:active {color:#BDBDBD; text-decoration:none}
-.resetpassword:hover {color:#000000; text-decoration:none}
-
 /* Legend */
 
 .legend .sequenced circle {
