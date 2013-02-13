@@ -366,7 +366,7 @@ public class ChannelChooserPanel extends LayoutContainer
         return channels;
     }
 
-    private void addChannelsForParameters(ImageDatasetParameters imageParameters)
+    public void addChannelsForParameters(ImageDatasetParameters imageParameters)
     {
         addChannelToComboBox(new LabeledItem<String>(MERGED_CHANNELS, MERGED_CHANNELS));
 
@@ -439,7 +439,7 @@ public class ChannelChooserPanel extends LayoutContainer
         return false;
     }
 
-    private void updateChannelSelection(List<String> selectedChannels)
+    public void updateChannelSelection(List<String> selectedChannels)
     {
         List<String> channels = selectedChannels;
         if (channels == null || channels.size() == 0)

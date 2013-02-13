@@ -35,6 +35,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collection.IKeyExtractor;
 import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.common.collection.TableMap.UniqueKeyViolationStrategy;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -90,6 +91,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVecto
 @Friend(toClasses = IScreeningQuery.class)
 public class WellContentLoader extends AbstractContentLoader
 {
+    private static final int MAX_NUMBERS_OF_MATERIALS = 1000;
+
     /**
      * Finds wells containing the specified material and belonging to the specified experiment.
      * Loads wells metadata, but no information about connected datasets.
@@ -809,6 +812,12 @@ public class WellContentLoader extends AbstractContentLoader
                     "[%d msec] Finding %d materials for criteria '%s'. Result: %s",
                     (System.currentTimeMillis() - start), materialIds.length, codesCriteria,
                     abbreviate(materialIds, 100)));
+            if (materialIds.length > MAX_NUMBERS_OF_MATERIALS)
+            {
+                throw new UserFailureException("More than " + MAX_NUMBERS_OF_MATERIALS
+                        + " materials for criteria '" + codesCriteria + "' are found. "
+                        + "Please restrict your search criteria.");
+            }
             start = System.currentTimeMillis();
 
             if (experimentOrNull != null)

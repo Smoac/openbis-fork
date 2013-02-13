@@ -31,6 +31,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -50,8 +51,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -653,9 +656,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
                             channelChooser.tryGetSelectedTransformationCode(false),
                             channelChooser.tryGetSelectedIntensityRanges());
 
-                    ImageDatasetParameters imageParameters = images.getImageParameters();
                     channelChooser.addSelectionChangedListener(widgetWithListener);
-                    channelChooser.addChannels(imageParameters);
 
                     return widgetWithListener.asWidget();
                 }
@@ -681,7 +682,40 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
         WellSearchCriteria searchCriteria =
                 new WellSearchCriteria(experimentCriteriaOrNull, materialCriteria,
                         analysisProcedureCriteria);
-        getViewContext().getService().listPlateWells(resultSetConfig, searchCriteria, callback);
+        getViewContext().getService().listPlateWells(resultSetConfig, searchCriteria,
+                new AsyncCallback<TypedTableResultSet<WellContent>>()
+                    {
+                        @Override
+                        public void onFailure(Throwable caught)
+                        {
+                            callback.onFailure(caught);
+                        }
+
+                        @Override
+                        public void onSuccess(TypedTableResultSet<WellContent> result)
+                        {
+                            GridRowModels<TableModelRowWithObject<WellContent>> rows =
+                                    result.getResultSet().getList();
+                            for (GridRowModel<TableModelRowWithObject<WellContent>> row : rows)
+                            {
+                                WellContent wellContent = row.getOriginalObject().getObjectOrNull();
+                                if (wellContent != null)
+                                {
+
+                                    DatasetImagesReference dataSet =
+                                            wellContent.tryGetImageDataset();
+                                    if (dataSet != null)
+                                    {
+                                        ImageDatasetParameters imageParameters =
+                                                dataSet.getImageParameters();
+                                        channelChooser.addChannelsForParameters(imageParameters);
+                                    }
+                                }
+                            }
+                            channelChooser.updateChannelSelection(null);
+                            callback.onSuccess(result);
+                        }
+                    });
     }
 
     @Override

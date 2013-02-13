@@ -114,6 +114,7 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
     {
         return new IMetadataProvider()
             {
+                private IDatasetLister lister;
 
                 @Override
                 public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
@@ -125,8 +126,17 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
                 public List<String> tryGetContainedDatasets(String datasetCode)
                 {
                     List<String> result =
-                            createDatasetLister(session).listContainedCodes(datasetCode);
+                            getLister().listContainedCodes(datasetCode);
                     return result;
+                }
+                
+                private IDatasetLister getLister()
+                {
+                    if (lister == null)
+                    {
+                        lister = createDatasetLister(session);
+                    }
+                    return lister;
                 }
 
             };
