@@ -465,6 +465,9 @@
       <fileset dir="${lib}/reflections/lib">
         <include name="*.jar" />
       </fileset>
+      <fileset dir="${lib}/cisd-hotdeploy">
+        <include name="cisd-hotdeploy.jar" />
+      </fileset>
       <fileset dir="${lib}/postgresql">
         <include name="postgresql.jar" />
       </fileset>
@@ -769,6 +772,9 @@
       </lib>
       <lib dir="${lib}/reflections/lib">
         <include name="*.jar" />
+      </lib>
+      <lib dir="${lib}/cisd-hotdeploy">
+        <include name="cisd-hotdeploy.jar" />
       </lib>
     	<!-- Excel -->
     	<lib dir="${lib}/poi">
