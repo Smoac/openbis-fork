@@ -57,7 +57,7 @@ public class WellContentLoaderTest extends AbstractScreeningDAOTest
     public void testLoadWellContentsWithProperties()
     {
         String[] materialCodes = new String[]
-            { "*" };
+            { "19*" };
         String[] materialTypeCodes =
             { "SIRNA" };
 
