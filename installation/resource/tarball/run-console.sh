@@ -43,8 +43,6 @@ if [ ${BASE#/} == ${BASE} ]; then
 fi
 
 ensureToolOnPath "java" 
-ensureToolOnPath "psql"
-ensureToolOnPath "pg_dump"
 
 install_path=$( grep -e "^INSTALL_PATH=.*$" $BASE/console.properties | sed "s/INSTALL_PATH=//" )
 if [ -z "$install_path" ]; then
@@ -65,4 +63,4 @@ else
   readAdminPassword
 fi
 
-java -Djava.util.logging.config.file=$BASE/jul.config -DADMIN_PASSWORD=$ADMIN_PASSWORD -Dmerge.props.to.installation.vars=true -jar $BASE/openBIS-installer.jar -options-auto $BASE/console.properties
+java -Djava.util.logging.config.file=$BASE/jul.config -DADMIN_PASSWORD=$ADMIN_PASSWORD -DCONSOLE=true -Dmerge.props.to.installation.vars=true -jar $BASE/openBIS-installer.jar -options-auto $BASE/console.properties

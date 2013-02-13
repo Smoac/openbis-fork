@@ -22,6 +22,7 @@ if [ "$BACKUP_DIR" == "" ]; then
 	exit 1
 fi
 DATABASES_TO_BACKUP="$2"
+CONSOLE=$3
 
 $BASE/alldown.sh
 
@@ -32,7 +33,7 @@ echo "Creating backup folder $BACKUP_DIR ..."
 mkdir -p $CONFIG
 $BASE/backup-config.sh $CONFIG
 
-$BASE/backup-databases.sh $BACKUP_DIR "$DATABASES_TO_BACKUP"
+$BASE/backup-databases.sh $BACKUP_DIR "$DATABASES_TO_BACKUP" $CONSOLE
 if [ $? -ne "0" ]; then
   echo "Creating database backups had failed. Aborting ..."
   exit 1

@@ -34,6 +34,19 @@ function getProperty() {
   echo $properties | tr ";" "\n" | grep "$propName=" | sed "s/$propName=//"
 }
 
+function checkForBackup()
+{
+  local database=$1
+  if [ $CONSOLE ]; then
+    if [ "$(trim "$DATABASES_TO_BACKUP")" == "" ]; then
+      echo "TRUE"
+      return
+    fi
+  fi
+  echo $(contains "$DATABASES_TO_BACKUP" $database)
+  return
+}
+
 #
 # Backs up database specified by a string as returned 
 # in the function listDatabases.
@@ -42,8 +55,8 @@ function backupDatabase() {
 
   DB_PROPS=$1
   
-  database=$(getProperty $DB_PROPS "database")
-  if [ $(isEmptyOrContains "$DATABASES_TO_BACKUP" $database) == "FALSE" ]; then
+  local database=$(getProperty $DB_PROPS "database")
+  if [ $(checkForBackup $database) == "FALSE" ]; then
     return
   fi
   if [ $(databaseExist $database) == "TRUE" ]; then
@@ -73,6 +86,7 @@ if [ "$BACKUP_DIR" == "" ]; then
 	exit 1
 fi
 DATABASES_TO_BACKUP="$2"
+CONSOLE=$3
 
 SERVERS=$BASE/../servers
 AS_SERVER=$SERVERS/openBIS-server/

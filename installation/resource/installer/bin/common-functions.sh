@@ -14,19 +14,15 @@ trim()
 
 #
 # Checks whether the first argument, a comma-separated list of items contains the second argument
-# as an item. Returns TRUE if this is the case or the list is empty. Trailing and leading
+# as an item. Returns TRUE if this is the case. Trailing and leading
 # whitespace of list items are ignored. 
 #
 # This function should be used as follows:
 #
-# result=$(isEmptyOrContains " abc,  def , ghi " "abc")
+# result=$(contains " abc,  def , ghi " "abc")
 #
-isEmptyOrContains()
+contains()
 {
-  if [ "$(trim "$1")" == "" ]; then
-    echo "TRUE"
-    return
-  fi
   local list="$1"
   local item="$2"
   while true; do
