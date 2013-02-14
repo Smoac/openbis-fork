@@ -93,10 +93,6 @@ AS_SERVER=$SERVERS/openBIS-server/
 DSS_SERVER=$SERVERS/datastore_server
 
 listDatabases $AS_SERVER/jetty/etc/service.properties $DSS_SERVER/etc/service.properties
-if [ -z "$DB_LIST" ]; then
-  echo "No database found for backup. Aborting..."
-  exit 2
-fi
 
 
 for DB in $DB_LIST; do
