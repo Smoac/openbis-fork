@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api;
+package ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api;
 
 import java.util.Collection;
+
 
 /**
  * Interface implemented by all entity adaptors

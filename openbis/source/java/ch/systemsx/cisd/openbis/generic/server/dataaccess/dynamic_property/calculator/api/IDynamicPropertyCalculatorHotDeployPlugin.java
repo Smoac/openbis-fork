@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api;
 
-import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.ICommonPropertyBasedHotDeployPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.ICommonPropertyBasedHotDeployPlugin;
 
 /**
  * A {@link IDynamicPropertyCalculator} for plugins with support for hot-deployment.

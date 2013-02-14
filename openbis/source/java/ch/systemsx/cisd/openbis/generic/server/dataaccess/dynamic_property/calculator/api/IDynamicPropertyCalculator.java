@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api;
 
-import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
+import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityAdaptor;
 
 /**
  * @author Pawel Glyzewski
@@ -24,5 +24,5 @@ import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
  */
 public interface IDynamicPropertyCalculator
 {
-    public String eval(IEntityAdaptor entity) throws EvaluatorException;
+    public String eval(IEntityAdaptor entity);
 }

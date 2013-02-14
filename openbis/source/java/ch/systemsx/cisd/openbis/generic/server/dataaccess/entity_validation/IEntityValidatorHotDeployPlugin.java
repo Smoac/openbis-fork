@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
-import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.ICommonPropertyBasedHotDeployPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.ICommonPropertyBasedHotDeployPlugin;
 
 /**
  * An {@link IEntityValidator} with support for hot-deployment.

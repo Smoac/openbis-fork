@@ -237,12 +237,13 @@ check [api-client] dependentOnlyOn [java-and-api-shared]
 
 [dynamic-properties-api] = ${generic}.server.dataaccess.dynamic_property.calculator.api.*
 [managed-properties-api] = ${generic}.shared.basic.dto.api.* ${generic}.shared.basic.ISerializable ${generic}.shared.managed_property.api.*
+[hotdeploy-api] = ${generic}.shared.hotdeploy_plugins.api.*
 
 [cisd] = ch.systemsx.cisd.*
-[cisd-except-dynamic-properties-api] = [cisd] excluding [dynamic-properties-api]
-[cisd-except-managed-properties-api] = [cisd] excluding [managed-properties-api]
+[cisd-except-dynamic-properties-api] = [cisd] excluding [dynamic-properties-api] [hotdeploy-api]
+[cisd-except-managed-properties-api] = [cisd] excluding [managed-properties-api] [hotdeploy-api]
 
-check sets [dynamic-properties-api] [managed-properties-api]
+check sets [dynamic-properties-api] [managed-properties-api] [hotdeploy-api]
 
 check [dynamic-properties-api] independentOf [cisd-except-dynamic-properties-api]
 check [managed-properties-api] independentOf [cisd-except-managed-properties-api]

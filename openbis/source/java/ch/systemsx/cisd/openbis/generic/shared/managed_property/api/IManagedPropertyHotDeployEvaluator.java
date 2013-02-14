@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
-import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.ICommonPropertyBasedHotDeployPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.ICommonPropertyBasedHotDeployPlugin;
 
 /**
  * A {@link IManagedPropertyEvaluator} provided as a hot-deployed Java plugin.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins;
+package ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api;
 
 import java.io.Serializable;
 import java.util.EnumSet;
