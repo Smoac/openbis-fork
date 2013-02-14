@@ -37,14 +37,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
  */
 public class EntityValidatorFactory implements IEntityValidatorFactory
 {
-    private final PluginMapHolder<IEntityValidator> predeployedPlugins;
+    private final PluginMapHolder<IEntityValidatorHotDeployPlugin> predeployedPlugins;
 
     public EntityValidatorFactory(IHotDeploymentController hotDeploymentController,
             String pluginDirectoryPath)
     {
         if (false == StringUtils.isBlank(pluginDirectoryPath))
         {
-            this.predeployedPlugins = hotDeploymentController.getPluginMap(IEntityValidator.class);
+            this.predeployedPlugins =
+                    hotDeploymentController.getPluginMap(IEntityValidatorHotDeployPlugin.class);
             hotDeploymentController.addPluginDirectory(new File(pluginDirectoryPath));
         } else
         {

@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidget
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IPerson;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IManagedPropertyEvaluator;
 
 /**
  * Class for evaluating scripts that control managed properties.

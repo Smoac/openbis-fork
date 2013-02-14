@@ -57,8 +57,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IManagedPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 
 /**

@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property;
+package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
-import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.ICommonPropertyBasedHotDeployPlugin;
 
 /**
- * @author Pawel Glyzewski
+ * A {@link IManagedPropertyEvaluator} provided as a hot-deployed Java plugin.
+ * 
+ * @author Bernd Rinn
  */
-public interface IDynamicPropertyCalculatorFactory
+public interface IManagedPropertyHotDeployEvaluator extends IManagedPropertyEvaluator,
+        ICommonPropertyBasedHotDeployPlugin
 {
-    public IDynamicPropertyCalculator getCalculator(EntityTypePropertyTypePE etpt);
-
-    public List<String> listPredeployedPlugins();
 }

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api;
 
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 
 /**
  * @author Pawel Glyzewski

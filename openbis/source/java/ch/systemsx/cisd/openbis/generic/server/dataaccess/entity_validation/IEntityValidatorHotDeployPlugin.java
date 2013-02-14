@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation;
 
-import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
+import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.ICommonPropertyBasedHotDeployPlugin;
 
 /**
- * @author Pawel Glyzewski
+ * An {@link IEntityValidator} with support for hot-deployment.
+ * 
+ * @author Bernd Rinn
  */
-public interface IDynamicPropertyCalculatorFactory
+public interface IEntityValidatorHotDeployPlugin extends IEntityValidator,
+        ICommonPropertyBasedHotDeployPlugin
 {
-    public IDynamicPropertyCalculator getCalculator(EntityTypePropertyTypePE etpt);
-
-    public List<String> listPredeployedPlugins();
 }

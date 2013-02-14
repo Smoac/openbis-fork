@@ -49,9 +49,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
-import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyFunctions;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IManagedPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 
 /**

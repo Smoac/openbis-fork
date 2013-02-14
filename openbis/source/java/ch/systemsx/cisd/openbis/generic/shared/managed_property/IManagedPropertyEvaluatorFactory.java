@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IManagedPropertyEvaluator;
 
 /**
  * @author Pawel Glyzewski

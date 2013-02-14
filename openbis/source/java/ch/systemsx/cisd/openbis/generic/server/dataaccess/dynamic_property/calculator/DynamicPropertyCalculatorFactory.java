@@ -26,6 +26,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.server.IHotDeploymentController;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyCalculatorFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculatorHotDeployPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 
 /**
@@ -35,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
  */
 public class DynamicPropertyCalculatorFactory implements IDynamicPropertyCalculatorFactory
 {
-    private PluginMapHolder<IDynamicPropertyCalculator> predeployedPlugins;
+    private PluginMapHolder<IDynamicPropertyCalculatorHotDeployPlugin> predeployedPlugins;
 
     public DynamicPropertyCalculatorFactory(IHotDeploymentController hotDeploymentController,
             String pluginDirectoryPath)
@@ -43,7 +45,8 @@ public class DynamicPropertyCalculatorFactory implements IDynamicPropertyCalcula
         if (false == StringUtils.isBlank(pluginDirectoryPath))
         {
             this.predeployedPlugins =
-                    hotDeploymentController.getPluginMap(IDynamicPropertyCalculator.class);
+                    hotDeploymentController
+                            .getPluginMap(IDynamicPropertyCalculatorHotDeployPlugin.class);
             hotDeploymentController.addPluginDirectory(new File(pluginDirectoryPath));
         } else
         {

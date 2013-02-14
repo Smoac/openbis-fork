@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConver
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityAdaptorFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.IDynamicPropertyCalculator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;

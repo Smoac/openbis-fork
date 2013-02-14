@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IManagedPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IManagedPropertyHotDeployEvaluator;
 
 /**
  * Factory for creating managed property evaluators. (Could do some caching or other cleverness.)
@@ -42,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
  */
 public class ManagedPropertyEvaluatorFactory implements IManagedPropertyEvaluatorFactory
 {
-    private PluginMapHolder<IManagedPropertyEvaluator> predeployedPlugins;
+    private PluginMapHolder<IManagedPropertyHotDeployEvaluator> predeployedPlugins;
 
     public ManagedPropertyEvaluatorFactory(IHotDeploymentController hotDeploymentController,
             String pluginDirectoryPath)
@@ -50,7 +52,7 @@ public class ManagedPropertyEvaluatorFactory implements IManagedPropertyEvaluato
         if (false == StringUtils.isBlank(pluginDirectoryPath))
         {
             this.predeployedPlugins =
-                    hotDeploymentController.getPluginMap(IManagedPropertyEvaluator.class);
+                    hotDeploymentController.getPluginMap(IManagedPropertyHotDeployEvaluator.class);
             hotDeploymentController.addPluginDirectory(new File(pluginDirectoryPath));
         } else
         {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.managed_property;
+package ch.systemsx.cisd.openbis.generic.shared.managed_property.api;
 
 import java.util.List;
 import java.util.Map;
