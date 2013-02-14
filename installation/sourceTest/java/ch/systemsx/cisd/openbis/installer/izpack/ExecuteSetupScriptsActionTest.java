@@ -92,19 +92,21 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
                 properties.getProperty(ExecuteSetupScriptsAction.POST_REGISTRATION_TASKS_KEY));
         assertEquals("post-registration, " + ExecuteSetupScriptsAction.PATHINFO_DB_DELETION_TASK,
                 properties.getProperty(ExecuteSetupScriptsAction.MAINTENANCE_PLUGINS_KEY));
-        
+        assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_CHECK,
+                properties.getProperty(ExecuteSetupScriptsAction.PROCESSING_PLUGINS_KEY));
+
         action.enablePathinfoDB(false, workingDirectory);
 
         properties = loadProperties(dssServicePropertiesFile);
-        assertEquals("",
-                properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY));
+        assertEquals("", properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY));
         assertEquals("",
                 properties.getProperty(ExecuteSetupScriptsAction.POST_REGISTRATION_TASKS_KEY));
         assertEquals("post-registration",
                 properties.getProperty(ExecuteSetupScriptsAction.MAINTENANCE_PLUGINS_KEY));
-        
+        assertEquals("", properties.getProperty(ExecuteSetupScriptsAction.PROCESSING_PLUGINS_KEY));
+
         action.enablePathinfoDB(true, workingDirectory);
-        
+
         properties = loadProperties(dssServicePropertiesFile);
         assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_DATA_SOURCE,
                 properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY));
@@ -112,7 +114,35 @@ public class ExecuteSetupScriptsActionTest extends AbstractFileSystemTestCase
                 properties.getProperty(ExecuteSetupScriptsAction.POST_REGISTRATION_TASKS_KEY));
         assertEquals("post-registration, " + ExecuteSetupScriptsAction.PATHINFO_DB_DELETION_TASK,
                 properties.getProperty(ExecuteSetupScriptsAction.MAINTENANCE_PLUGINS_KEY));
-}
+        assertEquals(ExecuteSetupScriptsAction.PATHINFO_DB_CHECK,
+                properties.getProperty(ExecuteSetupScriptsAction.PROCESSING_PLUGINS_KEY));
+    }
+
+    @Test
+    public void testDisableAndEnablePathinfoDBNotDefinedInServiceProperties() throws Exception
+    {
+        FileUtilities.writeToFile(dssServicePropertiesFile, "");
+        
+        action.enablePathinfoDB(false, workingDirectory);
+        
+        Properties properties = loadProperties(dssServicePropertiesFile);
+        assertEquals("", properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY));
+        assertEquals("",
+                properties.getProperty(ExecuteSetupScriptsAction.POST_REGISTRATION_TASKS_KEY));
+        assertEquals("",
+                properties.getProperty(ExecuteSetupScriptsAction.MAINTENANCE_PLUGINS_KEY));
+        assertEquals("", properties.getProperty(ExecuteSetupScriptsAction.PROCESSING_PLUGINS_KEY));
+        
+        action.enablePathinfoDB(true, workingDirectory);
+        
+        properties = loadProperties(dssServicePropertiesFile);
+        assertEquals("", properties.getProperty(ExecuteSetupScriptsAction.DATA_SOURCES_KEY));
+        assertEquals("",
+                properties.getProperty(ExecuteSetupScriptsAction.POST_REGISTRATION_TASKS_KEY));
+        assertEquals("",
+                properties.getProperty(ExecuteSetupScriptsAction.MAINTENANCE_PLUGINS_KEY));
+        assertEquals("", properties.getProperty(ExecuteSetupScriptsAction.PROCESSING_PLUGINS_KEY));
+    }
     
     @Test
     public void testEnableAlreadyEnabledPathinfoDB() throws Exception

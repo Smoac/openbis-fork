@@ -53,6 +53,7 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements
     
     private final String[] KEYS = {DATA_SOURCES_KEY, POST_REGISTRATION_TASKS_KEY, MAINTENANCE_PLUGINS_KEY, PROCESSING_PLUGINS_KEY};
     private final String[] TERMS = {PATHINFO_DB_DATA_SOURCE, PATHINFO_DB_FEEDING_TASK, PATHINFO_DB_DELETION_TASK, PATHINFO_DB_CHECK};
+    private final String[] CLASS_POSTFIX = {"version-holder-class", "class", "class", "class" };
 
     /**
      * executed for first time installations.
@@ -123,7 +124,21 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements
         {
             for (int i = 0; i < KEYS.length; i++)
             {
-                Utils.addTermToPropertyList(dssServicePropertiesFile, KEYS[i], TERMS[i]);
+                String key = KEYS[i];
+                String newTerm = TERMS[i];
+                String classProperty = newTerm + "." + CLASS_POSTFIX[i];
+                int indexOfDot = key.indexOf('.');
+                if (indexOfDot >= 0)
+                {
+                    classProperty = key.substring(0, indexOfDot) + "." + classProperty;
+                }
+                String className =
+                        Utils.tryToGetProperties(dssServicePropertiesFile).getProperty(
+                                classProperty);
+                if (className != null)
+                {
+                    Utils.addTermToPropertyList(dssServicePropertiesFile, key, newTerm);
+                }
             }
         } else
         {
