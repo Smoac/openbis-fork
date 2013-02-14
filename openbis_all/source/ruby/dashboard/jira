@@ -100,7 +100,21 @@ class Issue
   def fix_version
     fix_versions = self.fields["fixVersions"]
     return "Unscheduled" if fix_versions.nil?
+    return "" if fix_versions[0].nil?
     return fix_versions[0]["name"]
+  end
+  
+  def transitions
+    @issue["transitions"]
+  end
+  
+  def next_sprint
+    self.fields["customfield_10550"]
+  end
+  
+  def resolved_or_closed?
+    status = self.status
+    (status == "Resolved" || status == "Closed")
   end
 end
 
@@ -111,13 +125,13 @@ end
 module JiraHelpers
 
   def JiraHelpers.search(query, limit=nil)
-    search_cmd = "curl -s --get --cookie #{$jira_cookie_path} '#{$jira_api_url}/search' --data-urlencode 'jql=#{query}' --data-urlencode 'fields=*all,-comment'"
+    search_cmd = "curl -s --get --cookie #{$jira_cookie_path} '#{$jira_api_url}/search' --data-urlencode 'os_authType=cookie' --data-urlencode 'jql=#{query}' --data-urlencode 'fields=*all,-comment'"
     search_cmd = search_cmd + " --data-urlencode 'maxResults=#{limit}'" unless limit.nil?
     return `#{search_cmd}`
   end
   
   def JiraHelpers.issue(issue_number, limit=nil)
-    issue_cmd = "curl -s --get --cookie #{$jira_cookie_path} '#{$jira_api_url}/issue/#{issue_number}'"
+    issue_cmd = "curl -s --get --cookie #{$jira_cookie_path} '#{$jira_api_url}/issue/#{issue_number}' --data-urlencode 'os_authType=cookie' --data-urlencode 'expand=transitions'"
     data = `#{issue_cmd}`
     issue_data = JSON.load(data)
     return Issue.new(issue_data)    
@@ -155,13 +169,50 @@ module JiraHelpers
     }
     link_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' '#{$jira_api_url}/issueLink' -d '#{JSON.generate(link_data)}'"
     return `#{link_cmd}`
-  end  
+  end
+  
+  def JiraHelpers.remove_next_sprint(bis_key)
+    update_data = {
+      "fields" => {
+        "customfield_10550" => nil
+      }
+    }
+    update_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' '#{$jira_api_url}/issue/#{bis_key}' -X PUT -d '#{JSON.generate(update_data)}'"
+    return `#{update_cmd}`
+  end
+  
+  def JiraHelpers.set_next_sprint(bis_key)
+    update_data = {
+      "fields" => {
+        "customfield_10550" => [
+            {"value"=>"Yes", "id"=>"10240", "self"=>"https://jira-bsse.ethz.ch/rest/api/2/customFieldOption/10240"}
+          ]
+      }
+    }
+    update_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' '#{$jira_api_url}/issue/#{bis_key}' -X PUT -d '#{JSON.generate(update_data)}'"
+    return `#{update_cmd}`
+  end
+  
+  def JiraHelpers.set_fix_version(bis_key, fixversion)
+    update_data = { "fields" => { "fixVersions" => [ {"name" => fixversion } ] } }
+    update_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' '#{$jira_api_url}/issue/#{bis_key}' -X PUT -d '#{JSON.generate(update_data)}'"
+    return `#{update_cmd}`
+  end
+  
+  def JiraHelpers.transition(bis_key, trans_id)
+    transition_data = {
+      "transition" => { "id" => "#{trans_id}"}
+    }
+    transition_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' '#{$jira_api_url}/issue/#{bis_key}/transitions' -d '#{JSON.generate(transition_data)}'"
+    return `#{transition_cmd}`
+  end
 
   # Search and return the full data for the found objects
   def JiraHelpers.search_full(query, silent)
     print "Retrieving issues" unless silent
     ans = JiraHelpers.search(query)
     data = JSON.load(ans)
+    
     full_issues_data = data["issues"]
     full_issues = full_issues_data.collect { | issue_data | Issue.new(issue_data) }
     print "\n" unless silent   
@@ -176,14 +227,20 @@ module JiraHelpers
       print "." unless silent
       implementors.concat issue.implemented_by
     end
-        
+
     print "\n" unless silent   
     return implementors
+  end
+  
+  def JiraHelpers.session_valid_raw
+    # Just get the response code, don't care about the rest
+    ans = `curl -s -w %{http_code} -o /dev/null --head --get --cookie #{$jira_cookie_path} --data-urlencode 'os_authType=cookie' '#{$jira_url}/rest/auth/1/session'`
+    return ans
   end  
   
   def JiraHelpers.session_valid?
     # Just get the response code, don't care about the rest
-    ans = `curl -s -w %{http_code} -o /dev/null --head --get --cookie #{$jira_cookie_path} '#{$jira_url}/rest/auth/1/session'`
+    ans = JiraHelpers.session_valid_raw
     return false if $?.to_i != 0
     return ans == "200"
   end
@@ -266,15 +323,37 @@ SYNOPSIS
 DESCRIPTION
     A simple api for jira. Login as jira user and get some info. The available commands are:    
 
-	login	asks for login and password to jira and stores a session cookie
+	login		asks for login and password to jira and stores a session cookie
 
 	sprint S133	get the information about the given sprint
 
 	dump url	print given url in pure json
 
-	plan S133	shows planned BIS issues
+	plan 133	shows planned BIS issues
 
-	cust 10	shows an overview of the N highest-priority issues from customer projects (OBP, SOB)
+	cust 10		shows an overview of the N highest-priority issues from customer projects (OBP, SOB)
+	
+	search 'project=SP AND fixVersion = S139 ORDER BY \"Global Rank\"' 
+				runs a jira query and shows the results
+	
+	rank 133 	ranks all issues in S133 in accordance with the ranks of the BIS issues	
+	rank SP-121 SP-122
+				ranks SP-121 after SP-122
+				
+	kanban 133 	returns a Kanban list of the issues in S133
+	
+	create 133 	create issues for all BIS issues designated as next sprint	
+	create 133 BIS-111
+				create an issue in S133 for BIS-111
+
+	start 133	mark all BIS issues in S133 as "Active in sprint" and clear the "Next Sprint" flag
+	
+	finish 133	Show whether the parent issues to those in S133 are resolved or not				
+	finish 133 exec	mark all BIS issues in S133 that have no other open issues as resolved. 
+				Set "Next Sprint" for those with open issues.
+				
+	move 133 	Set the fix version to 133 for all issues that are connected to the BIS issues
+	move 133 SP-452	Set the fix version of SP-452 to 133
   eos
   end
 end
@@ -300,6 +379,24 @@ class Login < JiraCommand
     jira_login = 'secure/Dashboard.jspa?os_authType=basic'
     Dir.mkdir($jira_prefs_path) unless File.exists?($jira_prefs_path)
     return `curl --head -s -u #{@jira_user} --cookie-jar #{$jira_cookie_path} '#{$jira_url}/#{jira_login}'`
+  end
+end
+
+#
+# Check if the session is valid
+#
+class SessionValid < JiraCommand
+ 
+  def initialize
+    super
+  end
+ 
+  def description
+    return "session"
+  end
+  
+  def run
+    return JiraHelpers.session_valid_raw
   end
 end
 
@@ -339,7 +436,7 @@ class DumpIssue < LoggedInCommand
       @issueUrl = JSON.load(ans)["issues"][0]["self"]
     end
 
-    ans = `curl -s --get --cookie #{$jira_cookie_path} '#{@issueUrl}'`
+    ans = `curl -s --get --cookie #{$jira_cookie_path} '#{@issueUrl}' --data-urlencode 'expand=transitions'`
     data = JSON.load(ans)
     return JSON.pretty_generate(data)
   end
@@ -654,7 +751,7 @@ class PlanSprint < LoggedInCommand
       next if @sp_issue_dict[sp]
       
       status = issue.status
-      @sp_issue_dict[sp] = issue unless (status == "Resolved" || status == "Closed")
+      @sp_issue_dict[sp] = issue unless issue.resolved_or_closed?
     end 
   end
   
@@ -770,7 +867,6 @@ class CreateSprint < LoggedInCommand
   
   def create_explicit_issue
     issue = JiraHelpers.issue(@parent_issue)
-    puts "issue ", issue    
     create_issues(@parent_issue, [issue])
     return "1 issue"
   end
@@ -890,7 +986,7 @@ class CustIssues < LoggedInCommand
   def init_implementors_dict(implementors)
     @implementors_dict = {}
     implementors.each do | issue |
-      key = issue["key"]
+      key = issue.key
       @implementors_dict[key] = issue
     end
   end
@@ -902,17 +998,10 @@ class CustIssues < LoggedInCommand
     header = "%12s\t%12s\t%s" % ["Key", "BIS", "Summary"]
     puts header
     full_issues.each do | issue |
-      key = issue["key"]
-      fields = issue["fields"]
-      summary = fields["summary"]["value"]
+      key = issue.key
+      summary = issue.summary
             
-      implementedby = []
-      fields["links"]["value"].each do | link | 
-        implementor = link["issueKey"]
-        # We are only interested in links to issues in the specified sprint
-        next unless @implementors_dict[implementor]
-        implementedby << implementor if "is implemented by" == link["type"]["description"] 
-      end
+      implementedby = issue.implemented_by
       
       if implementedby.length < 1
         row = "%12s\t%12s\t%s" % [key, "----", summary]
@@ -924,7 +1013,7 @@ class CustIssues < LoggedInCommand
         # print one row for each implemented by
         implementorissue = @implementors_dict[implementor]
         next if implementorissue.nil?
-        implementorfields = implementorissue["fields"]
+        implementorfields = implementorissue.fields
         time = 0        
         time = implementorfields["timetracking"]["value"]["timeestimate"] if implementorfields["timetracking"]["value"] != nil
         if index < 1 
@@ -941,7 +1030,304 @@ class CustIssues < LoggedInCommand
   end  
 end
 
+#
+# Starts the sprint by marking the issues as active and setting the next sprint flag to false
+#
+class StartSprint < LoggedInCommand
+  def initialize
+    super
+    @sprintNumber = InputHelpers.sprint_name(ARGV[1])
+  end
+  
+  def description
+    return "start #{@sprintNumber}"
+  end
+  
+  
+  def run_logged_in
+    query = "project=SP AND fixVersion = #{@sprintNumber} ORDER BY \"Global Rank\" ASC" 
+    full_issues = JiraHelpers.search_full(query, @silent)
+    self.set_active(full_issues)
+    # Nothing to show
+    return "#{full_issues.length} issues"
+  end
+  
+  def set_active(full_issues)
+    header = "Processing...\n"
+    puts header
+    processed = Set.new
+    full_issues.each do | issue |
+      next if issue.implements.nil?
+      implements_key = issue.implements.key
 
+      next if processed.include? implements_key
+      processed << implements_key
+      
+      print "\t#{implements_key}"
+      
+      issue = JiraHelpers.issue(implements_key)
+      
+      if issue.next_sprint
+        JiraHelpers.remove_next_sprint(implements_key)
+      end
+      print " Next Sprint -> nil"      
+      
+      start = issue.transitions.detect { | trans | "Start Sprint" == trans["name"] }
+      unless start
+        print " \tActive in sprint\n"
+        # already started
+        next
+      end
+      
+      JiraHelpers.transition(implements_key, start["id"])
+      print " \tActive in sprint\n"
+    end
+  end
+end
+
+#
+# Finishes the sprint by marking the issues as resolved if there are no open issues associated with it, and setting the next sprint flag to true if there
+# are still open issues
+#
+class FinishSprint < LoggedInCommand
+  def initialize
+    super
+    @sprintNumber = InputHelpers.sprint_name(ARGV[1])
+    @execute = ARGV[2] == "exec"
+  end
+  
+  def description
+    exec_status = "print"
+    exec_status = "exec" if @execute
+    return "finish #{@sprintNumber} #{exec_status}"
+  end
+  
+  
+  def run_logged_in
+    query = "project=SP AND fixVersion = #{@sprintNumber} ORDER BY \"Global Rank\" ASC" 
+    full_issues = JiraHelpers.search_full(query, @silent)
+    if @execute
+      self.resolve_or_move_to_next_sprint(full_issues)
+    else
+      self.print_parent_status(full_issues)
+    end
+    # Nothing to show
+    return "#{full_issues.length} issues"
+  end
+  
+  def print_parent_status(full_issues)
+    header = "Status...\n"
+    puts header    
+    processed = Set.new
+    full_issues.each do | issue |
+      next if issue.implements.nil?
+      implements_key = issue.implements.key
+
+      next if processed.include? implements_key
+      processed << implements_key
+      
+      key_to_print = "%12s" % [implements_key]
+      print "#{key_to_print}"
+      
+      issue = JiraHelpers.issue(implements_key)
+      
+      can_resolve = issue.transitions.detect { | trans | "Resolve Issue" == trans["name"] }
+      if can_resolve
+        status_string = "%9s %8s" % ["Active", ""]
+      else
+        status_string = "%9s %8s" % ["Resolved", "#{issue.fix_version}"]
+      end
+            
+      print status_string, " "
+
+      open_issue = issue.implemented_by.detect { | implementor | !implementor.resolved_or_closed? }
+      if open_issue
+        open_string = "%9s" % open_issue.key
+      else
+        open_string = "%9s" % "Finished"
+      end
+      
+      print open_string, " "
+      
+      print issue.summary
+      print "\n"
+    end
+    print "finish #{@sprintNumber} exec to change status\n"
+  end
+  
+  def resolve_or_move_to_next_sprint(full_issues)
+    header = "Processing...\n"
+    puts header
+    processed = Set.new
+    full_issues.each do | issue |
+      next if issue.implements.nil?
+      implements_key = issue.implements.key
+
+      next if processed.include? implements_key
+      processed << implements_key
+      
+      print "\t#{implements_key}"
+      
+      issue = JiraHelpers.issue(implements_key)
+      
+      open_issue = issue.implemented_by.detect { | implementor | !implementor.resolved_or_closed? }
+      if open_issue
+        self.move_to_next_sprint(issue)
+      else
+        self.resolve(issue)
+      end
+      
+      print "\n"
+    end
+  end
+    
+  def resolve(issue)
+    resolve = issue.transitions.detect { | trans | "Resolve Issue" == trans["name"] }
+    if resolve
+      JiraHelpers.transition(issue.key, resolve["id"])
+      print " Resolved"          
+    else
+      print " Already Resolved"      
+    end
+    
+    JiraHelpers.set_fix_version(issue.key, @sprintNumber)
+    print ", Fix version #{@sprintNumber}"
+    
+  end
+  
+  def move_to_next_sprint(issue)
+    if issue.next_sprint
+      print " Next Sprint"
+    else
+      JiraHelpers.set_next_sprint(issue.key)
+      print " Moved to Next Sprint"
+    end
+  end    
+end
+
+#
+# Move an issue into a particular sprint
+#
+class MoveIssue < LoggedInCommand
+  def initialize
+     super
+     @sprintNumber = ARGV[1]
+     @sprintNumber = "S" if @sprintNumber.nil?
+     @sprintNumber = "S" + @sprintNumber unless @sprintNumber.match("^[S|s].*")
+     @issue = ARGV[2]
+   end
+
+  def description
+    return "move #{@sprintNumber} #{@issue}"
+  end
+
+
+  def run_logged_in
+    return move_issue
+  end
+  
+  def move_issue
+    issue = JiraHelpers.issue(@issue)
+    move_issues([issue])
+    return "1 issue"
+  end
+end
+
+#
+# Move an issue into a particular sprint
+#
+class MoveSprint < LoggedInCommand
+  def initialize
+     super
+     @sprintNumber = ARGV[1]
+     @sprintNumber = "S" if @sprintNumber.nil?
+     @sprintNumber = "S" + @sprintNumber unless @sprintNumber.match("^[S|s].*")
+     @issue = ARGV[2]
+   end
+
+  def description
+    return "move #{@sprintNumber} #{@issue}"
+  end
+
+
+  def run_logged_in
+    return search_and_move_issues
+  end
+  
+  def search_and_move_issues
+    sp_query = "project=SP AND fixVersion = #{@sprintNumber} ORDER BY \"Global Rank\" ASC" 
+    sp_issues = JiraHelpers.search_full(sp_query, @silent)
+    init_sp_issue_dict(sp_issues)
+
+    bis_query= "project = BIS AND status not in (Resolved, Closed) AND \"Next Sprint\" = YES ORDER BY \"Global Rank\" ASC"
+    bis_issues = JiraHelpers.search_full(bis_query, @silent)
+
+    ccs_query= "project = CCS AND status not in (Resolved, Closed) AND \"Next Sprint\" = YES ORDER BY \"Global Rank\" ASC"
+    ccs_issues = JiraHelpers.search_full(ccs_query, @silent)
+
+    swe_query= "project = SWE AND status not in (Resolved, Closed) AND \"Next Sprint\" = YES ORDER BY \"Global Rank\" ASC"
+    swe_issues = JiraHelpers.search_full(swe_query, @silent)
+
+    move_necessary_issues("BIS", bis_issues)
+    #     print_issues_table("CCS", ccs_issues)
+    #     print_issues_table("SWE", swe_issues)
+
+    # Nothing to show
+    issue_count = bis_issues.length + ccs_issues.length + swe_issues.length
+    return "#{issue_count} issues"
+  end  
+  
+  def init_sp_issue_dict(sp_issues)
+     @sp_issue_dict = {}
+     sp_issues.each do | issue |
+       key = issue.key
+       @sp_issue_dict[key] = issue
+     end
+     @seen_sp_issues = [].to_set
+  end
+
+  #
+  # Take those issues that are not yet resolved / closed and add them to the sp issues dict
+  #
+  def enrich_sp_issue_dict(implementors)
+     implementors.each do | issue |
+       sp = issue.key
+       next if @sp_issue_dict[sp]
+
+       status = issue.status
+       @sp_issue_dict[sp] = issue unless (status == "Resolved" || status == "Closed")
+     end 
+  end  
+
+  def move_necessary_issues(title, full_issues)
+    issues_to_move = []
+    full_issues.each do | issue |
+      is_umbrella = !issue.fields["sub-tasks"].nil?
+      next if is_umbrella
+      implementedby = []
+      issue.implemented_by.each do | sp_issue |
+        sp = sp_issue.key
+        # Skip if the issue is already in this sprint
+        next if @sp_issue_dict[sp]        
+        issues_to_move << sp_issue unless sp_issue.resolved_or_closed?
+      end
+
+    end
+    move_issues(title, issues_to_move)    
+  end
+  
+  def move_issues(title, issues_to_move)
+    puts ("=" * 12)
+    puts title
+    puts ("-" * 12)
+    
+    issues_to_move.each do  | issue |
+      JiraHelpers.set_fix_version(issue.key, @sprintNumber)
+      row = "%12s\t%s" % [issue.key, @sprintNumber]
+      puts row
+    end
+  end
+end
 
 def get_command
   return Help.new if ARGV.length < 1
@@ -956,10 +1342,14 @@ def get_command
 	when "rank" then ARGV.length > 2 ? RankIssue.new : RankSprint.new
   when "kanban" then ListKanban.new
   when "create" then CreateSprint.new
+  when "start" then StartSprint.new
+  when "finish" then FinishSprint.new
+  when "move" then ARGV.length > 2 ? MoveIssue.new : MoveSprint.new
+  when "session" then SessionValid.new
   else Help.new
   end
 
-  return ans  
+  return ans
 end
 
 
