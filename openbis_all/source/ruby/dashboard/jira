@@ -238,7 +238,12 @@ class JiraCommand
   def should_print_result(result)
     return !result.empty? 
   end
-  
+
+  # helper method to print time in a formatted way
+  def ptime(time)
+    time == 0 ? "" : "%.1fh" % (time / 3600.0)
+  end
+
 end
 
 #
@@ -535,7 +540,7 @@ class ListSprint < LoggedInCommand
       status = issue.status
       tester = issue.tester
       summary = issue.summary
-      row = "%8s\t%12s\t%5.1fh\t%12s\t%8s\t%s" % [key, implements_key, time / 3600.0, status, tester, summary]
+      row = "%8s\t%12s\t%6s\t%12s\t%8s\t%s" % [key, implements_key, ptime(time), status, tester, summary]
       puts row
       
       # Tasks that are resolved can be considered to have 0 time remaining
@@ -671,7 +676,7 @@ class PlanSprint < LoggedInCommand
       # Tasks that are resolved can be considered to have 0 time remaining
       status = issue.status
       subtotal = subtotal + time unless status == "Resolved"
-      row = "%8.1fh\t%12s\t%12s\t%5.1fh\t%s" % [subtotal / 3600.0, key, sp, time / 3600.0, summary]
+      row = "%8.1fh\t%12s\t%12s\t%6s\t%s" % [subtotal / 3600.0, key, sp, ptime(time), summary]
       puts row
     end
     @total = @total + subtotal
@@ -699,7 +704,7 @@ class PlanSprint < LoggedInCommand
       end
       
       if implementedby.length < 1
-        row = "%8s\t%12s\t%12s\t%5.1fh\t%s" % ["----", key, "----", 0, summary]
+        row = "%8s\t%12s\t%12s\t%6s\t%s" % ["----", key, "----", "", summary]
         puts row
         next
       end
@@ -721,11 +726,11 @@ class PlanSprint < LoggedInCommand
         if index < 1 
           issue_summary = summary
           issue_summary =  "[#{fix_version}] #{issue_summary}" if issue_in_different_sprint
-          row = "%8.1fh\t%12s\t%12s\t%5.1fh\t%s" % [subtotal / 3600.0, key, sp, time / 3600.0, issue_summary]
+          row = "%8.1fh\t%12s\t%12s\t%6s\t%s" % [subtotal / 3600.0, key, sp, ptime(time), issue_summary]
         else
           issue_summary = "\""
           issue_summary =  "[#{fix_version}] #{issue_summary}" if issue_in_different_sprint
-          row = "%8.1fh\t%12s\t%12s\t%5.1fh\t%s" % [subtotal / 3600.0, "\"", sp, time / 3600.0, issue_summary]
+          row = "%8.1fh\t%12s\t%12s\t%6s\t%s" % [subtotal / 3600.0, "\"", sp, ptime(time), issue_summary]
         end
         puts row
         @seen_sp_issues.add(sp)
