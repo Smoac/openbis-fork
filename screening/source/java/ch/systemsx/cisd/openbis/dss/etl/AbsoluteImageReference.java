@@ -89,9 +89,13 @@ public class AbsoluteImageReference extends AbstractImageReference
     /**
      * @return unchanged image content to allow the fastest possible access to any stored image.
      */
-    public IHierarchicalContentNode getRawContent()
+    public IHierarchicalContentNode tryGetRawContent()
     {
-        return contentNode;
+        if (tryGetColorComponent() == null && tryGetImageID() == null)
+        {
+            return contentNode;
+        }
+        return null;
     }
 
     /**
@@ -99,7 +103,7 @@ public class AbsoluteImageReference extends AbstractImageReference
      *         content. This method is provided to allow the fastest possible access to original
      *         images.
      */
-    public IHierarchicalContentNode tryGetRawContent()
+    public IHierarchicalContentNode tryGetRawContentForOriginalImage()
     {
         if (tryGetColorComponent() == null && tryGetImageID() == null
                 && getRequestedSize().isThumbnailRequired() == false)

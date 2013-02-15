@@ -54,8 +54,11 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageGenerationDes
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageTransformationParams;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
@@ -103,6 +106,41 @@ public class ImageChannelsUtils
     }
 
     /**
+     * Get the row content of a given existing representation format
+     */
+    static IHierarchicalContentNode tryGetRawContentOfExistingThumbnail(
+            ImageGenerationDescription params, ImageRepresentationFormat format)
+    {
+        String sessionToken = params.getSessionId();
+        String dataSetCode = params.tryGetImageChannels().getDatasetCode();
+        ImageChannelStackReference channelStackRef =
+                params.tryGetImageChannels().getChannelStackReference();
+        String transformation = params.tryGetSingleChannelTransformationCode();
+        String channel = params.tryGetImageChannels().getChannelCodes(null).get(0);
+
+        IHierarchicalContentProvider contentProvider =
+                ServiceProvider.getHierarchicalContentProvider();
+        OpenBISSessionHolder sessionTokenHolder = new OpenBISSessionHolder();
+        sessionTokenHolder.setSessionToken(sessionToken);
+        contentProvider = contentProvider.cloneFor(sessionTokenHolder);
+
+        IHierarchicalContent content = contentProvider.asContent(dataSetCode);
+
+        IImagingDatasetLoader loader = HCSImageDatasetLoaderFactory.tryCreate(content, dataSetCode);
+
+        if (format.isOriginal())
+        {
+            return loader.tryGetImage(channel, channelStackRef,
+                    new RequestedImageSize(null, false, false), transformation).tryGetRawContent();
+        } else
+        {
+            return loader.tryGetThumbnail(channel, channelStackRef,
+                    new RequestedImageSize(params.tryGetThumbnailSize(), false, false),
+                    transformation).tryGetRawContent();
+        }
+    }
+
+    /**
      * Returns content of image for the specified tile in the specified size and for the requested
      * channel or with all channels merged.
      * 
@@ -113,6 +151,19 @@ public class ImageChannelsUtils
             IHierarchicalContentProvider contentProvider)
     {
         Size thumbnailSizeOrNull = params.tryGetThumbnailSize();
+
+        ImageRepresentationFormat existingRepresentationFormat =
+                RepresentationUtil.tryGetRepresentationFormat(params);
+
+        if (existingRepresentationFormat != null)
+        {
+            IHierarchicalContentNode content =
+                    tryGetRawContentOfExistingThumbnail(params, existingRepresentationFormat);
+            if (content != null)
+            {
+                return asResponseContentStream(content);
+            }
+        }
 
         BufferedImage image = null;
         DatasetAcquiredImagesReference imageChannels = params.tryGetImageChannels();
@@ -432,7 +483,7 @@ public class ImageChannelsUtils
         if (imageContents.size() == 1 && convertToPng == false)
         {
             AbsoluteImageReference imageReference = imageContents.get(0);
-            return imageReference.tryGetRawContent();
+            return imageReference.tryGetRawContentForOriginalImage();
         }
         return null;
     }

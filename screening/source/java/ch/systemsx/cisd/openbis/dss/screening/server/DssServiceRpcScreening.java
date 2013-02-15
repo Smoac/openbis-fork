@@ -1016,7 +1016,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     loader.tryGetThumbnail(imageReference.getChannel(), channelStackRef,
                             new RequestedImageSize(size, false, false), transformation);
 
-            imageContents.add(imr.getRawContent());
+            IHierarchicalContentNode content = imr.tryGetRawContent();
+
+            if (content == null)
+            {
+                throw new UserFailureException(
+                        "Couldn't fetch the image as row content, as it is only a partial content of an image");
+            }
+            imageContents.add(content);
         }
         return new ConcatenatedContentInputStream(true, imageContents);
     }

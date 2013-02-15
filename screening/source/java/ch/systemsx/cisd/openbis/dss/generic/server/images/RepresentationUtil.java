@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageGenerationDescription;
+import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat.ImageRepresentationTransformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
@@ -33,6 +35,115 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgIm
  */
 public class RepresentationUtil
 {
+
+    /**
+     * Find existing thumbnail format if it exists, or null otherwise.
+     */
+    public static ImageRepresentationFormat tryGetRepresentationFormat(
+            ImageGenerationDescription params)
+    {
+        if (params.tryGetImageChannels() == null)
+        {
+            return null;
+        }
+
+        if (params.getOverlayChannels() != null && params.getOverlayChannels().size() > 0)
+        {
+            return null;
+        }
+
+        String code = params.tryGetImageChannels().getDatasetCode();
+
+        if (code == null)
+        {
+            return null;
+        }
+
+        IImagingReadonlyQueryDAO dao = DssScreeningUtils.getQuery();
+
+        ImgImageDatasetDTO imageDataSet = dao.tryGetImageDatasetByPermId(code);
+
+        if (imageDataSet == null)
+        {
+            return null;
+        }
+
+        List<ImageRepresentationFormat> representations =
+                getImageRepresentationFormats(imageDataSet, dao);
+
+        for (ImageRepresentationFormat representation : representations)
+        {
+            if (representationMatchesDescription(representation, params))
+            {
+                return representation;
+            }
+        }
+
+        return null;
+    }
+
+    static boolean representationMatchesDescription(ImageRepresentationFormat format,
+            ImageGenerationDescription params)
+    {
+        // check the size
+        if (false == sizeMatches(format, params))
+        {
+            return false;
+        }
+
+        // the image is available if it is only for a single channel.
+        List<String> channels = params.tryGetImageChannels().getChannelCodes(null);
+        if (channels == null || channels.size() != 1)
+        {
+            return false;
+        }
+
+        String channel = channels.get(0);
+
+        List<ImageRepresentationTransformation> existingTransformations =
+                format.getTransformations();
+
+        for (ImageRepresentationTransformation t : existingTransformations)
+        {
+            if (t.getChannelCode().equals(channel))
+            {
+                if (t.getTransformationCode()
+                        .equals(params.tryGetSingleChannelTransformationCode()))
+                {// the transformation for the requested channel matches the stored
+                 // transformation
+                    return true;
+                } else
+                {
+                    return false;
+                }
+            }
+        }
+
+        // there is no transformation on this size. Accept this transformation if there is no
+        // transformation requested for this channel
+        if (params.tryGetSingleChannelTransformationCode() == null)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    static boolean sizeMatches(ImageRepresentationFormat format, ImageGenerationDescription params)
+    {
+        if (params.tryGetThumbnailSize() != null)
+        {
+            if (format.isOriginal())
+            {
+                return false;
+            }
+            return format.getWidth() == params.tryGetThumbnailSize().getWidth()
+                    && format.getHeight() == params.tryGetThumbnailSize().getHeight();
+        } else
+        {
+            return format.isOriginal();
+        }
+    }
 
     public static List<ImageRepresentationFormat> getImageRepresentationFormats(
             ImgImageDatasetDTO imageDataSet, IImagingReadonlyQueryDAO dao)
