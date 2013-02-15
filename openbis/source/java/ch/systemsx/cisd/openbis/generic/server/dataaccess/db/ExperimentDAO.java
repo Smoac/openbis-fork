@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -423,6 +424,10 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
     {
         assert experiment != null : "Missing experiment.";
         experiment.setCode(CodeConverter.tryToDatabase(experiment.getCode()));
+        if (experiment.getModificationDate() == null)
+        {
+            experiment.setModificationDate(new Date());
+        }
         validatePE(experiment);
         final HibernateTemplate template = getHibernateTemplate();
         template.saveOrUpdate(experiment);
