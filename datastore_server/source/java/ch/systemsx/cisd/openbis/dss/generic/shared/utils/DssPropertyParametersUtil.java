@@ -109,10 +109,13 @@ public class DssPropertyParametersUtil
 
         for (String name : pluginFolders.keySet())
         {
-            if (PluginContainer.tryGetInstance(name) == null)
+            File mainFolder = pluginFolders.get(name);
+            File hotDeployFolder = new File(mainFolder, "plugin");
+            if (hotDeployFolder.exists() && hotDeployFolder.isDirectory()
+                    && PluginContainer.tryGetInstance(name) == null)
             {
                 PluginContainer pluginContainer = PluginContainer.initHotDeployment(name);
-                pluginContainer.addPluginDirectory(pluginFolders.get(name));
+                pluginContainer.addPluginDirectory(hotDeployFolder);
                 pluginContainer.refresh(true);
             }
         }
