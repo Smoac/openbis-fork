@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.dss.etl.ImagingLoaderStrategyFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.IStreamRepository;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.RepresentationUtil;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -113,7 +114,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageTransformationDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageZoomLevelTransformationEnrichedDTO;
 
 /**
  * Implementation of the screening API interface using RPC. The instance will be created in spring
@@ -704,7 +704,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         {
             String dataSetCode = entry.getKey();
             List<ImageRepresentationFormat> filteredFormats =
-                    finder.find(getImageRepresentationFormats(entry.getValue()));
+                    finder.find(RepresentationUtil.getImageRepresentationFormats(entry.getValue(),
+                            getDAO()));
             if (filteredFormats.isEmpty())
             {
                 throw new UserFailureException(
@@ -982,7 +983,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         {
             String dataSetCode = entry.getKey();
             List<ImageRepresentationFormat> filteredFormats =
-                    finder.find(getImageRepresentationFormats(entry.getValue()));
+                    finder.find(RepresentationUtil.getImageRepresentationFormats(entry.getValue(),
+                            getDAO()));
             if (filteredFormats.isEmpty())
             {
                 throw new UserFailureException(
@@ -1119,23 +1121,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             } else
             {
                 List<ImageRepresentationFormat> formats =
-                        getImageRepresentationFormats(primImageDataSet);
+                        RepresentationUtil
+                                .getImageRepresentationFormats(primImageDataSet, getDAO());
                 DatasetImageRepresentationFormats datasetResult =
                         new DatasetImageRepresentationFormats(imageDataset, formats);
                 result.add(datasetResult);
             }
         }
         return result;
-    }
-
-    private List<ImageRepresentationFormat> getImageRepresentationFormats(
-            ImgImageDatasetDTO imageDataSet)
-    {
-        List<ImgImageZoomLevelDTO> zoomLevels = getDAO().listImageZoomLevels(imageDataSet.getId());
-        List<ImgImageZoomLevelTransformationEnrichedDTO> zoomLevelsTransformations =
-                getDAO().listImageZoomLevelTransformations(imageDataSet.getId());
-        return convertZoomLevelsToRepresentationFormats(imageDataSet.getPermId(), zoomLevels,
-                zoomLevelsTransformations);
     }
 
     private Map<String, ImgImageDatasetDTO> createDataSetCodeToImageDataSetMap(
@@ -1159,55 +1152,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return imageDataSetMap;
     }
 
-    private List<ImageRepresentationFormat> convertZoomLevelsToRepresentationFormats(
-            String dataSetCode, List<ImgImageZoomLevelDTO> zoomLevels,
-            List<ImgImageZoomLevelTransformationEnrichedDTO> transformations)
-    {
-        ArrayList<ImageRepresentationFormat> results = new ArrayList<ImageRepresentationFormat>();
-        Map<String, List<ImageRepresentationTransformation>> transformationsPerDataSet =
-                mapTransformationsPerPhysicallDataSets(transformations);
-
-        for (ImgImageZoomLevelDTO zoomLevel : zoomLevels)
-        {
-            ImageRepresentationFormat result =
-                    new ImageRepresentationFormat(dataSetCode, zoomLevel.getId(),
-                            zoomLevel.getIsOriginal(), zoomLevel.getWidth(), zoomLevel.getHeight(),
-                            zoomLevel.getColorDepth(), zoomLevel.getFileType(),
-                            transformationsPerDataSet.get(zoomLevel.getPhysicalDatasetPermId()));
-            results.add(result);
-        }
-
-        return results;
-    }
-
-    private Map<String, List<ImageRepresentationTransformation>> mapTransformationsPerPhysicallDataSets(
-            List<ImgImageZoomLevelTransformationEnrichedDTO> enrichedTransformations)
-    {
-        Map<String, List<ImageRepresentationTransformation>> transformations =
-                new HashMap<String, List<ImageRepresentationTransformation>>();
-
-        if (enrichedTransformations != null)
-        {
-            for (ImgImageZoomLevelTransformationEnrichedDTO transformation : enrichedTransformations)
-            {
-                List<ImageRepresentationTransformation> transformationsPerDataSet =
-                        transformations.get(transformation.getPhysicalDatasetPermId());
-                if (transformationsPerDataSet == null)
-                {
-                    transformationsPerDataSet = new ArrayList<ImageRepresentationTransformation>();
-                    transformations.put(transformation.getPhysicalDatasetPermId(),
-                            transformationsPerDataSet);
-                }
-                transformationsPerDataSet.add(new ImageRepresentationTransformation(transformation
-                        .getImageTransformationId(), transformation.getTransformationCode(),
-                        transformation.getChannelCode()));
-            }
-        }
-
-        return transformations;
-    }
-
-    private IImagingDatasetLoader createImageLoader(String sessionToken, IDatasetIdentifier dataSetIdentifier)
+    private IImagingDatasetLoader createImageLoader(String sessionToken,
+            IDatasetIdentifier dataSetIdentifier)
     {
         final String datasetCode = dataSetIdentifier.getDatasetCode();
         return createImageLoader(sessionToken, datasetCode);
