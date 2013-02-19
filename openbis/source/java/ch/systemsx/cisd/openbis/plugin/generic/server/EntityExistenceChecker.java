@@ -357,12 +357,20 @@ class EntityExistenceChecker
             {
                 String value = property.getValue();
                 MaterialTypePE materialType = propertyTypePE.getMaterialType();
-                if (materialType != null) // if material type is null, it means, the property is of
-                                          // "any material type", so we don't need to check if it
-                                          // exist
+                MaterialIdentifier materialIdentifier;
+                if (materialType != null)
                 {
-                    MaterialIdentifier materialIdentifier =
-                            new MaterialIdentifier(value, materialType.getCode());
+                    materialIdentifier = new MaterialIdentifier(value, materialType.getCode());
+                } else
+                {
+                    materialIdentifier = MaterialIdentifier.tryParseIdentifier(value);
+                }
+                if (materialIdentifier == null)
+                {
+                    errors.add("Material identifier not in the form '<material code> (<material type code>)': "
+                            + value);
+                } else
+                {
                     materialExistenceManager.exists(materialIdentifier);
                 }
             }

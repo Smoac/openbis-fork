@@ -448,6 +448,57 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                 sample("/S1/A3", null, null, "material:B")))));
 
         assertThat(checker.getErrors(), containsExactly(new String[0]));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCheckNewSamplesWithMaterialPropertOfAnyType()
+    {
+        MaterialType type = new MaterialType();
+        type.setCode("M1");
+        MaterialTypePE materialType = materialType(type, "ALPHA");
+        prepareForAssertMaterialTypeExists(type.getCode(), materialType);
+        SampleType sampleType = new SampleType();
+        sampleType.setCode("S1");
+        prepareForAssertSampleTypeExists(sampleType.getCode(),
+                sampleType((MaterialTypePE) null, "MATERIAL"));
+        context.checking(new Expectations()
+            {
+                {
+                    one(materialDAO).tryFindMaterial(new MaterialIdentifier("B", "M1"));
+                    will(returnValue(new MaterialPE()));
+                }
+            });
+
+        checker.checkNewMaterials(Arrays.asList(new NewMaterialsWithTypes(type, Arrays
+                .asList(material("A", "alpha:12")))));
+        checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays.asList(
+                sample("/S1/A1", null, null, "material:A (M1)"),
+                sample("/S1/A2", null, null, "material:B (M1)"),
+                sample("/S1/A3", null, null, "material:B (M1)")))));
+
+        assertThat(checker.getErrors(), containsExactly(new String[0]));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCheckNewSamplesWithMaterialPropertyOfAnyTypeWithInvalidMaterialIdentifier()
+    {
+        SampleType sampleType = new SampleType();
+        sampleType.setCode("S1");
+        prepareForAssertSampleTypeExists(sampleType.getCode(),
+                sampleType((MaterialTypePE) null, "MATERIAL"));
+
+        checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays.asList(
+                sample("/S1/A1", null, null, "material:A"),
+                sample("/S1/A2", null, null, "material:B"),
+                sample("/S1/A3", null, null, "material:B")))));
+
+        assertEquals("[Material identifier not in the form "
+                + "'<material code> (<material type code>)': A, "
+                + "Material identifier not in the form '<material code> "
+                + "(<material type code>)': B]", checker.getErrors().toString());
+        context.assertIsSatisfied();
     }
 
     @Test
