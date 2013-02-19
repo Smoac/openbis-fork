@@ -26,6 +26,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
@@ -162,7 +163,8 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     public List<Experiment> listExperiments(String sessionToken, List<Project> projects,
             String experimentType)
     {
-        logAccess(sessionToken, "list-experiments", "EXP_TYPE(%s)", experimentType);
+        logAccess(sessionToken, "list-experiments", "PROJECTS(%s)", "EXP_TYPE(%s)",
+                abbreviate(projects), experimentType);
         return null;
     }
 
@@ -382,6 +384,33 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     public MetaprojectAssignments getMetaproject(String sessionToken, IMetaprojectId metaprojectId)
     {
         logAccess(sessionToken, "getMetaproject", "METAPROJECT_ID(%s)", metaprojectId);
+        return null;
+    }
+
+    @Override
+    public List<Attachment> listAttachmentsForProject(String sessionToken, Project project,
+            boolean allVersions)
+    {
+        logAccess(sessionToken, "listAttachmentsForProject", "PROJECT(%s)", "ALL_VERSIONS(%s)",
+                project, allVersions);
+        return null;
+    }
+
+    @Override
+    public List<Attachment> listAttachmentsForExperiment(String sessionToken,
+            Experiment experiment, boolean allVersions)
+    {
+        logAccess(sessionToken, "listAttachmentsForExperiment", "EXPERIMENT(%s)",
+                "ALL_VERSIONS(%s)", experiment, allVersions);
+        return null;
+    }
+
+    @Override
+    public List<Attachment> listAttachmentsForSample(String sessionToken, Sample sample,
+            boolean allVersions)
+    {
+        logAccess(sessionToken, "listAttachmentsForSample", "SAMPLE(%s)", "ALL_VERSIONS(%s)",
+                sample, allVersions);
         return null;
     }
 

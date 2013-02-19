@@ -28,6 +28,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.ObjectUtils;
+
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.ControlledVocabularyPropertyTypeInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -595,5 +598,57 @@ public class Translator
             list.add(translate(material, materialsCache));
         }
         return list;
+    }
+
+    public static List<Attachment> translateAttachments(
+            List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> attachments,
+            boolean allVersions)
+    {
+        Collections.sort(attachments,
+                new Comparator<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment>()
+                    {
+                        @Override
+                        public int compare(
+                                ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment o1,
+                                ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment o2)
+                        {
+                            final int fileNameComp = o1.getFileName().compareTo(o2.getFileName());
+                            // Newest version first.
+                            return (fileNameComp == 0) ? (o2.getVersion() - o1.getVersion())
+                                    : fileNameComp;
+                        }
+                    });
+        final List<Attachment> list = new ArrayList<Attachment>(attachments.size());
+        String lastFilenameSeen = null;
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment attachment : attachments)
+        {
+            // The newest version will be first. If allVersions == false, skip all the older
+            // versions.
+            if (allVersions == false
+                    && ObjectUtils.equals(lastFilenameSeen, attachment.getFileName()))
+            {
+                continue;
+            }
+            list.add(translate(attachment));
+            lastFilenameSeen = attachment.getFileName();
+        }
+        return list;
+    }
+
+    public static Attachment translate(
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment attachment)
+    {
+        final Attachment.AttachmentInitializer initializer = new Attachment.AttachmentInitializer();
+        initializer.setFileName(attachment.getFileName());
+        initializer.setVersion(attachment.getVersion());
+        initializer.setTitle(attachment.getTitle());
+        initializer.setDescription(attachment.getDescription());
+        initializer.setRegistrationDate(attachment.getRegistrationDate());
+        initializer.setUserId(attachment.getRegistrator().getUserId());
+        initializer.setUserEmail(attachment.getRegistrator().getEmail());
+        initializer.setUserFirstName(attachment.getRegistrator().getFirstName());
+        initializer.setUserLastName(attachment.getRegistrator().getLastName());
+        initializer.setPermLink(attachment.getPermlink());
+        return new Attachment(initializer);
     }
 }

@@ -66,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.Translator;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
@@ -121,7 +122,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class GeneralInformationService extends AbstractServer<IGeneralInformationService> implements
         IGeneralInformationService
 {
-    public static final int MINOR_VERSION = 21;
+    public static final int MINOR_VERSION = 22;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;
@@ -1081,6 +1082,39 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         result.setMaterials(Translator.translateMaterials(assignments.getMaterials()));
 
         return result;
+    }
+
+    @Override
+    public List<Attachment> listAttachmentsForProject(String sessionToken, Project project,
+            boolean allVersions)
+    {
+        final ProjectIdentifier identifier =
+                new ProjectIdentifier(project.getSpaceCode(), project.getCode());
+        final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project info =
+                commonServer.getProjectInfo(sessionToken, identifier);
+        final List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> attachments =
+                commonServer.listProjectAttachments(sessionToken, new TechId(info.getId()));
+        return Translator.translateAttachments(attachments, allVersions);
+    }
+
+    @Override
+    public List<Attachment> listAttachmentsForExperiment(String sessionToken,
+            Experiment experiment, boolean allVersions)
+    {
+        final List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> attachments =
+                commonServer
+                        .listExperimentAttachments(sessionToken, new TechId(experiment.getId()));
+        return Translator.translateAttachments(attachments, allVersions);
+    }
+
+    @Override
+    public List<Attachment> listAttachmentsForSample(String sessionToken, Sample sample,
+            boolean allVersions)
+    {
+        final List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> attachments =
+                commonServer
+                        .listSampleAttachments(sessionToken, new TechId(sample.getId()));
+        return Translator.translateAttachments(attachments, allVersions);
     }
 
 }
