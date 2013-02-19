@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -256,5 +257,30 @@ public class DssPropertyParametersUtil
         template.bind("path-key", pathKey);
         ConfigurationFailureException e = new ConfigurationFailureException(template.createText());
         return e;
+    }
+
+    public static void main(String[] args)
+    {
+        ExtendedProperties properties =
+                DssPropertyParametersUtil
+                        .loadProperties(DssPropertyParametersUtil.SERVICE_PROPERTIES_FILE);
+        CorePluginsUtils.addCorePluginsProperties(properties, ScannerType.DSS);
+        ExtendedProperties serviceProperties =
+                DssPropertyParametersUtil.extendProperties(properties);
+        CorePluginsInjector injector =
+                new CorePluginsInjector(ScannerType.DSS, DssPluginType.values());
+        Map<String, File> pluginFolders =
+                injector.injectCorePlugins(serviceProperties);
+
+        try
+        {
+            for (String key : pluginFolders.keySet())
+            {
+                System.out.println(key + " " + pluginFolders.get(key).getCanonicalPath());
+            }
+        } catch (IOException ex)
+        {
+            ex.printStackTrace();
+        }
     }
 }

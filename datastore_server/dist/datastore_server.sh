@@ -161,6 +161,7 @@ case "$command" in
 
     echo -n "Starting Data Store Server "
     rotateLogFiles $LOGFILE $MAXLOGS
+    ./autosymlink.sh
     shift 1
     ${CMD} "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
     if [ $? -eq 0 ]; then
