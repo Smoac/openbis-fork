@@ -1231,6 +1231,13 @@ class MoveIssue < LoggedInCommand
     move_issues([issue])
     return "1 issue"
   end
+  
+  def move_issues(issues_to_move)
+    issues_to_move.each do  | issue |
+      JiraHelpers.set_fix_version(issue.key, @sprintNumber)
+    end
+  end
+    
 end
 
 #
