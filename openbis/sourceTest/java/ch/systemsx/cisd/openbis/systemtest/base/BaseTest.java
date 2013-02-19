@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.NotAuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.OrAuthorizationRule;
 import ch.systemsx.cisd.openbis.systemtest.base.builder.Builder;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.DataSetDeletionBuilder;
 import ch.systemsx.cisd.openbis.systemtest.base.builder.DataSetUpdateBuilder;
 import ch.systemsx.cisd.openbis.systemtest.base.builder.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.systemtest.base.builder.ExperimentUpdateBuilder;
@@ -73,6 +74,7 @@ import ch.systemsx.cisd.openbis.systemtest.base.builder.SampleBuilder;
 import ch.systemsx.cisd.openbis.systemtest.base.builder.SampleUpdateBuilder;
 import ch.systemsx.cisd.openbis.systemtest.base.builder.SessionBuilder;
 import ch.systemsx.cisd.openbis.systemtest.base.builder.SpaceBuilder;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.TrashEmptyBuilder;
 import ch.systemsx.cisd.openbis.systemtest.base.builder.UpdateBuilder;
 import ch.systemsx.cisd.openbis.systemtest.base.matcher.ExternalDataHasChildrenMatcher;
 import ch.systemsx.cisd.openbis.systemtest.base.matcher.ExternalDataHasContainerMatcher;
@@ -278,6 +280,16 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     protected DataSetUpdateBuilder anUpdateOf(ExternalData dataset)
     {
         return new DataSetUpdateBuilder(commonServer, genericServer, refresh(dataset));
+    }
+
+    protected DataSetDeletionBuilder trash(ExternalData dataset)
+    {
+        return new DataSetDeletionBuilder(commonServer, genericServer, refresh(dataset));
+    }
+
+    protected TrashEmptyBuilder emptyTrash()
+    {
+        return new TrashEmptyBuilder(commonServer, genericServer);
     }
 
     protected SessionBuilder aSession()
