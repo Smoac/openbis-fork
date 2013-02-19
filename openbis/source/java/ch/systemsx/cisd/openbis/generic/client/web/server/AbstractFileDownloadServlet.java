@@ -37,7 +37,6 @@ abstract public class AbstractFileDownloadServlet extends AbstractServlet
     abstract protected FileContent getFileContent(final HttpServletRequest request)
             throws Exception;
 
-
     @Override
     protected void respondToRequest(final HttpServletRequest request,
             final HttpServletResponse response) throws Exception, IOException
@@ -46,8 +45,9 @@ abstract public class AbstractFileDownloadServlet extends AbstractServlet
         if (fileContent != null)
         {
             response.setContentLength(fileContent.getContent().length);
-            response.setHeader("Content-Disposition", "attachment; filename=\""
-                    + fileContent.getFileName() + "\"");
+            response.setHeader("Content-Disposition",
+                    "attachment; filename=\"" + fileContent.getFileName() + "\"");
+            response.setHeader("Cache-Control", "no-cache");
             final ServletOutputStream outputStream = response.getOutputStream();
             outputStream.write(fileContent.getContent());
             outputStream.flush();
