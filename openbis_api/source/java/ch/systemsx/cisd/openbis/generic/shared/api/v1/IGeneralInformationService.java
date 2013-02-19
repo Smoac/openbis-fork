@@ -24,6 +24,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
@@ -439,10 +440,10 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.9
      */
     public List<Experiment> listExperiments(String sessionToken, List<String> experimentIdentifiers);
-    
+
     /**
      * Returns all experiments matching specified search criteria. Note, that sub criterias are not
-     * supported. 
+     * supported.
      * 
      * @since 1.21
      */
@@ -485,4 +486,31 @@ public interface IGeneralInformationService extends IRpcService
      * @throws UserFailureException when a metaproject with the specified id doesn't exist.
      */
     public MetaprojectAssignments getMetaproject(String sessionToken, IMetaprojectId metaprojectId);
+
+    /**
+     * @param project The project to list the attachments for.
+     * @param allVersions If <code>true</code>, return all versions of the attachments, otherwise
+     *            return only the latest version.
+     * @since 1.22
+     */
+    public List<Attachment> listAttachmentsForProject(String sessionToken,
+            Project project, boolean allVersions);
+
+    /**
+     * @param experiment The experiment to list the attachments for.
+     * @param allVersions If <code>true</code>, return all versions of the attachments, otherwise
+     *            return only the latest version.
+     * @since 1.22
+     */
+    public List<Attachment> listAttachmentsForExperiment(String sessionToken,
+            Experiment experiment, boolean allVersions);
+
+    /**
+     * @param sample The sample to list the attachments for.
+     * @param allVersions If <code>true</code>, return all versions of the attachments, otherwise
+     *            return only the latest version.
+     * @since 1.22
+     */
+    public List<Attachment> listAttachmentsForSample(String sessionToken,
+            Sample sample, boolean allVersions);
 }
