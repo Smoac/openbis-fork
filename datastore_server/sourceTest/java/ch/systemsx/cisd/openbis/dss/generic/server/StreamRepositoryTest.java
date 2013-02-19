@@ -66,9 +66,9 @@ public class StreamRepositoryTest extends AssertJUnit
     {
         StreamRepository repository = new StreamRepository(2, idGenerator, timeProvider);
         ByteArrayInputStream stream1 = new ByteArrayInputStream("s1".getBytes());
-        String id1 = repository.addStream(stream1, "f1.txt");
+        String id1 = repository.addStream(stream1, "f1.txt", 0);
         ByteArrayInputStream stream2 = new ByteArrayInputStream("s2".getBytes());
-        String id2 = repository.addStream(stream2, "f2.txt");
+        String id2 = repository.addStream(stream2, "f2.txt", 0);
 
         assertEquals("0", id1);
         assertEquals("1", id2);
@@ -86,10 +86,10 @@ public class StreamRepositoryTest extends AssertJUnit
     {
         StreamRepository repository = new StreamRepository(2, idGenerator, timeProvider);
         ByteArrayInputStream stream1 = new ByteArrayInputStream("s1".getBytes());
-        String id1 = repository.addStream(stream1, "f1.txt");
-        
+        String id1 = repository.addStream(stream1, "f1.txt", 0);
+
         assertEquals("0", id1);
-        
+
         assertSame(stream1, repository.getStream("0").getInputStream());
         try
         {
@@ -100,15 +100,15 @@ public class StreamRepositoryTest extends AssertJUnit
             assertEquals("Stream 0 is no longer available.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testAddingAndRetrievingTwoStreamsButSecondStreamNoLongerExists()
     {
         StreamRepository repository = new StreamRepository(2, idGenerator, timeProvider);
         ByteArrayInputStream stream1 = new ByteArrayInputStream("s1".getBytes());
-        String id1 = repository.addStream(stream1, "f1.txt");
+        String id1 = repository.addStream(stream1, "f1.txt", 0);
         ByteArrayInputStream stream2 = new ByteArrayInputStream("s2".getBytes());
-        String id2 = repository.addStream(stream2, "f2.txt");
+        String id2 = repository.addStream(stream2, "f2.txt", 0);
 
         assertEquals("0", id1);
         assertEquals("1", id2);
@@ -127,4 +127,29 @@ public class StreamRepositoryTest extends AssertJUnit
         }
     }
 
+    @Test
+    public void testValidityDuration()
+    {
+        StreamRepository repository = new StreamRepository(2, idGenerator, timeProvider);
+        ByteArrayInputStream stream0 = new ByteArrayInputStream("s1".getBytes());
+        repository.addStream(stream0, "f1.txt", 5);
+        ByteArrayInputStream stream1 = new ByteArrayInputStream("s2".getBytes());
+        repository.addStream(stream1, "f2.txt", 3);
+
+        // Advance to a time when stream 1 is still available but not stream2
+        timeProvider.getTimeInMilliseconds();
+        timeProvider.getTimeInMilliseconds();
+        timeProvider.getTimeInMilliseconds();
+        timeProvider.getTimeInMilliseconds();
+        timeProvider.getTimeInMilliseconds();
+        assertSame(stream0, repository.getStream("0").getInputStream());
+        try
+        {
+            repository.getStream("1");
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Stream 1 is no longer available.", ex.getMessage());
+        }
+    }
 }

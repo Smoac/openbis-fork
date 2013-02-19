@@ -20,7 +20,7 @@ import java.io.InputStream;
 
 /**
  * Repositories for {@link InputStream} objects.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IStreamRepository
@@ -28,8 +28,8 @@ public interface IStreamRepository
     /**
      * Adds specified stream and returns a unique id.
      */
-    public String addStream(InputStream inputStream, String path);
-    
+    public String addStream(InputStream inputStream, String path, long validityDurationInSeconds);
+
     /**
      * Retrieves stream by specified id. A stream can be retrieved only once.
      * 
@@ -37,5 +37,5 @@ public interface IStreamRepository
      *                           because the time between adding and retrieving was to long.
      */
     public InputStreamWithPath getStream(String inputStreamID);
-    
+
 }

@@ -141,11 +141,12 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
         return openBISService.tryGetDataSet(sessionToken, dataSetCode);
     }
 
-    protected String addToRepositoryAndReturnDownloadUrl(InputStream stream, String path)
+    protected String addToRepositoryAndReturnDownloadUrl(InputStream stream, String path,
+            long validityDurationInSeconds)
     {
         return downloadUrl + "/" + IdentifiedStreamHandlingServlet.SERVLET_NAME + "?"
                 + IdentifiedStreamHandlingServlet.STREAM_ID_PARAMETER_KEY + "="
-                + streamRepository.addStream(stream, path);
+                + streamRepository.addStream(stream, path, validityDurationInSeconds);
     }
 
 }

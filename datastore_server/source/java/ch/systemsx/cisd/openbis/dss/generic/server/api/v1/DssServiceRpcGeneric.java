@@ -193,7 +193,16 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
             String path) throws IOExceptionUnchecked, IllegalArgumentException
     {
         InputStream stream = getFileForDataSet(sessionToken, dataSetCode, path);
-        return addToRepositoryAndReturnDownloadUrl(stream, path);
+        return addToRepositoryAndReturnDownloadUrl(stream, path, 0);
+    }
+
+    @Override
+    public String getDownloadUrlForFileForDataSetWithTimeout(String sessionToken,
+            String dataSetCode, String path, long validityDurationInSeconds)
+            throws IOExceptionUnchecked, IllegalArgumentException
+    {
+        InputStream stream = getFileForDataSet(sessionToken, dataSetCode, path);
+        return addToRepositoryAndReturnDownloadUrl(stream, path, validityDurationInSeconds);
     }
 
     private IHierarchicalContentNode getContentNode(IHierarchicalContent content, String startPath)
@@ -311,7 +320,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     @Override
     public int getMinorVersion()
     {
-        return 6;
+        return 7;
     }
 
     /**
@@ -347,7 +356,17 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
             throws IOExceptionUnchecked, IllegalArgumentException
     {
         InputStream stream = getFileForDataSet(sessionToken, fileOrFolder);
-        return addToRepositoryAndReturnDownloadUrl(stream, fileOrFolder.getPath());
+        return addToRepositoryAndReturnDownloadUrl(stream, fileOrFolder.getPath(), 0);
+    }
+
+    @Override
+    public String getDownloadUrlForFileForDataSetWithTimeout(String sessionToken,
+            DataSetFileDTO fileOrFolder, long validityDurationInSeconds)
+            throws IOExceptionUnchecked, IllegalArgumentException
+    {
+        InputStream stream = getFileForDataSet(sessionToken, fileOrFolder);
+        return addToRepositoryAndReturnDownloadUrl(stream, fileOrFolder.getPath(),
+                validityDurationInSeconds);
     }
 
     @Override

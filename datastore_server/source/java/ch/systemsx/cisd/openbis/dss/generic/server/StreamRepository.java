@@ -37,16 +37,20 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
  */
 public class StreamRepository implements IStreamRepository
 {
-    private static final class InputStreamWithTimeStamp
+    private static final class InputStreamWithValidityDuration
     {
+        final long validityInMs;
+
         final Date timestamp;
 
         final InputStreamWithPath inputStreamWithPath;
 
-        InputStreamWithTimeStamp(InputStreamWithPath inputStreamWithPath, Date timestamp)
+        InputStreamWithValidityDuration(InputStreamWithPath inputStreamWithPath, Date timestamp,
+                long validityDuration)
         {
             this.inputStreamWithPath = inputStreamWithPath;
             this.timestamp = timestamp;
+            this.validityInMs = validityDuration;
         }
     }
 
@@ -66,9 +70,9 @@ public class StreamRepository implements IStreamRepository
         }
     }
 
-    private final Map<String, InputStreamWithTimeStamp> streams =
+    private final Map<String, InputStreamWithValidityDuration> streams =
 
-    new HashMap<String, InputStreamWithTimeStamp>();
+    new HashMap<String, InputStreamWithValidityDuration>();
 
     private final IUniqueIdGenerator inputStreamIDGenerator;
 
@@ -98,13 +102,16 @@ public class StreamRepository implements IStreamRepository
     }
 
     @Override
-    public synchronized String addStream(InputStream inputStream, String path)
+    public synchronized String addStream(InputStream inputStream, String path, long validityInSeconds)
     {
         removeStaleInputStreams();
         String id = inputStreamIDGenerator.createUniqueID();
         Date timestamp = new Date(timeProvider.getTimeInMilliseconds());
-        streams.put(id, new InputStreamWithTimeStamp(new InputStreamWithPath(inputStream, path),
-                timestamp));
+
+        long validityInMs = validityInSeconds * 1000L;
+        long validity = (validityInMs < minimumTime) ? minimumTime : validityInMs;
+        streams.put(id, new InputStreamWithValidityDuration(new InputStreamWithPath(inputStream,
+                path), timestamp, validity));
         return id;
     }
 
@@ -112,7 +119,7 @@ public class StreamRepository implements IStreamRepository
     public synchronized InputStreamWithPath getStream(String inputStreamID)
     {
         removeStaleInputStreams();
-        InputStreamWithTimeStamp inputStreamWithTimeStamp = streams.remove(inputStreamID);
+        InputStreamWithValidityDuration inputStreamWithTimeStamp = streams.remove(inputStreamID);
         if (inputStreamWithTimeStamp == null)
         {
             throw new IllegalArgumentException("Stream " + inputStreamID
@@ -124,11 +131,12 @@ public class StreamRepository implements IStreamRepository
     private void removeStaleInputStreams()
     {
         long currentTime = timeProvider.getTimeInMilliseconds();
-        Set<Entry<String, InputStreamWithTimeStamp>> entrySet = streams.entrySet();
-        for (Iterator<Entry<String, InputStreamWithTimeStamp>> iterator = entrySet.iterator(); iterator
-                .hasNext();)
+        Set<Entry<String, InputStreamWithValidityDuration>> entrySet = streams.entrySet();
+        for (Iterator<Entry<String, InputStreamWithValidityDuration>> iterator =
+                entrySet.iterator(); iterator.hasNext();)
         {
-            if (iterator.next().getValue().timestamp.getTime() < currentTime - minimumTime)
+            InputStreamWithValidityDuration stream = iterator.next().getValue();
+            if (stream.timestamp.getTime() < currentTime - stream.validityInMs)
             {
                 iterator.remove();
             }

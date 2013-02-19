@@ -23,7 +23,9 @@ import java.util.Map;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DataSetAccessGuard;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DataSetFileDTOPredicate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IDssServiceRpcGenericInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
@@ -204,6 +206,28 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
     public List<ReportDescription> listTableReportDescriptions(String sessionToken)
     {
         logAccess(sessionToken, "list-table-report-descriptions");
+        return null;
+    }
+
+    @Override
+    public String getDownloadUrlForFileForDataSetWithTimeout(String sessionToken,
+            String dataSetCode, String path, long validityDurationInSeconds)
+            throws IOExceptionUnchecked, IllegalArgumentException
+    {
+        logAccess(sessionToken, "get_download_url_for_file_for_data_set",
+                "DATA_SET(%s) PATH(%s) VALIDITY(%i)", dataSetCode, path, validityDurationInSeconds);
+        return null;
+    }
+
+    @Override
+    @DataSetAccessGuard
+    public String getDownloadUrlForFileForDataSetWithTimeout(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class) DataSetFileDTO fileOrFolder,
+            long validityDurationInSeconds) throws IOExceptionUnchecked, IllegalArgumentException
+    {
+        logAccess(sessionToken, "get_download_url_for_file_for_data_set",
+                "DATA_SET(%s) VALIDITY(%i)", fileOrFolder, validityDurationInSeconds);
         return null;
     }
 }

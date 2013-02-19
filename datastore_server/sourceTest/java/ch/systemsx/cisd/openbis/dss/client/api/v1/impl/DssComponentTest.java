@@ -61,6 +61,9 @@ import ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DataSetAccessGuard;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DataSetFileDTOPredicate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.IDssServiceRpcGenericInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
@@ -712,6 +715,25 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         public List<ReportDescription> listTableReportDescriptions(String sessionToken)
         {
             return null;
+        }
+
+        @Override
+        public String getDownloadUrlForFileForDataSetWithTimeout(String sessionToken,
+                String dataSetCode, String path, long validityDuration)
+                throws IOExceptionUnchecked, IllegalArgumentException
+        {
+            return url.toString();
+        }
+
+        @Override
+        @DataSetAccessGuard
+        public String getDownloadUrlForFileForDataSetWithTimeout(
+                String sessionToken,
+                @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class) DataSetFileDTO fileOrFolder,
+                long validityDurationInSeconds) throws IOExceptionUnchecked,
+                IllegalArgumentException
+        {
+            return url.toString();
         }
     }
 
