@@ -115,12 +115,11 @@ def getVocabulary(service, vocabularyCode):
     vocabularyMap[term.getCode()] = term.getLabel()
   return vocabularyMap
 
-def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDict,
+def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDict, piSpace,
                 flowCellProperties, flowcellName, format="xls"):
   '''
   Writes out all data to an Excel file
   '''
-
   myRows = uniqueRow()
   sequencerVocabulary = getVocabulary(service, "SEQUENCER")
   setOfFlowcells = set ()
@@ -161,7 +160,7 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
 
   writeHeader()
   createRow("Principal Investigator", piName)
-
+  createRow("Data Space", piSpace)
   createRow("Run Folder Name", flowcellName)
   createRow()
 
@@ -179,11 +178,13 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
   listofLanes = piDict[piName]
   for lane in listofLanes:
     singleSampleColumns = uniqueColumn()
-    for sample in sampleDict[lane].keys():
+
+    # sort the dictionary by keys and taking the key as an integer
+    for sample in sorted(sampleDict[lane].iterkeys(), key=int):
       rowN = sheet.createRow(myRows.getNextRow())
       rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(flowcellName + ":" + str(lane))
       rowN.getCell(singleSampleColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
-      rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(sample)
+      rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(configMap['sampleCodePrefix'] + sample)
       rowN.getCell(singleSampleColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
 
       sampleValues = sampleDict[lane][sample]
@@ -220,6 +221,7 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
   fileName = myoptions.outdir + configMap["facilityNameShort"] + "_" + flowcell + "_" + \
             sanitizeString(piName) + datetime.now().strftime("_%d_%m_%Y.") + format
   fileOut = FileOutputStream(fileName)
+  # need this print for use as an openBIS webapp
   print fileName
 
   wb.write(fileOut);
@@ -270,6 +272,7 @@ def readConfig(logger):
   configMap['openbisServer'] = configParameters.get(OPENBIS, 'openbisServer')
   configMap['connectionTimeout'] = configParameters.getint(OPENBIS, 'connectionTimeout')
   configMap['pIPropertyName'] = configParameters.get(OPENBIS, 'pIPropertyName')
+  configMap['sampleCodePrefix'] = configParameters.get(OPENBIS, 'sampleCodePrefix')
 
   configMap['defaultFonts'] = configParameters.get(EXCEL, 'defaultFonts')
 
@@ -329,6 +332,7 @@ def getFLowcellData(service, configMap, flowcell, logger):
   laneDict = {}
   sampleDict = {}
   piDict = {}
+  spaceDict = {}
 
   for lane in range(1, numberOfLanes + 1):
     myLane = flowcell + ":" + str(lane)
@@ -345,7 +349,7 @@ def getFLowcellData(service, configMap, flowcell, logger):
       for samples in laneParents:
         sampleCode = samples.getCode()
         sampleProperties = samples.getProperties()
-        s[sampleCode] = sampleProperties
+        s[sampleCode.split("-")[-1]] = sampleProperties
         sampleDict[lane] = s
         pi = sampleProperties[configMap["pIPropertyName"]]
 
@@ -354,12 +358,15 @@ def getFLowcellData(service, configMap, flowcell, logger):
       else:
         piDict[pi] = [lane]
 
+      spaceDict[pi] = l.getSpaceCode()
+
+
   logger.info("Found the following PIs on the lanes: ")
   logger.info(piDict)
 
   # simply sort the hashmap
   treeMap = TreeMap (flowCellProperties)
-  return laneDict, sampleDict, piDict, treeMap
+  return laneDict, sampleDict, piDict, treeMap, spaceDict
 
 
 '''
@@ -379,11 +386,11 @@ def main():
 
   service = login(logger, configMap)
   flowcellName = myoptions.flowcell
-  laneDict, sampleDict, piDict, flowCellProperties = getFLowcellData(service, configMap, flowcellName, logger)
+  laneDict, sampleDict, piDict, flowCellProperties, spaceDict = getFLowcellData(service, configMap, flowcellName, logger)
 
   for piName in piDict:
     # create an Excel file for each PI
-    writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDict,
+    writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDict, spaceDict[piName],
                flowCellProperties, flowcellName, format)
 
   service.logout()
