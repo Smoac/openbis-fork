@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
@@ -44,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
  */
 abstract class AbstractCommand
 {
-    private static final String BASH_COMMAND = "share-manager.sh";
+    static final String BASH_COMMAND = "share-manager.sh";
     private final String name;
     
     protected String sessionToken;
@@ -80,7 +81,7 @@ abstract class AbstractCommand
             parser.printUsage(writer, null);
             out.println("Example: " + cmdString + parser.printExample(ExampleMode.ALL) + " "
                     + getRequiredArgumentsString());
-            throw new IllegalArgumentException(writer.toString());
+            throw new UserFailureException(writer.toString());
         }
     }
     
@@ -89,26 +90,36 @@ abstract class AbstractCommand
         String username = getArguments().getUsername();
         if (StringUtils.isBlank(username))
         {
-            throw new IllegalArgumentException("Unspecified user name.");
+            throw new UserFailureException("Unspecified user name.");
         }
         String password = getArguments().getPassword();
         if (StringUtils.isBlank(password))
         {
-            throw new IllegalArgumentException("Unspecified password.");
+            throw new UserFailureException("Unspecified password.");
         }
         Properties properties = loadServiceProperties();
         String openBisServerUrl = DssPropertyParametersUtil.getOpenBisServerUrl(properties);
-        SslCertificateHelper.trustAnyCertificate(openBisServerUrl);
-        ServiceFinder serviceFinder = new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
-        IGeneralInformationService infoService = serviceFinder.createService(IGeneralInformationService.class,
-                openBisServerUrl);
+        IGeneralInformationService infoService = createGeneralInfoService(openBisServerUrl);
         sessionToken = infoService.tryToAuthenticateForAllServices(username, password);
         if (sessionToken == null)
         {
-            throw new IllegalArgumentException("Invalid username/password combination");
+            throw new UserFailureException("Invalid username/password combination.");
         }
         String downloadUrl = DssPropertyParametersUtil.getDownloadUrl(properties);
-        service = new DssServiceRpcGenericFactory().getService(downloadUrl);
+        service = createDssService(downloadUrl);
+    }
+
+    IDssServiceRpcGeneric createDssService(String downloadUrl)
+    {
+        return new DssServiceRpcGenericFactory().getService(downloadUrl);
+    }
+
+    IGeneralInformationService createGeneralInfoService(String openBisServerUrl)
+    {
+        SslCertificateHelper.trustAnyCertificate(openBisServerUrl);
+        ServiceFinder serviceFinder =
+                new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
+        return serviceFinder.createService(IGeneralInformationService.class, openBisServerUrl);
     }
 
     private Properties loadServiceProperties()
@@ -124,13 +135,13 @@ abstract class AbstractCommand
             return ExtendedProperties.createWith(properties);
         } catch (FileNotFoundException ex)
         {
-            throw new IllegalArgumentException("DSS service.properties file not found: "
+            throw new UserFailureException("DSS service.properties file not found: "
                     + servicPropertiesFile.getAbsolutePath()
                     + (arguments.isServicePropertiesPathSpecified() ? ""
                             : "\nUse option -sp to specify it."));
         } catch (IOException ex)
         {
-            throw new IllegalArgumentException("Error while loading '"
+            throw new UserFailureException("Error while loading '"
                     + servicPropertiesFile.getAbsolutePath() + "': " + ex, ex);
         } finally
         {

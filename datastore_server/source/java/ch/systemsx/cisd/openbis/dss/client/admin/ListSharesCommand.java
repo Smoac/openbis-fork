@@ -63,7 +63,9 @@ public class ListSharesCommand extends AbstractCommand
         System.out.println(shares.size() + " shares:");
         for (ShareInfo shareInfo : shares)
         {
-            System.out.println(shareInfo.getShareId() + ": " + DirectoryRendererUtil.renderFileSize(shareInfo.getFreeSpace()) + " bytes free.");
+            System.out.println(shareInfo.getShareId() + ": "
+                    + DirectoryRendererUtil.renderFileSize(shareInfo.getFreeSpace())
+                    + " bytes free.");
         }
     }
 }

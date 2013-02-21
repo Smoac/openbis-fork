@@ -19,6 +19,10 @@ package ch.systemsx.cisd.openbis.dss.client.admin;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.helpers.LogLog;
+
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+
 /**
  * 
  *
@@ -37,11 +41,11 @@ public class ShareManagerApplication
         }
     }
     
-    void parseAndRun(String[] args)
+    void parseAndRun(String... args)
     {
         if (args.length == 0)
         {
-            throw new IllegalArgumentException("No command specified. Allowed commands are "
+            throw new UserFailureException("No command specified. Allowed commands are "
                     + commandMap.keySet() + ".");
         }
         String commandName = args[0];
@@ -49,7 +53,7 @@ public class ShareManagerApplication
                 commandMap.get(commandName);
         if (command == null)
         {
-            throw new IllegalArgumentException("Unknown command '" + commandName
+            throw new UserFailureException("Unknown command '" + commandName
                     + "'. Allowed commands are " + commandMap.keySet() + ".");
         }
         String[] reducedArgs = new String[args.length - 1];
@@ -61,12 +65,13 @@ public class ShareManagerApplication
     
     public static void main(String[] args)
     {
+        LogLog.setQuietMode(true);
         ShareManagerApplication application =
                 new ShareManagerApplication(new ListSharesCommand(), new MoveDataSetCommand());
         try
         {
             application.parseAndRun(args);
-        } catch (IllegalArgumentException ex)
+        } catch (UserFailureException ex)
         {
             System.err.println(ex.getMessage());
             System.exit(1);

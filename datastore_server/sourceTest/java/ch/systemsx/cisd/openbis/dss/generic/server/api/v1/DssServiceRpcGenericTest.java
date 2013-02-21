@@ -19,17 +19,20 @@ package ch.systemsx.cisd.openbis.dss.generic.server.api.v1;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.support.StaticListableBeanFactory;
-import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.io.IOUtilities;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
@@ -45,14 +48,17 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DssSessionAuthorizationHolder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.ShareInfo;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.MockFreeSpaceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class DssServiceRpcGenericTest extends AssertJUnit
+public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
 {
-
     private static final String SESSION_TOKEN = "SESSION";
 
     private IEncapsulatedOpenBISService service;
@@ -63,8 +69,8 @@ public class DssServiceRpcGenericTest extends AssertJUnit
 
     private IShareIdManager shareIdManager;
 
-    private IFreeSpaceProvider freeSpaceProvider;
-    
+    private MockFreeSpaceProvider freeSpaceProvider;
+
     private IPluginTaskInfoProvider infoProvider;
 
     private IQueryApiServer apiService;
@@ -72,6 +78,12 @@ public class DssServiceRpcGenericTest extends AssertJUnit
     private IHierarchicalContentProvider contentProvider;
 
     private IHierarchicalContent content;
+
+    private File share1;
+
+    private File share2;
+
+    private File storeDir;
 
     @BeforeMethod
     public void beforeMethod()
@@ -82,7 +94,7 @@ public class DssServiceRpcGenericTest extends AssertJUnit
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         apiService = context.mock(IQueryApiServer.class);
-        freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
+        freeSpaceProvider = new MockFreeSpaceProvider();
         shareIdManager = context.mock(IShareIdManager.class);
         infoProvider = context.mock(IPluginTaskInfoProvider.class);
         context.checking(new Expectations()
@@ -101,6 +113,12 @@ public class DssServiceRpcGenericTest extends AssertJUnit
         DssServiceRpcGeneric nakedDssService =
                 new DssServiceRpcGeneric(service, apiService, infoProvider, freeSpaceProvider,
                         shareIdManager, contentProvider);
+        storeDir = new File(workingDirectory, "store");
+        share1 = new File(storeDir, "1");
+        share1.mkdirs();
+        share2 = new File(storeDir, "2");
+        share2.mkdirs();
+        nakedDssService.setStoreDirectory(storeDir);
         proxyFactoryBean.setTarget(nakedDssService);
         proxyFactoryBean.addAdvisor(new DssServiceRpcAuthorizationAdvisor(shareIdManager));
         dssService = (IDssServiceRpcGeneric) proxyFactoryBean.getObject();
@@ -175,7 +193,7 @@ public class DssServiceRpcGenericTest extends AssertJUnit
                     IHierarchicalContentNode mainNode = createNodeMock("mainNode");
                     one(content).getNode(path);
                     will(returnValue(mainNode));
-                    
+
                     IHierarchicalContentNode childNode1 = createNodeMock("childNode1");
                     IHierarchicalContentNode childNode1Child1 = createNodeMock("childNode1Child1");
                     IHierarchicalContentNode childNode1Child2 = createNodeMock("childNode1Child2");
@@ -244,6 +262,165 @@ public class DssServiceRpcGenericTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testListAllShares()
+    {
+        prepareCheckInstanceAdminAuthorization();
+        freeSpaceProvider.setFreeSpaceValues(4711, 42);
+        
+        List<ShareInfo> shares = dssService.listAllShares(SESSION_TOKEN);
+        
+        assertEquals("1", shares.get(0).getShareId());
+        assertEquals(4711 * FileUtils.ONE_KB, shares.get(0).getFreeSpace());
+        assertEquals("2", shares.get(1).getShareId());
+        assertEquals(42 * FileUtils.ONE_KB, shares.get(1).getFreeSpace());
+        assertEquals(2, shares.size());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testShuffleDataSet()
+    {
+        File dataSetDir = new File(share1, "uuid/a/b/c/ds1");
+        dataSetDir.mkdirs();
+        FileUtilities.writeToFile(new File(dataSetDir, "hello.txt"), "hello world");
+        prepareCheckInstanceAdminAuthorization();
+        prepareLockDataSet("ds1");
+        context.checking(new Expectations()
+            {
+                {
+                    atLeast(1).of(service).tryGetDataSet("ds1");
+                    DataSet dataSet = new DataSet();
+                    dataSet.setCode("ds1");
+                    dataSet.setShareId("1");
+                    dataSet.setLocation("uuid/a/b/c/ds1");
+                    will(returnValue(dataSet));
+                    
+                    one(shareIdManager).getShareId("ds1");
+                    will(returnValue("1"));
+                    
+                    one(shareIdManager).lock("ds1");
+                    one(shareIdManager).releaseLock("ds1");
+                    
+                    one(service).updateShareIdAndSize("ds1", "2", 11);
+                    one(shareIdManager).setShareId("ds1", "2");
+                    one(shareIdManager).await("ds1");
+                }
+            });
+        freeSpaceProvider.setFreeSpaceValues(4711, 42);
+        
+        dssService.shuffleDataSet(SESSION_TOKEN, "ds1", "2");
+        
+        assertEquals("hello world",
+                FileUtilities.loadToString(new File(share2, "uuid/a/b/c/ds1/hello.txt")).trim());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testShuffleUnknownDataSet()
+    {
+        prepareCheckInstanceAdminAuthorization();
+        prepareLockDataSet("ds1");
+        context.checking(new Expectations()
+            {
+                {
+                    atLeast(1).of(service).tryGetDataSet("ds1");
+                }
+            });
+        
+        try
+        {
+            dssService.shuffleDataSet(SESSION_TOKEN, "ds1", "2");
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Unknown data set: ds1", ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testShuffleContainerDataSet()
+    {
+        prepareCheckInstanceAdminAuthorization();
+        prepareLockDataSet("ds1");
+        context.checking(new Expectations()
+            {
+                {
+                    atLeast(1).of(service).tryGetDataSet("ds1");
+                    will(returnValue(new ContainerDataSet()));
+                }
+            });
+        
+        try
+        {
+            dssService.shuffleDataSet(SESSION_TOKEN, "ds1", "2");
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Container data set: ds1", ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testShuffleDataSetToSameShare()
+    {
+        prepareCheckInstanceAdminAuthorization();
+        prepareLockDataSet("ds1");
+        context.checking(new Expectations()
+            {
+                {
+                    atLeast(1).of(service).tryGetDataSet("ds1");
+                    DataSet dataSet = new DataSet();
+                    dataSet.setCode("ds1");
+                    dataSet.setShareId("1");
+                    will(returnValue(dataSet));
+                }
+            });
+
+        try
+        {
+            dssService.shuffleDataSet(SESSION_TOKEN, "ds1", "1");
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Data set ds1 is already in share 1.", ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testShuffleDataSetToUnknownShare()
+    {
+        prepareCheckInstanceAdminAuthorization();
+        prepareLockDataSet("ds1");
+        context.checking(new Expectations()
+            {
+                {
+                    atLeast(1).of(service).tryGetDataSet("ds1");
+                    DataSet dataSet = new DataSet();
+                    dataSet.setCode("ds1");
+                    dataSet.setShareId("1");
+                    will(returnValue(dataSet));
+
+                    one(shareIdManager).getShareId("ds1");
+                    will(returnValue("1"));
+                }
+            });
+
+        try
+        {
+            dssService.shuffleDataSet(SESSION_TOKEN, "ds1", "3");
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Share does not exists: " + storeDir.getAbsolutePath() + "/3",
+                    ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+    
     private static String fileInfoString(String startPath, String pathInListing, long length,
             Integer checksum)
     {
@@ -265,7 +442,19 @@ public class DssServiceRpcGenericTest extends AssertJUnit
             {
                 {
                     one(shareIdManager).lock(Arrays.asList(dataSetCode));
-                    one(shareIdManager).releaseLocks();
+                    allowing(shareIdManager).releaseLocks();
+                }
+            });
+    }
+
+    private void prepareCheckInstanceAdminAuthorization()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).checkInstanceAdminAuthorization(SESSION_TOKEN);
+                    one(service).checkSession(SESSION_TOKEN);
+                    allowing(shareIdManager).releaseLocks();
                 }
             });
     }

@@ -34,6 +34,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
@@ -453,29 +454,29 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         ExternalData dataSet = getOpenBISService().tryGetDataSet(dataSetCode);
         if (dataSet == null)
         {
-            throw new IllegalArgumentException("Unknown data set: " + dataSetCode);
+            throw new UserFailureException("Unknown data set: " + dataSetCode);
         }
         if (dataSet.isContainer())
         {
-            throw new IllegalArgumentException("Container data set: " + dataSetCode);
+            throw new UserFailureException("Container data set: " + dataSetCode);
         }
         DataSet realDataSet = dataSet.tryGetAsDataSet();
         String dataSetLocation = realDataSet.getDataSetLocation();
         if (realDataSet.getShareId().equals(shareId))
         {
-            throw new IllegalArgumentException("Data set " + dataSetCode + " is already in share "
+            throw new UserFailureException("Data set " + dataSetCode + " is already in share "
                     + shareId + ".");
         }
         File share = new File(getStoreDirectory(), getShareIdManager().getShareId(dataSetCode));
         File newShare = new File(getStoreDirectory(), shareId);
         if (newShare.exists() == false)
         {
-            throw new IllegalArgumentException("Share does not exists: "
+            throw new UserFailureException("Share does not exists: "
                     + newShare.getAbsolutePath());
         }
         if (newShare.isDirectory() == false)
         {
-            throw new IllegalArgumentException("Share is not a directory: "
+            throw new UserFailureException("Share is not a directory: "
                     + newShare.getAbsolutePath());
         }
         getDataSetMover().moveDataSetToAnotherShare(new File(share, dataSetLocation), newShare,

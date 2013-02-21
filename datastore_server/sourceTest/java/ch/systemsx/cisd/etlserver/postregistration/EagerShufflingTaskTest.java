@@ -17,11 +17,8 @@
 package ch.systemsx.cisd.etlserver.postregistration;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -37,8 +34,6 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.filesystem.HostAwareFile;
-import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
@@ -48,6 +43,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IChecksumProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.MockFreeSpaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -57,27 +53,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 @Friend(toClasses = EagerShufflingTask.class)
 public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
 {
-    private static final class MockFreeSpaceProvider implements IFreeSpaceProvider
-    {
-        private final List<String> shares = new ArrayList<String>();
-
-        private Integer[] freeSpaceValues;
-
-        private int index;
-
-        void setFreeSpaceValues(Integer... freeSpaceValues)
-        {
-            this.freeSpaceValues = freeSpaceValues;
-        }
-
-        @Override
-        public long freeSpaceKb(HostAwareFile path) throws IOException
-        {
-            shares.add(path.getLocalFile().getName());
-            return freeSpaceValues[index++ % freeSpaceValues.length];
-        }
-    }
-
     private static final String SHARDING = "sharding/";
 
     private static final String DATA_STORE_SERVER_CODE = "DSS";
@@ -178,7 +153,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
 
         assertEquals("Data set ds-1 successfully moved from share 1 to 4.",
                 infoMessageMatcher.recordedObject());
-        assertEquals("[1, 2, 3, 4, 4, 4]", freeSpaceProvider.shares.toString());
+        assertEquals("[1, 2, 3, 4, 4, 4]", freeSpaceProvider.getShares().toString());
         context.assertIsSatisfied();
     }
 
@@ -205,7 +180,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
 
         assertEquals("Data set ds-1 successfully moved from share 1 to 2.",
                 infoMessageMatcher.recordedObject());
-        assertEquals("[1, 2, 3, 4, 2, 2]", freeSpaceProvider.shares.toString());
+        assertEquals("[1, 2, 3, 4, 2, 2]", freeSpaceProvider.getShares().toString());
         context.assertIsSatisfied();
     }
 
@@ -225,7 +200,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
 
         assertEquals("No share found for shuffling data set ds-1.",
                 logMessageMatcher.recordedObject());
-        assertEquals("[1, 2, 3, 4, 1, 2, 3, 4]", freeSpaceProvider.shares.toString());
+        assertEquals("[1, 2, 3, 4, 1, 2, 3, 4]", freeSpaceProvider.getShares().toString());
         context.assertIsSatisfied();
     }
 
@@ -260,7 +235,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
                 "After moving data set ds-1 to share 2 that share has only 900.00 KB free space. "
                         + "It might be necessary to add a new share.",
                 notificationRecorder.recordedObject());
-        assertEquals("[1, 2, 3, 4, 2, 2]", freeSpaceProvider.shares.toString());
+        assertEquals("[1, 2, 3, 4, 2, 2]", freeSpaceProvider.getShares().toString());
         context.assertIsSatisfied();
     }
 
@@ -293,7 +268,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
 
         assertEquals("No share found for shuffling data set ds-1.",
                 notificationRecorder.recordedObject());
-        assertEquals("[1, 2, 3, 4, 1, 2, 3, 4]", freeSpaceProvider.shares.toString());
+        assertEquals("[1, 2, 3, 4, 1, 2, 3, 4]", freeSpaceProvider.getShares().toString());
         context.assertIsSatisfied();
     }
 
