@@ -79,7 +79,7 @@ public abstract class AbstractTabularDataGraphServlet extends AbstractDatasetDow
             sessionId = getRequiredParameter(request, Utils.SESSION_ID_PARAM);
             datasetCode = getRequiredParameter(request, DATASET_CODE_PARAM);
             filePathOrNull = getOptionalParameter(request, FILE_PATH_PARAM);
-            graphName = getRequiredParameter(request, GRAPH_TYPE_CODE);
+            graphName = getOptionalParameter(request, GRAPH_TYPE_CODE, "dynamic");
             width = getIntParam(request, WIDTH_PARAM, 0);
             height = getIntParam(request, HEIGHT_PARAM, 0);
         }
@@ -108,6 +108,17 @@ public abstract class AbstractTabularDataGraphServlet extends AbstractDatasetDow
             return value;
         }
 
+        private static String getOptionalParameter(final HttpServletRequest request,
+                String paramName, String defaultValue)
+        {
+            String value = request.getParameter(paramName);
+            if (null == value)
+            {
+                return defaultValue;
+            }
+            return value;
+        }
+
         private static String getRequiredParameter(final HttpServletRequest request,
                 String paramName)
         {
@@ -118,6 +129,11 @@ public abstract class AbstractTabularDataGraphServlet extends AbstractDatasetDow
                         + " found in the URL");
             }
             return value;
+        }
+
+        public String getSessionId()
+        {
+            return sessionId;
         }
     }
 
@@ -176,11 +192,12 @@ public abstract class AbstractTabularDataGraphServlet extends AbstractDatasetDow
             ensureDatasetAccessible(datasetCode, session, sessionId);
 
             // Get the tabular data
-            ITabularData fileLines = getDatasetLines(datasetCode, filePathOrNull);
+            ITabularData fileLines = getDatasetLines(request, datasetCode, filePathOrNull);
 
             // Generate an image into the stream
             ITabularDataGraph generator =
-                    configuration.getGraph(params.graphName, fileLines, response.getOutputStream());
+                    getConfiguration(request).getGraph(params.graphName, fileLines,
+                            response.getOutputStream());
 
             response.setContentType(Utils.CONTENT_TYPE_PNG);
             String headerContentDisposition = "inline; filename=plot_" + (new Date().getTime());
@@ -201,7 +218,16 @@ public abstract class AbstractTabularDataGraphServlet extends AbstractDatasetDow
         }
     }
 
-    protected abstract ITabularData getDatasetLines(String dataSetCode, String filePathOrNull)
+    /**
+     * Get the configuration for this graph. Defaults to the configuration ivar. Subclasses may
+     * override.
+     */
+    protected TabularDataGraphCollectionConfiguration getConfiguration(HttpServletRequest request)
+    {
+        return configuration;
+    }
+
+    protected abstract ITabularData getDatasetLines(HttpServletRequest request, String dataSetCode, String filePathOrNull)
             throws IOException;
 
 }

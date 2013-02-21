@@ -46,7 +46,7 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
 
     private static final String LABEL_POSTFIX = ".label";
 
-    private static final String SEPARATOR_PROPERTY_KEY = "separator";
+    public static final String SEPARATOR_PROPERTY_KEY = "separator";
 
     private static final String IGNORE_COMMENTS_PROPERTY_KEY = "ignore-comments";
 
@@ -63,17 +63,17 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
     private static final String THUMBNAIL_HEIGHT_KEY = "column-height";
 
     // the graphs to display -- each one is shown in a column.
-    private static final String GRAPHS_KEY = "graphs";
+    public static final String GRAPHS_KEY = "graphs";
 
     // the type of graph. See @{link GraphType} for valid types.
-    private static final String GRAPHS_TYPES_KEY = "graph-type";
+    public static final String GRAPHS_TYPES_KEY = "graph-type";
 
     // keys for the different kinds of graphs
-    private static final String TITLE_KEY = "title";
+    public static final String TITLE_KEY = "title";
 
-    private static final String X_AXIS_KEY = "x-axis";
+    public static final String X_AXIS_KEY = "x-axis";
 
-    private static final String Y_AXIS_KEY = "y-axis";
+    public static final String Y_AXIS_KEY = "y-axis";
 
     private static final String COLUMN_KEY = "column";
 
@@ -97,6 +97,101 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
     private final ArrayList<String> graphNames;
 
     private final HashMap<String, TabularDataGraphConfiguration> graphTypeMap;
+
+    /**
+     * Class used to dynamically initialize a TabularDataGraphCollectionConfiguration;
+     * 
+     * @author cramakri
+     */
+    public static class DynamicTabularDataGraphCollectionConfiguration
+    {
+        public static String DYNAMIC_GRAPH_NAME = "dynamic";
+
+        private char columnDelimiter = ';';
+
+        private boolean ignoreComments = true;
+
+        private int imageWidth = 800;
+
+        private int imageHeight = 600;
+
+        private int thumbnailWidth = 300;
+
+        private int thumbnailHeight = 200;
+
+        private Properties properties = new Properties();
+
+        public char getColumnDelimiter()
+        {
+            return columnDelimiter;
+        }
+
+        public void setColumnDelimiter(char columnDelimiter)
+        {
+            this.columnDelimiter = columnDelimiter;
+        }
+
+        public boolean isIgnoreComments()
+        {
+            return ignoreComments;
+        }
+
+        public void setIgnoreComments(boolean ignoreComments)
+        {
+            this.ignoreComments = ignoreComments;
+        }
+
+        public int getImageWidth()
+        {
+            return imageWidth;
+        }
+
+        public void setImageWidth(int imageWidth)
+        {
+            this.imageWidth = imageWidth;
+        }
+
+        public int getImageHeight()
+        {
+            return imageHeight;
+        }
+
+        public void setImageHeight(int imageHeight)
+        {
+            this.imageHeight = imageHeight;
+        }
+
+        public int getThumbnailWidth()
+        {
+            return thumbnailWidth;
+        }
+
+        public void setThumbnailWidth(int thumbnailWidth)
+        {
+            this.thumbnailWidth = thumbnailWidth;
+        }
+
+        public int getThumbnailHeight()
+        {
+            return thumbnailHeight;
+        }
+
+        public void setThumbnailHeight(int thumbnailHeight)
+        {
+            this.thumbnailHeight = thumbnailHeight;
+        }
+
+        public Properties getProperties()
+        {
+            return properties;
+        }
+
+        public void setProperties(Properties properties)
+        {
+            this.properties = properties;
+        }
+
+    }
 
     /**
      * Create a configuration from the properties file located at path.
@@ -123,6 +218,18 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
     }
 
     /**
+     * Create a configuration from the properties file located at path.
+     * 
+     * @param path Path to the properties file.
+     */
+    public static TabularDataGraphCollectionConfiguration getConfiguration(
+            DynamicTabularDataGraphCollectionConfiguration config)
+            throws EnvironmentFailureException
+    {
+        return new TabularDataGraphCollectionConfiguration(config);
+    }
+
+    /**
      * Initialize the configuration based on the properties object.
      */
     private TabularDataGraphCollectionConfiguration(Properties properties)
@@ -146,6 +253,27 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
         graphTypeMap = new HashMap<String, TabularDataGraphConfiguration>();
         initialzeGraphTypeMap(properties);
 
+    }
+
+    /**
+     * Initialize the configuration based on the configuration object.
+     */
+    private TabularDataGraphCollectionConfiguration(
+            DynamicTabularDataGraphCollectionConfiguration config)
+    {
+        comment = '#';
+
+        this.columnDelimiter = config.getColumnDelimiter();
+        this.ignoreComments = config.isIgnoreComments();
+        imageWidth = config.getImageWidth();
+        imageHeight = config.getImageHeight();
+        thumbnailWidth = config.getThumbnailWidth();
+        thumbnailHeight = config.getThumbnailHeight();
+
+        graphNames = new ArrayList<String>();
+        graphNames.add(DynamicTabularDataGraphCollectionConfiguration.DYNAMIC_GRAPH_NAME);
+        graphTypeMap = new HashMap<String, TabularDataGraphConfiguration>();
+        initialzeGraphTypeMap(config.getProperties());
     }
 
     private void initializeGraphTypeCodes(Properties properties)

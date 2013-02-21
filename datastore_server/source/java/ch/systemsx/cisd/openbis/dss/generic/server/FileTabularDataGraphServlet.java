@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import java.io.File;
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletRequest;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CsvFileReaderHelper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ITabularData;
 
@@ -34,14 +38,27 @@ public class FileTabularDataGraphServlet extends AbstractTabularDataGraphServlet
      * Return the tabular data from a file as a DatasetFileLines.
      */
     @Override
-    protected ITabularData getDatasetLines(String dataSetCode, String pathOrNull)
-            throws IOException
+    protected ITabularData getDatasetLines(HttpServletRequest request, String dataSetCode,
+            String pathOrNull) throws IOException
     {
         if (pathOrNull == null)
         {
             throw new UserFailureException("No value for the parameter " + FILE_PATH_PARAM
                     + " found in the URL");
         }
-        return CsvFileReaderHelper.getDatasetFileLines(new File(pathOrNull), configuration);
+
+        RequestParams requestParams = new RequestParams(request);
+
+        IHierarchicalContentProvider contentProvider =
+                applicationContext.getHierarchicalContentProvider(requestParams.getSessionId());
+        IHierarchicalContent content = contentProvider.asContent(dataSetCode);
+        IHierarchicalContentNode node = content.getNode(pathOrNull);
+
+        ITabularData data =
+                CsvFileReaderHelper.getDatasetFileLines(node.getFile(), getConfiguration(request));
+
+        content.close();
+
+        return data;
     }
 }
