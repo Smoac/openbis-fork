@@ -64,7 +64,7 @@ public class StreamRepositoryTest extends AssertJUnit
     @Test
     public void testAddingAndRetrievingTwoStreams()
     {
-        StreamRepository repository = new StreamRepository(2, idGenerator, timeProvider);
+        StreamRepository repository = new StreamRepository(2, 10, idGenerator, timeProvider);
         ByteArrayInputStream stream1 = new ByteArrayInputStream("s1".getBytes());
         String id1 = repository.addStream(stream1, "f1.txt", 0);
         ByteArrayInputStream stream2 = new ByteArrayInputStream("s2".getBytes());
@@ -84,7 +84,7 @@ public class StreamRepositoryTest extends AssertJUnit
     @Test
     public void testThatAStreamCanBeRetrievedOnlyOnce()
     {
-        StreamRepository repository = new StreamRepository(2, idGenerator, timeProvider);
+        StreamRepository repository = new StreamRepository(2, 10, idGenerator, timeProvider);
         ByteArrayInputStream stream1 = new ByteArrayInputStream("s1".getBytes());
         String id1 = repository.addStream(stream1, "f1.txt", 0);
 
@@ -104,7 +104,7 @@ public class StreamRepositoryTest extends AssertJUnit
     @Test
     public void testAddingAndRetrievingTwoStreamsButSecondStreamNoLongerExists()
     {
-        StreamRepository repository = new StreamRepository(2, idGenerator, timeProvider);
+        StreamRepository repository = new StreamRepository(2, 10, idGenerator, timeProvider);
         ByteArrayInputStream stream1 = new ByteArrayInputStream("s1".getBytes());
         String id1 = repository.addStream(stream1, "f1.txt", 0);
         ByteArrayInputStream stream2 = new ByteArrayInputStream("s2".getBytes());
@@ -130,7 +130,7 @@ public class StreamRepositoryTest extends AssertJUnit
     @Test
     public void testValidityDuration()
     {
-        StreamRepository repository = new StreamRepository(2, idGenerator, timeProvider);
+        StreamRepository repository = new StreamRepository(2, 10, idGenerator, timeProvider);
         ByteArrayInputStream stream0 = new ByteArrayInputStream("s1".getBytes());
         repository.addStream(stream0, "f1.txt", 5);
         ByteArrayInputStream stream1 = new ByteArrayInputStream("s2".getBytes());
@@ -150,6 +150,30 @@ public class StreamRepositoryTest extends AssertJUnit
         } catch (IllegalArgumentException ex)
         {
             assertEquals("Stream 1 is no longer available.", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testMaxValidityDuration()
+    {
+        StreamRepository repository = new StreamRepository(2, 3, idGenerator, timeProvider);
+        ByteArrayInputStream stream0 = new ByteArrayInputStream("s1".getBytes());
+        repository.addStream(stream0, "f1.txt", 10);
+
+        // Advance to the requested time, but beyond the stream repository's max allowed
+        timeProvider.getTimeInMilliseconds();
+        timeProvider.getTimeInMilliseconds();
+        timeProvider.getTimeInMilliseconds();
+        timeProvider.getTimeInMilliseconds();
+        timeProvider.getTimeInMilliseconds();
+        timeProvider.getTimeInMilliseconds();
+        try
+        {
+            repository.getStream("0");
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Stream 0 is no longer available.", ex.getMessage());
         }
     }
 }

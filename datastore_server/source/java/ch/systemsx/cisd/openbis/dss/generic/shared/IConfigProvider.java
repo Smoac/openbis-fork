@@ -45,4 +45,9 @@ public interface IConfigProvider
      * Return the minimum time (in seconds) that data streams are kept before expiring.
      */
     int getDataStreamTimeout();
+
+    /**
+     * Return the maximum time (in seconds) that data streams are kept before expiring.
+     */
+    int getDataStreamMaxTimeout();
 }

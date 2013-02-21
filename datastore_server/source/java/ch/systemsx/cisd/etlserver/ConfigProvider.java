@@ -70,4 +70,10 @@ public class ConfigProvider implements IConfigProvider
     {
         return DssPropertyParametersUtil.getDataStreamTimeout(properties);
     }
+
+    @Override
+    public int getDataStreamMaxTimeout()
+    {
+        return DssPropertyParametersUtil.getDataStreamMaxTimeout(properties);
+    }
 }

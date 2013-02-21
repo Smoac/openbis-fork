@@ -80,14 +80,16 @@ public class StreamRepository implements IStreamRepository
 
     private final long minimumTime;
 
+    private final long maximumTime;
+
     public StreamRepository(IConfigProvider configProvider)
     {
-        this(configProvider.getDataStreamTimeout(), new IdGenerator(),
-                SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+        this(configProvider.getDataStreamTimeout(), configProvider.getDataStreamMaxTimeout(),
+                new IdGenerator(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 
     @Private
-    StreamRepository(int minimumTimeInSecondsToKeepStreams,
+    StreamRepository(int minimumTimeInSecondsToKeepStreams, int maximumTimeInSecondsToKeepStreams,
             IUniqueIdGenerator inputStreamIDGenerator, ITimeProvider timeProvider)
     {
         if (minimumTimeInSecondsToKeepStreams <= 0)
@@ -97,12 +99,21 @@ public class StreamRepository implements IStreamRepository
                             + minimumTimeInSecondsToKeepStreams);
         }
         minimumTime = minimumTimeInSecondsToKeepStreams * 1000L;
+
+        if (maximumTimeInSecondsToKeepStreams <= 0)
+        {
+            throw new IllegalArgumentException(
+                    "Maximum time to keep streams is not a positive number: "
+                            + maximumTimeInSecondsToKeepStreams);
+        }
+        maximumTime = maximumTimeInSecondsToKeepStreams * 1000L;
         this.inputStreamIDGenerator = inputStreamIDGenerator;
         this.timeProvider = timeProvider;
     }
 
     @Override
-    public synchronized String addStream(InputStream inputStream, String path, long validityInSeconds)
+    public synchronized String addStream(InputStream inputStream, String path,
+            long validityInSeconds)
     {
         removeStaleInputStreams();
         String id = inputStreamIDGenerator.createUniqueID();
@@ -110,6 +121,7 @@ public class StreamRepository implements IStreamRepository
 
         long validityInMs = validityInSeconds * 1000L;
         long validity = (validityInMs < minimumTime) ? minimumTime : validityInMs;
+        validity = (validityInMs > maximumTime) ? maximumTime : validity;
         streams.put(id, new InputStreamWithValidityDuration(new InputStreamWithPath(inputStream,
                 path), timestamp, validity));
         return id;

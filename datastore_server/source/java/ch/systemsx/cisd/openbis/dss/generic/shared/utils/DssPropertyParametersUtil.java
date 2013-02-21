@@ -58,7 +58,11 @@ public class DssPropertyParametersUtil
 
     public static final String DATA_STREAM_TIMEOUT = "data-stream-timeout";
 
-    public static final int MINIMUM_TIME_TO_KEEP_STREAMS_DEFAULT = 20;
+    public static final String DATA_STREAM_MAX_TIMEOUT = "data-stream-max-timeout";
+
+    public static final int MINIMUM_TIME_TO_KEEP_STREAMS_DEFAULT = 5;
+
+    public static final int MAXIMUM_TIME_TO_KEEP_STREAMS_DEFAULT = 60 * 60 * 4; // 4 hours
 
     /**
      * Temp directory for dss usage.
@@ -100,8 +104,7 @@ public class DssPropertyParametersUtil
         ExtendedProperties serviceProperties = extendProperties(properties);
         CorePluginsInjector injector =
                 new CorePluginsInjector(ScannerType.DSS, DssPluginType.values());
-        Map<String, File> pluginFolders =
-                injector.injectCorePlugins(serviceProperties);
+        Map<String, File> pluginFolders = injector.injectCorePlugins(serviceProperties);
 
         if (PluginContainer.tryGetInstance() == null)
         {
@@ -168,6 +171,12 @@ public class DssPropertyParametersUtil
     {
         return PropertyUtils.getPosInt(serviceProperties, DATA_STREAM_TIMEOUT,
                 MINIMUM_TIME_TO_KEEP_STREAMS_DEFAULT);
+    }
+
+    public static int getDataStreamMaxTimeout(Properties serviceProperties)
+    {
+        return PropertyUtils.getPosInt(serviceProperties, DATA_STREAM_MAX_TIMEOUT,
+                MAXIMUM_TIME_TO_KEEP_STREAMS_DEFAULT);
     }
 
     public static File getDssInternalTempDir(final Properties properties)
