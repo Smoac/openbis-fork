@@ -19,7 +19,6 @@ do
 	then
 		for jar in `ls ${folder}/lib/*.jar`;
 		do
-			echo "# ln -s $jar `pwd`/lib/autolink-${dropbox}-`basename $jar`";
 			ln -s $jar `pwd`/lib/autolink-${dropbox}-`basename $jar`;
 		done;
 	fi;
