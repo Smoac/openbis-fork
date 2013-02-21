@@ -230,7 +230,7 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
             throws IOExceptionUnchecked, IllegalArgumentException
     {
         logAccess(sessionToken, "get_download_url_for_file_for_data_set",
-                "DATA_SET(%s) PATH(%s) VALIDITY(%i)", dataSetCode, path, validityDurationInSeconds);
+                "DATA_SET(%s) PATH(%s) VALIDITY(%s)", dataSetCode, path, validityDurationInSeconds);
         return null;
     }
 
@@ -242,7 +242,7 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
             long validityDurationInSeconds) throws IOExceptionUnchecked, IllegalArgumentException
     {
         logAccess(sessionToken, "get_download_url_for_file_for_data_set",
-                "DATA_SET(%s) VALIDITY(%i)", fileOrFolder, validityDurationInSeconds);
+                "DATA_SET(%s) VALIDITY(%s)", fileOrFolder, validityDurationInSeconds);
         return null;
     }
 }

@@ -17,12 +17,15 @@
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -30,6 +33,7 @@ import org.testng.annotations.Test;
 import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
 import com.googlecode.jsonrpc4j.ProxyUtil;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.api.json.GenericObjectMapper;
@@ -91,7 +95,43 @@ public class JsonDssServiceRpcGenericTest extends SystemTestCase
         {
             System.out.println(fileInfo);
         }
+    }
 
+    @Test
+    public void testGetDataSetContentsWithURL() throws MalformedURLException, IOException
+    {
+
+        FileInfoDssDTO[] result =
+                dssRpcService.listFilesForDataSet(sessionToken, "20081105092159111-1", "", true);
+        assertTrue("Did not find any files for the data set 20081105092159111-1", result.length > 0);
+
+        FileInfoDssDTO fileInfoToDownload = null;
+        for (FileInfoDssDTO fileInfo : result)
+        {
+            if (false == fileInfo.isDirectory())
+            {
+                fileInfoToDownload = fileInfo;
+                break;
+            }
+        }
+
+        assertNotNull("Could not find a file in the data set 20081105092159111-1 to download",
+                fileInfoToDownload);
+
+        @SuppressWarnings("null")
+        DataSetFileDTO fileToDownload =
+                new DataSetFileDTO("20081105092159111-1", fileInfoToDownload.getPathInDataSet(),
+                        false);
+        String url =
+                dssRpcService.getDownloadUrlForFileForDataSetWithTimeout(sessionToken,
+                        fileToDownload, -1);
+
+        // Download the data into a file
+        InputStream input = new URL(url).openStream();
+        File file = new File(workingDirectory, "output");
+        FileOutputStream output = new FileOutputStream(file);
+        IOUtils.copyLarge(input, output);
+        assertEquals(file.length(), fileInfoToDownload.getFileSize());
     }
 
     public static IGeneralInformationService createOpenbisService()
