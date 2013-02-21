@@ -52,6 +52,28 @@ public class DataStoreApiUrlUtilities
         return datastoreUrl;
     }
 
+    /**
+     * Converts a data store server URL to a URL that can be used to download files.
+     */
+    public static String getDownloadUrlFromDataStoreUrl(String dataStoreUrl)
+    {
+        String downloadUrl = dataStoreUrl;
+
+        // The url objained form a DataStore object is the url of the server. Convert this to a
+        // download URL
+        if (downloadUrl.endsWith("/"))
+        {
+            downloadUrl = downloadUrl.substring(0, downloadUrl.length() - 1);
+        }
+
+        if (false == downloadUrl.endsWith(DATA_STORE_SERVER_WEB_APPLICATION_NAME))
+        {
+            downloadUrl = downloadUrl + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
+        }
+
+        return downloadUrl;
+    }
+
     public static String getUrlForRpcService(String serviceUrlSuffix)
     {
         return "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME + serviceUrlSuffix;

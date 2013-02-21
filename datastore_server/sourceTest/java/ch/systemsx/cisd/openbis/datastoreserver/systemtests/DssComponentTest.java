@@ -19,8 +19,10 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -297,6 +299,46 @@ public class DssComponentTest extends SystemTestCase
                 files[5].toString());
         assertEquals(fileInfoString(topLevelFolder + "/data/2.data", 7, "02c0db4e"),
                 files[6].toString());
+    }
+
+    @Test(dependsOnMethods = "testPutDataSet")
+    public void testGetFileWithSessionURL() throws Exception
+    {
+        String code = latestDataSetInfo.getDataSetCode();
+
+        IDataSetDss ds = dss.getDataSet(code);
+
+        String topLevelFolder = "original/" + PUT_DATA_SET_NAME;
+        String path = topLevelFolder + "/data";
+        FileInfoDssDTO[] files = ds.listFiles(path, false);
+        Arrays.sort(files, FILE_INFO_COMPARATOR);
+        String url = ds.getSessionURLForFile(files[0].getPathInDataSet());
+
+        InputStream input = new URL(url).openStream();
+        File file = new File(workingDirectory, "output");
+        FileOutputStream output = new FileOutputStream(file);
+        IOUtils.copyLarge(input, output);
+        assertEquals(file.length(), files[0].getFileSize());
+    }
+
+    @Test(dependsOnMethods = "testPutDataSet")
+    public void testGetFileWithTimeLimitedURL() throws Exception
+    {
+        String code = latestDataSetInfo.getDataSetCode();
+
+        IDataSetDss ds = dss.getDataSet(code);
+
+        String topLevelFolder = "original/" + PUT_DATA_SET_NAME;
+        String path = topLevelFolder + "/data";
+        FileInfoDssDTO[] files = ds.listFiles(path, false);
+        Arrays.sort(files, FILE_INFO_COMPARATOR);
+        String url = ds.getURLForFileWithTimeout(files[0].getPathInDataSet(), 20);
+
+        InputStream input = new URL(url).openStream();
+        File file = new File(workingDirectory, "output");
+        FileOutputStream output = new FileOutputStream(file);
+        IOUtils.copyLarge(input, output);
+        assertEquals(file.length(), files[0].getFileSize());
     }
 
     private static String fileInfoString(String startPath, String pathInListing, long length,

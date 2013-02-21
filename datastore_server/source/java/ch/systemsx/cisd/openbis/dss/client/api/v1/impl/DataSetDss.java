@@ -22,6 +22,7 @@ import java.io.InputStream;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import ch.systemsx.cisd.common.api.retry.Retry;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
@@ -91,7 +92,8 @@ public class DataSetDss implements IDataSetDss
     public File getLinkOrCopyOfContent(String overrideStoreRootPathOrNull, File downloadDir,
             String pathInDataSet) throws IllegalArgumentException, InvalidSessionException
     {
-        return parent.getLinkOrCopyOfContents(this, overrideStoreRootPathOrNull, downloadDir, pathInDataSet);
+        return parent.getLinkOrCopyOfContents(this, overrideStoreRootPathOrNull, downloadDir,
+                pathInDataSet);
     }
 
     public AuthenticatedState getParent()
@@ -110,5 +112,21 @@ public class DataSetDss implements IDataSetDss
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
         builder.append("code", code);
         return builder.toString();
+    }
+
+    @Override
+    @Retry
+    public String getSessionURLForFile(String path) throws IllegalArgumentException,
+            InvalidSessionException
+    {
+        return parent.getSessionURLForFile(this, path);
+    }
+
+    @Override
+    @Retry
+    public String getURLForFileWithTimeout(String path, long validityDurationInSeconds)
+            throws IllegalArgumentException, InvalidSessionException
+    {
+        return parent.getURLForFileWithTimeout(this, path, validityDurationInSeconds);
     }
 }

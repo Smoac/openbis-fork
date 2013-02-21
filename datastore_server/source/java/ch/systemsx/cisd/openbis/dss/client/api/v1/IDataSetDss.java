@@ -60,6 +60,29 @@ public interface IDataSetDss
             InvalidSessionException;
 
     /**
+     * Get a URL that will return the contents of a file contained in this data set. The URL will be
+     * valid for the lifetime of the session.
+     * 
+     * @param path The path of the file to retrieve. The path must be relative with respect to the
+     *            data set, such as the path returned by {@link FileInfoDssDTO#getPathInDataSet}.
+     */
+    @Retry
+    public String getSessionURLForFile(String path) throws IllegalArgumentException,
+            InvalidSessionException;
+
+    /**
+     * Get a URL that will return the contents of a file contained in this data set. The URL will be
+     * valid for specified time duration.
+     * 
+     * @param path The path of the file to retrieve. The path must be relative with respect to the
+     *            data set, such as the path returned by {@link FileInfoDssDTO#getPathInDataSet}.
+     * @param validityDurationInSeconds The number of seconds for which the URL is valid.
+     */
+    @Retry
+    public String getURLForFileWithTimeout(String path, long validityDurationInSeconds)
+            throws IllegalArgumentException, InvalidSessionException;
+
+    /**
      * Returns a {@link File}, if possible, that directly references the contents of a data set in
      * the data store server. This is only possible if the file system used by the DSS is also
      * mounted locally.

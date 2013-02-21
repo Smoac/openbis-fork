@@ -605,8 +605,8 @@ class AuthenticatedState extends AbstractDssComponentState
     }
 
     /**
-     * Package visible method to communicate with the server and get a list of files contained in
-     * this data set.
+     * Package visible method to communicate with the server and get one file contained in this data
+     * set.
      */
     InputStream getFile(DataSetDss dataSet, String path) throws InvalidSessionException
     {
@@ -634,6 +634,38 @@ class AuthenticatedState extends AbstractDssComponentState
     }
 
     /**
+     * Package visible method that returns a URL valid for the duration of the session.
+     */
+    String getSessionURLForFile(DataSetDss dataSet, String path) throws InvalidSessionException
+    {
+        String baseDownloadUrl =
+                service.tryGetDataStoreBaseURL(getSessionToken(), dataSet.getCode());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(DataStoreApiUrlUtilities.getDownloadUrlFromDataStoreUrl(baseDownloadUrl));
+        sb.append("/");
+        sb.append(dataSet.getCode());
+        sb.append("/");
+        sb.append(path);
+        sb.append("?sessionID=");
+        sb.append(getSessionToken());
+        return sb.toString();
+    }
+
+    /**
+     * Package visible method that returns a URL valid for the specified duration.
+     */
+    String getURLForFileWithTimeout(DataSetDss dataSet, String path, long validityInSeconds)
+            throws InvalidSessionException
+    {
+        String url =
+                dataSet.getService().getDownloadUrlForFileForDataSetWithTimeout(getSessionToken(),
+                        dataSet.getCode(), path, validityInSeconds);
+
+        return url;
+    }
+
+    /**
      * Package visible method to communicate with the server and get a link to the file in the DSS.
      * Returns null if link couldn't be retrieved (e.g. when the <var>dataSetDss</var> is a
      * container).
@@ -642,7 +674,7 @@ class AuthenticatedState extends AbstractDssComponentState
             throws InvalidSessionException, EnvironmentFailureException
     {
         final String path = tryGetInternalPathInDataStore(dataSetDss, overrideStoreRootPathOrNull);
-        
+
         if (path == null)
         {
             return null;
@@ -677,7 +709,7 @@ class AuthenticatedState extends AbstractDssComponentState
         try
         {
             return dataSetDss.getService().getPathToDataSet(getSessionToken(),
-                            dataSetDss.getCode(), overrideStoreRootPathOrNull);
+                    dataSetDss.getCode(), overrideStoreRootPathOrNull);
         } catch (IllegalArgumentException e)
         {
             // We could not create a link, return null
