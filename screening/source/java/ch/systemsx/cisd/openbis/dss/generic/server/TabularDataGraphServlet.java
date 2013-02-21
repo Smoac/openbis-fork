@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ITabularData;
@@ -174,8 +176,8 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
     }
 
     @Override
-    protected ITabularData getDatasetLines(String dataSetCode, String filePathOrNull)
-            throws IOException
+    protected ITabularData getDatasetLines(HttpServletRequest request, String dataSetCode,
+            String filePathOrNull) throws IOException
     {
         return new ImagingTabularData(getDAO(), getMetadataProvider(), dataSetCode);
     }
