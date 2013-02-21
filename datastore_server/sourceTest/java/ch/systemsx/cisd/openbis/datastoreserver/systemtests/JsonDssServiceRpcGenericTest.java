@@ -49,6 +49,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
     { "slow" })
 public class JsonDssServiceRpcGenericTest extends SystemTestCase
 {
+    private static final String DATA_SET_CODE = "20081105092159111-1";
+
     private static final String OPENBIS_URL = TestInstanceHostUtils.getOpenBISUrl()
             + IGeneralInformationService.JSON_SERVICE_URL;
 
@@ -89,7 +91,7 @@ public class JsonDssServiceRpcGenericTest extends SystemTestCase
         System.out.println(validationScript);
 
         FileInfoDssDTO[] result =
-                dssRpcService.listFilesForDataSet(sessionToken, "20081105092159111-1", "", true);
+                dssRpcService.listFilesForDataSet(sessionToken, DATA_SET_CODE, "", true);
 
         for (FileInfoDssDTO fileInfo : result)
         {
@@ -101,9 +103,27 @@ public class JsonDssServiceRpcGenericTest extends SystemTestCase
     public void testGetDataSetContentsWithURL() throws MalformedURLException, IOException
     {
 
+        FileInfoDssDTO fileInfoToDownload = getFileInfoToDownload();
+
+        DataSetFileDTO fileToDownload =
+                new DataSetFileDTO(DATA_SET_CODE, fileInfoToDownload.getPathInDataSet(), false);
+        String url =
+                dssRpcService.getDownloadUrlForFileForDataSetWithTimeout(sessionToken,
+                        fileToDownload, -1);
+
+        // Download the data into a file
+        InputStream input = new URL(url).openStream();
+        File file = new File(workingDirectory, "output");
+        FileOutputStream output = new FileOutputStream(file);
+        IOUtils.copyLarge(input, output);
+        assertEquals(file.length(), fileInfoToDownload.getFileSize());
+    }
+
+    protected FileInfoDssDTO getFileInfoToDownload()
+    {
         FileInfoDssDTO[] result =
-                dssRpcService.listFilesForDataSet(sessionToken, "20081105092159111-1", "", true);
-        assertTrue("Did not find any files for the data set 20081105092159111-1", result.length > 0);
+                dssRpcService.listFilesForDataSet(sessionToken, DATA_SET_CODE, "", true);
+        assertTrue("Did not find any files for the data set " + DATA_SET_CODE, result.length > 0);
 
         FileInfoDssDTO fileInfoToDownload = null;
         for (FileInfoDssDTO fileInfo : result)
@@ -117,21 +137,34 @@ public class JsonDssServiceRpcGenericTest extends SystemTestCase
 
         assertNotNull("Could not find a file in the data set 20081105092159111-1 to download",
                 fileInfoToDownload);
+        return fileInfoToDownload;
+    }
 
-        @SuppressWarnings("null")
+    @Test
+    public void testGetDataSetContentsWithExpiredURL() throws MalformedURLException, IOException,
+            InterruptedException
+    {
+
+        FileInfoDssDTO fileInfoToDownload = getFileInfoToDownload();
+
         DataSetFileDTO fileToDownload =
-                new DataSetFileDTO("20081105092159111-1", fileInfoToDownload.getPathInDataSet(),
-                        false);
+                new DataSetFileDTO(DATA_SET_CODE, fileInfoToDownload.getPathInDataSet(), false);
         String url =
                 dssRpcService.getDownloadUrlForFileForDataSetWithTimeout(sessionToken,
-                        fileToDownload, -1);
+                        fileToDownload, 5);
+
+        // Wait until the URL is invalid
+        Thread.sleep(6 * 1000L);
 
         // Download the data into a file
-        InputStream input = new URL(url).openStream();
-        File file = new File(workingDirectory, "output");
-        FileOutputStream output = new FileOutputStream(file);
-        IOUtils.copyLarge(input, output);
-        assertEquals(file.length(), fileInfoToDownload.getFileSize());
+        try
+        {
+            new URL(url).openStream();
+            fail("An exception should have been thrown.");
+        } catch (IOException e)
+        {
+            assertTrue(e.getMessage().startsWith("Server returned HTTP response code: 500"));
+        }
     }
 
     public static IGeneralInformationService createOpenbisService()
