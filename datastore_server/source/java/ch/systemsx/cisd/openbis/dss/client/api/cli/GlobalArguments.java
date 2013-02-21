@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.dss.client.api.cli;
 import org.apache.commons.lang.time.DateUtils;
 
 import ch.systemsx.cisd.args4j.Option;
-import ch.systemsx.cisd.common.cli.ConsoleClientArguments;
+import ch.systemsx.cisd.openbis.generic.shared.cli.OpenBisConsoleClientArguments;
 
 /**
  * Command line arguments for the dss command. The format is:
@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.cli.ConsoleClientArguments;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class GlobalArguments extends ConsoleClientArguments
+public class GlobalArguments extends OpenBisConsoleClientArguments
 {
     @Option(name = "T", longName = "timeout", usage = "Timeout in seconds")
     protected long timeout = 15L; // default timeout of 15 seconds

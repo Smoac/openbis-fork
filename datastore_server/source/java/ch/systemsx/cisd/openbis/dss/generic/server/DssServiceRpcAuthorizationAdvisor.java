@@ -221,8 +221,8 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
             }
             try
             {
-                // At least one of the parameters must be annotated
-                assert annotatedParameters.size() > 0 : "No guard defined";
+                // Either no parameter (except sessionToken) or at least one of the parameters must be annotated
+                assert args.length <= 1 || annotatedParameters.size() > 0 : "No guard defined";
                 PrivilegeLevel level = getAndCheckPrivilegeLevel(sessionToken, methodInvocation.getMethod());
 
                 if (level != PrivilegeLevel.INSTANCE_ADMIN) // An instance admin is allowed to work on all

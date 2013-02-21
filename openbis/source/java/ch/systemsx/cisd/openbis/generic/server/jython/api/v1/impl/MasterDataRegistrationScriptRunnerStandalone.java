@@ -22,10 +22,10 @@ import ch.systemsx.cisd.args4j.CmdLineException;
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.args4j.Option;
-import ch.systemsx.cisd.common.cli.ConsoleClientArguments;
 import ch.systemsx.cisd.common.logging.ConsoleLogger;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.openbis.generic.shared.cli.OpenBisConsoleClientArguments;
 
 /**
  * A standalone command line tool allowing the execution of Jython scripts to initialize the master
@@ -36,7 +36,7 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 public class MasterDataRegistrationScriptRunnerStandalone
 {
 
-    public static class Arguments extends ConsoleClientArguments
+    public static class Arguments extends OpenBisConsoleClientArguments
     {
         @Option(name = "f", longName = "script-file", usage = "Jython script file", required = true)
         private String scriptFileName = "";

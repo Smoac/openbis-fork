@@ -70,7 +70,7 @@ public class CommandGetBundle extends
         }
 
         @Override
-        public boolean isComplete()
+        public boolean allAdditionalMandatoryArgumentsPresent()
         {
             if (getArguments().size() < 1)
             {
@@ -81,10 +81,6 @@ public class CommandGetBundle extends
             {
                 return false;
             }
-
-            if (false == super.isComplete())
-                return false;
-
             return true;
         }
     }

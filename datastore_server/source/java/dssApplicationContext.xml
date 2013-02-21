@@ -127,6 +127,7 @@
         <constructor-arg ref="openBIS-service" /> 
         <constructor-arg ref="query-api-server" />  
         <constructor-arg ref="plugin-tasks" />
+        <property name="dataStoreCode" value="${data-store-server-code}"/>
         <property name="downloadUrl" value="${download-url}"/>
     </bean>
     

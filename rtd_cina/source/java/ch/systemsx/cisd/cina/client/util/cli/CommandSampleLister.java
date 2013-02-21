@@ -55,17 +55,12 @@ public class CommandSampleLister extends
         }
 
         @Override
-        public boolean isComplete()
+        public boolean allAdditionalMandatoryArgumentsPresent()
         {
-
             if (null == getSampleTypeCode())
             {
                 return false;
             }
-
-            if (false == super.isComplete())
-                return false;
-
             return true;
         }
     }

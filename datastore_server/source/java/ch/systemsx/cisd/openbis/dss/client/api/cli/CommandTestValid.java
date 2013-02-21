@@ -68,15 +68,8 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
         }
 
         @Override
-        public boolean isComplete()
+        public boolean allAdditionalMandatoryArgumentsPresent()
         {
-            boolean parentIsComplete = super.isComplete();
-            // no script argument was provided
-            if (false == parentIsComplete || getArguments().size() < 4)
-            {
-                return parentIsComplete;
-            }
-
             try
             {
                 String[] paths = getScriptPathsOrNull();
@@ -99,10 +92,6 @@ class CommandTestValid extends AbstractDssCommand<CommandTestValid.CommandTestVa
             {
                 System.err.println("\nThe script(s) must be a valid python (jython) script(s).");
             }
-
-            if (false == super.isComplete())
-                return false;
-
             return true;
         }
     }

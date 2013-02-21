@@ -36,7 +36,7 @@ public class CommandGenerateSampleCode extends
         }
 
         @Override
-        public boolean isComplete()
+        public boolean allAdditionalMandatoryArgumentsPresent()
         {
             if (getArguments().size() < 1)
             {
@@ -46,10 +46,6 @@ public class CommandGenerateSampleCode extends
             {
                 return false;
             }
-
-            if (false == super.isComplete())
-                return false;
-
             return true;
         }
     }

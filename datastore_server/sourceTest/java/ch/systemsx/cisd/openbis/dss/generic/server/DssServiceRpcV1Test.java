@@ -41,6 +41,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -131,6 +132,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 
     private IDataSetValidator validator;
 
+    private IFreeSpaceProvider freeSpaceProvider;
+    
     private IShareIdManager shareIdManager;
 
     private IPluginTaskInfoProvider infoProvider;
@@ -157,6 +160,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         openBisService = context.mock(IEncapsulatedOpenBISService.class);
         streamRepository = context.mock(IStreamRepository.class);
         apiService = context.mock(IQueryApiServer.class);
+        freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
         shareIdManager = context.mock(IShareIdManager.class);
         applicationContext.addBean("openBIS-service", openBisService);
         mailClient = context.mock(IMailClient.class);
@@ -197,7 +201,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                         mailClient, "TEST", validator);
         rpcService =
                 new DssServiceRpcGeneric(openBisService, apiService, infoProvider,
-                        streamRepository, shareIdManager, contentProvider, putService);
+                        streamRepository, freeSpaceProvider, shareIdManager, contentProvider, putService);
         rpcService.setStoreDirectory(storeDir);
     }
 

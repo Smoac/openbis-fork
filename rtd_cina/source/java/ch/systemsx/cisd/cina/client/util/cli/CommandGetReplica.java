@@ -60,7 +60,7 @@ public class CommandGetReplica extends
         }
 
         @Override
-        public boolean isComplete()
+        public boolean allAdditionalMandatoryArgumentsPresent()
         {
             if (getArguments().size() < 1)
             {
@@ -71,10 +71,6 @@ public class CommandGetReplica extends
             {
                 return false;
             }
-
-            if (false == super.isComplete())
-                return false;
-
             return true;
         }
     }

@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.ID
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.ShareInfo;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
@@ -159,6 +160,20 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
         logAccess(sessionToken, "get_path_to_data_set", "DATA_SET(%s) STORE_ROOT_PATH(%s)",
                 dataSetCode, overrideStoreRootPathOrNull);
         return null;
+    }
+
+    @Override
+    public List<ShareInfo> listAllShares(String sessionToken)
+    {
+        logAccess(sessionToken, "list_all_shares");
+        return null;
+    }
+
+    @Override
+    public void shuffleDataSet(String sessionToken, String dataSetCode, String shareID)
+    {
+        logTracking(sessionToken, "shuffle_data_set", "DATA_SET(%s) SHARE(%s)", dataSetCode,
+                shareID);
     }
 
     @Override

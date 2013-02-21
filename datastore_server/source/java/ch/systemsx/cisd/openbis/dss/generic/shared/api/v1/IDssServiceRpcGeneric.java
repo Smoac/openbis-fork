@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.Da
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DataSetCodeStringPredicate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.DataSetFileDTOPredicate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.NewDataSetPredicate;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.PrivilegeLevel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
@@ -251,6 +252,26 @@ public interface IDssServiceRpcGeneric extends IRpcService
             @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
             String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
             IllegalArgumentException;
+    
+    /**
+     * Lists all shares. 
+     * 
+     * @since 1.7
+     */
+    @DataSetAccessGuard(privilegeLevel = PrivilegeLevel.INSTANCE_ADMIN)
+    public List<ShareInfo> listAllShares(String sessionToken);
+    
+    /**
+     * Moves specified data set to specified share.
+     * 
+     * @throws IllegalArgumentException if data set does not exit or is a container data set or
+     *             share does not exist.
+     * @since 1.7
+     */
+    @DataSetAccessGuard(privilegeLevel = PrivilegeLevel.INSTANCE_ADMIN)
+    public void shuffleDataSet(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class)
+            String dataSetCode, String shareId);
 
     /**
      * Get the validation script for the specified data set type.

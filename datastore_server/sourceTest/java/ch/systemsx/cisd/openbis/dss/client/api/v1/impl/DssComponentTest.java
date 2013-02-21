@@ -73,6 +73,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.ShareInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationScriptRunnerTest;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -663,6 +664,17 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                 IllegalArgumentException
         {
             throw new IllegalArgumentException("Unimplemented in v1.0");
+        }
+
+        @Override
+        public List<ShareInfo> listAllShares(String sessionToken)
+        {
+            return null;
+        }
+
+        @Override
+        public void shuffleDataSet(String sessionToken, String dataSetCode, String shareId)
+        {
         }
 
         @Override

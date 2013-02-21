@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -34,9 +35,14 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
+import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
+import ch.systemsx.cisd.etlserver.plugins.DataSetMover;
+import ch.systemsx.cisd.etlserver.plugins.IDataSetMover;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.HierarchicalContentUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
@@ -55,7 +61,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.HierarchicalFileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.ShareInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -89,6 +99,12 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
 
     private final File sessionWorkspaceRootDirectory;
 
+    private final IFreeSpaceProvider freeSpaceProvider;
+    
+    private IDataSetMover dataSetMover;
+
+    private String dataStoreCode;
+
     /**
      * The designated constructor.
      */
@@ -96,15 +112,15 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
             IQueryApiServer apiServer, IPluginTaskInfoProvider infoProvider)
     {
         // NOTE: IShareIdManager and IHierarchicalContentProvider will be lazily created by spring
-        this(openBISService, apiServer, infoProvider, null, null);
+        this(openBISService, apiServer, infoProvider, new SimpleFreeSpaceProvider(), null, null);
     }
 
     DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService, IQueryApiServer apiServer,
-            IPluginTaskInfoProvider infoProvider, IShareIdManager shareIdManager,
-            IHierarchicalContentProvider contentProvider)
+            IPluginTaskInfoProvider infoProvider, IFreeSpaceProvider freeSpaceProvider,
+            IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider)
     {
-        this(openBISService, apiServer, infoProvider, null, shareIdManager, contentProvider,
-                new PutDataSetService(openBISService, operationLog));
+        this(openBISService, apiServer, infoProvider, null, freeSpaceProvider, shareIdManager,
+                contentProvider, new PutDataSetService(openBISService, operationLog));
     }
 
     /**
@@ -112,14 +128,26 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
      */
     public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
             IQueryApiServer apiServer, IPluginTaskInfoProvider infoProvider,
-            IStreamRepository streamRepository, IShareIdManager shareIdManager,
+            IStreamRepository streamRepository, IFreeSpaceProvider freeSpaceProvider,
+            IShareIdManager shareIdManager,
             IHierarchicalContentProvider contentProvider, PutDataSetService service)
     {
         super(openBISService, streamRepository, shareIdManager, contentProvider);
         queryApiServer = apiServer;
+        this.freeSpaceProvider = freeSpaceProvider;
         putService = service;
         this.sessionWorkspaceRootDirectory = infoProvider.getSessionWorkspaceRootDir();
         operationLog.info("[rpc] Started DSS API V1 service.");
+    }
+    
+    public void setDataStoreCode(String dataStoreCode)
+    {
+        this.dataStoreCode = dataStoreCode;
+    }
+    
+    void setDataSetMover(IDataSetMover dataSetMover)
+    {
+        this.dataSetMover = dataSetMover;
     }
 
     @Override
@@ -400,6 +428,67 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
                     + "' not available: this is a container dataset.");
         }
         return convertPath(getStoreDirectory(), dataSetRootDirectory, overrideStoreRootPathOrNull);
+    }
+
+    @Override
+    public List<ShareInfo> listAllShares(String sessionToken)
+    {
+        getOpenBISService().checkSession(sessionToken);
+        List<Share> shares =
+                SegmentedStoreUtils.getSharesWithDataSets(getStoreDirectory(), dataStoreCode,
+                        Collections.<String> emptySet(), freeSpaceProvider, getOpenBISService(),
+                        new Log4jSimpleLogger(operationLog));
+        List<ShareInfo> result = new ArrayList<ShareInfo>();
+        for (Share share : shares)
+        {
+            result.add(new ShareInfo(share.getShareId(), share.calculateFreeSpace()));
+        }
+        return result;
+    }
+
+    @Override
+    public void shuffleDataSet(String sessionToken, String dataSetCode, String shareId)
+    {
+        getOpenBISService().checkSession(sessionToken);
+        ExternalData dataSet = getOpenBISService().tryGetDataSet(dataSetCode);
+        if (dataSet == null)
+        {
+            throw new IllegalArgumentException("Unknown data set: " + dataSetCode);
+        }
+        if (dataSet.isContainer())
+        {
+            throw new IllegalArgumentException("Container data set: " + dataSetCode);
+        }
+        DataSet realDataSet = dataSet.tryGetAsDataSet();
+        String dataSetLocation = realDataSet.getDataSetLocation();
+        if (realDataSet.getShareId().equals(shareId))
+        {
+            throw new IllegalArgumentException("Data set " + dataSetCode + " is already in share "
+                    + shareId + ".");
+        }
+        File share = new File(getStoreDirectory(), getShareIdManager().getShareId(dataSetCode));
+        File newShare = new File(getStoreDirectory(), shareId);
+        if (newShare.exists() == false)
+        {
+            throw new IllegalArgumentException("Share does not exists: "
+                    + newShare.getAbsolutePath());
+        }
+        if (newShare.isDirectory() == false)
+        {
+            throw new IllegalArgumentException("Share is not a directory: "
+                    + newShare.getAbsolutePath());
+        }
+        getDataSetMover().moveDataSetToAnotherShare(new File(share, dataSetLocation), newShare,
+                null, new Log4jSimpleLogger(operationLog));
+    }
+    
+    private IDataSetMover getDataSetMover()
+    {
+        if (dataSetMover == null)
+        {
+            dataSetMover = new DataSetMover(getOpenBISService(), getShareIdManager());
+        }
+        return dataSetMover;
     }
 
     public static String convertPath(File storeRoot, File dataSetRoot,

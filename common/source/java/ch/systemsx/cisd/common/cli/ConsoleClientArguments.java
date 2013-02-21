@@ -39,9 +39,6 @@ public class ConsoleClientArguments
     @Option(name = "p", longName = "password", usage = "User login password")
     protected String password = "";
 
-    @Option(name = "s", longName = "server-base-url", usage = "URL for openBIS Server (required)")
-    protected String serverBaseUrl = "";
-
     @Option(name = "h", longName = "help", skipForExample = true)
     protected boolean isHelp = false;
 
@@ -73,25 +70,21 @@ public class ConsoleClientArguments
         return password;
     }
 
-    public String getServerBaseUrl()
-    {
-        return serverBaseUrl;
-    }
-
     /**
      * Check that the arguments make sense.
      * <p>
-     * Note to subclassers -- this command might prompt the user for username and/or password and
-     * thus should be called as the last part of subclass overrides of this method.
+     * Note to subclassers -- this command might prompt the user for username and/or password. In
+     * order to check additional parameters {@link #allAdditionalMandatoryArgumentsPresent()} should
+     * be overridden.
      */
-    public boolean isComplete()
+    public final boolean isComplete()
     {
         if (isHelp)
         {
             return true;
         }
 
-        if (serverBaseUrl.length() < 1)
+        if (allAdditionalMandatoryArgumentsPresent() == false)
         {
             return false;
         }
@@ -135,6 +128,14 @@ public class ConsoleClientArguments
             }
         }
 
+        return true;
+    }
+    
+    /**
+     * Returns <code>true</code> if all additional mandatory arguments are present.
+     */
+    protected boolean allAdditionalMandatoryArgumentsPresent()
+    {
         return true;
     }
 

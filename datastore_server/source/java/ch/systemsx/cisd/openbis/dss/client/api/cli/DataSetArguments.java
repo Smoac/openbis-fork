@@ -64,16 +64,12 @@ class DataSetArguments extends GlobalArguments
     }
 
     @Override
-    public boolean isComplete()
+    public boolean allAdditionalMandatoryArgumentsPresent()
     {
         if (getDataSetCode().length() < 1)
         {
             return false;
         }
-
-        if (false == super.isComplete())
-            return false;
-
         return true;
     }
 }

@@ -29,6 +29,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.io.IOUtilities;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
@@ -62,6 +63,8 @@ public class DssServiceRpcGenericTest extends AssertJUnit
 
     private IShareIdManager shareIdManager;
 
+    private IFreeSpaceProvider freeSpaceProvider;
+    
     private IPluginTaskInfoProvider infoProvider;
 
     private IQueryApiServer apiService;
@@ -79,6 +82,7 @@ public class DssServiceRpcGenericTest extends AssertJUnit
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         apiService = context.mock(IQueryApiServer.class);
+        freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
         shareIdManager = context.mock(IShareIdManager.class);
         infoProvider = context.mock(IPluginTaskInfoProvider.class);
         context.checking(new Expectations()
@@ -95,8 +99,8 @@ public class DssServiceRpcGenericTest extends AssertJUnit
         proxyFactoryBean.setInterfaces(new Class[]
             { IDssServiceRpcGeneric.class });
         DssServiceRpcGeneric nakedDssService =
-                new DssServiceRpcGeneric(service, apiService, infoProvider, shareIdManager,
-                        contentProvider);
+                new DssServiceRpcGeneric(service, apiService, infoProvider, freeSpaceProvider,
+                        shareIdManager, contentProvider);
         proxyFactoryBean.setTarget(nakedDssService);
         proxyFactoryBean.addAdvisor(new DssServiceRpcAuthorizationAdvisor(shareIdManager));
         dssService = (IDssServiceRpcGeneric) proxyFactoryBean.getObject();

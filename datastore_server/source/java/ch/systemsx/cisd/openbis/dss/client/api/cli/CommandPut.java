@@ -97,7 +97,7 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
         }
 
         @Override
-        public boolean isComplete()
+        public boolean allAdditionalMandatoryArgumentsPresent()
         {
             if (getArguments().size() < 3)
                 return false;
@@ -119,10 +119,6 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
                         .println("\nProprties must be specified using as code=value[,code=value]*\n");
                 return false;
             }
-
-            if (false == super.isComplete())
-                return false;
-
             return true;
         }
     }
