@@ -24,6 +24,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.EntityResolverQueryFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IEntityResolverQuery;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
@@ -48,8 +50,11 @@ public abstract class AbstractBusinessObjectFactory
     @Resource(name = ComponentNames.MANAGED_PROPERTY_EVALUATOR_FACTORY)
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
+    private final IEntityResolverQuery entityResolver;
+
     protected AbstractBusinessObjectFactory()
     {
+        this.entityResolver = EntityResolverQueryFactory.create();
     }
 
     protected AbstractBusinessObjectFactory(final IDAOFactory daoFactory,
@@ -58,6 +63,7 @@ public abstract class AbstractBusinessObjectFactory
             IServiceConversationClientManagerLocal conversationClient,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
+        this();
         this.daoFactory = daoFactory;
         this.dssFactory = dssFactory;
         this.relationshipService = relationshipService;
@@ -95,4 +101,13 @@ public abstract class AbstractBusinessObjectFactory
     {
         return managedPropertyEvaluatorFactory;
     }
+
+    /**
+     * Returns the entity resolver query.
+     */
+    public IEntityResolverQuery getEntityResolver()
+    {
+        return entityResolver;
+    }
+
 }
