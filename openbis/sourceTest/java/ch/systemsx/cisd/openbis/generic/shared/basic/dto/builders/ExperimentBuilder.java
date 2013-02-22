@@ -38,6 +38,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  */
 public class ExperimentBuilder
 {
+    private static long count = 0;
+
     private final Experiment experiment = new Experiment();
 
     public ExperimentBuilder()
@@ -71,6 +73,9 @@ public class ExperimentBuilder
         ExperimentIdentifier experimentIdentifier = factory.createIdentifier();
         experiment.setCode(experimentIdentifier.getExperimentCode());
         Project project = new Project();
+        ++count;
+        project.setId(count);
+        project.setPermId(Long.toString(count));
         project.setCode(experimentIdentifier.getProjectCode());
         Space space = new Space();
         space.setCode(experimentIdentifier.getSpaceCode());

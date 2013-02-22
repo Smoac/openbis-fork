@@ -190,9 +190,13 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
 
                     one(projectDAO).listProjects(spaces.get(0));
                     ProjectPE a = new ProjectPE();
+                    a.setId(1L);
+                    a.setPermId("1");
                     a.setCode("a");
                     a.setSpace(spaces.get(0));
                     ProjectPE b = new ProjectPE();
+                    b.setId(2L);
+                    b.setPermId("2");
                     b.setCode("b");
                     b.setSpace(spaces.get(0));
                     will(returnValue(Arrays.asList(a, b)));
@@ -202,6 +206,8 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
 
                     one(projectDAO).listProjects(spaces.get(2));
                     ProjectPE c = new ProjectPE();
+                    c.setId(3L);
+                    c.setPermId("3");
                     c.setCode("c");
                     c.setSpace(spaces.get(0));
                     will(returnValue(Arrays.asList(c)));
@@ -553,6 +559,8 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
 
                     one(projectDAO).listProjects(spaces.get(0));
                     ProjectPE project1 = new ProjectPE();
+                    project1.setId(1L);
+                    project1.setPermId("1");
                     project1.setCode("PROJECT-1");
                     project1.setSpace(spaces.get(0));
                     will(returnValue(Collections.singletonList(project1)));
