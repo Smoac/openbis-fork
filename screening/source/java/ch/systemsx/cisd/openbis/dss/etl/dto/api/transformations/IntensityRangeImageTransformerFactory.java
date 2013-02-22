@@ -17,13 +17,13 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations;
 
 import java.awt.image.BufferedImage;
-
-
-import ch.systemsx.cisd.base.image.IImageTransformer;
-import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+import java.util.EnumSet;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.base.image.IImageTransformer;
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
 
 /**
@@ -71,7 +71,16 @@ public class IntensityRangeImageTransformerFactory implements IImageTransformerF
                 {
                     if (IntensityRescaling.isNotGrayscale(image))
                     {
-                        return image;
+                        EnumSet<Channel> channels = IntensityRescaling.getUsedRgbChannels(image);
+                        if (channels.size() != 1)
+                        {
+                            return image;
+                        } else
+                        {
+                            Levels levels = new Levels(blackPointIntensity, whitePointIntensity);
+                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels,
+                                    channels.iterator().next());
+                        }
                     }
                     Levels levels = new Levels(blackPointIntensity, whitePointIntensity);
                     return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);

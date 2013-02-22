@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.image;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
+import java.util.EnumSet;
 
 /**
  * Methods for performing an intensity rescaling to 8bits for gray-scale images with a color-depth
@@ -30,6 +31,31 @@ public class IntensityRescaling
 
     /** The largest number a unsigned short can store. */
     private final static int MAX_USHORT = (1 << 16) - 1;
+
+    public static enum Channel
+    {
+        RED(0, 16), GREEN(1, 8), BLUE(2, 0);
+        
+        private int band;
+
+        private int shift;
+
+        private Channel(int band, int shift)
+        {
+            this.band = band;
+            this.shift = shift;
+        }
+
+        public int getShift()
+        {
+            return shift;
+        }
+
+        public int getBand()
+        {
+            return band;
+        }
+    }
 
     /**
      * The levels in a distribution of pixel values for a given symmetric quantile value.
@@ -154,6 +180,39 @@ public class IntensityRescaling
     public static boolean isNotGrayscale(BufferedImage image)
     {
         return image.getColorModel().getColorSpace().getNumComponents() > 1;
+    }
+
+    /** @return Used rgb channels in an image. Returns empty set if image type not RGB */
+    public static EnumSet<Channel> getUsedRgbChannels(BufferedImage image)
+    {
+        EnumSet<Channel> channels = EnumSet.noneOf(Channel.class);
+
+        if (image.getType() != BufferedImage.TYPE_INT_RGB
+                && image.getType() != BufferedImage.TYPE_INT_ARGB)
+        {
+            return channels;
+        }
+
+        for (int i = 0; i < image.getHeight(); i++)
+        {
+            for (int j = 0; j < image.getWidth(); j++)
+            {
+                int rgb = image.getRGB(i, j);
+                if (((rgb >> 16) & 0xff) > 0)
+                {
+                    channels.add(Channel.RED);
+                }
+                if (((rgb >> 8) & 0xff) > 0)
+                {
+                    channels.add(Channel.GREEN);
+                }
+                if ((rgb & 0xff) > 0)
+                {
+                    channels.add(Channel.BLUE);
+                }
+            }
+        }
+        return channels;
     }
 
     /**
@@ -367,6 +426,37 @@ public class IntensityRescaling
     public static BufferedImage rescaleIntensityLevelTo8Bits(BufferedImage image, Levels levels)
     {
         return rescaleIntensityLevelTo8Bits(new GrayscalePixels(image), levels);
+    }
+
+    public static BufferedImage rescaleIntensityLevelTo8Bits(BufferedImage image, Levels levels,
+            Channel channel)
+    {
+        final int width = image.getWidth();
+        final int height = image.getHeight();
+        final BufferedImage rescaledImage =
+                new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        WritableRaster rescaledRaster = rescaledImage.getRaster();
+
+        final float dynamicRange = 255f / (levels.maxLevel - levels.minLevel);
+
+        for (int y = 0; y < height; ++y)
+        {
+            for (int x = 0; x < width; ++x)
+            {
+                int originalIntensity = (image.getRGB(x, y) >> channel.getShift()) & 0xff;
+
+                // cut all intensities above the white point
+                int intensity = Math.min(levels.maxLevel, originalIntensity);
+                // cut all intensities below the black point and move the origin to 0
+                intensity = Math.max(0, intensity - levels.minLevel);
+                // normalize to [0, 1] and rescale to 8 bits
+                intensity = (int) (0.5 + (intensity * dynamicRange));
+
+                rescaledRaster
+                        .setSample(x, y, channel.getBand(), intensity);
+            }
+        }
+        return rescaledImage;
     }
 
     /**
