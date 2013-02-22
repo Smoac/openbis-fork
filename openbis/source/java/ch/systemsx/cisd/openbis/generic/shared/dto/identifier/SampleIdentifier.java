@@ -68,19 +68,19 @@ public class SampleIdentifier extends SampleOwnerIdentifier
         this(instanceIdentifier, null, sampleCode);
     }
 
-    /** Group level {@link SampleIdentifier}. */
+    /** Space level {@link SampleIdentifier}. */
     public SampleIdentifier(final SpaceIdentifier spaceIdentifier, final String sampleCode)
     {
         this(null, spaceIdentifier, sampleCode);
     }
 
-    /** Group level {@link SampleIdentifier} in home database instance. */
+    /** Space level {@link SampleIdentifier} in home database instance. */
     public static SampleIdentifier create(String spaceCode, String sampleCode)
     {
         return new SampleIdentifier(new SpaceIdentifier(spaceCode), sampleCode);
     }
 
-    /** Home group level {@link SampleIdentifier} with type. */
+    /** Home space level {@link SampleIdentifier} with type. */
     public static SampleIdentifier createHomeGroup(final String sampleCode)
     {
         return new SampleIdentifier(SpaceIdentifier.createHome(), sampleCode);
@@ -133,7 +133,7 @@ public class SampleIdentifier extends SampleOwnerIdentifier
             }
         } else
         {
-            this.sampleSubCode = sampleCode;
+            this.sampleSubCode = null;
         }
     }
 
