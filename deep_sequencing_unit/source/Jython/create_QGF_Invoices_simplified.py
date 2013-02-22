@@ -45,13 +45,19 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SampleFetchOption
 
 excelFormats = {"xls": "HSSFWorkbook()" , "xlsx": "XSSFWorkbook()"}
 
+# This list is imply used to keep the order of elements of the 'columnHeadersMap'
+columnHeadersList = ["BARCODE", "INDEX2", "PREPARED_BY", "EXTERNAL_SAMPLE_NAME", "BIOLOGICAL_SAMPLE_ARRIVED", "QC_AT_DBSSE",
+                     "CONTACT_PERSON_NAME", "KIT", "PRICE", "NOTES"]
+
 columnHeadersMap = {"EXTERNAL_SAMPLE_NAME": "Sample Name",
                     "BARCODE": "Index",
                     "INDEX2": "Index2",
                     "PREPARED_BY" : "Prepared by",
                     "KIT" : "Kit",
+                    "QC_AT_DBSSE" : "QC at D-BSSE",
                     "CONTACT_PERSON_NAME" : "Contact Person",
                     "NOTES" : "Notes",
+                    "BIOLOGICAL_SAMPLE_ARRIVED": "Received",
                     "PRICE" : "Price"}
 
 class uniqueRow():
@@ -116,7 +122,7 @@ def getVocabulary(service, vocabularyCode):
   return vocabularyMap
 
 def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDict, piSpace,
-                flowCellProperties, flowcellName, format="xls"):
+                flowCellProperties, flowcellName, logger, format="xls"):
   '''
   Writes out all data to an Excel file
   '''
@@ -130,7 +136,7 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
     # Write header
     row = sheet.createRow(myRows.getNextRow())
     row.createCell(0).setCellValue(configMap["facilityName"] + ", " + configMap["facilityInstitution"])
-    row.getCell(0).setCellStyle(setFont(wb, configMap, 14))
+    row.getCell(0).setCellStyle(setFont(wb, configMap, 10))
     row1 = sheet.createRow(myRows.getNextRow())
     row1.createCell(0).setCellValue(getDate())
     row1.getCell(0).setCellStyle(setFont(wb, configMap, 10))
@@ -171,7 +177,7 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
   sampleHeader.getCell(myColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
   sampleHeader.createCell(myColumns.getNextColumn()).setCellValue("Sample Code")
   sampleHeader.getCell(myColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
-  for c in columnHeadersMap:
+  for c in columnHeadersList:
     sampleHeader.createCell(myColumns.getNextColumn()).setCellValue(columnHeadersMap[c])
     sampleHeader.getCell(myColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
 
@@ -181,16 +187,31 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
 
     # sort the dictionary by keys and taking the key as an integer
     for sample in sorted(sampleDict[lane].iterkeys(), key=int):
+      sampleValues = sampleDict[lane][sample]
+      logger.debug(sampleValues['PRINCIPAL_INVESTIGATOR_NAME'])
+      logger.debug(piName)
+      logger.debug(sample)
+      # if there is a shared lane do not mix them
+      if (sampleValues['PRINCIPAL_INVESTIGATOR_NAME'] != piName):
+        continue
+
       rowN = sheet.createRow(myRows.getNextRow())
       rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(flowcellName + ":" + str(lane))
       rowN.getCell(singleSampleColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
       rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(configMap['sampleCodePrefix'] + sample)
       rowN.getCell(singleSampleColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
 
-      sampleValues = sampleDict[lane][sample]
 
-      for column in columnHeadersMap.keys():
-        rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(sampleValues[column])
+      for column in columnHeadersList:
+        if (column == 'BIOLOGICAL_SAMPLE_ARRIVED'):
+          try:
+            value = sampleValues[column].split(" ")[0]
+          except:
+            value = sampleValues[column]
+        else:
+          value = sampleValues[column]
+
+        rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(value)
         rowN.getCell(singleSampleColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
 
       singleSampleColumns = uniqueColumn()
@@ -217,9 +238,10 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
 
   writeFooter(service, sheet)
 
+  # sanitizeString(piName) + datetime.now().strftime("_%d_%m_%Y.") + format
   #  Write the output to a file
   fileName = myoptions.outdir + configMap["facilityNameShort"] + "_" + flowcell + "_" + \
-            sanitizeString(piName) + datetime.now().strftime("_%d_%m_%Y.") + format
+            sanitizeString(piName) + "." + format
   fileOut = FileOutputStream(fileName)
   # need this print for use as an openBIS webapp
   print fileName
@@ -352,14 +374,20 @@ def getFLowcellData(service, configMap, flowcell, logger):
         s[sampleCode.split("-")[-1]] = sampleProperties
         sampleDict[lane] = s
         pi = sampleProperties[configMap["pIPropertyName"]]
+        logger.debug("PI for " + sampleCode + ": " + pi)
 
-      if piDict.has_key(pi):
-        piDict[pi].append(lane)
-      else:
-        piDict[pi] = [lane]
+        if piDict.has_key(pi):
+          piDict[pi].append(lane)
+          # Making the lanes unique
+          piDict[pi] = list(set(piDict[pi]))
+        else:
+          piDict[pi] = [lane]
 
-      spaceDict[pi] = l.getSpaceCode()
+        spaceDict[pi] = l.getSpaceCode()
 
+  logger.debug(spaceDict)
+  logger.debug("piDictionary:")
+  logger.debug(piDict)
 
   logger.info("Found the following PIs on the lanes: ")
   logger.info(piDict)
@@ -383,6 +411,8 @@ def main():
 
   myoptions = parseOptions(logger)
   configMap = readConfig(logger)
+  if myoptions.debug:
+    logger.setLevel(logging.DEBUG)
 
   service = login(logger, configMap)
   flowcellName = myoptions.flowcell
@@ -391,7 +421,7 @@ def main():
   for piName in piDict:
     # create an Excel file for each PI
     writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDict, spaceDict[piName],
-               flowCellProperties, flowcellName, format)
+               flowCellProperties, flowcellName, logger, format)
 
   service.logout()
 
