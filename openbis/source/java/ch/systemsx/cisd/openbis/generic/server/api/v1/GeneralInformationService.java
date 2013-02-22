@@ -272,7 +272,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         List<ProjectPE> projects = getDAOFactory().getProjectDAO().listProjects(space);
         for (ProjectPE project : projects)
         {
-            fullSpace.add(new Project(fullSpace.getCode(), project.getCode()));
+            fullSpace.add(new Project(project.getId(), project.getPermId(), fullSpace.getCode(),
+                    project.getCode()));
         }
     }
 

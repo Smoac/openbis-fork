@@ -108,7 +108,8 @@ class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
                 for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project project : space
                         .getProjects())
                 {
-                    projects.add(new Project(space.getCode(), project.getCode()));
+                    projects.add(new Project(project.getId(), project.getPermId(), space.getCode(),
+                            project.getCode()));
                 }
             }
         }
@@ -123,7 +124,8 @@ class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
     }
 
     @Override
-    public List<Experiment> listExperiments(@SuppressWarnings("hiding") String sessionToken,
+    public List<Experiment> listExperiments(@SuppressWarnings("hiding")
+    String sessionToken,
             String userID, String experimentTypeCode)
     {
         return service.listExperiments(sessionToken, userID, experimentTypeCode);
@@ -144,7 +146,8 @@ class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
     }
 
     @Override
-    public void processProteinResultDataSets(@SuppressWarnings("hiding") String sessionToken,
+    public void processProteinResultDataSets(@SuppressWarnings("hiding")
+    String sessionToken,
             String userID, String dataSetProcessingKey, String experimentTypeCode,
             long[] experimentIDs)
     {

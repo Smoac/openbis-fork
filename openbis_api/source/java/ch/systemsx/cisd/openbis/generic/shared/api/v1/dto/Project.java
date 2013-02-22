@@ -35,11 +35,26 @@ public final class Project implements Serializable, IIdentifierHolder
 {
     private static final long serialVersionUID = 1L;
 
+    private Long id;
+
+    private String permId;
+
     private String spaceCode;
 
     private String code;
 
     private EntityRegistrationDetails registrationDetails;
+
+    /**
+     * Creates a new instance for the specified tech id, perm id, space code and project code.
+     * 
+     * @throws IllegalArgumentException if either the code or the space code is <code>null</code> or
+     *             an empty string.
+     */
+    public Project(Long id, String permId, String spaceCode, String code)
+    {
+        this(id, permId, spaceCode, code, null);
+    }
 
     /**
      * Creates a new instance for the specified space code and project code.
@@ -53,12 +68,41 @@ public final class Project implements Serializable, IIdentifierHolder
     }
 
     /**
-     * Creates a new instance for the specified space code and project code.
+     * Creates a new instance for the specified tech id, perm id, space code and project code.
      * 
      * @throws IllegalArgumentException if either the code or the space code is <code>null</code> or
      *             an empty string.
      */
     public Project(String spaceCode, String code, EntityRegistrationDetails registrationDetails)
+    {
+        checkAndSetCodes(spaceCode, code);
+        this.registrationDetails = registrationDetails;
+    }
+    
+    /**
+     * Creates a new instance for the specified space code and project code.
+     * 
+     * @throws IllegalArgumentException if either the code or the space code is <code>null</code> or
+     *             an empty string.
+     */
+    public Project(Long id, String permId, String spaceCode, String code, EntityRegistrationDetails registrationDetails)
+    {
+        if (id == null || id == 0)
+        {
+            throw new IllegalArgumentException("Unspecified tech id.");
+        }
+        this.id = id;
+        if (permId == null || permId.length() == 0)
+        {
+            throw new IllegalArgumentException("Unspecified permanent id.");
+        }
+        this.permId = permId;
+        checkAndSetCodes(spaceCode, code);
+        this.registrationDetails = registrationDetails;
+    }
+
+    @SuppressWarnings("hiding")
+    private void checkAndSetCodes(String spaceCode, String code)
     {
         if (spaceCode == null || spaceCode.length() == 0)
         {
@@ -70,7 +114,26 @@ public final class Project implements Serializable, IIdentifierHolder
             throw new IllegalArgumentException("Unspecified code.");
         }
         this.code = code;
-        this.registrationDetails = registrationDetails;
+    }
+
+    /**
+     * Returns the techical database id of the project.
+     * 
+     * @since 1.22
+     */
+    public Long getId()
+    {
+        return id;
+    }
+
+    /**
+     * Returns the permanent id of the project.
+     * 
+     * @since 1.22
+     */
+    public String getPermId()
+    {
+        return permId;
     }
 
     /**
@@ -107,29 +170,107 @@ public final class Project implements Serializable, IIdentifierHolder
     }
 
     @Override
-    public boolean equals(Object obj)
+    public int hashCode()
     {
-        if (obj == this)
-        {
-            return true;
-        }
-        if (obj instanceof Project == false)
-        {
-            return false;
-        }
-        Project project = (Project) obj;
-        return project.spaceCode.equals(spaceCode) && project.code.equals(code);
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((code == null) ? 0 : code.hashCode());
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((permId == null) ? 0 : permId.hashCode());
+        result =
+                prime * result
+                        + ((registrationDetails == null) ? 0 : registrationDetails.hashCode());
+        result = prime * result + ((spaceCode == null) ? 0 : spaceCode.hashCode());
+        return result;
     }
 
     @Override
-    public int hashCode()
+    public boolean equals(Object obj)
     {
-        return 37 * spaceCode.hashCode() + code.hashCode();
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj == null)
+        {
+            return false;
+        }
+        if (getClass() != obj.getClass())
+        {
+            return false;
+        }
+        Project other = (Project) obj;
+        if (code == null)
+        {
+            if (other.code != null)
+            {
+                return false;
+            }
+        } else if (code.equals(other.code) == false)
+        {
+            return false;
+        }
+        if (id == null)
+        {
+            if (other.id != null)
+            {
+                return false;
+            }
+        } else if (id.equals(other.id) == false)
+        {
+            return false;
+        }
+        if (permId == null)
+        {
+            if (other.permId != null)
+            {
+                return false;
+            }
+        } else if (permId.equals(other.permId) == false)
+        {
+            return false;
+        }
+        if (registrationDetails == null)
+        {
+            if (other.registrationDetails != null)
+            {
+                return false;
+            }
+        } else if (registrationDetails.equals(other.registrationDetails) == false)
+        {
+            return false;
+        }
+        if (spaceCode == null)
+        {
+            if (other.spaceCode != null)
+            {
+                return false;
+            }
+        } else if (spaceCode.equals(other.spaceCode) == false)
+        {
+            return false;
+        }
+        return true;
     }
 
     @Override
     public String toString()
     {
+        final StringBuilder buf = new StringBuilder();
+        buf.append(getIdentifier());
+        if (permId != null || id != null)
+        {
+            buf.append('[');
+            if (getPermId() != null)
+            {
+                buf.append(getPermId());
+            }
+            if (getId() != null)
+            {
+                buf.append("(" + getId() + ")");
+            }
+            buf.append(']');
+        }
         return getIdentifier();
     }
 
@@ -138,6 +279,16 @@ public final class Project implements Serializable, IIdentifierHolder
     //
     private Project()
     {
+    }
+
+    private void setId(Long id)
+    {
+        this.id = id;
+    }
+
+    private void setPermId(String permId)
+    {
+        this.permId = permId;
     }
 
     private void setSpaceCode(String spaceCode)

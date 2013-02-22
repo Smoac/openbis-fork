@@ -103,7 +103,8 @@ public class Translator
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project project)
     {
         EntityRegistrationDetails registrationDetails = translateRegistrationDetails(project);
-        return new Project(project.getSpace().getCode(), project.getCode(), registrationDetails);
+        return new Project(project.getId(), project.getPermId(), project.getSpace().getCode(),
+                project.getCode(), registrationDetails);
     }
 
     public static List<Sample> translateSamples(

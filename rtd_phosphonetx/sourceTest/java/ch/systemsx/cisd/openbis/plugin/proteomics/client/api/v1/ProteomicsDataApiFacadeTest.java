@@ -197,9 +197,11 @@ public class ProteomicsDataApiFacadeTest extends AssertJUnit
     private SpaceWithProjectsAndRoleAssignments createSpace(String spaceCode, String... projects)
     {
         SpaceWithProjectsAndRoleAssignments space = new SpaceWithProjectsAndRoleAssignments(spaceCode);
+        long id = 1;
         for (String project : projects)
         {
-            space.add(new Project(spaceCode, project));
+            space.add(new Project(id, Long.toString(id), spaceCode, project));
+            ++id;
         }
         return space;
     }
