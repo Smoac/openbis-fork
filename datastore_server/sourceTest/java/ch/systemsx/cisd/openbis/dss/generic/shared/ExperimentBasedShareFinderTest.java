@@ -54,7 +54,7 @@ public class ExperimentBasedShareFinderTest extends AbstractIShareFinderTestCase
     public void testNoMatchingExperiments()
     {
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
-        dataSet.setGroupCode("S1");
+        dataSet.setSpaceCode("S1");
         dataSet.setProjectCode("P1");
         dataSet.setExperimentCode("EXP3");
         dataSet.setDataSetSize(42 * FileUtils.ONE_KB);
@@ -68,7 +68,7 @@ public class ExperimentBasedShareFinderTest extends AbstractIShareFinderTestCase
     public void testMatchingExperimentsButNotEnoughMemory()
     {
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
-        dataSet.setGroupCode("S1");
+        dataSet.setSpaceCode("S1");
         dataSet.setProjectCode("P1");
         dataSet.setExperimentCode("EXP1");
         dataSet.setDataSetSize(142 * FileUtils.ONE_KB);
@@ -82,7 +82,7 @@ public class ExperimentBasedShareFinderTest extends AbstractIShareFinderTestCase
     public void testMatchingExperimentsAndEnoughMemory()
     {
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
-        dataSet.setGroupCode("S1");
+        dataSet.setSpaceCode("S1");
         dataSet.setProjectCode("P2");
         dataSet.setExperimentCode("EXP1");
         dataSet.setDataSetSize(42 * FileUtils.ONE_KB);

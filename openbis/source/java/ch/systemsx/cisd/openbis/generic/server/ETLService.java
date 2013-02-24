@@ -1170,7 +1170,10 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     public List<SimpleDataSetInformationDTO> listFileDataSets(final String sessionToken,
             String dataStoreCode) throws UserFailureException
     {
-        List<ExternalData> dataSets = loadDataSets(sessionToken, dataStoreCode);
+        final Session session = getSession(sessionToken);
+        final DataStorePE dataStore = loadDataStore(session, dataStoreCode);
+        final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
+        final List<ExternalData> dataSets = datasetLister.listByDataStore(dataStore.getId());
         return SimpleDataSetHelper.filterAndTranslate(dataSets);
     }
 
@@ -1208,14 +1211,6 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             }
         }
         return result;
-    }
-
-    private List<ExternalData> loadDataSets(String sessionToken, String dataStoreCode)
-    {
-        Session session = getSession(sessionToken);
-        DataStorePE dataStore = loadDataStore(session, dataStoreCode);
-        IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
-        return datasetLister.listByDataStore(dataStore.getId());
     }
 
     private DataStorePE loadDataStore(Session session, String dataStoreCode)

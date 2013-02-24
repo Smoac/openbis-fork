@@ -43,7 +43,7 @@ public class ExperimentBasedShareFinder implements IShareFinder
     public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares)
     {
         String experimentIdentifier =
-                new ExperimentIdentifier(null, dataSet.getGroupCode(), dataSet.getProjectCode(),
+                new ExperimentIdentifier(null, dataSet.getSpaceCode(), dataSet.getProjectCode(),
                         dataSet.getExperimentCode()).toString();
         for (Share share : shares)
         {

@@ -79,7 +79,7 @@ public class TemplateBasedLinkNamingStrategyTest extends AbstractFileSystemTestC
         dsInfo.setDataSetLocation(LOCATION);
         dsInfo.setDataSetType(TYPE);
         dsInfo.setExperimentCode(EXPERIMENT);
-        dsInfo.setGroupCode(GROUP);
+        dsInfo.setSpaceCode(GROUP);
         dsInfo.setProjectCode(PROJECT);
         dsInfo.setSampleCode(SAMPLE);
         return dsInfo;

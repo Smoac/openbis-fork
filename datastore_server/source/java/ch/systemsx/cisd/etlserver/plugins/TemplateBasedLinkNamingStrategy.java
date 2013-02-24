@@ -190,7 +190,7 @@ public class TemplateBasedLinkNamingStrategy implements IHierarchicalStorageLink
             @Override
             String extractValueFromData(SimpleDataSetInformationDTO data)
             {
-                return data.getGroupCode();
+                return data.getSpaceCode();
             }
         },
 

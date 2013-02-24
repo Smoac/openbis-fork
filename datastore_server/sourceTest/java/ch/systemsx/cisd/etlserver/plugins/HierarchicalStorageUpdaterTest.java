@@ -214,7 +214,7 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
             dataset.setDataSetLocation(directory.getName());
             dataset.setDataSetShareId(SHARE_ID);
             dataset.setExperimentCode("experiment");
-            dataset.setGroupCode("space");
+            dataset.setSpaceCode("space");
             dataset.setProjectCode("project");
             dataset.setSampleCode("sample");
         }

@@ -242,7 +242,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         assertEquals(4711L, dataSets.get(0).getDataSetSize().longValue());
         assertEquals("EXP1", dataSets.get(0).getExperimentCode());
         assertEquals("P", dataSets.get(0).getProjectCode());
-        assertEquals("G1", dataSets.get(0).getGroupCode());
+        assertEquals("G1", dataSets.get(0).getSpaceCode());
         assertEquals("DB", dataSets.get(0).getDatabaseInstanceCode());
         assertEquals(1, dataSets.size());
         context.assertIsSatisfied();

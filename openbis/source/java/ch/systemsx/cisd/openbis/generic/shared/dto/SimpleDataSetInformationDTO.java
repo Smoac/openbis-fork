@@ -46,7 +46,7 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
 
     private String sampleCode;
 
-    private String groupCode;
+    private String spaceCode;
 
     private String experimentCode;
 
@@ -140,14 +140,14 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
         this.sampleCode = sampleCode;
     }
 
-    public String getGroupCode()
+    public String getSpaceCode()
     {
-        return groupCode;
+        return spaceCode;
     }
 
-    public void setGroupCode(String groupCode)
+    public void setSpaceCode(String groupCode)
     {
-        this.groupCode = groupCode;
+        this.spaceCode = groupCode;
     }
 
     public String getExperimentCode()
