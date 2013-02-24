@@ -72,7 +72,7 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
 
     private SampleType sampleType;
 
-    private List<ExternalData> children;
+    private Collection<ExternalData> children;
 
     private List<IEntityProperty> dataSetProperties;
 
@@ -208,12 +208,12 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
         this.sampleType = sampleType;
     }
 
-    public List<ExternalData> getChildren()
+    public Collection<ExternalData> getChildren()
     {
         return children;
     }
 
-    public void setChildren(List<ExternalData> children)
+    public void setChildren(Collection<ExternalData> children)
     {
         this.children = children;
     }

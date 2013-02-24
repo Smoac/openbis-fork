@@ -17,11 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
 import java.util.Collection;
+import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -83,15 +86,47 @@ public interface IDatasetLister
     Map<Sample, List<ExternalData>> listAllDataSetsFor(List<Sample> samples);
 
     /**
-     * Lists all data sets with specified codes. Unenriched data sets will be returned.
+     * Lists all data sets with specified codes.
      */
     List<ExternalData> listByDatasetCode(Collection<String> datasetCodes);
 
     /**
-     * Lists all data sets of specified data store. Unenriched data sets will be returned (FIXME -
-     * the last sentence is not true).
+     * @param datasetCodes Codes of datasets.
+     * @param datasetFetchOptions The options of what datasets to fetch.
+     *            Lists all data sets with specified codes.
+     */
+    List<ExternalData> listByDatasetCode(Collection<String> datasetCodes,
+            EnumSet<DataSetFetchOption> datasetFetchOptions);
+
+    /**
+     * Lists all physical data sets of specified data store.
      */
     List<ExternalData> listByDataStore(long dataStoreID);
+
+    /**
+     * Lists all physical data sets of specified data store.
+     * 
+     * @param datasetFetchOptions The options of what datasets to fetch.
+     */
+    List<ExternalData> listByDataStore(long dataStoreID,
+            EnumSet<DataSetFetchOption> datasetFetchOptions);
+
+    /**
+     * Lists the oldest <var>limit</var> physical datasets of the specified data store.
+     * 
+     * @param datasetFetchOptions The options of what datasets to fetch.
+     */
+    public List<ExternalData> listByDataStore(long dataStoreID, int limit,
+            EnumSet<DataSetFetchOption> datasetFetchOptions);
+
+    /**
+     * Lists the oldest <var>limit</var> physical datasets younger than <var>youngerThan</var> of
+     * the specified data store.
+     * 
+     * @param datasetFetchOptions The options of what datasets to fetch.
+     */
+    public List<ExternalData> listByDataStore(long dataStoreID, Date youngerThan, int limit,
+            EnumSet<DataSetFetchOption> datasetFetchOptions);
 
     /**
      * Lists {@link DataSetShareId}s of all data sets (even those in trash) in specified data store.
@@ -100,6 +135,14 @@ public interface IDatasetLister
 
     /** @return datasets with given ids */
     List<ExternalData> listByDatasetIds(Collection<Long> datasetIds);
+
+    /**
+     * @param datasetIds Database ids of datasets.
+     * @param datasetFetchOptions The options of what datasets to fetch.
+     * @return datasets with given ids
+     */
+    List<ExternalData> listByDatasetIds(Collection<Long> datasetIds,
+            EnumSet<DataSetFetchOption> datasetFetchOptions);
 
     /** @return datasets specified by given criteria */
     List<ExternalData> listByTrackingCriteria(TrackingDataSetCriteria criteria);
@@ -111,6 +154,12 @@ public interface IDatasetLister
      * @return Datasets connected to the samples with the specified ids
      */
     List<ExternalData> listBySampleIds(Collection<Long> sampleIds);
+
+    /**
+     * @return Datasets connected to the samples with the specified ids
+     */
+    List<ExternalData> listBySampleIds(Collection<Long> sampleIds,
+            EnumSet<DataSetFetchOption> datasetFetchOptions);
 
     /**
      * @return Location of the specified data set.

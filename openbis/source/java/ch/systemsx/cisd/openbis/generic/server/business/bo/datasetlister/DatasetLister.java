@@ -23,7 +23,10 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -54,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.M
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
@@ -91,6 +95,31 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
             DatasetCodeWithShareIdRecord.class, IDatasetListingQuery.class })
 public class DatasetLister extends AbstractLister implements IDatasetLister
 {
+    public static final EnumSet<DataSetFetchOption> SUPPORTED_DATASET_FETCH_OPTIONS = EnumSet
+            .of(DataSetFetchOption.BASIC,
+                    DataSetFetchOption.EXPERIMENT,
+                    DataSetFetchOption.SAMPLE,
+                    DataSetFetchOption.PROPERTIES,
+                    DataSetFetchOption.CHILDREN,
+                    DataSetFetchOption.PARENTS,
+                    DataSetFetchOption.PROPERTIES_OF_PARENTS,
+                    DataSetFetchOption.PROPERTIES_OF_CHILDREN,
+                    DataSetFetchOption.CONTAINER,
+                    DataSetFetchOption.CONTAINED,
+                    DataSetFetchOption.METAPROJECTS
+            );
+
+    public static final EnumSet<DataSetFetchOption> DEFAULT_DATASET_FETCH_OPTIONS = EnumSet
+            .of(DataSetFetchOption.BASIC,
+                    DataSetFetchOption.EXPERIMENT,
+                    DataSetFetchOption.SAMPLE,
+                    DataSetFetchOption.PROPERTIES,
+                    DataSetFetchOption.PARENTS,
+                    DataSetFetchOption.CONTAINER,
+                    DataSetFetchOption.CONTAINED,
+                    DataSetFetchOption.METAPROJECTS
+            );
+
     //
     // Input
     //
@@ -165,6 +194,17 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         this.userId = userId;
     }
 
+    private void checkFetchOptions(EnumSet<DataSetFetchOption> datasetFetchOptions)
+    {
+        EnumSet<DataSetFetchOption> work = EnumSet.copyOf(datasetFetchOptions);
+        work.removeAll(SUPPORTED_DATASET_FETCH_OPTIONS);
+        if (work.isEmpty() == false)
+        {
+            throw new IllegalArgumentException("Currently only " + SUPPORTED_DATASET_FETCH_OPTIONS
+                    + " fetch options are supported by this method");
+        }
+    }
+
     @Override
     public List<ExternalData> listBySampleTechId(TechId sampleId, boolean showOnlyDirectlyConnected)
     {
@@ -193,12 +233,20 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     @Override
     public List<ExternalData> listBySampleIds(Collection<Long> sampleIds)
     {
+        return listBySampleIds(sampleIds, DEFAULT_DATASET_FETCH_OPTIONS);
+    }
+
+    @Override
+    public List<ExternalData> listBySampleIds(Collection<Long> sampleIds,
+            EnumSet<DataSetFetchOption> datasetFetchOptions)
+    {
+        checkFetchOptions(datasetFetchOptions);
         LongSet ids = new LongOpenHashSet();
         for (Long id : sampleIds)
         {
             ids.add(id);
         }
-        return enrichDatasets(query.getDatasetsForSamples(ids));
+        return enrichDatasets(query.getDatasetsForSamples(ids), datasetFetchOptions);
     }
 
     @Override
@@ -335,7 +383,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
                 for (Long parentID : parentIDs)
                 {
                     ExternalData dataSet = dataSetsByID.get(parentID);
-                    List<ExternalData> childList = dataSet.getChildren();
+                    Collection<ExternalData> childList = dataSet.getChildren();
                     if (childList == null)
                     {
                         childList = new ArrayList<ExternalData>(1);
@@ -371,23 +419,112 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     @Override
     public List<ExternalData> listByDatasetIds(Collection<Long> datasetIds)
     {
-        return enrichDatasets(query.getDatasets(new LongOpenHashSet(datasetIds)));
+        return listByDatasetIds(datasetIds, DEFAULT_DATASET_FETCH_OPTIONS);
+    }
+
+    @Override
+    public List<ExternalData> listByDatasetIds(Collection<Long> datasetIds,
+            EnumSet<DataSetFetchOption> datasetFetchOptions)
+    {
+        checkFetchOptions(datasetFetchOptions);
+        return enrichDatasets(query.getDatasets(new LongOpenHashSet(datasetIds)),
+                datasetFetchOptions);
     }
 
     @Override
     public List<ExternalData> listByDatasetCode(Collection<String> datasetCodes)
     {
+        return listByDatasetCode(datasetCodes, DEFAULT_DATASET_FETCH_OPTIONS);
+    }
+
+    @Override
+    public List<ExternalData> listByDatasetCode(Collection<String> datasetCodes,
+            EnumSet<DataSetFetchOption> datasetFetchOptions)
+    {
+        checkFetchOptions(datasetFetchOptions);
         String[] codes = datasetCodes.toArray(new String[datasetCodes.size()]);
         DataIterator<DatasetRecord> datasets = query.getDatasets(codes);
-        return enrichDatasets(datasets);
-        // loadSmallConnectedTables();
-        // return asList(createPrimaryDatasets(asList(datasets)));
+        return enrichDatasets(datasets, datasetFetchOptions);
     }
 
     @Override
     public List<ExternalData> listByDataStore(long dataStoreID)
     {
-        return enrichDatasets(query.getDatasetsByDataStoreId(dataStoreID));
+        return listByDataStore(dataStoreID, DEFAULT_DATASET_FETCH_OPTIONS);
+    }
+
+    @Override
+    public List<ExternalData> listByDataStore(long dataStoreID,
+            EnumSet<DataSetFetchOption> datasetFetchOptions)
+    {
+        checkFetchOptions(datasetFetchOptions);
+        return enrichDatasets(query.getDatasetsByDataStoreId(dataStoreID), datasetFetchOptions);
+    }
+
+    @Override
+    public List<ExternalData> listByDataStore(long dataStoreID, int limit,
+            EnumSet<DataSetFetchOption> datasetFetchOptions)
+    {
+        checkFetchOptions(datasetFetchOptions);
+        return orderByDate(enrichDatasets(
+                handleDegenerateRegistrationTimestamp(
+                        query.getDatasetsByDataStoreId(dataStoreID, limit),
+                        dataStoreID), datasetFetchOptions));
+    }
+
+    @Override
+    public List<ExternalData> listByDataStore(long dataStoreID, Date youngerThan, int limit,
+            EnumSet<DataSetFetchOption> datasetFetchOptions)
+    {
+        checkFetchOptions(datasetFetchOptions);
+        return orderByDate(enrichDatasets(
+                handleDegenerateRegistrationTimestamp(
+                        query.getDatasetsByDataStoreId(dataStoreID, youngerThan, limit),
+                        dataStoreID
+                ), datasetFetchOptions));
+    }
+
+    private Iterable<DatasetRecord> handleDegenerateRegistrationTimestamp(List<DatasetRecord> list,
+            long dataStoreID)
+    {
+        if (list.isEmpty())
+        {
+            return list;
+        }
+        final Date youngestDate = list.get(list.size() - 1).registration_timestamp;
+        final List<DatasetRecord> youngestRecords =
+                query.getDatasetsByDataStoreId(dataStoreID, youngestDate);
+        // Check for degenerate case of multiple datasets having exactly regDate = youngestDate.
+        if (youngestRecords.size() > 1)
+        {
+            final Long2ObjectMap<DatasetRecord> datasetMap =
+                    new Long2ObjectOpenHashMap<DatasetRecord>(list.size() + youngestRecords.size());
+            for (DatasetRecord dr : list)
+            {
+                datasetMap.put(dr.id, dr);
+            }
+            for (DatasetRecord dr : youngestRecords)
+            {
+                datasetMap.put(dr.id, dr);
+            }
+            return datasetMap.values();
+        } else
+        {
+            return list;
+        }
+    }
+
+    private List<ExternalData> orderByDate(List<ExternalData> list)
+    {
+        Collections.sort(list, new Comparator<ExternalData>()
+            {
+                @Override
+                public int compare(ExternalData o1, ExternalData o2)
+                {
+                    return o1.getRegistrationDate().compareTo(o2.getRegistrationDate());
+                }
+            });
+        return list;
     }
 
     @Override
@@ -483,17 +620,48 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
     private List<ExternalData> enrichDatasets(Iterable<DatasetRecord> datasets)
     {
+        return enrichDatasets(datasets, DEFAULT_DATASET_FETCH_OPTIONS);
+    }
+
+    private List<ExternalData> enrichDatasets(Iterable<DatasetRecord> datasets,
+            EnumSet<DataSetFetchOption> fetchOptions)
+    {
         loadSmallConnectedTables();
         List<DatasetRecord> datasetRecords = asList(datasets);
         final Long2ObjectMap<ExternalData> datasetMap = createPrimaryDatasets(datasetRecords);
-        enrichWithExperiments(datasetMap);
+        if (fetchOptions.contains(DataSetFetchOption.EXPERIMENT))
+        {
+            enrichWithExperiments(datasetMap);
+        }
         filterDatasetsWithNullExperiments(datasetMap);
-        enrichWithProperties(datasetMap);
-        enrichWithSamples(datasetMap);
-        enrichWithContainers(datasetMap);
-        enrichWithContainedDataSets(datasetMap);
-        enrichWithParents(datasetMap);
-        if (this.userId != null)
+        if (fetchOptions.contains(DataSetFetchOption.PROPERTIES)
+                || fetchOptions.contains(DataSetFetchOption.PROPERTIES_OF_PROPERTIES))
+        {
+            enrichWithProperties(datasetMap);
+        }
+        if (fetchOptions.contains(DataSetFetchOption.SAMPLE))
+        {
+            enrichWithSamples(datasetMap);
+        }
+        if (fetchOptions.contains(DataSetFetchOption.CONTAINER))
+        {
+            enrichWithContainers(datasetMap);
+        }
+        if (fetchOptions.contains(DataSetFetchOption.CONTAINED))
+        {
+            enrichWithContainedDataSets(datasetMap);
+        }
+        if (fetchOptions.contains(DataSetFetchOption.PARENTS))
+        {
+            enrichWithParents(datasetMap,
+                    fetchOptions.contains(DataSetFetchOption.PROPERTIES_OF_PARENTS));
+        }
+        if (fetchOptions.contains(DataSetFetchOption.CHILDREN))
+        {
+            enrichWithChildren(datasetMap,
+                    fetchOptions.contains(DataSetFetchOption.PROPERTIES_OF_CHILDREN));
+        }
+        if (this.userId != null && fetchOptions.contains(DataSetFetchOption.METAPROJECTS))
         {
             enrichWithMetaProjects(datasetMap);
         }
@@ -620,7 +788,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             });
     }
 
-    private void enrichWithParents(Long2ObjectMap<ExternalData> datasetMap)
+    private void enrichWithParents(Long2ObjectMap<ExternalData> datasetMap, boolean withProperties)
     {
         Map<Long, Set<Long>> parentIdsMap = listParentIds(datasetMap.keySet());
         Set<Long> allParentIds = new HashSet<Long>();
@@ -635,6 +803,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
         if (parentIterator != null)
         {
+            Long2ObjectMap<ExternalData> parentDatasetMap = withProperties ?
+                    new Long2ObjectOpenHashMap<ExternalData>() : null;
             Long2ObjectMap<ExternalData> parentMap = createPrimaryDatasets(parentIterator);
 
             for (Entry<Long, Set<Long>> parentIdsEntry : parentIdsMap.entrySet())
@@ -643,7 +813,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
                 Set<Long> parentIds = parentIdsEntry.getValue();
 
                 ExternalData dataset = datasetMap.get(datasetId);
-                Collection<ExternalData> parents = new ArrayList<ExternalData>();
+                List<ExternalData> parents = new ArrayList<ExternalData>();
 
                 for (Long parentId : parentIds)
                 {
@@ -651,10 +821,66 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
                     if (parent != null)
                     {
                         parents.add(parent);
+                        if (parentDatasetMap != null)
+                        {
+                            parentDatasetMap.put(parentId, parent);
+                        }
                     }
                 }
 
                 dataset.setParents(parents);
+            }
+            if (parentDatasetMap != null)
+            {
+                enrichWithProperties(parentDatasetMap);
+            }
+        }
+    }
+
+    private void enrichWithChildren(Long2ObjectMap<ExternalData> datasetMap, boolean withProperties)
+    {
+        Map<Long, Set<Long>> childrenIdsMap = listChildrenIds(datasetMap.keySet());
+        Set<Long> allChildrenIds = new HashSet<Long>();
+
+        for (Set<Long> childrenIds : childrenIdsMap.values())
+        {
+            allChildrenIds.addAll(childrenIds);
+        }
+
+        DataIterator<DatasetRecord> childrenIterator =
+                query.getDatasets(new LongOpenHashSet(allChildrenIds));
+
+        if (childrenIterator != null)
+        {
+            Long2ObjectMap<ExternalData> childrenDatasetMap = withProperties ?
+                    new Long2ObjectOpenHashMap<ExternalData>() : null;
+            Long2ObjectMap<ExternalData> childrenMap = createPrimaryDatasets(childrenIterator);
+
+            for (Entry<Long, Set<Long>> childrenIdsEntry : childrenIdsMap.entrySet())
+            {
+                Long datasetId = childrenIdsEntry.getKey();
+                Set<Long> childrenIds = childrenIdsEntry.getValue();
+
+                ExternalData dataset = datasetMap.get(datasetId);
+                List<ExternalData> children = new ArrayList<ExternalData>();
+
+                for (Long childId : childrenIds)
+                {
+                    ExternalData child = childrenMap.get(childId);
+                    if (child != null)
+                    {
+                        children.add(child);
+                        if (childrenDatasetMap != null)
+                        {
+                            childrenDatasetMap.put(childId, child);
+                        }
+                    }
+                }
+                dataset.setChildren(children);
+            }
+            if (childrenDatasetMap != null)
+            {
+                enrichWithProperties(childrenDatasetMap);
             }
         }
     }
@@ -807,7 +1033,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     private DataSet convertToDataSet(DatasetRecord record)
     {
         DataSet dataSet = new DataSet();
-        convertStandardProperties(dataSet, record);
+        convertStandardAttributes(dataSet, record);
 
         dataSet.setComplete(resolve(record.is_complete));
         dataSet.setStatus(record.status == null ? null : DataSetArchivingStatus
@@ -830,7 +1056,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     private ContainerDataSet convertToContainerDataSet(DatasetRecord record)
     {
         ContainerDataSet containerDataSet = new ContainerDataSet();
-        convertStandardProperties(containerDataSet, record);
+        convertStandardAttributes(containerDataSet, record);
         return containerDataSet;
     }
 
@@ -838,7 +1064,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     {
         LinkDataSet linkDataSet = new LinkDataSet();
 
-        convertStandardProperties(linkDataSet, record);
+        convertStandardAttributes(linkDataSet, record);
         linkDataSet.setExternalDataManagementSystem(externalDataManagementSystems
                 .get(record.edms_id));
         linkDataSet.setExternalCode(record.external_code);
@@ -846,7 +1072,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return linkDataSet;
     }
 
-    private void convertStandardProperties(ExternalData dataSet, DatasetRecord record)
+    private void convertStandardAttributes(ExternalData dataSet, DatasetRecord record)
     {
         dataSet.setCode(record.code);
         dataSet.setDataSetType(dataSetTypes.get(record.dsty_id));
@@ -1073,4 +1299,5 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         queryResult.close();
         return result;
     }
+
 }

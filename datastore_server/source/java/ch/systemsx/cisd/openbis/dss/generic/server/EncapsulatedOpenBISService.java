@@ -553,7 +553,41 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public List<SimpleDataSetInformationDTO> listDataSets() throws UserFailureException
     {
         List<SimpleDataSetInformationDTO> dataSets =
-                service.listFileDataSets(session.getSessionToken(), session.getDataStoreCode());
+                service.listPhysicalDataSets(session.getSessionToken(), session.getDataStoreCode());
+        for (SimpleDataSetInformationDTO dataSet : dataSets)
+        {
+            if (dataSet.getDataSetShareId() == null)
+            {
+                dataSet.setDataSetShareId(ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID);
+            }
+        }
+        return dataSets;
+    }
+
+    @Override
+    public List<SimpleDataSetInformationDTO> listOldestPhysicalDataSets(int chunkSize)
+            throws UserFailureException
+    {
+        List<SimpleDataSetInformationDTO> dataSets =
+                service.listOldestPhysicalDataSets(session.getSessionToken(), session.getDataStoreCode(),
+                        chunkSize);
+        for (SimpleDataSetInformationDTO dataSet : dataSets)
+        {
+            if (dataSet.getDataSetShareId() == null)
+            {
+                dataSet.setDataSetShareId(ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID);
+            }
+        }
+        return dataSets;
+    }
+
+    @Override
+    public List<SimpleDataSetInformationDTO> listOldestPhysicalDataSets(Date youngerThan,
+            int chunkSize) throws UserFailureException
+    {
+        List<SimpleDataSetInformationDTO> dataSets =
+                service.listOldestPhysicalDataSets(session.getSessionToken(), session.getDataStoreCode(),
+                        youngerThan, chunkSize);
         for (SimpleDataSetInformationDTO dataSet : dataSets)
         {
             if (dataSet.getDataSetShareId() == null)

@@ -32,7 +32,9 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.transaction.annotation.Transactional;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
 import ch.systemsx.cisd.authentication.DummyAuthenticationService;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
@@ -110,6 +112,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.LogMessagePrefixGenerator;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
@@ -250,6 +253,11 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 public class ETLService extends AbstractCommonServer<IETLLIMSService> implements IETLLIMSService
 {
+
+    @Private
+    static final EnumSet<DataSetFetchOption> DATASET_FETCH_OPTIONS_FILE_DATASETS =
+            EnumSet.of(DataSetFetchOption.BASIC, DataSetFetchOption.EXPERIMENT,
+                    DataSetFetchOption.SAMPLE);
 
     private final IDAOFactory daoFactory;
 
@@ -1167,13 +1175,43 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public List<SimpleDataSetInformationDTO> listFileDataSets(final String sessionToken,
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSets(final String sessionToken,
             String dataStoreCode) throws UserFailureException
     {
         final Session session = getSession(sessionToken);
         final DataStorePE dataStore = loadDataStore(session, dataStoreCode);
         final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
-        final List<ExternalData> dataSets = datasetLister.listByDataStore(dataStore.getId());
+        final List<ExternalData> dataSets =
+                datasetLister.listByDataStore(dataStore.getId(),
+                        DATASET_FETCH_OPTIONS_FILE_DATASETS);
+        return SimpleDataSetHelper.filterAndTranslate(dataSets);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SimpleDataSetInformationDTO> listOldestPhysicalDataSets(String sessionToken,
+            String dataStoreCode, int limit) throws UserFailureException
+    {
+        final Session session = getSession(sessionToken);
+        final DataStorePE dataStore = loadDataStore(session, dataStoreCode);
+        final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
+        final List<ExternalData> dataSets =
+                datasetLister.listByDataStore(dataStore.getId(), limit,
+                        DATASET_FETCH_OPTIONS_FILE_DATASETS);
+        return SimpleDataSetHelper.filterAndTranslate(dataSets);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SimpleDataSetInformationDTO> listOldestPhysicalDataSets(String sessionToken,
+            String dataStoreCode, Date youngerThan, int limit) throws UserFailureException
+    {
+        final Session session = getSession(sessionToken);
+        final DataStorePE dataStore = loadDataStore(session, dataStoreCode);
+        final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
+        final List<ExternalData> dataSets =
+                datasetLister.listByDataStore(dataStore.getId(), youngerThan, limit,
+                        DATASET_FETCH_OPTIONS_FILE_DATASETS);
         return SimpleDataSetHelper.filterAndTranslate(dataSets);
     }
 
@@ -2621,4 +2659,5 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                 metaprojectDAO.listMetaprojectsForEntity(owner, entity);
         return MetaprojectTranslator.translate(metaprojectPEs);
     }
+
 }

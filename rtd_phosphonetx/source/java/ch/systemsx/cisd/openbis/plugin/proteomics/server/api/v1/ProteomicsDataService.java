@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.proteomics.server.api.v1;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -165,7 +166,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         transformedDataSet.setType(dataSet.getDataSetType().getCode());
         transformedDataSet.setRegistrationDate(dataSet.getRegistrationDate());
         transformedDataSet.setProperties(translate(dataSet.getProperties()));
-        List<ExternalData> children = dataSet.getChildren();
+        Collection<ExternalData> children = dataSet.getChildren();
         if (children != null && children.isEmpty() == false)
         {
             for (ExternalData child : children)

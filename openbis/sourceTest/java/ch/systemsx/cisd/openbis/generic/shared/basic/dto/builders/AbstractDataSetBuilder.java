@@ -141,7 +141,7 @@ public abstract class AbstractDataSetBuilder<T extends AbstractDataSetBuilder<?>
 
     public T child(DataSet child)
     {
-        List<ExternalData> children = dataSet.getChildren();
+        Collection<ExternalData> children = dataSet.getChildren();
         if (children == null)
         {
             children = new ArrayList<ExternalData>();

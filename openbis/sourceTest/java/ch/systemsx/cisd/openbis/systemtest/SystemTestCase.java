@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -376,7 +377,7 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     }
 
     protected void assertEntities(String expectedEntities,
-            List<? extends IIdentifierHolder> entities)
+            Collection<? extends IIdentifierHolder> entities)
     {
         List<String> identifiers = new ArrayList<String>();
         for (IIdentifierHolder entity : entities)

@@ -226,8 +226,25 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
         { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasets(String[] datasetCodes);
 
-    @Select(sql = SELECT_ALL + " where data.dast_id = ?{1}", fetchSize = FETCH_SIZE)
+    @Select(sql = SELECT_ALL_EXTERNAL_DATAS
+            + " where data.dast_id = ?{1} and is_placeholder = false", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasetsByDataStoreId(long dataStoreId);
+
+    @Select(sql = SELECT_ALL_EXTERNAL_DATAS
+            + " where data.dast_id = ?{1} and is_placeholder = false"
+            + " order by registration_timestamp limit ?{2}", fetchSize = FETCH_SIZE)
+    public List<DatasetRecord> getDatasetsByDataStoreId(long dataStoreId, int limit);
+
+    @Select(sql = SELECT_ALL_EXTERNAL_DATAS
+            + " where data.dast_id = ?{1} and is_placeholder = false and registration_timestamp > ?{2}"
+            + " order by registration_timestamp limit ?{3}", fetchSize = FETCH_SIZE)
+    public List<DatasetRecord> getDatasetsByDataStoreId(long dataStoreId, Date youngerThan,
+            int limit);
+
+    @Select(sql = SELECT_ALL_EXTERNAL_DATAS
+            + " where data.dast_id = ?{1} and is_placeholder = false and registration_timestamp = ?{2}"
+            + " order by registration_timestamp", fetchSize = FETCH_SIZE)
+    public List<DatasetRecord> getDatasetsByDataStoreId(long dataStoreId, Date at);
 
     // NOTE: we list ALL data sets (even those in trash) using data_all table here
     @Select(sql = "SELECT code, share_id FROM data_all LEFT OUTER JOIN external_data "

@@ -389,11 +389,30 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
-     * Lists file-content data sets belonging to chosen data store.
+     * Lists file-content data sets belonging to specified data store.
      */
     @Transactional(readOnly = true)
-    public List<SimpleDataSetInformationDTO> listFileDataSets(final String sessionToken,
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSets(final String sessionToken,
             String dataStore) throws UserFailureException;
+
+    /**
+     * Lists the <var>limit</var> oldest physical data sets belonging to specified data store.
+     * <p>
+     * The result is ordered by registration date in ascending order.
+     */
+    @Transactional(readOnly = true)
+    public List<SimpleDataSetInformationDTO> listOldestPhysicalDataSets(final String sessionToken,
+            String dataStore, int limit) throws UserFailureException;
+
+    /**
+     * Lists the <var>limit</var> oldest physical data sets younger than <var>youngerThan</var>
+     * belonging to specified data store.
+     * <p>
+     * The result is ordered by registration date in ascending order.
+     */
+    @Transactional(readOnly = true)
+    public List<SimpleDataSetInformationDTO> listOldestPhysicalDataSets(final String sessionToken,
+            String dataStore, Date youngerThan, int limit) throws UserFailureException;
 
     /**
      * List data sets deleted after specified date.

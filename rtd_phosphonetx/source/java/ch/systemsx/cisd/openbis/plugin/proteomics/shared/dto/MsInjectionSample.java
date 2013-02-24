@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -42,7 +43,7 @@ public class MsInjectionSample
         add(dataSets);
     }
 
-    private void add(List<ExternalData> datasets)
+    private void add(Collection<ExternalData> datasets)
     {
         if (datasets != null)
         {

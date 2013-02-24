@@ -25,7 +25,29 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FetchOption;
 @JsonObject("DataSetFetchOption")
 public enum DataSetFetchOption implements FetchOption
 {
-
-    BASIC, PROPERTIES, PROPERTIES_OF_PROPERTIES, PARENTS, CHILDREN, CONTAINED, METAPROJECTS
+    /** The basic attributes of a dataset like code, registration data, completeness, etc.. */
+    BASIC,
+    /** The experiment that the dataset is connected to. */
+    EXPERIMENT,
+    /** The sample that the dataset is connected to. */
+    SAMPLE,
+    /** The properties of a dataset. */
+    PROPERTIES, 
+    /** The properties of a all material properties of a dataset. */
+    PROPERTIES_OF_PROPERTIES,
+    /** The properties of a all parent datasets of a dataset. */
+    PROPERTIES_OF_PARENTS,
+    /** The properties of a all child datasets of a dataset. */
+    PROPERTIES_OF_CHILDREN,
+    /** The parents of a dataset. */
+    PARENTS, 
+    /** The children of a dataset. */
+    CHILDREN, 
+    /** The container of a dataset, if it is a contained dataset. */
+    CONTAINER, 
+    /** The contained datasets of a dataset, if it is a container. */
+    CONTAINED,
+    /** The metaproject information of a dataset for the current user. */
+    METAPROJECTS
 
 }

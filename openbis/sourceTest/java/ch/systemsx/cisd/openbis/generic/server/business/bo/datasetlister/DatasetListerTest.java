@@ -19,12 +19,14 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -369,7 +371,7 @@ public class DatasetListerTest extends AbstractDAOTest
                     return o1.getCode().compareTo(o2.getCode());
                 }
             });
-        // NOTE: deleted data set with id 2 is ommited
+        // NOTE: deleted data set with id 2 is omitted and so are all container and link datasets
         ExternalData dataSet = list.get(0);
         assertEquals(5L, dataSet.getId().longValue());
         assertEquals("20081105092159111-1", dataSet.getCode());
@@ -391,7 +393,52 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("42", ((DataSet) dataSet).getShareId());
         assertEquals(4711L, ((DataSet) dataSet).getSize().longValue());
         assertEquals(DataSetArchivingStatus.AVAILABLE, ((DataSet) dataSet).getStatus());
-        assertEquals(30, list.size());
+        assertEquals(21, list.size());
+    }
+
+    @Test
+    public void testListByDataStoreInChunks()
+    {
+        List<ExternalData> fullList = new ArrayList<ExternalData>();
+
+        List<ExternalData> list =
+                lister.listByDataStore(1, 8, DatasetLister.DEFAULT_DATASET_FETCH_OPTIONS);
+        fullList.addAll(list);
+        // We get 12 instead of 8 datasets due to the corner case of many datasets having the same
+        // registration date.
+        assertEquals(12, list.size());
+
+        list =
+                lister.listByDataStore(1, list.get(list.size() - 1).getRegistrationDate(), 8,
+                        DatasetLister.DEFAULT_DATASET_FETCH_OPTIONS);
+        fullList.addAll(list);
+        assertEquals(9, list.size());
+
+        list =
+                lister.listByDataStore(1, list.get(list.size() - 1).getRegistrationDate(), 8,
+                        DatasetLister.DEFAULT_DATASET_FETCH_OPTIONS);
+        assertEquals(0, list.size());
+
+        ExternalData dataSet = fullList.get(0);
+        assertEquals(4L, dataSet.getId().longValue());
+        assertEquals("20081105092159188-3", dataSet.getCode());
+        assertEquals("HCS_IMAGE", dataSet.getDataSetType().getCode());
+        assertEquals("STANDARD", dataSet.getDataStore().getCode());
+        assertEquals(1225873319313L, dataSet.getRegistrationDate().getTime());
+        assertEquals(1225873319203L, dataSet.getProductionDate().getTime());
+        assertEquals("EXP1", dataSet.getExperiment().getCode());
+        assertEquals("NEMO", dataSet.getExperiment().getProject().getCode());
+        assertEquals("CISD", dataSet.getExperiment().getProject().getSpace().getCode());
+        assertEquals("CISD", dataSet.getExperiment().getProject().getSpace().getInstance()
+                .getCode());
+        assertNull(dataSet.getSample());
+        assertEquals("[COMMENT: no comment]",
+                dataSet.getProperties().toString());
+        assertEquals("analysis/result", ((DataSet) dataSet).getLocation());
+        assertNull(((DataSet) dataSet).getShareId());
+        assertNull(((DataSet) dataSet).getSize());
+        assertEquals(DataSetArchivingStatus.AVAILABLE, ((DataSet) dataSet).getStatus());
+        assertEquals(21, fullList.size());
     }
 
     @Test
@@ -488,7 +535,7 @@ public class DatasetListerTest extends AbstractDAOTest
     }
 
     private void assertSameDataSetsForSameCode(Map<String, ExternalData> dataSetsByCode,
-            List<ExternalData> dataSets)
+            Collection<ExternalData> dataSets)
     {
         if (dataSets == null || dataSets.isEmpty())
         {
@@ -502,12 +549,12 @@ public class DatasetListerTest extends AbstractDAOTest
                 assertSame("Same data set object expected for " + dataSet.getCode(),
                         previousDataSet, dataSet);
             }
-            List<ExternalData> children = dataSet.getChildren();
+            Collection<ExternalData> children = dataSet.getChildren();
             assertSameDataSetsForSameCode(dataSetsByCode, children);
         }
     }
 
-    private void appendChildren(StringBuilder builder, List<ExternalData> dataSets,
+    private void appendChildren(StringBuilder builder, Collection<ExternalData> dataSets,
             String indentation)
     {
         if (dataSets.isEmpty() == false)
@@ -517,7 +564,7 @@ public class DatasetListerTest extends AbstractDAOTest
                 builder.append('\n').append(indentation).append(dataSet.getCode()).append(" (");
                 builder.append(dataSet.getDataSetType().getCode()).append(") ");
                 builder.append(getSortedProperties(dataSet));
-                List<ExternalData> children = dataSet.getChildren();
+                Collection<ExternalData> children = dataSet.getChildren();
                 if (children != null && children.isEmpty() == false)
                 {
                     appendChildren(builder, children, indentation + "  ");

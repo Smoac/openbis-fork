@@ -22,7 +22,6 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.log4j.Level;
-import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
@@ -350,10 +349,28 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public List<SimpleDataSetInformationDTO> listFileDataSets(String sessionToken, String dataStore)
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSets(String sessionToken, String dataStore)
             throws UserFailureException
     {
         logAccess(Level.DEBUG, sessionToken, "listFileDataSets", "DATA_STORE(%s)", dataStore);
+        return null;
+    }
+
+    @Override
+    public List<SimpleDataSetInformationDTO> listOldestPhysicalDataSets(String sessionToken,
+            String dataStore, int limit) throws UserFailureException
+    {
+        logAccess(Level.DEBUG, sessionToken, "listFileDataSets", "DATA_STORE(%s), LIMIT(%s)",
+                dataStore, limit);
+        return null;
+    }
+
+    @Override
+    public List<SimpleDataSetInformationDTO> listOldestPhysicalDataSets(String sessionToken,
+            String dataStore, Date youngerThan, int limit) throws UserFailureException
+    {
+        logAccess(Level.DEBUG, sessionToken, "listFileDataSets",
+                "DATA_STORE(%s), YOUNGER_THAN(%s), LIMIT(%s)", dataStore, youngerThan, limit);
         return null;
     }
 
@@ -739,7 +756,6 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Metaproject> listMetaprojectsForEntity(String systemSessionToken, String userId,
             IObjectId entityId)
     {
@@ -747,4 +763,5 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
                 userId, entityId.toString());
         return null;
     }
+
 }

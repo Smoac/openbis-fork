@@ -212,7 +212,8 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(boFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
 
-                    one(datasetLister).listByDataStore(DSS_ID);
+                    one(datasetLister).listByDataStore(DSS_ID,
+                            ETLService.DATASET_FETCH_OPTIONS_FILE_DATASETS);
                     DataSetBuilder ds1 =
                             new DataSetBuilder()
                                     .type("my-type")
@@ -232,7 +233,7 @@ public class ETLServiceTest extends AbstractServerTestCase
             });
 
         List<SimpleDataSetInformationDTO> dataSets =
-                createService().listFileDataSets(SESSION_TOKEN, DSS_CODE);
+                createService().listPhysicalDataSets(SESSION_TOKEN, DSS_CODE);
 
         assertEquals(DSS_CODE, dataSets.get(0).getDataStoreCode());
         assertEquals("my-type", dataSets.get(0).getDataSetType());
