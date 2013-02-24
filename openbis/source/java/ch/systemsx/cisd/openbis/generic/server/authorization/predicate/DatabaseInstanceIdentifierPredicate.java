@@ -45,19 +45,15 @@ public final class DatabaseInstanceIdentifierPredicate extends
     private final static boolean isMatching(final List<RoleWithIdentifier> allowedRoles,
             final String databaseInstanceUUID, final boolean isReadAccess)
     {
+        if (isReadAccess)
+        {
+            return true;
+        }
         for (final RoleWithIdentifier role : allowedRoles)
         {
             final RoleLevel roleGroup = role.getRoleLevel();
             if (roleGroup.equals(RoleLevel.INSTANCE)
                     && role.getAssignedDatabaseInstance().getUuid().equals(databaseInstanceUUID))
-            {
-                return true;
-            }
-            // TODO 2008-08-07, Tomasz Pylak: is this really necessary to belong to a group to have
-            // access to instance samples?
-            if (roleGroup.equals(RoleLevel.SPACE)
-                    && role.getAssignedSpace().getDatabaseInstance().getUuid().equals(
-                            databaseInstanceUUID) && isReadAccess)
             {
                 return true;
             }
@@ -76,8 +72,8 @@ public final class DatabaseInstanceIdentifierPredicate extends
     }
 
     @Override
-    protected
-    final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
+    protected final Status doEvaluation(final PersonPE person,
+            final List<RoleWithIdentifier> allowedRoles,
             final DatabaseInstanceIdentifier databaseInstanceIdentifier)
     {
         assert initialized : "Predicate has not been initialized";

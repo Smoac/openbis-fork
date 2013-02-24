@@ -19,9 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -29,38 +27,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * An <code>IPredicate</code> implementation based on {@link ProjectUpdatesDTO}. Checks that: 1) the
- * user has rights to update the project 2) if project is moved to a different group the user has
- * access to this group.
+ * user has rights to update the project 2) if project is moved to a different space the user has
+ * access to this space.
  * 
  * @author Tomasz Pylak
  */
-public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO>
+public class ProjectUpdatesPredicate extends AbstractProjectPredicate<ProjectUpdatesDTO>
 {
-    private final SpaceIdentifierPredicate spacePredicate;
-
-    private final ProjectTechIdPredicate projectTechIdPredicate;
-
-    private final ProjectPermIdPredicate projectPermIdPredicate;
-
-    private final ProjectIdentifierPredicate projectIdentifierPredicate;
-
-    public ProjectUpdatesPredicate()
-    {
-        this.spacePredicate = new SpaceIdentifierPredicate();
-        this.projectTechIdPredicate = new ProjectTechIdPredicate();
-        this.projectPermIdPredicate = new ProjectPermIdPredicate();
-        this.projectIdentifierPredicate = new ProjectIdentifierPredicate();
-    }
-
-    @Override
-    public final void init(IAuthorizationDataProvider provider)
-    {
-        spacePredicate.init(provider);
-        projectTechIdPredicate.init(provider);
-        projectPermIdPredicate.init(provider);
-        projectIdentifierPredicate.init(provider);
-    }
-
     @Override
     public final String getCandidateDescription()
     {
@@ -74,6 +47,8 @@ public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO
     {
         assert spacePredicate.initialized : "Predicate has not been initialized";
         assert projectTechIdPredicate.initialized : "Predicate has not been initialized";
+        assert projectPermIdPredicate.initialized : "Predicate has not been initialized";
+        assert projectAugmentedCodePredicate.initialized : "Predicate has not been initialized";
         Status status;
         if (updates.getTechId() != null)
         {
@@ -85,7 +60,7 @@ public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO
                     allowedRoles, updates.getPermId());
         } else
         {
-            status = projectIdentifierPredicate.doEvaluation(person,
+            status = projectAugmentedCodePredicate.doEvaluation(person,
                     allowedRoles, updates.getIdentifier());
         }
         if (status.equals(Status.OK) == false)

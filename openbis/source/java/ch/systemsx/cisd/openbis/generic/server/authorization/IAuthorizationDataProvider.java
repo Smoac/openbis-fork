@@ -141,11 +141,6 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
     public SamplePE getSample(TechId techId);
 
     /**
-     * Returns the sample with given <var>permId</var> or null if such sample doesn't exist.
-     */
-    public SamplePE tryGetSample(PermId id);
-
-    /**
      * Returns the filter with given <var>techId</var>
      */
     public GridCustomFilterPE getGridCustomFilter(TechId techId);

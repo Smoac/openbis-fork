@@ -19,9 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -32,25 +30,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * 
  * @author Tomasz Pylak
  */
-public class ExperimentUpdatesPredicate extends AbstractPredicate<ExperimentUpdatesDTO>
+public class ExperimentUpdatesPredicate extends AbstractExperimentPredicate<ExperimentUpdatesDTO>
 {
-    private final ExperimentTechIdPredicate experimentTechIdPredicate;
-
-    private final SpaceIdentifierPredicate spacePredicate;
-
-    public ExperimentUpdatesPredicate()
-    {
-        this.experimentTechIdPredicate = new ExperimentTechIdPredicate();
-        this.spacePredicate = new SpaceIdentifierPredicate();
-    }
-
-    @Override
-    public final void init(IAuthorizationDataProvider provider)
-    {
-        experimentTechIdPredicate.init(provider);
-        spacePredicate.init(provider);
-    }
-
     @Override
     public final String getCandidateDescription()
     {
@@ -62,6 +43,7 @@ public class ExperimentUpdatesPredicate extends AbstractPredicate<ExperimentUpda
             final List<RoleWithIdentifier> allowedRoles,
             final ExperimentUpdatesDTO updates)
     {
+        assert spacePredicate.initialized : "Predicate has not been initialized";
         assert experimentTechIdPredicate.initialized : "Predicate has not been initialized";
 
         // Skip all further checks if the person has instance-wide write permissions.

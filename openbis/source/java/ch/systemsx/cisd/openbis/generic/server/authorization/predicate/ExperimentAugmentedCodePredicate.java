@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright 2011 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,31 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * @author anttil
+ * Predicate based on the augmented code of an experiment.
+ * 
+ * @author Franz-Josef Elmer
  */
-public class ExperimentPEPredicate extends PersistentEntityPredicate<ExperimentPE>
+public class ExperimentAugmentedCodePredicate extends DelegatedPredicate<SpaceIdentifier, String>
 {
-
-    public ExperimentPEPredicate()
+    public ExperimentAugmentedCodePredicate()
     {
-        super();
-    }
-
-    public ExperimentPEPredicate(boolean isReadAccess)
-    {
-        super(isReadAccess);
+        super(new SpaceIdentifierPredicate(false));
     }
 
     @Override
-    public SpacePE getSpace(ExperimentPE value)
+    public SpaceIdentifier tryConvert(String value)
     {
-        return value.getProject().getSpace();
+        return new ExperimentIdentifierFactory(value).createIdentifier();
     }
 
     @Override
-    public DatabaseInstancePE getInstance(ExperimentPE value)
+    public String getCandidateDescription()
     {
-        return value.getProject().getSpace().getDatabaseInstance();
+        return "experiment";
     }
 
 }

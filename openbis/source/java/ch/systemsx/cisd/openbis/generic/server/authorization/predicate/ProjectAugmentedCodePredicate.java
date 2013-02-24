@@ -16,39 +16,31 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * This predicate by default authenticates for write access, i.e. it will allow not access to shared
- * samples for all users.
+ * A {@link IPredicate} for a project's augmented code (i.e. DB:/SPACE/PROJECT).
  * 
- * @author anttil
+ * @author Bernd Rinn
  */
-public class SamplePEPredicate extends PersistentEntityPredicate<SamplePE>
+public class ProjectAugmentedCodePredicate extends DelegatedPredicate<SpaceIdentifier, String>
 {
-
-    public SamplePEPredicate()
+    public ProjectAugmentedCodePredicate()
     {
-        super();
-    }
-
-    public SamplePEPredicate(boolean isReadAccess)
-    {
-        super(isReadAccess);
+        super(new SpaceIdentifierPredicate(false));
     }
 
     @Override
-    public SpacePE getSpace(SamplePE value)
+    public SpaceIdentifier tryConvert(String value)
     {
-        return value.getSpace();
+        return new ProjectIdentifierFactory(value).createIdentifier();
     }
 
     @Override
-    public DatabaseInstancePE getInstance(SamplePE value)
+    public String getCandidateDescription()
     {
-        return value.getDatabaseInstance();
+        return "project";
     }
 
 }

@@ -39,6 +39,8 @@ public abstract class DelegatedPredicate<P, T> extends AbstractPredicate<T>
 {
     private final IPredicate<P> delegate;
 
+    boolean initialized;
+
     protected IAuthorizationDataProvider authorizationDataProvider;
 
     public DelegatedPredicate(final IPredicate<P> delegate)
@@ -58,8 +60,10 @@ public abstract class DelegatedPredicate<P, T> extends AbstractPredicate<T>
     @Override
     public final void init(IAuthorizationDataProvider provider)
     {
+        assert initialized == false;
         this.authorizationDataProvider = provider;
         delegate.init(provider);
+        initialized = true;
     }
 
     @Override

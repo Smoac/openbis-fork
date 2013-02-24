@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 
 import java.util.List;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ArrayPredicate;
@@ -104,7 +105,8 @@ public final class PredicateExecutor
                 shouldFlattenCollections);
     }
 
-    public final <T> Status evaluate(final PersonPE person,
+    @Private
+    final <T> Status evaluate(final PersonPE person,
             final List<RoleWithIdentifier> allowedRoles, final T argumentValue,
             final Class<? extends IPredicate<?>> predicateClass, final Class<T> argumentType,
             final boolean shouldFlattenCollections)

@@ -449,12 +449,6 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     }
 
     @Override
-    public SamplePE tryGetSample(PermId id)
-    {
-        return daoFactory.getSampleDAO().tryToFindByPermID(id.getId());
-    }
-
-    @Override
     public GridCustomFilterPE getGridCustomFilter(TechId techId)
     {
         return daoFactory.getGridCustomFilterDAO().getByTechId(techId);

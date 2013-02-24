@@ -21,28 +21,28 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
- * An <code>IPredicate</code> implementation based on permId of a sample.
+ * An <code>IPredicate</code> implementation based on permId of an experiment.
  * 
  * @author Izabela Adamczyk
  */
-public class SamplePermIdPredicate extends AbstractDatabaseInstancePredicate<PermId>
+public class ExperimentPermIdPredicate extends AbstractDatabaseInstancePredicate<PermId>
 {
 
-    private final SamplePEPredicate samplePEPredicate;
+    private final ExperimentPEPredicate experimentPEPredicate;
 
-    public SamplePermIdPredicate()
+    public ExperimentPermIdPredicate()
     {
         this(true);
     }
 
-    public SamplePermIdPredicate(boolean isReadAccess)
+    public ExperimentPermIdPredicate(boolean isReadAccess)
     {
-        samplePEPredicate = new SamplePEPredicate(isReadAccess);
+        experimentPEPredicate = new ExperimentPEPredicate(isReadAccess);
     }
 
     //
@@ -53,26 +53,26 @@ public class SamplePermIdPredicate extends AbstractDatabaseInstancePredicate<Per
     public final void init(IAuthorizationDataProvider provider)
     {
         super.init(provider);
-        samplePEPredicate.init(provider);
+        experimentPEPredicate.init(provider);
     }
 
     @Override
     public final String getCandidateDescription()
     {
-        return "sample perm id";
+        return "experiment perm id";
     }
 
     @Override
     protected final Status doEvaluation(final PersonPE person,
             final List<RoleWithIdentifier> allowedRoles, final PermId id)
     {
-        SamplePE sample = authorizationDataProvider.tryGetSampleByPermId(id.getId());
-        if (sample == null)
+        ExperimentPE experiment = authorizationDataProvider.tryGetExperimentByPermId(id.getId());
+        if (experiment == null)
         {
             return Status.createError(String.format("User '%s' does not have enough privileges.",
                     person.getUserId()));
         }
-        return samplePEPredicate.evaluate(person, allowedRoles, sample);
+        return experimentPEPredicate.evaluate(person, allowedRoles, experiment);
     }
 
 }

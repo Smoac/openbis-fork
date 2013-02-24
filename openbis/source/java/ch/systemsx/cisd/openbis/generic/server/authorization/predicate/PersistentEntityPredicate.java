@@ -28,12 +28,28 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
- * A predicate for persistent entities.
+ * A predicate for persistent entities. This predicate by default authenticates for write access.
  * 
  * @author anttil
  */
 public abstract class PersistentEntityPredicate<T> implements IPredicate<T>
 {
+    // Everyone can read from the database instance level, but only users with appropriate role can
+    // write. This flag tells if only the read-only access is required to database instance objects.
+    private final boolean isReadAccess;
+
+    /**
+     * Default: authenticate for write access.
+     */
+    public PersistentEntityPredicate()
+    {
+        this(false);
+    }
+
+    public PersistentEntityPredicate(boolean isReadAccess)
+    {
+        this.isReadAccess = isReadAccess;
+    }
 
     @Override
     public Status evaluate(PersonPE person, List<RoleWithIdentifier> allowedRoles, T value)
@@ -44,9 +60,15 @@ public abstract class PersistentEntityPredicate<T> implements IPredicate<T>
             return Status.createError("null value cannot be authorized");
         }
 
-        SpacePE space = getSpace(value);
-        DatabaseInstancePE instance =
-                space != null ? space.getDatabaseInstance() : getInstance(value);
+        final SpacePE space = getSpace(value);
+        final boolean isInstanceEntity = (space == null);
+        if (isInstanceEntity && isReadAccess)
+        {
+            return Status.OK;
+        }
+        @SuppressWarnings("null")
+        final DatabaseInstancePE instance =
+                isInstanceEntity ? getInstance(value) : space.getDatabaseInstance();
 
         for (RoleWithIdentifier allowed : allowedRoles)
         {

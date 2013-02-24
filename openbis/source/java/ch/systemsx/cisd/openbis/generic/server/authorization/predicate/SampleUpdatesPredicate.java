@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -31,43 +30,27 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
  * 
  * @author Izabela Adamczyk
  */
-public class SampleUpdatesPredicate extends AbstractPredicate<SampleUpdatesDTO>
+public class SampleUpdatesPredicate extends AbstractSamplePredicate<SampleUpdatesDTO>
 {
-    private final SampleTechIdPredicate sampleTechIdPredicate;
-
-    private final SpaceIdentifierPredicate spacePredicate;
-
-    private final SampleOwnerIdentifierPredicate samplePredicate;
-
-    public SampleUpdatesPredicate()
-    {
-        this.sampleTechIdPredicate = new SampleTechIdPredicate();
-        this.spacePredicate = new SpaceIdentifierPredicate();
-        this.samplePredicate = new SampleOwnerIdentifierPredicate();
-    }
-
-    @Override
-    public final void init(IAuthorizationDataProvider provider)
-    {
-        sampleTechIdPredicate.init(provider);
-        spacePredicate.init(provider);
-        samplePredicate.init(provider);
-    }
-
     @Override
     public final String getCandidateDescription()
     {
         return "sample updates";
     }
 
+    // TODO 2009-07-27, IA: tests needed
     @Override
-    protected
-    Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
+    protected Status doEvaluation(final PersonPE person,
+            final List<RoleWithIdentifier> allowedRoles,
             final SampleUpdatesDTO updates)
-    {// TODO 2009-07-27, IA: tests needed
+    {
         assert sampleTechIdPredicate.initialized : "Predicate has not been initialized";
+        assert spacePredicate.initialized : "Predicate has not been initialized";
+        assert sampleOwnerPredicate.initialized : "Predicate has not been initialized";
         Status status;
-        status = sampleTechIdPredicate.doEvaluation(person, allowedRoles, updates.getSampleIdOrNull());
+        status =
+                sampleTechIdPredicate.doEvaluation(person, allowedRoles,
+                        updates.getSampleIdOrNull());
         if (status.equals(Status.OK) == false)
         {
             return status;
@@ -80,8 +63,9 @@ public class SampleUpdatesPredicate extends AbstractPredicate<SampleUpdatesDTO>
             if (status.equals(Status.OK) == false)
                 return status;
         }
-        status = samplePredicate.doEvaluation(person, allowedRoles, updates.getSampleIdentifier());
+        status =
+                sampleOwnerPredicate.doEvaluation(person, allowedRoles,
+                        updates.getSampleIdentifier());
         return status;
-
     }
 }

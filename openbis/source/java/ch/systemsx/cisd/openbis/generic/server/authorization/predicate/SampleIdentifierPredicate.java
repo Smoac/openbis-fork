@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -30,28 +31,28 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * 
  * @author Bernd Rinn
  */
-public class ExperimentIdentifierPredicate extends
-        AbstractExperimentPredicate<ExperimentIdentifier>
+public class SampleIdentifierPredicate extends
+        AbstractSamplePredicate<SampleIdentifier>
 {
     @Override
     public final String getCandidateDescription()
     {
-        return "experiment identifier";
+        return "sample identifier";
     }
 
     @Override
     protected Status doEvaluation(final PersonPE person,
             final List<RoleWithIdentifier> allowedRoles,
-            final ExperimentIdentifier identifier)
+            final SampleIdentifier identifier)
     {
         assert spacePredicate.initialized : "Predicate has not been initialized";
-        assert experimentTechIdPredicate.initialized : "Predicate has not been initialized";
-        assert experimentPermIdPredicate.initialized : "Predicate has not been initialized";
-        assert experimentAugmentedCodePredicate.initialized : "Predicate has not been initialized";
+        assert sampleTechIdPredicate.initialized : "Predicate has not been initialized";
+        assert samplePermIdPredicate.initialized : "Predicate has not been initialized";
+        assert sampleAugmentedCodePredicate.initialized : "Predicate has not been initialized";
         Status status = null;
         if (identifier.getDatabaseId() != null)
         {
-            status = experimentTechIdPredicate.doEvaluation(person,
+            status = sampleTechIdPredicate.doEvaluation(person,
                     allowedRoles, new TechId(identifier.getDatabaseId()));
             if (Status.OK.equals(status) == false)
             {
@@ -60,7 +61,7 @@ public class ExperimentIdentifierPredicate extends
         }
         if (identifier.getPermId() != null)
         {
-            status = experimentPermIdPredicate.doEvaluation(person,
+            status = samplePermIdPredicate.doEvaluation(person,
                     allowedRoles, new PermId(identifier.getPermId()));
             if (Status.OK.equals(status) == false)
             {
@@ -69,7 +70,7 @@ public class ExperimentIdentifierPredicate extends
         }
         if (identifier.getAugmentedCode() != null)
         {
-            status = experimentAugmentedCodePredicate.doEvaluation(person,
+            status = sampleAugmentedCodePredicate.doEvaluation(person,
                     allowedRoles, identifier.getAugmentedCode());
             if (Status.OK.equals(status) == false)
             {

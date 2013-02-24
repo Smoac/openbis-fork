@@ -35,6 +35,8 @@ public class SampleOwnerIdentifierPredicate extends AbstractPredicate<SampleOwne
 
     private final DatabaseInstanceIdentifierPredicate databaseInstanceIdentifierPredicate;
 
+    boolean initialized;
+
     public SampleOwnerIdentifierPredicate()
     {
         this(true, false);
@@ -58,8 +60,10 @@ public class SampleOwnerIdentifierPredicate extends AbstractPredicate<SampleOwne
     @Override
     public final void init(IAuthorizationDataProvider provider)
     {
+        assert initialized == false;
         spacePredicate.init(provider);
         databaseInstanceIdentifierPredicate.init(provider);
+        initialized = true;
     }
 
     @Override

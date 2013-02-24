@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright 2013 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,35 +20,64 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 
 /**
- * A {@link IPredicate} for a project permanent id (i.e. DB:/SPACE/PROJECT).
+ * An <code>IPredicate</code> implementation based on {@link ProjectIdentifier}.
  * 
  * @author Bernd Rinn
  */
-public class ProjectIdentifierPredicate extends AbstractSpacePredicate<String>
+public class ProjectIdentifierPredicate extends AbstractProjectPredicate<ProjectIdentifier>
 {
     @Override
-    public String getCandidateDescription()
+    public final String getCandidateDescription()
     {
         return "project identifier";
     }
 
     @Override
-    protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
-            String value)
+    protected Status doEvaluation(final PersonPE person,
+            final List<RoleWithIdentifier> allowedRoles,
+            final ProjectIdentifier identifier)
     {
-        final ProjectIdentifier identifier = new ProjectIdentifierFactory(value).createIdentifier();
-        final ProjectPE project = authorizationDataProvider.tryGetProjectByIdentifier(identifier);
-        if (project == null)
+        assert spacePredicate.initialized : "Predicate has not been initialized";
+        assert projectTechIdPredicate.initialized : "Predicate has not been initialized";
+        assert projectPermIdPredicate.initialized : "Predicate has not been initialized";
+        assert projectAugmentedCodePredicate.initialized : "Predicate has not been initialized";
+        Status status = null;
+        if (identifier.getDatabaseId() != null)
         {
-            return Status.createError(String.format("User '%s' does not have enough privileges.",
-                    person.getUserId()));
+            status = projectTechIdPredicate.doEvaluation(person,
+                    allowedRoles, new TechId(identifier.getDatabaseId()));
+            if (Status.OK.equals(status) == false)
+            {
+                return status;
+            }
         }
-        return evaluateSpace(person, allowedRoles, project.getSpace());
+        if (identifier.getPermId() != null)
+        {
+            status = projectPermIdPredicate.doEvaluation(person,
+                    allowedRoles, identifier.getPermId());
+            if (Status.OK.equals(status) == false)
+            {
+                return status;
+            }
+        }
+        if (identifier.getAugmentedCode() != null)
+        {
+            status = projectAugmentedCodePredicate.doEvaluation(person,
+                    allowedRoles, identifier.getAugmentedCode());
+            if (Status.OK.equals(status) == false)
+            {
+                return status;
+            }
+        }
+        if (status == null)
+        {
+            return Status.createError("No identifier given");
+        }
+        return Status.OK;
     }
 }

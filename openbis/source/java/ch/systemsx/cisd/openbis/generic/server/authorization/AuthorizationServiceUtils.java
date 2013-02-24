@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DelegatedPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentAugmentedCodePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.MetaprojectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIdentifierPredicate;
@@ -222,7 +222,7 @@ public class AuthorizationServiceUtils
 
     private boolean canAccessExperiment(String experimentId)
     {
-        ExperimentIdentifierPredicate predicate = new ExperimentIdentifierPredicate();
+        ExperimentAugmentedCodePredicate predicate = new ExperimentAugmentedCodePredicate();
 
         predicate.init(new AuthorizationDataProvider(daoFactory));
 
