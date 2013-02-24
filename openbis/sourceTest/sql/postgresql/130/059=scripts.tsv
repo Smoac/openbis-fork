@@ -1,7 +1,7 @@
 1	1	properties	number of properties	str(entity.properties().size()) + ' properties'	2010-10-27 15:16:48.994831+02	2	\N	DYNAMIC_PROPERTY	JYTHON
 2	1	code	\N	entity.code()	2010-10-27 15:16:48.994831+02	2	\N	DYNAMIC_PROPERTY	JYTHON
 3	1	date	\N	str(currentDate().getTime())	2010-10-27 15:16:48.994831+02	2	\N	DYNAMIC_PROPERTY	JYTHON
-4	1	managed list	\N	fake script	2010-10-27 15:16:48.994831+02	2	\N	MANAGED_PROPERTY	JYTHON
+4	1	managed list	\N	pass	2010-10-27 15:16:48.994831+02	2	\N	MANAGED_PROPERTY	JYTHON
 5	1	validateOK	\N	def validate(entity, isNew):\n  pass\n 	2010-10-27 15:16:48.994831+02	2	\N	ENTITY_VALIDATION	JYTHON
 6	1	validateFAIL	\N	def validate(entity, isNew):\n  return "This check always fail"\n 	2010-10-27 15:16:48.994831+02	2	\N	ENTITY_VALIDATION	JYTHON
 7	1	validateUpdateFAIL	\N	def validate(entity, isNew):\n  if (not isNew):\n    return "Cannot update this entity"\n 	2010-10-27 15:16:48.994831+02	2	\N	ENTITY_VALIDATION	JYTHON

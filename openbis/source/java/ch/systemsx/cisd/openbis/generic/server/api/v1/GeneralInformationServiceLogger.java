@@ -34,13 +34,16 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
@@ -388,8 +391,8 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     }
 
     @Override
-    public List<Attachment> listAttachmentsForProject(String sessionToken, Project project,
-            boolean allVersions)
+    public List<Attachment> listAttachmentsForProject(String sessionToken,
+            ProjectIdentifier project, boolean allVersions)
     {
         logAccess(sessionToken, "listAttachmentsForProject", "PROJECT(%s)", "ALL_VERSIONS(%s)",
                 project, allVersions);
@@ -398,7 +401,7 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
 
     @Override
     public List<Attachment> listAttachmentsForExperiment(String sessionToken,
-            Experiment experiment, boolean allVersions)
+            ExperimentIdentifier experiment, boolean allVersions)
     {
         logAccess(sessionToken, "listAttachmentsForExperiment", "EXPERIMENT(%s)",
                 "ALL_VERSIONS(%s)", experiment, allVersions);
@@ -406,7 +409,7 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     }
 
     @Override
-    public List<Attachment> listAttachmentsForSample(String sessionToken, Sample sample,
+    public List<Attachment> listAttachmentsForSample(String sessionToken, SampleIdentifier sample,
             boolean allVersions)
     {
         logAccess(sessionToken, "listAttachmentsForSample", "SAMPLE(%s)", "ALL_VERSIONS(%s)",

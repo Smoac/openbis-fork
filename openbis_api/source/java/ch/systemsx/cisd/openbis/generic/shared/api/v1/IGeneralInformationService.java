@@ -32,13 +32,16 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
@@ -494,7 +497,7 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.22
      */
     public List<Attachment> listAttachmentsForProject(String sessionToken,
-            Project project, boolean allVersions);
+            ProjectIdentifier project, boolean allVersions);
 
     /**
      * @param experiment The experiment to list the attachments for.
@@ -503,7 +506,7 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.22
      */
     public List<Attachment> listAttachmentsForExperiment(String sessionToken,
-            Experiment experiment, boolean allVersions);
+            ExperimentIdentifier experiment, boolean allVersions);
 
     /**
      * @param sample The sample to list the attachments for.
@@ -512,5 +515,5 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.22
      */
     public List<Attachment> listAttachmentsForSample(String sessionToken,
-            Sample sample, boolean allVersions);
+            SampleIdentifier sample, boolean allVersions);
 }

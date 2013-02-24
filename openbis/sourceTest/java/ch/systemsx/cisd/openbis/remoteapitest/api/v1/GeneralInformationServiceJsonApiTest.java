@@ -22,10 +22,13 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.net.MalformedURLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -44,11 +47,14 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
@@ -794,7 +800,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
 
         final List<Attachment> attachments =
                 generalInformationService.listAttachmentsForExperiment(sessionToken,
-                        experiments.get(0),
+                        ExperimentIdentifier.createFromEntity(experiments.get(0)),
                         true);
         assertEquals(4, attachments.size());
         int version = 4;
@@ -828,7 +834,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
 
         final List<Attachment> attachments =
                 generalInformationService.listAttachmentsForExperiment(sessionToken,
-                        experiments.get(0), false);
+                        ExperimentIdentifier.createFromEntity(experiments.get(0)), false);
         assertEquals(1, attachments.size());
         final Attachment a = attachments.get(0);
         assertEquals("exampleExperiments.txt", a.getFileName());
@@ -843,8 +849,18 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         assertEquals(
                 "http://localhost/openbis/index.html?viewMode=SIMPLE#action=DOWNLOAD_ATTACHMENT&file=exampleExperiments.txt&version=4&entity=EXPERIMENT&permId=200811050951882-1028",
                 a.getPermLink());
+
+        final List<Attachment> attachments2 =
+                generalInformationService.listAttachmentsForExperiment(sessionToken,
+                        ExperimentIdentifier.createFromAugmentedCode("/CISD/NEMO/EXP1"), false);
+
+        assertEquals(1, attachments2.size());
+
+        final Attachment a2 = attachments2.get(0);
+        assertEquals(a, a2);
     }
 
+    @Test
     public void testListAttachmentsForSample()
     {
         SearchCriteria searchCriteria = new SearchCriteria();
@@ -856,7 +872,8 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         assertEquals(1, samples.size());
 
         final List<Attachment> attachments =
-                generalInformationService.listAttachmentsForSample(sessionToken, samples.get(0),
+                generalInformationService.listAttachmentsForSample(sessionToken,
+                        SampleIdentifier.createFromEntity(samples.get(0)),
                         true);
         assertEquals(1, attachments.size());
 
@@ -872,6 +889,71 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         assertNotNull(a.getUserLastName());
         assertEquals(
                 "http://localhost/openbis/index.html?viewMode=SIMPLE#action=DOWNLOAD_ATTACHMENT&file=sampleHistory.txt&version=1&entity=SAMPLE&permId=200811050946559-980",
+                a.getPermLink());
+
+        final List<Attachment> attachments2 =
+                generalInformationService.listAttachmentsForSample(sessionToken,
+                        SampleIdentifier.createFromPermId("200811050946559-980"), true);
+
+        assertEquals(1, attachments2.size());
+
+        final Attachment a2 = attachments2.get(0);
+        assertEquals(a, a2);
+
+        final List<Attachment> attachments3 =
+                generalInformationService.listAttachmentsForSample(sessionToken,
+                        SampleIdentifier.createFromAugmentedCode("/CISD/3VCP6"), true);
+
+        assertEquals(1, attachments3.size());
+
+        final Attachment a3 = attachments3.get(0);
+        assertEquals(a, a3);
+    }
+
+    @Test
+    public void testListAttachmentsForProjectNoAttachment()
+    {
+        final List<Attachment> attachments =
+                generalInformationService.listAttachmentsForProject(sessionToken,
+                        ProjectIdentifier.createFromAugmentedCode("/CISD/DEFAULT"), true);
+
+        assertEquals(0, attachments.size());
+    }
+
+    @Test
+    public void testListAttachmentsForProjectNonExisting()
+    {
+        final List<Attachment> attachments =
+                generalInformationService.listAttachmentsForProject(sessionToken,
+                        ProjectIdentifier.createFromAugmentedCode("/NONE/EXISTENT"), true);
+
+        assertEquals(0, attachments.size());
+    }
+
+    @Test
+    public void testListAttachmentsForProjects() throws ParseException
+    {
+        final List<Attachment> attachments =
+                generalInformationService.listAttachmentsForProject(sessionToken,
+                        ProjectIdentifier.createFromPermId("20120814110011738-103"), true);
+
+        assertEquals(1, attachments.size());
+
+        final Attachment a = attachments.get(0);
+        assertEquals("projectDescription.txt", a.getFileName());
+        assertEquals("The Project", a.getTitle());
+        assertEquals("All about it.", a.getDescription());
+        assertEquals(1, a.getVersion());
+        final Date date =
+                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z")
+                        .parse("2012-01-03 08:27:57.123 +0100");
+        assertEquals(date, a.getRegistrationDate());
+        assertEquals("test", a.getUserId());
+        assertEquals("franz-josef.elmer@systemsx.ch", a.getUserEmail());
+        assertNotNull(a.getUserFirstName());
+        assertNotNull(a.getUserLastName());
+        assertEquals(
+                "http://localhost/openbis/index.html?viewMode=SIMPLE#action=DOWNLOAD_ATTACHMENT&file=projectDescription.txt&version=1&entity=PROJECT&code=NEMO&space=CISD",
                 a.getPermLink());
     }
 

@@ -43,9 +43,12 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Authoriz
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentAugmentedCodePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentListPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleListPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetByExperimentIdentifierValidator;
@@ -82,6 +85,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
@@ -392,7 +396,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleByIdentiferValidator.class)
     public List<Sample> listSamplesForExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class)
+            @AuthorizationGuard(guardClass = ExperimentAugmentedCodePredicate.class)
             String experimentIdentifierString)
     {
         checkSession(sessionToken);
@@ -414,7 +418,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     @Capability("SEARCH_ON_BEHALF_OF_USER")
     public List<Sample> listSamplesForExperimentOnBehalfOfUser(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class)
+            @AuthorizationGuard(guardClass = ExperimentAugmentedCodePredicate.class)
             String experimentIdentifierString, String userId)
     {
         checkSession(sessionToken);
@@ -950,7 +954,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExperimentByIdentiferValidator.class)
     public List<Experiment> listExperiments(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class)
+            @AuthorizationGuard(guardClass = ExperimentAugmentedCodePredicate.class)
             List<String> experimentIdentifiers)
     {
         checkSession(sessionToken);
@@ -1086,36 +1090,126 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     }
 
     @Override
-    public List<Attachment> listAttachmentsForProject(String sessionToken, Project project,
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Attachment> listAttachmentsForProject(String sessionToken,
+            @AuthorizationGuard(guardClass = ProjectIdentifierPredicate.class)
+            ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ProjectIdentifier project,
             boolean allVersions)
     {
-        final ProjectIdentifier identifier =
-                new ProjectIdentifier(project.getSpaceCode(), project.getCode());
-        final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project info =
-                commonServer.getProjectInfo(sessionToken, identifier);
+        final TechId techId;
+        if (project.getDatabaseId() != null)
+        {
+            techId = new TechId(project.getDatabaseId());
+        } else if (project.getPermId() != null)
+        {
+            final Long id =
+                    boFactory.getEntityResolver().tryResolveProjectIdByPermId(
+                            project.getPermId());
+            if (id == null)
+            {
+                return Collections.emptyList();
+            }
+            techId = new TechId(id);
+        } else if (project.getCode() != null)
+        {
+            final Long id =
+                    boFactory.getEntityResolver().tryResolveProjectIdByCode(
+                            project.getSpaceCode(), project.getCode());
+            if (id == null)
+            {
+                return Collections.emptyList();
+            }
+            techId = new TechId(id);
+        } else
+        {
+            throw new IllegalArgumentException("No identifier given.");
+        }
         final List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> attachments =
-                commonServer.listProjectAttachments(sessionToken, new TechId(info.getId()));
+                commonServer.listProjectAttachments(sessionToken, techId);
         return Translator.translateAttachments(attachments, allVersions);
     }
 
     @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Attachment> listAttachmentsForExperiment(String sessionToken,
-            Experiment experiment, boolean allVersions)
+            @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class)
+            ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentIdentifier experiment,
+            boolean allVersions)
     {
+        final TechId techId;
+        if (experiment.getDatabaseId() != null)
+        {
+            techId = new TechId(experiment.getDatabaseId());
+        } else if (experiment.getPermId() != null)
+        {
+            final Long id =
+                    boFactory.getEntityResolver().tryResolveExperimentIdByPermId(
+                            experiment.getPermId());
+            if (id == null)
+            {
+                return Collections.emptyList();
+            }
+            techId = new TechId(id);
+        } else if (experiment.getCode() != null)
+        {
+            final Long id =
+                    boFactory.getEntityResolver().tryResolveExperimentIdByCode(
+                            experiment.getSpaceCode(), experiment.getProjectCode(),
+                            experiment.getCode());
+            if (id == null)
+            {
+                return Collections.emptyList();
+            }
+            techId = new TechId(id);
+        } else
+        {
+            throw new IllegalArgumentException("No identifier given.");
+        }
         final List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> attachments =
-                commonServer
-                        .listExperimentAttachments(sessionToken, new TechId(experiment.getId()));
+                commonServer.listExperimentAttachments(sessionToken, techId);
         return Translator.translateAttachments(attachments, allVersions);
     }
 
     @Override
-    public List<Attachment> listAttachmentsForSample(String sessionToken, Sample sample,
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Attachment> listAttachmentsForSample(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleIdentifierPredicate.class)
+            SampleIdentifier sample,
             boolean allVersions)
     {
+        final TechId techId;
+        if (sample.getDatabaseId() != null)
+        {
+            techId = new TechId(sample.getDatabaseId());
+        } else if (sample.getPermId() != null)
+        {
+            final Long id =
+                    boFactory.getEntityResolver().tryResolveSampleIdByPermId(
+                            sample.getPermId());
+            if (id == null)
+            {
+                return Collections.emptyList();
+            }
+            techId = new TechId(id);
+        } else if (sample.getCode() != null)
+        {
+            final Long id =
+                    boFactory.getEntityResolver().tryResolveSampleIdByCode(
+                            sample.getSpaceCode(), sample.getCode());
+            if (id == null)
+            {
+                return Collections.emptyList();
+            }
+            techId = new TechId(id);
+        } else
+        {
+            throw new IllegalArgumentException("No identifier given.");
+        }
         final List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> attachments =
-                commonServer
-                        .listSampleAttachments(sessionToken, new TechId(sample.getId()));
+                commonServer.listSampleAttachments(sessionToken, techId);
         return Translator.translateAttachments(attachments, allVersions);
     }
-
 }
