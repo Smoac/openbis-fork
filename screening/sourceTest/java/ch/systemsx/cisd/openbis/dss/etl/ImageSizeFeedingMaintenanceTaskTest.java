@@ -161,7 +161,7 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(service).listDataSets();
+                    one(service).listPhysicalDataSets();
                     will(returnValue(Arrays.asList(ds0, ds1)));
 
                     one(contentProvider).asContent(ds1.getDataSetCode());
@@ -193,7 +193,7 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(service).listDataSets();
+                    one(service).listPhysicalDataSets();
                     will(returnValue(Arrays.asList(ds1, ds2, ds3)));
                 }
             });
@@ -236,7 +236,7 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(service).listDataSets();
+                    one(service).listPhysicalDataSets();
                     will(returnValue(Arrays.asList(ds1, ds2)));
                 }
             });

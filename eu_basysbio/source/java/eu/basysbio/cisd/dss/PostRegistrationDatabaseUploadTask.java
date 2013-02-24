@@ -94,7 +94,7 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
     public void execute()
     {
         Set<String> knownDataSets = getKnownDataSets();
-        List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();
+        List<SimpleDataSetInformationDTO> dataSets = service.listPhysicalDataSets();
         Collections.sort(dataSets, new Comparator<SimpleDataSetInformationDTO>()
             {
                 @Override

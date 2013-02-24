@@ -154,7 +154,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(service).listDataSets();
+                    one(service).listPhysicalDataSets();
                     will(returnValue(Arrays.asList(ds1, ds2, ds3, ds4, ds5)));
 
                     one(service).updateShareIdAndSize("ds-1", "1", 10L);

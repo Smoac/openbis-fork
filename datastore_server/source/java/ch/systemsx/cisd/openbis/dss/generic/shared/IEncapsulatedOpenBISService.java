@@ -252,11 +252,11 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     public List<DataSetShareId> listDataSetShareIds() throws UserFailureException;
 
     /**
-     * Returns informations about all phyisical data sets which belong to the calling data store
+     * Returns informations about all physical data sets which belong to the calling data store
      * server.
      */
     @ManagedAuthentication
-    public List<SimpleDataSetInformationDTO> listDataSets() throws UserFailureException;
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSets() throws UserFailureException;
 
     /**
      * Returns informations about the <var>chunkSize</var> oldest physical data sets which belong to

@@ -86,7 +86,7 @@ public class HierarchicalStorageUpdaterTest extends AbstractFileSystemTestCase
                     allowing(beanFactory).getBean("openBIS-service");
                     will(returnValue(openBISService));
 
-                    allowing(openBISService).listDataSets();
+                    allowing(openBISService).listPhysicalDataSets();
                     will(returnValue(listDataSets()));
                 }
             });

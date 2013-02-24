@@ -67,7 +67,7 @@ final class SharesHolder
         {
             return;
         }
-        for (SimpleDataSetInformationDTO dataSet : service.listDataSets())
+        for (SimpleDataSetInformationDTO dataSet : service.listPhysicalDataSets())
         {
             String shareId = dataSet.getDataSetShareId();
             if (dataStoreCode.equals(dataSet.getDataStoreCode()))

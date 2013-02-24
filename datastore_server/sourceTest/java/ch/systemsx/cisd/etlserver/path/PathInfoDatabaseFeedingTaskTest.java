@@ -121,7 +121,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(service).listDataSets();
+                    one(service).listPhysicalDataSets();
                     will(returnValue(Arrays.asList(ds1, ds2)));
                 }
             });

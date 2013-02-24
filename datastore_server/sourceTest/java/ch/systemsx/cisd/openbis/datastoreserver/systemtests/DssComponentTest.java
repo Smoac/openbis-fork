@@ -462,7 +462,7 @@ public class DssComponentTest extends SystemTestCase
     private SimpleDataSetInformationDTO getCodeOfLatestDataSet()
     {
         IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
-        List<SimpleDataSetInformationDTO> dataSets = openBISService.listDataSets();
+        List<SimpleDataSetInformationDTO> dataSets = openBISService.listPhysicalDataSets();
         Collections.sort(dataSets, new Comparator<SimpleDataSetInformationDTO>()
             {
                 @Override

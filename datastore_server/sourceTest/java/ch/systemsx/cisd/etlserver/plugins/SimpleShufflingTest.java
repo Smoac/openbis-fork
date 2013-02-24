@@ -221,7 +221,7 @@ public class SimpleShufflingTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(service).listDataSets();
+                    allowing(service).listPhysicalDataSets();
                     will(returnValue(Arrays.asList(ds1, ds2, ds3, ds4)));
                     one(logger).log(LogLevel.INFO,
                             "BEGIN Computing number of data sets to be moved for share 1");

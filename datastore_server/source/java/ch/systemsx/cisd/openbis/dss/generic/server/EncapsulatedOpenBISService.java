@@ -550,7 +550,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public List<SimpleDataSetInformationDTO> listDataSets() throws UserFailureException
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSets() throws UserFailureException
     {
         List<SimpleDataSetInformationDTO> dataSets =
                 service.listPhysicalDataSets(session.getSessionToken(), session.getDataStoreCode());

@@ -98,7 +98,7 @@ public class ImageSizeFeedingMaintenanceTask implements IDataStoreLockingMainten
     @Override
     public void execute()
     {
-        List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();
+        List<SimpleDataSetInformationDTO> dataSets = service.listPhysicalDataSets();
         operationLog.info("Scan " + dataSets.size() + " data sets.");
         List<String> exceptions = new ArrayList<String>();
         Counters<String> counters = new Counters<String>();

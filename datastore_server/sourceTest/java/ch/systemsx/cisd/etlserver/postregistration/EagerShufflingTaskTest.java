@@ -289,7 +289,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(service).listDataSets();
+                    one(service).listPhysicalDataSets();
                     will(returnValue(Arrays.asList(dataSet("1", DATA_SET_CODE1))));
                     one(logger).log(
                             with(LogLevel.INFO),

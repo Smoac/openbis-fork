@@ -207,7 +207,7 @@ public class HierarchicalStorageUpdater implements IDataStoreLockingMaintenanceT
      */
     private Map<String, String> convertDataToLinkMappings()
     {
-        Collection<SimpleDataSetInformationDTO> dataSets = openBISService.listDataSets();
+        Collection<SimpleDataSetInformationDTO> dataSets = openBISService.listPhysicalDataSets();
         Map<String, String> linkMappings = new HashMap<String, String>();
         for (SimpleDataSetInformationDTO dataSet : dataSets)
         {

@@ -167,7 +167,7 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(service).listDataSets();
+                    one(service).listPhysicalDataSets();
                     SimpleDataSetInformationDTO ds1 = new SimpleDataSetInformationDTO();
                     ds1.setDataStoreCode(DATA_STORE_CODE);
                     ds1.setDataSetCode("ds1");
@@ -191,7 +191,7 @@ public class SegmentedStoreShufflingTaskTest extends AbstractFileSystemTestCase
                     ds1b.setDataSetShareId("2");
                     ds1b.setDataSetSize(10l);
                     ds1b.setDataSetLocation("ds1");
-                    one(service).listDataSets();
+                    one(service).listPhysicalDataSets();
                     will(returnValue(Arrays.asList(ds1b, ds2)));
                     inSequence(sequence1);
 

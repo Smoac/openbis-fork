@@ -127,7 +127,7 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
     @Override
     public void execute()
     {
-        List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();
+        List<SimpleDataSetInformationDTO> dataSets = service.listPhysicalDataSets();
         for (SimpleDataSetInformationDTO dataSet : dataSets)
         {
             feedPathInfoDatabase(dataSet);

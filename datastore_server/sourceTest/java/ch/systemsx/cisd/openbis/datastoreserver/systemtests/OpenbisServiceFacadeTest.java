@@ -283,7 +283,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
     private SimpleDataSetInformationDTO getCodeOfLatestDataSet(String dataSetCode)
     {
         IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
-        List<SimpleDataSetInformationDTO> dataSets = openBISService.listDataSets();
+        List<SimpleDataSetInformationDTO> dataSets = openBISService.listPhysicalDataSets();
         for (SimpleDataSetInformationDTO dataSet : dataSets)
         {
             if (dataSet.getDataSetCode().equals(dataSetCode))
