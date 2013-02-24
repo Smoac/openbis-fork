@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -47,7 +47,7 @@ public class EncapsulatedOpenBISServiceTest
 
     private Mockery context;
 
-    private IETLLIMSService limsService;
+    private IServiceForDataStoreServer limsService;
 
     private EncapsulatedOpenBISService encapsulatedLimsService;
 
@@ -59,7 +59,7 @@ public class EncapsulatedOpenBISServiceTest
     public void setUp()
     {
         context = new Mockery();
-        limsService = context.mock(IETLLIMSService.class);
+        limsService = context.mock(IServiceForDataStoreServer.class);
         shareIdManager = context.mock(IShareIdManager.class);
         session = new OpenBISSessionHolder();
         session.setSessionToken(SESSION_TOKEN);

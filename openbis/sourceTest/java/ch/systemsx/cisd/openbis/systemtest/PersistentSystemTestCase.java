@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
@@ -60,7 +60,7 @@ public abstract class PersistentSystemTestCase extends AbstractTestNGSpringConte
 
     protected IGenericClientService genericClientService;
 
-    protected IETLLIMSService etlService;
+    protected IServiceForDataStoreServer etlService;
 
     protected MockHttpServletRequest request;
 
@@ -137,7 +137,7 @@ public abstract class PersistentSystemTestCase extends AbstractTestNGSpringConte
     }
 
     @Autowired
-    public void setETLService(IETLLIMSService etlService)
+    public void setETLService(IServiceForDataStoreServer etlService)
     {
         this.etlService = etlService;
 

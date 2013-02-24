@@ -35,7 +35,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.generic.server.SessionTokenManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSourceDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
@@ -61,7 +61,7 @@ public class OpenBISAuthenticationInterceptorTest
     private static final String VALiD_SESSION_TOKEN = "valid-session";
 
     private Mockery context;
-    private IETLLIMSService limsService;
+    private IServiceForDataStoreServer limsService;
 
     private OpenBISAuthenticationInterceptor interceptor;
 
@@ -75,7 +75,7 @@ public class OpenBISAuthenticationInterceptorTest
     public void setUp()
     {
         context = new Mockery();
-        limsService = context.mock(IETLLIMSService.class);
+        limsService = context.mock(IServiceForDataStoreServer.class);
         methodInvocation = context.mock(MethodInvocation.class);
         dataSourceProvider = context.mock(IDataSourceProvider.class);
         

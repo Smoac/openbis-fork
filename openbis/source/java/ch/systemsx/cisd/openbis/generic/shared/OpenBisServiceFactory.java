@@ -58,9 +58,9 @@ public class OpenBisServiceFactory
      * works is found. If the service cannot be found, a proxy to the constructor-provided serverUrl
      * will be returned.
      */
-    public IETLLIMSService createService()
+    public IServiceForDataStoreServer createService()
     {
-        return createServiceFinder().createService(IETLLIMSService.class, initialServerUrl,
+        return createServiceFinder().createService(IServiceForDataStoreServer.class, initialServerUrl,
                 createServicePinger());
     }
 
@@ -69,9 +69,9 @@ public class OpenBisServiceFactory
      * works is found. If the service cannot be found, a proxy to the constructor-provided serverUrl
      * will be returned.
      */
-    public IETLLIMSService createService(long timeoutInMillis)
+    public IServiceForDataStoreServer createService(long timeoutInMillis)
     {
-        return createServiceFinder().createService(IETLLIMSService.class, initialServerUrl,
+        return createServiceFinder().createService(IServiceForDataStoreServer.class, initialServerUrl,
                 createServicePinger(), timeoutInMillis);
     }
 
@@ -80,12 +80,12 @@ public class OpenBisServiceFactory
         return new ServiceFinder("openbis", urlServiceSuffix);
     }
 
-    private IServicePinger<IETLLIMSService> createServicePinger()
+    private IServicePinger<IServiceForDataStoreServer> createServicePinger()
     {
-        return new IServicePinger<IETLLIMSService>()
+        return new IServicePinger<IServiceForDataStoreServer>()
             {
                 @Override
-                public void ping(IETLLIMSService service)
+                public void ping(IServiceForDataStoreServer service)
                 {
                     service.getVersion();
                 }

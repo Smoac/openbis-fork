@@ -25,7 +25,7 @@ import org.springframework.beans.factory.InitializingBean;
 import ch.systemsx.cisd.openbis.common.conversation.client.ServiceConversationClientDetails;
 import ch.systemsx.cisd.openbis.common.conversation.manager.BaseServiceConversationServerManager;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationServerManagerLocal;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.conversation.ServiceConversationDataStoreClientId;
 import ch.systemsx.cisd.openbis.generic.shared.conversation.ServiceConversationDataStoreUrl;
 
@@ -41,12 +41,12 @@ public class ServiceConversationServerManager extends BaseServiceConversationSer
     private Map<Object, ServiceConversationClientDetails> dataStoreIdToDataStoreDetailsMap =
             new HashMap<Object, ServiceConversationClientDetails>();
 
-    private IETLLIMSService etlService;
+    private IServiceForDataStoreServer etlService;
 
     @Override
     public void afterPropertiesSet() throws Exception
     {
-        addService(IETLLIMSService.class, etlService);
+        addService(IServiceForDataStoreServer.class, etlService);
     }
 
     @Override
@@ -71,11 +71,11 @@ public class ServiceConversationServerManager extends BaseServiceConversationSer
                 new ServiceConversationClientDetails(dataStoreClientUrl, dataStoreTimeoutInMillis));
     }
 
-    public void setEtlService(IETLLIMSService etlService)
+    public void setEtlService(IServiceForDataStoreServer etlService)
     {
         ProxyFactory factory = new ProxyFactory(etlService);
         factory.addAdvisor(new OptimisticLockingRetryAdvisor());
-        this.etlService = (IETLLIMSService) factory.getProxy();
+        this.etlService = (IServiceForDataStoreServer) factory.getProxy();
     }
 
 }

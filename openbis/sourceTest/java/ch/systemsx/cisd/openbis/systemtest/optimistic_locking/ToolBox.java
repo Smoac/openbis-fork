@@ -27,7 +27,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -107,7 +107,7 @@ public class ToolBox
 
     private final IGenericServer genericServer;
 
-    private final IETLLIMSService etlService;
+    private final IServiceForDataStoreServer etlService;
 
     private final String systemSessionToken;
 
@@ -120,7 +120,7 @@ public class ToolBox
     public Project project2;
 
     public ToolBox(ICommonServer commonServer, IGenericServer genericServer,
-            IETLLIMSService etlService, String systemSessionToken)
+            IServiceForDataStoreServer etlService, String systemSessionToken)
     {
         this.commonServer = commonServer;
         this.genericServer = genericServer;

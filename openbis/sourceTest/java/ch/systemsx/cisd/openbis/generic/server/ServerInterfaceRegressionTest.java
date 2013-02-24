@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.util.AnnotationAppliedTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 
 /**
@@ -39,7 +39,7 @@ public class ServerInterfaceRegressionTest extends AnnotationAppliedTestCase
     @Test
     public void testIETLLIMSService()
     {
-        assertMandatoryMethodAnnotations(IETLLIMSService.class, ETLService.class);
+        assertMandatoryMethodAnnotations(IServiceForDataStoreServer.class, ServiceForDataStoreServer.class);
     }
 
     @Test

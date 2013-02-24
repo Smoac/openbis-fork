@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 
 /**
  * A local interface of the service conversation client manager used by DSS.
@@ -26,6 +26,6 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 public interface IServiceConversationClientManagerLocal
 {
 
-    public abstract IETLLIMSService getETLService(String sessionToken);
+    public abstract IServiceForDataStoreServer getETLService(String sessionToken);
 
 }

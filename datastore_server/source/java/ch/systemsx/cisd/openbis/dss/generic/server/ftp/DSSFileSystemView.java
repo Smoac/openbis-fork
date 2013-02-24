@@ -37,7 +37,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.util.Key;
 
@@ -57,9 +57,9 @@ public class DSSFileSystemView implements FileSystemView
     private final class ServiceInvocationHandler implements InvocationHandler
     {
         private final Map<Key, Object> cache = new HashMap<Key, Object>();
-        private final IETLLIMSService openbisService;
+        private final IServiceForDataStoreServer openbisService;
 
-        private ServiceInvocationHandler(IETLLIMSService service)
+        private ServiceInvocationHandler(IServiceForDataStoreServer service)
         {
             this.openbisService = service;
         }
@@ -96,7 +96,7 @@ public class DSSFileSystemView implements FileSystemView
 
     private final String sessionToken;
 
-    private final IETLLIMSService service;
+    private final IServiceForDataStoreServer service;
 
     private final IGeneralInformationService generalInfoService;
     
@@ -104,14 +104,14 @@ public class DSSFileSystemView implements FileSystemView
 
     private final IFtpPathResolverRegistry pathResolverRegistry;
 
-    DSSFileSystemView(String sessionToken, final IETLLIMSService service,
+    DSSFileSystemView(String sessionToken, final IServiceForDataStoreServer service,
             IGeneralInformationService generalInfoService,
             IFtpPathResolverRegistry pathResolverRegistry) throws FtpException
     {
         this.sessionToken = sessionToken;
         this.service =
-                (IETLLIMSService) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]
-                    { IETLLIMSService.class }, new ServiceInvocationHandler(service));
+                (IServiceForDataStoreServer) Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]
+                    { IServiceForDataStoreServer.class }, new ServiceInvocationHandler(service));
         this.generalInfoService = generalInfoService;
         this.pathResolverRegistry = pathResolverRegistry;
         this.workingDirectory = getHomeDirectory();

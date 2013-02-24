@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ManagedAuthentication;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -90,7 +90,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 
 /**
- * A class that encapsulates the {@link IETLLIMSService}.
+ * A class that encapsulates the {@link IServiceForDataStoreServer}.
  * 
  * @author Bernd Rinn
  */
@@ -100,7 +100,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             EncapsulatedOpenBISService.class);
 
-    private final IETLLIMSService service;
+    private final IServiceForDataStoreServer service;
 
     private Integer version;
 
@@ -113,7 +113,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     private IServiceConversationClientManagerLocal conversationClient;
 
-    public static IETLLIMSService createOpenBisService(String openBISURL, String timeout)
+    public static IServiceForDataStoreServer createOpenBisService(String openBISURL, String timeout)
     {
         OpenBisServiceFactory factory =
                 new OpenBisServiceFactory(openBISURL, ResourceNames.ETL_SERVICE_URL);
@@ -160,13 +160,13 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return Integer.parseInt(timeout) * DateUtils.MILLIS_PER_MINUTE;
     }
 
-    public EncapsulatedOpenBISService(IETLLIMSService service, OpenBISSessionHolder sessionHolder,
+    public EncapsulatedOpenBISService(IServiceForDataStoreServer service, OpenBISSessionHolder sessionHolder,
             String downloadUrl)
     {
         this(service, sessionHolder, downloadUrl, null);
     }
 
-    public EncapsulatedOpenBISService(IETLLIMSService service, OpenBISSessionHolder sessionHolder,
+    public EncapsulatedOpenBISService(IServiceForDataStoreServer service, OpenBISSessionHolder sessionHolder,
             String downloadUrl, IShareIdManager shareIdManager)
     {
         this.shareIdManager = shareIdManager;
@@ -691,7 +691,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public AtomicEntityOperationResult performEntityOperations(
             AtomicEntityOperationDetails operationDetails)
     {
-        IETLLIMSService conversationalService =
+        IServiceForDataStoreServer conversationalService =
                 conversationClient.getETLService(session.getSessionToken());
 
         AtomicEntityOperationResult operations =

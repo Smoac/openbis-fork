@@ -28,11 +28,12 @@ import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
@@ -43,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -87,10 +87,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 /**
  * @author Franz-Josef Elmer
  */
-public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSService
+public class ServiceForDataStoreServerLogger extends AbstractServerLogger implements
+        IServiceForDataStoreServer
 {
 
-    public ETLServiceLogger(final ISessionManager<Session> sessionManager,
+    public ServiceForDataStoreServerLogger(final ISessionManager<Session> sessionManager,
             IInvocationLoggerContext context)
     {
         super(sessionManager, context);
@@ -244,7 +245,8 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public List<AbstractExternalData> listDataSetsByExperimentID(String sessionToken, TechId experimentID)
+    public List<AbstractExternalData> listDataSetsByExperimentID(String sessionToken,
+            TechId experimentID)
             throws UserFailureException
     {
         logAccess(sessionToken, "listDataSetsByExperimentID", "EXPERIMENT_ID(%s)", experimentID);
@@ -260,7 +262,8 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public List<AbstractExternalData> listDataSetsByCode(String sessionToken, List<String> dataSetCodes)
+    public List<AbstractExternalData> listDataSetsByCode(String sessionToken,
+            List<String> dataSetCodes)
             throws UserFailureException
     {
         logAccess(sessionToken, "listDataSetsByCode", "DATA_SETS(%s)", dataSetCodes);
@@ -349,7 +352,8 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public List<SimpleDataSetInformationDTO> listPhysicalDataSets(String sessionToken, String dataStore)
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSets(String sessionToken,
+            String dataStore)
             throws UserFailureException
     {
         logAccess(Level.DEBUG, sessionToken, "listFileDataSets", "DATA_STORE(%s)", dataStore);
@@ -375,7 +379,8 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public List<AbstractExternalData> listAvailableDataSets(String sessionToken, String dataStoreCode,
+    public List<AbstractExternalData> listAvailableDataSets(String sessionToken,
+            String dataStoreCode,
             ArchiverDataSetCriteria criteria)
     {
         logAccess(sessionToken, "listAvailableDataSets", "DATA_STORE(%s) CRITERIA(%s)",
@@ -595,7 +600,8 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public List<AbstractExternalData> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)
+    public List<AbstractExternalData> searchForDataSets(String sessionToken,
+            SearchCriteria searchCriteria)
     {
         logAccess(sessionToken, "searchForDataSets", "%s", searchCriteria);
         return null;

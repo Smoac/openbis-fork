@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
@@ -88,7 +88,7 @@ public class DeletionTestCase extends SystemTestCase
     private Set<Long> preExistingDeletionIDs;
 
     @Autowired
-    public final void setEtlService(IETLLIMSService etlService)
+    public final void setEtlService(IServiceForDataStoreServer etlService)
     {
         this.etlService = etlService;
     }

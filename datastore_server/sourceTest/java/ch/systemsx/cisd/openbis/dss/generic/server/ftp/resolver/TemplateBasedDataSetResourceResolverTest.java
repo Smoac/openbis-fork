@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpServerConfig;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpServerConfigBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.Translator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
@@ -143,7 +143,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
     private TrackingMockery context;
 
-    private IETLLIMSService service;
+    private IServiceForDataStoreServer service;
 
     private IHierarchicalContentProvider hierarchicalContentProvider;
 
@@ -181,7 +181,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         experiment.setId(EXP_TECH_ID);
 
         context = new TrackingMockery();
-        service = context.mock(IETLLIMSService.class);
+        service = context.mock(IServiceForDataStoreServer.class);
         generalInfoService = context.mock(IGeneralInformationService.class);
 
         hierarchicalContentProvider = context.mock(IHierarchicalContentProvider.class);

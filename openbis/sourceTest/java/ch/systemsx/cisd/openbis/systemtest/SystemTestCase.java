@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
@@ -83,7 +83,7 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
 
     protected IGenericClientService genericClientService;
 
-    protected IETLLIMSService etlService;
+    protected IServiceForDataStoreServer etlService;
 
     protected MockHttpServletRequest request;
 
@@ -160,7 +160,7 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     }
 
     @Autowired
-    public void setETLService(IETLLIMSService etlService)
+    public void setETLService(IServiceForDataStoreServer etlService)
     {
         this.etlService = etlService;
 

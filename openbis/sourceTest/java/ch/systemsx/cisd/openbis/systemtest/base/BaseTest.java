@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -110,7 +110,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
 
     protected IGenericClientService genericClientService;
 
-    protected IETLLIMSService etlService;
+    protected IServiceForDataStoreServer etlService;
 
     protected MockHttpServletRequest request;
 
@@ -223,7 +223,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
 
     @Autowired
     @Test(enabled = false)
-    public void setETLService(IETLLIMSService etlService)
+    public void setETLService(IServiceForDataStoreServer etlService)
     {
         this.etlService = etlService;
     }

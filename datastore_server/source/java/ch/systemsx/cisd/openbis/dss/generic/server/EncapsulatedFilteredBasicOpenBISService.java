@@ -26,7 +26,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.AuthorizationHelper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedBasicOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ManagedAuthentication;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBasicOpenBISService
 {
-    private final IETLLIMSService etlService;
+    private final IServiceForDataStoreServer etlService;
 
     private final String systemSessionToken;
 
@@ -66,7 +66,7 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
 
     private final String userName;
 
-    public EncapsulatedFilteredBasicOpenBISService(String userName, IETLLIMSService etlService,
+    public EncapsulatedFilteredBasicOpenBISService(String userName, IServiceForDataStoreServer etlService,
             IEncapsulatedOpenBISService encapsulatedService, String systemSessionToken)
     {
         this.etlService = etlService;

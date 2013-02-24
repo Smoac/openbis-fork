@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -42,9 +42,9 @@ public class FtpUserManager implements UserManager
             FtpUserManager.class);
 
     
-    private final IETLLIMSService service;
+    private final IServiceForDataStoreServer service;
 
-    public FtpUserManager(IETLLIMSService service)
+    public FtpUserManager(IServiceForDataStoreServer service)
     {
         this.service = service;
     }

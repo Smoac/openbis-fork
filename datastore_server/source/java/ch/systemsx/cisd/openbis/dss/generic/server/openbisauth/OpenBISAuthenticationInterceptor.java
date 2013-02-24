@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfo
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ManagedAuthentication;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
@@ -86,12 +86,12 @@ public class OpenBISAuthenticationInterceptor implements MethodInterceptor
 
     private final boolean archiverConfigured;
 
-    private final IETLLIMSService service;
+    private final IServiceForDataStoreServer service;
 
     private final IDataSourceProvider dataSourceProvider;
 
     public OpenBISAuthenticationInterceptor(SessionTokenManager sessionTokenManager,
-            IETLLIMSService service, IPluginTaskInfoProvider pluginTaskParameters,
+            IServiceForDataStoreServer service, IPluginTaskInfoProvider pluginTaskParameters,
             IDataSourceProvider dataSourceProvider, OpenBISSessionHolder sessionHolder)
     {
         this.dataSourceProvider = dataSourceProvider;

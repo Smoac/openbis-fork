@@ -109,8 +109,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.LogMessagePrefixGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -119,6 +119,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
@@ -133,7 +134,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
@@ -251,7 +251,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * @author Franz-Josef Elmer
  */
-public class ETLService extends AbstractCommonServer<IETLLIMSService> implements IETLLIMSService
+public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForDataStoreServer>
+        implements IServiceForDataStoreServer
 {
 
     @Private
@@ -279,7 +280,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
-    public ETLService(IAuthenticationService authenticationService,
+    public ServiceForDataStoreServer(IAuthenticationService authenticationService,
             ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory,
             TrustedCrossOriginDomainsProvider trustedOriginDomainProvider,
@@ -302,7 +303,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
                             }), 30), managedPropertyEvaluatorFactory);
     }
 
-    ETLService(IAuthenticationService authenticationService,
+    ServiceForDataStoreServer(IAuthenticationService authenticationService,
             ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             IPropertiesBatchManager propertiesBatchManager, ICommonBusinessObjectFactory boFactory,
             IDataStoreServiceFactory dssFactory,
@@ -325,9 +326,9 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     }
 
     @Override
-    public IETLLIMSService createLogger(IInvocationLoggerContext context)
+    public IServiceForDataStoreServer createLogger(IInvocationLoggerContext context)
     {
-        return new ETLServiceLogger(getSessionManager(), context);
+        return new ServiceForDataStoreServerLogger(getSessionManager(), context);
     }
 
     @Override
@@ -720,7 +721,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     {
         Session session = getSession(sessionToken);
         IDatasetLister datasetLister = createDatasetLister(session);
-        List<AbstractExternalData> datasets = datasetLister.listByExperimentTechId(experimentID, true);
+        List<AbstractExternalData> datasets =
+                datasetLister.listByExperimentTechId(experimentID, true);
         Collections.sort(datasets);
         return datasets;
     }
@@ -1217,7 +1219,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public List<AbstractExternalData> listAvailableDataSets(String sessionToken, String dataStoreCode,
+    public List<AbstractExternalData> listAvailableDataSets(String sessionToken,
+            String dataStoreCode,
             ArchiverDataSetCriteria criteria)
     {
         Session session = getSession(sessionToken);
@@ -2352,7 +2355,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public List<AbstractExternalData> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)
+    public List<AbstractExternalData> searchForDataSets(String sessionToken,
+            SearchCriteria searchCriteria)
     {
         Session session = getSession(sessionToken);
         DetailedSearchCriteria detailedSearchCriteria =

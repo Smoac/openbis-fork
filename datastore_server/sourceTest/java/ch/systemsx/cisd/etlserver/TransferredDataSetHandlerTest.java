@@ -62,7 +62,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -198,7 +198,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private IStorageProcessorTransaction transaction;
 
-    private IETLLIMSService limsService;
+    private IServiceForDataStoreServer limsService;
 
     private TransferredDataSetHandler handler;
 
@@ -269,7 +269,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         typeExtractor = context.mock(ITypeExtractor.class);
         storageProcessor = context.mock(IStorageProcessorTransactional.class);
         transaction = context.mock(IStorageProcessorTransaction.class);
-        limsService = context.mock(IETLLIMSService.class);
+        limsService = context.mock(IServiceForDataStoreServer.class);
         mailClient = context.mock(IMailClient.class);
         shareIdManager = context.mock(IShareIdManager.class);
         plugin =

@@ -29,7 +29,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
@@ -73,7 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 
 /**
  * System tests for
- * {@link IETLLIMSService#performEntityOperations(String, AtomicEntityOperationDetails)}
+ * {@link IServiceForDataStoreServer#performEntityOperations(String, AtomicEntityOperationDetails)}
  * 
  * @author Franz-Josef Elmer
  */

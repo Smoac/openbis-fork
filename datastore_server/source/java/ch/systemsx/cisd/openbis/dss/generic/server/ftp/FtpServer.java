@@ -75,7 +75,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
@@ -90,7 +90,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FtpServer.class);
 
-    private final IETLLIMSService openBisService;
+    private final IServiceForDataStoreServer openBisService;
 
     private final UserManager userManager;
 
@@ -104,7 +104,7 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
 
     private SshServer sshServer;
 
-    public FtpServer(IETLLIMSService openBisService, IGeneralInformationService generalInfoService,
+    public FtpServer(IServiceForDataStoreServer openBisService, IGeneralInformationService generalInfoService,
             UserManager userManager, Properties configProps) throws Exception
     {
         this.openBisService = openBisService;

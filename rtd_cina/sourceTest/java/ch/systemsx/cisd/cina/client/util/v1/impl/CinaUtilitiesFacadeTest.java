@@ -27,7 +27,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
@@ -52,14 +52,14 @@ public class CinaUtilitiesFacadeTest extends AssertJUnit
 
     private IGeneralInformationService service;
 
-    private IETLLIMSService openbisService;
+    private IServiceForDataStoreServer openbisService;
 
     @BeforeMethod
     public void setUp()
     {
         context = new Mockery();
         service = context.mock(IGeneralInformationService.class);
-        openbisService = context.mock(IETLLIMSService.class);
+        openbisService = context.mock(IServiceForDataStoreServer.class);
     }
 
     @AfterMethod
@@ -181,7 +181,7 @@ public class CinaUtilitiesFacadeTest extends AssertJUnit
      * Utility method to create a CinaUtilitiesFacade object for testing.
      */
     public static CinaUtilitiesFacade createFacade(IGeneralInformationService service,
-            IETLLIMSService openbisService)
+            IServiceForDataStoreServer openbisService)
     {
         CinaUtilitiesFacade facade = new CinaUtilitiesFacade(service, openbisService, null, null);
         return facade;
@@ -191,7 +191,7 @@ public class CinaUtilitiesFacadeTest extends AssertJUnit
      * Utility method to create a CinaUtilitiesFacade object for testing.
      */
     public static CinaUtilitiesFacade createFacade(IGeneralInformationService service,
-            IETLLIMSService openbisService, String userId, String password)
+            IServiceForDataStoreServer openbisService, String userId, String password)
     {
         CinaUtilitiesFacade facade = new CinaUtilitiesFacade(service, openbisService, null, null);
         facade.login(userId, password, 0);
@@ -203,7 +203,7 @@ public class CinaUtilitiesFacadeTest extends AssertJUnit
      */
     @SuppressWarnings("deprecation")
     public static CinaUtilitiesFacade createFacade(IGeneralInformationService service,
-            IETLLIMSService openbisService, IDssComponent dssComponent, String userId,
+            IServiceForDataStoreServer openbisService, IDssComponent dssComponent, String userId,
             String password)
     {
         CinaUtilitiesFacade facade = new CinaUtilitiesFacade(service, openbisService, null, null);

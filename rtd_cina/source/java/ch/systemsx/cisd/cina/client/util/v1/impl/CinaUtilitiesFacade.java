@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.DssComponent;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.DssServiceRpcFactory;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -81,7 +81,7 @@ public class CinaUtilitiesFacade implements ICinaUtilities
     {
         IGeneralInformationService generalInfoService =
                 createGeneralInformationService(openBISUrl, timeoutInMillis);
-        IETLLIMSService openbisService = createOpenBisService(openBISUrl, timeoutInMillis);
+        IServiceForDataStoreServer openbisService = createOpenBisService(openBISUrl, timeoutInMillis);
         IDssComponent dssComponent =
                 createDssComponent(openbisService, generalInfoService, sessionToken,
                         timeoutInMillis);
@@ -100,7 +100,7 @@ public class CinaUtilitiesFacade implements ICinaUtilities
         return service;
     }
 
-    private static IETLLIMSService createOpenBisService(String openBISURL, long timeoutInMillis)
+    private static IServiceForDataStoreServer createOpenBisService(String openBISURL, long timeoutInMillis)
     {
         return new OpenBisServiceFactory(openBISURL, ResourceNames.ETL_SERVICE_URL)
                 .createService(timeoutInMillis);
@@ -112,7 +112,7 @@ public class CinaUtilitiesFacade implements ICinaUtilities
      * The DSS component needs to connect to openBIS to find out which DSS manages a given data set.
      * Once it has a connection to openBIS, it can figure out how to connect to DSS servers itself.
      */
-    private static IDssComponent createDssComponent(IETLLIMSService openbisService,
+    private static IDssComponent createDssComponent(IServiceForDataStoreServer openbisService,
             IGeneralInformationService generalInformationService, String sessionTokenOrNull,
             long timeoutInMillis)
     {
@@ -124,7 +124,7 @@ public class CinaUtilitiesFacade implements ICinaUtilities
     private final IGeneralInformationService generalInformationService;
 
     /** The LIMS service. */
-    private final IETLLIMSService openbisService;
+    private final IServiceForDataStoreServer openbisService;
 
     /** The current state of the facade */
     private AbstractCinaFacadeState state;
@@ -140,7 +140,7 @@ public class CinaUtilitiesFacade implements ICinaUtilities
      *            otherwise.
      */
     protected CinaUtilitiesFacade(IGeneralInformationService generalInformationService,
-            IETLLIMSService openbisService, IDssComponent dssComponent, String sessionTokenOrNull)
+            IServiceForDataStoreServer openbisService, IDssComponent dssComponent, String sessionTokenOrNull)
 
     {
         this.generalInformationService = generalInformationService;
@@ -388,7 +388,7 @@ class AuthenticatedState extends AbstractCinaFacadeState
 {
     private final String sessionToken;
 
-    private final IETLLIMSService openbisService;
+    private final IServiceForDataStoreServer openbisService;
 
     private final IDssComponent dssComponent;
 
@@ -397,7 +397,7 @@ class AuthenticatedState extends AbstractCinaFacadeState
     /**
      * @param service
      */
-    AuthenticatedState(IGeneralInformationService service, IETLLIMSService openbisService,
+    AuthenticatedState(IGeneralInformationService service, IServiceForDataStoreServer openbisService,
             IDssComponent dssComponent, String sessionToken)
     {
         super(service);

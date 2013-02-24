@@ -26,7 +26,7 @@ import org.apache.ftpserver.ftplet.FtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolver;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 
 /**
@@ -79,7 +79,7 @@ public class RootFolderResolver implements IFtpPathResolver
 
                 private List<Project> listProjects(FtpPathResolverContext context)
                 {
-                    IETLLIMSService service = context.getService();
+                    IServiceForDataStoreServer service = context.getService();
                     String sessionToken = context.getSessionToken();
                     List<Project> projects = service.listProjects(sessionToken);
                     return projects;

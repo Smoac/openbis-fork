@@ -31,7 +31,7 @@ import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.ICommand;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.ResultCode;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -67,14 +67,14 @@ public class CommandSampleListerTest extends AssertJUnit
 
     private IGeneralInformationService service;
 
-    private IETLLIMSService openbisService;
+    private IServiceForDataStoreServer openbisService;
 
     @BeforeMethod
     public void setUp()
     {
         context = new Mockery();
         service = context.mock(IGeneralInformationService.class);
-        openbisService = context.mock(IETLLIMSService.class);
+        openbisService = context.mock(IServiceForDataStoreServer.class);
     }
 
     @AfterMethod

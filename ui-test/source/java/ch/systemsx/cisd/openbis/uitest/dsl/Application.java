@@ -21,7 +21,7 @@ import java.lang.reflect.Field;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -38,7 +38,7 @@ public class Application
 
     private ICommonServer commonServer;
 
-    private IETLLIMSService etlService;
+    private IServiceForDataStoreServer etlService;
 
     private IDssServiceRpcGeneric dss;
 
@@ -80,7 +80,7 @@ public class Application
                         asUrl + "/openbis/rmi-general-information-changing-v1", 600000);
 
         this.etlService =
-                HttpInvokerUtils.createServiceStub(IETLLIMSService.class,
+                HttpInvokerUtils.createServiceStub(IServiceForDataStoreServer.class,
                         asUrl + "/openbis/rmi-etl", 600000);
 
         this.dss =
@@ -160,7 +160,7 @@ public class Application
                 } else if (fieldType.equals(IGenericServer.class))
                 {
                     field.set(command, genericServer);
-                } else if (fieldType.equals(IETLLIMSService.class))
+                } else if (fieldType.equals(IServiceForDataStoreServer.class))
                 {
                     field.set(command, etlService);
                 } else if (fieldType.equals(Console.class))

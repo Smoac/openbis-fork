@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolver;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.FtpFileEvaluationContext.EvaluatedElement;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -234,7 +234,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     public FtpFile resolve(final String path, final FtpPathResolverContext resolverContext)
     {
         String experimentId = extractExperimentIdFromPath(path);
-        IETLLIMSService service = resolverContext.getService();
+        IServiceForDataStoreServer service = resolverContext.getService();
         String sessionToken = resolverContext.getSessionToken();
 
         Experiment experiment = tryGetExperiment(experimentId, resolverContext);
@@ -422,7 +422,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     public List<FtpFile> listExperimentChildrenPaths(Experiment experiment,
             final String parentPath, FtpPathResolverContext context)
     {
-        IETLLIMSService service = context.getService();
+        IServiceForDataStoreServer service = context.getService();
         String sessionToken = context.getSessionToken();
 
         List<AbstractExternalData> dataSets =

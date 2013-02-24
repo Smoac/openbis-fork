@@ -23,7 +23,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
@@ -43,7 +43,7 @@ public class FtpPathResolverContext implements ISessionTokenProvider
 
     private final String sessionToken;
 
-    private final IETLLIMSService service;
+    private final IServiceForDataStoreServer service;
 
     private final IGeneralInformationService generalInfoService;
 
@@ -51,7 +51,7 @@ public class FtpPathResolverContext implements ISessionTokenProvider
 
     private final Cache cache;
 
-    public FtpPathResolverContext(String sessionToken, IETLLIMSService service,
+    public FtpPathResolverContext(String sessionToken, IServiceForDataStoreServer service,
             IGeneralInformationService generalInfoService,
             IFtpPathResolverRegistry resolverRegistry, Cache cache)
     {
@@ -68,7 +68,7 @@ public class FtpPathResolverContext implements ISessionTokenProvider
         return sessionToken;
     }
 
-    public IETLLIMSService getService()
+    public IServiceForDataStoreServer getService()
     {
         return service;
     }

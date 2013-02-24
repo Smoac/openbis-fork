@@ -25,7 +25,7 @@ import org.apache.ftpserver.ftplet.FtpFile;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpConstants;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.FtpPathResolverContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.IFtpPathResolver;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -73,7 +73,7 @@ public class ExperimentFolderResolver implements IFtpPathResolver
 
     private List<FtpFile> listChildrenNames(String expIdentifier, FtpPathResolverContext context)
     {
-        IETLLIMSService service = context.getService();
+        IServiceForDataStoreServer service = context.getService();
         String sessionToken = context.getSessionToken();
 
         ExperimentIdentifier identifier =

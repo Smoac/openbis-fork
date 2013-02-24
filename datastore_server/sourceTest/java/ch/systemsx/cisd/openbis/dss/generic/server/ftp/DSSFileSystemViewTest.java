@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.test.TrackingMockery;
 import ch.systemsx.cisd.openbis.dss.generic.server.ftp.resolver.AbstractFtpFile;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
@@ -45,7 +45,7 @@ public class DSSFileSystemViewTest extends AssertJUnit
     private static final String SESSION_TOKEN = "session";
     
     private TrackingMockery context;
-    private IETLLIMSService service;
+    private IServiceForDataStoreServer service;
     private IGeneralInformationService infoService;
     private IFtpPathResolverRegistry registry;
     private DSSFileSystemView view;
@@ -54,7 +54,7 @@ public class DSSFileSystemViewTest extends AssertJUnit
     public void setUp() throws FtpException
     {
         context = new TrackingMockery();
-        service = context.mock(IETLLIMSService.class);
+        service = context.mock(IServiceForDataStoreServer.class);
         infoService = context.mock(IGeneralInformationService.class);
         registry = context.mock(IFtpPathResolverRegistry.class);
         prepareTryResolve("/");

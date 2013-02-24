@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
@@ -86,7 +86,7 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
 
     private IGeneralInformationService service;
 
-    private IETLLIMSService openbisService;
+    private IServiceForDataStoreServer openbisService;
 
     private IDssComponent dssComponent;
 
@@ -99,7 +99,7 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
         super.setUp();
         context = new Mockery();
         service = context.mock(IGeneralInformationService.class);
-        openbisService = context.mock(IETLLIMSService.class);
+        openbisService = context.mock(IServiceForDataStoreServer.class);
         dssComponent = context.mock(IDssComponent.class);
         dataSetDss = context.mock(IDataSetDss.class);
     }

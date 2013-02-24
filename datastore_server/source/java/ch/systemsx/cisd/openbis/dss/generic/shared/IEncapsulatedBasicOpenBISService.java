@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
@@ -77,7 +77,7 @@ public interface IEncapsulatedBasicOpenBISService
     public AbstractExternalData tryGetDataSet(final String dataSetCode) throws UserFailureException;
 
     /**
-     * {@link IETLLIMSService#searchForSamples(String, SearchCriteria)}
+     * {@link IServiceForDataStoreServer#searchForSamples(String, SearchCriteria)}
      */
     @ManagedAuthentication
     public List<Sample> searchForSamples(SearchCriteria searchCriteria);
@@ -93,13 +93,13 @@ public interface IEncapsulatedBasicOpenBISService
             throws UserFailureException;
 
     /**
-     * {@link IETLLIMSService#searchForDataSets(String, SearchCriteria)}
+     * {@link IServiceForDataStoreServer#searchForDataSets(String, SearchCriteria)}
      */
     @ManagedAuthentication
     public List<AbstractExternalData> searchForDataSets(SearchCriteria searchCriteria);
 
     /**
-     * {@link IETLLIMSService#listExperiments(String, ProjectIdentifier)}
+     * {@link IServiceForDataStoreServer#listExperiments(String, ProjectIdentifier)}
      */
     @ManagedAuthentication
     public List<Experiment> listExperiments(ProjectIdentifier projectIdentifier);

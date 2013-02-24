@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -42,7 +42,7 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
 {
     private static int number;
 
-    private IETLLIMSService etlService;
+    private IServiceForDataStoreServer etlService;
 
     private SampleIdentifier sampleIdentifier;
 
@@ -57,7 +57,7 @@ public class ExternalDataBuilder extends Builder<AbstractExternalData>
     private boolean container;
 
     public ExternalDataBuilder(ICommonServerForInternalUse commonServer,
-            IGenericServer genericServer, IETLLIMSService etlService)
+            IGenericServer genericServer, IServiceForDataStoreServer etlService)
     {
         super(commonServer, genericServer);
         this.etlService = etlService;

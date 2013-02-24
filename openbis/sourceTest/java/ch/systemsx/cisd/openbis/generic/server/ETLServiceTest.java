@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
@@ -130,7 +130,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyE
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = ETLService.class)
+@Friend(toClasses = ServiceForDataStoreServer.class)
 public class ETLServiceTest extends AbstractServerTestCase
 {
     private static final String UNKNOWN_DATA_SET_TYPE_CODE = "completely-unknown-code";
@@ -213,7 +213,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     will(returnValue(datasetLister));
 
                     one(datasetLister).listByDataStore(DSS_ID,
-                            ETLService.DATASET_FETCH_OPTIONS_FILE_DATASETS);
+                            ServiceForDataStoreServer.DATASET_FETCH_OPTIONS_FILE_DATASETS);
                     DataSetBuilder ds1 =
                             new DataSetBuilder()
                                     .type("my-type")
@@ -1520,10 +1520,10 @@ public class ETLServiceTest extends AbstractServerTestCase
             });
     }
 
-    private IETLLIMSService createService()
+    private IServiceForDataStoreServer createService()
     {
-        ETLService etlService =
-                new ETLService(authenticationService, sessionManager, daoFactory,
+        ServiceForDataStoreServer etlService =
+                new ServiceForDataStoreServer(authenticationService, sessionManager, daoFactory,
                         propertiesBatchManager, boFactory, dssfactory, null,
                         entityOperationChecker, dataStoreServiceRegistrator, dataSourceManager,
                         sessionManagerForEntityOperations, managedPropertyEvaluatorFactory);

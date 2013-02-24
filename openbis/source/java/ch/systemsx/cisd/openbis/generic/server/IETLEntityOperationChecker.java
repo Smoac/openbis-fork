@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 
 /**
  * Checking methods to be invoked to check authorization in context of
- * {@link ETLService#performEntityOperations(String, ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails)}
+ * {@link ServiceForDataStoreServer#performEntityOperations(String, ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails)}
  * .
  * 
  * @author Franz-Josef Elmer

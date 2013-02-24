@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import ch.systemsx.cisd.common.spring.PropertyPlaceholderUtils;
 import ch.systemsx.cisd.openbis.common.conversation.manager.BaseServiceConversationClientManager;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.conversation.ServiceConversationApplicationServerUrl;
 import ch.systemsx.cisd.openbis.generic.shared.conversation.ServiceConversationDataStoreClientId;
 
@@ -38,10 +38,10 @@ public class ServiceConversationClientManager extends BaseServiceConversationCli
     private int applicationServerTimeoutInMillis;
 
     @Override
-    public IETLLIMSService getETLService(String sessionToken)
+    public IServiceForDataStoreServer getETLService(String sessionToken)
     {
         return getService(applicationServerUrl.getServerUrl(applicationServerTimeoutInMillis),
-                IETLLIMSService.class, sessionToken, dataStoreClientId,
+                IServiceForDataStoreServer.class, sessionToken, dataStoreClientId,
                 applicationServerTimeoutInMillis);
     }
 

@@ -26,7 +26,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.systemsx.cisd.common.spring.ServiceExceptionTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
 /**
@@ -39,12 +39,12 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 public class ETLServiceServer extends HttpInvokerServiceExporter
 {
     @Resource(name = ResourceNames.ETL_SERVICE)
-    private IETLLIMSService etlService;
+    private IServiceForDataStoreServer etlService;
 
     @Override
     public void afterPropertiesSet()
     {
-        setServiceInterface(IETLLIMSService.class);
+        setServiceInterface(IServiceForDataStoreServer.class);
         setService(etlService);
         setInterceptors(new Object[]
             { createExceptionTranslator(), new OptimisticLockingRetryAdvisor() });

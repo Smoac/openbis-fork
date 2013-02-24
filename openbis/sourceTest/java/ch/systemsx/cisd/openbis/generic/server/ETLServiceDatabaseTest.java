@@ -37,7 +37,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -80,7 +80,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 public class ETLServiceDatabaseTest extends AbstractDAOTest
 {
     @Autowired
-    private IETLLIMSService service;
+    private IServiceForDataStoreServer service;
 
     private String sessionToken;
 

@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.openbis.generic.server.CommonServer;
-import ch.systemsx.cisd.openbis.generic.server.ETLService;
+import ch.systemsx.cisd.openbis.generic.server.ServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 
 /**
  * This test tests registering and deactivating a person. It also tests authorization of
- * {@link CommonServer}, {@link ETLService}, {@link GenericServer}, and {@link QueryServer}.
+ * {@link CommonServer}, {@link ServiceForDataStoreServer}, {@link GenericServer}, and {@link QueryServer}.
  * 
  * @author Franz-Josef Elmer
  */

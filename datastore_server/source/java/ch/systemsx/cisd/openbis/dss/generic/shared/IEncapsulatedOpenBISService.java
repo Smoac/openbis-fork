@@ -21,7 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
@@ -58,10 +58,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * This interface is very similar to {@link IETLLIMSService} but <code>sessionToken</code> has been
+ * This interface is very similar to {@link IServiceForDataStoreServer} but <code>sessionToken</code> has been
  * removed from most methods.
  * 
- * @see IETLLIMSService
+ * @see IServiceForDataStoreServer
  * @author Christian Ribeaud
  */
 public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISService
@@ -242,12 +242,12 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     public IEntityProperty[] tryGetPropertiesOfSample(final SampleIdentifier sampleIdentifier)
             throws UserFailureException;
 
-    /** See {@link IETLLIMSService#listSamplesByCriteria(String, ListSamplesByPropertyCriteria)} */
+    /** See {@link IServiceForDataStoreServer#listSamplesByCriteria(String, ListSamplesByPropertyCriteria)} */
     @ManagedAuthentication
     public List<Sample> listSamplesByCriteria(final ListSamplesByPropertyCriteria criteria)
             throws UserFailureException;
 
-    /** See {@link IETLLIMSService#listShareIds(String, String)} */
+    /** See {@link IServiceForDataStoreServer#listShareIds(String, String)} */
     @ManagedAuthentication
     public List<DataSetShareId> listDataSetShareIds() throws UserFailureException;
 
@@ -274,7 +274,7 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     public List<SimpleDataSetInformationDTO> listOldestPhysicalDataSets(Date youngerThan,
             int chunkSize) throws UserFailureException;
 
-    /** @see IETLLIMSService#listDataSets(String, String, TrackingDataSetCriteria) */
+    /** @see IServiceForDataStoreServer#listDataSets(String, String, TrackingDataSetCriteria) */
     @ManagedAuthentication
     public List<AbstractExternalData> listNewerDataSets(TrackingDataSetCriteria criteria)
             throws UserFailureException;
@@ -339,23 +339,23 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     // Archiving
     //
 
-    /** See {@link IETLLIMSService#listAvailableDataSets(String, String, ArchiverDataSetCriteria)} */
+    /** See {@link IServiceForDataStoreServer#listAvailableDataSets(String, String, ArchiverDataSetCriteria)} */
     @ManagedAuthentication
     public List<AbstractExternalData> listAvailableDataSets(ArchiverDataSetCriteria criteria)
             throws UserFailureException;
 
-    /** See {@link IETLLIMSService#archiveDatasets(String, List, boolean)} */
+    /** See {@link IServiceForDataStoreServer#archiveDatasets(String, List, boolean)} */
     @ManagedAuthentication
     public void archiveDataSets(List<String> dataSetCodes, boolean removeFromDataStore)
             throws UserFailureException;
 
-    /** See {@link IETLLIMSService#unarchiveDatasets(String, List)} */
+    /** See {@link IServiceForDataStoreServer#unarchiveDatasets(String, List)} */
     @ManagedAuthentication
     public void unarchiveDataSets(List<String> dataSetCodes) throws UserFailureException;
 
     /**
      * See
-     * {@link IETLLIMSService#updateDataSetStatuses(String, List, DataSetArchivingStatus, boolean)}
+     * {@link IServiceForDataStoreServer#updateDataSetStatuses(String, List, DataSetArchivingStatus, boolean)}
      */
     @ManagedAuthentication
     public void updateDataSetStatuses(List<String> codes, DataSetArchivingStatus newStatus,
@@ -363,19 +363,19 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
 
     /**
      * See
-     * {@link IETLLIMSService#updateDataSetStatuses(String, List, DataSetArchivingStatus, boolean)}
+     * {@link IServiceForDataStoreServer#updateDataSetStatuses(String, List, DataSetArchivingStatus, boolean)}
      */
     @ManagedAuthentication
     public boolean compareAndSetDataSetStatus(String dataSetCode, DataSetArchivingStatus oldStatus,
             DataSetArchivingStatus newStatus, boolean newPresentInArchive)
             throws UserFailureException;
 
-    /** See {@link IETLLIMSService#checkSpaceAccess(String, SpaceIdentifier)} */
+    /** See {@link IServiceForDataStoreServer#checkSpaceAccess(String, SpaceIdentifier)} */
     @ManagedAuthentication
     public void checkSpaceAccess(String sToken, SpaceIdentifier spaceId);
 
     /**
-     * See {@link IETLLIMSService#tryGetSession(String)}
+     * See {@link IServiceForDataStoreServer#tryGetSession(String)}
      * 
      * @param sessionToken
      */
@@ -383,28 +383,28 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     public SessionContextDTO tryGetSession(String sessionToken);
 
     /**
-     * See @{link {@link IETLLIMSService#checkSession(String)}.
+     * See @{link {@link IServiceForDataStoreServer#checkSession(String)}.
      */
     @ManagedAuthentication
     public void checkSession(String sessionToken);
 
     /**
      * Return a list of users who could be considered administrators. See
-     * {@link IETLLIMSService#listAdministrators(String)}
+     * {@link IServiceForDataStoreServer#listAdministrators(String)}
      */
     @ManagedAuthentication
     public List<Person> listAdministrators();
 
     /**
      * Return the user that matches this username or email. See
-     * {@link IETLLIMSService#tryPersonWithUserIdOrEmail(String, String)}
+     * {@link IServiceForDataStoreServer#tryPersonWithUserIdOrEmail(String, String)}
      */
     @ManagedAuthentication
     public Person tryPersonWithUserIdOrEmail(String useridOrEmail);
 
     /**
      * Register a new sample and data set in one transaction. Return the sample.
-     * {@link IETLLIMSService#registerSampleAndDataSet(String, NewSample, NewExternalData, String)}
+     * {@link IServiceForDataStoreServer#registerSampleAndDataSet(String, NewSample, NewExternalData, String)}
      */
     @ManagedAuthentication
     public Sample registerSampleAndDataSet(NewSample newSample, NewExternalData externalData,
@@ -412,93 +412,93 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
 
     /**
      * Update a sample and register a data set in one transaction. Return the sample.
-     * {@link IETLLIMSService#updateSampleAndRegisterDataSet(String, SampleUpdatesDTO, NewExternalData)}
+     * {@link IServiceForDataStoreServer#updateSampleAndRegisterDataSet(String, SampleUpdatesDTO, NewExternalData)}
      */
     @ManagedAuthentication
     public Sample updateSampleAndRegisterDataSet(SampleUpdatesDTO newSample,
             NewExternalData externalData);
 
     /**
-     * {@link IETLLIMSService#performEntityOperations(String, AtomicEntityOperationDetails)}
+     * {@link IServiceForDataStoreServer#performEntityOperations(String, AtomicEntityOperationDetails)}
      */
     @ManagedAuthentication
     public AtomicEntityOperationResult performEntityOperations(
             AtomicEntityOperationDetails operationDetails);
 
     /**
-     * {@link IETLLIMSService#listProjects(String)}
+     * {@link IServiceForDataStoreServer#listProjects(String)}
      */
     @ManagedAuthentication
     public List<Project> listProjects();
 
     /**
-     * {@link IETLLIMSService#removeDataSetsPermanently(String, List, String)}
+     * {@link IServiceForDataStoreServer#removeDataSetsPermanently(String, List, String)}
      */
     @ManagedAuthentication
     public void removeDataSetsPermanently(List<String> dataSetCodes, String reason);
 
     /**
-     * {@link IETLLIMSService#updateDataSet(String, DataSetUpdatesDTO)}
+     * {@link IServiceForDataStoreServer#updateDataSet(String, DataSetUpdatesDTO)}
      */
     @ManagedAuthentication
     public void updateDataSet(DataSetUpdatesDTO dataSetUpdates);
 
     /**
-     * {@link IETLLIMSService#getTrustedCrossOriginDomains(String)}
+     * {@link IServiceForDataStoreServer#getTrustedCrossOriginDomains(String)}
      */
     @ManagedAuthentication
     public List<String> getTrustedCrossOriginDomains();
 
     /**
-     * {@link IETLLIMSService#setStorageConfirmed(String, String)}
+     * {@link IServiceForDataStoreServer#setStorageConfirmed(String, String)}
      */
     @ManagedAuthentication
     public void setStorageConfirmed(String dataSetCode);
 
     /**
-     * {@link IETLLIMSService#markSuccessfulPostRegistration(String, String)}
+     * {@link IServiceForDataStoreServer#markSuccessfulPostRegistration(String, String)}
      */
     @ManagedAuthentication
     public void markSuccessfulPostRegistration(String dataSetCode);
 
     /**
-     * {@link IETLLIMSService#listDataSetsForPostRegistration(String, String)}
+     * {@link IServiceForDataStoreServer#listDataSetsForPostRegistration(String, String)}
      */
     @ManagedAuthentication
     public List<AbstractExternalData> listDataSetsForPostRegistration();
 
     /**
-     * {@link IETLLIMSService#didEntityOperationsSucceed(String, TechId)}
+     * {@link IServiceForDataStoreServer#didEntityOperationsSucceed(String, TechId)}
      */
     @ManagedAuthentication
     public EntityOperationsState didEntityOperationsSucceed(TechId registrationId);
 
     /**
-     * {@link IETLLIMSService#heartbeat(String)}
+     * {@link IServiceForDataStoreServer#heartbeat(String)}
      */
     @ManagedAuthentication
     public void heartbeat();
 
     /**
-     * {@link IETLLIMSService#doesUserHaveRole(String, String, String, String)}
+     * {@link IServiceForDataStoreServer#doesUserHaveRole(String, String, String, String)}
      */
     @ManagedAuthentication
     public boolean doesUserHaveRole(String user, String roleCode, String spaceOrNull);
 
     /**
-     * {@link IETLLIMSService#filterToVisibleDataSets(String, String, List)}
+     * {@link IServiceForDataStoreServer#filterToVisibleDataSets(String, String, List)}
      */
     @ManagedAuthentication
     public List<String> filterToVisibleDataSets(String user, List<String> dataSetCodes);
 
     /**
-     * {@link IETLLIMSService#filterToVisibleExperiments(String, String, List)}
+     * {@link IServiceForDataStoreServer#filterToVisibleExperiments(String, String, List)}
      */
     @ManagedAuthentication
     public List<String> filterToVisibleExperiments(String user, List<String> experimentIds);
 
     /**
-     * {@link IETLLIMSService#filterToVisibleSamples(String, String, List)}
+     * {@link IServiceForDataStoreServer#filterToVisibleSamples(String, String, List)}
      */
     @ManagedAuthentication
     public List<String> filterToVisibleSamples(String user, List<String> sampleIdentifiers);
