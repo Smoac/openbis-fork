@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ITaggable;
 
 /**
- * A DTO for external data sets.
+ * A DTO for any kind of data set.
  * 
  * @author Christian Ribeaud
  */
