@@ -23,7 +23,6 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DatabaseInstanceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -40,7 +39,7 @@ public final class DatabaseInstanceIdentifierPredicateTest extends Authorization
     @Test
     public final void testDoEvaluationWithoutDAOFactory()
     {
-        final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate();
+        final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate(true);
         boolean fail = true;
         try
         {
@@ -57,7 +56,7 @@ public final class DatabaseInstanceIdentifierPredicateTest extends Authorization
     @Test
     public final void testSuccessfulEvaluation()
     {
-        final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate();
+        final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate(true);
         final DatabaseInstancePE databaseInstance = createAnotherDatabaseInstance();
         prepareProvider(ANOTHER_INSTANCE_CODE, databaseInstance);
         predicate.init(provider);
@@ -71,7 +70,7 @@ public final class DatabaseInstanceIdentifierPredicateTest extends Authorization
     @Test
     public final void testFailedEvaluation()
     {
-        final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate();
+        final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate(false);
         final DatabaseInstancePE databaseInstance = createAnotherDatabaseInstance();
         prepareProvider(ANOTHER_INSTANCE_CODE, databaseInstance);
         predicate.init(provider);
@@ -81,15 +80,30 @@ public final class DatabaseInstanceIdentifierPredicateTest extends Authorization
                         new DatabaseInstanceIdentifier(ANOTHER_INSTANCE_CODE));
         assertEquals(StatusFlag.ERROR, evaluation.getFlag());
         assertEquals(
-                "User 'megapixel' does not have enough privileges to read from database instance 'DB2'.",
+                "User 'megapixel' does not have enough privileges to modify database instance 'DB2'.",
                 evaluation.tryGetErrorMessage());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testEveryoneCanReadDatabaseEntities()
+    {
+        final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate(true);
+        final DatabaseInstancePE databaseInstance = createAnotherDatabaseInstance();
+        prepareProvider(ANOTHER_INSTANCE_CODE, databaseInstance);
+        predicate.init(provider);
+        final PersonPE person = createPerson();
+        final Status evaluation =
+                predicate.doEvaluation(person, createRoles(false),
+                        new DatabaseInstanceIdentifier(ANOTHER_INSTANCE_CODE));
+        assertEquals(StatusFlag.OK, evaluation.getFlag());
         context.assertIsSatisfied();
     }
 
     @Test
     public final void testSuccessfulEvaluationWithHomeDatabaseInstance()
     {
-        final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate();
+        final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate(true);
         final DatabaseInstancePE databaseInstance = createAnotherDatabaseInstance();
         context.checking(new Expectations()
             {
@@ -110,7 +124,7 @@ public final class DatabaseInstanceIdentifierPredicateTest extends Authorization
     @Test(expectedExceptions = UserFailureException.class)
     public final void testExceptionBecauseInstanceDoesNotExist()
     {
-        final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate();
+        final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate(true);
         prepareProvider(INSTANCE_CODE, null);
         predicate.init(provider);
         predicate.doEvaluation(createPerson(), createRoles(false), new DatabaseInstanceIdentifier(
@@ -121,7 +135,7 @@ public final class DatabaseInstanceIdentifierPredicateTest extends Authorization
     @Test
     public final void testWithGroupIdentifier()
     {
-        final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate();
+        final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate(true);
         final DatabaseInstancePE databaseInstance = createDatabaseInstance();
         prepareProvider(databaseInstance.getCode(), databaseInstance);
         predicate.init(provider);
@@ -134,8 +148,8 @@ public final class DatabaseInstanceIdentifierPredicateTest extends Authorization
         context.assertIsSatisfied();
     }
 
-    private DatabaseInstanceIdentifierPredicate createInstancePredicate()
+    private DatabaseInstanceIdentifierPredicate createInstancePredicate(boolean isReadOnly)
     {
-        return new DatabaseInstanceIdentifierPredicate(true);
+        return new DatabaseInstanceIdentifierPredicate(isReadOnly);
     }
 }
