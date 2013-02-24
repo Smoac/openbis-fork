@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -134,7 +134,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
     @Test
     public void testPostRegistrationHappyCase()
     {
-        final DataSet dataSet =
+        final PhysicalDataSet dataSet =
                 new DataSetBuilder().code(DATA_SET_CODE).location("abc").getDataSet();
         context.checking(new Expectations()
             {
@@ -152,7 +152,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
     @Test
     public void testPostRegistrationFailingCase()
     {
-        final DataSet dataSet =
+        final PhysicalDataSet dataSet =
                 new DataSetBuilder().code(DATA_SET_CODE).location("abc").getDataSet();
         context.checking(new Expectations()
             {
@@ -173,7 +173,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
             {
                 {
                     one(service).tryGetDataSet(DATA_SET_CODE);
-                    DataSet dataSet =
+                    PhysicalDataSet dataSet =
                             new DataSetBuilder().code(DATA_SET_CODE).location("abc").getDataSet();
                     will(returnValue(dataSet));
 
@@ -196,7 +196,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
             {
                 {
                     one(service).tryGetDataSet(DATA_SET_CODE);
-                    DataSet dataSet =
+                    PhysicalDataSet dataSet =
                             new DataSetBuilder().code(DATA_SET_CODE).location("abc").getDataSet();
                     will(returnValue(dataSet));
 

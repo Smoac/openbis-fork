@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -324,7 +324,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         {
             genericDataSetViewer.extendToolBar(result);
             genericDataSetViewer.updateOriginalData(result);
-            DataSet dataSet = result.tryGetAsDataSet();
+            PhysicalDataSet dataSet = result.tryGetAsDataSet();
             if (dataSet != null && dataSet.getStatus().isAvailable() == false)
             {
                 genericDataSetViewer.setupUnavailableDataSetView(dataSet);
@@ -349,7 +349,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
     }
 
     /** Updates data displayed in the browser when shown dataset is not available. */
-    public void setupUnavailableDataSetView(final DataSet result)
+    public void setupUnavailableDataSetView(final PhysicalDataSet result)
     {
         setToolBarButtonsEnabled(false);
         updateTitle(getOriginalDataDescription() + " (not available)");

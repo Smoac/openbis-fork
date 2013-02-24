@@ -51,7 +51,7 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -318,13 +318,13 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
 
     private boolean archive(ExperimentDataSetsInfo info, NotificationMessageBuilder builder)
     {
-        List<DataSet> dataSets = info.getDataSetsToBeArchived();
+        List<PhysicalDataSet> dataSets = info.getDataSetsToBeArchived();
         if (dataSets.isEmpty())
         {
             return false;
         }
         List<String> dataSetCodes = new ArrayList<String>();
-        for (DataSet dataSet : dataSets)
+        for (PhysicalDataSet dataSet : dataSets)
         {
             dataSetCodes.add(dataSet.getCode());
         }
@@ -341,7 +341,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
     {
         private Date lastModificationDate;
 
-        private List<DataSet> dataSetsToBeArchived = new ArrayList<DataSet>();
+        private List<PhysicalDataSet> dataSetsToBeArchived = new ArrayList<PhysicalDataSet>();
 
         private final String experimentIdentifier;
 
@@ -350,11 +350,11 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
             this.experimentIdentifier = experimentIdentifier;
             for (ExternalData dataSet : dataSets)
             {
-                if (dataSet instanceof DataSet == false)
+                if (dataSet instanceof PhysicalDataSet == false)
                 {
                     continue;
                 }
-                DataSet realDataSet = (DataSet) dataSet;
+                PhysicalDataSet realDataSet = (PhysicalDataSet) dataSet;
                 if (excludedDataSetTypes.contains(realDataSet.getDataSetType().getCode()))
                 {
                     continue;
@@ -384,14 +384,14 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
         public long estimateSize(NotificationMessageBuilder builder)
         {
             long sum = 0L;
-            for (DataSet dataSetToBeArchived : getDataSetsToBeArchived())
+            for (PhysicalDataSet dataSetToBeArchived : getDataSetsToBeArchived())
             {
                 sum += estimateSize(dataSetToBeArchived, builder);
             }
             return sum;
         }
 
-        private long estimateSize(DataSet dataSet, NotificationMessageBuilder builder)
+        private long estimateSize(PhysicalDataSet dataSet, NotificationMessageBuilder builder)
         {
             String dataSetType = dataSet.getDataSetType().getCode().toUpperCase();
             Long estimatedDataSetSize = estimatedDataSetSizes.get(dataSetType);
@@ -417,7 +417,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
             return lastModificationDate;
         }
 
-        public List<DataSet> getDataSetsToBeArchived()
+        public List<PhysicalDataSet> getDataSetsToBeArchived()
         {
             return dataSetsToBeArchived;
         }

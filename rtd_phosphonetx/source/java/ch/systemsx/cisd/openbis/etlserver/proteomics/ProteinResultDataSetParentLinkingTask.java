@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -120,11 +120,11 @@ public class ProteinResultDataSetParentLinkingTask implements IMaintenanceTask
                 }
                 for (ExternalData ds : dataSets)
                 {
-                    if (ds instanceof DataSet == false)
+                    if (ds instanceof PhysicalDataSet == false)
                     {
                         continue;
                     }
-                    DataSet dataSet = (DataSet) ds;
+                    PhysicalDataSet dataSet = (PhysicalDataSet) ds;
                     DataSetBatchUpdatesDTO update = new DataSetBatchUpdatesDTO();
                     update.setDatasetId(new TechId(dataSet.getId()));
                     update.setVersion(dataSet.getVersion());

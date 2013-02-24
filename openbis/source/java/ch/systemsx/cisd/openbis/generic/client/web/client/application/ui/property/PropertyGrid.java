@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -93,7 +93,7 @@ public final class PropertyGrid extends Grid
 
         registerPropertyValueRenderer(ContainerDataSet.class,
                 PropertyValueRenderers.createExternalDataPropertyValueRenderer(viewContext));
-        registerPropertyValueRenderer(DataSet.class,
+        registerPropertyValueRenderer(PhysicalDataSet.class,
                 PropertyValueRenderers.createExternalDataPropertyValueRenderer(viewContext));
         registerPropertyValueRenderer(Experiment.class,
                 PropertyValueRenderers.createExperimentPropertyValueRenderer(viewContext));

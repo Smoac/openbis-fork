@@ -26,7 +26,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
@@ -69,7 +69,7 @@ public class DataSetTranslatorTest extends AssertJUnit
                 DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
                         new ManagedPropertyEvaluatorFactory(null, null));
 
-        DataSet translated = data.tryGetAsDataSet();
+        PhysicalDataSet translated = data.tryGetAsDataSet();
 
         assertEquals(null, translated.getCode());
         assertEquals(null, translated.getExperiment());
@@ -136,7 +136,7 @@ public class DataSetTranslatorTest extends AssertJUnit
                 DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
                         new ManagedPropertyEvaluatorFactory(null, null));
 
-        DataSet translated = data.tryGetAsDataSet();
+        PhysicalDataSet translated = data.tryGetAsDataSet();
 
         assertEquals(DOWNLOAD_URL, translated.getDataStore().getHostUrl());
         assertEquals(DOWNLOAD_URL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME, translated

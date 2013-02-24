@@ -21,7 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -61,7 +61,7 @@ public interface IDataSetHandlerRpc extends IDataSetHandler
      * 
      * @param shareId
      */
-    public File getFileForDataSet(DataSet data, String shareId);
+    public File getFileForDataSet(PhysicalDataSet data, String shareId);
 
     /**
      * Get the owner information provided by the caller.

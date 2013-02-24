@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -74,7 +74,7 @@ public class DataSetTranslator
 
         description.setDataStoreCode(data.getDataStore().getCode());
 
-        DataSet dataSet = data.tryGetAsDataSet();
+        PhysicalDataSet dataSet = data.tryGetAsDataSet();
         if (dataSet != null)
         {
             description.setDataSetLocation(dataSet.getLocation());
@@ -156,7 +156,7 @@ public class DataSetTranslator
             externalData = new LinkDataSet(true);
         } else
         {
-            externalData = new DataSet(true);
+            externalData = new PhysicalDataSet(true);
         }
 
         externalData.setId(data.getId());
@@ -177,7 +177,7 @@ public class DataSetTranslator
             externalData = new LinkDataSet(true);
         } else if (dataPE instanceof ExternalDataPE)
         {
-            externalData = new DataSet(true);
+            externalData = new PhysicalDataSet(true);
         } else
         {
             throw new IllegalArgumentException("Data set " + dataPE.getCode()
@@ -299,7 +299,7 @@ public class DataSetTranslator
 
     private static ExternalData translateDataSetProperties(ExternalDataPE externalDataPE)
     {
-        DataSet dataSet = new DataSet();
+        PhysicalDataSet dataSet = new PhysicalDataSet();
         dataSet.setSize(externalDataPE.getSize());
         dataSet.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
         dataSet.setStatus(externalDataPE.getStatus());
@@ -389,7 +389,7 @@ public class DataSetTranslator
             result = new ContainerDataSet();
         } else if (dataPE.isExternalData())
         {
-            result = new DataSet();
+            result = new PhysicalDataSet();
         } else if (dataPE.isLinkData())
         {
             result = new LinkDataSet();

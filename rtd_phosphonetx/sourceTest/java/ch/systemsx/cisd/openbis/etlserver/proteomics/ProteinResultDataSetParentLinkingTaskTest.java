@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
@@ -91,13 +91,13 @@ public class ProteinResultDataSetParentLinkingTaskTest extends AssertJUnit
         final Experiment e4 =
                 new ExperimentBuilder().id(4).identifier("/S/P1/E4")
                         .property(BASE_EXPERIMENT_KEY, "/S/P1/E1").getExperiment();
-        final DataSet ds1 =
+        final PhysicalDataSet ds1 =
                 new DataSetBuilder(1).code("ds1").fileFormat("A").experiment(e1)
                         .version(11).getDataSet();
-        final DataSet ds2 =
+        final PhysicalDataSet ds2 =
                 new DataSetBuilder(2).code("ds2").fileFormat("B").experiment(e4)
                         .version(22).getDataSet();
-        final DataSet ds3 =
+        final PhysicalDataSet ds3 =
                 new DataSetBuilder(3).code("ds3").fileFormat("C").experiment(e3)
                         .version(33).property("ALPHA", "3.1").getDataSet();
         final RecordingMatcher<AtomicEntityOperationDetails> operationRecorder =

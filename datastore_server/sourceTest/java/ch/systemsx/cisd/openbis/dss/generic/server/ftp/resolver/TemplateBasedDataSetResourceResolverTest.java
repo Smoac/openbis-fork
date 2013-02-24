@@ -59,7 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.Translator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -157,11 +157,11 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
     private SimpleFileContentProvider simpleFileContentProvider;
 
-    private DataSet ds1;
+    private PhysicalDataSet ds1;
 
-    private DataSet ds2;
+    private PhysicalDataSet ds2;
 
-    private DataSet ds3;
+    private PhysicalDataSet ds3;
 
     private ITimeProvider timeProvider = new ITimeProvider()
         {

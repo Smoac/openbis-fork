@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
@@ -199,14 +199,14 @@ public class DatasetListerTest extends AbstractDAOTest
                     return (int) (o1.getId() - o2.getId());
                 }
             });
-        DataSet dataSet0 = dataSets.get(0).tryGetAsDataSet();
+        PhysicalDataSet dataSet0 = dataSets.get(0).tryGetAsDataSet();
         assertEquals(4L, dataSet0.getId().longValue());
         assertEquals("20081105092159188-3", dataSet0.getCode());
         assertEquals("analysis/result", dataSet0.getLocation());
         assertEquals(null, dataSet0.getSize());
         assertEquals(Constants.DEFAULT_SPEED_HINT, dataSet0.getSpeedHint());
 
-        DataSet dataSet1 = dataSets.get(1).tryGetAsDataSet();
+        PhysicalDataSet dataSet1 = dataSets.get(1).tryGetAsDataSet();
         assertEquals(5L, dataSet1.getId().longValue());
         assertEquals("20081105092159111-1", dataSet1.getCode());
         assertEquals("a/1", dataSet1.getLocation());
@@ -266,7 +266,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertNotNull(containerDataSet);
         assertEquals(2, containerDataSet.getContainedDataSets().size());
 
-        DataSet dataset1 = datasets.get(1).tryGetAsDataSet();
+        PhysicalDataSet dataset1 = datasets.get(1).tryGetAsDataSet();
         assertNotNull(dataset1);
         assertEquals(2, (int) dataset1.getOrderInContainer());
         assertEquals(dataset1.tryGetContainer(), containerDataSet);
@@ -335,7 +335,7 @@ public class DatasetListerTest extends AbstractDAOTest
         final Long containedId = 15L;
         List<ExternalData> datasets = lister.listByDatasetIds(Arrays.asList(containedId));
         assertEquals(1, datasets.size());
-        DataSet dataset = datasets.get(0).tryGetAsDataSet();
+        PhysicalDataSet dataset = datasets.get(0).tryGetAsDataSet();
         assertNotNull(dataset);
 
         ContainerDataSet parent = dataset.tryGetContainer();
@@ -389,10 +389,10 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals(
                 "[COMMENT: no comment, GENDER: FEMALE, BACTERIUM: BACTERIUM1 (BACTERIUM), ANY_MATERIAL: 1000_C (SIRNA)]",
                 dataSet.getProperties().toString());
-        assertEquals("a/1", ((DataSet) dataSet).getLocation());
-        assertEquals("42", ((DataSet) dataSet).getShareId());
-        assertEquals(4711L, ((DataSet) dataSet).getSize().longValue());
-        assertEquals(DataSetArchivingStatus.AVAILABLE, ((DataSet) dataSet).getStatus());
+        assertEquals("a/1", ((PhysicalDataSet) dataSet).getLocation());
+        assertEquals("42", ((PhysicalDataSet) dataSet).getShareId());
+        assertEquals(4711L, ((PhysicalDataSet) dataSet).getSize().longValue());
+        assertEquals(DataSetArchivingStatus.AVAILABLE, ((PhysicalDataSet) dataSet).getStatus());
         assertEquals(21, list.size());
     }
 
@@ -434,10 +434,10 @@ public class DatasetListerTest extends AbstractDAOTest
         assertNull(dataSet.getSample());
         assertEquals("[COMMENT: no comment]",
                 dataSet.getProperties().toString());
-        assertEquals("analysis/result", ((DataSet) dataSet).getLocation());
-        assertNull(((DataSet) dataSet).getShareId());
-        assertNull(((DataSet) dataSet).getSize());
-        assertEquals(DataSetArchivingStatus.AVAILABLE, ((DataSet) dataSet).getStatus());
+        assertEquals("analysis/result", ((PhysicalDataSet) dataSet).getLocation());
+        assertNull(((PhysicalDataSet) dataSet).getShareId());
+        assertNull(((PhysicalDataSet) dataSet).getSize());
+        assertEquals(DataSetArchivingStatus.AVAILABLE, ((PhysicalDataSet) dataSet).getStatus());
         assertEquals(21, fullList.size());
     }
 

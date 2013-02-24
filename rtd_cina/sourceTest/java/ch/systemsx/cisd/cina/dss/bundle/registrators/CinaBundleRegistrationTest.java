@@ -33,7 +33,7 @@ import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.etlserver.IDataSetHandlerRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -103,7 +103,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
 
     protected IDataSetHandlerRpc delegator;
 
-    private DataSet dataSet;
+    private PhysicalDataSet dataSet;
 
     private DataSetTypeWithVocabularyTerms rawImagesDataSetTypeWithTerms;
 
@@ -169,7 +169,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
         imageDataSetTypeWithTerms = new DataSetTypeWithVocabularyTerms();
         imageDataSetTypeWithTerms.setDataSetType(dataSetType);
 
-        dataSet = new DataSet();
+        dataSet = new PhysicalDataSet();
         dataSet.setCode("1");
 
         // set up the expectations
@@ -340,7 +340,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
         dataSetInformation.setInstanceCode(DB_CODE);
         dataSetInformation.setShareId("42");
 
-        dataSet = new DataSet();
+        dataSet = new PhysicalDataSet();
         dataSet.setCode(METADATA_DATA_SET_CODE);
 
         final File dataSetFile = new File(path);

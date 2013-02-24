@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.ShareInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.MockFreeSpaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 
 /**
@@ -290,7 +290,7 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
             {
                 {
                     atLeast(1).of(service).tryGetDataSet("ds1");
-                    DataSet dataSet = new DataSet();
+                    PhysicalDataSet dataSet = new PhysicalDataSet();
                     dataSet.setCode("ds1");
                     dataSet.setShareId("1");
                     dataSet.setLocation("uuid/a/b/c/ds1");
@@ -372,7 +372,7 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
             {
                 {
                     atLeast(1).of(service).tryGetDataSet("ds1");
-                    DataSet dataSet = new DataSet();
+                    PhysicalDataSet dataSet = new PhysicalDataSet();
                     dataSet.setCode("ds1");
                     dataSet.setShareId("1");
                     will(returnValue(dataSet));
@@ -399,7 +399,7 @@ public class DssServiceRpcGenericTest extends AbstractFileSystemTestCase
             {
                 {
                     atLeast(1).of(service).tryGetDataSet("ds1");
-                    DataSet dataSet = new DataSet();
+                    PhysicalDataSet dataSet = new PhysicalDataSet();
                     dataSet.setCode("ds1");
                     dataSet.setShareId("1");
                     will(returnValue(dataSet));

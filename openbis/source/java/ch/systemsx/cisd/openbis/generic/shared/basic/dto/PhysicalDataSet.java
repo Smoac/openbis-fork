@@ -17,11 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
- * A simple (non-container aka non-virtual) data set.
+ * A physical data set, i.e. one which stores files
  * 
  * @author Kaloyan Enimanev
  */
-public class DataSet extends ExternalData implements IDatasetLocation
+public class PhysicalDataSet extends ExternalData implements IDatasetLocation
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -41,18 +41,18 @@ public class DataSet extends ExternalData implements IDatasetLocation
 
     private FileFormatType fileFormatType;
 
-    public DataSet()
+    public PhysicalDataSet()
     {
         this(false);
     }
 
-    public DataSet(boolean isStub)
+    public PhysicalDataSet(boolean isStub)
     {
         super(isStub);
     }
 
     @Override
-    public DataSet tryGetAsDataSet()
+    public PhysicalDataSet tryGetAsDataSet()
     {
         return this;
     }

@@ -412,7 +412,7 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
 
     private ExternalData createDataSet(String type, long date)
     {
-        ExternalData dataSet = new ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet();
+        ExternalData dataSet = new ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet();
         dataSet.setId(date);
         dataSet.setCode(type + "-" + date);
         dataSet.setDataSetType(new DataSetType(type));

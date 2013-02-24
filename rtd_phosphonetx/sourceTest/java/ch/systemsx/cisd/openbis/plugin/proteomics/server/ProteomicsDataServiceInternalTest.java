@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObject
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -368,8 +368,8 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                     will(returnValue(bioExperiments));
 
                     List<Sample> filteredSamples = new ArrayList<Sample>();
-                    Map<Sample, List<DataSet>> dataSetsBySamples =
-                            new HashMap<Sample, List<DataSet>>();
+                    Map<Sample, List<PhysicalDataSet>> dataSetsBySamples =
+                            new HashMap<Sample, List<PhysicalDataSet>>();
                     for (Sample sample : samples)
                     {
                         if ("Space-0".equals(sample.getGeneratedFrom().getSpace().getCode()))
@@ -377,19 +377,19 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                             Long id = sample.getId();
                             String dataSetType = "dt-" + id % 2;
                             long ds1Id = id * 1000;
-                            DataSet ds1 =
+                            PhysicalDataSet ds1 =
                                     new DataSetBuilder(ds1Id).code("ds-" + id)
                                             .registrationDate(new Date(ds1Id)).sample(sample)
                                             .type(dataSetType).getDataSet();
 
                             long ds2Id = (id + 1) * 1001;
-                            DataSet ds2 =
+                            PhysicalDataSet ds2 =
                                     new DataSetBuilder(ds2Id).code("ds-" + id + 1)
                                             .registrationDate(new Date(ds2Id)).sample(sample)
                                             .type(dataSetType).getDataSet();
 
                             long ds2ChildId = ds2.getId() + 1;
-                            DataSet ds2Child =
+                            PhysicalDataSet ds2Child =
                                     new DataSetBuilder(ds2ChildId).code(ds2.getCode() + "-child")
                                             .registrationDate(new Date(ds2ChildId)).sample(sample)
                                             .type(dataSetType).getDataSet();

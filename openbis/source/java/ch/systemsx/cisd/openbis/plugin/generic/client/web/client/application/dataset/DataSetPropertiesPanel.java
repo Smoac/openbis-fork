@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
@@ -119,7 +119,7 @@ public class DataSetPropertiesPanel extends ContentPanel
                 .getProject());
         properties.put(messageProvider.getMessage(Dict.EXPERIMENT), dataset.getExperiment());
 
-        DataSet concreteDataSet = dataset.tryGetAsDataSet();
+        PhysicalDataSet concreteDataSet = dataset.tryGetAsDataSet();
         if (concreteDataSet != null)
         {
             properties.put(messageProvider.getMessage(Dict.LOCATION),

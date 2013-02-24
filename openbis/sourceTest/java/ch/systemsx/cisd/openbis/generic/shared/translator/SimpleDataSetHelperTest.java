@@ -23,7 +23,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
@@ -71,7 +71,7 @@ public class SimpleDataSetHelperTest extends AssertJUnit
 
     private ExternalData create(long id)
     {
-        DataSet dataSet = new DataSet();
+        PhysicalDataSet dataSet = new PhysicalDataSet();
         dataSet.setId(id);
         dataSet.setCode("ds-" + id);
         dataSet.setComplete(true);

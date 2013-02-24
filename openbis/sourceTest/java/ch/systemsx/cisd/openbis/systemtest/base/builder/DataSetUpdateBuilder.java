@@ -24,7 +24,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -58,9 +58,9 @@ public class DataSetUpdateBuilder extends UpdateBuilder<DataSetUpdatesDTO>
         super(commonServer, genericServer);
         this.datasetId = new TechId(data.getId());
         this.version = data.getVersion();
-        if (data instanceof DataSet)
+        if (data instanceof PhysicalDataSet)
         {
-            this.fileFormatTypeCode = ((DataSet) data).getFileFormatType().getCode();
+            this.fileFormatTypeCode = ((PhysicalDataSet) data).getFileFormatType().getCode();
         }
         this.parents = null;
         this.experimentIdentifier = new ExperimentIdentifier(data.getExperiment());

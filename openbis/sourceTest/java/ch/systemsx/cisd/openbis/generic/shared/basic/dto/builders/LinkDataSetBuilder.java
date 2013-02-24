@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 
 /**
- * Builder class for creating an instance of {@link DataSet} or {@link LinkDataSet}.
+ * Builder class for creating an instance of {@link PhysicalDataSet} or {@link LinkDataSet}.
  * 
  * @author Pawel Glyzewski
  */

@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -225,9 +225,9 @@ public class EntityOperationTest extends SystemTestCase
             newExternalData.setCode(dataSet.getCode());
             newExternalData.setDataSetType(dataSet.getDataSetType());
             newExternalData.setDataStoreCode(dataSet.getDataStore().getCode());
-            if (dataSet instanceof DataSet)
+            if (dataSet instanceof PhysicalDataSet)
             {
-                DataSet realDataSet = (DataSet) dataSet;
+                PhysicalDataSet realDataSet = (PhysicalDataSet) dataSet;
                 newExternalData.setFileFormatType(realDataSet.getFileFormatType());
                 newExternalData.setLocation(realDataSet.getLocation());
                 newExternalData.setLocatorType(realDataSet.getLocatorType());
@@ -264,9 +264,9 @@ public class EntityOperationTest extends SystemTestCase
             dataSetUpdate.setDatasetId(new TechId(dataSet));
             dataSetUpdate.setDatasetCode(dataSet.getCode());
             dataSetUpdate.setVersion(dataSet.getVersion());
-            if (dataSet instanceof DataSet)
+            if (dataSet instanceof PhysicalDataSet)
             {
-                DataSet realDataSet = (DataSet) dataSet;
+                PhysicalDataSet realDataSet = (PhysicalDataSet) dataSet;
                 dataSetUpdate.setFileFormatTypeCode(realDataSet.getFileFormatType().getCode());
             }
             dataSetUpdate.setProperties(dataSet.getProperties());

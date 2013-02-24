@@ -66,7 +66,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.ShareInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -460,7 +460,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         {
             throw new UserFailureException("Container data set: " + dataSetCode);
         }
-        DataSet realDataSet = dataSet.tryGetAsDataSet();
+        PhysicalDataSet realDataSet = dataSet.tryGetAsDataSet();
         String dataSetLocation = realDataSet.getDataSetLocation();
         if (realDataSet.getShareId().equals(shareId))
         {

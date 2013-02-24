@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProxyShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -227,7 +227,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
             {
                 {
                     one(service).tryGetDataSet("ds-1");
-                    will(returnValue(new DataSet()));
+                    will(returnValue(new PhysicalDataSet()));
 
                     one(service).updateShareIdAndSize("ds-1", "2", 11L);
                     one(shareIdManager).lock("ds-1");
@@ -333,7 +333,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
             {
                 {
                     one(service).tryGetDataSet("ds-1");
-                    will(returnValue(new DataSet()));
+                    will(returnValue(new PhysicalDataSet()));
 
                     one(service).updateShareIdAndSize("ds-1", "2", 11L);
                     one(shareIdManager).lock("ds-1");
@@ -384,7 +384,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
             {
                 {
                     one(service).tryGetDataSet("ds-1");
-                    will(returnValue(new DataSet()));
+                    will(returnValue(new PhysicalDataSet()));
 
                     one(shareIdManager).lock("ds-1");
                     one(shareIdManager).releaseLock("ds-1");

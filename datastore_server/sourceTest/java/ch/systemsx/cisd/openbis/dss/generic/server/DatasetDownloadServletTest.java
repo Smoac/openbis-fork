@@ -62,7 +62,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -778,7 +778,7 @@ public class DatasetDownloadServletTest
             });
     }
 
-    private DataSet createDataSet()
+    private PhysicalDataSet createDataSet()
     {
         Space space = new Space();
         space.setCode(SPACE_CODE);
@@ -788,7 +788,7 @@ public class DatasetDownloadServletTest
         Experiment experiment = new Experiment();
         experiment.setCode(EXPERIMENT_CODE);
         experiment.setProject(project);
-        final DataSet dataSet = new DataSet();
+        final PhysicalDataSet dataSet = new PhysicalDataSet();
         dataSet.setExperiment(experiment);
         dataSet.setCode(EXAMPLE_DATA_SET_CODE);
         dataSet.setFileFormatType(new FileFormatType("DATA"));

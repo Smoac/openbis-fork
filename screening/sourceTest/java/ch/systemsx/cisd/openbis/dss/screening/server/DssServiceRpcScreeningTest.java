@@ -72,7 +72,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.Ds
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtilTest;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
@@ -831,7 +831,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     {
                         one(service).tryGetDataSet(SESSION_TOKEN,
                                 datasetIdentifier.getDatasetCode());
-                        DataSet dataSet =
+                        PhysicalDataSet dataSet =
                                 new DataSetBuilder().code(datasetIdentifier.getDatasetCode())
                                         .experiment(experiment).type("HCS_IMAGE").getDataSet();
                         will(returnValue(dataSet));
@@ -933,7 +933,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                         long id = dataSetIDs[i];
                         permIDs[i] = "ds" + id;
 
-                        ExternalData d = new DataSet(); // this dataset is only asked if it is a
+                        ExternalData d = new PhysicalDataSet(); // this dataset is only asked if it is a
                                                         // container
                         one(service).tryGetDataSet(permIDs[i]);
                         will(returnValue(d));

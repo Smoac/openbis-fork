@@ -38,7 +38,7 @@ import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -111,21 +111,21 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
 
     private Experiment e3;
 
-    private DataSet lockedDataSet;
+    private PhysicalDataSet lockedDataSet;
 
     private ExternalData notARealDataSet;
 
-    private DataSet dataSetOfIgnoredType;
+    private PhysicalDataSet dataSetOfIgnoredType;
 
-    private DataSet dataSetWithNoModificationDate;
+    private PhysicalDataSet dataSetWithNoModificationDate;
 
-    private DataSet oldDataSet;
+    private PhysicalDataSet oldDataSet;
 
-    private DataSet middleOldDataSet;
+    private PhysicalDataSet middleOldDataSet;
 
-    private DataSet youngDataSet;
+    private PhysicalDataSet youngDataSet;
 
-    private DataSet veryYoungDataSet;
+    private PhysicalDataSet veryYoungDataSet;
 
     @BeforeMethod
     public void before()
@@ -423,7 +423,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         assertEquals(operationLogBuilder.toString(), logRecorder.getLogContent());
     }
 
-    private String logEntry(Experiment experiment, DataSet... dataSets)
+    private String logEntry(Experiment experiment, PhysicalDataSet... dataSets)
     {
         List<String> dataSetCodes = getDataSetCodes(dataSets);
         return "Starting archiving #" + dataSetCodes.size() + " data sets of experiment "
@@ -487,9 +487,9 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
                 + ExperimentBasedArchivingTask.DEFAULT_DATA_SET_TYPE, "" + defaultSize);
     }
 
-    private void prepareSizesAndTypes(DataSet... dataSets)
+    private void prepareSizesAndTypes(PhysicalDataSet... dataSets)
     {
-        for (DataSet dataSet : dataSets)
+        for (PhysicalDataSet dataSet : dataSets)
         {
             String dataSetSize = String.valueOf(dataSet.getSize());
             String dataSetType = "DS_TYPE_" + dataSetSize;

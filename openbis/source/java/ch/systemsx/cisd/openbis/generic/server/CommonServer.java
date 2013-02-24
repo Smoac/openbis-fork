@@ -164,7 +164,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -3565,9 +3565,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             {
                 updates.setSampleIdentifierOrNull(SampleIdentifierFactory.parse(sampleIdentifier));
             }
-            if (dataSet instanceof DataSet)
+            if (dataSet instanceof PhysicalDataSet)
             {
-                updates.setFileFormatTypeCode(((DataSet) dataSet).getFileFormatType().getCode());
+                updates.setFileFormatTypeCode(((PhysicalDataSet) dataSet).getFileFormatType().getCode());
             }
             updateDataSet(sessionToken, updates);
         } catch (UserFailureException e)

@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
@@ -173,7 +173,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
                         "The contents of data set '%s' will be hdf5-compressed "
                                 + "into a new data set '%s'.", dataSetCode, hdf5DataSetCode));
 
-                DataSet dataSet = (DataSet) externalData;
+                PhysicalDataSet dataSet = (PhysicalDataSet) externalData;
                 File hdf5DataSetDir =
                         createNewDataSetDirectory(hierarchicalContent, hdf5DataSetCode);
                 File cleanupMarker = createCleanupMarker(dataSet.getShareId(), hdf5DataSetDir);
@@ -345,7 +345,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
             return new Hdf5CompressingCleanupTask(dataSetCode);
         }
 
-        private void registerTwinDataset(String hdf5DataSetCode, DataSet protoDataSet)
+        private void registerTwinDataset(String hdf5DataSetCode, PhysicalDataSet protoDataSet)
         {
 
             DataSetInformation dataSetInformation = createDataSetInformation(protoDataSet);
@@ -357,7 +357,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
             service.updateDataSet(containerUpdate);
         }
 
-        private DataSetInformation createDataSetInformation(DataSet protoDataSet)
+        private DataSetInformation createDataSetInformation(PhysicalDataSet protoDataSet)
         {
             DataSetInformation result = new DataSetInformation();
             result.setExperimentIdentifier(extractExperimentIdentifier(protoDataSet));
@@ -389,7 +389,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
 
         }
 
-        private NewExternalData createTwin(String hdf5DataSetCode, DataSet protoDataSet)
+        private NewExternalData createTwin(String hdf5DataSetCode, PhysicalDataSet protoDataSet)
         {
             NewExternalData externalData = new NewExternalData();
             externalData.setDataProducerCode(protoDataSet.getDataProducerCode());
@@ -418,7 +418,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
             return externalData;
         }
 
-        private List<NewProperty> extractProperties(DataSet protoDataSet)
+        private List<NewProperty> extractProperties(PhysicalDataSet protoDataSet)
         {
             ArrayList<NewProperty> newProperties = new ArrayList<NewProperty>();
             for (IEntityProperty prop : protoDataSet.getProperties())
@@ -483,8 +483,8 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
         @Override
         public void cleanup(ISimpleLogger logger)
         {
-            DataSet dataSet =
-                    (DataSet) tryGetDataSet(dataSetCode, ServiceProvider.getOpenBISService());
+            PhysicalDataSet dataSet =
+                    (PhysicalDataSet) tryGetDataSet(dataSetCode, ServiceProvider.getOpenBISService());
             if (dataSet != null)
             {
                 File cleanupMarkerFile = getCleanupMarkerFile(dataSetCode, dataSet.getShareId());
@@ -496,7 +496,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
             }
         }
 
-        private void cleanup(DataSet dataSet, File cleanupMarkerFile)
+        private void cleanup(PhysicalDataSet dataSet, File cleanupMarkerFile)
         {
             String danglingHdf5DirName = FileUtilities.loadToString(cleanupMarkerFile).trim();
             File danglingDataSetDir = new File(danglingHdf5DirName);
@@ -536,7 +536,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
             return result;
         }
 
-        private Collection<String> getDataSetContents(DataSet dataSet)
+        private Collection<String> getDataSetContents(PhysicalDataSet dataSet)
         {
             IHierarchicalContent hierarchicalContent =
                     ServiceProvider.getHierarchicalContentProvider().asContent(dataSet.getCode());

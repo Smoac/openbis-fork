@@ -43,7 +43,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -195,43 +195,43 @@ public class DataSetRegistrationSummaryTaskTest extends AssertJUnit
         properties.setProperty(DAYS_OF_WEEK_KEY, "4");
         prepareForTryToAthenticateAsSystem();
         prepareForListDataSetTypes("MY-TYPE", "YOUR-TYPE");
-        DataSet ds1 =
+        PhysicalDataSet ds1 =
                 new DataSetBuilder().code("ds1").property("BETA", "456").property("ALPHA", "123")
                         .registrationDate(new Date(nowDate - DateUtils.MILLIS_PER_DAY))
                         .getDataSet();
-        DataSet ds2 =
+        PhysicalDataSet ds2 =
                 new DataSetBuilder().code("ds2").property("GAMMA", "4").property("ALPHA", "42")
                         .registrationDate(new Date(nowDate - DateUtils.MILLIS_PER_DAY))
                         .getDataSet();
-        DataSet ds3 =
+        PhysicalDataSet ds3 =
                 new DataSetBuilder().code("ds3")
                         .registrationDate(new Date(nowDate - DateUtils.MILLIS_PER_DAY))
                         .getDataSet();
-        DataSet ds4 =
+        PhysicalDataSet ds4 =
                 new DataSetBuilder().code("ds4")
                         .registrationDate(new Date(nowDate))
                         .getDataSet();
-        DataSet ds5 =
+        PhysicalDataSet ds5 =
                 new DataSetBuilder().code("ds5").registrationDate(new Date(nowDate - DateUtils.MILLIS_PER_DAY * 10)).getDataSet();
         RecordingMatcher<DetailedSearchCriteria> myTypeCriteriaMatcher =
                 prepareForSearchForDataSets("MY-TYPE", ds2, ds3, ds5, ds1, ds4);
-        DataSet ds6 =
+        PhysicalDataSet ds6 =
                 new DataSetBuilder().code("ds6")
                         .registrationDate(new Date(nowDate - DateUtils.MILLIS_PER_DAY))
                         .getDataSet();
-        DataSet ds7 =
+        PhysicalDataSet ds7 =
                 new DataSetBuilder().code("ds7")
                         .registrationDate(new Date(nowDate - DateUtils.MILLIS_PER_DAY))
                         .getDataSet();
-        DataSet ds8 =
+        PhysicalDataSet ds8 =
                 new DataSetBuilder().code("ds8")
                         .registrationDate(new Date(nowDate - DateUtils.MILLIS_PER_DAY))
                         .getDataSet();
-        DataSet ds9 =
+        PhysicalDataSet ds9 =
                 new DataSetBuilder().code("ds9")
                         .registrationDate(new Date(nowDate - DateUtils.MILLIS_PER_DAY))
                         .getDataSet();
-        DataSet ds10 =
+        PhysicalDataSet ds10 =
                 new DataSetBuilder().code("ds10")
                         .registrationDate(new Date(nowDate - DateUtils.MILLIS_PER_DAY))
                         .getDataSet();
@@ -268,23 +268,23 @@ public class DataSetRegistrationSummaryTaskTest extends AssertJUnit
         properties.setProperty(SHOWN_DATA_SET_PROPERTIES_KEY, "alpha, beta");
         prepareForTryToAthenticateAsSystem();
         prepareForListDataSetTypes("MY-TYPE", "YOUR-TYPE");
-        DataSet ds1 =
+        PhysicalDataSet ds1 =
                 new DataSetBuilder().code("ds1").property("BETA", "456").property("ALPHA", "123")
                         .registrationDate(new Date(nowDate))
                         .getDataSet();
-        DataSet ds2 =
+        PhysicalDataSet ds2 =
                 new DataSetBuilder().code("ds2").property("GAMMA", "4").property("ALPHA", "42")
                         .registrationDate(new Date(nowDate - 20 * DateUtils.MILLIS_PER_DAY))
                         .getDataSet();
-        DataSet ds3 =
+        PhysicalDataSet ds3 =
                 new DataSetBuilder().code("ds3")
                         .registrationDate(new Date(nowDate - 10 * DateUtils.MILLIS_PER_DAY))
                         .getDataSet();
-        DataSet ds4 =
+        PhysicalDataSet ds4 =
                 new DataSetBuilder().code("ds4")
                         .registrationDate(new Date(nowDate - 40 * DateUtils.MILLIS_PER_DAY))
                         .getDataSet();
-        DataSet ds5 =
+        PhysicalDataSet ds5 =
                 new DataSetBuilder().code("ds5").registrationDate(new Date(nowDate - 50 * DateUtils.MILLIS_PER_DAY)).getDataSet();
         RecordingMatcher<DetailedSearchCriteria> myTypeCriteriaMatcher =
                 prepareForSearchForDataSets("MY-TYPE", ds2, ds3, ds5, ds1, ds4);

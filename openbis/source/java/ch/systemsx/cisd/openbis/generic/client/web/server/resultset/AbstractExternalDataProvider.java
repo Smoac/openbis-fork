@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -188,9 +188,9 @@ public abstract class AbstractExternalDataProvider extends
                 builder.column(IS_DELETED).addString(
                         SimpleYesNoRenderer.render(DeletionUtils.isDeleted(dataSet)));
                 builder.column(SOURCE_TYPE).addString(dataSet.getSourceType());
-                if (dataSet instanceof DataSet)
+                if (dataSet instanceof PhysicalDataSet)
                 {
-                    DataSet realDataSet = (DataSet) dataSet;
+                    PhysicalDataSet realDataSet = (PhysicalDataSet) dataSet;
                     Boolean complete = realDataSet.getComplete();
                     builder.column(IS_COMPLETE).addString(
                             complete == null ? "?" : SimpleYesNoRenderer.render(complete));

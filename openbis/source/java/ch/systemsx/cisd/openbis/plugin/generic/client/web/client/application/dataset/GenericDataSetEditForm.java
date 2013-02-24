@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
@@ -421,14 +421,14 @@ public final class GenericDataSetEditForm extends
 
     }
 
-    /** {@link IDataSetEditorBuilder} implementation for {@link DataSet}-s */
+    /** {@link IDataSetEditorBuilder} implementation for {@link PhysicalDataSet}-s */
     private class ExternalDataEditFormBuilder implements IDataSetEditorBuilder
     {
-        private DataSet dataSet;
+        private PhysicalDataSet dataSet;
 
         private FileFormatTypeSelectionWidget fileFormatTypeSelectionWidget;
 
-        public ExternalDataEditFormBuilder(DataSet dataSet)
+        public ExternalDataEditFormBuilder(PhysicalDataSet dataSet)
         {
             this.dataSet = dataSet;
         }

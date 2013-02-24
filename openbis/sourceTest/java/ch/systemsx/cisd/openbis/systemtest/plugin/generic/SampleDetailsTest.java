@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntit
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -193,7 +193,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
                         showOnlyDirectlyConnected);
 
         assertEquals(1, directlyConnectedResults.getResultSet().getTotalLength());
-        final DataSet directlyConnectedDataSet =
+        final PhysicalDataSet directlyConnectedDataSet =
                 getDataSet(directlyConnectedResults.getResultSet().getList(),
                         DIRECTLY_CONNECTED_DATA_SET_CODE).tryGetAsDataSet();
         DataSetExpectations.checkThat(directlyConnectedDataSet)
@@ -213,7 +213,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
         assertEquals(6, indirectlyConnectedResults.getResultSet().getTotalLength());
 
         // the directly connected data set should still be retrieved
-        DataSet directlyConnectedDataSet2 =
+        PhysicalDataSet directlyConnectedDataSet2 =
                 getDataSet(directlyConnectedResults.getResultSet().getList(),
                         DIRECTLY_CONNECTED_DATA_SET_CODE).tryGetAsDataSet();
         DataSetExpectations
@@ -226,7 +226,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
                 .hasLocation(directlyConnectedDataSet.getDataSetLocation());
 
         final String indirectlyConnectedDataSetCode1 = "20081105092159111-1";
-        DataSet indirectlyConnectedDataSetThroughChildSample =
+        PhysicalDataSet indirectlyConnectedDataSetThroughChildSample =
                 getDataSet(indirectlyConnectedResults.getResultSet().getList(),
                         indirectlyConnectedDataSetCode1).tryGetAsDataSet();
         DataSetExpectations.checkThat(indirectlyConnectedDataSetThroughChildSample)
@@ -236,7 +236,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
                 .hasLocation("a/1");
 
         final String indirectlyConnectedDataSetCode2 = "20081105092259000-9";
-        DataSet indirectlyConnectedDataSetThroughChildDataSet =
+        PhysicalDataSet indirectlyConnectedDataSetThroughChildDataSet =
                 getDataSet(indirectlyConnectedResults.getResultSet().getList(),
                         indirectlyConnectedDataSetCode2).tryGetAsDataSet();
         DataSetExpectations.checkThat(indirectlyConnectedDataSetThroughChildDataSet)
@@ -247,14 +247,14 @@ public class SampleDetailsTest extends GenericSystemTestCase
 
     private static class DataSetExpectations
     {
-        public static DataSetExpectations checkThat(DataSet dataSet)
+        public static DataSetExpectations checkThat(PhysicalDataSet dataSet)
         {
             return new DataSetExpectations(dataSet);
         }
 
-        private DataSet dataSet;
+        private PhysicalDataSet dataSet;
 
-        private DataSetExpectations(DataSet dataSet)
+        private DataSetExpectations(PhysicalDataSet dataSet)
         {
             this.dataSet = dataSet;
         }

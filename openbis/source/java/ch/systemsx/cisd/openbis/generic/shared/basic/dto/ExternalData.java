@@ -130,7 +130,7 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
     /**
      * Will return non-null values for plain non-container data sets.
      */
-    public DataSet tryGetAsDataSet()
+    public PhysicalDataSet tryGetAsDataSet()
     {
         return null; // overriden in subclasses
     }

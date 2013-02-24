@@ -34,7 +34,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -502,9 +502,9 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         return dataSet;
     }
 
-    private DataSet createDataSet(Sample sample, String code, long id)
+    private PhysicalDataSet createDataSet(Sample sample, String code, long id)
     {
-        DataSet dataSet = new DataSet();
+        PhysicalDataSet dataSet = new PhysicalDataSet();
         dataSet.setId(id);
         dataSet.setCode(code);
         dataSet.setSample(sample);

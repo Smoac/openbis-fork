@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -247,7 +247,7 @@ public class PropertiesHistoryTest extends SystemTestCase
         updates.setDatasetId(id);
         updates.setVersion(dataSet.getVersion());
         updates.setExperimentIdentifierOrNull(dataSet.getExperiment().getIdentifier());
-        updates.setFileFormatTypeCode(((DataSet) dataSet).getFileFormatType().getCode());
+        updates.setFileFormatTypeCode(((PhysicalDataSet) dataSet).getFileFormatType().getCode());
         IEntityProperty p1 = new PropertyBuilder("COMMENT").value("hello world").getProperty();
         IEntityProperty p2 =
                 new PropertyBuilder("GENDER").value(new VocabularyTermBuilder("male").getTerm())
@@ -299,7 +299,7 @@ public class PropertiesHistoryTest extends SystemTestCase
         updates.setDatasetId(id);
         updates.setVersion(dataSet.getVersion());
         updates.setExperimentIdentifierOrNull(dataSet.getExperiment().getIdentifier());
-        updates.setFileFormatTypeCode(((DataSet) dataSet).getFileFormatType().getCode());
+        updates.setFileFormatTypeCode(((PhysicalDataSet) dataSet).getFileFormatType().getCode());
         IEntityProperty p1 = new PropertyBuilder("COMMENT").value((String) null).getProperty();
         IEntityProperty p2 =
                 new PropertyBuilder("GENDER").value((VocabularyTerm) null).getProperty();

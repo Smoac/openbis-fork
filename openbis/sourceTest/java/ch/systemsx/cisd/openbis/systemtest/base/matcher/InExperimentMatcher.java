@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.systemtest.base.matcher;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
@@ -59,7 +59,7 @@ public class InExperimentMatcher extends TypeSafeMatcher<Object>
             actualExperiment = ((Sample) actual).getExperiment();
         } else
         {
-            actualExperiment = ((DataSet) actual).getExperiment();
+            actualExperiment = ((PhysicalDataSet) actual).getExperiment();
         }
 
         if (this.expectedExperiment == null && actualExperiment == null)

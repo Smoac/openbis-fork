@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -60,7 +60,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
         ExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment));
-        assertEquals("XML", ((DataSet) dataSet).getFileFormatType().getCode());
+        assertEquals("XML", ((PhysicalDataSet) dataSet).getFileFormatType().getCode());
         DataSetBatchUpdatesDTO dataSetBatchUpdates = new DataSetBatchUpdatesDTO();
         dataSetBatchUpdates.setVersion(dataSet.getVersion());
         dataSetBatchUpdates.setDatasetCode(dataSet.getCode());
@@ -78,7 +78,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
         ExternalData loadedDataSet = toolBox.loadDataSet(systemSessionToken, dataSet.getCode());
-        assertEquals("HDF5", ((DataSet) loadedDataSet).getFileFormatType().getCode());
+        assertEquals("HDF5", ((PhysicalDataSet) loadedDataSet).getFileFormatType().getCode());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet, "test");
     }
 
@@ -87,7 +87,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
         ExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment));
-        assertEquals("XML", ((DataSet) dataSet).getFileFormatType().getCode());
+        assertEquals("XML", ((PhysicalDataSet) dataSet).getFileFormatType().getCode());
         DataSetUpdatesDTO dataSetUpdates =
                 new DataSetUpdateBuilder(commonServer, genericServer, dataSet).create();
         dataSetUpdates.setFileFormatTypeCode("HDF5");
@@ -97,7 +97,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         etlService.updateDataSet(sessionToken, dataSetUpdates);
 
         ExternalData loadedDataSet = toolBox.loadDataSet(systemSessionToken, dataSet.getCode());
-        assertEquals("HDF5", ((DataSet) loadedDataSet).getFileFormatType().getCode());
+        assertEquals("HDF5", ((PhysicalDataSet) loadedDataSet).getFileFormatType().getCode());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet, "test");
     }
 
@@ -106,7 +106,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
         ExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment));
-        assertEquals("XML", ((DataSet) dataSet).getFileFormatType().getCode());
+        assertEquals("XML", ((PhysicalDataSet) dataSet).getFileFormatType().getCode());
         DataSetUpdatesDTO dataSetUpdates =
                 new DataSetUpdateBuilder(commonServer, genericServer, dataSet).create();
         dataSetUpdates.setFileFormatTypeCode("HDF5");

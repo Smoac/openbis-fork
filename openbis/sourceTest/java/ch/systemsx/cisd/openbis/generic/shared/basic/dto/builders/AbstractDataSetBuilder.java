@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -127,7 +127,7 @@ public abstract class AbstractDataSetBuilder<T extends AbstractDataSetBuilder<?>
         return asConcreteSubclass();
     }
 
-    public T parent(DataSet parent)
+    public T parent(PhysicalDataSet parent)
     {
         Collection<ExternalData> parents = dataSet.getParents();
         if (parents == null)
@@ -139,7 +139,7 @@ public abstract class AbstractDataSetBuilder<T extends AbstractDataSetBuilder<?>
         return asConcreteSubclass();
     }
 
-    public T child(DataSet child)
+    public T child(PhysicalDataSet child)
     {
         Collection<ExternalData> children = dataSet.getChildren();
         if (children == null)

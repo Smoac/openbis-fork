@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -505,7 +505,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         locatorTypePE.setCode("LOCATOR");
         DataStore dataStore = new DataStore();
         dataStore.setCode("S");
-        final DataSet ds =
+        final PhysicalDataSet ds =
                 new DataSetBuilder().code("DS").type("MT").fileFormat("PNG")
                         .status(DataSetArchivingStatus.AVAILABLE).store(dataStore).getDataSet();
         context.checking(new Expectations()
@@ -537,7 +537,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         List<TableModelRowWithObject<ExternalData>> list =
                 resultSet.getResultSet().getList().extractOriginalObjects();
         assertEquals(1, list.size());
-        DataSet data = list.get(0).getObjectOrNull().tryGetAsDataSet();
+        PhysicalDataSet data = list.get(0).getObjectOrNull().tryGetAsDataSet();
         assertEquals("PNG", data.getFileFormatType().getCode());
 
         context.assertIsSatisfied();

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -44,16 +44,16 @@ public class SimpleDataSetHelper
         List<SimpleDataSetInformationDTO> result = new ArrayList<SimpleDataSetInformationDTO>();
         for (ExternalData ed : externalData)
         {
-            if (ed instanceof DataSet)
+            if (ed instanceof PhysicalDataSet)
             {
-                DataSet dataSet = (DataSet) ed;
+                PhysicalDataSet dataSet = (PhysicalDataSet) ed;
                 result.add(translate(dataSet));
             }
         }
         return result;
     }
 
-    private static SimpleDataSetInformationDTO translate(DataSet data)
+    private static SimpleDataSetInformationDTO translate(PhysicalDataSet data)
     {
         SimpleDataSetInformationDTO result = new SimpleDataSetInformationDTO();
         result.setDataStoreCode(data.getDataStore().getCode());

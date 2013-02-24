@@ -31,7 +31,7 @@ import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackingStateDTO;
 import ch.ethz.bsse.cisd.dsu.tracking.main.TrackingBO.TrackingStateUpdateHelper;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
@@ -132,9 +132,9 @@ public class FileBasedTrackingDAOTest extends AbstractFileSystemTestCase
         return result;
     }
 
-    private static DataSet createDataSetWithId(long id)
+    private static PhysicalDataSet createDataSetWithId(long id)
     {
-        DataSet result = new DataSet();
+        PhysicalDataSet result = new PhysicalDataSet();
         result.setId(id);
         return result;
     }

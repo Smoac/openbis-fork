@@ -61,7 +61,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -252,7 +252,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
     }
 
     @Override
-    public File getFileForDataSet(DataSet dataSet, String shareId)
+    public File getFileForDataSet(PhysicalDataSet dataSet, String shareId)
     {
         File share = new File(service.getStoreRootDirectory(), shareId);
         File dataSetFile = new File(share, dataSet.getLocation());

@@ -28,7 +28,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
@@ -94,11 +94,11 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
         Properties properties = new Properties();
         properties.setProperty(AnalysisSettings.KEY, "T1:viewer1");
         prepareLoadExperiment();
-        DataSet ds1 =
+        PhysicalDataSet ds1 =
                 new DataSetBuilder().code("ds1").type("T1")
                         .property(ScreeningConstants.ANALYSIS_PROCEDURE, "extern")
                         .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).getDataSet();
-        DataSet ds2 = new DataSetBuilder().code("ds2").type("T2").getDataSet();
+        PhysicalDataSet ds2 = new DataSetBuilder().code("ds2").type("T2").getDataSet();
         prepareListDataSetsByExperiment(ds1, ds2);
         TableModel tabelModel =
                 new TableModel(Collections.<TableModelColumnHeader> emptyList(),
@@ -120,7 +120,7 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
         Properties properties = new Properties();
         properties.setProperty(AnalysisSettings.KEY, "T1:viewer1");
         prepareLoadExperiment();
-        DataSet ds1 =
+        PhysicalDataSet ds1 =
                 new DataSetBuilder().code("ds1").type("T1")
                         .property(ScreeningConstants.ANALYSIS_PROCEDURE, "extern")
                         .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).getDataSet();
@@ -151,7 +151,7 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
         Properties properties = new Properties();
         properties.setProperty(AnalysisSettings.KEY, "T1:viewer1");
         prepareLoadExperiment();
-        DataSet ds1 =
+        PhysicalDataSet ds1 =
                 new DataSetBuilder().code("ds1").type("T1")
                 .property(ScreeningConstants.ANALYSIS_PROCEDURE, "extern")
                 .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).getDataSet();
@@ -180,7 +180,7 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
         Properties properties = new Properties();
         properties.setProperty(AnalysisSettings.KEY, "T1:viewer1");
         prepareLoadExperiment();
-        DataSet ds1 =
+        PhysicalDataSet ds1 =
                 new DataSetBuilder().code("ds1").type("T1")
                 .property(ScreeningConstants.ANALYSIS_PROCEDURE, "extern")
                 .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).getDataSet();
@@ -209,10 +209,10 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
         Properties properties = new Properties();
         properties.setProperty(AnalysisSettings.KEY, "T1:viewer1");
         prepareLoadExperiment();
-        DataSet ds1 =
+        PhysicalDataSet ds1 =
                 new DataSetBuilder().code("ds1").type("T1")
                         .property(ScreeningConstants.ANALYSIS_PROCEDURE, "extern").getDataSet();
-        DataSet ds2 =
+        PhysicalDataSet ds2 =
                 new DataSetBuilder().code("ds2").type("T1")
                         .property(ScreeningConstants.ANALYSIS_PROCEDURE, "extern").getDataSet();
         prepareListDataSetsByExperiment(ds1, ds2);
@@ -232,11 +232,11 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
         Properties properties = new Properties();
         properties.setProperty(AnalysisSettings.KEY, "T1:viewer1");
         prepareLoadExperiment();
-        DataSet ds1 =
+        PhysicalDataSet ds1 =
                 new DataSetBuilder().code("ds1").type("T1")
                         .property(ScreeningConstants.ANALYSIS_PROCEDURE, "extern")
                         .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).getDataSet();
-        DataSet ds2 = new DataSetBuilder().code("ds2").type("T2").getDataSet();
+        PhysicalDataSet ds2 = new DataSetBuilder().code("ds2").type("T2").getDataSet();
         prepareListDataSetsByExperiment(ds1, ds2);
 
         ExperimentFeatureVectorSummary summary =
@@ -285,7 +285,7 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
             });
     }
     
-    private void prepareListDataSetsByExperiment(final DataSet... dataSets)
+    private void prepareListDataSetsByExperiment(final PhysicalDataSet... dataSets)
     {
         context.checking(new Expectations()
             {
@@ -300,7 +300,7 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
     }
 
     private void prepareCreateReport(final TableModel report, final String reportingPluginKey,
-            final DataSet dataSet)
+            final PhysicalDataSet dataSet)
     {
         context.checking(new Expectations()
             {
@@ -316,7 +316,7 @@ public class ExperimentFeatureVectorSummaryLoaderTest extends AbstractServerTest
     }
     
     private void prepareCreateReportFails(final Exception exception, final String reportingPluginKey,
-            final DataSet dataSet)
+            final PhysicalDataSet dataSet)
     {
         context.checking(new Expectations()
             {

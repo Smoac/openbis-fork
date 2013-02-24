@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -199,7 +199,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     prepareGetSessionToken(this);
 
                     one(genericServer).getDataSetInfo(SESSION_TOKEN, id);
-                    DataSet dataSet = new DataSet();
+                    PhysicalDataSet dataSet = new PhysicalDataSet();
                     dataSet.setDataSetProperties(Arrays.asList(createXmlProperty()));
                     will(returnValue(dataSet));
                 }

@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnIn
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -158,15 +158,15 @@ public class TableForUpdateExporterTest extends AssertJUnit
     public void testDataSetExport()
     {
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E").getExperiment();
-        DataSet ds1 =
+        PhysicalDataSet ds1 =
                 new DataSetBuilder().code("ds1").experiment(experiment).property("P1", "hello")
                         .parent(new DataSetBuilder().code("ds3").getDataSet())
                         .parent(new DataSetBuilder().code("ds4").getDataSet()).getDataSet();
-        DataSet ds2 =
+        PhysicalDataSet ds2 =
                 new DataSetBuilder().code("ds2").experiment(experiment)
                         .container(new ContainerDataSetBuilder().code("ds1").getContainerDataSet())
                         .sample(new SampleBuilder("/S/S1").getSample()).getDataSet();
-        GridRowModels<TableModelRowWithObject<DataSet>> rows = createGridRowModels(ds1, ds2);
+        GridRowModels<TableModelRowWithObject<PhysicalDataSet>> rows = createGridRowModels(ds1, ds2);
 
         Mockery context = new Mockery();
         final ICommonServer commonServer = context.mock(ICommonServer.class);

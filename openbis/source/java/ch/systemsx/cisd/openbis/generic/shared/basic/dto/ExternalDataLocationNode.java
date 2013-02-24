@@ -44,7 +44,7 @@ public class ExternalDataLocationNode implements IDatasetLocationNode
     @Override
     public IDatasetLocation getLocation()
     {
-        DataSet dataSet = externalData.tryGetAsDataSet();
+        PhysicalDataSet dataSet = externalData.tryGetAsDataSet();
         if (dataSet == null)
         {
             throw new IllegalArgumentException(

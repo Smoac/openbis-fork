@@ -63,7 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -1030,9 +1030,9 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
     }
 
-    private DataSet convertToDataSet(DatasetRecord record)
+    private PhysicalDataSet convertToDataSet(DatasetRecord record)
     {
-        DataSet dataSet = new DataSet();
+        PhysicalDataSet dataSet = new PhysicalDataSet();
         convertStandardAttributes(dataSet, record);
 
         dataSet.setComplete(resolve(record.is_complete));

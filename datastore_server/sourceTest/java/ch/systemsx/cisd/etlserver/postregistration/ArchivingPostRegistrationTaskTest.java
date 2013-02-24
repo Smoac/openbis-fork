@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -165,7 +165,7 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
         DataStore dataStore = new DataStore();
         dataStore.setCode("STANDARD");
 
-        DataSet dataSet = new DataSet();
+        PhysicalDataSet dataSet = new PhysicalDataSet();
         dataSet.setCode(DATASET_CODE);
         dataSet.setFileFormatType(new FileFormatType("DATA"));
         dataSet.setDataStore(dataStore);

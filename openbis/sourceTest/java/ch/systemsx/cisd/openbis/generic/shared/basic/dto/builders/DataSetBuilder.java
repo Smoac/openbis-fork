@@ -17,13 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 
 /**
- * Builder class for creating an instance of {@link DataSet} or {@link ContainerDataSet}.
+ * Builder class for creating an instance of {@link PhysicalDataSet} or {@link ContainerDataSet}.
  * 
  * @author Franz-Josef Elmer
  */
@@ -31,7 +31,7 @@ public class DataSetBuilder extends AbstractDataSetBuilder<DataSetBuilder>
 {
     public DataSetBuilder()
     {
-        super(new DataSet());
+        super(new PhysicalDataSet());
         dataSet.tryGetAsDataSet().setLocatorType(
                 new LocatorType(LocatorType.DEFAULT_LOCATOR_TYPE_CODE));
     }
@@ -66,7 +66,7 @@ public class DataSetBuilder extends AbstractDataSetBuilder<DataSetBuilder>
         return this;
     }
 
-    public final DataSet getDataSet()
+    public final PhysicalDataSet getDataSet()
     {
         return dataSet.tryGetAsDataSet();
     }
