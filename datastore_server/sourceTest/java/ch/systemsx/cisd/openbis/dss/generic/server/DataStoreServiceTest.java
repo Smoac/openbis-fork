@@ -151,6 +151,7 @@ public class DataStoreServiceTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testGetKnownDataSetsForInvalidSessionToken()
     {
@@ -194,6 +195,7 @@ public class DataStoreServiceTest extends AssertJUnit
             });
 
         IDataStoreService service = createService();
+        @SuppressWarnings("deprecation")
         List<String> knownDataSets =
                 service.getKnownDataSets(sessionToken,
                         Arrays.asList(ds1.getDatasetDescription(), ds2.getDatasetDescription()),
