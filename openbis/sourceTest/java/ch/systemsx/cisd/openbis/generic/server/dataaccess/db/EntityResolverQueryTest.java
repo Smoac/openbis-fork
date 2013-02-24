@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
 
 import java.sql.SQLException;
 
@@ -43,59 +44,65 @@ public class EntityResolverQueryTest extends AbstractDAOTest
     @Test
     public void testResolveSpace()
     {
-        assertEquals(1, query.resolveSpaceIdByCode("CISD"));
+        assertEquals(new Long(1), query.tryResolveSpaceIdByCode("CISD"));
     }
 
     @Test
     public void testResolveProjectByCode()
     {
-        assertEquals(5, query.resolveProjectIdByCode("TEST-SPACE", "TEST-PROJECT"));
+        assertEquals(new Long(5), query.tryResolveProjectIdByCode("TEST-SPACE", "TEST-PROJECT"));
     }
 
     @Test
     public void testResolveProjectByPermId()
     {
-        assertEquals(4, query.resolveProjectIdByPermId("20120814110011738-104"));
+        assertEquals(new Long(4), query.tryResolveProjectIdByPermId("20120814110011738-104"));
     }
 
     @Test
     public void testResolveExperimentByCode()
     {
-        assertEquals(23,
-                query.resolveExperimentIdByCode("TEST-SPACE", "TEST-PROJECT", "EXP-SPACE-TEST"));
+        assertEquals(new Long(23),
+                query.tryResolveExperimentIdByCode("TEST-SPACE", "TEST-PROJECT", "EXP-SPACE-TEST"));
     }
 
     @Test
     public void testResolveExperimentByPermId()
     {
-        assertEquals(8, query.resolveExperimentIdByPermId("200811050940555-1032"));
+        assertEquals(new Long(8), query.tryResolveExperimentIdByPermId("200811050940555-1032"));
     }
 
     @Test
     public void testResolveSampleByCode()
     {
-        assertEquals(1054,
-                query.resolveSampleIdByCode("TEST-SPACE", "FV-TEST"));
+        assertEquals(new Long(1054),
+                query.tryResolveSampleIdByCode("TEST-SPACE", "FV-TEST"));
     }
 
     @Test
     public void testResolveSampleByPermId()
     {
-        assertEquals(1019, query.resolveSampleIdByPermId("200811050929035-1014"));
+        assertEquals(new Long(1019), query.tryResolveSampleIdByPermId("200811050929035-1014"));
     }
 
     @Test
     public void testResolveMaterialByCode()
     {
-        assertEquals(36,
-                query.resolveMaterialIdByCode("GENE", "MYGENE1"));
+        assertEquals(new Long(36),
+                query.tryResolveMaterialIdByCode("GENE", "MYGENE1"));
     }
 
     @Test
     public void testResolveDatasetByCode()
     {
-        assertEquals(13,
-                query.resolveDatasetIdByCode("20110509092359990-10"));
+        assertEquals(new Long(13),
+                query.tryResolveDatasetIdByCode("20110509092359990-10"));
+    }
+
+    @Test
+    public void testResolveNonExistentDatasetByCode()
+    {
+        assertNull(query.tryResolveDatasetIdByCode("NONEXISTENT"));
     }
 
 }

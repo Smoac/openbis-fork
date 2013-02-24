@@ -103,7 +103,7 @@ public abstract class AbstractBusinessObjectFactory
     }
 
     /**
-     * Returns the entity resolver query.
+     * Returns the entity resolver.
      */
     public IEntityResolverQuery getEntityResolver()
     {
