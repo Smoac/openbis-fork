@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -34,7 +36,7 @@ import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
  */
 @SuppressWarnings("unused")
 @JsonObject("ExperimentIdentifier")
-public class ExperimentIdentifier implements IPermanentIdentifier, IDatabaseIdentifier
+public class ExperimentIdentifier implements Serializable, IPermanentIdentifier, IDatabaseIdentifier
 {
     private static final long serialVersionUID = 1L;
 
