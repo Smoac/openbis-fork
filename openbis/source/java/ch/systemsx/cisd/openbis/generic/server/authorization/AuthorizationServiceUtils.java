@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -159,7 +159,7 @@ public class AuthorizationServiceUtils
         return canAccessDataSet(dataSet.getCode());
     }
 
-    public boolean canAccessDataSet(ExternalData dataSet)
+    public boolean canAccessDataSet(AbstractExternalData dataSet)
     {
         return canAccessDataSet(dataSet.getCode());
     }

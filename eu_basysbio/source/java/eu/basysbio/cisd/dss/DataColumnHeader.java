@@ -24,7 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 
 public final class DataColumnHeader
@@ -34,7 +34,7 @@ public final class DataColumnHeader
         private final Map<String, String> propertiesMap;
         private final String dataSetCode;
 
-        PropertyManager(ExternalData dataSet)
+        PropertyManager(AbstractExternalData dataSet)
         {
             dataSetCode = dataSet.getCode();
             List<IEntityProperty> properties = dataSet.getProperties();
@@ -90,7 +90,7 @@ public final class DataColumnHeader
     private final String normalizedHeader;
     private final String header;
     
-    DataColumnHeader(DataColumnHeader header, ExternalData dataSet)
+    DataColumnHeader(DataColumnHeader header, AbstractExternalData dataSet)
     {
         PropertyManager propertyManager = new PropertyManager(dataSet);
         experimentCode = header.getExperimentCode();

@@ -18,7 +18,7 @@ package ch.ethz.bsse.cisd.dsu.tracking.dto;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
@@ -33,10 +33,10 @@ public class TrackedEntities
 
     private final List<Sample> sequencingSamplesProcessed;
 
-    private final List<ExternalData> dataSets;
+    private final List<AbstractExternalData> dataSets;
 
     public TrackedEntities(List<Sample> sequencingSamplesToBeProcessed,
-            List<Sample> sequencingSamplesProcessed, List<ExternalData> dataSets)
+            List<Sample> sequencingSamplesProcessed, List<AbstractExternalData> dataSets)
     {
         this.sequencingSamplesToBeProcessed = sequencingSamplesToBeProcessed;
         this.sequencingSamplesProcessed = sequencingSamplesProcessed;
@@ -53,7 +53,7 @@ public class TrackedEntities
         return sequencingSamplesProcessed;
     }
 
-    public List<ExternalData> getDataSets()
+    public List<AbstractExternalData> getDataSets()
     {
         return dataSets;
     }

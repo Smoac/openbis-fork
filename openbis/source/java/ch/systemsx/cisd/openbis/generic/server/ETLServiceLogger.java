@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -244,7 +244,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public List<ExternalData> listDataSetsByExperimentID(String sessionToken, TechId experimentID)
+    public List<AbstractExternalData> listDataSetsByExperimentID(String sessionToken, TechId experimentID)
             throws UserFailureException
     {
         logAccess(sessionToken, "listDataSetsByExperimentID", "EXPERIMENT_ID(%s)", experimentID);
@@ -252,7 +252,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public List<ExternalData> listDataSetsBySampleID(final String sessionToken,
+    public List<AbstractExternalData> listDataSetsBySampleID(final String sessionToken,
             final TechId sampleId, final boolean showOnlyDirectlyConnected)
     {
         logAccess(sessionToken, "listDataSetsBySampleID", "SAMPLE_ID(%s)", sampleId);
@@ -260,7 +260,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public List<ExternalData> listDataSetsByCode(String sessionToken, List<String> dataSetCodes)
+    public List<AbstractExternalData> listDataSetsByCode(String sessionToken, List<String> dataSetCodes)
             throws UserFailureException
     {
         logAccess(sessionToken, "listDataSetsByCode", "DATA_SETS(%s)", dataSetCodes);
@@ -325,7 +325,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)
+    public AbstractExternalData tryGetDataSet(String sessionToken, String dataSetCode)
             throws UserFailureException
     {
         logAccess(sessionToken, "tryGetDataSet", "DATA_SET(%s)", dataSetCode);
@@ -375,7 +375,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public List<ExternalData> listAvailableDataSets(String sessionToken, String dataStoreCode,
+    public List<AbstractExternalData> listAvailableDataSets(String sessionToken, String dataStoreCode,
             ArchiverDataSetCriteria criteria)
     {
         logAccess(sessionToken, "listAvailableDataSets", "DATA_STORE(%s) CRITERIA(%s)",
@@ -384,7 +384,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public List<ExternalData> listDataSets(String sessionToken, String dataStoreCode,
+    public List<AbstractExternalData> listDataSets(String sessionToken, String dataStoreCode,
             TrackingDataSetCriteria criteria)
     {
         logAccess(Level.DEBUG, sessionToken, "listDataSets", "DATA_STORE(%s) CRITERIA(%s)",
@@ -595,7 +595,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public List<ExternalData> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)
+    public List<AbstractExternalData> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)
     {
         logAccess(sessionToken, "searchForDataSets", "%s", searchCriteria);
         return null;
@@ -658,7 +658,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLLIMSSe
     }
 
     @Override
-    public List<ExternalData> listDataSetsForPostRegistration(String sessionToken,
+    public List<AbstractExternalData> listDataSetsForPostRegistration(String sessionToken,
             String dataStoreCode)
     {
         logAccess(Level.DEBUG, sessionToken, "listDataSetsForPostRegistration", "DATA_STORE(%s)",

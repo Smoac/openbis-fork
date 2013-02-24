@@ -30,7 +30,7 @@ import java.util.Set;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -51,7 +51,7 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
     private final AnalysisProcedureCriteria analysisProcedureCriteria;
 
     // Running state
-    private Collection<ExternalData> featureVectorDatasets;
+    private Collection<AbstractExternalData> featureVectorDatasets;
 
     FeatureVectorDatasetLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, String homeSpaceOrNull,
@@ -75,23 +75,23 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
 
     public static class FeatureVectorExternalData
     {
-        private final ExternalData featureVectorDataset;
+        private final AbstractExternalData featureVectorDataset;
 
-        private final ExternalData imageDatasetOrNull;
+        private final AbstractExternalData imageDatasetOrNull;
 
-        public FeatureVectorExternalData(ExternalData featureVectorDataset,
-                ExternalData imageDatasetOrNull)
+        public FeatureVectorExternalData(AbstractExternalData featureVectorDataset,
+                AbstractExternalData imageDatasetOrNull)
         {
             this.featureVectorDataset = featureVectorDataset;
             this.imageDatasetOrNull = imageDatasetOrNull;
         }
 
-        public ExternalData getFeatureVectorDataset()
+        public AbstractExternalData getFeatureVectorDataset()
         {
             return featureVectorDataset;
         }
 
-        public ExternalData tryGetImageDataset()
+        public AbstractExternalData tryGetImageDataset()
         {
             return imageDatasetOrNull;
         }
@@ -101,7 +101,7 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
      * Enriched with image dataset parents. Note that all feature vector datasets have to be
      * connected directly to the plate, otherwise they will be skipped.
      */
-    public Collection<ExternalData> getFeatureVectorDatasets()
+    public Collection<AbstractExternalData> getFeatureVectorDatasets()
     {
         loadAll();
         return featureVectorDatasets;
@@ -122,10 +122,10 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
 
     private void loadFeatureVectorDatasets()
     {
-        final Map<Long, ExternalData> featureVectorDatasetSet = new HashMap<Long, ExternalData>();
+        final Map<Long, AbstractExternalData> featureVectorDatasetSet = new HashMap<Long, AbstractExternalData>();
 
-        List<ExternalData> imageDatasets = new ArrayList<ExternalData>();
-        for (ExternalData dataset : getDatasets())
+        List<AbstractExternalData> imageDatasets = new ArrayList<AbstractExternalData>();
+        for (AbstractExternalData dataset : getDatasets())
         {
             if (isMatchingAnalysisDataSet(dataset))
             {
@@ -142,9 +142,9 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
         // Add feature vector datasets which are not connected directly to the plate, but are
         // connected to the image dataset.
         // These datasets are already enriched with parent datasets.
-        List<ExternalData> childrenDatasets =
+        List<AbstractExternalData> childrenDatasets =
                 fetchChildrenDataSets(imageDatasets, featureVectorDatasetTypeCode, datasetLister);
-        for (ExternalData dataset : childrenDatasets)
+        for (AbstractExternalData dataset : childrenDatasets)
         {
             if (isMatchingAnalysisDataSet(dataset))
             {
@@ -155,12 +155,12 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
         featureVectorDatasets = featureVectorDatasetSet.values();
     }
 
-    private boolean isMatchingImageDataset(ExternalData dataset)
+    private boolean isMatchingImageDataset(AbstractExternalData dataset)
     {
         return isTypeMatching(dataset, ANY_HCS_IMAGE_DATASET_TYPE_PATTERN);
     }
 
-    private boolean isMatchingAnalysisDataSet(ExternalData dataset)
+    private boolean isMatchingAnalysisDataSet(AbstractExternalData dataset)
     {
         return isTypeMatching(dataset, HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN)
                 && ScreeningUtils.isMatchingAnalysisProcedure(dataset, analysisProcedureCriteria);
@@ -169,16 +169,16 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
     private List<FeatureVectorDatasetReference> asFeatureVectorDatasetReferences()
     {
         List<FeatureVectorDatasetReference> result = new ArrayList<FeatureVectorDatasetReference>();
-        for (ExternalData externalData : featureVectorDatasets)
+        for (AbstractExternalData externalData : featureVectorDatasets)
         {
             result.add(asFeatureVectorDataset(externalData));
         }
         return result;
     }
 
-    private static ExternalData tryGetOneParent(ExternalData externalData)
+    private static AbstractExternalData tryGetOneParent(AbstractExternalData externalData)
     {
-        Collection<ExternalData> parents = externalData.getParents();
+        Collection<AbstractExternalData> parents = externalData.getParents();
         if (parents != null && parents.size() == 1)
         {
             return parents.iterator().next();
@@ -188,11 +188,11 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
         }
     }
 
-    protected FeatureVectorDatasetReference asFeatureVectorDataset(ExternalData externalData)
+    protected FeatureVectorDatasetReference asFeatureVectorDataset(AbstractExternalData externalData)
     {
         DataStore dataStore = externalData.getDataStore();
         // there should be no more parents than one, we ensure about that earlier
-        ExternalData parentDataset = tryGetOneParent(externalData);
+        AbstractExternalData parentDataset = tryGetOneParent(externalData);
         DataSetType dataSetType = externalData.getDataSetType();
         String dataSetTypeCodeOrNull = dataSetType == null ? null : dataSetType.getCode();
         if (parentDataset == null)

@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -170,7 +170,7 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
         String experimentCode = dataSet.getExperimentCode();
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(databaseInstanceCode,
                 groupCode, projectCode, experimentCode));
-        ExternalData fullDataSet = service.tryGetDataSet(dataSetCode);
+        AbstractExternalData fullDataSet = service.tryGetDataSet(dataSetCode);
         List<IEntityProperty> properties = fullDataSet.getProperties();
         List<NewProperty> dataSetProperties = new ArrayList<NewProperty>();
         for (IEntityProperty property : properties)

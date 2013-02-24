@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.MsInjectionSample;
 
 /**
@@ -51,7 +51,7 @@ public interface IProteomicsDataServiceInternal extends IServer
     public List<Experiment> listExperiments(String sessionToken, String experimentTypeCode);
 
     @Transactional
-    public List<ExternalData> listDataSetsByExperiment(String sessionToken, TechId experimentID);
+    public List<AbstractExternalData> listDataSetsByExperiment(String sessionToken, TechId experimentID);
 
     @Transactional
     public void processProteinResultDataSets(String sessionToken, String dataSetProcessingKey,

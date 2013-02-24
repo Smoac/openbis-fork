@@ -64,7 +64,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -291,7 +291,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
             case DATA_SET:
                 String dataSetCode = tryGetDataSetCode();
 
-                ExternalData parentDataSet = getOpenBisService().tryGetDataSet(dataSetCode);
+                AbstractExternalData parentDataSet = getOpenBisService().tryGetDataSet(dataSetCode);
                 if (parentDataSet != null)
                 {
                     if (parentDataSet.getExperiment() != null)
@@ -421,7 +421,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
             case DATA_SET:
                 String dataSetCode = tryGetDataSetCode();
 
-                ExternalData parentDataSet = getOpenBisService().tryGetDataSet(dataSetCode);
+                AbstractExternalData parentDataSet = getOpenBisService().tryGetDataSet(dataSetCode);
                 if (parentDataSet != null)
                 {
                     if (parentDataSet.getExperiment() != null)
@@ -748,7 +748,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
                     case DATA_SET:
                         String dataSetCode = tryGetDataSetCode();
 
-                        ExternalData parentDataSet = openbisService.tryGetDataSet(dataSetCode);
+                        AbstractExternalData parentDataSet = openbisService.tryGetDataSet(dataSetCode);
                         if (parentDataSet != null)
                         {
                             if (parentDataSet.getExperiment() != null)

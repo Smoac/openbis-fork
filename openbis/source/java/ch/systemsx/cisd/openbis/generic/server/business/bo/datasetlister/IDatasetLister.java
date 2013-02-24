@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityP
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
@@ -45,26 +45,26 @@ public interface IDatasetLister
      * @param showOnlyDirectlyConnected whether to return only directly connected datasets, or also
      *            all descendants in dataset parent-child relationship hierarchy
      */
-    List<ExternalData> listByExperimentTechId(TechId experimentId, boolean showOnlyDirectlyConnected);
+    List<AbstractExternalData> listByExperimentTechId(TechId experimentId, boolean showOnlyDirectlyConnected);
 
     /**
      * @return datasets connected to the sample with the specified id
      * @param showOnlyDirectlyConnected whether to return only directly connected datasets, or also
      *            all descendants in dataset parent-child relationship hierarchy
      */
-    List<ExternalData> listBySampleTechId(TechId sampleId, boolean showOnlyDirectlyConnected);
+    List<AbstractExternalData> listBySampleTechId(TechId sampleId, boolean showOnlyDirectlyConnected);
 
     /** @return datasets that are parents of a dataset with the specified id */
-    List<ExternalData> listByChildTechId(TechId childDatasetId);
+    List<AbstractExternalData> listByChildTechId(TechId childDatasetId);
 
     /** @return datasets that are components of a dataset with the specified id */
-    List<ExternalData> listByContainerTechId(TechId containerDatasetId);
+    List<AbstractExternalData> listByContainerTechId(TechId containerDatasetId);
 
     /** @return all datasets that are children of any specified dataset id */
-    List<ExternalData> listByParentTechIds(Collection<Long> parentDatasetIds);
+    List<AbstractExternalData> listByParentTechIds(Collection<Long> parentDatasetIds);
 
     /** @return datasets connected to the metaproject with the specified id */
-    List<ExternalData> listByMetaprojectId(Long metaprojectId);
+    List<AbstractExternalData> listByMetaprojectId(Long metaprojectId);
 
     /**
      * Returns a map with all parent data set IDs of specified data set IDs. The keys of the map are
@@ -83,32 +83,32 @@ public interface IDatasetLister
      * the returned map. The returned data sets contains all derived data sets (children, grand
      * children, etc.).
      */
-    Map<Sample, List<ExternalData>> listAllDataSetsFor(List<Sample> samples);
+    Map<Sample, List<AbstractExternalData>> listAllDataSetsFor(List<Sample> samples);
 
     /**
      * Lists all data sets with specified codes.
      */
-    List<ExternalData> listByDatasetCode(Collection<String> datasetCodes);
+    List<AbstractExternalData> listByDatasetCode(Collection<String> datasetCodes);
 
     /**
      * @param datasetCodes Codes of datasets.
      * @param datasetFetchOptions The options of what datasets to fetch.
      *            Lists all data sets with specified codes.
      */
-    List<ExternalData> listByDatasetCode(Collection<String> datasetCodes,
+    List<AbstractExternalData> listByDatasetCode(Collection<String> datasetCodes,
             EnumSet<DataSetFetchOption> datasetFetchOptions);
 
     /**
      * Lists all physical data sets of specified data store.
      */
-    List<ExternalData> listByDataStore(long dataStoreID);
+    List<AbstractExternalData> listByDataStore(long dataStoreID);
 
     /**
      * Lists all physical data sets of specified data store.
      * 
      * @param datasetFetchOptions The options of what datasets to fetch.
      */
-    List<ExternalData> listByDataStore(long dataStoreID,
+    List<AbstractExternalData> listByDataStore(long dataStoreID,
             EnumSet<DataSetFetchOption> datasetFetchOptions);
 
     /**
@@ -116,7 +116,7 @@ public interface IDatasetLister
      * 
      * @param datasetFetchOptions The options of what datasets to fetch.
      */
-    public List<ExternalData> listByDataStore(long dataStoreID, int limit,
+    public List<AbstractExternalData> listByDataStore(long dataStoreID, int limit,
             EnumSet<DataSetFetchOption> datasetFetchOptions);
 
     /**
@@ -125,7 +125,7 @@ public interface IDatasetLister
      * 
      * @param datasetFetchOptions The options of what datasets to fetch.
      */
-    public List<ExternalData> listByDataStore(long dataStoreID, Date youngerThan, int limit,
+    public List<AbstractExternalData> listByDataStore(long dataStoreID, Date youngerThan, int limit,
             EnumSet<DataSetFetchOption> datasetFetchOptions);
 
     /**
@@ -134,31 +134,31 @@ public interface IDatasetLister
     List<DataSetShareId> listAllDataSetShareIdsByDataStore(long dataStoreID);
 
     /** @return datasets with given ids */
-    List<ExternalData> listByDatasetIds(Collection<Long> datasetIds);
+    List<AbstractExternalData> listByDatasetIds(Collection<Long> datasetIds);
 
     /**
      * @param datasetIds Database ids of datasets.
      * @param datasetFetchOptions The options of what datasets to fetch.
      * @return datasets with given ids
      */
-    List<ExternalData> listByDatasetIds(Collection<Long> datasetIds,
+    List<AbstractExternalData> listByDatasetIds(Collection<Long> datasetIds,
             EnumSet<DataSetFetchOption> datasetFetchOptions);
 
     /** @return datasets specified by given criteria */
-    List<ExternalData> listByTrackingCriteria(TrackingDataSetCriteria criteria);
+    List<AbstractExternalData> listByTrackingCriteria(TrackingDataSetCriteria criteria);
 
     /** @return datasets specified by given criteria */
-    List<ExternalData> listByArchiverCriteria(String dataStoreCode, ArchiverDataSetCriteria criteria);
+    List<AbstractExternalData> listByArchiverCriteria(String dataStoreCode, ArchiverDataSetCriteria criteria);
 
     /**
      * @return Datasets connected to the samples with the specified ids
      */
-    List<ExternalData> listBySampleIds(Collection<Long> sampleIds);
+    List<AbstractExternalData> listBySampleIds(Collection<Long> sampleIds);
 
     /**
      * @return Datasets connected to the samples with the specified ids
      */
-    List<ExternalData> listBySampleIds(Collection<Long> sampleIds,
+    List<AbstractExternalData> listBySampleIds(Collection<Long> sampleIds,
             EnumSet<DataSetFetchOption> datasetFetchOptions);
 
     /**

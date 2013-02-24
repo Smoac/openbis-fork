@@ -63,7 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebAppContext;
@@ -74,7 +74,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Piotr Buczek
  */
-abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSplit<ExternalData>
+abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSplit<AbstractExternalData>
         implements IDatabaseModificationObserver
 {
     public static final String PREFIX = "generic-dataset-viewer_";
@@ -95,7 +95,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
             {
                 @Override
                 protected void loadDatasetInfo(TechId datasetTechId,
-                        AsyncCallback<ExternalData> asyncCallback)
+                        AsyncCallback<AbstractExternalData> asyncCallback)
                 {
                     localViewContext.getService().getDataSetInfo(datasetTechId, asyncCallback);
                 }
@@ -114,13 +114,13 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
     }
 
     abstract protected void loadDatasetInfo(TechId datasetTechId,
-            AsyncCallback<ExternalData> asyncCallback);
+            AsyncCallback<AbstractExternalData> asyncCallback);
 
     /**
      * To be subclassed. Creates additional panels of the viewer in the right side section besides
      * components, datasets and attachments
      */
-    protected List<TabContent> createAdditionalSectionPanels(ExternalData dataset)
+    protected List<TabContent> createAdditionalSectionPanels(AbstractExternalData dataset)
     {
         return new ArrayList<TabContent>();
     }
@@ -145,7 +145,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         super.fillBreadcrumbWidgets(widgets);
     }
 
-    private void extendToolBar(final ExternalData result)
+    private void extendToolBar(final AbstractExternalData result)
     {
         if (toolbarInitialized)
         {
@@ -163,12 +163,12 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
                     @Override
                     public void handleEvent(BaseEvent be)
                     {
-                        TableModelRowWithObject<ExternalData> row =
-                                new TableModelRowWithObject<ExternalData>(originalData, Arrays
+                        TableModelRowWithObject<AbstractExternalData> row =
+                                new TableModelRowWithObject<AbstractExternalData>(originalData, Arrays
                                         .<ISerializableComparable> asList());
                         @SuppressWarnings("unchecked")
-                        final List<TableModelRowWithObject<ExternalData>> dataSets =
-                                Arrays.<TableModelRowWithObject<ExternalData>> asList(row);
+                        final List<TableModelRowWithObject<AbstractExternalData>> dataSets =
+                                Arrays.<TableModelRowWithObject<AbstractExternalData>> asList(row);
                         IDelegatedActionWithResult<SelectedAndDisplayedItems> action =
                                 new IDelegatedActionWithResult<SelectedAndDisplayedItems>()
                                     {
@@ -196,8 +196,8 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
                     final AsyncCallback<Void> callback =
                             isTrashEnabled() ? createDeletionCallback()
                                     : createPermanentDeletionCallback();
-                    TableModelRowWithObject<ExternalData> row =
-                            new TableModelRowWithObject<ExternalData>(getOriginalData(),
+                    TableModelRowWithObject<AbstractExternalData> row =
+                            new TableModelRowWithObject<AbstractExternalData>(getOriginalData(),
                                     Arrays.<ISerializableComparable> asList());
                     new DataSetListDeletionConfirmationDialog(getViewContext()
                             .getCommonViewContext(), callback, row).show();
@@ -236,7 +236,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         loadDatasetInfo(datasetId, new DataSetInfoCallback(getViewContext(), this));
     }
 
-    private final Component createLeftPanel(final ExternalData dataset)
+    private final Component createLeftPanel(final AbstractExternalData dataset)
     {
         final ContentPanel panel = createDataSetPropertiesPanel(dataset);
         panel.setScrollMode(Scroll.AUTOY);
@@ -244,12 +244,12 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         return panel;
     }
 
-    private ContentPanel createDataSetPropertiesPanel(final ExternalData dataset)
+    private ContentPanel createDataSetPropertiesPanel(final AbstractExternalData dataset)
     {
         return new DataSetPropertiesPanel(dataset, getViewContext());
     }
 
-    private final Component createRightPanel(final ExternalData dataset)
+    private final Component createRightPanel(final AbstractExternalData dataset)
     {
         final IViewContext<?> context = getViewContext();
         final SectionsPanel container =
@@ -298,7 +298,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         return container;
     }
 
-    private static final class DataSetInfoCallback extends AbstractAsyncCallback<ExternalData>
+    private static final class DataSetInfoCallback extends AbstractAsyncCallback<AbstractExternalData>
     {
         private final GenericDataSetViewer genericDataSetViewer;
 
@@ -314,13 +314,13 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         //
 
         /**
-         * Sets the {@link ExternalData} for this <var>generic</var> dataset viewer.
+         * Sets the {@link AbstractExternalData} for this <var>generic</var> dataset viewer.
          * <p>
          * This method triggers the whole <i>GUI</i> construction.
          * </p>
          */
         @Override
-        protected final void process(final ExternalData result)
+        protected final void process(final AbstractExternalData result)
         {
             genericDataSetViewer.extendToolBar(result);
             genericDataSetViewer.updateOriginalData(result);
@@ -360,7 +360,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
     }
 
     @Override
-    protected void updateOriginalData(final ExternalData result)
+    protected void updateOriginalData(final AbstractExternalData result)
     {
         super.updateOriginalData(result);
         processButtonHolder.setupData(result);
@@ -420,7 +420,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         }
 
         /** @param data external data that will be processed */
-        public void setupData(final ExternalData data)
+        public void setupData(final AbstractExternalData data)
         {
             getViewContext().getCommonService().listDataStoreServices(
                     DataStoreServiceKind.PROCESSING,
@@ -432,11 +432,11 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
             AbstractAsyncCallback<List<DatastoreServiceDescription>>
     {
 
-        private final ExternalData dataset;
+        private final AbstractExternalData dataset;
 
         private final Button processButton;
 
-        public ProcessingServicesCallback(IViewContext<?> viewContext, ExternalData dataset,
+        public ProcessingServicesCallback(IViewContext<?> viewContext, AbstractExternalData dataset,
                 Button processButton)
         {
             super(viewContext);

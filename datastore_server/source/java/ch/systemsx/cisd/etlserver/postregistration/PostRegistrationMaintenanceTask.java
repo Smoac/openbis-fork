@@ -45,7 +45,7 @@ import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperti
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * Maintenance task performing {@link IPostRegistrationTask}s.
@@ -172,11 +172,11 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
             deleteLastSeenDataSetId();
         }
 
-        List<ExternalData> dataSets = getDataSetsForPostRegistration();
+        List<AbstractExternalData> dataSets = getDataSetsForPostRegistration();
 
         for (int i = 0; i < dataSets.size(); i++)
         {
-            ExternalData dataSet = dataSets.get(i);
+            AbstractExternalData dataSet = dataSets.get(i);
             String code = dataSet.getCode();
             operationLog.info("Post registration of " + (i + 1) + ". of " + dataSets.size()
                     + " data sets: " + code);
@@ -209,21 +209,21 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
     /**
      * @return List of datasets to process in post registration. Sorted by Id, incrementally.
      */
-    private List<ExternalData> getDataSetsForPostRegistration()
+    private List<AbstractExternalData> getDataSetsForPostRegistration()
     {
-        List<ExternalData> dataSets = service.listDataSetsForPostRegistration();
-        List<ExternalData> filteredList = new ArrayList<ExternalData>();
-        for (ExternalData dataSet : dataSets)
+        List<AbstractExternalData> dataSets = service.listDataSetsForPostRegistration();
+        List<AbstractExternalData> filteredList = new ArrayList<AbstractExternalData>();
+        for (AbstractExternalData dataSet : dataSets)
         {
             if (dataSet.getRegistrationDate().getTime() > ignoreBeforeDate.getTime())
             {
                 filteredList.add(dataSet);
             }
         }
-        Collections.sort(filteredList, new Comparator<ExternalData>()
+        Collections.sort(filteredList, new Comparator<AbstractExternalData>()
             {
                 @Override
-                public int compare(ExternalData o1, ExternalData o2)
+                public int compare(AbstractExternalData o1, AbstractExternalData o2)
                 {
                     return (int) (o1.getId() - o2.getId());
                 }
@@ -248,7 +248,7 @@ public class PostRegistrationMaintenanceTask implements IDataStoreLockingMainten
         lastSeenDataSetFile.delete();
     }
 
-    private void logPostponingMessage(List<ExternalData> dataSets, int i)
+    private void logPostponingMessage(List<AbstractExternalData> dataSets, int i)
     {
         int numberOfDataSets = dataSets.size();
         if (i < numberOfDataSets - 1)

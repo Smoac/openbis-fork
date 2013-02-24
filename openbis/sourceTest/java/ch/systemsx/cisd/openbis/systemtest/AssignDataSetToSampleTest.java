@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -57,7 +57,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     @Test
     public void dataSetWithSampleCanBeAssignedToAnotherSample() throws Exception
     {
-        ExternalData dataset = create(aDataSet().inSample(sourceSample));
+        AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
 
         perform(anUpdateOf(dataset).toSample(destinationSample));
 
@@ -67,7 +67,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     @Test
     public void dataSetIsAssignedWithTheExperimentOfTheNewSample() throws Exception
     {
-        ExternalData dataset = create(aDataSet().inSample(sourceSample));
+        AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
 
         perform(anUpdateOf(dataset).toSample(destinationSample));
 
@@ -77,7 +77,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     @Test
     public void dataSetWithoutSampleCanBeAssignedToSample() throws Exception
     {
-        ExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
+        AbstractExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
 
         perform(anUpdateOf(dataset).toSample(destinationSample));
 
@@ -89,7 +89,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     public void dataSetCannotBeAssignedToSpaceSample() throws Exception
     {
         Sample sample = create(aSample().inSpace(destinationSpace));
-        ExternalData dataset = create(aDataSet().inSample(sourceSample));
+        AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
 
         perform(anUpdateOf(dataset).toSample(sample));
     }
@@ -99,7 +99,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     public void dataSetCannotBeAssignedToSharedSample() throws Exception
     {
         Sample sample = create(aSample());
-        ExternalData dataset = create(aDataSet().inSample(sourceSample));
+        AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
 
         perform(anUpdateOf(dataset).toSample(sample));
     }
@@ -107,8 +107,8 @@ public class AssignDataSetToSampleTest extends BaseTest
     @Test
     public void childDataSetCanBeAssignedToAnotherSample() throws Exception
     {
-        ExternalData parent = create(aDataSet().inSample(sourceSample));
-        ExternalData child = create(aDataSet().inSample(sourceSample).withParent(parent));
+        AbstractExternalData parent = create(aDataSet().inSample(sourceSample));
+        AbstractExternalData child = create(aDataSet().inSample(sourceSample).withParent(parent));
 
         perform(anUpdateOf(child).toSample(destinationSample));
 
@@ -119,8 +119,8 @@ public class AssignDataSetToSampleTest extends BaseTest
     public void sampleAssignmentOfParentDataSetIsNotChangedWhenChildDataSetIsAssignedToAnotherSample()
             throws Exception
     {
-        ExternalData parent = create(aDataSet().inSample(sourceSample));
-        ExternalData child = create(aDataSet().inSample(sourceSample).withParent(parent));
+        AbstractExternalData parent = create(aDataSet().inSample(sourceSample));
+        AbstractExternalData child = create(aDataSet().inSample(sourceSample).withParent(parent));
 
         perform(anUpdateOf(child).toSample(destinationSample));
 
@@ -130,7 +130,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     @Test
     public void parentDataSetCanBeAssignedToAnotherSample() throws Exception
     {
-        ExternalData parent = create(aDataSet().inSample(sourceSample));
+        AbstractExternalData parent = create(aDataSet().inSample(sourceSample));
         create(aDataSet().inSample(sourceSample).withParent(parent));
 
         perform(anUpdateOf(parent).toSample(destinationSample));
@@ -142,8 +142,8 @@ public class AssignDataSetToSampleTest extends BaseTest
     public void sampleAssignmentOfChildDataSetIsNotChangedWhenParentDatasetIsAssignedToAnotherSample()
             throws Exception
     {
-        ExternalData parent = create(aDataSet().inSample(sourceSample));
-        ExternalData child = create(aDataSet().inSample(sourceSample).withParent(parent));
+        AbstractExternalData parent = create(aDataSet().inSample(sourceSample));
+        AbstractExternalData child = create(aDataSet().inSample(sourceSample).withParent(parent));
 
         perform(anUpdateOf(parent).toSample(destinationSample));
 
@@ -153,7 +153,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     @Test
     public void componentDataSetCanBeAssignedToAnotherSample() throws Exception
     {
-        ExternalData component = create(aDataSet().inSample(sourceSample));
+        AbstractExternalData component = create(aDataSet().inSample(sourceSample));
         create(aDataSet().inSample(sourceSample).withComponent(component));
 
         perform(anUpdateOf(component).toSample(destinationSample));
@@ -165,8 +165,8 @@ public class AssignDataSetToSampleTest extends BaseTest
     public void sampleAssignmentOfContainerDataSetIsNotChangedWhenComponentDataSetIsAssignedToAnotherSample()
             throws Exception
     {
-        ExternalData component = create(aDataSet().inSample(sourceSample));
-        ExternalData container = create(aDataSet().inSample(sourceSample).withComponent(component));
+        AbstractExternalData component = create(aDataSet().inSample(sourceSample));
+        AbstractExternalData container = create(aDataSet().inSample(sourceSample).withComponent(component));
 
         perform(anUpdateOf(component).toSample(destinationSample));
 
@@ -176,8 +176,8 @@ public class AssignDataSetToSampleTest extends BaseTest
     @Test
     public void containerDataSetCanBeAssignedToAnotherSample() throws Exception
     {
-        ExternalData component = create(aDataSet().inSample(sourceSample));
-        ExternalData container = create(aDataSet().inSample(sourceSample).withComponent(component));
+        AbstractExternalData component = create(aDataSet().inSample(sourceSample));
+        AbstractExternalData container = create(aDataSet().inSample(sourceSample).withComponent(component));
 
         perform(anUpdateOf(container).toSample(destinationSample));
 
@@ -188,8 +188,8 @@ public class AssignDataSetToSampleTest extends BaseTest
     public void sampleAssignmentOfComponentDataSetIsNotChangedWhenContainerDataSetIsAssignedToAnotherSample()
             throws Exception
     {
-        ExternalData component = create(aDataSet().inSample(sourceSample));
-        ExternalData container = create(aDataSet().inSample(sourceSample).withComponent(component));
+        AbstractExternalData component = create(aDataSet().inSample(sourceSample));
+        AbstractExternalData container = create(aDataSet().inSample(sourceSample).withComponent(component));
 
         perform(anUpdateOf(container).toSample(destinationSample));
 
@@ -199,7 +199,7 @@ public class AssignDataSetToSampleTest extends BaseTest
     @Test
     public void dataSetCanBeUnassignedFromSample() throws Exception
     {
-        ExternalData data = create(aDataSet().inSample(sourceSample));
+        AbstractExternalData data = create(aDataSet().inSample(sourceSample));
 
         perform(anUpdateOf(data).removingSample());
 
@@ -218,7 +218,7 @@ public class AssignDataSetToSampleTest extends BaseTest
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
     {
-        ExternalData dataset = create(aDataSet().inSample(sourceSample));
+        AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
         String user =
                 create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
                         .withSpaceRole(destinationSpaceRole, destinationSpace)
@@ -235,7 +235,7 @@ public class AssignDataSetToSampleTest extends BaseTest
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
     {
-        ExternalData dataset = create(aDataSet().inSample(sourceSample));
+        AbstractExternalData dataset = create(aDataSet().inSample(sourceSample));
         String user =
                 create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
                         .withSpaceRole(destinationSpaceRole, destinationSpace)

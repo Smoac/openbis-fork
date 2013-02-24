@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -46,8 +46,8 @@ public class UpdateDataSetParentsTest extends BaseTest
     @Test
     public void dataSetCanBeUpdatedToHaveAnotherDataSetAsItsParent() throws Exception
     {
-        ExternalData parentToBe = create(aDataSet().inSample(sample));
-        ExternalData childToBe = create(aDataSet().inSample(sample));
+        AbstractExternalData parentToBe = create(aDataSet().inSample(sample));
+        AbstractExternalData childToBe = create(aDataSet().inSample(sample));
 
         perform(anUpdateOf(childToBe).withParent(parentToBe));
 
@@ -58,9 +58,9 @@ public class UpdateDataSetParentsTest extends BaseTest
     @Test
     public void dataSetCanBeUpdatedToHaveDifferentParent() throws Exception
     {
-        ExternalData parent = create(aDataSet().inSample(sample));
-        ExternalData child = create(aDataSet().inSample(sample).withParent(parent));
-        ExternalData newParent = create(aDataSet().inSample(sample));
+        AbstractExternalData parent = create(aDataSet().inSample(sample));
+        AbstractExternalData child = create(aDataSet().inSample(sample).withParent(parent));
+        AbstractExternalData newParent = create(aDataSet().inSample(sample));
 
         perform(anUpdateOf(child).withParent(newParent));
 
@@ -72,9 +72,9 @@ public class UpdateDataSetParentsTest extends BaseTest
     @Test
     public void parentOfDataSetCanBeRemoved() throws Exception
     {
-        ExternalData parent1 = create(aDataSet().inSample(sample));
-        ExternalData parent2 = create(aDataSet().inSample(sample));
-        ExternalData child = create(aDataSet().inSample(sample).withParents(parent1, parent2));
+        AbstractExternalData parent1 = create(aDataSet().inSample(sample));
+        AbstractExternalData parent2 = create(aDataSet().inSample(sample));
+        AbstractExternalData child = create(aDataSet().inSample(sample).withParents(parent1, parent2));
 
         perform(anUpdateOf(child).withParent(parent1));
 
@@ -86,9 +86,9 @@ public class UpdateDataSetParentsTest extends BaseTest
     @Test
     public void allParentsOfDataSetCanBeRemoved() throws Exception
     {
-        ExternalData parent1 = create(aDataSet().inSample(sample));
-        ExternalData parent2 = create(aDataSet().inSample(sample));
-        ExternalData child = create(aDataSet().inSample(sample).withParents(parent1, parent2));
+        AbstractExternalData parent1 = create(aDataSet().inSample(sample));
+        AbstractExternalData parent2 = create(aDataSet().inSample(sample));
+        AbstractExternalData child = create(aDataSet().inSample(sample).withParents(parent1, parent2));
 
         perform(anUpdateOf(child).removingParents());
 
@@ -100,9 +100,9 @@ public class UpdateDataSetParentsTest extends BaseTest
     @Test
     public void duplicateParentDefinitionsAreSilentlyDismissed() throws Exception
     {
-        ExternalData parent1 = create(aDataSet().inSample(sample));
-        ExternalData parent2 = create(aDataSet().inSample(sample));
-        ExternalData child = create(aDataSet().inSample(sample));
+        AbstractExternalData parent1 = create(aDataSet().inSample(sample));
+        AbstractExternalData parent2 = create(aDataSet().inSample(sample));
+        AbstractExternalData child = create(aDataSet().inSample(sample));
 
         perform(anUpdateOf(child).withParents(parent1, parent2, parent1, parent2, parent2));
 
@@ -113,7 +113,7 @@ public class UpdateDataSetParentsTest extends BaseTest
         { UserFailureException.class })
     public void dataSetCannotBeItsOwnParent() throws Exception
     {
-        ExternalData data = create(aDataSet().inSample(sample));
+        AbstractExternalData data = create(aDataSet().inSample(sample));
 
         perform(anUpdateOf(data).withParent(data));
     }
@@ -122,8 +122,8 @@ public class UpdateDataSetParentsTest extends BaseTest
         { UserFailureException.class })
     public void dataSetCannotBeItsOwnGrandParent() throws Exception
     {
-        ExternalData parent = create(aDataSet().inSample(sample));
-        ExternalData child = create(aDataSet().inSample(sample).withParent(parent));
+        AbstractExternalData parent = create(aDataSet().inSample(sample));
+        AbstractExternalData child = create(aDataSet().inSample(sample).withParent(parent));
 
         perform(anUpdateOf(parent).withParent(child));
     }
@@ -131,8 +131,8 @@ public class UpdateDataSetParentsTest extends BaseTest
     @Test
     public void parentCanBeInDifferentSpaceThanChild() throws Exception
     {
-        ExternalData parent = create(aDataSet().inSample(parentSample));
-        ExternalData child = create(aDataSet().inSample(childSample));
+        AbstractExternalData parent = create(aDataSet().inSample(parentSample));
+        AbstractExternalData child = create(aDataSet().inSample(childSample));
 
         perform(anUpdateOf(child).withParent(parent));
 
@@ -157,8 +157,8 @@ public class UpdateDataSetParentsTest extends BaseTest
     public void addingParentToDataSetIsAllowedFor(RoleWithHierarchy childSpaceRole,
             RoleWithHierarchy parentSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {
-        ExternalData parentToBe = create(aDataSet().inSample(parentSample));
-        ExternalData childToBe = create(aDataSet().inSample(childSample));
+        AbstractExternalData parentToBe = create(aDataSet().inSample(parentSample));
+        AbstractExternalData childToBe = create(aDataSet().inSample(childSample));
         String user =
                 create(aSession().withSpaceRole(childSpaceRole, childSpace)
                         .withSpaceRole(parentSpaceRole, parentSpace).withInstanceRole(instanceRole)
@@ -173,8 +173,8 @@ public class UpdateDataSetParentsTest extends BaseTest
     public void addingParentToDataSetNotIsAllowedFor(RoleWithHierarchy childSpaceRole,
             RoleWithHierarchy parentSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {
-        ExternalData parentToBe = create(aDataSet().inSample(parentSample));
-        ExternalData childToBe = create(aDataSet().inSample(childSample));
+        AbstractExternalData parentToBe = create(aDataSet().inSample(parentSample));
+        AbstractExternalData childToBe = create(aDataSet().inSample(childSample));
         String user =
                 create(aSession().withSpaceRole(childSpaceRole, childSpace)
                         .withSpaceRole(parentSpaceRole, parentSpace).withInstanceRole(instanceRole)
@@ -188,9 +188,9 @@ public class UpdateDataSetParentsTest extends BaseTest
     public void removingParentFromDataSetIsAllowedFor(RoleWithHierarchy childSpaceRole,
             RoleWithHierarchy parentSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {
-        ExternalData parent1 = create(aDataSet().inSample(parentSample));
-        ExternalData parent2 = create(aDataSet().inSample(parentSample));
-        ExternalData child = create(aDataSet().inSample(childSample).withParents(parent1, parent2));
+        AbstractExternalData parent1 = create(aDataSet().inSample(parentSample));
+        AbstractExternalData parent2 = create(aDataSet().inSample(parentSample));
+        AbstractExternalData child = create(aDataSet().inSample(childSample).withParents(parent1, parent2));
 
         String user =
                 create(aSession().withSpaceRole(childSpaceRole, childSpace)
@@ -206,9 +206,9 @@ public class UpdateDataSetParentsTest extends BaseTest
     public void removingParentFromDataSetNotIsAllowedFor(RoleWithHierarchy childSpaceRole,
             RoleWithHierarchy parentSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {
-        ExternalData parent1 = create(aDataSet().inSample(parentSample));
-        ExternalData parent2 = create(aDataSet().inSample(parentSample));
-        ExternalData child = create(aDataSet().inSample(childSample).withParents(parent1, parent2));
+        AbstractExternalData parent1 = create(aDataSet().inSample(parentSample));
+        AbstractExternalData parent2 = create(aDataSet().inSample(parentSample));
+        AbstractExternalData child = create(aDataSet().inSample(childSample).withParents(parent1, parent2));
 
         String user =
                 create(aSession().withSpaceRole(childSpaceRole, childSpace)

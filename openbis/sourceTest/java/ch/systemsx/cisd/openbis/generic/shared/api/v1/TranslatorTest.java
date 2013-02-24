@@ -237,7 +237,7 @@ public class TranslatorTest extends AssertJUnit
     }
 
     private void assertBasicAttributes(
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData originalDataSet,
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData originalDataSet,
             DataSet translatedDataSet)
     {
         assertEquals(originalDataSet.getCode(), translatedDataSet.getCode());

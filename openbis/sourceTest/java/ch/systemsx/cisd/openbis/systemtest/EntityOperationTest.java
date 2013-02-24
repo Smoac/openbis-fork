@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -219,7 +219,7 @@ public class EntityOperationTest extends SystemTestCase
             return this;
         }
 
-        EntityOperationBuilder dataSet(ExternalData dataSet)
+        EntityOperationBuilder dataSet(AbstractExternalData dataSet)
         {
             NewExternalData newExternalData = new NewExternalData();
             newExternalData.setCode(dataSet.getCode());
@@ -257,7 +257,7 @@ public class EntityOperationTest extends SystemTestCase
             return this;
         }
 
-        EntityOperationBuilder dataSetUpdate(ExternalData dataSet)
+        EntityOperationBuilder dataSetUpdate(AbstractExternalData dataSet)
         {
             DataSetBatchUpdatesDTO dataSetUpdate = new DataSetBatchUpdatesDTO();
             dataSetUpdate.setDetails(new DataSetBatchUpdateDetails());
@@ -766,7 +766,7 @@ public class EntityOperationTest extends SystemTestCase
 
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
         assertEquals(1, result.getDataSetsCreatedCount());
-        ExternalData dataSet = etlService.tryGetDataSet(sessionToken, dataSetCode);
+        AbstractExternalData dataSet = etlService.tryGetDataSet(sessionToken, dataSetCode);
 
         assertEquals(dataSetCode, dataSet.getCode());
         assertEquals("HCS_IMAGE", dataSet.getDataSetType().getCode());
@@ -794,7 +794,7 @@ public class EntityOperationTest extends SystemTestCase
 
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
         assertEquals(1, result.getDataSetsCreatedCount());
-        ExternalData dataSet = etlService.tryGetDataSet(sessionToken, dataSetCode);
+        AbstractExternalData dataSet = etlService.tryGetDataSet(sessionToken, dataSetCode);
 
         assertEquals(dataSetCode, dataSet.getCode());
         assertEquals("HCS_IMAGE", dataSet.getDataSetType().getCode());
@@ -828,7 +828,7 @@ public class EntityOperationTest extends SystemTestCase
     public void testUpdateDataSetAsSpaceETLServerSucessfully()
     {
         String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
-        ExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(4));
+        AbstractExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(4));
         dataSet.setDataSetProperties(new DataSetBuilder().property("COMMENT", "hello").getDataSet()
                 .getProperties());
         AtomicEntityOperationDetails eo =
@@ -837,7 +837,7 @@ public class EntityOperationTest extends SystemTestCase
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
         assertEquals(1, result.getDataSetsUpdatedCount());
 
-        ExternalData updatedDataSet = etlService.tryGetDataSet(sessionToken, dataSet.getCode());
+        AbstractExternalData updatedDataSet = etlService.tryGetDataSet(sessionToken, dataSet.getCode());
         assertEquals(new Long(4), updatedDataSet.getId());
         assertEquals("[COMMENT: hello]", updatedDataSet.getProperties().toString());
     }
@@ -846,7 +846,7 @@ public class EntityOperationTest extends SystemTestCase
     public void testUpdateDataSetAsInstanceAdminButLoginAsSpaceETLServerSucessfully()
     {
         String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
-        ExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(4));
+        AbstractExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(4));
         dataSet.setDataSetProperties(new DataSetBuilder().property("COMMENT", "hello").getDataSet()
                 .getProperties());
         AtomicEntityOperationDetails eo =
@@ -855,7 +855,7 @@ public class EntityOperationTest extends SystemTestCase
         AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
         assertEquals(1, result.getDataSetsUpdatedCount());
 
-        ExternalData updatedDataSet = etlService.tryGetDataSet(sessionToken, dataSet.getCode());
+        AbstractExternalData updatedDataSet = etlService.tryGetDataSet(sessionToken, dataSet.getCode());
         assertEquals(new Long(4), updatedDataSet.getId());
         assertEquals("[COMMENT: hello]", updatedDataSet.getProperties().toString());
     }
@@ -864,7 +864,7 @@ public class EntityOperationTest extends SystemTestCase
     public void testUpdateDataSetAsSpaceETLServerThrowsAuthorizationFailure()
     {
         String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
-        ExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(4));
+        AbstractExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(4));
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().user(SPACE_ETL_SERVER_FOR_B).dataSetUpdate(dataSet)
                         .create();

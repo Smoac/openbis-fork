@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
@@ -32,12 +32,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 public final class DisplayedOrSelectedDatasetCriteria implements IsSerializable
 {
 
-    private TableExportCriteria<TableModelRowWithObject<ExternalData>> displayedItemsOrNull;
+    private TableExportCriteria<TableModelRowWithObject<AbstractExternalData>> displayedItemsOrNull;
 
     private List<String> selectedDatasetCodesOrNull;
 
     public static DisplayedOrSelectedDatasetCriteria createDisplayedItems(
-            TableExportCriteria<TableModelRowWithObject<ExternalData>> displayedItems)
+            TableExportCriteria<TableModelRowWithObject<AbstractExternalData>> displayedItems)
     {
         return new DisplayedOrSelectedDatasetCriteria(displayedItems, null);
     }
@@ -48,7 +48,7 @@ public final class DisplayedOrSelectedDatasetCriteria implements IsSerializable
     }
 
     private DisplayedOrSelectedDatasetCriteria(
-            TableExportCriteria<TableModelRowWithObject<ExternalData>> displayedItemsOrNull,
+            TableExportCriteria<TableModelRowWithObject<AbstractExternalData>> displayedItemsOrNull,
             List<String> selectedDatasetCodesOrNull)
     {
         assert (displayedItemsOrNull == null) != (selectedDatasetCodesOrNull == null) : "Exactly one arg must be null and one non-null";
@@ -56,7 +56,7 @@ public final class DisplayedOrSelectedDatasetCriteria implements IsSerializable
         this.selectedDatasetCodesOrNull = selectedDatasetCodesOrNull;
     }
 
-    public TableExportCriteria<TableModelRowWithObject<ExternalData>> tryGetDisplayedItems()
+    public TableExportCriteria<TableModelRowWithObject<AbstractExternalData>> tryGetDisplayedItems()
     {
         return displayedItemsOrNull;
     }

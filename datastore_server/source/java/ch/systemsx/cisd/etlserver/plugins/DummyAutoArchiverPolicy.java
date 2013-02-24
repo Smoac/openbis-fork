@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.etlserver.IAutoArchiverPolicy;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * @author Piotr Buczek
@@ -34,7 +34,7 @@ public class DummyAutoArchiverPolicy implements IAutoArchiverPolicy
     }
 
     @Override
-    public List<ExternalData> filter(List<ExternalData> dataSets)
+    public List<AbstractExternalData> filter(List<AbstractExternalData> dataSets)
     {
         return dataSets;
     }

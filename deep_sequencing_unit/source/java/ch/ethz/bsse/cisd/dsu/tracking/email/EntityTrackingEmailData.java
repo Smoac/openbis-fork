@@ -19,7 +19,7 @@ package ch.ethz.bsse.cisd.dsu.tracking.email;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
@@ -35,7 +35,7 @@ public class EntityTrackingEmailData
 
     private List<Sample> sequencingSamplesProcessed = new ArrayList<Sample>(0);
 
-    private final List<ExternalData> dataSets = new ArrayList<ExternalData>(0);
+    private final List<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>(0);
 
     private final String recipient;
 
@@ -60,7 +60,7 @@ public class EntityTrackingEmailData
         return sequencingSamplesProcessed;
     }
 
-    public List<ExternalData> getDataSets()
+    public List<AbstractExternalData> getDataSets()
     {
         return dataSets;
     }
@@ -78,7 +78,7 @@ public class EntityTrackingEmailData
     }
 
     /** adds info about newly tracked data set */
-    public void addDataSet(ExternalData dataSet)
+    public void addDataSet(AbstractExternalData dataSet)
     {
         dataSets.add(dataSet);
     }
@@ -119,7 +119,7 @@ public class EntityTrackingEmailData
         } else
         {
             sb.append(getDataSets().size() + " new data set(s) tracked: ");
-            for (ExternalData dataSet : getDataSets())
+            for (AbstractExternalData dataSet : getDataSets())
             {
                 sb.append(dataSet.getIdentifier() + ", ");
             }

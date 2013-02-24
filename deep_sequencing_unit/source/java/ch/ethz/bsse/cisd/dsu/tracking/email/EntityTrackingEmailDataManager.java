@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackedEntities;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
@@ -97,7 +97,7 @@ class EntityTrackingEmailDataManager
     private static void groupDataSetSamples(Map<String, EntityTrackingEmailData> result,
             TrackedEntities trackedEntities)
     {
-        for (ExternalData dataSet : trackedEntities.getDataSets())
+        for (AbstractExternalData dataSet : trackedEntities.getDataSets())
         {
             for (String recipient : getDataSetTrackingRecipients(dataSet))
             {
@@ -181,7 +181,7 @@ class EntityTrackingEmailDataManager
      * Returns a set of emails of recipients that should get a tracking information about given
      * <var>dataSet</var>.
      */
-    private static Set<String> getDataSetTrackingRecipients(ExternalData dataSet)
+    private static Set<String> getDataSetTrackingRecipients(AbstractExternalData dataSet)
     {
         // Recipients are taken from properties of sequencing sample
         // that is a parent of a flow lane sample connected directly with the data set.

@@ -27,7 +27,7 @@ import ch.systemsx.cisd.hcs.Location;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
@@ -77,7 +77,7 @@ public class ScreeningUtils
                 dataStore, dataTypeCode, dataset.getRegistrationDate(), fileTypeCode, experiment);
     }
 
-    public static DatasetReference createDatasetReference(ExternalData dataset)
+    public static DatasetReference createDatasetReference(AbstractExternalData dataset)
     {
         DataStore dataStore = dataset.getDataStore();
         String dataTypeCode = dataset.getDataSetType().getCode();
@@ -89,7 +89,7 @@ public class ScreeningUtils
                 dataStore, dataTypeCode, dataset.getRegistrationDate(), fileTypeCode, experiment);
     }
 
-    private static String tryGetFileTypeCode(ExternalData abstractDataSet)
+    private static String tryGetFileTypeCode(AbstractExternalData abstractDataSet)
     {
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet dataSet =
                 abstractDataSet.tryGetAsDataSet();
@@ -119,7 +119,7 @@ public class ScreeningUtils
                 ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN);
     }
 
-    public static List<ExternalData> filterImageAnalysisDatasets(List<ExternalData> datasets)
+    public static List<AbstractExternalData> filterImageAnalysisDatasets(List<AbstractExternalData> datasets)
     {
         return filterExternalDataByTypePattern(datasets,
                 ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN);
@@ -182,7 +182,7 @@ public class ScreeningUtils
         return chosenDatasets;
     }
 
-    private static boolean isContainerMatching(ExternalData dataset,
+    private static boolean isContainerMatching(AbstractExternalData dataset,
             String... datasetTypeCodePatterns)
     {
         ContainerDataSet container = dataset.tryGetContainer();
@@ -196,7 +196,7 @@ public class ScreeningUtils
         return container != null && isOneOfTypesMatching(container, datasetTypeCodePatterns);
     }
 
-    private static boolean isNotEmpty(ExternalData dataset)
+    private static boolean isNotEmpty(AbstractExternalData dataset)
     {
         return dataset.isContainer() == false
                 || dataset.tryGetAsContainerDataSet().getContainedDataSets().size() > 0;
@@ -274,13 +274,13 @@ public class ScreeningUtils
      * true if a dataset contains HCS images. Such a dataset can be a parent of a feature vector
      * dataset or overlay dataset.
      */
-    public static boolean isHcsImageDataset(ExternalData externalData)
+    public static boolean isHcsImageDataset(AbstractExternalData externalData)
     {
         return isTypeMatchingExcludingContainer(externalData,
                 ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN);
     }
 
-    private static boolean isTypeMatchingExcludingContainer(ExternalData externalData,
+    private static boolean isTypeMatchingExcludingContainer(AbstractExternalData externalData,
             String typePattern)
     {
         return isOneOfTypesMatching(externalData, typePattern)
@@ -288,7 +288,7 @@ public class ScreeningUtils
                 && isNotEmpty(externalData);
     }
 
-    public static boolean isRawHcsImageDataset(ExternalData externalData)
+    public static boolean isRawHcsImageDataset(AbstractExternalData externalData)
     {
         return isTypeMatchingExcludingContainer(externalData,
                 ScreeningConstants.HCS_RAW_IMAGE_DATASET_TYPE_PATTERN)
@@ -296,23 +296,23 @@ public class ScreeningUtils
                         .getDataSetType().getCode());
     }
 
-    public static boolean isSegmentationHcsImageDataset(ExternalData externalData)
+    public static boolean isSegmentationHcsImageDataset(AbstractExternalData externalData)
     {
         return isTypeMatchingExcludingContainer(externalData,
                 ScreeningConstants.HCS_SEGMENTATION_IMAGE_DATASET_TYPE_PATTERN);
     }
 
-    public static boolean isBasicHcsImageDataset(ExternalData externalData)
+    public static boolean isBasicHcsImageDataset(AbstractExternalData externalData)
     {
         return isHcsImageDataset(externalData)
                 && isSegmentationHcsImageDataset(externalData) == false;
     }
 
-    public static List<ExternalData> filterExternalDataByTypePattern(
-            Collection<ExternalData> datasets, String... datasetTypeCodePatterns)
+    public static List<AbstractExternalData> filterExternalDataByTypePattern(
+            Collection<AbstractExternalData> datasets, String... datasetTypeCodePatterns)
     {
-        List<ExternalData> chosenDatasets = new ArrayList<ExternalData>();
-        for (ExternalData dataset : datasets)
+        List<AbstractExternalData> chosenDatasets = new ArrayList<AbstractExternalData>();
+        for (AbstractExternalData dataset : datasets)
         {
             if (isOneOfTypesMatching(dataset, datasetTypeCodePatterns))
             {
@@ -322,12 +322,12 @@ public class ScreeningUtils
         return chosenDatasets;
     }
 
-    public static boolean isTypeMatching(ExternalData dataset, String datasetTypeCodePattern)
+    public static boolean isTypeMatching(AbstractExternalData dataset, String datasetTypeCodePattern)
     {
         return dataset.getDataSetType().getCode().matches(datasetTypeCodePattern);
     }
 
-    private static boolean isOneOfTypesMatching(ExternalData dataset,
+    private static boolean isOneOfTypesMatching(AbstractExternalData dataset,
             String... datasetTypeCodePatterns)
     {
         for (String datasetTypeCodePattern : datasetTypeCodePatterns)
@@ -341,7 +341,7 @@ public class ScreeningUtils
     }
 
     /** Loads dataset metadata from the imaging database */
-    public static ImageDatasetParameters tryLoadImageParameters(ExternalData dataset,
+    public static ImageDatasetParameters tryLoadImageParameters(AbstractExternalData dataset,
             IScreeningBusinessObjectFactory businessObjectFactory)
     {
         IImageDatasetLoader loader = tryCreateHCSDatasetLoader(dataset, businessObjectFactory);
@@ -353,7 +353,7 @@ public class ScreeningUtils
         return params;
     }
 
-    private static IImageDatasetLoader tryCreateHCSDatasetLoader(ExternalData dataSet,
+    private static IImageDatasetLoader tryCreateHCSDatasetLoader(AbstractExternalData dataSet,
             IScreeningBusinessObjectFactory businessObjectFactory)
     {
         String datastoreCode = dataSet.getDataStore().getCode();
@@ -382,7 +382,7 @@ public class ScreeningUtils
         return sb.toString();
     }
 
-    public static boolean isMatchingAnalysisProcedure(ExternalData dataset,
+    public static boolean isMatchingAnalysisProcedure(AbstractExternalData dataset,
             AnalysisProcedureCriteria analysisProcedureCriteria)
     {
         String dataSetAnalysisProcedure =

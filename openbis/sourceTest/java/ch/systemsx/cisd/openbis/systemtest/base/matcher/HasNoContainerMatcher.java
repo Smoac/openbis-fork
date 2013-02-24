@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.systemtest.base.matcher;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 public class HasNoContainerMatcher extends TypeSafeMatcher<Object>
@@ -42,9 +42,9 @@ public class HasNoContainerMatcher extends TypeSafeMatcher<Object>
         if (actual instanceof Sample)
         {
             container = ((Sample) actual).getContainer();
-        } else if (actual instanceof ExternalData)
+        } else if (actual instanceof AbstractExternalData)
         {
-            container = ((ExternalData) actual).tryGetContainer();
+            container = ((AbstractExternalData) actual).tryGetContainer();
         } else
         {
             return false;

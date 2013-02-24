@@ -22,7 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.SelectedOrAllDataSetsRadioProvider.ISelectedDataSetsProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 class ComputationData implements ISelectedDataSetsProvider
@@ -54,12 +54,12 @@ class ComputationData implements ISelectedDataSetsProvider
     }
 
     @Override
-    public List<ExternalData> getSelectedDataSets()
+    public List<AbstractExternalData> getSelectedDataSets()
     {
-        List<TableModelRowWithObject<ExternalData>> selectedItems =
+        List<TableModelRowWithObject<AbstractExternalData>> selectedItems =
                 selectedAndDisplayedItems.getSelectedItems();
-        List<ExternalData> dataSets = new ArrayList<ExternalData>();
-        for (TableModelRowWithObject<ExternalData> item : selectedItems)
+        List<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
+        for (TableModelRowWithObject<AbstractExternalData> item : selectedItems)
         {
             dataSets.add(item.getObjectOrNull());
         }

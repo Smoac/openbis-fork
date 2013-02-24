@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -68,9 +68,9 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
 
     Sample sharedSample;
 
-    ExternalData sourceDataSet;
+    AbstractExternalData sourceDataSet;
 
-    ExternalData destinationDataSet;
+    AbstractExternalData destinationDataSet;
 
     @BeforeClass(dependsOnMethods = "loginAsSystem")
     public void createFixture() throws Exception
@@ -914,7 +914,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
         return daoFactory.getSampleDAO().tryToFindByPermID(sample.getPermId());
     }
 
-    DataPE pe(ExternalData data)
+    DataPE pe(AbstractExternalData data)
     {
         return daoFactory.getDataDAO().tryToFindDataSetByCode(data.getCode());
     }

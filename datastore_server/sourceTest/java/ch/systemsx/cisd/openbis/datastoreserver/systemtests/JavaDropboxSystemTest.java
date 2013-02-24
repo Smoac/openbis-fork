@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 
 /**
@@ -53,8 +53,8 @@ public class JavaDropboxSystemTest extends SystemTestCase
     {
         preexistingDataSetCodes = new HashSet<String>();
         IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
-        List<ExternalData> dataSets = listAllYoungDataSets(openBISService);
-        for (ExternalData dto : dataSets)
+        List<AbstractExternalData> dataSets = listAllYoungDataSets(openBISService);
+        for (AbstractExternalData dto : dataSets)
         {
             preexistingDataSetCodes.add(dto.getCode());
         }
@@ -65,8 +65,8 @@ public class JavaDropboxSystemTest extends SystemTestCase
         LinkedList<String> newCodes = new LinkedList<String>();
 
         IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
-        List<ExternalData> dataSets = listAllYoungDataSets(openBISService);
-        for (ExternalData dto : dataSets)
+        List<AbstractExternalData> dataSets = listAllYoungDataSets(openBISService);
+        for (AbstractExternalData dto : dataSets)
         {
             String code = dto.getCode();
 
@@ -78,9 +78,9 @@ public class JavaDropboxSystemTest extends SystemTestCase
         return newCodes;
     }
 
-    private List<ExternalData> listAllYoungDataSets(IEncapsulatedOpenBISService openBISService)
+    private List<AbstractExternalData> listAllYoungDataSets(IEncapsulatedOpenBISService openBISService)
     {
-        List<ExternalData> dataSets =
+        List<AbstractExternalData> dataSets =
                 openBISService.listNewerDataSets(new TrackingDataSetCriteria(24));
         return dataSets;
     }
@@ -99,11 +99,11 @@ public class JavaDropboxSystemTest extends SystemTestCase
 
         List<String> codes = newDataSetCodes();
 
-        List<ExternalData> x = openBISService.listDataSetsByCode(codes);
+        List<AbstractExternalData> x = openBISService.listDataSetsByCode(codes);
 
         assertEquals("Exactly one dataset should have been imported.", 1, x.size());
 
-        for (ExternalData a : x)
+        for (AbstractExternalData a : x)
         {
             assertEquals("/CISD/JAVA-TEST", a.getSampleIdentifier());
             assertEquals("/CISD/NEMO/EXP-TEST-1", a.getExperiment().getIdentifier());

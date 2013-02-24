@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -180,21 +180,21 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
-     * For given experiment {@link TechId} returns the corresponding list of {@link ExternalData}.
+     * For given experiment {@link TechId} returns the corresponding list of {@link AbstractExternalData}.
      * 
-     * @return a sorted list of {@link ExternalData}.
+     * @return a sorted list of {@link AbstractExternalData}.
      */
     @Transactional(readOnly = true)
-    public List<ExternalData> listDataSetsByExperimentID(final String sessionToken,
+    public List<AbstractExternalData> listDataSetsByExperimentID(final String sessionToken,
             final TechId experimentID) throws UserFailureException;
 
     /**
-     * For given sample {@link TechId} returns the corresponding list of {@link ExternalData}.
+     * For given sample {@link TechId} returns the corresponding list of {@link AbstractExternalData}.
      * 
-     * @return a sorted list of {@link ExternalData}.
+     * @return a sorted list of {@link AbstractExternalData}.
      */
     @Transactional(readOnly = true)
-    public List<ExternalData> listDataSetsBySampleID(final String sessionToken,
+    public List<AbstractExternalData> listDataSetsBySampleID(final String sessionToken,
             final TechId sampleId, final boolean showOnlyDirectlyConnected)
             throws UserFailureException;
 
@@ -204,7 +204,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * @return plain data sets without properties, samples, and experiments.
      */
     @Transactional(readOnly = true)
-    public List<ExternalData> listDataSetsByCode(String sessionToken, List<String> dataSetCodes)
+    public List<AbstractExternalData> listDataSetsByCode(String sessionToken, List<String> dataSetCodes)
             throws UserFailureException;
 
     /**
@@ -357,7 +357,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * Tries to return the data set specified by its code.
      */
     @Transactional(readOnly = true)
-    public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)
+    public AbstractExternalData tryGetDataSet(String sessionToken, String dataSetCode)
             throws UserFailureException;
 
     /**
@@ -425,14 +425,14 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * List 'AVAILABLE' data sets (not locked) that match given criteria.
      */
     @Transactional(readOnly = true)
-    public List<ExternalData> listAvailableDataSets(String sessionToken, String dataStoreCode,
+    public List<AbstractExternalData> listAvailableDataSets(String sessionToken, String dataStoreCode,
             ArchiverDataSetCriteria criteria);
 
     /**
      * List data sets from specified store which are younger then the specified one.
      */
     @Transactional(readOnly = true)
-    public List<ExternalData> listDataSets(String sessionToken, String dataStoreCode,
+    public List<AbstractExternalData> listDataSets(String sessionToken, String dataStoreCode,
             TrackingDataSetCriteria criteria);
 
     /**
@@ -643,7 +643,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * @return A collection of data sets matching the search criteria.
      */
     @Transactional(readOnly = true)
-    public List<ExternalData> searchForDataSets(String sessionToken, SearchCriteria searchCriteria);
+    public List<AbstractExternalData> searchForDataSets(String sessionToken, SearchCriteria searchCriteria);
 
     /**
      * permanently deletes a list of data sets.
@@ -696,7 +696,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * Gets the list of all datasets, which are in the post-registration queue.
      */
     @Transactional
-    public List<ExternalData> listDataSetsForPostRegistration(String token, String dataStoreCode);
+    public List<AbstractExternalData> listDataSetsForPostRegistration(String token, String dataStoreCode);
 
     /**
      * Return true if the log indicates that the performEntityOperations invocation for the given

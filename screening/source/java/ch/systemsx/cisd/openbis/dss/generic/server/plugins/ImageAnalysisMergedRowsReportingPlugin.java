@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
@@ -203,12 +203,12 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
                 @Override
                 public List<String> tryGetContainedDatasets(String datasetCode)
                 {
-                    ExternalData ds = openBISService.tryGetDataSet(datasetCode);
+                    AbstractExternalData ds = openBISService.tryGetDataSet(datasetCode);
                     ContainerDataSet container = ds.tryGetAsContainerDataSet();
                     if (container != null)
                     {
                         List<String> list = new LinkedList<String>();
-                        for (ExternalData contained : container.getContainedDataSets())
+                        for (AbstractExternalData contained : container.getContainedDataSets())
                         {
                             list.add(contained.getCode());
                         }

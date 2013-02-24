@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
  * @author Jakub Straszewski
  */
 public class StorageConfirmedForAdminValidator extends
-        AbstractValidator<ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData>
+        AbstractValidator<ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData>
 {
 
     private static boolean isPersonAllowedForNotConfirmed(PersonPE person)
@@ -46,7 +46,7 @@ public class StorageConfirmedForAdminValidator extends
 
     @Override
     public boolean doValidation(PersonPE person,
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData value)
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData value)
     {
         return isValid(person, value.isStorageConfirmation());
     }

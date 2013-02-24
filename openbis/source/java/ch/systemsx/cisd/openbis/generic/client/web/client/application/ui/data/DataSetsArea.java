@@ -19,14 +19,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CodesArea;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * Abstract {@link CodesArea} extension for data sets introducing methods with convenient names.
  * 
  * @author Piotr Buczek
  */
-public abstract class DataSetsArea extends CodesArea<ExternalData>
+public abstract class DataSetsArea extends CodesArea<AbstractExternalData>
 {
     public DataSetsArea(String emptyTextMsg)
     {
@@ -43,7 +43,7 @@ public abstract class DataSetsArea extends CodesArea<ExternalData>
         return tryGetModifiedItemList();
     }
 
-    public final void setDataSets(List<ExternalData> dataSets)
+    public final void setDataSets(List<AbstractExternalData> dataSets)
     {
         setCodeProviders(dataSets);
     }

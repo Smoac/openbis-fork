@@ -26,7 +26,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.LayoutUtils;
@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  */
 public class ImageDataSetSection extends TabContent
 {
-    private final ExternalData dataSet;
+    private final AbstractExternalData dataSet;
 
     private final WellLocation wellLocationOrNull;
 
@@ -47,7 +47,7 @@ public class ImageDataSetSection extends TabContent
 
     private static final String WELL_IMAGE_SECTION_TITLE_SUFFIX = " Images";
 
-    public ImageDataSetSection(final ScreeningViewContext viewContext, final ExternalData dataSet,
+    public ImageDataSetSection(final ScreeningViewContext viewContext, final AbstractExternalData dataSet,
             WellLocation wellLocationOrNull)
     {
         super(WELL_IMAGE_SECTION_TITLE_PREFIX

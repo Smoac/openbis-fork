@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -251,10 +251,10 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                     allowing(screeningBOFactory).createDatasetLister(session);
                     will(returnValue(datasetLister));
                     one(datasetLister).listBySampleIds(with(asSet(1)));
-                    final ExternalData rawImage = imageRawDataSet(p1, "2", 2);
-                    ExternalData imageSegmentationDataSet =
+                    final AbstractExternalData rawImage = imageRawDataSet(p1, "2", 2);
+                    AbstractExternalData imageSegmentationDataSet =
                             imageSegmentationDataSet(p1, "3", 3, rawImage);
-                    ExternalData imageAnalysisDataSet = imageAnalysisDataSet(p1, "4", 4);
+                    AbstractExternalData imageAnalysisDataSet = imageAnalysisDataSet(p1, "4", 4);
                     will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1), rawImage,
                             imageSegmentationDataSet, imageAnalysisDataSet)));
 
@@ -460,9 +460,9 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         return sample;
     }
 
-    private ExternalData imageDataSet(Sample sample, String code, long id)
+    private AbstractExternalData imageDataSet(Sample sample, String code, long id)
     {
-        ExternalData dataSet = createDataSet(sample, code, id);
+        AbstractExternalData dataSet = createDataSet(sample, code, id);
         dataSet.setDataSetType(dataSetType("HCS_IMAGE"));
         dataSet.setExperiment(new Experiment());
         dataSet.getExperiment().setProject(new Project());
@@ -470,9 +470,9 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         return dataSet;
     }
 
-    private ExternalData imageRawDataSet(Sample sample, String code, long id)
+    private AbstractExternalData imageRawDataSet(Sample sample, String code, long id)
     {
-        ExternalData dataSet = createDataSet(sample, code, id);
+        AbstractExternalData dataSet = createDataSet(sample, code, id);
         dataSet.setDataSetType(dataSetType("HCS_IMAGE_RAW"));
         dataSet.setExperiment(new Experiment());
         dataSet.getExperiment().setProject(new Project());
@@ -480,10 +480,10 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         return dataSet;
     }
 
-    private ExternalData imageSegmentationDataSet(Sample sample, String code, long id,
-            ExternalData parent)
+    private AbstractExternalData imageSegmentationDataSet(Sample sample, String code, long id,
+            AbstractExternalData parent)
     {
-        ExternalData dataSet = createDataSet(sample, code, id);
+        AbstractExternalData dataSet = createDataSet(sample, code, id);
         dataSet.setDataSetType(dataSetType("HCS_IMAGE_SEGMENTATION"));
         dataSet.setParents(Collections.singleton(parent));
         dataSet.setExperiment(new Experiment());
@@ -492,9 +492,9 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         return dataSet;
     }
 
-    private ExternalData imageAnalysisDataSet(Sample sample, String code, long id)
+    private AbstractExternalData imageAnalysisDataSet(Sample sample, String code, long id)
     {
-        ExternalData dataSet = createDataSet(sample, code, id);
+        AbstractExternalData dataSet = createDataSet(sample, code, id);
         dataSet.setDataSetType(dataSetType("HCS_IMAGE_ANALYSIS_DATA"));
         dataSet.setExperiment(new Experiment());
         dataSet.getExperiment().setProject(new Project());

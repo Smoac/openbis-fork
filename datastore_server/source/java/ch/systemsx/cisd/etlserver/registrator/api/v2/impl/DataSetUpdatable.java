@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExternalData
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -54,7 +54,7 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
 
     private final DataSetBatchUpdateDetails updateDetails;
 
-    public DataSetUpdatable(ExternalData dataSet, IEncapsulatedBasicOpenBISService service)
+    public DataSetUpdatable(AbstractExternalData dataSet, IEncapsulatedBasicOpenBISService service)
     {
         super(dataSet, service);
         if (dataSet.getProperties() == null)
@@ -152,7 +152,7 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
     @Override
     public void setParentDatasets(List<String> parentDataSetCodes)
     {
-        List<ExternalData> dummyParents = createDummyDataSetsFromCodes(parentDataSetCodes);
+        List<AbstractExternalData> dummyParents = createDummyDataSetsFromCodes(parentDataSetCodes);
         dataSet.setParents(dummyParents);
 
         updateDetails.setParentsUpdateRequested(true);
@@ -164,7 +164,7 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
     {
         if (isContainerDataSet())
         {
-            List<ExternalData> dummyDataSets = createDummyDataSetsFromCodes(containedDataSetCodes);
+            List<AbstractExternalData> dummyDataSets = createDummyDataSetsFromCodes(containedDataSetCodes);
             dataSet.tryGetAsContainerDataSet().setContainedDataSets(dummyDataSets);
 
             updateDetails.setContainerUpdateRequested(true);
@@ -176,9 +176,9 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
         }
     }
 
-    private List<ExternalData> createDummyDataSetsFromCodes(List<String> containedDataSetCodes)
+    private List<AbstractExternalData> createDummyDataSetsFromCodes(List<String> containedDataSetCodes)
     {
-        List<ExternalData> dummies = new ArrayList<ExternalData>();
+        List<AbstractExternalData> dummies = new ArrayList<AbstractExternalData>();
         if (containedDataSetCodes != null)
         {
             for (String code : containedDataSetCodes)
@@ -194,7 +194,7 @@ public class DataSetUpdatable extends DataSetImmutable implements IDataSetUpdata
     /**
      * Only visible to internal implementation classes. Not part of the public interface.
      */
-    public ExternalData getExternalData()
+    public AbstractExternalData getExternalData()
     {
         return dataSet;
     }

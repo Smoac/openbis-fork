@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPlug
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -53,7 +53,7 @@ public interface IDataSetCommandExecutor extends IDataSetDeleter
      *            if no connection as admin should be used.
      */
     void scheduleUploadingDataSetsToCIFEX(ICIFEXRPCServiceFactory cifexServiceFactory,
-            MailClientParameters mailClientParameters, List<ExternalData> dataSets,
+            MailClientParameters mailClientParameters, List<AbstractExternalData> dataSets,
             DataSetUploadContext uploadContext, String cifexAdminUserOrNull,
             String cifexAdminPasswordOrNull);
 

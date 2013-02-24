@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
@@ -241,7 +241,7 @@ public class PropertiesHistoryTest extends SystemTestCase
     {
         TechId id = new TechId(5);
         logIntoCommonClientService();
-        ExternalData dataSet = genericClientService.getDataSetInfo(id);
+        AbstractExternalData dataSet = genericClientService.getDataSetInfo(id);
 
         DataSetUpdates updates = new DataSetUpdates();
         updates.setDatasetId(id);
@@ -292,7 +292,7 @@ public class PropertiesHistoryTest extends SystemTestCase
         logIntoCommonClientService();
         commonClientService.updatePropertyTypeAssignment(new NewETPTAssignment(EntityKind.DATA_SET,
                 "COMMENT", "HCS_IMAGE", false, null, null, 1L, false, false, null, true, false));
-        ExternalData dataSet = genericClientService.getDataSetInfo(id);
+        AbstractExternalData dataSet = genericClientService.getDataSetInfo(id);
         assertEquals(4, dataSet.getProperties().size());
 
         DataSetUpdates updates = new DataSetUpdates();

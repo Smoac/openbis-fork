@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -132,10 +132,10 @@ public class SearchService implements ISearchService
     @Override
     public List<IDataSetImmutable> searchForDataSets(SearchCriteria searchCriteria)
     {
-        List<ExternalData> serverDataSets = openBisService.searchForDataSets(searchCriteria);
+        List<AbstractExternalData> serverDataSets = openBisService.searchForDataSets(searchCriteria);
         ArrayList<IDataSetImmutable> dataSets =
                 new ArrayList<IDataSetImmutable>(serverDataSets.size());
-        for (ExternalData dataSet : serverDataSets)
+        for (AbstractExternalData dataSet : serverDataSets)
         {
             dataSets.add(new DataSetImmutable(dataSet, openBisService));
         }

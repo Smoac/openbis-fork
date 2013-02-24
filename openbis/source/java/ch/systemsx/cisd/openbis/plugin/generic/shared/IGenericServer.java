@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
@@ -82,10 +82,10 @@ public interface IGenericServer extends IServer
             final Collection<NewAttachment> attachments);
 
     /**
-     * For given {@link TechId} returns the corresponding {@link ExternalData}.
+     * For given {@link TechId} returns the corresponding {@link AbstractExternalData}.
      */
     @Transactional(readOnly = true)
-    public ExternalData getDataSetInfo(String sessionToken, TechId datasetId);
+    public AbstractExternalData getDataSetInfo(String sessionToken, TechId datasetId);
 
     /**
      * Returns attachment described by given experiment identifier, filename and version.

@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
@@ -149,11 +149,11 @@ public class LogicalImageLoader
 
     private List<DatasetOverlayImagesReference> extractImageOverlays(DataPE imageDataset)
     {
-        List<ExternalData> overlayDatasets = fetchOverlayDatasets(imageDataset);
+        List<AbstractExternalData> overlayDatasets = fetchOverlayDatasets(imageDataset);
 
         List<DatasetOverlayImagesReference> overlays =
                 new ArrayList<DatasetOverlayImagesReference>();
-        for (ExternalData overlay : overlayDatasets)
+        for (AbstractExternalData overlay : overlayDatasets)
         {
             DatasetOverlayImagesReference ref = tryLoadOverlayDatasetReference(overlay);
             if (ref != null)
@@ -164,7 +164,7 @@ public class LogicalImageLoader
         return overlays;
     }
 
-    private List<ExternalData> fetchOverlayDatasets(DataPE imageDataset)
+    private List<AbstractExternalData> fetchOverlayDatasets(DataPE imageDataset)
     {
         List<DataPE> overlayPEs =
                 ScreeningUtils.filterImageOverlayDatasets(imageDataset.getChildren());
@@ -172,7 +172,7 @@ public class LogicalImageLoader
         return businessObjectFactory.createDatasetLister(session).listByDatasetIds(datasetIds);
     }
 
-    private DatasetOverlayImagesReference tryLoadOverlayDatasetReference(ExternalData overlay)
+    private DatasetOverlayImagesReference tryLoadOverlayDatasetReference(AbstractExternalData overlay)
     {
         DatasetImagesReference imageDatasetReference = tryLoadImageDatasetReference(overlay);
         if (imageDatasetReference == null)
@@ -184,12 +184,12 @@ public class LogicalImageLoader
                 imageDatasetReference.getImageParameters(), analysisProcedure);
     }
 
-    private String tryGetAnalysisProcedure(ExternalData dataset)
+    private String tryGetAnalysisProcedure(AbstractExternalData dataset)
     {
         return EntityHelper.tryFindPropertyValue(dataset, ScreeningConstants.ANALYSIS_PROCEDURE);
     }
 
-    private DatasetImagesReference tryLoadImageDatasetReference(ExternalData dataset)
+    private DatasetImagesReference tryLoadImageDatasetReference(AbstractExternalData dataset)
     {
         ImageDatasetParameters imageParameters =
                 ScreeningUtils.tryLoadImageParameters(dataset, businessObjectFactory);
@@ -200,7 +200,7 @@ public class LogicalImageLoader
         return createDatasetImagesReference(dataset, imageParameters);
     }
 
-    private DatasetImagesReference createDatasetImagesReference(ExternalData dataset,
+    private DatasetImagesReference createDatasetImagesReference(AbstractExternalData dataset,
             ImageDatasetParameters imageParameters)
     {
         return DatasetImagesReference.create(ScreeningUtils.createDatasetReference(dataset),
@@ -231,7 +231,7 @@ public class LogicalImageLoader
         return ids;
     }
 
-    private ExternalData translate(DataPE dataSet)
+    private AbstractExternalData translate(DataPE dataSet)
     {
         return DataSetTranslator.translate(dataSet, session.getBaseIndexURL(), null,
                 managedPropertyEvaluatorFactory);

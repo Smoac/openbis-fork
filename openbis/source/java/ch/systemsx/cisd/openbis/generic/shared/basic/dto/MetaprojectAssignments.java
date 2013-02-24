@@ -32,7 +32,7 @@ public class MetaprojectAssignments implements Serializable
 
     private List<Sample> samples;
 
-    private List<ExternalData> dataSets;
+    private List<AbstractExternalData> dataSets;
 
     private List<Material> materials;
 
@@ -66,12 +66,12 @@ public class MetaprojectAssignments implements Serializable
         this.samples = samples;
     }
 
-    public List<ExternalData> getDataSets()
+    public List<AbstractExternalData> getDataSets()
     {
         return dataSets;
     }
 
-    public void setDataSets(List<ExternalData> dataSets)
+    public void setDataSets(List<AbstractExternalData> dataSets)
     {
         this.dataSets = dataSets;
     }

@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 
 /**
@@ -96,7 +96,7 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
         super(searchDAO, lister);
     }
 
-    public List<ExternalData> searchForDataSets(String userId, DetailedSearchCriteria criteria)
+    public List<AbstractExternalData> searchForDataSets(String userId, DetailedSearchCriteria criteria)
             throws DataAccessException
     {
 

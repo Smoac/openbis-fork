@@ -59,7 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -530,11 +530,11 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                 }
             });
 
-        DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig =
+        DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> resultSetConfig =
                 DefaultResultSetConfig.createFetchAll();
-        TypedTableResultSet<ExternalData> resultSet =
+        TypedTableResultSet<AbstractExternalData> resultSet =
                 commonClientService.listExperimentDataSets(experimentId, resultSetConfig, true);
-        List<TableModelRowWithObject<ExternalData>> list =
+        List<TableModelRowWithObject<AbstractExternalData>> list =
                 resultSet.getResultSet().getList().extractOriginalObjects();
         assertEquals(1, list.size());
         PhysicalDataSet data = list.get(0).getObjectOrNull().tryGetAsDataSet();

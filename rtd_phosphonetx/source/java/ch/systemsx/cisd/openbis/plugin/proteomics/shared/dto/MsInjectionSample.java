@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
@@ -33,21 +33,21 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 public class MsInjectionSample
 {
     private final Sample sample;
-    private final Map<String, ExternalData> latestDataSets = new LinkedHashMap<String, ExternalData>();
-    private final List<ExternalData> dataSets;
+    private final Map<String, AbstractExternalData> latestDataSets = new LinkedHashMap<String, AbstractExternalData>();
+    private final List<AbstractExternalData> dataSets;
 
-    public MsInjectionSample(Sample sample, List<ExternalData> dataSets)
+    public MsInjectionSample(Sample sample, List<AbstractExternalData> dataSets)
     {
         this.sample = sample;
         this.dataSets = dataSets;
         add(dataSets);
     }
 
-    private void add(Collection<ExternalData> datasets)
+    private void add(Collection<AbstractExternalData> datasets)
     {
         if (datasets != null)
         {
-            for (ExternalData dataSet : datasets)
+            for (AbstractExternalData dataSet : datasets)
             {
                 addLatestDataSet(dataSet);
                 add(dataSet.getChildren());
@@ -60,21 +60,21 @@ public class MsInjectionSample
         return sample;
     }
 
-    public final List<ExternalData> getDataSets()
+    public final List<AbstractExternalData> getDataSets()
     {
         return dataSets;
     }
 
-    public Map<String, ExternalData> getLatestDataSets()
+    public Map<String, AbstractExternalData> getLatestDataSets()
     {
         return latestDataSets;
     }
 
-    private void addLatestDataSet(ExternalData dataSet)
+    private void addLatestDataSet(AbstractExternalData dataSet)
     {
         String dataSetTypeCode = dataSet.getDataSetType().getCode();
         Date registrationDate = dataSet.getRegistrationDate();
-        ExternalData latestDataSet = latestDataSets.get(dataSetTypeCode);
+        AbstractExternalData latestDataSet = latestDataSets.get(dataSetTypeCode);
         if (latestDataSet == null
                 || latestDataSet.getRegistrationDate().getTime() < registrationDate.getTime())
         {

@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
@@ -175,7 +175,7 @@ public class TrackingBO
         TrackingDataSetCriteria dataSetCriteria =
                 new TrackingDataSetCriteria(FLOW_LANE_SAMPLE_TYPE, trackingState
                         .getLastSeenDatasetId());
-        List<ExternalData> dataSets =
+        List<AbstractExternalData> dataSets =
                 trackingServer.listDataSets(session.getSessionToken(), dataSetCriteria);
 
         return new TrackedEntities(sequencingSamplesToBeProcessed,

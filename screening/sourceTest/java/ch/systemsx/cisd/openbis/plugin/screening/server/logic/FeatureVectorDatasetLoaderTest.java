@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
@@ -57,23 +57,23 @@ public class FeatureVectorDatasetLoaderTest extends AbstractServerTestCase
     {
         final RecordingMatcher<ListOrSearchSampleCriteria> recordingCriteriaMatcher =
                 new RecordingMatcher<ListOrSearchSampleCriteria>();
-        final ExternalData ids1 =
+        final AbstractExternalData ids1 =
                 new DataSetBuilder(1l).code("ids1").type("HCS_IMAGE").getDataSet();
-        final ExternalData fds1 =
+        final AbstractExternalData fds1 =
                 new DataSetBuilder(11l).code("fds1").type("HCS_ANALYSIS_WELL_FEATURES")
                         .getDataSet();
-        final ExternalData fds2 =
+        final AbstractExternalData fds2 =
                 new DataSetBuilder(12l).code("fds2").type("HCS_ANALYSIS_WELL_FEATURES")
                         .getDataSet();
-        final ExternalData ids2 =
+        final AbstractExternalData ids2 =
                 new DataSetBuilder(2l).code("ids2").type("HCS_IMAGE").getDataSet();
-        final ExternalData fds3 =
+        final AbstractExternalData fds3 =
                 new DataSetBuilder(21l).code("fds3").type("HCS_ANALYSIS_WELL_FEATURES")
                         .getDataSet();
-        final ExternalData fds4 =
+        final AbstractExternalData fds4 =
                 new DataSetBuilder(100l).code("fds4").type("HCS_ANALYSIS_WELL_FEATURES")
                         .getDataSet();
-        final ExternalData ds1 = new DataSetBuilder(101l).code("ds1").type("BLABLA").getDataSet();
+        final AbstractExternalData ds1 = new DataSetBuilder(101l).code("ds1").type("BLABLA").getDataSet();
         context.checking(new Expectations()
             {
                 {
@@ -107,18 +107,18 @@ public class FeatureVectorDatasetLoaderTest extends AbstractServerTestCase
         FeatureVectorDatasetLoader loader =
                 new FeatureVectorDatasetLoader(session, screeningBOFactory, null, plateIdentifiers);
 
-        List<ExternalData> datasets =
-                new ArrayList<ExternalData>(loader.getFeatureVectorDatasets());
+        List<AbstractExternalData> datasets =
+                new ArrayList<AbstractExternalData>(loader.getFeatureVectorDatasets());
 
         assertEquals("[]", Arrays
                 .asList(recordingCriteriaMatcher.recordedObject().trySampleCodes()).toString());
         assertEquals("[s-1]",
                 Arrays.asList(recordingCriteriaMatcher.recordedObject().trySamplePermIds())
                         .toString());
-        Collections.sort(datasets, new Comparator<ExternalData>()
+        Collections.sort(datasets, new Comparator<AbstractExternalData>()
             {
                 @Override
-                public int compare(ExternalData o1, ExternalData o2)
+                public int compare(AbstractExternalData o1, AbstractExternalData o2)
                 {
                     return o1.getCode().compareTo(o2.getCode());
                 }

@@ -19,14 +19,14 @@ package ch.systemsx.cisd.openbis.systemtest.base.matcher;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
-public class ExternalDataHasContainerMatcher extends TypeSafeMatcher<ExternalData>
+public class ExternalDataHasContainerMatcher extends TypeSafeMatcher<AbstractExternalData>
 {
 
-    private ExternalData expectedContainer;
+    private AbstractExternalData expectedContainer;
 
-    public ExternalDataHasContainerMatcher(ExternalData expected)
+    public ExternalDataHasContainerMatcher(AbstractExternalData expected)
     {
         this.expectedContainer = expected;
     }
@@ -38,7 +38,7 @@ public class ExternalDataHasContainerMatcher extends TypeSafeMatcher<ExternalDat
     }
 
     @Override
-    public boolean matchesSafely(ExternalData actual)
+    public boolean matchesSafely(AbstractExternalData actual)
     {
         if (actual.tryGetContainer() == null)
         {

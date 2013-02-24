@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
@@ -40,10 +40,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageIn
  */
 public class LogicalImageDatasetSection extends TabContent
 {
-    private final ExternalData dataset;
+    private final AbstractExternalData dataset;
 
     public LogicalImageDatasetSection(final ScreeningViewContext viewContext,
-            final ExternalData dataset)
+            final AbstractExternalData dataset)
     {
         super("Images", viewContext, dataset);
         this.dataset = dataset;

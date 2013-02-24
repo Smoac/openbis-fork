@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
@@ -42,7 +42,7 @@ public class DataSetOwnerRelationshipsHistoryTest extends AbstractRelationshipsH
 
         logIntoCommonClientService();
 
-        ExternalData dataSet = genericClientService.getDataSetInfo(dataId);
+        AbstractExternalData dataSet = genericClientService.getDataSetInfo(dataId);
         Sample sample = genericClientService.getSampleInfo(sampleId);
 
         DataSetUpdates updates = new DataSetUpdates();
@@ -116,7 +116,7 @@ public class DataSetOwnerRelationshipsHistoryTest extends AbstractRelationshipsH
 
         logIntoCommonClientService();
 
-        ExternalData dataSet = genericClientService.getDataSetInfo(dataId);
+        AbstractExternalData dataSet = genericClientService.getDataSetInfo(dataId);
         Experiment experiment = commonClientService.getExperimentInfo(experimentId);
 
         DataSetUpdates updates = new DataSetUpdates();
@@ -187,7 +187,7 @@ public class DataSetOwnerRelationshipsHistoryTest extends AbstractRelationshipsH
 
         logIntoCommonClientService();
 
-        ExternalData dataSet = genericClientService.getDataSetInfo(dataId);
+        AbstractExternalData dataSet = genericClientService.getDataSetInfo(dataId);
         Experiment experiment = commonClientService.getExperimentInfo(experimentId);
 
         DataSetUpdates updates = new DataSetUpdates();

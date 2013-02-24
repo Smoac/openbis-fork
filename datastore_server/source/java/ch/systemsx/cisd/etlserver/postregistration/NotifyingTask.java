@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 
 /**
@@ -113,7 +113,7 @@ public class NotifyingTask extends AbstractPostRegistrationTask
     @Override
     public IPostRegistrationTaskExecutor createExecutor(String dataSetCode, boolean container)
     {
-        ExternalData dataSet = service.tryGetDataSet(dataSetCode);
+        AbstractExternalData dataSet = service.tryGetDataSet(dataSetCode);
         if (dataSet == null)
         {
             throw new IllegalArgumentException("Unknown data set: " + dataSetCode);
@@ -126,7 +126,7 @@ public class NotifyingTask extends AbstractPostRegistrationTask
     {
         private final ISimpleLogger logger;
 
-        private final ExternalData dataSet;
+        private final AbstractExternalData dataSet;
 
         private final Template messageTemplate;
 
@@ -134,7 +134,7 @@ public class NotifyingTask extends AbstractPostRegistrationTask
 
         private final String[] includeDatasetTypePatternsOrNull;
 
-        public Executor(ExternalData dataSet, Template messageTemplate,
+        public Executor(AbstractExternalData dataSet, Template messageTemplate,
                 Template destinationPathTemplate, String[] includeDatasetTypePatternsOrNull,
                 ISimpleLogger logger)
         {

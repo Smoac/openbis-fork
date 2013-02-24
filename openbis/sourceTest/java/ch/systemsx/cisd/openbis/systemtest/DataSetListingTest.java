@@ -28,7 +28,7 @@ import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
@@ -41,13 +41,13 @@ public class DataSetListingTest extends SystemTestCase
     public void testListExperimentDataSetsDirectlyConnected()
     {
         logIntoCommonClientService();
-        DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria =
-                new DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>>();
+        DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria =
+                new DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>>();
 
-        TypedTableResultSet<ExternalData> resultSet =
+        TypedTableResultSet<AbstractExternalData> resultSet =
                 commonClientService.listExperimentDataSets(new TechId(18), criteria, true);
 
-        List<ExternalData> dataSets = asList(resultSet);
+        List<AbstractExternalData> dataSets = asList(resultSet);
         assertEquals("20081105092159111-1", dataSets.get(0).getCode());
         assertProperties(
                 "[ANY_MATERIAL: 1000_C (SIRNA), BACTERIUM: BACTERIUM1 (BACTERIUM), COMMENT: no comment, GENDER: FEMALE]",
@@ -59,17 +59,17 @@ public class DataSetListingTest extends SystemTestCase
     public void testListExperimentDataSetsAlsoIndirectlyConnected()
     {
         logIntoCommonClientService();
-        DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria =
-                new DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>>();
+        DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria =
+                new DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>>();
 
-        TypedTableResultSet<ExternalData> resultSet =
+        TypedTableResultSet<AbstractExternalData> resultSet =
                 commonClientService.listExperimentDataSets(new TechId(19), criteria, false);
 
-        List<ExternalData> dataSets = asList(resultSet);
-        Collections.sort(dataSets, new Comparator<ExternalData>()
+        List<AbstractExternalData> dataSets = asList(resultSet);
+        Collections.sort(dataSets, new Comparator<AbstractExternalData>()
             {
                 @Override
-                public int compare(ExternalData e1, ExternalData e2)
+                public int compare(AbstractExternalData e1, AbstractExternalData e2)
                 {
                     return e1.getCode().compareTo(e2.getCode());
                 }
@@ -92,10 +92,10 @@ public class DataSetListingTest extends SystemTestCase
         assertEquals(6, dataSets.size());
     }
 
-    private void assertDataSets(String expectedCodes, List<ExternalData> dataSets)
+    private void assertDataSets(String expectedCodes, List<AbstractExternalData> dataSets)
     {
         CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
-        for (ExternalData dataSet : dataSets)
+        for (AbstractExternalData dataSet : dataSets)
         {
             builder.append(dataSet.getCode());
         }

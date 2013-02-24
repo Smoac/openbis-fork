@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -236,8 +236,8 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
                     will(returnValue(experiment));
 
                     one(service).listDataSetsByExperimentID(experiment.getId());
-                    ExternalData ds1 = new DataSetBuilder().code("ds1").getDataSet();
-                    ExternalData ds2 = new DataSetBuilder().code("ds2").getDataSet();
+                    AbstractExternalData ds1 = new DataSetBuilder().code("ds1").getDataSet();
+                    AbstractExternalData ds2 = new DataSetBuilder().code("ds2").getDataSet();
                     will(returnValue(Arrays.asList(ds1, ds2)));
 
                     one(service).registerExperiment(with(any(NewExperiment.class)));
@@ -410,7 +410,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         prepareGetDataSet(dataSetCode, new DataSetBuilder().code(dataSetCode).getDataSet());
     }
 
-    private void prepareGetDataSet(final String dataSetCode, final ExternalData data)
+    private void prepareGetDataSet(final String dataSetCode, final AbstractExternalData data)
     {
         context.checking(new Expectations()
             {

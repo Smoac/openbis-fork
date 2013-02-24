@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -87,7 +87,7 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      * Tries to get the data set for the specified data set code and specified session.
      */
     @ManagedAuthentication
-    public ExternalData tryGetDataSet(final String sessionToken, final String dataSetCode)
+    public AbstractExternalData tryGetDataSet(final String sessionToken, final String dataSetCode)
             throws UserFailureException;
 
     /**
@@ -155,7 +155,7 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      * Lists all data sets of the specified experiment ID.
      */
     @ManagedAuthentication
-    public List<ExternalData> listDataSetsByExperimentID(long experimentID)
+    public List<AbstractExternalData> listDataSetsByExperimentID(long experimentID)
             throws UserFailureException;
 
     /**
@@ -165,7 +165,7 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      *            returned.
      */
     @ManagedAuthentication
-    public List<ExternalData> listDataSetsBySampleID(long sampleID,
+    public List<AbstractExternalData> listDataSetsBySampleID(long sampleID,
             boolean showOnlyDirectlyConnected) throws UserFailureException;
 
     /**
@@ -174,7 +174,7 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      * @return plain data sets without properties, samples, and experiments.
      */
     @ManagedAuthentication
-    public List<ExternalData> listDataSetsByCode(List<String> dataSetCodes)
+    public List<AbstractExternalData> listDataSetsByCode(List<String> dataSetCodes)
             throws UserFailureException;
 
     /**
@@ -276,7 +276,7 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
 
     /** @see IETLLIMSService#listDataSets(String, String, TrackingDataSetCriteria) */
     @ManagedAuthentication
-    public List<ExternalData> listNewerDataSets(TrackingDataSetCriteria criteria)
+    public List<AbstractExternalData> listNewerDataSets(TrackingDataSetCriteria criteria)
             throws UserFailureException;
 
     /**
@@ -341,7 +341,7 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
 
     /** See {@link IETLLIMSService#listAvailableDataSets(String, String, ArchiverDataSetCriteria)} */
     @ManagedAuthentication
-    public List<ExternalData> listAvailableDataSets(ArchiverDataSetCriteria criteria)
+    public List<AbstractExternalData> listAvailableDataSets(ArchiverDataSetCriteria criteria)
             throws UserFailureException;
 
     /** See {@link IETLLIMSService#archiveDatasets(String, List, boolean)} */
@@ -465,7 +465,7 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      * {@link IETLLIMSService#listDataSetsForPostRegistration(String, String)}
      */
     @ManagedAuthentication
-    public List<ExternalData> listDataSetsForPostRegistration();
+    public List<AbstractExternalData> listDataSetsForPostRegistration();
 
     /**
      * {@link IETLLIMSService#didEntityOperationsSucceed(String, TechId)}

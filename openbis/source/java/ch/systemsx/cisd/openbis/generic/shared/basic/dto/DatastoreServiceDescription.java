@@ -161,7 +161,7 @@ public class DatastoreServiceDescription implements IReportInformationProvider, 
         return sb.toString();
     }
 
-    public static boolean isMatching(DatastoreServiceDescription service, ExternalData dataset)
+    public static boolean isMatching(DatastoreServiceDescription service, AbstractExternalData dataset)
     {
         return service.getDatastoreCode().equals(dataset.getDataStore().getCode())
                 && (Arrays.asList(service.getDatasetTypeCodes())).contains(dataset.getDataSetType()

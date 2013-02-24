@@ -96,7 +96,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
@@ -592,7 +592,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             Sample sample, boolean areOnlyDirectlyConnectedIncluded)
     {
         checkSession(sessionToken);
-        List<ExternalData> externalData =
+        List<AbstractExternalData> externalData =
                 commonServer.listSampleExternalData(sessionToken, new TechId(sample.getId()),
                         areOnlyDirectlyConnectedIncluded);
         return Translator.translate(externalData, EnumSet.noneOf(Connections.class));
@@ -706,7 +706,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         SampleToDataSetRelatedEntitiesTranslator translator =
                 new SampleToDataSetRelatedEntitiesTranslator(sampleTypes, samples);
         DataSetRelatedEntities dsre = translator.convertToDataSetRelatedEntities();
-        List<ExternalData> dataSets = commonServer.listRelatedDataSets(sessionToken, dsre, true);
+        List<AbstractExternalData> dataSets = commonServer.listRelatedDataSets(sessionToken, dsre, true);
         return Translator.translate(dataSets, connectionsToGet);
     }
 
@@ -727,7 +727,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                 new SampleToDataSetRelatedEntitiesTranslator(sampleTypes, samples);
         DataSetRelatedEntities dsre = translator.convertToDataSetRelatedEntities();
 
-        List<ExternalData> dataSets =
+        List<AbstractExternalData> dataSets =
                 commonServer.listRelatedDataSetsOnBehalfOfUser(sessionToken, dsre, true, userId);
 
         final List<DataSet> unfilteredDatasets = Translator.translate(dataSets, connectionsToGet);
@@ -764,7 +764,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         ExperimentToDataSetRelatedEntitiesTranslator translator =
                 new ExperimentToDataSetRelatedEntitiesTranslator(experimentTypes, experiments);
         DataSetRelatedEntities dsre = translator.convertToDataSetRelatedEntities();
-        List<ExternalData> dataSets = commonServer.listRelatedDataSets(sessionToken, dsre, true);
+        List<AbstractExternalData> dataSets = commonServer.listRelatedDataSets(sessionToken, dsre, true);
         return Translator.translate(dataSets, connectionsToGet);
     }
 
@@ -785,7 +785,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         ExperimentToDataSetRelatedEntitiesTranslator translator =
                 new ExperimentToDataSetRelatedEntitiesTranslator(experimentTypes, experiments);
         DataSetRelatedEntities dsre = translator.convertToDataSetRelatedEntities();
-        List<ExternalData> dataSets =
+        List<AbstractExternalData> dataSets =
                 commonServer.listRelatedDataSetsOnBehalfOfUser(sessionToken, dsre, true, userId);
 
         final List<DataSet> unfilteredDatasets = Translator.translate(dataSets, connectionsToGet);
@@ -827,7 +827,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             Collection<MetaprojectPE> metaprojects =
                     getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
                             session.tryGetPerson(), dataPE);
-            ExternalData ds =
+            AbstractExternalData ds =
                     DataSetTranslator.translate(dataPE, session.getBaseIndexURL(),
                             MetaprojectTranslator.translate(metaprojects),
                             managedPropertyEvaluatorFactory);
@@ -897,7 +897,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         DetailedSearchCriteria detailedSearchCriteria =
                 SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
                         SearchableEntityKind.DATA_SET, searchCriteria);
-        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData> privateDataSets =
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData> privateDataSets =
                 commonServer.searchForDataSets(sessionToken, detailedSearchCriteria);
 
         // The underlying search, as currently implemented, does not return any of the connections
@@ -916,7 +916,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         DetailedSearchCriteria detailedSearchCriteria =
                 SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
                         SearchableEntityKind.DATA_SET, searchCriteria);
-        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData> privateDataSets =
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData> privateDataSets =
                 commonServer.searchForDataSetsOnBehalfOfUser(sessionToken, detailedSearchCriteria,
                         userId);
 

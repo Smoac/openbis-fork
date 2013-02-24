@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -123,9 +123,9 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
         setDataSetPropertiesFor(info, dataSetProperties, dataSetTypeCode);
         if (parentTypeOrNull != null)
         {
-            List<ExternalData> dataSets = service.listDataSetsBySampleID(sampleID, false);
-            ExternalData youngestDataSet = null;
-            for (ExternalData dataSet : dataSets)
+            List<AbstractExternalData> dataSets = service.listDataSetsBySampleID(sampleID, false);
+            AbstractExternalData youngestDataSet = null;
+            for (AbstractExternalData dataSet : dataSets)
             {
                 if (dataSet.getDataSetType().getCode().equals(parentTypeOrNull))
                 {
@@ -198,7 +198,7 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
         return biologicalSampleIdentifier;
     }
 
-    private long timeStamp(ExternalData dataSet)
+    private long timeStamp(AbstractExternalData dataSet)
     {
         return dataSet.getRegistrationDate().getTime();
     }

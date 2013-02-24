@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -148,7 +148,7 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
                 @Override
                 public void execute()
                 {
-                    ExternalData dataSet = service.tryGetDataSet(dataSetCode);
+                    AbstractExternalData dataSet = service.tryGetDataSet(dataSetCode);
                     if (dataSet == null)
                     {
                         operationLog.error("Data set " + dataSetCode + " unknown to openBIS.");

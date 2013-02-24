@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -76,9 +76,9 @@ public interface IScreeningClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * For given {@link TechId} returns corresponding {@link ExternalData}.
+     * For given {@link TechId} returns corresponding {@link AbstractExternalData}.
      */
-    public ExternalData getDataSetInfo(TechId datasetTechId) throws UserFailureException;
+    public AbstractExternalData getDataSetInfo(TechId datasetTechId) throws UserFailureException;
 
     /**
      * For given {@link TechId} returns corresponding {@link Material}.

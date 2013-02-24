@@ -16,7 +16,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -115,7 +115,7 @@ public class OpenbisClientTest
 
         final TrackingDataSetCriteria dataSetCriteria =
                 new TrackingDataSetCriteria(sampleTypeCode, lastSeenDataSetId);
-        final List<ExternalData> dataSets =
+        final List<AbstractExternalData> dataSets =
                 trackingServer.listDataSets(session.getSessionToken(), dataSetCriteria);
         System.out
                 .println(TrackingHelper.trackedEntitiesInformation(dataSets, EntityKind.DATA_SET));
@@ -170,7 +170,7 @@ public class OpenbisClientTest
                 case SAMPLE:
                     return toString((Sample) entity);
                 case DATA_SET:
-                    return toString((ExternalData) entity);
+                    return toString((AbstractExternalData) entity);
                 default:
                     throw new IllegalArgumentException(entity.getEntityKind()
                             + " is not supported ");
@@ -207,7 +207,7 @@ public class OpenbisClientTest
             return sb.toString();
         }
 
-        private static String toString(ExternalData dataSet)
+        private static String toString(AbstractExternalData dataSet)
         {
             final StringBuilder sb = new StringBuilder();
             ToStringBuilder builder =

@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -272,9 +272,9 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
                     .createAttributeField(DataSetAttributeSearchFieldKind.DATA_SET_TYPE));
             criterion.setValue(dataSetType.getCode());
             criteria.setCriteria(Arrays.asList(criterion));
-            List<ExternalData> dataSets = server.searchForDataSets(sessionToken, criteria);
-            List<ExternalData> newDataSets = new ArrayList<ExternalData>();
-            for (ExternalData dataSet : dataSets)
+            List<AbstractExternalData> dataSets = server.searchForDataSets(sessionToken, criteria);
+            List<AbstractExternalData> newDataSets = new ArrayList<AbstractExternalData>();
+            for (AbstractExternalData dataSet : dataSets)
             {
                 long registrationTime = dataSet.getRegistrationDate().getTime();
                 if (startTime <= registrationTime && registrationTime < endTime)
@@ -282,10 +282,10 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
                     newDataSets.add(dataSet);
                 }
             }
-            Collections.sort(newDataSets, new Comparator<ExternalData>()
+            Collections.sort(newDataSets, new Comparator<AbstractExternalData>()
                 {
                     @Override
-                    public int compare(ExternalData d1, ExternalData d2)
+                    public int compare(AbstractExternalData d1, AbstractExternalData d2)
                     {
                         return d1.getCode().compareTo(d2.getCode());
                     }
@@ -317,7 +317,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
         return !includeDataSetType;
     }
 
-    private String createReport(DataSetType dataSetType, List<ExternalData> newDataSets,
+    private String createReport(DataSetType dataSetType, List<AbstractExternalData> newDataSets,
             int totalNumberOfDataSets)
     {
         Template template =
@@ -330,7 +330,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
         return template.createText();
     }
 
-    private String renderNewDataSets(List<ExternalData> newDataSets)
+    private String renderNewDataSets(List<AbstractExternalData> newDataSets)
     {
         StringBuilder builder = new StringBuilder();
         if (shownProperties.isEmpty())
@@ -341,7 +341,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
                 {
                     builder.append("\t");
                 }
-                ExternalData dataSet = newDataSets.get(i);
+                AbstractExternalData dataSet = newDataSets.get(i);
                 builder.append(dataSet.getCode());
                 if (i < n - 1)
                 {
@@ -357,7 +357,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
             Template noPropertiesTemplate = NEW_DATA_SET_TEMPLATE.createFreshCopy();
             Template withPropertiesTemplate =
                     NEW_DATA_SET_WITH_PROPERTIES_TEMPLATE.createFreshCopy();
-            for (ExternalData dataSet : newDataSets)
+            for (AbstractExternalData dataSet : newDataSets)
             {
                 String code = dataSet.getCode();
 
@@ -373,7 +373,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
         return builder.toString();
     }
 
-    private String getPropertiesToBeShown(ExternalData dataSet)
+    private String getPropertiesToBeShown(AbstractExternalData dataSet)
     {
         StringBuilder builder = new StringBuilder();
         Map<String, String> map = getPropertiesAsAMap(dataSet);
@@ -392,7 +392,7 @@ public class DataSetRegistrationSummaryTask implements IMaintenanceTask
         return builder.toString();
     }
 
-    private Map<String, String> getPropertiesAsAMap(ExternalData dataSet)
+    private Map<String, String> getPropertiesAsAMap(AbstractExternalData dataSet)
     {
         List<IEntityProperty> dataSetProperties = dataSet.getProperties();
         Map<String, String> map = new HashMap<String, String>(dataSetProperties.size());

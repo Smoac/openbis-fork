@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -140,7 +140,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
         public void execute()
         {
 
-            ExternalData externalData = tryGetDataSet(dataSetCode, service);
+            AbstractExternalData externalData = tryGetDataSet(dataSetCode, service);
             if (false == shouldCompressToHdf5(externalData))
             {
                 return;
@@ -192,7 +192,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
             }
         }
 
-        private IHierarchicalContent tryGetHierarchicalContent(ExternalData externalData)
+        private IHierarchicalContent tryGetHierarchicalContent(AbstractExternalData externalData)
         {
             try
             {
@@ -311,7 +311,7 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
             return false;
         }
 
-        private boolean shouldCompressToHdf5(ExternalData dataSet)
+        private boolean shouldCompressToHdf5(AbstractExternalData dataSet)
         {
             if (dataSet == null)
             {
@@ -431,11 +431,11 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
         }
     }
 
-    static ExternalData tryGetDataSet(String dataSetCode,
+    static AbstractExternalData tryGetDataSet(String dataSetCode,
             IEncapsulatedOpenBISService service)
     {
         List<String> codeAsList = Collections.singletonList(dataSetCode);
-        List<ExternalData> dataList = service.listDataSetsByCode(codeAsList);
+        List<AbstractExternalData> dataList = service.listDataSetsByCode(codeAsList);
         if (dataList == null || dataList.isEmpty())
         {
             return null;
@@ -444,12 +444,12 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
         return dataList.get(0);
     }
 
-    private ExperimentIdentifier extractExperimentIdentifier(ExternalData data)
+    private ExperimentIdentifier extractExperimentIdentifier(AbstractExternalData data)
     {
         return ExperimentIdentifierFactory.parse(data.getExperiment().getIdentifier());
     }
 
-    private SampleIdentifier extractSampleIdentifier(ExternalData data)
+    private SampleIdentifier extractSampleIdentifier(AbstractExternalData data)
     {
         if (data.getSampleIdentifier() != null)
         {

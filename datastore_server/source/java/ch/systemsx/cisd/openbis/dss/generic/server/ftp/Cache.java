@@ -22,7 +22,7 @@ import java.util.Map;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * Helper class to cache objects retrieved from remote services. Used by
@@ -46,7 +46,7 @@ public class Cache
     }
     
     private final Map<String, TimeStampedObject<DataSet>> dataSets = new HashMap<String, Cache.TimeStampedObject<DataSet>>();
-    private final Map<String, TimeStampedObject<ExternalData>> externalData = new HashMap<String, Cache.TimeStampedObject<ExternalData>>();
+    private final Map<String, TimeStampedObject<AbstractExternalData>> externalData = new HashMap<String, Cache.TimeStampedObject<AbstractExternalData>>();
     private final Map<String, TimeStampedObject<Experiment>> experiments = new HashMap<String, Cache.TimeStampedObject<Experiment>>();
     
     private final ITimeProvider timeProvider;
@@ -66,12 +66,12 @@ public class Cache
         return getObject(dataSets, dataSetCode);
     }
 
-    ExternalData getExternalData(String code)
+    AbstractExternalData getExternalData(String code)
     {
         return getObject(externalData, code);
     }
 
-    void putExternalData(ExternalData dataSet)
+    void putExternalData(AbstractExternalData dataSet)
     {
         externalData.put(dataSet.getCode(), timestamp(dataSet));
     }

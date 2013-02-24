@@ -22,7 +22,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
@@ -51,7 +51,7 @@ final class TrackingServerLogger extends AbstractServerLogger implements ITracki
     //
 
     @Override
-    public List<ExternalData> listDataSets(String sessionToken, TrackingDataSetCriteria criteria)
+    public List<AbstractExternalData> listDataSets(String sessionToken, TrackingDataSetCriteria criteria)
     {
         logTracking(sessionToken, "list_data_sets", "SAMPLE_TYPE(%s) LAST_DATASET_ID(%s)", criteria
                 .getConnectedSampleTypeCode(), criteria.getLastSeenDataSetId());

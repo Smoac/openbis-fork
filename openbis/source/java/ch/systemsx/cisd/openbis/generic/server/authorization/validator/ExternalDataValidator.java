@@ -16,20 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * A {@link IValidator} implementation suitable for {@link ExternalData}.
+ * A {@link IValidator} implementation suitable for {@link AbstractExternalData}.
  * 
  * @author Tomasz Pylak
  */
-public final class ExternalDataValidator extends AbstractValidator<ExternalData>
+public final class ExternalDataValidator extends AbstractValidator<AbstractExternalData>
 {
     private final IValidator<Space> groupValidator;
 
-    private final IValidator<ExternalData> storageConfirmedValidator;
+    private final IValidator<AbstractExternalData> storageConfirmedValidator;
 
     public ExternalDataValidator()
     {
@@ -43,7 +43,7 @@ public final class ExternalDataValidator extends AbstractValidator<ExternalData>
     //
 
     @Override
-    public final boolean doValidation(final PersonPE person, final ExternalData value)
+    public final boolean doValidation(final PersonPE person, final AbstractExternalData value)
     {
         final Space space = value.getExperiment().getProject().getSpace();
         return groupValidator.isValid(person, space)

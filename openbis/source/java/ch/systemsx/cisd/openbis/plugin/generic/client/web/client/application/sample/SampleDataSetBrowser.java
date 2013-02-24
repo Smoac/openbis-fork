@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
@@ -95,8 +95,8 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
 
     @Override
     protected void listTableRows(
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
-            AbstractAsyncCallback<TypedTableResultSet<ExternalData>> callback)
+            DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> resultSetConfig,
+            AbstractAsyncCallback<TypedTableResultSet<AbstractExternalData>> callback)
     {
         boolean onlyDirectlyConnected = connectionTypeProvider.isOnlyDirectlyConnected();
         viewContext.getService().listSampleDataSets(sampleId, resultSetConfig,

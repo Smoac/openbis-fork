@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  * 
  * @author Izabela Adamczyk
  */
-public class DataSetChooserField extends ChosenEntitySetter<ExternalData>
+public class DataSetChooserField extends ChosenEntitySetter<AbstractExternalData>
 {
     public static DataSetChooserField create(final String labelField, final boolean mandatory,
             final IViewContext<ICommonClientServiceAsync> viewContext)
@@ -60,7 +60,7 @@ public class DataSetChooserField extends ChosenEntitySetter<ExternalData>
     }
 
     private static void browse(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final ChosenEntitySetter<ExternalData> field)
+            final ChosenEntitySetter<AbstractExternalData> field)
     {
         ArrayList<DetailedSearchCriterion> criterionList = new ArrayList<DetailedSearchCriterion>();
         DetailedSearchCriteria searchCriteria = new DetailedSearchCriteria();
@@ -71,15 +71,15 @@ public class DataSetChooserField extends ChosenEntitySetter<ExternalData>
                                 .getAttributeFieldKind(EntityKind.DATA_SET, "CODE")), "*");
         criterionList.add(searchCriterion);
         searchCriteria.setCriteria(criterionList);
-        DisposableEntityChooser<TableModelRowWithObject<ExternalData>> browser =
+        DisposableEntityChooser<TableModelRowWithObject<AbstractExternalData>> browser =
                 DataSetSearchHitGrid.createWithInitialSearchCriteria(viewContext, searchCriteria,
                         true);
-        new EntityChooserDialog<TableModelRowWithObject<ExternalData>>(browser,
-                new IChosenEntitiesSetter<TableModelRowWithObject<ExternalData>>()
+        new EntityChooserDialog<TableModelRowWithObject<AbstractExternalData>>(browser,
+                new IChosenEntitiesSetter<TableModelRowWithObject<AbstractExternalData>>()
                     {
 
                         @Override
-                        public void setChosenEntities(List<TableModelRowWithObject<ExternalData>> row)
+                        public void setChosenEntities(List<TableModelRowWithObject<AbstractExternalData>> row)
                         {
                             field.setChosenEntities(TableModelRowWithObject.getObjects(row));
                         }
@@ -87,7 +87,7 @@ public class DataSetChooserField extends ChosenEntitySetter<ExternalData>
     }
 
     @Override
-    public String renderEntity(ExternalData entity)
+    public String renderEntity(AbstractExternalData entity)
     {
         return entity.getCode();
     }

@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.Gr
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * A {@link AbstractDefaultTestCommand} extension for showing detail view of a data set with given
@@ -48,8 +48,8 @@ public class ShowDataSet extends AbstractDefaultTestCommand
     {
         final Widget widget = GWTTestUtil.getWidgetWithID(DataSetSearchHitGrid.GRID_ID);
         assertTrue(widget instanceof Grid<?>);
-        final Grid<BaseEntityModel<ExternalData>> table =
-                (Grid<BaseEntityModel<ExternalData>>) widget;
+        final Grid<BaseEntityModel<AbstractExternalData>> table =
+                (Grid<BaseEntityModel<AbstractExternalData>>) widget;
         GridTestUtils.fireSelectRow(table, ExperimentBrowserGridColumnIDs.CODE, code);
         GWTTestUtil.clickButtonWithID(DataSetSearchHitGrid.BROWSER_ID
                 + AbstractExternalDataGrid.SHOW_DETAILS_BUTTON_ID_SUFFIX);

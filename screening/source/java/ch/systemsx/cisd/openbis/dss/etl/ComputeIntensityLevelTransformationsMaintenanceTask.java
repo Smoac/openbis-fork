@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.dss.etl.jython.v1.SimpleImageDataSetRegistrator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingTransformerDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDatasetDTO;
@@ -297,7 +297,7 @@ public class ComputeIntensityLevelTransformationsMaintenanceTask implements IMai
     private Levels computeIntensityRange(ImgImageDatasetDTO imageDataset,
             List<ImgChannelDTO> channels)
     {
-        ExternalData dataset = service.tryGetDataSet(imageDataset.getPermId());
+        AbstractExternalData dataset = service.tryGetDataSet(imageDataset.getPermId());
 
         if (dataset == null)
         {

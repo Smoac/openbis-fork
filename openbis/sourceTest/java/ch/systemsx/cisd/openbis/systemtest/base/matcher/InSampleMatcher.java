@@ -19,10 +19,10 @@ package ch.systemsx.cisd.openbis.systemtest.base.matcher;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
-public class InSampleMatcher extends TypeSafeMatcher<ExternalData>
+public class InSampleMatcher extends TypeSafeMatcher<AbstractExternalData>
 {
 
     private Sample sample;
@@ -39,7 +39,7 @@ public class InSampleMatcher extends TypeSafeMatcher<ExternalData>
     }
 
     @Override
-    public boolean matchesSafely(ExternalData actual)
+    public boolean matchesSafely(AbstractExternalData actual)
     {
         return this.sample.equals(actual.getSample());
     }

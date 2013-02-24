@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedH
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -104,7 +104,7 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
                 }
 
                 @Override
-                public IHierarchicalContent asContent(ExternalData dataSet)
+                public IHierarchicalContent asContent(AbstractExternalData dataSet)
                 {
                     return getContent(dataSet.getCode());
                 }

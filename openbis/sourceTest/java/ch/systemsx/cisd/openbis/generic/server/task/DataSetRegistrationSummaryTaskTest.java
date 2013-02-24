@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
@@ -319,7 +319,7 @@ public class DataSetRegistrationSummaryTaskTest extends AssertJUnit
     }
 
     private RecordingMatcher<DetailedSearchCriteria> prepareForSearchForDataSets(
-            final String dataSetType, final ExternalData... dataSets)
+            final String dataSetType, final AbstractExternalData... dataSets)
     {
         final RecordingMatcher<DetailedSearchCriteria> recordingMatcher =
                 new RecordingMatcher<DetailedSearchCriteria>();

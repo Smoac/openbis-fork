@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
@@ -46,14 +46,14 @@ public class DataSetUpdateBuilder extends UpdateBuilder<DataSetUpdatesDTO>
 
     private String fileFormatTypeCode;
 
-    private List<ExternalData> parents;
+    private List<AbstractExternalData> parents;
 
     private String containerCode;
 
-    private List<ExternalData> components;
+    private List<AbstractExternalData> components;
 
     public DataSetUpdateBuilder(ICommonServerForInternalUse commonServer,
-            IGenericServer genericServer, ExternalData data)
+            IGenericServer genericServer, AbstractExternalData data)
     {
         super(commonServer, genericServer);
         this.datasetId = new TechId(data.getId());
@@ -82,22 +82,22 @@ public class DataSetUpdateBuilder extends UpdateBuilder<DataSetUpdatesDTO>
         return this;
     }
 
-    public DataSetUpdateBuilder withParents(ExternalData first, ExternalData... rest)
+    public DataSetUpdateBuilder withParents(AbstractExternalData first, AbstractExternalData... rest)
     {
-        this.parents = new ArrayList<ExternalData>();
+        this.parents = new ArrayList<AbstractExternalData>();
         this.parents.add(first);
         this.parents.addAll(Arrays.asList(rest));
         return this;
     }
 
-    public DataSetUpdateBuilder withParent(ExternalData dataSet)
+    public DataSetUpdateBuilder withParent(AbstractExternalData dataSet)
     {
         return this.withParents(dataSet);
     }
 
     public DataSetUpdateBuilder removingParents()
     {
-        this.parents = new ArrayList<ExternalData>();
+        this.parents = new ArrayList<AbstractExternalData>();
         return this;
     }
 
@@ -107,23 +107,23 @@ public class DataSetUpdateBuilder extends UpdateBuilder<DataSetUpdatesDTO>
         return this;
     }
 
-    public DataSetUpdateBuilder withContainer(ExternalData dataSet)
+    public DataSetUpdateBuilder withContainer(AbstractExternalData dataSet)
     {
         this.containerCode = dataSet.getCode();
         return this;
     }
 
-    public DataSetUpdateBuilder withComponents(ExternalData... dataSets)
+    public DataSetUpdateBuilder withComponents(AbstractExternalData... dataSets)
     {
-        this.components = new ArrayList<ExternalData>();
-        for (ExternalData component : dataSets)
+        this.components = new ArrayList<AbstractExternalData>();
+        for (AbstractExternalData component : dataSets)
         {
             this.components.add(component);
         }
         return this;
     }
 
-    public DataSetUpdateBuilder withComponent(ExternalData dataSet)
+    public DataSetUpdateBuilder withComponent(AbstractExternalData dataSet)
     {
         return this.withComponents(dataSet);
     }

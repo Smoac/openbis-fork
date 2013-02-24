@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
@@ -394,7 +394,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                                             .registrationDate(new Date(ds2ChildId)).sample(sample)
                                             .type(dataSetType).getDataSet();
 
-                            ds2.setChildren(Arrays.<ExternalData> asList(ds2Child));
+                            ds2.setChildren(Arrays.<AbstractExternalData> asList(ds2Child));
                             dataSetsBySamples.put(sample, Arrays.asList(ds1, ds2));
 
                             filteredSamples.add(sample);

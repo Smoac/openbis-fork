@@ -62,7 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -84,7 +84,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         }
 
         @Override
-        public IHierarchicalContent asContent(ExternalData dataSet)
+        public IHierarchicalContent asContent(AbstractExternalData dataSet)
         {
             return asContent((IDatasetLocation) dataSet.tryGetAsDataSet());
         }
@@ -268,8 +268,8 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         resolver = new TemplateBasedDataSetResourceResolver(config);
         resolver.setContentProvider(simpleFileContentProvider);
 
-        ds1.setParents(Arrays.<ExternalData> asList(ds2));
-        final List<ExternalData> dataSets = Arrays.<ExternalData> asList(ds1);
+        ds1.setParents(Arrays.<AbstractExternalData> asList(ds2));
+        final List<AbstractExternalData> dataSets = Arrays.<AbstractExternalData> asList(ds1);
 
         prepareExperimentListExpectations(dataSets);
         prepareGetDataSetMetaData(ds1);
@@ -300,9 +300,9 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         resolver = new TemplateBasedDataSetResourceResolver(config);
         resolver.setContentProvider(simpleFileContentProvider);
 
-        ds1.setParents(Arrays.<ExternalData> asList(ds2));
-        ds2.setChildren(Arrays.<ExternalData> asList(ds1, ds3));
-        final List<ExternalData> dataSets = Arrays.<ExternalData> asList(ds1);
+        ds1.setParents(Arrays.<AbstractExternalData> asList(ds2));
+        ds2.setChildren(Arrays.<AbstractExternalData> asList(ds1, ds3));
+        final List<AbstractExternalData> dataSets = Arrays.<AbstractExternalData> asList(ds1);
 
         prepareExperimentListExpectations(dataSets);
         prepareGetDataSetMetaData(ds1);
@@ -339,9 +339,9 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         resolver = new TemplateBasedDataSetResourceResolver(config);
         resolver.setContentProvider(simpleFileContentProvider);
 
-        ds1.setParents(Arrays.<ExternalData> asList(ds2));
-        ds2.setChildren(Arrays.<ExternalData> asList(ds1));
-        final List<ExternalData> dataSets = Arrays.<ExternalData> asList(ds1);
+        ds1.setParents(Arrays.<AbstractExternalData> asList(ds2));
+        ds2.setChildren(Arrays.<AbstractExternalData> asList(ds1));
+        final List<AbstractExternalData> dataSets = Arrays.<AbstractExternalData> asList(ds1);
 
         prepareExperimentListExpectations(dataSets);
         prepareGetDataSetMetaData(ds1);
@@ -375,9 +375,9 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         resolver = new TemplateBasedDataSetResourceResolver(config);
         resolver.setContentProvider(simpleFileContentProvider);
 
-        ds1.setParents(Arrays.<ExternalData> asList(ds2));
-        ds2.setChildren(Arrays.<ExternalData> asList(ds1));
-        final List<ExternalData> dataSets = Arrays.<ExternalData> asList(ds1);
+        ds1.setParents(Arrays.<AbstractExternalData> asList(ds2));
+        ds2.setChildren(Arrays.<AbstractExternalData> asList(ds1));
+        final List<AbstractExternalData> dataSets = Arrays.<AbstractExternalData> asList(ds1);
 
         prepareExperimentListExpectations(dataSets);
         prepareGetDataSetMetaData(ds1);
@@ -414,7 +414,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
                 EXP_ID + FtpConstants.FILE_SEPARATOR + ds1.getCode() + FtpConstants.FILE_SEPARATOR
                         + subPath;
 
-        List<ExternalData> dataSets = Arrays.<ExternalData> asList(ds1);
+        List<AbstractExternalData> dataSets = Arrays.<AbstractExternalData> asList(ds1);
 
         prepareExperimentListExpectations(dataSets);
 
@@ -425,7 +425,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
                     IHierarchicalContent content =
                             context.mock(IHierarchicalContent.class, ds1.getCode());
 
-                    one(hierarchicalContentProvider).asContent((ExternalData) ds1);
+                    one(hierarchicalContentProvider).asContent((AbstractExternalData) ds1);
                     will(returnValue(content));
                     
                     one(hierarchicalContentProvider).cloneFor(with(sessionTokeProviderMatcher));
@@ -489,7 +489,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         resolver = new TemplateBasedDataSetResourceResolver(config);
         resolver.setContentProvider(simpleFileContentProvider);
 
-        List<ExternalData> dataSets = Arrays.<ExternalData> asList(ds1, ds2);
+        List<AbstractExternalData> dataSets = Arrays.<AbstractExternalData> asList(ds1, ds2);
 
         prepareExperimentListExpectations(dataSets);
 
@@ -505,7 +505,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         assertEquals(2, files.size());
     }
 
-    private void prepareExperimentListExpectations(final List<ExternalData> dataSets)
+    private void prepareExperimentListExpectations(final List<AbstractExternalData> dataSets)
     {
         context.checking(new Expectations()
             {
@@ -516,7 +516,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
             });
     }
 
-    private void prepareGetDataSetMetaData(final ExternalData... dataSets)
+    private void prepareGetDataSetMetaData(final AbstractExternalData... dataSets)
     {
         final List<String> codes = extractCodes(dataSets);
         final List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> translateDataSets =
@@ -535,7 +535,7 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
             });
     }
 
-    private void prepareListDataSetsByCode(final ExternalData... dataSets)
+    private void prepareListDataSetsByCode(final AbstractExternalData... dataSets)
     {
         final List<String> codes = extractCodes(dataSets);
         context.checking(new Expectations()
@@ -548,10 +548,10 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
 
     }
 
-    private List<String> extractCodes(final ExternalData... dataSets)
+    private List<String> extractCodes(final AbstractExternalData... dataSets)
     {
         final List<String> codes = new ArrayList<String>();
-        for (ExternalData dataSet : dataSets)
+        for (AbstractExternalData dataSet : dataSets)
         {
             codes.add(dataSet.getCode());
         }

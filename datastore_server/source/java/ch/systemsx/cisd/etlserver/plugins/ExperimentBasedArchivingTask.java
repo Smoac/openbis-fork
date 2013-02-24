@@ -54,7 +54,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
@@ -272,7 +272,7 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
                     new ProjectIdentifierFactory(project.getIdentifier()).createIdentifier();
             for (Experiment experiment : service.listExperiments(projectIdentifier))
             {
-                List<ExternalData> dataSets =
+                List<AbstractExternalData> dataSets =
                         service.listDataSetsByExperimentID(experiment.getId());
                 infos.add(new ExperimentDataSetsInfo(experiment.getIdentifier(), dataSets));
             }
@@ -345,10 +345,10 @@ public class ExperimentBasedArchivingTask implements IDataStoreLockingMaintenanc
 
         private final String experimentIdentifier;
 
-        ExperimentDataSetsInfo(String experimentIdentifier, List<ExternalData> dataSets)
+        ExperimentDataSetsInfo(String experimentIdentifier, List<AbstractExternalData> dataSets)
         {
             this.experimentIdentifier = experimentIdentifier;
-            for (ExternalData dataSet : dataSets)
+            for (AbstractExternalData dataSet : dataSets)
             {
                 if (dataSet instanceof PhysicalDataSet == false)
                 {

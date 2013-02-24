@@ -20,7 +20,7 @@ import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * @author Franz-Josef Elmer
@@ -35,7 +35,7 @@ public class DataSetUtils
 
     private static final String MODE = "mode";
 
-    public static String createDataViewUrl(ExternalData dataSet, GenericViewModel model,
+    public static String createDataViewUrl(AbstractExternalData dataSet, GenericViewModel model,
             String modeOrNull, boolean autoResolve)
     {
         URLMethodWithParameters methodWithParameters =

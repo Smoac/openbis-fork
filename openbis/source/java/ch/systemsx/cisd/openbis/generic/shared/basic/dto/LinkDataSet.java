@@ -22,7 +22,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  * 
  * @author Pawel Glyzewski
  */
-public class LinkDataSet extends ExternalData
+public class LinkDataSet extends AbstractExternalData
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

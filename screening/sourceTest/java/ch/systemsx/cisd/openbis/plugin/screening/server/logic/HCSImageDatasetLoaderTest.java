@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -82,22 +82,22 @@ public class HCSImageDatasetLoaderTest extends AbstractServerTestCase
         value.setCode("96_WELLS_8X12");
         sampleBuilder.property(ScreeningConstants.PLATE_GEOMETRY).value(value);
         final Sample sample = sampleBuilder.getSample();
-        final ExternalData ids1 =
+        final AbstractExternalData ids1 =
                 dataSet(1l).code("ids1").type("HCS_IMAGE").sample(sample).getDataSet();
-        final ExternalData sds1 =
+        final AbstractExternalData sds1 =
                 dataSet(11l).code("sds1").type("HCS_IMAGE_SEGMENTATION").sample(sample)
                         .getDataSet();
-        final ExternalData sds2 =
+        final AbstractExternalData sds2 =
                 dataSet(12l).code("sds2").type("HCS_IMAGE_SEGMENTATION").sample(sample)
                         .getDataSet();
-        final ExternalData ids2 =
+        final AbstractExternalData ids2 =
                 dataSet(2l).code("ids2").type("HCS_IMAGE").sample(sample).getDataSet();
-        final ExternalData sds3 =
+        final AbstractExternalData sds3 =
                 dataSet(21l).code("sds3").type("HCS_IMAGE_SEGMENTATION").sample(sample)
                         .getDataSet();
-        final ExternalData sds4 =
+        final AbstractExternalData sds4 =
                 dataSet(100l).code("sds4").type("HCS_IMAGE_SEGMENTATION").getDataSet();
-        final ExternalData ds1 =
+        final AbstractExternalData ds1 =
                 dataSet(101l).code("ds1").type("BLABLA").sample(sample).getDataSet();
         context.checking(new Expectations()
             {

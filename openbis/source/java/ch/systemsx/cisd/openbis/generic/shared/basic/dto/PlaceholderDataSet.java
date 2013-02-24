@@ -22,7 +22,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  * 
  * @author Kaloyan Enimanev
  */
-public class PlaceholderDataSet extends ExternalData
+public class PlaceholderDataSet extends AbstractExternalData
 {
 
     private static final long serialVersionUID = 1L;

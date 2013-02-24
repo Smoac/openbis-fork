@@ -60,7 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
@@ -76,7 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractExternalDataProvider extends
-        AbstractCommonTableModelProvider<ExternalData>
+        AbstractCommonTableModelProvider<AbstractExternalData>
 {
     public AbstractExternalDataProvider(ICommonServer commonServer, String sessionToken)
     {
@@ -84,10 +84,10 @@ public abstract class AbstractExternalDataProvider extends
     }
 
     @Override
-    protected TypedTableModel<ExternalData> createTableModel()
+    protected TypedTableModel<AbstractExternalData> createTableModel()
     {
-        List<ExternalData> dataSets = getDataSets();
-        TypedTableModelBuilder<ExternalData> builder = new TypedTableModelBuilder<ExternalData>();
+        List<AbstractExternalData> dataSets = getDataSets();
+        TypedTableModelBuilder<AbstractExternalData> builder = new TypedTableModelBuilder<AbstractExternalData>();
         builder.addColumn(CODE).withDefaultWidth(150);
         builder.addColumn(EXTERNAL_CODE).withDefaultWidth(150).hideByDefault();
         builder.addColumn(DATA_SET_TYPE).withDefaultWidth(200);
@@ -120,7 +120,7 @@ public abstract class AbstractExternalDataProvider extends
         builder.addColumn(PERM_ID).hideByDefault();
         builder.addColumn(SHOW_DETAILS_LINK).hideByDefault();
         builder.addColumn(METAPROJECTS);
-        for (ExternalData dataSet : dataSets)
+        for (AbstractExternalData dataSet : dataSets)
         {
             builder.addRow(dataSet);
 
@@ -224,6 +224,6 @@ public abstract class AbstractExternalDataProvider extends
         return builder.getModel();
     }
 
-    protected abstract List<ExternalData> getDataSets();
+    protected abstract List<AbstractExternalData> getDataSets();
 
 }

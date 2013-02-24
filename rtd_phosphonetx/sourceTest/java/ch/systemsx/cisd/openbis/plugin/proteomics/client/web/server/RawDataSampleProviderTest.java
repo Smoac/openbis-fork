@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -223,7 +223,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
                     List<MsInjectionSample> list = new ArrayList<MsInjectionSample>();
                     for (Sample sample : samples)
                     {
-                        list.add(new MsInjectionSample(sample, Arrays.<ExternalData>asList()));
+                        list.add(new MsInjectionSample(sample, Arrays.<AbstractExternalData>asList()));
                     }
                     will(returnValue(list));
                 }

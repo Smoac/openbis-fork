@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
 
@@ -47,11 +47,11 @@ public class DataSetPropertiesPanel extends ContentPanel
     public static final String PROPERTIES_ID_PREFIX = GenericConstants.ID_PREFIX
             + "dataset-properties-section_";
 
-    private final ExternalData dataset;
+    private final AbstractExternalData dataset;
 
     private final IViewContext<?> viewContext;
 
-    public DataSetPropertiesPanel(final ExternalData dataset, final IViewContext<?> viewContext)
+    public DataSetPropertiesPanel(final AbstractExternalData dataset, final IViewContext<?> viewContext)
     {
         setHeading("Data Set Properties");
         this.dataset = dataset;

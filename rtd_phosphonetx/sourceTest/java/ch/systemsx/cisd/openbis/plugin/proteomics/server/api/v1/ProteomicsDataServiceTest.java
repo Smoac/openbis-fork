@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -170,10 +170,10 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         experiment.setProperties(Arrays.<IEntityProperty>asList(p6));
         parent.setExperiment(experiment);
         sample .setGeneratedFrom(parent);
-        final ExternalData ds1 = createDataSet(RAW_DATA, 10);
-        final ExternalData ds2 = createDataSet(MZXML_DATA, 20);
-        ExternalData ds3 = createDataSet(MZXML_DATA, 15);
-        ExternalData ds4 = createDataSet(RAW_DATA, 30);
+        final AbstractExternalData ds1 = createDataSet(RAW_DATA, 10);
+        final AbstractExternalData ds2 = createDataSet(MZXML_DATA, 20);
+        AbstractExternalData ds3 = createDataSet(MZXML_DATA, 15);
+        AbstractExternalData ds4 = createDataSet(RAW_DATA, 30);
         ds2.setChildren(Arrays.asList(ds3));
         ds3.setChildren(Arrays.asList(ds4));
         context.checking(new Expectations()
@@ -410,9 +410,9 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         return property;
     }
 
-    private ExternalData createDataSet(String type, long date)
+    private AbstractExternalData createDataSet(String type, long date)
     {
-        ExternalData dataSet = new ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet();
+        AbstractExternalData dataSet = new ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet();
         dataSet.setId(date);
         dataSet.setCode(type + "-" + date);
         dataSet.setDataSetType(new DataSetType(type));

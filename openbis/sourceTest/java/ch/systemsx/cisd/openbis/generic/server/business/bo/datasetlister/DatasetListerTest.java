@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -93,9 +93,9 @@ public class DatasetListerTest extends AbstractDAOTest
     @Test
     public void testListBySampleTechIdDirect()
     {
-        List<ExternalData> datasets = lister.listBySampleTechId(new TechId(exampleSampleId), true);
+        List<AbstractExternalData> datasets = lister.listBySampleTechId(new TechId(exampleSampleId), true);
         assertEquals(1, datasets.size());
-        ExternalData externalData = datasets.get(0);
+        AbstractExternalData externalData = datasets.get(0);
         assertEquals(exampleSampleId, externalData.getSample().getId().longValue());
         assertFalse(externalData.getProperties().isEmpty());
         assertNotNull(externalData.getExperiment());
@@ -104,23 +104,23 @@ public class DatasetListerTest extends AbstractDAOTest
     @Test
     public void testListBySampleTechIdIndirect()
     {
-        List<ExternalData> indirectlyConnectedChildDatasets =
+        List<AbstractExternalData> indirectlyConnectedChildDatasets =
                 lister.listBySampleTechId(new TechId(exampleSampleId), false);
         assertEquals(5, indirectlyConnectedChildDatasets.size());
         System.err.println(Code.extractCodes(indirectlyConnectedChildDatasets).toString());
 
         assertNotNull(exampleSample.getGeneratedFrom());
-        List<ExternalData> directlyConnectedParentDatasets =
+        List<AbstractExternalData> directlyConnectedParentDatasets =
                 lister.listBySampleTechId(new TechId(exampleSample.getGeneratedFrom()), true);
         assertEquals(1, directlyConnectedParentDatasets.size());
 
-        List<ExternalData> indirectlyConnectedParentDatasets =
+        List<AbstractExternalData> indirectlyConnectedParentDatasets =
                 lister.listBySampleTechId(new TechId(exampleSample.getGeneratedFrom()), false);
         assertEquals(6, indirectlyConnectedParentDatasets.size());
 
         List<String> indirectlyConnectedParentDatasetCodes =
                 Code.extractCodes(indirectlyConnectedParentDatasets);
-        for (ExternalData childDataset : indirectlyConnectedChildDatasets)
+        for (AbstractExternalData childDataset : indirectlyConnectedChildDatasets)
         {
             assertTrue(childDataset.getCode() + " not found among "
                     + indirectlyConnectedParentDatasetCodes.toString(),
@@ -150,7 +150,7 @@ public class DatasetListerTest extends AbstractDAOTest
                 SampleTranslator.translate(samplePEs, "", new HashMap<Long, Set<Metaproject>>(),
                         new ManagedPropertyEvaluatorFactory(null, null));
 
-        Map<Sample, List<ExternalData>> dataSets = lister.listAllDataSetsFor(samples);
+        Map<Sample, List<AbstractExternalData>> dataSets = lister.listAllDataSetsFor(samples);
 
         StringBuilder builder = new StringBuilder();
         for (Sample sample : samples)
@@ -175,10 +175,10 @@ public class DatasetListerTest extends AbstractDAOTest
                 + "      20081105092259900-1 (HCS_IMAGE) [COMMENT: no comment]\n"
                 + "        20081105092359990-2 (HCS_IMAGE) [COMMENT: no comment]\n",
                 builder.toString());
-        Map<String, ExternalData> dataSetsByCode = new HashMap<String, ExternalData>();
+        Map<String, AbstractExternalData> dataSetsByCode = new HashMap<String, AbstractExternalData>();
         for (Sample sample : samples)
         {
-            List<ExternalData> rootDataSets = dataSets.get(sample);
+            List<AbstractExternalData> rootDataSets = dataSets.get(sample);
             assertSameDataSetsForSameCode(dataSetsByCode, rootDataSets);
         }
     }
@@ -187,14 +187,14 @@ public class DatasetListerTest extends AbstractDAOTest
     public void testListDataSetsByCode()
     {
         // 1st is deleted, 2nd has fake code, 3rd & 4th are ok
-        List<ExternalData> dataSets =
+        List<AbstractExternalData> dataSets =
                 lister.listByDatasetCode(Arrays.asList("20081105092158673-1", "blabla",
                         "20081105092159111-1", "20081105092159188-3"));
 
-        Collections.sort(dataSets, new Comparator<ExternalData>()
+        Collections.sort(dataSets, new Comparator<AbstractExternalData>()
             {
                 @Override
-                public int compare(ExternalData o1, ExternalData o2)
+                public int compare(AbstractExternalData o1, AbstractExternalData o2)
                 {
                     return (int) (o1.getId() - o2.getId());
                 }
@@ -219,11 +219,11 @@ public class DatasetListerTest extends AbstractDAOTest
     @Test
     public void testListByTrackingCriteriaWithNoSample()
     {
-        List<ExternalData> dataSets = lister.listByTrackingCriteria(new TrackingDataSetCriteria(9));
-        Collections.sort(dataSets, new Comparator<ExternalData>()
+        List<AbstractExternalData> dataSets = lister.listByTrackingCriteria(new TrackingDataSetCriteria(9));
+        Collections.sort(dataSets, new Comparator<AbstractExternalData>()
             {
                 @Override
-                public int compare(ExternalData o1, ExternalData o2)
+                public int compare(AbstractExternalData o1, AbstractExternalData o2)
                 {
                     return (int) (o1.getId() - o2.getId());
                 }
@@ -237,12 +237,12 @@ public class DatasetListerTest extends AbstractDAOTest
     @Test
     public void testListByTrackingCriteriaWithSampleType()
     {
-        List<ExternalData> dataSets =
+        List<AbstractExternalData> dataSets =
                 lister.listByTrackingCriteria(new TrackingDataSetCriteria("CELL_PLATE", 6));
-        Collections.sort(dataSets, new Comparator<ExternalData>()
+        Collections.sort(dataSets, new Comparator<AbstractExternalData>()
             {
                 @Override
-                public int compare(ExternalData o1, ExternalData o2)
+                public int compare(AbstractExternalData o1, AbstractExternalData o2)
                 {
                     return (int) (o1.getId() - o2.getId());
                 }
@@ -259,7 +259,7 @@ public class DatasetListerTest extends AbstractDAOTest
     {
         final Long containerId = 13L;
         final Long containedId = 15L;
-        List<ExternalData> datasets =
+        List<AbstractExternalData> datasets =
                 lister.listByDatasetIds(Arrays.asList(containerId, containedId));
         assertEquals(2, datasets.size());
         ContainerDataSet containerDataSet = datasets.get(0).tryGetAsContainerDataSet();
@@ -279,7 +279,7 @@ public class DatasetListerTest extends AbstractDAOTest
         final Long ds2Id = 24L;
         final Long ds3Id = 25L;
 
-        List<ExternalData> datasets = lister.listByDatasetIds(Arrays.asList(ds1Id, ds2Id, ds3Id));
+        List<AbstractExternalData> datasets = lister.listByDatasetIds(Arrays.asList(ds1Id, ds2Id, ds3Id));
 
         assertEquals(3, datasets.size());
         assertTrue(datasets.get(0).isLinkData());
@@ -333,7 +333,7 @@ public class DatasetListerTest extends AbstractDAOTest
     public void testContainerParentPopulated()
     {
         final Long containedId = 15L;
-        List<ExternalData> datasets = lister.listByDatasetIds(Arrays.asList(containedId));
+        List<AbstractExternalData> datasets = lister.listByDatasetIds(Arrays.asList(containedId));
         assertEquals(1, datasets.size());
         PhysicalDataSet dataset = datasets.get(0).tryGetAsDataSet();
         assertNotNull(dataset);
@@ -347,12 +347,12 @@ public class DatasetListerTest extends AbstractDAOTest
     public void testContainedDataSetzPopulated()
     {
         final Long containerId = 13L;
-        List<ExternalData> datasets = lister.listByDatasetIds(Arrays.asList(containerId));
+        List<AbstractExternalData> datasets = lister.listByDatasetIds(Arrays.asList(containerId));
         assertEquals(1, datasets.size());
         ContainerDataSet containerDataSet = datasets.get(0).tryGetAsContainerDataSet();
         assertNotNull(containerDataSet);
 
-        List<ExternalData> containedDataSets = containerDataSet.getContainedDataSets();
+        List<AbstractExternalData> containedDataSets = containerDataSet.getContainedDataSets();
         assertEquals(2, containedDataSets.size());
         assertEquals("20110509092359990-11", containedDataSets.get(0).getCode());
         assertEquals("20110509092359990-12", containedDataSets.get(1).getCode());
@@ -361,18 +361,18 @@ public class DatasetListerTest extends AbstractDAOTest
     @Test
     public void testListByDataStore()
     {
-        List<ExternalData> list = lister.listByDataStore(1);
+        List<AbstractExternalData> list = lister.listByDataStore(1);
 
-        Collections.sort(list, new Comparator<ExternalData>()
+        Collections.sort(list, new Comparator<AbstractExternalData>()
             {
                 @Override
-                public int compare(ExternalData o1, ExternalData o2)
+                public int compare(AbstractExternalData o1, AbstractExternalData o2)
                 {
                     return o1.getCode().compareTo(o2.getCode());
                 }
             });
         // NOTE: deleted data set with id 2 is omitted and so are all container and link datasets
-        ExternalData dataSet = list.get(0);
+        AbstractExternalData dataSet = list.get(0);
         assertEquals(5L, dataSet.getId().longValue());
         assertEquals("20081105092159111-1", dataSet.getCode());
         assertEquals("HCS_IMAGE", dataSet.getDataSetType().getCode());
@@ -399,9 +399,9 @@ public class DatasetListerTest extends AbstractDAOTest
     @Test
     public void testListByDataStoreInChunks()
     {
-        List<ExternalData> fullList = new ArrayList<ExternalData>();
+        List<AbstractExternalData> fullList = new ArrayList<AbstractExternalData>();
 
-        List<ExternalData> list =
+        List<AbstractExternalData> list =
                 lister.listByDataStore(1, 8, DatasetLister.DEFAULT_DATASET_FETCH_OPTIONS);
         fullList.addAll(list);
         // We get 12 instead of 8 datasets due to the corner case of many datasets having the same
@@ -419,7 +419,7 @@ public class DatasetListerTest extends AbstractDAOTest
                         DatasetLister.DEFAULT_DATASET_FETCH_OPTIONS);
         assertEquals(0, list.size());
 
-        ExternalData dataSet = fullList.get(0);
+        AbstractExternalData dataSet = fullList.get(0);
         assertEquals(4L, dataSet.getId().longValue());
         assertEquals("20081105092159188-3", dataSet.getCode());
         assertEquals("HCS_IMAGE", dataSet.getDataSetType().getCode());
@@ -534,37 +534,37 @@ public class DatasetListerTest extends AbstractDAOTest
         Assert.assertEquals(0, componentNode.getComponents().size());
     }
 
-    private void assertSameDataSetsForSameCode(Map<String, ExternalData> dataSetsByCode,
-            Collection<ExternalData> dataSets)
+    private void assertSameDataSetsForSameCode(Map<String, AbstractExternalData> dataSetsByCode,
+            Collection<AbstractExternalData> dataSets)
     {
         if (dataSets == null || dataSets.isEmpty())
         {
             return;
         }
-        for (ExternalData dataSet : dataSets)
+        for (AbstractExternalData dataSet : dataSets)
         {
-            ExternalData previousDataSet = dataSetsByCode.put(dataSet.getCode(), dataSet);
+            AbstractExternalData previousDataSet = dataSetsByCode.put(dataSet.getCode(), dataSet);
             if (previousDataSet != null)
             {
                 assertSame("Same data set object expected for " + dataSet.getCode(),
                         previousDataSet, dataSet);
             }
-            Collection<ExternalData> children = dataSet.getChildren();
+            Collection<AbstractExternalData> children = dataSet.getChildren();
             assertSameDataSetsForSameCode(dataSetsByCode, children);
         }
     }
 
-    private void appendChildren(StringBuilder builder, Collection<ExternalData> dataSets,
+    private void appendChildren(StringBuilder builder, Collection<AbstractExternalData> dataSets,
             String indentation)
     {
         if (dataSets.isEmpty() == false)
         {
-            for (ExternalData dataSet : dataSets)
+            for (AbstractExternalData dataSet : dataSets)
             {
                 builder.append('\n').append(indentation).append(dataSet.getCode()).append(" (");
                 builder.append(dataSet.getDataSetType().getCode()).append(") ");
                 builder.append(getSortedProperties(dataSet));
-                Collection<ExternalData> children = dataSet.getChildren();
+                Collection<AbstractExternalData> children = dataSet.getChildren();
                 if (children != null && children.isEmpty() == false)
                 {
                     appendChildren(builder, children, indentation + "  ");

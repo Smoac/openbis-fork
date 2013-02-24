@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -137,7 +137,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
     }
 
     @Override
-    public ExternalData getDataSetInfo(TechId datasetTechId)
+    public AbstractExternalData getDataSetInfo(TechId datasetTechId)
     {
         return server.getDataSetInfo(getSessionToken(), datasetTechId);
     }

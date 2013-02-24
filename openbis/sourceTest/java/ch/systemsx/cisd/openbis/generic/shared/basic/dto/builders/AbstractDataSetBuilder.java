@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 public abstract class AbstractDataSetBuilder<T extends AbstractDataSetBuilder<?>>
 {
 
-    protected final ExternalData dataSet;
+    protected final AbstractExternalData dataSet;
 
     /**
      * Return this object typed to the concrete class. This is a subclass responsibility.
@@ -46,7 +46,7 @@ public abstract class AbstractDataSetBuilder<T extends AbstractDataSetBuilder<?>
     /**
      * Constructor that takes a concrete data set class as an argument.
      */
-    protected AbstractDataSetBuilder(ExternalData concreteDataSet)
+    protected AbstractDataSetBuilder(AbstractExternalData concreteDataSet)
     {
         super();
         this.dataSet = concreteDataSet;
@@ -129,10 +129,10 @@ public abstract class AbstractDataSetBuilder<T extends AbstractDataSetBuilder<?>
 
     public T parent(PhysicalDataSet parent)
     {
-        Collection<ExternalData> parents = dataSet.getParents();
+        Collection<AbstractExternalData> parents = dataSet.getParents();
         if (parents == null)
         {
-            parents = new ArrayList<ExternalData>();
+            parents = new ArrayList<AbstractExternalData>();
             dataSet.setParents(parents);
         }
         parents.add(parent);
@@ -141,10 +141,10 @@ public abstract class AbstractDataSetBuilder<T extends AbstractDataSetBuilder<?>
 
     public T child(PhysicalDataSet child)
     {
-        Collection<ExternalData> children = dataSet.getChildren();
+        Collection<AbstractExternalData> children = dataSet.getChildren();
         if (children == null)
         {
-            children = new ArrayList<ExternalData>();
+            children = new ArrayList<AbstractExternalData>();
             dataSet.setChildren(children);
         }
         children.add(child);

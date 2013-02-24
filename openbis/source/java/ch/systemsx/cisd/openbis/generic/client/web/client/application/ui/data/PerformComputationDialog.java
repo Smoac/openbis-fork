@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Dialo
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 class PerformComputationDialog extends AbstractDataConfirmationDialog<ComputationData>
 {
@@ -96,7 +96,7 @@ class PerformComputationDialog extends AbstractDataConfirmationDialog<Computatio
     private Set<DataSetType> getSelectedDataSetTypes()
     {
         Set<DataSetType> result = new TreeSet<DataSetType>();
-        for (ExternalData dataSet : data.getSelectedDataSets())
+        for (AbstractExternalData dataSet : data.getSelectedDataSets())
         {
             result.add(dataSet.getDataSetType());
         }
@@ -236,14 +236,14 @@ class PerformComputationDialog extends AbstractDataConfirmationDialog<Computatio
 
     // if all datasets come from one datastore, that datastore is returned. Otherwise returns
     // null.
-    private static DataStore tryGetSingleDatastore(List<ExternalData> datasets)
+    private static DataStore tryGetSingleDatastore(List<AbstractExternalData> datasets)
     {
         if (datasets.size() == 0)
         {
             return null;
         }
         DataStore store = datasets.get(0).getDataStore();
-        for (ExternalData dataset : datasets)
+        for (AbstractExternalData dataset : datasets)
         {
             if (store.equals(dataset.getDataStore()) == false)
             {

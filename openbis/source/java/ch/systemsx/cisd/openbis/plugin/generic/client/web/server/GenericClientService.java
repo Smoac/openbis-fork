@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialBatchUpdateResultMessage;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -288,12 +288,12 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     @Override
-    public final ExternalData getDataSetInfo(final TechId datasetId)
+    public final AbstractExternalData getDataSetInfo(final TechId datasetId)
     {
         try
         {
             final String sessionToken = getSessionToken();
-            final ExternalData dataset = genericServer.getDataSetInfo(sessionToken, datasetId);
+            final AbstractExternalData dataset = genericServer.getDataSetInfo(sessionToken, datasetId);
             transformXML(dataset);
             return dataset;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)

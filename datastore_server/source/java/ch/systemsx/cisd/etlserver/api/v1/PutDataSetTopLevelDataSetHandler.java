@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -199,7 +199,7 @@ class PutDataSetTopLevelDataSetHandler
                 case DATA_SET:
                     String dataSetCode = tryGetDataSetCode();
 
-                    ExternalData parentDataSet = getOpenBisService().tryGetDataSet(dataSetCode);
+                    AbstractExternalData parentDataSet = getOpenBisService().tryGetDataSet(dataSetCode);
                     if (parentDataSet != null)
                     {
                         if (parentDataSet.getExperiment() != null)
@@ -322,7 +322,7 @@ class PutDataSetTopLevelDataSetHandler
                 case DATA_SET:
                     String dataSetCode = tryGetDataSetCode();
 
-                    ExternalData parentDataSet = getOpenBisService().tryGetDataSet(dataSetCode);
+                    AbstractExternalData parentDataSet = getOpenBisService().tryGetDataSet(dataSetCode);
                     if (parentDataSet != null)
                     {
                         if (parentDataSet.getExperiment() != null)

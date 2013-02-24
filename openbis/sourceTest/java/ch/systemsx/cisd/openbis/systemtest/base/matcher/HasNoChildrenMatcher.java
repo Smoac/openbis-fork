@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.systemtest.base.matcher;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
-public class HasNoChildrenMatcher extends TypeSafeMatcher<ExternalData>
+public class HasNoChildrenMatcher extends TypeSafeMatcher<AbstractExternalData>
 {
 
     @Override
@@ -31,7 +31,7 @@ public class HasNoChildrenMatcher extends TypeSafeMatcher<ExternalData>
     }
 
     @Override
-    public boolean matchesSafely(ExternalData actual)
+    public boolean matchesSafely(AbstractExternalData actual)
     {
         return actual.getChildren().size() == 0;
     }

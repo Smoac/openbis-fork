@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -207,7 +207,7 @@ public class WellContentLoader extends AbstractContentLoader
             Set<PlateIdentifier> plateIdentifiers)
     {
         HCSImageDatasetLoader datasetsRetriever = createImageDatasetsRetriever(plateIdentifiers);
-        Collection<ExternalData> imageDatasets = datasetsRetriever.getImageDatasets();
+        Collection<AbstractExternalData> imageDatasets = datasetsRetriever.getImageDatasets();
         if (imageDatasets.isEmpty())
         {
             return new HashMap<Long, DatasetImagesReference>();
@@ -239,14 +239,14 @@ public class WellContentLoader extends AbstractContentLoader
     // plate has at most one image dataset (can be possible only when there will be abstraction
     // which groups raw/overview/thumbnail images into one dataset).
     private Map<Long, DatasetImagesReference> createPlateToSingleDatasetReferenceMap(
-            Collection<ExternalData> imageDatasets)
+            Collection<AbstractExternalData> imageDatasets)
     {
-        TableMap<Long, ExternalData> plateToDatasetMap =
-                new TableMap<Long/* plate id */, ExternalData>(imageDatasets,
-                        new IKeyExtractor<Long, ExternalData>()
+        TableMap<Long, AbstractExternalData> plateToDatasetMap =
+                new TableMap<Long/* plate id */, AbstractExternalData>(imageDatasets,
+                        new IKeyExtractor<Long, AbstractExternalData>()
                             {
                                 @Override
-                                public Long getKey(ExternalData externalData)
+                                public Long getKey(AbstractExternalData externalData)
                                 {
                                     return externalData.getSample().getId();
                                 }
@@ -256,14 +256,14 @@ public class WellContentLoader extends AbstractContentLoader
     }
 
     private Map<Long, DatasetImagesReference> asDatasetImagesReferenceMap(
-            TableMap<Long, ExternalData> plateToDatasetMap)
+            TableMap<Long, AbstractExternalData> plateToDatasetMap)
     {
         Map<String, ImageDatasetParameters> imageParams = loadImagesReport(plateToDatasetMap);
         Map<Long/* plate id */, DatasetImagesReference> plateToDatasetReferenceMap =
                 new HashMap<Long, DatasetImagesReference>();
         for (Long plateId : plateToDatasetMap.keySet())
         {
-            ExternalData imageDataset = plateToDatasetMap.getOrDie(plateId);
+            AbstractExternalData imageDataset = plateToDatasetMap.getOrDie(plateId);
             DatasetImagesReference imaageDatasetReference =
                     createDatasetImagesReference(imageDataset, imageParams);
             plateToDatasetReferenceMap.put(plateId, imaageDatasetReference);
@@ -339,8 +339,8 @@ public class WellContentLoader extends AbstractContentLoader
 
         FeatureVectorDatasetLoader datasetsRetriever =
                 createFeatureVectorDatasetsRetriever(locations, analysisProcedureCriteria);
-        Collection<ExternalData> imageDatasets = datasetsRetriever.getImageDatasets();
-        Collection<ExternalData> featureVectorDatasets =
+        Collection<AbstractExternalData> imageDatasets = datasetsRetriever.getImageDatasets();
+        Collection<AbstractExternalData> featureVectorDatasets =
                 datasetsRetriever.getFeatureVectorDatasets();
 
         operationLog.info(String.format("[%d msec] load datasets (%d image, %d fv).",
@@ -352,12 +352,12 @@ public class WellContentLoader extends AbstractContentLoader
         operationLog.info(String.format("[%d msec] loadImagesReport",
                 (System.currentTimeMillis() - start)));
 
-        Collection<ExternalData> childlessImageDatasets =
+        Collection<AbstractExternalData> childlessImageDatasets =
                 selectChildlessImageDatasets(imageDatasets, featureVectorDatasets);
 
-        Map<Long/* plate id */, List<ExternalData>> plateToChildlessImageDatasetMap =
+        Map<Long/* plate id */, List<AbstractExternalData>> plateToChildlessImageDatasetMap =
                 createPlateToDatasetMap(childlessImageDatasets);
-        Map<Long/* plate id */, List<ExternalData>> plateToFeatureVectoreDatasetMap =
+        Map<Long/* plate id */, List<AbstractExternalData>> plateToFeatureVectoreDatasetMap =
                 createPlateToDatasetMap(featureVectorDatasets);
 
         return enrichWithDatasets(locations, plateToChildlessImageDatasetMap,
@@ -371,12 +371,12 @@ public class WellContentLoader extends AbstractContentLoader
         return createFeatureVectorDatasetsRetriever(plates, analysisProcedureCriteria);
     }
 
-    private static Collection<ExternalData> selectChildlessImageDatasets(
-            Collection<ExternalData> imageDatasets, Collection<ExternalData> featureVectorDatasets)
+    private static Collection<AbstractExternalData> selectChildlessImageDatasets(
+            Collection<AbstractExternalData> imageDatasets, Collection<AbstractExternalData> featureVectorDatasets)
     {
-        Collection<ExternalData> childlessImageDatasets = new ArrayList<ExternalData>();
+        Collection<AbstractExternalData> childlessImageDatasets = new ArrayList<AbstractExternalData>();
         Set<String> parentImageDatasetCodes = extractParentDatasetCodes(featureVectorDatasets);
-        for (ExternalData imageDataset : imageDatasets)
+        for (AbstractExternalData imageDataset : imageDatasets)
         {
             if (parentImageDatasetCodes.contains(imageDataset.getCode()) == false)
             {
@@ -386,15 +386,15 @@ public class WellContentLoader extends AbstractContentLoader
         return childlessImageDatasets;
     }
 
-    private static Set<String> extractParentDatasetCodes(Collection<ExternalData> datasets)
+    private static Set<String> extractParentDatasetCodes(Collection<AbstractExternalData> datasets)
     {
         Set<String> codes = new HashSet<String>();
-        for (ExternalData dataset : datasets)
+        for (AbstractExternalData dataset : datasets)
         {
-            Collection<ExternalData> parents = dataset.getParents();
+            Collection<AbstractExternalData> parents = dataset.getParents();
             if (parents != null)
             {
-                for (ExternalData parent : parents)
+                for (AbstractExternalData parent : parents)
                 {
                     codes.add(parent.getCode());
                 }
@@ -417,18 +417,18 @@ public class WellContentLoader extends AbstractContentLoader
      * Connects wells with datasets.
      */
     private static List<WellContent> enrichWithDatasets(List<WellContent> wellContents,
-            Map<Long/* plate id */, List<ExternalData>> plateToChildlessImageDatasetMap,
-            Map<Long/* plate id */, List<ExternalData>> plateToFeatureVectoreDatasetMap,
+            Map<Long/* plate id */, List<AbstractExternalData>> plateToChildlessImageDatasetMap,
+            Map<Long/* plate id */, List<AbstractExternalData>> plateToFeatureVectoreDatasetMap,
             Map<String, ImageDatasetParameters> imageParams)
     {
-        final Map<ExternalData, DatasetImagesReference> childlessImageDatasetsToImageReference =
-                new HashMap<ExternalData, DatasetImagesReference>();
-        final Map<ExternalData, DatasetImagesReference> featureVectorDatasetsToImageReference =
-                new HashMap<ExternalData, DatasetImagesReference>();
+        final Map<AbstractExternalData, DatasetImagesReference> childlessImageDatasetsToImageReference =
+                new HashMap<AbstractExternalData, DatasetImagesReference>();
+        final Map<AbstractExternalData, DatasetImagesReference> featureVectorDatasetsToImageReference =
+                new HashMap<AbstractExternalData, DatasetImagesReference>();
         final Map<Long, DatasetImagesReference> plateToSingleImageDatasetReference =
                 new HashMap<Long, DatasetImagesReference>();
-        final Map<ExternalData, DatasetReference> featureVectorDatasetsToReference =
-                new HashMap<ExternalData, DatasetReference>();
+        final Map<AbstractExternalData, DatasetReference> featureVectorDatasetsToReference =
+                new HashMap<AbstractExternalData, DatasetReference>();
         for (WellContent wellContent : wellContents)
         {
             Long plateId = wellContent.getPlate().getId();
@@ -436,9 +436,9 @@ public class WellContentLoader extends AbstractContentLoader
             {
                 continue;
             }
-            final List<ExternalData> featureVectoreDatasets =
+            final List<AbstractExternalData> featureVectoreDatasets =
                     plateToFeatureVectoreDatasetMap.get(plateId);
-            final List<ExternalData> childlessImageDatasets =
+            final List<AbstractExternalData> childlessImageDatasets =
                     plateToChildlessImageDatasetMap.get(plateId);
             final DatasetImagesReference singleImageDatasetOrNull =
                     tryGetSingleImageDataset(childlessImageDatasets, imageParams);
@@ -447,7 +447,7 @@ public class WellContentLoader extends AbstractContentLoader
             boolean onlySingleImageExists = false;
             if (featureVectoreDatasets != null)
             {
-                for (ExternalData featureVectoreDataset : featureVectoreDatasets)
+                for (AbstractExternalData featureVectoreDataset : featureVectoreDatasets)
                 {
                     DatasetReference featureVectoreDatasetReference =
                             ScreeningUtils.createDatasetReference(featureVectoreDataset);
@@ -465,7 +465,7 @@ public class WellContentLoader extends AbstractContentLoader
             }
             if (childlessImageDatasets != null && onlySingleImageExists == false)
             {
-                for (ExternalData childlessImageDataset : childlessImageDatasets)
+                for (AbstractExternalData childlessImageDataset : childlessImageDatasets)
                 {
                     final DatasetImagesReference imagesDatasetReference =
                             createDatasetImagesReference(childlessImageDataset, imageParams);
@@ -481,9 +481,9 @@ public class WellContentLoader extends AbstractContentLoader
             Long plateId = wellContent.getPlate().getId();
             List<WellContent> clonedWellContents = new ArrayList<WellContent>();
 
-            List<ExternalData> featureVectoreDatasets =
+            List<AbstractExternalData> featureVectoreDatasets =
                     plateToFeatureVectoreDatasetMap.get(plateId);
-            List<ExternalData> childlessImageDatasets =
+            List<AbstractExternalData> childlessImageDatasets =
                     plateToChildlessImageDatasetMap.get(plateId);
             DatasetImagesReference singleImageDatasetOrNull =
                     plateToSingleImageDatasetReference.get(plateId);
@@ -491,7 +491,7 @@ public class WellContentLoader extends AbstractContentLoader
 
             if (featureVectoreDatasets != null)
             {
-                for (ExternalData featureVectorDataset : featureVectoreDatasets)
+                for (AbstractExternalData featureVectorDataset : featureVectoreDatasets)
                 {
                     DatasetReference featureVectorDatasetReference =
                             featureVectorDatasetsToReference.get(featureVectorDataset);
@@ -514,7 +514,7 @@ public class WellContentLoader extends AbstractContentLoader
             // have one well content duplicated for each dataset
             if (childlessImageDatasets != null && singleImageAlreadyUsed == false)
             {
-                for (ExternalData childlessImageDataset : childlessImageDatasets)
+                for (AbstractExternalData childlessImageDataset : childlessImageDatasets)
                 {
                     DatasetImagesReference imagesDatasetReference =
                             childlessImageDatasetsToImageReference.get(childlessImageDataset);
@@ -689,12 +689,12 @@ public class WellContentLoader extends AbstractContentLoader
     }
 
     private static DatasetImagesReference tryGetSingleImageDataset(
-            List<ExternalData> childlessImageDatasets,
+            List<AbstractExternalData> childlessImageDatasets,
             Map<String, ImageDatasetParameters> imageParams)
     {
         if (childlessImageDatasets != null && childlessImageDatasets.size() == 1)
         {
-            ExternalData singleImageDataset = childlessImageDatasets.get(0);
+            AbstractExternalData singleImageDataset = childlessImageDatasets.get(0);
             return createDatasetImagesReference(singleImageDataset, imageParams);
         } else
         {
@@ -703,12 +703,12 @@ public class WellContentLoader extends AbstractContentLoader
     }
 
     private static DatasetImagesReference tryGetImageDatasetReference(
-            ExternalData featureVectoreDataset, Map<String, ImageDatasetParameters> imageParams)
+            AbstractExternalData featureVectoreDataset, Map<String, ImageDatasetParameters> imageParams)
     {
-        Collection<ExternalData> parents = featureVectoreDataset.getParents();
+        Collection<AbstractExternalData> parents = featureVectoreDataset.getParents();
         if (parents != null && parents.size() == 1)
         {
-            ExternalData imageDataset = parents.iterator().next();
+            AbstractExternalData imageDataset = parents.iterator().next();
             return createDatasetImagesReference(imageDataset, imageParams);
         } else
         {
@@ -716,7 +716,7 @@ public class WellContentLoader extends AbstractContentLoader
         }
     }
 
-    private static DatasetImagesReference createDatasetImagesReference(ExternalData imageDataset,
+    private static DatasetImagesReference createDatasetImagesReference(AbstractExternalData imageDataset,
             Map<String, ImageDatasetParameters> imageParams)
     {
         ImageDatasetParameters imageParameters = imageParams.get(imageDataset.getCode());
@@ -732,21 +732,21 @@ public class WellContentLoader extends AbstractContentLoader
         }
     }
 
-    private static Map<Long/* sample id */, List<ExternalData>> createPlateToDatasetMap(
-            Collection<ExternalData> datasets)
+    private static Map<Long/* sample id */, List<AbstractExternalData>> createPlateToDatasetMap(
+            Collection<AbstractExternalData> datasets)
     {
-        Map<Long, List<ExternalData>> map = new HashMap<Long, List<ExternalData>>();
-        for (ExternalData dataset : datasets)
+        Map<Long, List<AbstractExternalData>> map = new HashMap<Long, List<AbstractExternalData>>();
+        for (AbstractExternalData dataset : datasets)
         {
             Sample sample = dataset.getSample();
             if (sample != null)
             {
                 Long sampleId = sample.getId();
 
-                List<ExternalData> plateDatasets = map.get(sampleId);
+                List<AbstractExternalData> plateDatasets = map.get(sampleId);
                 if (plateDatasets == null)
                 {
-                    plateDatasets = new ArrayList<ExternalData>();
+                    plateDatasets = new ArrayList<AbstractExternalData>();
                     map.put(sampleId, plateDatasets);
                 }
                 plateDatasets.add(dataset);
@@ -757,10 +757,10 @@ public class WellContentLoader extends AbstractContentLoader
 
     // TODO 2011-04-04, Tomasz Pylak: inefficient, rewrite to use single queryfor all datasets
     private Map<String/* dataset code */, ImageDatasetParameters> loadImagesReport(
-            Iterable<ExternalData> imageDatasets)
+            Iterable<AbstractExternalData> imageDatasets)
     {
         List<ImageDatasetParameters> imageParameters = new ArrayList<ImageDatasetParameters>();
-        for (ExternalData dataSet : imageDatasets)
+        for (AbstractExternalData dataSet : imageDatasets)
         {
             ImageDatasetParameters imageParams =
                     ScreeningUtils.tryLoadImageParameters(dataSet, businessObjectFactory);

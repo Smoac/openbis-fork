@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 
@@ -105,7 +105,7 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
                 return;
             }
 
-            ExternalData dataSet = tryGetExternalData(dataSetCode, service);
+            AbstractExternalData dataSet = tryGetExternalData(dataSetCode, service);
             if (dataSet == null)
             {
                 operationLog.warn("Data set '" + dataSetCode
@@ -162,24 +162,24 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTask
         }
     }
 
-    private static ExternalData tryGetExternalData(String dataSetCode,
+    private static AbstractExternalData tryGetExternalData(String dataSetCode,
             IEncapsulatedOpenBISService service)
     {
         List<String> codeAsList = Collections.singletonList(dataSetCode);
-        List<ExternalData> dataList = service.listDataSetsByCode(codeAsList);
+        List<AbstractExternalData> dataList = service.listDataSetsByCode(codeAsList);
         if (dataList == null || dataList.isEmpty())
         {
             return null;
         }
 
-        ExternalData data = dataList.get(0);
+        AbstractExternalData data = dataList.get(0);
         return data;
     }
 
     private static DatasetDescription tryGetDatasetWithLocation(String dataSetCode,
             IEncapsulatedOpenBISService service)
     {
-        ExternalData data = tryGetExternalData(dataSetCode, service);
+        AbstractExternalData data = tryGetExternalData(dataSetCode, service);
         return (data != null) ? DataSetTranslator.translateToDescription(data) : null;
     }
 

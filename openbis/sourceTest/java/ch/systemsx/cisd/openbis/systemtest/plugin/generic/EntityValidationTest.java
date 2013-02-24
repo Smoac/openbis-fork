@@ -33,7 +33,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -310,7 +310,7 @@ public class EntityValidationTest extends GenericSystemTestCase
     {
         updateTestScriptBeforeAction("def validate(entity, isNew):\n  print entity.code()\n");
 
-        ExternalData dataset = commonServer.getDataSetInfo(systemSessionToken, new TechId(26l));
+        AbstractExternalData dataset = commonServer.getDataSetInfo(systemSessionToken, new TechId(26l));
 
         DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
         updates.setDatasetId(new TechId(26));
@@ -332,7 +332,7 @@ public class EntityValidationTest extends GenericSystemTestCase
                     + "  for contained in entity.contained():\n"
                     + "    requestValidation(contained)\n");
 
-            ExternalData dataset = commonServer.getDataSetInfo(systemSessionToken, new TechId(26l));
+            AbstractExternalData dataset = commonServer.getDataSetInfo(systemSessionToken, new TechId(26l));
 
             DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
             updates.setDatasetId(new TechId(26));

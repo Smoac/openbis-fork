@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -195,7 +195,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     }
 
     @Override
-    public ExternalData getDataSetInfo(String sessionToken, TechId datasetId)
+    public AbstractExternalData getDataSetInfo(String sessionToken, TechId datasetId)
     {
         logAccess(sessionToken, "getDataSetInfo", "datasetId(%s)", datasetId.getId());
         return null;

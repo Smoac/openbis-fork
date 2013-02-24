@@ -72,7 +72,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
@@ -375,7 +375,7 @@ public interface ICommonClientService extends IClientService
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for data set search hits.
      */
     public String prepareExportDataSetSearchHits(
-            TableExportCriteria<TableModelRowWithObject<ExternalData>> exportCriteria)
+            TableExportCriteria<TableModelRowWithObject<AbstractExternalData>> exportCriteria)
             throws UserFailureException;
 
     /**
@@ -576,39 +576,39 @@ public interface ICommonClientService extends IClientService
     public void removeResultSet(final String resultSetKey) throws UserFailureException;
 
     /**
-     * For given <var>sampleId</var> returns corresponding list of {@link ExternalData}.
+     * For given <var>sampleId</var> returns corresponding list of {@link AbstractExternalData}.
      */
-    public TypedTableResultSet<ExternalData> listSampleDataSets(final TechId sampleId,
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,
+    public TypedTableResultSet<AbstractExternalData> listSampleDataSets(final TechId sampleId,
+            DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria,
             final boolean showOnlyDirectlyConnected) throws UserFailureException;
 
     /**
-     * For given <var>experimentId</var> returns corresponding list of {@link ExternalData}.
+     * For given <var>experimentId</var> returns corresponding list of {@link AbstractExternalData}.
      */
-    public TypedTableResultSet<ExternalData> listExperimentDataSets(final TechId experimentId,
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,
+    public TypedTableResultSet<AbstractExternalData> listExperimentDataSets(final TechId experimentId,
+            DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria,
             boolean onlyDirectlyConnected) throws UserFailureException;
 
     /**
-     * For given <var>metaprojectId</var> returns corresponding list of {@link ExternalData}.
+     * For given <var>metaprojectId</var> returns corresponding list of {@link AbstractExternalData}.
      */
-    public TypedTableResultSet<ExternalData> listMetaprojectDataSets(final TechId metaprojectId,
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria)
+    public TypedTableResultSet<AbstractExternalData> listMetaprojectDataSets(final TechId metaprojectId,
+            DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria)
             throws UserFailureException;
 
     /**
-     * For given <var>metaprojectId</var> returns corresponding list of {@link ExternalData}.
+     * For given <var>metaprojectId</var> returns corresponding list of {@link AbstractExternalData}.
      */
-    public List<ExternalData> listMetaprojectDataSets(final Long metaprojectId)
+    public List<AbstractExternalData> listMetaprojectDataSets(final Long metaprojectId)
             throws UserFailureException;
 
     /**
      * For given <var>datasetId</var> in given relationship <var>role</var> returns corresponding
-     * list of {@link ExternalData}.
+     * list of {@link AbstractExternalData}.
      */
-    public TypedTableResultSet<ExternalData> listDataSetRelationships(TechId datasetId,
+    public TypedTableResultSet<AbstractExternalData> listDataSetRelationships(TechId datasetId,
             DataSetRelationshipRole role,
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria)
+            DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria)
             throws UserFailureException;
 
     /**
@@ -713,18 +713,18 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Returns {@link ExternalData} fulfilling given {@link DetailedSearchCriteria}.
+     * Returns {@link AbstractExternalData} fulfilling given {@link DetailedSearchCriteria}.
      */
-    public TypedTableResultSet<ExternalData> searchForDataSets(DetailedSearchCriteria criteria,
-            final IResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig)
+    public TypedTableResultSet<AbstractExternalData> searchForDataSets(DetailedSearchCriteria criteria,
+            final IResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> resultSetConfig)
             throws UserFailureException;
 
     /**
-     * Returns {@link ExternalData} fulfilling given {@link RelatedDataSetCriteria}.
+     * Returns {@link AbstractExternalData} fulfilling given {@link RelatedDataSetCriteria}.
      */
-    public TypedTableResultSet<ExternalData> searchForDataSets(
+    public TypedTableResultSet<AbstractExternalData> searchForDataSets(
             RelatedDataSetCriteria<? extends IEntityInformationHolder> criteria,
-            final IResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig)
+            final IResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> resultSetConfig)
             throws UserFailureException;
 
     /**

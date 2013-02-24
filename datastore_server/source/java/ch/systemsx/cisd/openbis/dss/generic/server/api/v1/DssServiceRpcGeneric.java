@@ -67,7 +67,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -451,7 +451,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     public void shuffleDataSet(String sessionToken, String dataSetCode, String shareId)
     {
         getOpenBISService().checkSession(sessionToken);
-        ExternalData dataSet = getOpenBISService().tryGetDataSet(dataSetCode);
+        AbstractExternalData dataSet = getOpenBISService().tryGetDataSet(dataSetCode);
         if (dataSet == null)
         {
             throw new UserFailureException("Unknown data set: " + dataSetCode);
@@ -543,7 +543,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         List<DatasetDescription> dataSetDescriptions = new ArrayList<DatasetDescription>();
         for (String dataSetCode : dataSetCodes)
         {
-            ExternalData dataSet = getOpenBISService().tryGetDataSet(dataSetCode);
+            AbstractExternalData dataSet = getOpenBISService().tryGetDataSet(dataSetCode);
             dataSetDescriptions.add(translateToDescription(dataSet));
         }
         TableModel tableModel =
@@ -553,7 +553,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         return new QueryTableModelTranslator(tableModel).translate();
     }
 
-    private static DatasetDescription translateToDescription(ExternalData dataSet)
+    private static DatasetDescription translateToDescription(AbstractExternalData dataSet)
     {
         return DataSetTranslator.translateToDescription(dataSet);
     }

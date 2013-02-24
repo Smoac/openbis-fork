@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -374,18 +374,18 @@ public final class DataSetTableTest extends AbstractBOTest
 
                     one(dataStoreServiceConversational2).uploadDataSetsToCIFEX(
                             with(equal(dss2.getSessionToken())),
-                            with(new BaseMatcher<List<ExternalData>>()
+                            with(new BaseMatcher<List<AbstractExternalData>>()
                                 {
 
                                     @Override
                                     public boolean matches(Object item)
                                     {
-                                        List<ExternalData> list = (List<ExternalData>) item;
+                                        List<AbstractExternalData> list = (List<AbstractExternalData>) item;
                                         if (list.size() != 1)
                                         {
                                             return false;
                                         }
-                                        ExternalData data = list.get(0);
+                                        AbstractExternalData data = list.get(0);
                                         return d2PE.getCode().equals(data.getCode());
                                     }
 

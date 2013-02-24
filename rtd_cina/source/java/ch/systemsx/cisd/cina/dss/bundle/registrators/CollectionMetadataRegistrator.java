@@ -24,7 +24,7 @@ import java.util.List;
 import ch.systemsx.cisd.cina.shared.metadata.CollectionMetadataExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -101,7 +101,7 @@ public class CollectionMetadataRegistrator extends BundleDataSetHelper
     private void initializeMetadataDataSetFile(DataSetInformation registeredDataSetInformation,
             String dataSetFileName)
     {
-        ExternalData metadataExternalData =
+        AbstractExternalData metadataExternalData =
                 getOpenbisService().tryGetDataSet(getSessionContext().getSessionToken(),
                         registeredDataSetInformation.getDataSetCode());
         PhysicalDataSet metadataDataSet = metadataExternalData.tryGetAsDataSet();

@@ -74,7 +74,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtilTest;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -933,7 +933,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                         long id = dataSetIDs[i];
                         permIDs[i] = "ds" + id;
 
-                        ExternalData d = new PhysicalDataSet(); // this dataset is only asked if it is a
+                        AbstractExternalData d = new PhysicalDataSet(); // this dataset is only asked if it is a
                                                         // container
                         one(service).tryGetDataSet(permIDs[i]);
                         will(returnValue(d));

@@ -61,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
@@ -96,7 +96,7 @@ public final class GenericDataSetEditForm extends
 
     //
 
-    private ExternalData originalDataSet;
+    private AbstractExternalData originalDataSet;
 
     private IDataSetEditorBuilder builder;
 
@@ -310,7 +310,7 @@ public final class GenericDataSetEditForm extends
     {
         // not best performance but the same solution that is done for experiments
         // only codes are needed but we extract 'full' object
-        DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> config =
+        DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> config =
                 DefaultResultSetConfig.createFetchAll();
         viewContext.getCommonService().listDataSetRelationships(techIdOrNull,
                 DataSetRelationshipRole.CHILD, config, new ListParentsCallback(viewContext));
@@ -331,7 +331,7 @@ public final class GenericDataSetEditForm extends
         FieldUtil.setVisibility(connectedWithSample == false, experimentChooser.getField());
     }
 
-    private void setOriginalData(ExternalData data)
+    private void setOriginalData(AbstractExternalData data)
     {
         this.originalDataSet = data;
 
@@ -354,17 +354,17 @@ public final class GenericDataSetEditForm extends
 
     }
 
-    private List<ExternalData> extractDataSets(List<TableModelRowWithObject<ExternalData>> rows)
+    private List<AbstractExternalData> extractDataSets(List<TableModelRowWithObject<AbstractExternalData>> rows)
     {
-        List<ExternalData> dataSets = new ArrayList<ExternalData>();
-        for (TableModelRowWithObject<ExternalData> row : rows)
+        List<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
+        for (TableModelRowWithObject<AbstractExternalData> row : rows)
         {
             dataSets.add(row.getObjectOrNull());
         }
         return dataSets;
     }
 
-    private final class DataSetInfoCallback extends AbstractAsyncCallback<ExternalData>
+    private final class DataSetInfoCallback extends AbstractAsyncCallback<AbstractExternalData>
     {
 
         private DataSetInfoCallback(final IViewContext<IGenericClientServiceAsync> viewContext)
@@ -373,7 +373,7 @@ public final class GenericDataSetEditForm extends
         }
 
         @Override
-        protected final void process(final ExternalData result)
+        protected final void process(final AbstractExternalData result)
         {
             setOriginalData(result);
             initGUI();
@@ -381,7 +381,7 @@ public final class GenericDataSetEditForm extends
     }
 
     private class ListParentsCallback extends
-            AbstractAsyncCallback<TypedTableResultSet<ExternalData>>
+            AbstractAsyncCallback<TypedTableResultSet<AbstractExternalData>>
     {
 
         public ListParentsCallback(IViewContext<?> viewContext)
@@ -390,11 +390,11 @@ public final class GenericDataSetEditForm extends
         }
 
         @Override
-        protected void process(TypedTableResultSet<ExternalData> result)
+        protected void process(TypedTableResultSet<AbstractExternalData> result)
         {
-            List<TableModelRowWithObject<ExternalData>> rows =
+            List<TableModelRowWithObject<AbstractExternalData>> rows =
                     result.getResultSet().getList().extractOriginalObjects();
-            List<ExternalData> dataSets = extractDataSets(rows);
+            List<AbstractExternalData> dataSets = extractDataSets(rows);
             parentsArea.setDataSets(dataSets);
             updateDirtyCheck();
             if (parentsArea.isVisible())
@@ -534,7 +534,7 @@ public final class GenericDataSetEditForm extends
         {
             // not best performance but the same solution that is done for experiments
             // only codes are needed but we extract 'full' object
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> config =
+            DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> config =
                     DefaultResultSetConfig.createFetchAll();
             viewContext.getCommonService().listDataSetRelationships(techIdOrNull,
                     DataSetRelationshipRole.CONTAINER, config,
@@ -542,7 +542,7 @@ public final class GenericDataSetEditForm extends
         }
 
         private class ListContainedDataSetsCallback extends
-                AbstractAsyncCallback<TypedTableResultSet<ExternalData>>
+                AbstractAsyncCallback<TypedTableResultSet<AbstractExternalData>>
         {
 
             private Listener<BaseEvent> listener;
@@ -555,9 +555,9 @@ public final class GenericDataSetEditForm extends
             }
 
             @Override
-            protected void process(TypedTableResultSet<ExternalData> result)
+            protected void process(TypedTableResultSet<AbstractExternalData> result)
             {
-                List<TableModelRowWithObject<ExternalData>> rows =
+                List<TableModelRowWithObject<AbstractExternalData>> rows =
                         result.getResultSet().getList().extractOriginalObjects();
                 containedArea.setDataSets(extractDataSets(rows));
                 listener.handleEvent(null);

@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -71,7 +71,7 @@ public class TableForUpdateExporter
                         commonServer, sessionToken);
             case DATA_SET:
                 return getDataSetTableForUpdate(
-                        (GridRowModels<TableModelRowWithObject<ExternalData>>) rows, lineSeparator,
+                        (GridRowModels<TableModelRowWithObject<AbstractExternalData>>) rows, lineSeparator,
                         commonServer, sessionToken);
             case MATERIAL:
                 return "Export of materials for update is currently not supported.";
@@ -116,9 +116,9 @@ public class TableForUpdateExporter
         if (t instanceof Experiment)
         {
             return ((Experiment) t).getExperimentType();
-        } else if (t instanceof ExternalData)
+        } else if (t instanceof AbstractExternalData)
         {
-            return ((ExternalData) t).getDataSetType();
+            return ((AbstractExternalData) t).getDataSetType();
         } else if (t instanceof Sample)
         {
             return ((Sample) t).getSampleType();
@@ -238,10 +238,10 @@ public class TableForUpdateExporter
     }
 
     public static String getDataSetTableForUpdate(
-            GridRowModels<TableModelRowWithObject<ExternalData>> rows, String lineSeparator,
+            GridRowModels<TableModelRowWithObject<AbstractExternalData>> rows, String lineSeparator,
             ICommonServer commonServer, String sessionToken)
     {
-        TypedTableModelBuilder<ExternalData> builder = new TypedTableModelBuilder<ExternalData>();
+        TypedTableModelBuilder<AbstractExternalData> builder = new TypedTableModelBuilder<AbstractExternalData>();
         builder.addColumn(NewDataSet.CODE);
         builder.addColumn(NewDataSet.CONTAINER);
         builder.addColumn(NewDataSet.PARENTS);
@@ -251,9 +251,9 @@ public class TableForUpdateExporter
         builder.columnGroup("").addColumnsForPropertyTypesForUpdate(
                 getAllPropertyTypes(rows, commonServer.listDataSetTypes(sessionToken)));
 
-        for (GridRowModel<TableModelRowWithObject<ExternalData>> row : rows)
+        for (GridRowModel<TableModelRowWithObject<AbstractExternalData>> row : rows)
         {
-            ExternalData dataSet = row.getOriginalObject().getObjectOrNull();
+            AbstractExternalData dataSet = row.getOriginalObject().getObjectOrNull();
             builder.addRow(dataSet);
             builder.column(NewDataSet.CODE).addString(dataSet.getCode());
             ContainerDataSet container = dataSet.tryGetContainer();
@@ -261,11 +261,11 @@ public class TableForUpdateExporter
             {
                 builder.column(NewDataSet.CONTAINER).addString(container.getCode());
             }
-            Collection<ExternalData> parents = dataSet.getParents();
+            Collection<AbstractExternalData> parents = dataSet.getParents();
             if (parents != null && parents.isEmpty() == false)
             {
                 StringBuilder sb = new StringBuilder();
-                for (ExternalData parent : parents)
+                for (AbstractExternalData parent : parents)
                 {
                     if (sb.length() > 0)
                     {
@@ -284,7 +284,7 @@ public class TableForUpdateExporter
             }
             addProperties(builder, dataSet.getProperties());
         }
-        return TSVRenderer.createTable(new Adapter<ExternalData>(builder), lineSeparator);
+        return TSVRenderer.createTable(new Adapter<AbstractExternalData>(builder), lineSeparator);
     }
 
     private static void addProperties(TypedTableModelBuilder<?> builder,

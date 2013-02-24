@@ -32,7 +32,7 @@ import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackedEntities;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
@@ -219,7 +219,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             appendProperties(sb, sample.getProperties());
         }
 
-        private static void appendDataSetsData(StringBuilder sb, List<ExternalData> dataSets)
+        private static void appendDataSetsData(StringBuilder sb, List<AbstractExternalData> dataSets)
         {
             if (dataSets.isEmpty())
             {
@@ -231,13 +231,13 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             appendln(sb, SUBSECTION_SEPARATOR_LINE);
             
             // Using a TreeMap, so the keys are sorted
-            TreeMap<String, List<ExternalData>> sampleMap = new TreeMap<String, List<ExternalData>>();
-            List <ExternalData> dsList = new ArrayList<ExternalData>();
+            TreeMap<String, List<AbstractExternalData>> sampleMap = new TreeMap<String, List<AbstractExternalData>>();
+            List <AbstractExternalData> dsList = new ArrayList<AbstractExternalData>();
             
             // we just loop over the data sets and write the connected samples as keys
             // and the data sets as values in a map, so that we can group together as 
             // data sets per lane
-            for (ExternalData dataSet : dataSets)
+            for (AbstractExternalData dataSet : dataSets)
             {
                 Sample s = dataSet.getSample();
                 if (sampleMap.containsKey(s.getIdentifier())) {
@@ -245,16 +245,16 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                 }
                 dsList.add(dataSet);
                 sampleMap.put(s.getIdentifier(), dsList);
-                dsList = new ArrayList<ExternalData>();
+                dsList = new ArrayList<AbstractExternalData>();
             }
 
             // now we can write out this per sample
-            Iterator<Entry<String, List<ExternalData>>> it = sampleMap.entrySet().iterator();
+            Iterator<Entry<String, List<AbstractExternalData>>> it = sampleMap.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry pairs = (Map.Entry)it.next();
                 appendln(sb, String.format("Results for %s", pairs.getKey()));
-                dsList = (List<ExternalData>) pairs.getValue();
-                for (ExternalData ed : dsList) {
+                dsList = (List<AbstractExternalData>) pairs.getValue();
+                for (AbstractExternalData ed : dsList) {
                     appendDataSetDetails(sb, ed);
                 }
                 it.remove(); // avoids a ConcurrentModificationException
@@ -262,7 +262,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             }
         }
 
-        private static void appendDataSetDetails(StringBuilder sb, ExternalData dataSet)
+        private static void appendDataSetDetails(StringBuilder sb, AbstractExternalData dataSet)
         {
             Collection<Sample> sequencingSamples;
 
@@ -300,7 +300,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             return externalSampleName;
         }
         
-        private static String getIndex1(ExternalData dataSet) {
+        private static String getIndex1(AbstractExternalData dataSet) {
             List<IEntityProperty> properties = dataSet.getProperties();
             
             String Index = null; 
@@ -315,7 +315,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             return null;
         }
         
-        private static String getIndex2(ExternalData dataSet) {
+        private static String getIndex2(AbstractExternalData dataSet) {
             List<IEntityProperty> properties = dataSet.getProperties();
             
             String Index = null; 

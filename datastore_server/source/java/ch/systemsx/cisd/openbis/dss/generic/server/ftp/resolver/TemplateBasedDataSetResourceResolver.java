@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * Resolves paths like
@@ -92,11 +92,11 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
 
     private final class DataSetFtpFolder extends AbstractFtpFolder
     {
-        private final ExternalData dataSet;
+        private final AbstractExternalData dataSet;
 
         private final FtpPathResolverContext resolverContext;
 
-        private DataSetFtpFolder(String absolutePath, ExternalData dataSet,
+        private DataSetFtpFolder(String absolutePath, AbstractExternalData dataSet,
                 FtpPathResolverContext resolverContext)
         {
             super(absolutePath);
@@ -145,10 +145,10 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
             {
                 return;
             }
-            List<ExternalData> dataSets = resolverContext.listDataSetsByCode(dataSetCodes);
+            List<AbstractExternalData> dataSets = resolverContext.listDataSetsByCode(dataSetCodes);
             for (int i = 0; i < dataSets.size(); i++)
             {
-                ExternalData ds = dataSets.get(i);
+                AbstractExternalData ds = dataSets.get(i);
                 String dataSetUniqueSuffix = evaluateTemplate(ds, null, computeDisambiguation(i));
                 if (false == isPresentInPath(dataSetUniqueSuffix))
                 {
@@ -186,7 +186,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     /**
      * a template, that can contain special variables.
      * 
-     * @see #evaluateTemplate(ExternalData, String) to find out what variables are understood and
+     * @see #evaluateTemplate(AbstractExternalData, String) to find out what variables are understood and
      *      interpreted.
      */
     private final Template template;
@@ -243,7 +243,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
             return FtpPathResolverRegistry.getNonExistingFile(path, "Unknown experiment '"
                     + experimentId + "'.");
         }
-        List<ExternalData> dataSets =
+        List<AbstractExternalData> dataSets =
                 service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
         if (fileNamePresent)
         {
@@ -261,7 +261,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
     }
 
     private FtpFile resolve(final String path, final FtpPathResolverContext resolverContext,
-            List<ExternalData> dataSets)
+            List<AbstractExternalData> dataSets)
     {
         String[] pathElements =
                 StringUtils.splitByWholeSeparatorPreserveAllTokens(path,
@@ -272,7 +272,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
             String dataSetPathElement = pathElements[i];
             if (result == null)
             {
-                ExternalData dataSet = tryToFindDataSet(dataSets, dataSetPathElement);
+                AbstractExternalData dataSet = tryToFindDataSet(dataSets, dataSetPathElement);
                 if (dataSet == null)
                 {
                     return FtpPathResolverRegistry.getNonExistingFile(path,
@@ -304,12 +304,12 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         return result;
     }
 
-    private ExternalData tryToFindDataSet(List<ExternalData> dataSets, String dataSetPathElement)
+    private AbstractExternalData tryToFindDataSet(List<AbstractExternalData> dataSets, String dataSetPathElement)
     {
         for (int disambiguationIdx = 0; disambiguationIdx < dataSets.size(); disambiguationIdx++)
         {
             String disambiguationVar = computeDisambiguation(disambiguationIdx);
-            ExternalData dataSet = dataSets.get(disambiguationIdx);
+            AbstractExternalData dataSet = dataSets.get(disambiguationIdx);
             String pathElement = evaluateTemplate(dataSet, null, disambiguationVar);
             if (dataSetPathElement.equals(pathElement))
             {
@@ -329,7 +329,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         final String hierarchicalNodePath =
                 constructHierarchicalNodePath(matchingElement.pathInDataSet, pathInDataSet);
 
-        final ExternalData dataSet = matchingElement.dataSet;
+        final AbstractExternalData dataSet = matchingElement.dataSet;
         final IHierarchicalContentNodeFilter fileFilter = getFileFilter(dataSet);
         final IHierarchicalContent content = evalContext.getHierarchicalContent(dataSet);
         final IHierarchicalContentNode contentNodeOrNull = content.tryGetNode(hierarchicalNodePath);
@@ -425,7 +425,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         IETLLIMSService service = context.getService();
         String sessionToken = context.getSessionToken();
 
-        List<ExternalData> dataSets =
+        List<AbstractExternalData> dataSets =
                 service.listDataSetsByExperimentID(sessionToken, new TechId(experiment));
 
         FtpFileEvaluationContext evalContext = evaluateDataSetPaths(context, dataSets);
@@ -467,13 +467,13 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
 
     private FtpFileEvaluationContext evaluateDataSetPaths(
             ISessionTokenProvider sessionTokenProvider,
-            List<ExternalData> dataSets)
+            List<AbstractExternalData> dataSets)
     {
         FtpFileEvaluationContext evalContext = createFtpFileEvaluationContext(sessionTokenProvider);
 
         for (int disambiguationIdx = 0; disambiguationIdx < dataSets.size(); disambiguationIdx++)
         {
-            ExternalData dataSet = dataSets.get(disambiguationIdx);
+            AbstractExternalData dataSet = dataSets.get(disambiguationIdx);
             try
             {
                 IHierarchicalContent hierarchicalContent =
@@ -494,7 +494,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         return evalContext;
     }
 
-    private List<EvaluatedElement> evaluateDataSetPaths(ExternalData dataSet,
+    private List<EvaluatedElement> evaluateDataSetPaths(AbstractExternalData dataSet,
             IHierarchicalContentNode rootNode, int disambiguationIndex)
     {
         List<EvaluatedElement> result = new ArrayList<EvaluatedElement>();
@@ -514,7 +514,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         return result;
     }
 
-    private IHierarchicalContentNode getDataSetFileListRoot(ExternalData dataSet,
+    private IHierarchicalContentNode getDataSetFileListRoot(AbstractExternalData dataSet,
             IHierarchicalContent hierachicalContent)
     {
         String fileListSubPathOrNull = getFileListSubPath(dataSet);
@@ -574,7 +574,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         return Collections.singletonList(rootNode);
     }
 
-    private String evaluateTemplate(ExternalData dataSet, String fileName, String disambiguation)
+    private String evaluateTemplate(AbstractExternalData dataSet, String fileName, String disambiguation)
     {
         Template eval = template.createFreshCopy();
         eval.attemptToBind(DATA_SET_CODE_VARNAME, dataSet.getCode());
@@ -648,7 +648,7 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
             };
     }
 
-    private DataSetTypeConfig getDataSetTypeConfig(ExternalData dataSet)
+    private DataSetTypeConfig getDataSetTypeConfig(AbstractExternalData dataSet)
     {
         String dataSetType = dataSet.getDataSetType().getCode();
         DataSetTypeConfig dsConfig = dataSetTypeConfigs.get(dataSetType);
@@ -661,12 +661,12 @@ public class TemplateBasedDataSetResourceResolver implements IFtpPathResolver,
         }
     }
 
-    private IHierarchicalContentNodeFilter getFileFilter(ExternalData dataSet)
+    private IHierarchicalContentNodeFilter getFileFilter(AbstractExternalData dataSet)
     {
         return getDataSetTypeConfig(dataSet).fileFilter;
     }
 
-    private String getFileListSubPath(ExternalData dataSet)
+    private String getFileListSubPath(AbstractExternalData dataSet)
     {
         return getDataSetTypeConfig(dataSet).fileListSubPath;
     }

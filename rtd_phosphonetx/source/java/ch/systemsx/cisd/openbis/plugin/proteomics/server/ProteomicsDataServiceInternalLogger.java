@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.MsInjectionSample;
@@ -76,7 +76,7 @@ class ProteomicsDataServiceInternalLogger extends AbstractServerLogger implement
     }
 
     @Override
-    public List<ExternalData> listDataSetsByExperiment(String sessionToken, TechId experimentID)
+    public List<AbstractExternalData> listDataSetsByExperiment(String sessionToken, TechId experimentID)
     {
         logAccess(sessionToken, "list_data_sets_by_experiments", "EXPERIMENT_ID(%s)", experimentID);
         return null;

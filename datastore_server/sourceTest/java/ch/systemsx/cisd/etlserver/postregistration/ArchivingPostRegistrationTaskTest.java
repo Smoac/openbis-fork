@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 
 /**
@@ -126,7 +126,7 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
                     will(returnValue(directoryProvider));
 
                     one(service).listDataSetsByCode(Arrays.asList(DATASET_CODE));
-                    List<ExternalData> externalDatas = Arrays.asList(createDataSet());
+                    List<AbstractExternalData> externalDatas = Arrays.asList(createDataSet());
                     will(returnValue(externalDatas));
 
                     one(service).compareAndSetDataSetStatus(DATASET_CODE, AVAILABLE,
@@ -160,7 +160,7 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
                 + "you can configure an \'AutoArchiverTask\'.";
     }
 
-    private ExternalData createDataSet()
+    private AbstractExternalData createDataSet()
     {
         DataStore dataStore = new DataStore();
         dataStore.setCode("STANDARD");

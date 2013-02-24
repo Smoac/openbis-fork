@@ -489,7 +489,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
 
                     one(commonServer).listRelatedDataSets(with(SESSION_TOKEN),
                             with(any(DataSetRelatedEntities.class)), with(true));
-                    will(returnValue(new ArrayList<ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData>()));
+                    will(returnValue(new ArrayList<ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData>()));
                 }
             });
         ArrayList<Sample> samples = new ArrayList<Sample>();

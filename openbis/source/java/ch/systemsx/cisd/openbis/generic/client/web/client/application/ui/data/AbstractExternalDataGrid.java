@@ -59,7 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -67,7 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 /**
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<ExternalData>
+public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<AbstractExternalData>
 {
     public static final String SHOW_DETAILS_BUTTON_ID_SUFFIX = "_show-details-button";
 
@@ -87,10 +87,10 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
     private void linkProject()
     {
         registerListenerAndLinkGenerator(ExternalDataGridColumnIDs.PROJECT,
-                new ICellListenerAndLinkGenerator<ExternalData>()
+                new ICellListenerAndLinkGenerator<AbstractExternalData>()
                     {
                         @Override
-                        public void handle(TableModelRowWithObject<ExternalData> rowItem,
+                        public void handle(TableModelRowWithObject<AbstractExternalData> rowItem,
                                 boolean specialKeyPressed)
                         {
                             final Project project =
@@ -101,7 +101,7 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
                         }
 
                         @Override
-                        public String tryGetLink(ExternalData entity,
+                        public String tryGetLink(AbstractExternalData entity,
                                 ISerializableComparable comparableValue)
                         {
                             final Experiment exp = entity.getExperiment();
@@ -118,8 +118,8 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
 
     @Override
     protected void listTableRows(
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
-            AbstractAsyncCallback<TypedTableResultSet<ExternalData>> callback)
+            DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> resultSetConfig,
+            AbstractAsyncCallback<TypedTableResultSet<AbstractExternalData>> callback)
     {
         // TODO Auto-generated method stub
 
@@ -147,7 +147,7 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
 
                             @Override
                             protected Dialog createDialog(
-                                    List<TableModelRowWithObject<ExternalData>> dataSets,
+                                    List<TableModelRowWithObject<AbstractExternalData>> dataSets,
                                     IBrowserGridActionInvoker invoker)
                             {
                                 return new DataSetListDeletionConfirmationDialog(viewContext,
@@ -165,7 +165,7 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
                             {
                                 @Override
                                 protected Dialog createDialog(
-                                        List<TableModelRowWithObject<ExternalData>> dataSets,
+                                        List<TableModelRowWithObject<AbstractExternalData>> dataSets,
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new DataSetUploadConfirmationDialog(dataSets,
@@ -227,15 +227,15 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
     public final static class SelectedAndDisplayedItems
     {
         // describes all items which are displayed in the grid (including all grid pages)
-        private final TableExportCriteria<TableModelRowWithObject<ExternalData>> displayedItemsConfig;
+        private final TableExportCriteria<TableModelRowWithObject<AbstractExternalData>> displayedItemsConfig;
 
         // currently selected items
-        private final List<TableModelRowWithObject<ExternalData>> selectedItems;
+        private final List<TableModelRowWithObject<AbstractExternalData>> selectedItems;
 
         private final int displayedItemsCount;
 
-        public SelectedAndDisplayedItems(List<TableModelRowWithObject<ExternalData>> selectedItems,
-                TableExportCriteria<TableModelRowWithObject<ExternalData>> displayedItemsConfig,
+        public SelectedAndDisplayedItems(List<TableModelRowWithObject<AbstractExternalData>> selectedItems,
+                TableExportCriteria<TableModelRowWithObject<AbstractExternalData>> displayedItemsConfig,
                 int displayedItemsCount)
         {
             this.displayedItemsConfig = displayedItemsConfig;
@@ -243,7 +243,7 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
             this.displayedItemsCount = displayedItemsCount;
         }
 
-        public TableExportCriteria<TableModelRowWithObject<ExternalData>> getDisplayedItemsConfig()
+        public TableExportCriteria<TableModelRowWithObject<AbstractExternalData>> getDisplayedItemsConfig()
         {
             return displayedItemsConfig;
         }
@@ -253,15 +253,15 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
             return displayedItemsCount;
         }
 
-        public List<TableModelRowWithObject<ExternalData>> getSelectedItems()
+        public List<TableModelRowWithObject<AbstractExternalData>> getSelectedItems()
         {
             return selectedItems;
         }
 
-        public List<ExternalData> getSelectedDataSets()
+        public List<AbstractExternalData> getSelectedDataSets()
         {
-            List<ExternalData> dataSets = new ArrayList<ExternalData>();
-            for (TableModelRowWithObject<ExternalData> item : selectedItems)
+            List<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
+            for (TableModelRowWithObject<AbstractExternalData> item : selectedItems)
             {
                 dataSets.add(item.getObjectOrNull());
             }
@@ -272,9 +272,9 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
         {
             if (selected)
             {
-                List<TableModelRowWithObject<ExternalData>> items = getSelectedItems();
+                List<TableModelRowWithObject<AbstractExternalData>> items = getSelectedItems();
                 List<String> datasetCodes = new ArrayList<String>();
-                for (TableModelRowWithObject<ExternalData> row : items)
+                for (TableModelRowWithObject<AbstractExternalData> row : items)
                 {
                     datasetCodes.add(row.getObjectOrNull().getCode());
                 }
@@ -301,9 +301,9 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
     }
 
     @Override
-    protected ColumnDefsAndConfigs<TableModelRowWithObject<ExternalData>> createColumnsDefinition()
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<AbstractExternalData>> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<TableModelRowWithObject<ExternalData>> schema =
+        ColumnDefsAndConfigs<TableModelRowWithObject<AbstractExternalData>> schema =
                 super.createColumnsDefinition();
         schema.setGridCellRendererFor(ExternalDataGridColumnIDs.REGISTRATOR,
                 PersonRenderer.REGISTRATOR_RENDERER);
@@ -327,11 +327,11 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
                         int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
                         Grid<BaseEntityModel<?>> grid)
                 {
-                    ExternalData dataset = (ExternalData) model.getBaseObject();
+                    AbstractExternalData dataset = (AbstractExternalData) model.getBaseObject();
                     return tryCreateOverviewLink(dataset);
                 }
 
-                private String tryCreateOverviewLink(ExternalData dataset)
+                private String tryCreateOverviewLink(AbstractExternalData dataset)
                 {
                     final String permId = dataset.getPermId();
                     final String dssBaseURL = dataset.getDataStore().getHostUrl();
@@ -372,7 +372,7 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
 
     @Override
     protected void prepareExportEntities(
-            TableExportCriteria<TableModelRowWithObject<ExternalData>> exportCriteria,
+            TableExportCriteria<TableModelRowWithObject<AbstractExternalData>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportDataSetSearchHits(exportCriteria, callback);
@@ -385,7 +385,7 @@ public abstract class AbstractExternalDataGrid extends AbstractEntityGrid<Extern
     }
 
     @Override
-    protected void showEntityViewer(TableModelRowWithObject<ExternalData> dataSet,
+    protected void showEntityViewer(TableModelRowWithObject<AbstractExternalData> dataSet,
             boolean editMode, boolean inBackground)
     {
         showEntityInformationHolderViewer(dataSet.getObjectOrNull(), editMode, inBackground);

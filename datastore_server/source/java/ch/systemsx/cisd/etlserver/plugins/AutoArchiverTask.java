@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * {@link IMaintenanceTask} performing automatic archiving of data sets.
@@ -74,7 +74,7 @@ public class AutoArchiverTask implements IMaintenanceTask
     public void execute()
     {
         operationLog.info("start");
-        List<ExternalData> dataSets = policy.filter(openBISService.listAvailableDataSets(criteria));
+        List<AbstractExternalData> dataSets = policy.filter(openBISService.listAvailableDataSets(criteria));
         if (dataSets.isEmpty())
         {
             operationLog.info("nothing to archive");

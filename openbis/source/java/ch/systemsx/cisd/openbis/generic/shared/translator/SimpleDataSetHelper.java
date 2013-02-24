@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -35,14 +35,14 @@ public class SimpleDataSetHelper
      * filters out all non-file datasets and applies translation on the remaining datasets
      */
     public static final List<SimpleDataSetInformationDTO> filterAndTranslate(
-            List<ExternalData> externalData)
+            List<AbstractExternalData> externalData)
     {
         if (externalData == null)
         {
             return null;
         }
         List<SimpleDataSetInformationDTO> result = new ArrayList<SimpleDataSetInformationDTO>();
-        for (ExternalData ed : externalData)
+        for (AbstractExternalData ed : externalData)
         {
             if (ed instanceof PhysicalDataSet)
             {

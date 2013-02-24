@@ -24,7 +24,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -44,7 +44,7 @@ public class DeleteDataSetBeforePostRegistrationTest extends BaseTest
     public void emptyTrashWithDataSetInPostRegistrationQueue() throws Exception
     {
         assertEquals(0, getDataSetsForPostRegistration().size());
-        ExternalData dataSet = create(aDataSet().inSample(sample));
+        AbstractExternalData dataSet = create(aDataSet().inSample(sample));
 
         daoFactory.getPostRegistrationDAO().addDataSet(dataSet.getCode());
         assertEquals(1, getDataSetsForPostRegistration().size());

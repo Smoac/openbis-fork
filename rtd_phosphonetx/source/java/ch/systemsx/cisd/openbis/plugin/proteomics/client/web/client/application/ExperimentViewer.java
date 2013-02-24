@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
@@ -112,11 +112,11 @@ public class ExperimentViewer extends GenericExperimentViewer
         viewContext.getCommonService().listExperimentDataSets(
                 new TechId(experimentId),
                 DefaultResultSetConfig
-                        .<String, TableModelRowWithObject<ExternalData>> createFetchAll(), true,
-                new AbstractAsyncCallback<TypedTableResultSet<ExternalData>>(viewContext)
+                        .<String, TableModelRowWithObject<AbstractExternalData>> createFetchAll(), true,
+                new AbstractAsyncCallback<TypedTableResultSet<AbstractExternalData>>(viewContext)
                     {
                         @Override
-                        protected void process(TypedTableResultSet<ExternalData> result)
+                        protected void process(TypedTableResultSet<AbstractExternalData> result)
                         {
                             AsyncCallback<List<DatastoreServiceDescription>> callBack =
                                     createCallback(contentPanel, result);
@@ -129,10 +129,10 @@ public class ExperimentViewer extends GenericExperimentViewer
     }
 
     private AsyncCallback<List<DatastoreServiceDescription>> createCallback(
-            final ContentPanel contentPanel, TypedTableResultSet<ExternalData> result)
+            final ContentPanel contentPanel, TypedTableResultSet<AbstractExternalData> result)
     {
         final List<String> dataSetCodes = new ArrayList<String>();
-        for (GridRowModel<TableModelRowWithObject<ExternalData>> gridRowModel : result.getResultSet().getList())
+        for (GridRowModel<TableModelRowWithObject<AbstractExternalData>> gridRowModel : result.getResultSet().getList())
         {
             dataSetCodes.add(gridRowModel.getOriginalObject().getObjectOrNull().getCode());
         }

@@ -20,7 +20,7 @@ import java.io.File;
 
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
@@ -45,14 +45,14 @@ public interface IHierarchicalContentProvider
     IHierarchicalContent asContent(String dataSetCode) throws IllegalArgumentException;
 
     /**
-     * A faster alternative of {@link #asContent(String)} for the case when an {@link ExternalData}
+     * A faster alternative of {@link #asContent(String)} for the case when an {@link AbstractExternalData}
      * object has already been fetched from the openBIS AS.
      * 
-     * @param dataSet a fully populated {@link ExternalData} instance. For container data sets all
+     * @param dataSet a fully populated {@link AbstractExternalData} instance. For container data sets all
      *            physical (contained) data sets must be present.
      * @return {@link IHierarchicalContent} for the specified data set
      */
-    IHierarchicalContent asContent(ExternalData dataSet);
+    IHierarchicalContent asContent(AbstractExternalData dataSet);
 
     /**
      * @return {@link IHierarchicalContent} for the specified data set

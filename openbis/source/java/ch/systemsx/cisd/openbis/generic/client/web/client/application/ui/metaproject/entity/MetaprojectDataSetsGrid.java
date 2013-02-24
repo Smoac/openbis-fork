@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
@@ -66,8 +66,8 @@ public class MetaprojectDataSetsGrid extends AbstractExternalDataGrid
 
     @Override
     protected void listTableRows(
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
-            AbstractAsyncCallback<TypedTableResultSet<ExternalData>> callback)
+            DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> resultSetConfig,
+            AbstractAsyncCallback<TypedTableResultSet<AbstractExternalData>> callback)
     {
         viewContext.getService().listMetaprojectDataSets(metaprojectId, resultSetConfig, callback);
     }

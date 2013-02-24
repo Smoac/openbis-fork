@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * Helper class which knows data set types which assume that the data set has the analysis summary
@@ -75,7 +75,7 @@ public class AnalysisSettings
      * data set type of the specified data set no reporting plugin providing an analysis summary has
      * been configured.
      */
-    public String tryToGetReportingPluginKey(ExternalData ds)
+    public String tryToGetReportingPluginKey(AbstractExternalData ds)
     {
         return dataSetType2reportingPluginMap.get(ds.getDataSetType().getCode());
     }

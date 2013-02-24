@@ -22,7 +22,7 @@ import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * @author Piotr Buczek
@@ -76,7 +76,7 @@ public class SelectedOrAllDataSetsRadioProvider
 
     public interface ISelectedDataSetsProvider
     {
-        public List<ExternalData> getSelectedDataSets();
+        public List<AbstractExternalData> getSelectedDataSets();
     }
 
 }

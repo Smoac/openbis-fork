@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
@@ -67,7 +67,7 @@ public class DataSetTranslator
     {
     }
 
-    public static DatasetDescription translateToDescription(ExternalData data)
+    public static DatasetDescription translateToDescription(AbstractExternalData data)
     {
         DatasetDescription description = new DatasetDescription();
         description.setDataSetCode(data.getCode());
@@ -127,15 +127,15 @@ public class DataSetTranslator
         return description;
     }
 
-    public static List<ExternalData> translate(List<? extends DataPE> list,
+    public static List<AbstractExternalData> translate(List<? extends DataPE> list,
             String defaultDataStoreBaseURL, String baseIndexURL,
             Map<Long, Set<Metaproject>> metaprojects,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        ArrayList<ExternalData> result = new ArrayList<ExternalData>(list.size());
+        ArrayList<AbstractExternalData> result = new ArrayList<AbstractExternalData>(list.size());
         for (DataPE dataPE : list)
         {
-            ExternalData data =
+            AbstractExternalData data =
                     translate(dataPE, baseIndexURL, true, metaprojects.get(dataPE.getId()),
                             managedPropertyEvaluatorFactory,
                             ExperimentTranslator.LoadableFields.PROPERTIES);
@@ -144,9 +144,9 @@ public class DataSetTranslator
         return result;
     }
 
-    public static ExternalData translateWithoutRevealingData(ExternalData data)
+    public static AbstractExternalData translateWithoutRevealingData(AbstractExternalData data)
     {
-        ExternalData externalData = null;
+        AbstractExternalData externalData = null;
 
         if (data.isContainer())
         {
@@ -166,9 +166,9 @@ public class DataSetTranslator
         return externalData;
     }
 
-    public static ExternalData translateWithoutRevealingData(DataPE dataPE)
+    public static AbstractExternalData translateWithoutRevealingData(DataPE dataPE)
     {
-        ExternalData externalData = null;
+        AbstractExternalData externalData = null;
         if (dataPE.isContainer())
         {
             externalData = new ContainerDataSet(true);
@@ -191,7 +191,7 @@ public class DataSetTranslator
         return externalData;
     }
 
-    public static ExternalData translate(DataPE dataPE, String baseIndexURL,
+    public static AbstractExternalData translate(DataPE dataPE, String baseIndexURL,
             Collection<Metaproject> metaprojects,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
             final LoadableFields... withExperimentFields)
@@ -200,12 +200,12 @@ public class DataSetTranslator
                 withExperimentFields);
     }
 
-    public static ExternalData translate(DataPE dataPE, String baseIndexURL, boolean withDetails,
+    public static AbstractExternalData translate(DataPE dataPE, String baseIndexURL, boolean withDetails,
             Collection<Metaproject> metaprojects,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
             final LoadableFields... withExperimentFields)
     {
-        ExternalData externalData = null;
+        AbstractExternalData externalData = null;
         if (dataPE.isContainer())
         {
             externalData =
@@ -236,7 +236,7 @@ public class DataSetTranslator
         externalData.setDerived(dataPE.isDerived());
         externalData.setContainer(tryToTranslateContainer(dataPE.getContainer(), baseIndexURL,
                 managedPropertyEvaluatorFactory));
-        final Collection<ExternalData> parents = new HashSet<ExternalData>();
+        final Collection<AbstractExternalData> parents = new HashSet<AbstractExternalData>();
         externalData.setParents(parents);
         for (DataPE parentPE : dataPE.getParents())
         {
@@ -272,7 +272,7 @@ public class DataSetTranslator
                 baseIndexURL, false, null, managedPropertyEvaluatorFactory) : null;
     }
 
-    private static ExternalData translateContainerDataSetProperties(DataPE dataPE,
+    private static AbstractExternalData translateContainerDataSetProperties(DataPE dataPE,
             String baseIndexURL, boolean withComponents,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
@@ -297,7 +297,7 @@ public class DataSetTranslator
         return linkDataSet;
     }
 
-    private static ExternalData translateDataSetProperties(ExternalDataPE externalDataPE)
+    private static AbstractExternalData translateDataSetProperties(ExternalDataPE externalDataPE)
     {
         PhysicalDataSet dataSet = new PhysicalDataSet();
         dataSet.setSize(externalDataPE.getSize());
@@ -313,7 +313,7 @@ public class DataSetTranslator
         return dataSet;
     }
 
-    private static void setProperties(DataPE dataPE, ExternalData externalData,
+    private static void setProperties(DataPE dataPE, AbstractExternalData externalData,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         if (HibernateUtils.isInitialized(dataPE.getProperties()))
@@ -349,9 +349,9 @@ public class DataSetTranslator
         return sample;
     }
 
-    private static void setChildren(DataPE dataPE, ExternalData externalData)
+    private static void setChildren(DataPE dataPE, AbstractExternalData externalData)
     {
-        List<ExternalData> children = new ArrayList<ExternalData>();
+        List<AbstractExternalData> children = new ArrayList<AbstractExternalData>();
         if (HibernateUtils.isInitialized(dataPE.getChildRelationships()))
         {
             for (DataPE childPE : dataPE.getChildren())
@@ -365,7 +365,7 @@ public class DataSetTranslator
     private static void setContainedDataSets(DataPE dataPE, ContainerDataSet containerDataSet,
             String baseIndexURL, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        List<ExternalData> containedDataSets = new ArrayList<ExternalData>();
+        List<AbstractExternalData> containedDataSets = new ArrayList<AbstractExternalData>();
         if (HibernateUtils.isInitialized(dataPE.getContainedDataSets()))
         {
             for (DataPE childPE : dataPE.getContainedDataSets())
@@ -381,9 +381,9 @@ public class DataSetTranslator
      * Creates an <var>externalData</var> from <var>dataPE</vra> an fills it with all data needed by
      * {@link IEntityInformationHolder}.
      */
-    public static ExternalData translateBasicProperties(DataPE dataPE)
+    public static AbstractExternalData translateBasicProperties(DataPE dataPE)
     {
-        ExternalData result = null;
+        AbstractExternalData result = null;
         if (dataPE.isContainer())
         {
             result = new ContainerDataSet();

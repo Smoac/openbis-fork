@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -372,7 +372,7 @@ public class ToolBox
                 SampleIdentifierFactory.parse(sample.getIdentifier()));
     }
 
-    public ExternalData createAndLoadDataSet(NewExternalData dataSet)
+    public AbstractExternalData createAndLoadDataSet(NewExternalData dataSet)
     {
         AtomicEntityOperationDetailsBuilder builder =
                 new AtomicEntityOperationDetailsBuilder().dataSet(dataSet);
@@ -380,12 +380,12 @@ public class ToolBox
         return loadDataSet(systemSessionToken, dataSet.getCode());
     }
 
-    public ExternalData loadDataSet(String dataSetCode)
+    public AbstractExternalData loadDataSet(String dataSetCode)
     {
         return loadDataSet(systemSessionToken, dataSetCode);
     }
 
-    public ExternalData loadDataSet(String sessionToken, String dataSetCode)
+    public AbstractExternalData loadDataSet(String sessionToken, String dataSetCode)
     {
         return etlService.tryGetDataSet(sessionToken, dataSetCode);
     }

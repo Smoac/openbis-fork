@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
 /**
@@ -136,7 +136,7 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
         return getHierarchicalContentProvider(sessionToken).asContent(dataSetCode);
     }
 
-    protected ExternalData tryGetDataSet(String sessionToken, String dataSetCode)
+    protected AbstractExternalData tryGetDataSet(String sessionToken, String dataSetCode)
     {
         return openBISService.tryGetDataSet(sessionToken, dataSetCode);
     }

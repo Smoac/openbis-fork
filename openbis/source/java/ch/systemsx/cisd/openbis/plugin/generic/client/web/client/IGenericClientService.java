@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -111,9 +111,9 @@ public interface IGenericClientService extends IClientService
             final String sessionKey) throws UserFailureException;
 
     /**
-     * For given {@link TechId} returns corresponding {@link ExternalData}.
+     * For given {@link TechId} returns corresponding {@link AbstractExternalData}.
      */
-    public ExternalData getDataSetInfo(final TechId datasetId) throws UserFailureException;
+    public AbstractExternalData getDataSetInfo(final TechId datasetId) throws UserFailureException;
 
     /**
      * Registers a new experiment.

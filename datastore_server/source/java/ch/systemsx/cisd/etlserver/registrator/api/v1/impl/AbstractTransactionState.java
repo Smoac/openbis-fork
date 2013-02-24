@@ -65,7 +65,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -404,7 +404,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
 
         public IDataSetImmutable getDataSet(String dataSetCode)
         {
-            ExternalData dataSet = openBisService.tryGetDataSet(dataSetCode);
+            AbstractExternalData dataSet = openBisService.tryGetDataSet(dataSetCode);
             if (dataSet == null)
             {
                 return null;
@@ -423,7 +423,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                 return result;
             }
 
-            ExternalData dataSet = openBisService.tryGetDataSet(dataSetCode);
+            AbstractExternalData dataSet = openBisService.tryGetDataSet(dataSetCode);
             if (dataSet == null)
             {
                 return null;

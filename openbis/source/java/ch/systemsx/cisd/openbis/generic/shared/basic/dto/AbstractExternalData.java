@@ -33,7 +33,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ITaggable;
  * 
  * @author Christian Ribeaud
  */
-public abstract class ExternalData extends CodeWithRegistrationAndModificationDate<ExternalData>
+public abstract class AbstractExternalData extends
+        CodeWithRegistrationAndModificationDate<AbstractExternalData>
         implements IEntityWithDeletionInformation, IEntityInformationHolderWithProperties,
         IIdAndCodeHolder, IPermIdHolder, IIsStub, ITaggable
 {
@@ -43,7 +44,7 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
      * {@link Comparator} for data sets contained in a (virtual) container which uses ascending
      * order in container.
      */
-    public static final Comparator<ExternalData> DATA_SET_COMPONENTS_COMPARATOR =
+    public static final Comparator<AbstractExternalData> DATA_SET_COMPONENTS_COMPARATOR =
             new DataSetComponentsComparator();
 
     private boolean derived;
@@ -60,7 +61,7 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
 
     private String producerCode;
 
-    private Collection<ExternalData> parents;
+    private Collection<AbstractExternalData> parents;
 
     private Long size;
 
@@ -72,7 +73,7 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
 
     private SampleType sampleType;
 
-    private Collection<ExternalData> children;
+    private Collection<AbstractExternalData> children;
 
     private List<IEntityProperty> dataSetProperties;
 
@@ -90,7 +91,7 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
 
     private Collection<Metaproject> metaprojects;
 
-    public ExternalData(boolean isStub)
+    public AbstractExternalData(boolean isStub)
     {
         this.isStub = isStub;
     }
@@ -208,12 +209,12 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
         this.sampleType = sampleType;
     }
 
-    public Collection<ExternalData> getChildren()
+    public Collection<AbstractExternalData> getChildren()
     {
         return children;
     }
 
-    public void setChildren(Collection<ExternalData> children)
+    public void setChildren(Collection<AbstractExternalData> children)
     {
         this.children = children;
     }
@@ -258,12 +259,12 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
         this.producerCode = producerCode;
     }
 
-    public Collection<ExternalData> getParents()
+    public Collection<AbstractExternalData> getParents()
     {
         return parents;
     }
 
-    public void setParents(Collection<ExternalData> parents)
+    public void setParents(Collection<AbstractExternalData> parents)
     {
         this.parents = parents;
     }
@@ -417,10 +418,11 @@ public abstract class ExternalData extends CodeWithRegistrationAndModificationDa
         return this.isStub;
     }
 
-    private static final class DataSetComponentsComparator implements Comparator<ExternalData>
+    private static final class DataSetComponentsComparator implements
+            Comparator<AbstractExternalData>
     {
         @Override
-        public int compare(ExternalData o1, ExternalData o2)
+        public int compare(AbstractExternalData o1, AbstractExternalData o2)
         {
             Integer order1 = o1.getOrderInContainer();
             Integer order2 = o2.getOrderInContainer();

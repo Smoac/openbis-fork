@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
@@ -43,9 +43,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
  */
 public class DataSetImmutable extends AbstractDataSetImmutable
 {
-    protected final ExternalData dataSet;
+    protected final AbstractExternalData dataSet;
 
-    public DataSetImmutable(ExternalData dataSet, IEncapsulatedBasicOpenBISService service)
+    public DataSetImmutable(AbstractExternalData dataSet, IEncapsulatedBasicOpenBISService service)
     {
         super(service);
         this.dataSet = dataSet;
@@ -189,10 +189,10 @@ public class DataSetImmutable extends AbstractDataSetImmutable
     public List<IDataSetImmutable> getChildrenDataSets()
     {
         List<IDataSetImmutable> result = new ArrayList<IDataSetImmutable>();
-        Collection<ExternalData> children = dataSet.getChildren();
+        Collection<AbstractExternalData> children = dataSet.getChildren();
         if (children != null)
         {
-            for (ExternalData child : children)
+            for (AbstractExternalData child : children)
             {
                 result.add(new DataSetImmutable(child, service));
             }

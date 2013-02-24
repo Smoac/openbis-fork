@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * @author Pawel Glyzewski
@@ -39,8 +39,8 @@ public class DataSetToDataSetRelationshipsHistoryTest extends AbstractRelationsh
 
         logIntoCommonClientService();
 
-        ExternalData container = genericClientService.getDataSetInfo(containerId);
-        ExternalData contained = genericClientService.getDataSetInfo(containedId);
+        AbstractExternalData container = genericClientService.getDataSetInfo(containerId);
+        AbstractExternalData contained = genericClientService.getDataSetInfo(containedId);
 
         DataSetUpdates updates = new DataSetUpdates();
         updates.setDatasetId(containerId);
@@ -120,9 +120,9 @@ public class DataSetToDataSetRelationshipsHistoryTest extends AbstractRelationsh
 
         logIntoCommonClientService();
 
-        ExternalData child = genericClientService.getDataSetInfo(childId);
-        ExternalData parent1 = genericClientService.getDataSetInfo(parent1Id);
-        ExternalData parent2 = genericClientService.getDataSetInfo(parent2Id);
+        AbstractExternalData child = genericClientService.getDataSetInfo(childId);
+        AbstractExternalData parent1 = genericClientService.getDataSetInfo(parent1Id);
+        AbstractExternalData parent2 = genericClientService.getDataSetInfo(parent2Id);
 
         DataSetUpdates updates = new DataSetUpdates();
         updates.setDatasetId(childId);

@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -308,7 +308,7 @@ public class ConversionUtils
 
     public static DataSetUpdatesDTO convertToDataSetUpdatesDTO(DataSetUpdatable dataSet)
     {
-        ExternalData externalData = dataSet.getExternalData();
+        AbstractExternalData externalData = dataSet.getExternalData();
 
         DataSetUpdatesDTO dataSetUpdate = new DataSetUpdatesDTO();
         dataSetUpdate.setDatasetId(new TechId(externalData));
@@ -357,7 +357,7 @@ public class ConversionUtils
     private static DataSetBatchUpdatesDTO enrichUpdatesWithInformation(DataSetUpdatable dataSet,
             DataSetBatchUpdatesDTO dataSetUpdate)
     {
-        ExternalData externalData = dataSet.getExternalData();
+        AbstractExternalData externalData = dataSet.getExternalData();
 
         dataSetUpdate.setDatasetId(new TechId(externalData));
         dataSetUpdate.setVersion(externalData.getVersion());

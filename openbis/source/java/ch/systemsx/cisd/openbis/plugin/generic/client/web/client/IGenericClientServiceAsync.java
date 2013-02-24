@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -93,7 +93,7 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      * @see IGenericClientService#getDataSetInfo(TechId)
      */
     public void getDataSetInfo(TechId datasetTechId,
-            final AsyncCallback<ExternalData> datasetInfoCallback);
+            final AsyncCallback<AbstractExternalData> datasetInfoCallback);
 
     /**
      * @see IGenericClientService#registerExperiment(String,String,NewExperiment)

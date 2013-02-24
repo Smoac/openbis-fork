@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -131,7 +131,7 @@ public final class DataStrategyStore implements IDataStrategyStore
 
         if (dataSetInfo.tryGetContainerDatasetPermId() != null)
         {
-            ExternalData container =
+            AbstractExternalData container =
                     limsService.tryGetDataSet(dataSetInfo.tryGetContainerDatasetPermId());
             if (container != null)
             {

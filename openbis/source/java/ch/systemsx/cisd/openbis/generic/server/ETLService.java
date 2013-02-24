@@ -133,7 +133,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
@@ -714,13 +714,13 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     @Override
     @RolesAllowed(
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public List<ExternalData> listDataSetsByExperimentID(final String sessionToken,
+    public List<AbstractExternalData> listDataSetsByExperimentID(final String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
             final TechId experimentID) throws UserFailureException
     {
         Session session = getSession(sessionToken);
         IDatasetLister datasetLister = createDatasetLister(session);
-        List<ExternalData> datasets = datasetLister.listByExperimentTechId(experimentID, true);
+        List<AbstractExternalData> datasets = datasetLister.listByExperimentTechId(experimentID, true);
         Collections.sort(datasets);
         return datasets;
     }
@@ -728,14 +728,14 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     @Override
     @RolesAllowed(
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public List<ExternalData> listDataSetsBySampleID(final String sessionToken,
+    public List<AbstractExternalData> listDataSetsBySampleID(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
             final TechId sampleId, final boolean showOnlyDirectlyConnected)
             throws UserFailureException
     {
         final Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
-        final List<ExternalData> datasets =
+        final List<AbstractExternalData> datasets =
                 datasetLister.listBySampleTechId(sampleId, showOnlyDirectlyConnected);
         Collections.sort(datasets);
         return datasets;
@@ -744,7 +744,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     @Override
     @RolesAllowed(
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public List<ExternalData> listDataSetsByCode(String sessionToken,
+    public List<AbstractExternalData> listDataSetsByCode(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
             List<String> dataSetCodes) throws UserFailureException
     {
@@ -1063,7 +1063,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
     @Override
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public ExternalData tryGetDataSet(String sessionToken,
+    public AbstractExternalData tryGetDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
             String dataSetCode) throws UserFailureException
     {
@@ -1181,7 +1181,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         final Session session = getSession(sessionToken);
         final DataStorePE dataStore = loadDataStore(session, dataStoreCode);
         final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
-        final List<ExternalData> dataSets =
+        final List<AbstractExternalData> dataSets =
                 datasetLister.listByDataStore(dataStore.getId(),
                         DATASET_FETCH_OPTIONS_FILE_DATASETS);
         return SimpleDataSetHelper.filterAndTranslate(dataSets);
@@ -1195,7 +1195,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         final Session session = getSession(sessionToken);
         final DataStorePE dataStore = loadDataStore(session, dataStoreCode);
         final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
-        final List<ExternalData> dataSets =
+        final List<AbstractExternalData> dataSets =
                 datasetLister.listByDataStore(dataStore.getId(), limit,
                         DATASET_FETCH_OPTIONS_FILE_DATASETS);
         return SimpleDataSetHelper.filterAndTranslate(dataSets);
@@ -1209,7 +1209,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         final Session session = getSession(sessionToken);
         final DataStorePE dataStore = loadDataStore(session, dataStoreCode);
         final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
-        final List<ExternalData> dataSets =
+        final List<AbstractExternalData> dataSets =
                 datasetLister.listByDataStore(dataStore.getId(), youngerThan, limit,
                         DATASET_FETCH_OPTIONS_FILE_DATASETS);
         return SimpleDataSetHelper.filterAndTranslate(dataSets);
@@ -1217,7 +1217,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public List<ExternalData> listAvailableDataSets(String sessionToken, String dataStoreCode,
+    public List<AbstractExternalData> listAvailableDataSets(String sessionToken, String dataStoreCode,
             ArchiverDataSetCriteria criteria)
     {
         Session session = getSession(sessionToken);
@@ -1227,7 +1227,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public List<ExternalData> listDataSets(String sessionToken, String dataStoreCode,
+    public List<AbstractExternalData> listDataSets(String sessionToken, String dataStoreCode,
             TrackingDataSetCriteria criteria)
     {
         Session session = getSession(sessionToken);
@@ -1239,9 +1239,9 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
             throw new UserFailureException("Unknown data store: " + dataStoreCode);
         }
         final IDatasetLister datasetLister = createDatasetLister(session);
-        List<ExternalData> allDataSets = datasetLister.listByTrackingCriteria(criteria);
-        List<ExternalData> result = new ArrayList<ExternalData>();
-        for (ExternalData externalData : allDataSets)
+        List<AbstractExternalData> allDataSets = datasetLister.listByTrackingCriteria(criteria);
+        List<AbstractExternalData> result = new ArrayList<AbstractExternalData>();
+        for (AbstractExternalData externalData : allDataSets)
         {
             if (dataStoreCode.equals(externalData.getDataStore().getCode()))
             {
@@ -2352,7 +2352,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public List<ExternalData> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)
+    public List<AbstractExternalData> searchForDataSets(String sessionToken, SearchCriteria searchCriteria)
     {
         Session session = getSession(sessionToken);
         DetailedSearchCriteria detailedSearchCriteria =
@@ -2458,7 +2458,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public List<ExternalData> listDataSetsForPostRegistration(String sessionToken,
+    public List<AbstractExternalData> listDataSetsForPostRegistration(String sessionToken,
             String dataStoreCode)
     {
         Session session = getSession(sessionToken);
@@ -2467,7 +2467,7 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         final IDatasetLister datasetLister = createDatasetLister(session);
         Collection<Long> allDataSetIds =
                 daoFactory.getPostRegistrationDAO().listDataSetsForPostRegistration();
-        List<ExternalData> allDataSets = datasetLister.listByDatasetIds(allDataSetIds);
+        List<AbstractExternalData> allDataSets = datasetLister.listByDatasetIds(allDataSetIds);
 
         // find datastore
         getDAOFactory().getHomeDatabaseInstance();
@@ -2479,8 +2479,8 @@ public class ETLService extends AbstractCommonServer<IETLLIMSService> implements
         }
 
         // filter datasets by datastore
-        List<ExternalData> result = new ArrayList<ExternalData>();
-        for (ExternalData externalData : allDataSets)
+        List<AbstractExternalData> result = new ArrayList<AbstractExternalData>();
+        for (AbstractExternalData externalData : allDataSets)
         {
             if (dataStoreCode.equals(externalData.getDataStore().getCode()))
             {

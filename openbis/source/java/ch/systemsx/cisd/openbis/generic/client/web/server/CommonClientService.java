@@ -151,7 +151,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
@@ -587,15 +587,15 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public TypedTableResultSet<ExternalData> searchForDataSets(
+    public TypedTableResultSet<AbstractExternalData> searchForDataSets(
             final DetailedSearchCriteria criteria,
-            final IResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig)
+            final IResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> resultSetConfig)
     {
         final String sessionToken = getSessionToken();
         return listEntities(new AbstractExternalDataProvider(commonServer, sessionToken)
             {
                 @Override
-                protected List<ExternalData> getDataSets()
+                protected List<AbstractExternalData> getDataSets()
                 {
                     return commonServer.searchForDataSets(sessionToken, criteria);
                 }
@@ -603,16 +603,16 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public TypedTableResultSet<ExternalData> searchForDataSets(
+    public TypedTableResultSet<AbstractExternalData> searchForDataSets(
             RelatedDataSetCriteria<? extends IEntityInformationHolder> criteria,
-            final IResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig)
+            final IResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> resultSetConfig)
     {
         final String sessionToken = getSessionToken();
         final DataSetRelatedEntities entities = extractRelatedEntities(criteria);
         return listEntities(new AbstractExternalDataProvider(commonServer, sessionToken)
             {
                 @Override
-                protected List<ExternalData> getDataSets()
+                protected List<AbstractExternalData> getDataSets()
                 {
                     return commonServer.listRelatedDataSets(sessionToken, entities, false);
                 }
@@ -911,15 +911,15 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public TypedTableResultSet<ExternalData> listSampleDataSets(final TechId sampleId,
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,
+    public TypedTableResultSet<AbstractExternalData> listSampleDataSets(final TechId sampleId,
+            DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria,
             final boolean showOnlyDirectlyConnected)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return listEntities(new AbstractExternalDataProvider(commonServer, getSessionToken())
             {
                 @Override
-                protected List<ExternalData> getDataSets()
+                protected List<AbstractExternalData> getDataSets()
                 {
                     return commonServer.listSampleExternalData(sessionToken, sampleId,
                             showOnlyDirectlyConnected);
@@ -928,15 +928,15 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public TypedTableResultSet<ExternalData> listExperimentDataSets(final TechId experimentId,
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,
+    public TypedTableResultSet<AbstractExternalData> listExperimentDataSets(final TechId experimentId,
+            DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria,
             final boolean onlyDirectlyConnected)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return listEntities(new AbstractExternalDataProvider(commonServer, getSessionToken())
             {
                 @Override
-                protected List<ExternalData> getDataSets()
+                protected List<AbstractExternalData> getDataSets()
                 {
                     return commonServer.listExperimentExternalData(sessionToken, experimentId,
                             onlyDirectlyConnected);
@@ -945,14 +945,14 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public TypedTableResultSet<ExternalData> listMetaprojectDataSets(final TechId metaprojectId,
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria)
+    public TypedTableResultSet<AbstractExternalData> listMetaprojectDataSets(final TechId metaprojectId,
+            DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return listEntities(new AbstractExternalDataProvider(commonServer, getSessionToken())
             {
                 @Override
-                protected List<ExternalData> getDataSets()
+                protected List<AbstractExternalData> getDataSets()
                 {
                     return commonServer.listMetaprojectExternalData(sessionToken,
                             new MetaprojectTechIdId(metaprojectId));
@@ -961,22 +961,22 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public List<ExternalData> listMetaprojectDataSets(final Long metaprojectId)
+    public List<AbstractExternalData> listMetaprojectDataSets(final Long metaprojectId)
     {
         return commonServer.listMetaprojectExternalData(getSessionToken(), new MetaprojectTechIdId(
                 metaprojectId));
     }
 
     @Override
-    public TypedTableResultSet<ExternalData> listDataSetRelationships(final TechId datasetId,
+    public TypedTableResultSet<AbstractExternalData> listDataSetRelationships(final TechId datasetId,
             final DataSetRelationshipRole role,
-            final DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria)
+            final DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return listEntities(new AbstractExternalDataProvider(commonServer, getSessionToken())
             {
                 @Override
-                protected List<ExternalData> getDataSets()
+                protected List<AbstractExternalData> getDataSets()
                 {
                     return commonServer.listDataSetRelationships(sessionToken, datasetId, role);
                 }
@@ -1391,7 +1391,7 @@ public final class CommonClientService extends AbstractClientService implements
 
     @Override
     public String prepareExportDataSetSearchHits(
-            TableExportCriteria<TableModelRowWithObject<ExternalData>> exportCriteria)
+            TableExportCriteria<TableModelRowWithObject<AbstractExternalData>> exportCriteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(exportCriteria);
@@ -2096,7 +2096,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
 
         DataSetRelatedEntities dataSetRelatedExperiments = new DataSetRelatedEntities(experiments);
-        List<ExternalData> relatedDataSets =
+        List<AbstractExternalData> relatedDataSets =
                 commonServer.listRelatedDataSets(getSessionToken(), dataSetRelatedExperiments,
                         false);
         return Code.extractCodes(relatedDataSets);
@@ -2140,17 +2140,17 @@ public final class CommonClientService extends AbstractClientService implements
             return displayedOrSelectedDatasetCriteria.tryGetSelectedItems();
         } else
         {
-            TableExportCriteria<TableModelRowWithObject<ExternalData>> displayedItemsCriteria =
+            TableExportCriteria<TableModelRowWithObject<AbstractExternalData>> displayedItemsCriteria =
                     displayedOrSelectedDatasetCriteria.tryGetDisplayedItems();
             assert displayedItemsCriteria != null : "displayedItemsCriteria is null";
-            List<TableModelRowWithObject<ExternalData>> datasets =
+            List<TableModelRowWithObject<AbstractExternalData>> datasets =
                     fetchCachedEntities(displayedItemsCriteria).extractOriginalObjects();
             if (serviceDescriptionOrNull != null)
             {
                 datasets = filterDatasets(datasets, serviceDescriptionOrNull);
             }
             List<String> codes = new ArrayList<String>();
-            for (TableModelRowWithObject<ExternalData> row : datasets)
+            for (TableModelRowWithObject<AbstractExternalData> row : datasets)
             {
                 codes.add(row.getObjectOrNull().getCode());
             }
@@ -2160,18 +2160,18 @@ public final class CommonClientService extends AbstractClientService implements
 
     // returns datasets which have type code belonging to the specified set and belong to the same
     // dataset store as the plugin
-    private static List<TableModelRowWithObject<ExternalData>> filterDatasets(
-            List<TableModelRowWithObject<ExternalData>> datasets,
+    private static List<TableModelRowWithObject<AbstractExternalData>> filterDatasets(
+            List<TableModelRowWithObject<AbstractExternalData>> datasets,
             DatastoreServiceDescription serviceDescription)
     {
         String[] datasetTypeCodes = serviceDescription.getDatasetTypeCodes();
         Set<String> datasetTypeCodesMap = new HashSet<String>(Arrays.asList(datasetTypeCodes));
-        List<TableModelRowWithObject<ExternalData>> result =
-                new ArrayList<TableModelRowWithObject<ExternalData>>();
+        List<TableModelRowWithObject<AbstractExternalData>> result =
+                new ArrayList<TableModelRowWithObject<AbstractExternalData>>();
         String serviceDatastoreCode = serviceDescription.getDatastoreCode();
-        for (TableModelRowWithObject<ExternalData> row : datasets)
+        for (TableModelRowWithObject<AbstractExternalData> row : datasets)
         {
-            ExternalData dataset = row.getObjectOrNull();
+            AbstractExternalData dataset = row.getObjectOrNull();
             String datasetTypeCode = dataset.getDataSetType().getCode();
             if (datasetTypeCodesMap.contains(datasetTypeCode))
             {

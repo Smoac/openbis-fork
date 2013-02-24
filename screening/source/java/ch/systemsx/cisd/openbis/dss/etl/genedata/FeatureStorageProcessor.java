@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureVectorUploader;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
@@ -235,7 +235,7 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
             List<String> parentDataSetCodes = dataSetInformation.getParentDataSetCodes();
             for (String dataSetCode : parentDataSetCodes)
             {
-                ExternalData externalData = openBisService.tryGetDataSet(dataSetCode);
+                AbstractExternalData externalData = openBisService.tryGetDataSet(dataSetCode);
                 if (externalData == null)
                 {
                     throw new UserFailureException("Cannot find a parent dataset in openBIS: "

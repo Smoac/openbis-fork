@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  * 
  * @author Kaloyan Enimanev
  */
-public class PhysicalDataSet extends ExternalData implements IDatasetLocation
+public class PhysicalDataSet extends AbstractExternalData implements IDatasetLocation
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

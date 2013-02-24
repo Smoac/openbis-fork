@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * Superclass for dataset download servlets. Provides functionality to deliver content of files and
@@ -369,23 +369,23 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
         return map;
     }
 
-    protected final ExternalData tryToGetCachedDataSet(HttpSession session, String dataSetCode)
+    protected final AbstractExternalData tryToGetCachedDataSet(HttpSession session, String dataSetCode)
     {
         return getDataSets(session).get(dataSetCode);
     }
 
     @SuppressWarnings("unchecked")
-    protected final Map<String, ExternalData> getDataSets(HttpSession session)
+    protected final Map<String, AbstractExternalData> getDataSets(HttpSession session)
     {
         // Need to synchronize on the class, since there could be multiple instances trying to
         // access this attribute.
         synchronized (AbstractDatasetDownloadServlet.class)
         {
-            Map<String, ExternalData> map =
-                    (Map<String, ExternalData>) session.getAttribute(DATA_SET_SESSION_KEY);
+            Map<String, AbstractExternalData> map =
+                    (Map<String, AbstractExternalData>) session.getAttribute(DATA_SET_SESSION_KEY);
             if (map == null)
             {
-                map = new HashMap<String, ExternalData>();
+                map = new HashMap<String, AbstractExternalData>();
                 session.setAttribute(DATA_SET_SESSION_KEY, map);
             }
             return map;

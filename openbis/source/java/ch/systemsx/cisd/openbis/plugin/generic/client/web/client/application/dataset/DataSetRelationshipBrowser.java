@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
@@ -87,8 +87,8 @@ public class DataSetRelationshipBrowser extends AbstractExternalDataGrid
 
     @Override
     protected void listTableRows(
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
-            AbstractAsyncCallback<TypedTableResultSet<ExternalData>> callback)
+            DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> resultSetConfig,
+            AbstractAsyncCallback<TypedTableResultSet<AbstractExternalData>> callback)
     {
         viewContext.getService().listDataSetRelationships(datasetId, role, resultSetConfig,
                 callback);

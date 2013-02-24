@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
@@ -220,12 +220,12 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
                 @Override
                 public List<String> tryGetContainedDatasets(String datasetCode)
                 {
-                    ExternalData ds = openBISService.tryGetDataSet(datasetCode);
+                    AbstractExternalData ds = openBISService.tryGetDataSet(datasetCode);
                     ContainerDataSet container = ds.tryGetAsContainerDataSet();
                     if (container != null)
                     {
                         List<String> list = new LinkedList<String>();
-                        for (ExternalData contained : container.getContainedDataSets())
+                        for (AbstractExternalData contained : container.getContainedDataSets())
                         {
                             list.add(contained.getCode());
                         }

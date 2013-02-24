@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
@@ -90,13 +90,13 @@ public class FtpPathResolverContext implements ISessionTokenProvider
         return dataSet;
     }
 
-    public List<ExternalData> listDataSetsByCode(List<String> codes)
+    public List<AbstractExternalData> listDataSetsByCode(List<String> codes)
     {
         List<String> codesToAskFor = new ArrayList<String>();
-        List<ExternalData> dataSets = new ArrayList<ExternalData>();
+        List<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
         for (String code : codes)
         {
-            ExternalData dataSet = cache.getExternalData(code);
+            AbstractExternalData dataSet = cache.getExternalData(code);
             if (dataSet == null)
             {
                 codesToAskFor.add(code);
@@ -107,9 +107,9 @@ public class FtpPathResolverContext implements ISessionTokenProvider
         }
         if (codesToAskFor.isEmpty() == false)
         {
-            List<ExternalData> newDataSets =
+            List<AbstractExternalData> newDataSets =
                     service.listDataSetsByCode(sessionToken, codesToAskFor);
-            for (ExternalData newDataSet : newDataSets)
+            for (AbstractExternalData newDataSet : newDataSets)
             {
                 cache.putExternalData(newDataSet);
                 dataSets.add(newDataSet);

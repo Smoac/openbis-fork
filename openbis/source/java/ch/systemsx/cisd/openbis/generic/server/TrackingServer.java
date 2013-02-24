@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SearchlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -106,14 +106,14 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
 
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
-    public List<ExternalData> listDataSets(String sessionToken, TrackingDataSetCriteria criteria)
+    public List<AbstractExternalData> listDataSets(String sessionToken, TrackingDataSetCriteria criteria)
     {
         final Session session = getSession(sessionToken);
 
         // retrieve data sets connected to samples of type specified in criteria
         // (these samples don't have properties loaded but ids are loaded)
         final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
-        final List<ExternalData> dataSets = datasetLister.listByTrackingCriteria(criteria);
+        final List<AbstractExternalData> dataSets = datasetLister.listByTrackingCriteria(criteria);
         // retrieve samples enriched with their dependent samples and properties
         // (drawback - samples directly connected to data sets are retrieved twice)
         final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
@@ -126,10 +126,10 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
         return dataSets;
     }
 
-    private List<Long> extractConnectedSampleIds(List<ExternalData> dataSets)
+    private List<Long> extractConnectedSampleIds(List<AbstractExternalData> dataSets)
     {
         final List<Long> sampleIds = new ArrayList<Long>();
-        for (ExternalData dataSet : dataSets)
+        for (AbstractExternalData dataSet : dataSets)
         {
             assert dataSet.getSample() != null : "data set is not connected to a sample";
             sampleIds.add(dataSet.getSample().getId());
@@ -137,7 +137,7 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
         return sampleIds;
     }
 
-    private void replaceConnectedSamples(List<ExternalData> dataSets, List<Sample> enrichedSamples)
+    private void replaceConnectedSamples(List<AbstractExternalData> dataSets, List<Sample> enrichedSamples)
     {
         // list orders are not the same - map is needed for quick search
         // <sample id, sample>
@@ -148,7 +148,7 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
             enrichedSamplesMap.put(sample.getId(), sample);
         }
 
-        for (ExternalData dataSet : dataSets)
+        for (AbstractExternalData dataSet : dataSets)
         {
             final Sample enrichedSample = enrichedSamplesMap.get(dataSet.getSample().getId());
             assert enrichedSample != null;

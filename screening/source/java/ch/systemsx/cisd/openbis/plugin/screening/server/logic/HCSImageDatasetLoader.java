@@ -28,7 +28,7 @@ import java.util.Set;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
@@ -44,23 +44,23 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
 {
     // TODO 2010-05-27, CR : See PlateDatasetLoader todo comment
 
-    protected static Collection<Long> extractIds(List<ExternalData> datasets)
+    protected static Collection<Long> extractIds(List<AbstractExternalData> datasets)
     {
         List<Long> ids = new ArrayList<Long>();
-        for (ExternalData dataset : datasets)
+        for (AbstractExternalData dataset : datasets)
         {
             ids.add(dataset.getId());
         }
         return ids;
     }
 
-    private static Map<Long/* child data set id */, ExternalData/* parent data sets */> createChildToParentDataSetsMap(
-            Map<Long, Set<Long>> childIdToParentIdsMap, List<ExternalData> parentDatasets)
+    private static Map<Long/* child data set id */, AbstractExternalData/* parent data sets */> createChildToParentDataSetsMap(
+            Map<Long, Set<Long>> childIdToParentIdsMap, List<AbstractExternalData> parentDatasets)
     {
-        Map<Long, ExternalData> childDataSetToParentDataSetsMap = new HashMap<Long, ExternalData>();
+        Map<Long, AbstractExternalData> childDataSetToParentDataSetsMap = new HashMap<Long, AbstractExternalData>();
         for (Entry<Long, Set<Long>> entry : childIdToParentIdsMap.entrySet())
         {
-            List<ExternalData> parents = findDatasetsWithIds(entry.getValue(), parentDatasets);
+            List<AbstractExternalData> parents = findDatasetsWithIds(entry.getValue(), parentDatasets);
             // NOTE: if a child data set has more than one parent data set, all the
             // parents will be ignored.
             if (parents.size() == 1)
@@ -72,11 +72,11 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
         return childDataSetToParentDataSetsMap;
     }
 
-    private static List<ExternalData> findDatasetsWithIds(Set<Long> datasetIds,
-            List<ExternalData> datasets)
+    private static List<AbstractExternalData> findDatasetsWithIds(Set<Long> datasetIds,
+            List<AbstractExternalData> datasets)
     {
-        List<ExternalData> found = new ArrayList<ExternalData>();
-        for (ExternalData dataset : datasets)
+        List<AbstractExternalData> found = new ArrayList<AbstractExternalData>();
+        for (AbstractExternalData dataset : datasets)
         {
             if (datasetIds.contains(dataset.getId()))
             {
@@ -98,7 +98,7 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
     /**
      * Return the image datasets for the specified plates.
      */
-    public List<ExternalData> getImageDatasets()
+    public List<AbstractExternalData> getImageDatasets()
     {
         load();
         return filterImageDatasets();
@@ -107,7 +107,7 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
     /**
      * Return the raw image datasets for the specified plates.
      */
-    private List<ExternalData> getRawImageDatasets()
+    private List<AbstractExternalData> getRawImageDatasets()
     {
         load();
         return filterRawImageDatasets();
@@ -116,11 +116,11 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
     /**
      * Return the segmentation image datasets (overlays) for the specified plates.
      */
-    private List<ExternalData> getSegmentationImageDatasets()
+    private List<AbstractExternalData> getSegmentationImageDatasets()
     {
         load();
-        List<ExternalData> imageDatasets = new ArrayList<ExternalData>();
-        for (ExternalData dataset : getDatasets())
+        List<AbstractExternalData> imageDatasets = new ArrayList<AbstractExternalData>();
+        for (AbstractExternalData dataset : getDatasets())
         {
             if (ScreeningUtils.isBasicHcsImageDataset(dataset))
             {
@@ -158,10 +158,10 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
         return asImageDatasetReferences(getSegmentationImageDatasets());
     }
 
-    private List<ExternalData> filterImageDatasets()
+    private List<AbstractExternalData> filterImageDatasets()
     {
-        List<ExternalData> result = new ArrayList<ExternalData>();
-        for (ExternalData externalData : getDatasets())
+        List<AbstractExternalData> result = new ArrayList<AbstractExternalData>();
+        for (AbstractExternalData externalData : getDatasets())
         {
             if (ScreeningUtils.isBasicHcsImageDataset(externalData))
             {
@@ -174,10 +174,10 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
         return result;
     }
 
-    private List<ExternalData> filterRawImageDatasets()
+    private List<AbstractExternalData> filterRawImageDatasets()
     {
-        List<ExternalData> result = new ArrayList<ExternalData>();
-        for (ExternalData externalData : getDatasets())
+        List<AbstractExternalData> result = new ArrayList<AbstractExternalData>();
+        for (AbstractExternalData externalData : getDatasets())
         {
             if (ScreeningUtils.isRawHcsImageDataset(externalData))
             {
@@ -187,10 +187,10 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
         return result;
     }
 
-    private List<ImageDatasetReference> asImageDatasetReferences(List<ExternalData> imageDatasets)
+    private List<ImageDatasetReference> asImageDatasetReferences(List<AbstractExternalData> imageDatasets)
     {
         List<ImageDatasetReference> references = new ArrayList<ImageDatasetReference>();
-        for (ExternalData imageDataset : imageDatasets)
+        for (AbstractExternalData imageDataset : imageDatasets)
         {
             ImageDatasetReference reference = tryAsImageDataset(imageDataset);
             if (reference != null)
@@ -202,20 +202,20 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
     }
 
     /** Sets parents of all datasets in 'childrenDataSets'. */
-    protected void enrichWithParentDatasets(Collection<ExternalData> childrenDataSets,
-            List<ExternalData> parentDataSets, String childTypePattern, IDatasetLister datasetLister)
+    protected void enrichWithParentDatasets(Collection<AbstractExternalData> childrenDataSets,
+            List<AbstractExternalData> parentDataSets, String childTypePattern, IDatasetLister datasetLister)
     {
-        Map<Long/* child id */, ExternalData/* parent */> childIdToParentDataSetMap =
+        Map<Long/* child id */, AbstractExternalData/* parent */> childIdToParentDataSetMap =
                 createChildToParentDataSetsMap(parentDataSets, childTypePattern, datasetLister);
         enrichWithParentDatasets(childrenDataSets, childIdToParentDataSetMap);
     }
 
-    private void enrichWithParentDatasets(Collection<ExternalData> childrenDataSets,
-            Map<Long, ExternalData> childIdToParentDataSetMap)
+    private void enrichWithParentDatasets(Collection<AbstractExternalData> childrenDataSets,
+            Map<Long, AbstractExternalData> childIdToParentDataSetMap)
     {
-        for (ExternalData child : childrenDataSets)
+        for (AbstractExternalData child : childrenDataSets)
         {
-            ExternalData parentImageDataset = childIdToParentDataSetMap.get(child.getId());
+            AbstractExternalData parentImageDataset = childIdToParentDataSetMap.get(child.getId());
             if (parentImageDataset != null)
             {
                 child.setParents(Arrays.asList(parentImageDataset));
@@ -223,10 +223,10 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
         }
     }
 
-    private Map<Long, ExternalData> createChildToParentDataSetsMap(
-            List<ExternalData> parentDataSets, String childTypePattern, IDatasetLister datasetLister)
+    private Map<Long, AbstractExternalData> createChildToParentDataSetsMap(
+            List<AbstractExternalData> parentDataSets, String childTypePattern, IDatasetLister datasetLister)
     {
-        List<ExternalData> filteredChildrenForParents =
+        List<AbstractExternalData> filteredChildrenForParents =
                 listFilteredChildrenDataSets(parentDataSets, childTypePattern, datasetLister);
         return createChildToParentDataSetsMap(filteredChildrenForParents, parentDataSets,
                 datasetLister);
@@ -236,12 +236,12 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
      * Fetched children datasets (with a matching type) for the specified parent datasets, sets
      * their parents.
      */
-    protected List<ExternalData> fetchChildrenDataSets(List<ExternalData> parentDataSets,
+    protected List<AbstractExternalData> fetchChildrenDataSets(List<AbstractExternalData> parentDataSets,
             String childTypePattern, IDatasetLister datasetLister)
     {
-        List<ExternalData> filteredChildrenForParents =
+        List<AbstractExternalData> filteredChildrenForParents =
                 listFilteredChildrenDataSets(parentDataSets, childTypePattern, datasetLister);
-        Map<Long, ExternalData> childIdToParentDataSetsMap =
+        Map<Long, AbstractExternalData> childIdToParentDataSetsMap =
                 createChildToParentDataSetsMap(filteredChildrenForParents, parentDataSets,
                         datasetLister);
 
@@ -249,12 +249,12 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
         return filteredChildrenForParents;
     }
 
-    private static void setParentDatasets(List<ExternalData> childrenDatasets,
-            Map<Long, ExternalData> childIdToParentDataSetsMap)
+    private static void setParentDatasets(List<AbstractExternalData> childrenDatasets,
+            Map<Long, AbstractExternalData> childIdToParentDataSetsMap)
     {
-        for (ExternalData child : childrenDatasets)
+        for (AbstractExternalData child : childrenDatasets)
         {
-            ExternalData parentImageDataset = childIdToParentDataSetsMap.get(child.getId());
+            AbstractExternalData parentImageDataset = childIdToParentDataSetsMap.get(child.getId());
             if (parentImageDataset != null)
             {
                 child.setParents(Arrays.asList(parentImageDataset));
@@ -262,8 +262,8 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
         }
     }
 
-    private Map<Long, ExternalData> createChildToParentDataSetsMap(
-            List<ExternalData> childrenDataSets, List<ExternalData> parentDataSets,
+    private Map<Long, AbstractExternalData> createChildToParentDataSetsMap(
+            List<AbstractExternalData> childrenDataSets, List<AbstractExternalData> parentDataSets,
             IDatasetLister datasetLister)
     {
         Collection<Long> childrenIds = extractIds(childrenDataSets);
@@ -276,14 +276,14 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
         return businessObjectFactory.createDatasetLister(session);
     }
 
-    private List<ExternalData> listFilteredChildrenDataSets(List<ExternalData> parentDataSets,
+    private List<AbstractExternalData> listFilteredChildrenDataSets(List<AbstractExternalData> parentDataSets,
             String childTypePattern, IDatasetLister datasetLister)
     {
         return ScreeningUtils.filterExternalDataByTypePattern(
                 datasetLister.listByParentTechIds(extractIds(parentDataSets)), childTypePattern);
     }
 
-    private ExternalData tryGetParent(ExternalData externalData)
+    private AbstractExternalData tryGetParent(AbstractExternalData externalData)
     {
         if (externalData.getParents() != null && externalData.getParents().size() == 1)
         {
@@ -294,7 +294,7 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
         }
     }
 
-    protected ImageDatasetReference tryAsImageDataset(ExternalData externalData)
+    protected ImageDatasetReference tryAsImageDataset(AbstractExternalData externalData)
     {
         if (externalData == null || ScreeningUtils.isHcsImageDataset(externalData) == false)
         {

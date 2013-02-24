@@ -26,7 +26,7 @@ import org.apache.commons.lang.time.StopWatch;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.ExperimentReferenceQueryResult;
@@ -164,7 +164,7 @@ public class MaterialFeaturesFromAllExperimentsLoader extends AbstractContentLoa
     private int countAnalysisDatasets(ExperimentReference experiment)
     {
         IDatasetLister lister = businessObjectFactory.createDatasetLister(session);
-        List<ExternalData> datasets =
+        List<AbstractExternalData> datasets =
                 lister.listByExperimentTechId(new TechId(experiment.getId()), true);
         return ScreeningUtils.filterImageAnalysisDatasets(datasets).size();
     }

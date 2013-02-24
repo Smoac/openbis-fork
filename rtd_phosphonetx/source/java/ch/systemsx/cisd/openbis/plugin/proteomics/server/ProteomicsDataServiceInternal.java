@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -159,8 +159,8 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
             if (RAW_DATA_SAMPLE_VALIDATOR.isValid(person, sample)
                     && sampleIDs.contains(sample.getSample().getId()))
             {
-                Map<String, ExternalData> latestDataSets = sample.getLatestDataSets();
-                ExternalData latestDataSet = latestDataSets.get(dataSetType);
+                Map<String, AbstractExternalData> latestDataSets = sample.getLatestDataSets();
+                AbstractExternalData latestDataSet = latestDataSets.get(dataSetType);
                 if (latestDataSet != null)
                 {
                     String code = latestDataSet.getCode();
@@ -207,7 +207,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public List<ExternalData> listDataSetsByExperiment(String sessionToken,
+    public List<AbstractExternalData> listDataSetsByExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
             TechId experimentID)
     {
@@ -267,10 +267,10 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
             parentSamples.add(sample.getGeneratedFrom());
         }
         experimentLoader.enrichWithExperiments(parentSamples);
-        Map<Sample, List<ExternalData>> dataSetsBySamples =
+        Map<Sample, List<AbstractExternalData>> dataSetsBySamples =
                 commonBoFactory.createDatasetLister(session).listAllDataSetsFor(samples);
         List<MsInjectionSample> result = new ArrayList<MsInjectionSample>();
-        for (Entry<Sample, List<ExternalData>> entry : dataSetsBySamples.entrySet())
+        for (Entry<Sample, List<AbstractExternalData>> entry : dataSetsBySamples.entrySet())
         {
             result.add(new MsInjectionSample(entry.getKey(), entry.getValue()));
         }

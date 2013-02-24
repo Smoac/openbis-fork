@@ -70,7 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -786,7 +786,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         s1.setRegistrationDetails(new EntityRegistrationDetails(
                 new EntityRegistrationDetailsInitializer()));
         Sample sample = new Sample(s1);
-        ExternalData dataSetInfo = genericServer.getDataSetInfo(sessionToken, new TechId(13));
+        AbstractExternalData dataSetInfo = genericServer.getDataSetInfo(sessionToken, new TechId(13));
         DataSetUpdatesDTO updates = new DataSetUpdatesDTO();
         updates.setVersion(dataSetInfo.getVersion());
         updates.setDatasetId(new TechId(dataSetInfo.getId()));

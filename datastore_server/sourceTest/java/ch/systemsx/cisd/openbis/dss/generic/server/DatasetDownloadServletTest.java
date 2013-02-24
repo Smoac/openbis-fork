@@ -65,7 +65,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
@@ -205,7 +205,7 @@ public class DatasetDownloadServletTest
     public void testInitialDoGet() throws Exception
     {
         final StringWriter writer = new StringWriter();
-        final ExternalData externalData = createDataSet();
+        final AbstractExternalData externalData = createDataSet();
         prepareParseRequestURL();
         prepareForObtainingDataSetFromServer(externalData);
         prepareForGettingDataSetFromSession(externalData, "");
@@ -279,7 +279,7 @@ public class DatasetDownloadServletTest
     public void testInitialDoGetButDataSetNotFoundInStore() throws Exception
     {
         final StringWriter writer = new StringWriter();
-        final ExternalData externalData = createDataSet();
+        final AbstractExternalData externalData = createDataSet();
         prepareParseRequestURL();
         prepareForObtainingDataSetFromServer(externalData);
         prepareLocking();
@@ -355,7 +355,7 @@ public class DatasetDownloadServletTest
     public void testDoGetSubFolder() throws Exception
     {
         final StringWriter writer = new StringWriter();
-        final ExternalData externalData = createDataSet();
+        final AbstractExternalData externalData = createDataSet();
         prepareForObtainingDataSetFromServer(externalData);
         prepareForGettingDataSetFromSession(externalData, ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
         prepareLocking();
@@ -388,7 +388,7 @@ public class DatasetDownloadServletTest
     @Test()
     public void testDoGetFile() throws Exception
     {
-        final ExternalData externalData = createDataSet();
+        final AbstractExternalData externalData = createDataSet();
 
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         prepareParseRequestURL();
@@ -436,7 +436,7 @@ public class DatasetDownloadServletTest
         BufferedImage image = new BufferedImage(100, 200, BufferedImage.TYPE_INT_RGB);
         ImageIO.write(image, "png", EXAMPLE_FILE);
         prepareParseRequestURLForThumbnail(100, 50);
-        final ExternalData externalData = createDataSet();
+        final AbstractExternalData externalData = createDataSet();
         prepareCheckDatasetAccess();
         prepareForObtainingDataSetFromServer(externalData);
         prepareLocking();
@@ -485,7 +485,7 @@ public class DatasetDownloadServletTest
     public void testDoGetNonExistingFile() throws Exception
     {
         final StringWriter writer = new StringWriter();
-        final ExternalData externalData = createDataSet();
+        final AbstractExternalData externalData = createDataSet();
         prepareParseRequestURL();
         prepareForObtainingDataSetFromServer(externalData);
         prepareLocking();
@@ -585,7 +585,7 @@ public class DatasetDownloadServletTest
         context.assertIsSatisfied();
     }
 
-    private void prepareForGettingDataSetFromSession(final ExternalData externalData,
+    private void prepareForGettingDataSetFromSession(final AbstractExternalData externalData,
             final String path)
     {
         context.checking(new Expectations()
@@ -597,7 +597,7 @@ public class DatasetDownloadServletTest
 
                     one(httpSession).getAttribute(
                             AbstractDatasetDownloadServlet.DATA_SET_SESSION_KEY);
-                    Map<String, ExternalData> map = new HashMap<String, ExternalData>();
+                    Map<String, AbstractExternalData> map = new HashMap<String, AbstractExternalData>();
                     map.put(externalData.getCode(), externalData);
                     will(Expectations.returnValue(map));
 
@@ -616,7 +616,7 @@ public class DatasetDownloadServletTest
             });
     }
 
-    private void prepareGetRequestURI(Expectations exp, final ExternalData externalData,
+    private void prepareGetRequestURI(Expectations exp, final AbstractExternalData externalData,
             final String path)
     {
         exp.one(request).getRequestURI();
@@ -674,7 +674,7 @@ public class DatasetDownloadServletTest
             });
     }
 
-    private void prepareForObtainingDataSetFromServer(final ExternalData externalData)
+    private void prepareForObtainingDataSetFromServer(final AbstractExternalData externalData)
     {
         prepareCreateSession();
         prepareTryGetDatasetLocation(externalData);
@@ -704,7 +704,7 @@ public class DatasetDownloadServletTest
             });
     }
 
-    private void prepareTryGetDatasetLocation(final ExternalData externalData)
+    private void prepareTryGetDatasetLocation(final AbstractExternalData externalData)
     {
         context.checking(new Expectations()
             {

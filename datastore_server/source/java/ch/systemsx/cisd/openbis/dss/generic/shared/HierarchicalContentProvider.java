@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.content.IDssServiceRpcGeneric
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.PathInfoDBAwareHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.RemoteHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
@@ -145,7 +145,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
     }
 
     @Override
-    public IHierarchicalContent asContent(ExternalData dataSet)
+    public IHierarchicalContent asContent(AbstractExternalData dataSet)
     {
         return asContent(new ExternalDataLocationNode(dataSet));
     }

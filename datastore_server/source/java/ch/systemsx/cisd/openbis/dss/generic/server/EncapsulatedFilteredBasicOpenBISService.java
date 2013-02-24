@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -77,11 +77,11 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
         this.userName = userName;
     }
 
-    private final static IMapper<ExternalData, String> externalDataCodeMapper =
-            new IMapper<ExternalData, String>()
+    private final static IMapper<AbstractExternalData, String> externalDataCodeMapper =
+            new IMapper<AbstractExternalData, String>()
                 {
                     @Override
-                    public String map(ExternalData item)
+                    public String map(AbstractExternalData item)
                     {
                         return item.getCode();
                     }
@@ -146,9 +146,9 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
     }
 
     @Override
-    public List<ExternalData> searchForDataSets(SearchCriteria searchCriteria)
+    public List<AbstractExternalData> searchForDataSets(SearchCriteria searchCriteria)
     {
-        List<ExternalData> datasets =
+        List<AbstractExternalData> datasets =
                 etlService.searchForDataSets(systemSessionToken, searchCriteria);
 
         return AuthorizationHelper.filterToVisible(encapsulatedService, userName, datasets,
@@ -235,9 +235,9 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
     }
 
     @Override
-    public ExternalData tryGetDataSet(String dataSetCode) throws UserFailureException
+    public AbstractExternalData tryGetDataSet(String dataSetCode) throws UserFailureException
     {
-        ExternalData data = encapsulatedService.tryGetDataSet(dataSetCode);
+        AbstractExternalData data = encapsulatedService.tryGetDataSet(dataSetCode);
         return AuthorizationHelper.filterToVisible(encapsulatedService, userName, data,
                 externalDataCodeMapper, AuthorizationHelper.EntityKind.DATA_SET);
     }

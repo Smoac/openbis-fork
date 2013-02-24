@@ -187,7 +187,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
@@ -755,13 +755,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
-    public List<ExternalData> listSampleExternalData(final String sessionToken,
+    public List<AbstractExternalData> listSampleExternalData(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
             final TechId sampleId, final boolean showOnlyDirectlyConnected)
     {
         final Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
-        final List<ExternalData> datasets =
+        final List<AbstractExternalData> datasets =
                 datasetLister.listBySampleTechId(sampleId, showOnlyDirectlyConnected);
         Collections.sort(datasets);
         return datasets;
@@ -770,13 +770,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
-    public List<ExternalData> listExperimentExternalData(final String sessionToken,
+    public List<AbstractExternalData> listExperimentExternalData(final String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
             final TechId experimentId, boolean showOnlyDirectlyConnected)
     {
         final Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
-        final List<ExternalData> datasets =
+        final List<AbstractExternalData> datasets =
                 datasetLister.listByExperimentTechId(experimentId, showOnlyDirectlyConnected);
         Collections.sort(datasets);
         return datasets;
@@ -784,7 +784,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<ExternalData> listMetaprojectExternalData(final String sessionToken,
+    public List<AbstractExternalData> listMetaprojectExternalData(final String sessionToken,
             final IMetaprojectId metaprojectId)
     {
         final Session session = getSession(sessionToken);
@@ -792,11 +792,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Metaproject metaproject = getMetaproject(sessionToken, metaprojectId);
         final IDatasetLister lister = createDatasetLister(session);
 
-        final List<ExternalData> datasets = lister.listByMetaprojectId(metaproject.getId());
+        final List<AbstractExternalData> datasets = lister.listByMetaprojectId(metaproject.getId());
         Collections.sort(datasets);
-        List<ExternalData> translatedDatasets = new ArrayList<ExternalData>();
+        List<AbstractExternalData> translatedDatasets = new ArrayList<AbstractExternalData>();
 
-        for (ExternalData dataset : datasets)
+        for (AbstractExternalData dataset : datasets)
         {
             if (authorization.canAccessDataSet(dataset))
             {
@@ -813,18 +813,18 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     // 'fast' implementation
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<ExternalData> listDataSetRelationships(final String sessionToken,
+    public List<AbstractExternalData> listDataSetRelationships(final String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
             final TechId datasetId, final DataSetRelationshipRole role)
     {
         final Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
-        List<ExternalData> datasets = null;
+        List<AbstractExternalData> datasets = null;
         switch (role)
         {
             case CONTAINER:
                 datasets = datasetLister.listByContainerTechId(datasetId);
-                Collections.sort(datasets, ExternalData.DATA_SET_COMPONENTS_COMPARATOR);
+                Collections.sort(datasets, AbstractExternalData.DATA_SET_COMPONENTS_COMPARATOR);
                 break;
             case CHILD:
                 datasets = datasetLister.listByChildTechId(datasetId);
@@ -1455,7 +1455,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
-    public List<ExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria)
+    public List<AbstractExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria)
     {
         final Session session = getSession(sessionToken);
         SearchHelper searchHelper =
@@ -1466,7 +1466,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     @Capability("SEARCH_ON_BEHALF_OF_USER")
-    public List<ExternalData> searchForDataSetsOnBehalfOfUser(String sessionToken,
+    public List<AbstractExternalData> searchForDataSetsOnBehalfOfUser(String sessionToken,
             DetailedSearchCriteria criteria, String userId)
     {
         final Session session = getSession(sessionToken);
@@ -1474,14 +1474,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         SearchHelper searchHelper =
                 new SearchHelper(session, businessObjectFactory, getDAOFactory());
-        List<ExternalData> unfilteredDatasets =
+        List<AbstractExternalData> unfilteredDatasets =
                 searchHelper.searchForDataSets(userId, person.getId(), criteria);
 
         final ExternalDataValidator validator = new ExternalDataValidator();
-        final ArrayList<ExternalData> datasets =
-                new ArrayList<ExternalData>(unfilteredDatasets.size());
+        final ArrayList<AbstractExternalData> datasets =
+                new ArrayList<AbstractExternalData>(unfilteredDatasets.size());
 
-        for (ExternalData dataset : unfilteredDatasets)
+        for (AbstractExternalData dataset : unfilteredDatasets)
         {
             if (validator.doValidation(person, dataset))
             {
@@ -1493,7 +1493,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public ExternalData getDataSetInfo(String sessionToken,
+    public AbstractExternalData getDataSetInfo(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class)
             TechId datasetId)
     {
@@ -1535,7 +1535,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
-    public List<ExternalData> listRelatedDataSets(String sessionToken,
+    public List<AbstractExternalData> listRelatedDataSets(String sessionToken,
             DataSetRelatedEntities relatedEntities, boolean withDetails)
     {
         final Session session = getSession(sessionToken);
@@ -1552,7 +1552,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Map<Long, Set<Metaproject>> translation =
                 MetaprojectTranslator.translateMetaprojectAssignments(assignments);
 
-        final List<ExternalData> list = new ArrayList<ExternalData>(resultSet.size());
+        final List<AbstractExternalData> list = new ArrayList<AbstractExternalData>(resultSet.size());
         for (final DataPE hit : resultSet)
         {
             HibernateUtils.initialize(hit.getChildRelationships());
@@ -1566,7 +1566,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     @Capability("SEARCH_ON_BEHALF_OF_USER")
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
-    public List<ExternalData> listRelatedDataSetsOnBehalfOfUser(String sessionToken,
+    public List<AbstractExternalData> listRelatedDataSetsOnBehalfOfUser(String sessionToken,
             DataSetRelatedEntities relatedEntities, boolean withDetails, String userId)
     {
         final Session session = getSession(sessionToken);
@@ -1585,7 +1585,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Map<Long, Set<Metaproject>> translation =
                 MetaprojectTranslator.translateMetaprojectAssignments(assignments);
 
-        final List<ExternalData> list = new ArrayList<ExternalData>(resultSet.size());
+        final List<AbstractExternalData> list = new ArrayList<AbstractExternalData>(resultSet.size());
         for (final DataPE hit : resultSet)
         {
             HibernateUtils.initialize(hit.getChildRelationships());
@@ -3546,7 +3546,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             TechId entityId, List<PropertyUpdates> modifiedProperties)
     {
         checkSession(sessionToken);
-        ExternalData dataSet = getDataSetInfo(sessionToken, entityId);
+        AbstractExternalData dataSet = getDataSetInfo(sessionToken, entityId);
         try
         {
             DataSetUpdatesDTO updates = new DataSetUpdatesDTO();

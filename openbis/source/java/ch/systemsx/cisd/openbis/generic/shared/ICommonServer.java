@@ -59,7 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluat
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
@@ -361,41 +361,41 @@ public interface ICommonServer extends IServer
             List<ExperimentIdentifier> experimentIdentifiers);
 
     /**
-     * For given sample {@link TechId} returns the corresponding list of {@link ExternalData}.
+     * For given sample {@link TechId} returns the corresponding list of {@link AbstractExternalData}.
      * 
-     * @return a sorted list of {@link ExternalData}.
+     * @return a sorted list of {@link AbstractExternalData}.
      */
     @Transactional(readOnly = true)
-    public List<ExternalData> listSampleExternalData(final String sessionToken,
+    public List<AbstractExternalData> listSampleExternalData(final String sessionToken,
             final TechId sampleId, final boolean showOnlyDirectlyConnected);
 
     /**
-     * For given experiment {@link TechId} returns the corresponding list of {@link ExternalData}.
+     * For given experiment {@link TechId} returns the corresponding list of {@link AbstractExternalData}.
      * 
-     * @return a sorted list of {@link ExternalData}.
+     * @return a sorted list of {@link AbstractExternalData}.
      */
     @Transactional(readOnly = true)
-    public List<ExternalData> listExperimentExternalData(final String sessionToken,
+    public List<AbstractExternalData> listExperimentExternalData(final String sessionToken,
             final TechId experimentId, boolean showOnlyDirectlyConnected);
 
     /**
      * For given metaproject {@link IMetaprojectId} returns the corresponding list of
-     * {@link ExternalData}.
+     * {@link AbstractExternalData}.
      * 
-     * @return a sorted list of {@link ExternalData}.
+     * @return a sorted list of {@link AbstractExternalData}.
      */
     @Transactional(readOnly = true)
-    public List<ExternalData> listMetaprojectExternalData(final String sessionToken,
+    public List<AbstractExternalData> listMetaprojectExternalData(final String sessionToken,
             final IMetaprojectId metaprojectId);
 
     /**
      * For given data set {@link TechId} in given relationship <var>role</var> returns corresponding
-     * list of {@link ExternalData}.
+     * list of {@link AbstractExternalData}.
      * 
-     * @return a sorted list of {@link ExternalData}.
+     * @return a sorted list of {@link AbstractExternalData}.
      */
     @Transactional(readOnly = true)
-    public List<ExternalData> listDataSetRelationships(final String sessionToken,
+    public List<AbstractExternalData> listDataSetRelationships(final String sessionToken,
             final TechId datasetId, final DataSetRelationshipRole role);
 
     /**
@@ -625,7 +625,7 @@ public interface ICommonServer extends IServer
      * Searches for data sets that fulfill the specified search criteria.
      */
     @Transactional(readOnly = true)
-    public List<ExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria);
+    public List<AbstractExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria);
 
     /**
      * Searches for samples that fulfill the specified search criteria. The search is executed on
@@ -633,14 +633,14 @@ public interface ICommonServer extends IServer
      * that user called the search method).
      */
     @Transactional(readOnly = true)
-    public List<ExternalData> searchForDataSetsOnBehalfOfUser(String sessionToken,
+    public List<AbstractExternalData> searchForDataSetsOnBehalfOfUser(String sessionToken,
             DetailedSearchCriteria criteria, String userId);
 
     /**
-     * For given {@link TechId} returns the corresponding {@link ExternalData}.
+     * For given {@link TechId} returns the corresponding {@link AbstractExternalData}.
      */
     @Transactional(readOnly = true)
-    public ExternalData getDataSetInfo(String sessionToken, TechId datasetId);
+    public AbstractExternalData getDataSetInfo(String sessionToken, TechId datasetId);
 
     /**
      * Saves changed data set.
@@ -659,14 +659,14 @@ public interface ICommonServer extends IServer
      * Returns all data sets related to specified entities.
      */
     @Transactional(readOnly = true)
-    public List<ExternalData> listRelatedDataSets(String sessionToken,
+    public List<AbstractExternalData> listRelatedDataSets(String sessionToken,
             DataSetRelatedEntities entities, boolean withDetails);
 
     /**
      * Returns all data sets related to specified entities on behalf of given user.
      */
     @Transactional(readOnly = true)
-    public List<ExternalData> listRelatedDataSetsOnBehalfOfUser(String sessionToken,
+    public List<AbstractExternalData> listRelatedDataSetsOnBehalfOfUser(String sessionToken,
             DataSetRelatedEntities entities, boolean withDetails, String userId);
 
     /**

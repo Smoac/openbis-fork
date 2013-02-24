@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -103,12 +103,12 @@ public final class PropertyValueRenderers
     }
 
     /**
-     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link ExternalData}.
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link AbstractExternalData}.
      */
-    public final static IPropertyValueRenderer<ExternalData> createExternalDataPropertyValueRenderer(
+    public final static IPropertyValueRenderer<AbstractExternalData> createExternalDataPropertyValueRenderer(
             final IViewContext<?> viewContext)
     {
-        return new EntityInformationHolderPropertyValueRenderer<ExternalData>(viewContext);
+        return new EntityInformationHolderPropertyValueRenderer<AbstractExternalData>(viewContext);
     }
 
     /**

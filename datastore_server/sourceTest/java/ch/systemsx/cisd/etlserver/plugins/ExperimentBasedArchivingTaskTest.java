@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PlaceholderDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
@@ -113,7 +113,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
 
     private PhysicalDataSet lockedDataSet;
 
-    private ExternalData notARealDataSet;
+    private AbstractExternalData notARealDataSet;
 
     private PhysicalDataSet dataSetOfIgnoredType;
 
@@ -470,7 +470,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
             });
     }
 
-    private void prepareListDataSetsOf(final Experiment experiment, final ExternalData... dataSets)
+    private void prepareListDataSetsOf(final Experiment experiment, final AbstractExternalData... dataSets)
     {
         context.checking(new Expectations()
             {
@@ -499,7 +499,7 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
         }
     }
 
-    private void prepareArchivingDataSets(ExternalData... dataSets)
+    private void prepareArchivingDataSets(AbstractExternalData... dataSets)
     {
         final List<String> dataSetCodes = getDataSetCodes(dataSets);
         context.checking(new Expectations()
@@ -510,10 +510,10 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
             });
     }
 
-    private List<String> getDataSetCodes(ExternalData... dataSets)
+    private List<String> getDataSetCodes(AbstractExternalData... dataSets)
     {
         final List<String> dataSetCodes = new ArrayList<String>();
-        for (ExternalData dataSet : dataSets)
+        for (AbstractExternalData dataSet : dataSets)
         {
             dataSetCodes.add(dataSet.getCode());
         }

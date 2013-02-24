@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
@@ -65,7 +65,7 @@ public class DataSetTranslatorTest extends AssertJUnit
     {
         ExternalDataPE externalDataPE = new ExternalDataPE();
         externalDataPE.setDataStore(createStore());
-        ExternalData data =
+        AbstractExternalData data =
                 DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
                         new ManagedPropertyEvaluatorFactory(null, null));
 
@@ -132,7 +132,7 @@ public class DataSetTranslatorTest extends AssertJUnit
         deletionPE.setRegistrator(personPE);
         externalDataPE.setDeletion(deletionPE);
         externalDataPE.setSampleAcquiredFrom(samplePE);
-        ExternalData data =
+        AbstractExternalData data =
                 DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
                         new ManagedPropertyEvaluatorFactory(null, null));
 
@@ -190,7 +190,7 @@ public class DataSetTranslatorTest extends AssertJUnit
         externalDataPE.addParentRelationship(createParentRelationship(externalDataPE, "parent-1"));
         externalDataPE.addParentRelationship(createParentRelationship(externalDataPE, "parent-2"));
 
-        ExternalData externalData =
+        AbstractExternalData externalData =
                 DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
                         new ManagedPropertyEvaluatorFactory(null, null));
 
@@ -234,7 +234,7 @@ public class DataSetTranslatorTest extends AssertJUnit
         linkDataPE.addParentRelationship(createParentRelationship(linkDataPE, "parent-1"));
         linkDataPE.addParentRelationship(createParentRelationship(linkDataPE, "parent-2"));
 
-        ExternalData externalData =
+        AbstractExternalData externalData =
                 DataSetTranslator.translate(linkDataPE, BASE_INDEX_URL, null,
                         new ManagedPropertyEvaluatorFactory(null, null));
 
@@ -258,10 +258,10 @@ public class DataSetTranslatorTest extends AssertJUnit
                 .getExternalDataManagementSystem().getLabel());
     }
 
-    private Set<String> extractParentCodes(ExternalData externalData)
+    private Set<String> extractParentCodes(AbstractExternalData externalData)
     {
         final Set<String> result = new HashSet<String>();
-        for (ExternalData parent : externalData.getParents())
+        for (AbstractExternalData parent : externalData.getParents())
         {
             result.add(parent.getCode());
         }

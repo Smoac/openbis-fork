@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IChecksumProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -257,7 +257,7 @@ public class SegmentedStoreUtils
             return;
         }
         final String dataSetCode = dataSetDirInStore.getName();
-        ExternalData dataSet = service.tryGetDataSet(dataSetCode);
+        AbstractExternalData dataSet = service.tryGetDataSet(dataSetCode);
         if (dataSet == null)
         {
             throw new UserFailureException("Unknown data set: " + dataSetCode);

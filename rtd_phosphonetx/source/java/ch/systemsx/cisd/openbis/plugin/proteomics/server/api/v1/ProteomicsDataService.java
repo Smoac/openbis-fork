@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -140,16 +140,16 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
             info.setBiologicalExperiment(translate(experiment));
         }
         info.setBiologicalSampleProperties(translate(bioSample.getProperties()));
-        List<ExternalData> dataSets = sample.getDataSets();
+        List<AbstractExternalData> dataSets = sample.getDataSets();
         Set<DataSet> transformedDataSets = new HashSet<DataSet>();
-        for (ExternalData dataSet : dataSets)
+        for (AbstractExternalData dataSet : dataSets)
         {
             DataSet transformedDataSet = transform(dataSet);
             transformedDataSets.add(transformedDataSet);
         }
         info.setDataSets(transformedDataSets);
         Map<String, Date> latestDataSetRegistrationDates = new HashMap<String, Date>();
-        for (Entry<String, ExternalData> entry : sample.getLatestDataSets().entrySet())
+        for (Entry<String, AbstractExternalData> entry : sample.getLatestDataSets().entrySet())
         {
             latestDataSetRegistrationDates.put(entry.getKey(), entry.getValue()
                     .getRegistrationDate());
@@ -158,7 +158,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         return info;
     }
 
-    private DataSet transform(ExternalData dataSet)
+    private DataSet transform(AbstractExternalData dataSet)
     {
         DataSet transformedDataSet = new DataSet();
         transformedDataSet.setId(dataSet.getId());
@@ -166,10 +166,10 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         transformedDataSet.setType(dataSet.getDataSetType().getCode());
         transformedDataSet.setRegistrationDate(dataSet.getRegistrationDate());
         transformedDataSet.setProperties(translate(dataSet.getProperties()));
-        Collection<ExternalData> children = dataSet.getChildren();
+        Collection<AbstractExternalData> children = dataSet.getChildren();
         if (children != null && children.isEmpty() == false)
         {
-            for (ExternalData child : children)
+            for (AbstractExternalData child : children)
             {
                 transformedDataSet.addChild(transform(child));
             }
@@ -306,10 +306,10 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         try
         {
             List<DataSet> result = new ArrayList<DataSet>();
-            List<ExternalData> dataSets =
+            List<AbstractExternalData> dataSets =
                     service.listDataSetsByExperiment(session.getSessionToken(), new TechId(
                             experimentID));
-            for (ExternalData dataSet : dataSets)
+            for (AbstractExternalData dataSet : dataSets)
             {
                 DataSet ds = new DataSet();
                 ds.setId(dataSet.getId());

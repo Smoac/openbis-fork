@@ -31,16 +31,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Widge
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 // TODO extend AbstractDataListTrashDeletionConfirmationDialog when trash is working properly
 public final class DataSetListDeletionConfirmationDialog extends
-        AbstractDataListDeletionConfirmationDialog<TableModelRowWithObject<ExternalData>>
+        AbstractDataListDeletionConfirmationDialog<TableModelRowWithObject<AbstractExternalData>>
 {
     private final SelectedAndDisplayedItems selectedAndDisplayedItemsOrNull;
 
-    private final TableModelRowWithObject<ExternalData> singleData;
+    private final TableModelRowWithObject<AbstractExternalData> singleData;
 
     private DeletionForceOptions forceOptions;
 
@@ -56,7 +56,7 @@ public final class DataSetListDeletionConfirmationDialog extends
 
     public DataSetListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext,
-            AsyncCallback<Void> deletionCallback, TableModelRowWithObject<ExternalData> data)
+            AsyncCallback<Void> deletionCallback, TableModelRowWithObject<AbstractExternalData> data)
     {
         super(viewContext, Collections.singletonList(data), deletionCallback);
         this.singleData = data;

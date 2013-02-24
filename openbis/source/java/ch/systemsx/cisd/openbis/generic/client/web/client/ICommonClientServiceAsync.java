@@ -74,7 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
@@ -325,7 +325,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#prepareExportDataSetSearchHits(TableExportCriteria)
      */
     public void prepareExportDataSetSearchHits(
-            TableExportCriteria<TableModelRowWithObject<ExternalData>> exportCriteria,
+            TableExportCriteria<TableModelRowWithObject<AbstractExternalData>> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listPropertyTypes(boolean) */
@@ -485,38 +485,38 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#listSampleDataSets(TechId, DefaultResultSetConfig, boolean)
      */
     public void listSampleDataSets(TechId sampleId,
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,
+            DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria,
             boolean showOnlyDirectlyConnected,
-            AsyncCallback<TypedTableResultSet<ExternalData>> asyncCallback);
+            AsyncCallback<TypedTableResultSet<AbstractExternalData>> asyncCallback);
 
     /**
      * @see ICommonClientService#listExperimentDataSets(TechId, DefaultResultSetConfig, boolean)
      */
     public void listExperimentDataSets(TechId experimentId,
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,
+            DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria,
             boolean onlyDirectlyConnected,
-            AsyncCallback<TypedTableResultSet<ExternalData>> asyncCallback);
+            AsyncCallback<TypedTableResultSet<AbstractExternalData>> asyncCallback);
 
     /**
      * @see ICommonClientService#listMetaprojectDataSets(TechId, DefaultResultSetConfig)
      */
     public void listMetaprojectDataSets(TechId metaprojectId,
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> criteria,
-            AsyncCallback<TypedTableResultSet<ExternalData>> asyncCallback);
+            DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria,
+            AsyncCallback<TypedTableResultSet<AbstractExternalData>> asyncCallback);
 
     /**
      * @see ICommonClientService#listMetaprojectDataSets(Long)
      */
     public void listMetaprojectDataSets(Long metaprojectId,
-            AsyncCallback<List<ExternalData>> asyncCallback);
+            AsyncCallback<List<AbstractExternalData>> asyncCallback);
 
     /**
      * @see ICommonClientService#listDataSetRelationships(TechId, DataSetRelationshipRole,
      *      DefaultResultSetConfig)
      */
     public void listDataSetRelationships(TechId datasetId, DataSetRelationshipRole role,
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
-            AsyncCallback<TypedTableResultSet<ExternalData>> callback);
+            DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<AbstractExternalData>> callback);
 
     /**
      * @see ICommonClientService#listSearchableEntities()
@@ -599,16 +599,16 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#searchForDataSets(DetailedSearchCriteria, IResultSetConfig)
      */
     public void searchForDataSets(DetailedSearchCriteria criteria,
-            final IResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
-            final AsyncCallback<TypedTableResultSet<ExternalData>> callback);
+            final IResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> resultSetConfig,
+            final AsyncCallback<TypedTableResultSet<AbstractExternalData>> callback);
 
     /**
      * @see ICommonClientService#searchForDataSets(RelatedDataSetCriteria, IResultSetConfig)
      */
     public void searchForDataSets(
             RelatedDataSetCriteria<? extends IEntityInformationHolder> criteria,
-            final IResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
-            final AsyncCallback<TypedTableResultSet<ExternalData>> callback);
+            final IResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> resultSetConfig,
+            final AsyncCallback<TypedTableResultSet<AbstractExternalData>> callback);
 
     /**
      * @see ICommonClientService#listMaterialTypes()

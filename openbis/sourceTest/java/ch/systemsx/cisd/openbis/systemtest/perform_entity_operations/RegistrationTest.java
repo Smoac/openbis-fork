@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -225,7 +225,7 @@ public class RegistrationTest extends SystemTestCase
                         metaproject.getId()));
         assertIdentifiers("[/CISD/CL1]", samples);
         assertContainsMetaproject(samples.get(0).getMetaprojects(), name);
-        List<ExternalData> dataSets =
+        List<AbstractExternalData> dataSets =
                 commonServer.listMetaprojectExternalData(sessionToken, new MetaprojectTechIdId(
                         metaproject.getId()));
         assertIdentifiers("[20081105092159188-3]", dataSets);

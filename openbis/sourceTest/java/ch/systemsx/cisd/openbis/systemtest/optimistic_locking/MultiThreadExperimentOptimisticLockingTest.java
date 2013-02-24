@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -163,7 +163,7 @@ public class MultiThreadExperimentOptimisticLockingTest extends
         messageChannelSecond.assertNextMessage(ToolBox.REGISTERED);
 
         Experiment loadedExperiment = toolBox.loadExperiment(experiment);
-        List<ExternalData> dataSets =
+        List<AbstractExternalData> dataSets =
                 etlService.listDataSetsByExperimentID(systemSessionToken, new TechId(experiment));
         assertEquals("[DS1, DS2, DS3]", toolBox.extractCodes(dataSets).toString());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedExperiment,

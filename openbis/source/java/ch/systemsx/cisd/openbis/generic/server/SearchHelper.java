@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.search.SampleSearchManag
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -65,7 +65,7 @@ class SearchHelper
         return new SampleSearchManager(searchDAO, sampleLister).searchForSamples(userId, criteria);
     }
 
-    public List<ExternalData> searchForDataSets(String userId,
+    public List<AbstractExternalData> searchForDataSets(String userId,
             DetailedSearchCriteria detailedSearchCriteria)
     {
         IHibernateSearchDAO searchDAO = daoFactory.getHibernateSearchDAO();
@@ -74,7 +74,7 @@ class SearchHelper
                 detailedSearchCriteria);
     }
 
-    public List<ExternalData> searchForDataSets(String userId, Long userTechId,
+    public List<AbstractExternalData> searchForDataSets(String userId, Long userTechId,
             DetailedSearchCriteria detailedSearchCriteria)
     {
         IHibernateSearchDAO searchDAO = daoFactory.getHibernateSearchDAO();

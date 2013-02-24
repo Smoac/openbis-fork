@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -205,7 +205,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                 }
             });
 
-        ExternalData info = genericClientService.getDataSetInfo(id);
+        AbstractExternalData info = genericClientService.getDataSetInfo(id);
 
         IEntityProperty transformedXMLProperty = info.getProperties().get(0);
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello</b>",

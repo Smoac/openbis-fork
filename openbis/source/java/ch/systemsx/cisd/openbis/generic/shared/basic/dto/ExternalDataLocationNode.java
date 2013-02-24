@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 /**
- * Implementation of {@link IDatasetLocationNode} that uses {@link ExternalData} object as a source
+ * Implementation of {@link IDatasetLocationNode} that uses {@link AbstractExternalData} object as a source
  * of data set locations.
  * 
  * @author pkupczyk
@@ -30,9 +30,9 @@ import java.util.TreeMap;
 public class ExternalDataLocationNode implements IDatasetLocationNode
 {
 
-    private ExternalData externalData;
+    private AbstractExternalData externalData;
 
-    public ExternalDataLocationNode(ExternalData externalData)
+    public ExternalDataLocationNode(AbstractExternalData externalData)
     {
         if (externalData == null)
         {
@@ -69,14 +69,14 @@ public class ExternalDataLocationNode implements IDatasetLocationNode
         }
 
         ContainerDataSet container = externalData.tryGetAsContainerDataSet();
-        List<ExternalData> containedExternalDatas = container.getContainedDataSets();
+        List<AbstractExternalData> containedExternalDatas = container.getContainedDataSets();
 
         if (containedExternalDatas != null)
         {
             TreeMap<String, IDatasetLocationNode> containedLocationNodes =
                     new TreeMap<String, IDatasetLocationNode>();
 
-            for (ExternalData containedExternalData : containedExternalDatas)
+            for (AbstractExternalData containedExternalData : containedExternalDatas)
             {
                 containedLocationNodes.put(containedExternalData.getCode(),
                         new ExternalDataLocationNode(containedExternalData));

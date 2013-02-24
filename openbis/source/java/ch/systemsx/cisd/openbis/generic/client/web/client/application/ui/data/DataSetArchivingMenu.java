@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelecte
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchivingServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * 'Archiving' menu for Data Sets.
@@ -172,9 +172,9 @@ public class DataSetArchivingMenu extends TextToolItem
         }
 
         @Override
-        public List<ExternalData> getSelectedDataSets()
+        public List<AbstractExternalData> getSelectedDataSets()
         {
-            List<ExternalData> selectedDataSets = selectedAndDisplayedItems.getSelectedDataSets();
+            List<AbstractExternalData> selectedDataSets = selectedAndDisplayedItems.getSelectedDataSets();
             return selectedDataSets;
         }
     }

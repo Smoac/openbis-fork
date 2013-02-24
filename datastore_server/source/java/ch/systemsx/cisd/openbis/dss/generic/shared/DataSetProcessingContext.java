@@ -28,7 +28,7 @@ import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISessionWorkspaceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 
@@ -171,7 +171,7 @@ public class DataSetProcessingContext
             {
 
                 @Override
-                public IHierarchicalContent asContent(ExternalData dataSet)
+                public IHierarchicalContent asContent(AbstractExternalData dataSet)
                 {
                     assertAuthorization(dataSet.getCode());
                     return contentProvider.asContent(dataSet);

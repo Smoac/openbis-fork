@@ -66,7 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsCount;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -309,7 +309,7 @@ public class MetaprojectTree extends TreeGrid<MetaprojectTreeItemData> implement
             {
                 viewContext.getCommonService().listMetaprojectDataSets(
                         parent.getMetaprojectId(),
-                        new MetaprojectLoadEntitiesCallback<ExternalData>(viewContext, parent,
+                        new MetaprojectLoadEntitiesCallback<AbstractExternalData>(viewContext, parent,
                                 callback));
             } else if (EntityKind.MATERIAL.equals(parent.getEntityKind()))
             {

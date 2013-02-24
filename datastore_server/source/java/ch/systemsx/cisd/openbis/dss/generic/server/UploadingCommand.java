@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -266,7 +266,7 @@ class UploadingCommand implements IDataSetCommand
 
     private final ICIFEXRPCServiceFactory cifexServiceFactory;
 
-    private final List<ExternalData> dataSets;
+    private final List<AbstractExternalData> dataSets;
 
     private final String fileName;
 
@@ -295,7 +295,7 @@ class UploadingCommand implements IDataSetCommand
     transient IHierarchicalContentProvider hierarchicalContentProvider;
 
     UploadingCommand(ICIFEXRPCServiceFactory cifexServiceFactory,
-            MailClientParameters mailClientParameters, List<ExternalData> dataSets,
+            MailClientParameters mailClientParameters, List<AbstractExternalData> dataSets,
             DataSetUploadContext context, String cifexAdminUserOrNull,
             String cifexAdminPasswordOrNull)
     {
@@ -317,7 +317,7 @@ class UploadingCommand implements IDataSetCommand
     public List<String> getDataSetCodes()
     {
         List<String> result = new ArrayList<String>();
-        for (ExternalData dataSet : dataSets)
+        for (AbstractExternalData dataSet : dataSets)
         {
             result.add(dataSet.getCode());
         }
@@ -423,7 +423,7 @@ class UploadingCommand implements IDataSetCommand
         {
             outputStream = new FileOutputStream(zipFile);
             zipOutputStream = new ZipOutputStream(outputStream);
-            for (ExternalData externalData : dataSets)
+            for (AbstractExternalData externalData : dataSets)
             {
                 String newRootPath = createRootPath(externalData) + "/";
                 try
@@ -510,7 +510,7 @@ class UploadingCommand implements IDataSetCommand
         }
     }
 
-    private String createMetaData(ExternalData dataSet)
+    private String createMetaData(AbstractExternalData dataSet)
     {
         MetaDataBuilder builder = new MetaDataBuilder();
         builder.dataSet("code", dataSet.getCode());
@@ -526,10 +526,10 @@ class UploadingCommand implements IDataSetCommand
         builder.dataSetProperties(dataSet.getProperties());
 
         StringBuilder stringBuilder = new StringBuilder();
-        Collection<ExternalData> parents = dataSet.getParents();
+        Collection<AbstractExternalData> parents = dataSet.getParents();
         if (parents.isEmpty() == false)
         {
-            for (ExternalData parent : parents)
+            for (AbstractExternalData parent : parents)
             {
                 if (stringBuilder.length() > 0)
                 {
@@ -563,7 +563,7 @@ class UploadingCommand implements IDataSetCommand
         return builder.toString();
     }
 
-    private String createRootPath(ExternalData dataSet)
+    private String createRootPath(AbstractExternalData dataSet)
     {
         Sample sample = dataSet.getSample();
         Experiment experiment = dataSet.getExperiment();
@@ -606,7 +606,7 @@ class UploadingCommand implements IDataSetCommand
     {
         final StringBuilder b = new StringBuilder();
         b.append("Upload data sets to CIFEX: ");
-        for (ExternalData dataset : dataSets)
+        for (AbstractExternalData dataset : dataSets)
         {
             b.append(dataset.getCode());
             b.append(',');

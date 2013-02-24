@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -78,14 +78,14 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
         ExperimentReference experiment = loadExperimentByTechId(experimentId);
         if (analysisSettings.noAnalysisSettings() == false)
         {
-            List<ExternalData> matchingDataSets =
+            List<AbstractExternalData> matchingDataSets =
                     getMatchingDataSets(experimentId, analysisProcedureCriteria, analysisSettings);
             TableModel tabelModel =
                     new TableModel(Collections.<TableModelColumnHeader> emptyList(),
                             Collections.<TableModelRow> emptyList());
             if (matchingDataSets.size() == 1)
             {
-                ExternalData ds = matchingDataSets.get(0);
+                AbstractExternalData ds = matchingDataSets.get(0);
                 String reportingPluginKey = analysisSettings.tryToGetReportingPluginKey(ds);
                 String dataStore = ds.getDataStore().getCode();
                 List<String> codes = Arrays.asList(ds.getCode());
@@ -135,21 +135,21 @@ public class ExperimentFeatureVectorSummaryLoader extends AbstractContentLoader
                 summaries.getFeatureNames(), null);
     }
 
-    private UserFailureException decorateException(Exception ex, ExternalData dataSet,
+    private UserFailureException decorateException(Exception ex, AbstractExternalData dataSet,
             String message)
     {
         return new UserFailureException("Analysis summary for data set " + dataSet.getCode()
                 + " couldn't retrieved from Data Store Server. " + message, ex);
     }
 
-    private List<ExternalData> getMatchingDataSets(TechId experimentId,
+    private List<AbstractExternalData> getMatchingDataSets(TechId experimentId,
             AnalysisProcedureCriteria analysisProcedureCriteria, AnalysisSettings analysisSettings)
     {
-        List<ExternalData> dataSets =
+        List<AbstractExternalData> dataSets =
                 businessObjectFactory.createDatasetLister(session).listByExperimentTechId(
                         experimentId, true);
-        List<ExternalData> matchingDataSets = new ArrayList<ExternalData>();
-        for (ExternalData dataSet : dataSets)
+        List<AbstractExternalData> matchingDataSets = new ArrayList<AbstractExternalData>();
+        for (AbstractExternalData dataSet : dataSets)
         {
             if (ScreeningUtils.isMatchingAnalysisProcedure(dataSet, analysisProcedureCriteria)
                     && analysisSettings.tryToGetReportingPluginKey(dataSet) != null)

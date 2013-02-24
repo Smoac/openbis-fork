@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDeta
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * 
@@ -56,7 +56,7 @@ public class CacheTest extends AssertJUnit
     @Test
     public void testGetExternalData()
     {
-        ExternalData dataSet = new ContainerDataSet();
+        AbstractExternalData dataSet = new ContainerDataSet();
         dataSet.setCode("ds1");
         Cache cache = cache(0, Cache.LIVE_TIME / 2, Cache.LIVE_TIME + 1);
         

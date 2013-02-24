@@ -61,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluat
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
@@ -359,7 +359,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public final List<ExternalData> listSampleExternalData(final String sessionToken,
+    public final List<AbstractExternalData> listSampleExternalData(final String sessionToken,
             final TechId sampleId, final boolean showOnlyDirectlyConnected)
     {
         logAccess(sessionToken, "list_sample_external_data", "ID(%s) DIRECT(%s)", sampleId,
@@ -368,7 +368,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public List<ExternalData> listExperimentExternalData(final String sessionToken,
+    public List<AbstractExternalData> listExperimentExternalData(final String sessionToken,
             final TechId experimentId, boolean showOnlyDirectlyConnected)
     {
         logAccess(sessionToken, "list_experiment_external_data", "ID(%s) DIRECT(%s)", experimentId,
@@ -377,7 +377,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public List<ExternalData> listMetaprojectExternalData(final String sessionToken,
+    public List<AbstractExternalData> listMetaprojectExternalData(final String sessionToken,
             final IMetaprojectId metaprojectId)
     {
         logAccess(sessionToken, "list_metaproject_external_data", "METAPROJECT_ID(%s)",
@@ -386,7 +386,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public List<ExternalData> listDataSetRelationships(String sessionToken, TechId datasetId,
+    public List<AbstractExternalData> listDataSetRelationships(String sessionToken, TechId datasetId,
             DataSetRelationshipRole role)
     {
         logAccess(sessionToken, "list_dataset_relationships", "ID(%s), ROLE(%s)", datasetId, role);
@@ -640,14 +640,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public List<ExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria)
+    public List<AbstractExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria)
     {
         logAccess(sessionToken, "search_for_datasets", "criteria(%s)", criteria);
         return null;
     }
 
     @Override
-    public List<ExternalData> searchForDataSetsOnBehalfOfUser(String sessionToken,
+    public List<AbstractExternalData> searchForDataSetsOnBehalfOfUser(String sessionToken,
             DetailedSearchCriteria criteria, String userId)
     {
         logAccess(sessionToken, "search_for_datasets", "criteria(%s) user_id(%s)", criteria, userId);
@@ -662,7 +662,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public ExternalData getDataSetInfo(String sessionToken, TechId datasetId)
+    public AbstractExternalData getDataSetInfo(String sessionToken, TechId datasetId)
     {
         logAccess(sessionToken, "getDataSetInfo", "datasetId(%s)", datasetId.getId());
         return null;
@@ -676,7 +676,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public List<ExternalData> listRelatedDataSets(String sessionToken,
+    public List<AbstractExternalData> listRelatedDataSets(String sessionToken,
             DataSetRelatedEntities entities, boolean withDetails)
     {
         logAccess(sessionToken, "list_related_datasets", "WITH_DETAILS(%s)", withDetails);
@@ -684,7 +684,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public List<ExternalData> listRelatedDataSetsOnBehalfOfUser(String sessionToken,
+    public List<AbstractExternalData> listRelatedDataSetsOnBehalfOfUser(String sessionToken,
             DataSetRelatedEntities entities, boolean withDetails, String userId)
     {
         logAccess(sessionToken, "list_related_datasets_on_behalf_of_user", "WITH_DETAILS(%s)",

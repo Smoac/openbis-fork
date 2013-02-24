@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -52,7 +52,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
     @Test
     public void dataSetWithoutSampleCanBeUpdatedToAnotherExperiment() throws Exception
     {
-        ExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
+        AbstractExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
 
         perform(anUpdateOf(dataset).toExperiment(destinationExperiment));
 
@@ -63,7 +63,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
     public void dataSetWithSampleCanBeUpdatedToAnotherExperiment() throws Exception
     {
         Sample sample = create(aSample().inExperiment(sourceExperiment));
-        ExternalData dataset = create(aDataSet().inSample(sample));
+        AbstractExternalData dataset = create(aDataSet().inSample(sample));
 
         perform(anUpdateOf(dataset).toExperiment(destinationExperiment));
 
@@ -75,7 +75,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
             throws Exception
     {
         Sample sample = create(aSample().inExperiment(sourceExperiment));
-        ExternalData dataset = create(aDataSet().inSample(sample));
+        AbstractExternalData dataset = create(aDataSet().inSample(sample));
 
         perform(anUpdateOf(dataset).toExperiment(destinationExperiment));
 
@@ -85,8 +85,8 @@ public class AssignDataSetToExperimentTest extends BaseTest
     @Test
     public void childDataSetCanBeAssignedToAnotherExperiment() throws Exception
     {
-        ExternalData parent = create(aDataSet().inExperiment(sourceExperiment));
-        ExternalData child = create(aDataSet().inExperiment(sourceExperiment).withParent(parent));
+        AbstractExternalData parent = create(aDataSet().inExperiment(sourceExperiment));
+        AbstractExternalData child = create(aDataSet().inExperiment(sourceExperiment).withParent(parent));
 
         perform(anUpdateOf(child).toExperiment(destinationExperiment));
 
@@ -97,8 +97,8 @@ public class AssignDataSetToExperimentTest extends BaseTest
     public void experimentAssignmentOfParentDataSetIsNotChangedWhenChildDataSetIsAssignedToAnotherExperiment()
             throws Exception
     {
-        ExternalData parent = create(aDataSet().inExperiment(sourceExperiment));
-        ExternalData child = create(aDataSet().inExperiment(sourceExperiment).withParent(parent));
+        AbstractExternalData parent = create(aDataSet().inExperiment(sourceExperiment));
+        AbstractExternalData child = create(aDataSet().inExperiment(sourceExperiment).withParent(parent));
 
         perform(anUpdateOf(child).toExperiment(destinationExperiment));
 
@@ -108,7 +108,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
     @Test
     public void parentDataSetCanBeAssignedToAnotherExperiment() throws Exception
     {
-        ExternalData parent = create(aDataSet().inExperiment(sourceExperiment));
+        AbstractExternalData parent = create(aDataSet().inExperiment(sourceExperiment));
         create(aDataSet().inExperiment(sourceExperiment).withParent(parent));
 
         perform(anUpdateOf(parent).toExperiment(destinationExperiment));
@@ -120,8 +120,8 @@ public class AssignDataSetToExperimentTest extends BaseTest
     public void experimentAssignmentOfChildDataSetIsNotChangedWhenParentDatasetIsAssignedToAnotherExperiment()
             throws Exception
     {
-        ExternalData parent = create(aDataSet().inExperiment(sourceExperiment));
-        ExternalData child = create(aDataSet().inExperiment(sourceExperiment).withParent(parent));
+        AbstractExternalData parent = create(aDataSet().inExperiment(sourceExperiment));
+        AbstractExternalData child = create(aDataSet().inExperiment(sourceExperiment).withParent(parent));
 
         perform(anUpdateOf(parent).toExperiment(destinationExperiment));
 
@@ -131,7 +131,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
     @Test
     public void componentDataSetCanBeAssignedToAnotherExperiment() throws Exception
     {
-        ExternalData component = create(aDataSet().inExperiment(sourceExperiment));
+        AbstractExternalData component = create(aDataSet().inExperiment(sourceExperiment));
         create(aDataSet().inExperiment(sourceExperiment).withComponent(component));
 
         perform(anUpdateOf(component).toExperiment(destinationExperiment));
@@ -143,8 +143,8 @@ public class AssignDataSetToExperimentTest extends BaseTest
     public void experimentAssignmentOfContainerDataSetIsNotChangedWhenComponentDataSetIsAssignedToAnotherExperiment()
             throws Exception
     {
-        ExternalData component = create(aDataSet().inExperiment(sourceExperiment));
-        ExternalData container =
+        AbstractExternalData component = create(aDataSet().inExperiment(sourceExperiment));
+        AbstractExternalData container =
                 create(aDataSet().inExperiment(sourceExperiment).withComponent(component));
 
         perform(anUpdateOf(component).toExperiment(destinationExperiment));
@@ -155,8 +155,8 @@ public class AssignDataSetToExperimentTest extends BaseTest
     @Test
     public void containerDataSetCanBeAssignedToAnotherExperiment() throws Exception
     {
-        ExternalData component = create(aDataSet().inExperiment(sourceExperiment));
-        ExternalData container =
+        AbstractExternalData component = create(aDataSet().inExperiment(sourceExperiment));
+        AbstractExternalData container =
                 create(aDataSet().inExperiment(sourceExperiment).withComponent(component));
 
         perform(anUpdateOf(container).toExperiment(destinationExperiment));
@@ -168,8 +168,8 @@ public class AssignDataSetToExperimentTest extends BaseTest
     public void experimentAssignmentOfComponentDataSetIsNotChangedWhenContainerDataSetIsAssignedToAnotherExperiment()
             throws Exception
     {
-        ExternalData component = create(aDataSet().inExperiment(sourceExperiment));
-        ExternalData container =
+        AbstractExternalData component = create(aDataSet().inExperiment(sourceExperiment));
+        AbstractExternalData container =
                 create(aDataSet().inExperiment(sourceExperiment).withComponent(component));
 
         perform(anUpdateOf(container).toExperiment(destinationExperiment));
@@ -188,7 +188,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
     {
-        ExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
+        AbstractExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
         String user =
                 create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
                         .withSpaceRole(destinationSpaceRole, destinationSpace)
@@ -205,7 +205,7 @@ public class AssignDataSetToExperimentTest extends BaseTest
             RoleWithHierarchy sourceSpaceRole, RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
-        ExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
+        AbstractExternalData dataset = create(aDataSet().inExperiment(sourceExperiment));
         String user =
                 create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
                         .withSpaceRole(destinationSpaceRole, destinationSpace)

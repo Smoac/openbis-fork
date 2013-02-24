@@ -21,7 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
@@ -34,7 +34,7 @@ public class DataSetDeletionBuilder extends UpdateBuilder<List<String>>
     private String dataSetCode;
 
     public DataSetDeletionBuilder(ICommonServerForInternalUse commonServer,
-            IGenericServer genericServer, ExternalData data)
+            IGenericServer genericServer, AbstractExternalData data)
     {
         super(commonServer, genericServer);
         this.dataSetCode = data.getCode();

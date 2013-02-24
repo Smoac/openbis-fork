@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServic
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
@@ -79,7 +79,7 @@ public class MetaprojectAssignmentsHelper
 
         List<Experiment> experiments = new ArrayList<Experiment>();
         List<Sample> samples = new ArrayList<Sample>();
-        List<ExternalData> dataSets = new ArrayList<ExternalData>();
+        List<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
         List<Material> materials = new ArrayList<Material>();
 
         if (fetchOptions.contains(MetaprojectAssignmentsFetchOption.EXPERIMENTS))

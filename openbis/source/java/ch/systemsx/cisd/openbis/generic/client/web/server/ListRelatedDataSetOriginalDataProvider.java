@@ -5,7 +5,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * A {@link IOriginalDataProvider} implementation for data sets related to other entities.
@@ -13,7 +13,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
  * @author Piotr Buczek
  */
 final class ListRelatedDataSetOriginalDataProvider extends
-        AbstractOriginalDataProvider<ExternalData>
+        AbstractOriginalDataProvider<AbstractExternalData>
 {
 
     private final DataSetRelatedEntities entities;
@@ -30,9 +30,9 @@ final class ListRelatedDataSetOriginalDataProvider extends
     //
 
     @Override
-    public final List<ExternalData> getFullOriginalData()
+    public final List<AbstractExternalData> getFullOriginalData()
     {
-        final List<ExternalData> hits =
+        final List<AbstractExternalData> hits =
                 commonServer.listRelatedDataSets(sessionToken, entities, false);
         return hits;
     }

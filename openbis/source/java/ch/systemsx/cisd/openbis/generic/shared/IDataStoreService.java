@@ -23,7 +23,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.openbis.common.conversation.annotation.Conversational;
 import ch.systemsx.cisd.openbis.common.conversation.annotation.Progress;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -74,7 +74,7 @@ public interface IDataStoreService
      * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
      */
     @Conversational(progress = Progress.AUTOMATIC)
-    public void uploadDataSetsToCIFEX(String sessionToken, List<ExternalData> dataSets,
+    public void uploadDataSetsToCIFEX(String sessionToken, List<AbstractExternalData> dataSets,
             DataSetUploadContext context) throws InvalidAuthenticationException;
 
     /**

@@ -39,7 +39,7 @@ import ch.systemsx.cisd.etlserver.postregistration.NoCleanupTask;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningUtils;
 
 /**
@@ -98,9 +98,9 @@ public class RedoSegmentationOnFailureTask extends AbstractPostRegistrationTask
             this.dataSetCode = dataSetCode;
         }
 
-        private String tryExtractLocation(ExternalData data)
+        private String tryExtractLocation(AbstractExternalData data)
         {
-            for (ExternalData containedDataSet : data.tryGetAsContainerDataSet()
+            for (AbstractExternalData containedDataSet : data.tryGetAsContainerDataSet()
                     .getContainedDataSets())
             {
                 if (false == containedDataSet.getDataSetType().getCode().contains("OVERVIEW"))
@@ -114,7 +114,7 @@ public class RedoSegmentationOnFailureTask extends AbstractPostRegistrationTask
         @Override
         public void execute()
         {
-            ExternalData data = service.tryGetDataSet(dataSetCode);
+            AbstractExternalData data = service.tryGetDataSet(dataSetCode);
 
             if (data.isContainer() && ScreeningUtils.isSegmentationHcsImageDataset(data))
             {
@@ -157,7 +157,7 @@ public class RedoSegmentationOnFailureTask extends AbstractPostRegistrationTask
             return dropboxDir;
         }
 
-        private File extractDataSetFile(ExternalData data)
+        private File extractDataSetFile(AbstractExternalData data)
         {
             String location = tryExtractLocation(data);
 

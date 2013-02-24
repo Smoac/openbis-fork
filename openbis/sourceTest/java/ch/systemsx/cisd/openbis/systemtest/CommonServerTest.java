@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
@@ -78,7 +78,7 @@ public class CommonServerTest extends SystemTestCase
     @Test
     public void testGetDataSetWithAssignedPropertyTypesAndProperties()
     {
-        ExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(14));
+        AbstractExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(14));
 
         assertEquals("20110509092359990-11", dataSet.getCode());
         DataSetType dataSetType = dataSet.getDataSetType();
@@ -91,29 +91,29 @@ public class CommonServerTest extends SystemTestCase
     @Test
     public void testGetContainerDataSetWithContainedDataSets()
     {
-        ExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(13));
+        AbstractExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(13));
 
         assertEquals("20110509092359990-10", dataSet.getCode());
         assertEquals(true, dataSet.isContainer());
         ContainerDataSet containerDataSet = dataSet.tryGetAsContainerDataSet();
-        List<ExternalData> containedDataSets = containerDataSet.getContainedDataSets();
+        List<AbstractExternalData> containedDataSets = containerDataSet.getContainedDataSets();
         assertEntities("[20110509092359990-11, 20110509092359990-12]", containedDataSets);
     }
 
     @Test
     public void testGetDataSetWithChildrenAndParents()
     {
-        ExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(10));
+        AbstractExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(10));
 
         assertEquals("20081105092259900-0", dataSet.getCode());
         assertEntities("[20081105092359990-2]", dataSet.getChildren());
-        assertEntities("[20081105092259000-9]", new ArrayList<ExternalData>(dataSet.getParents()));
+        assertEntities("[20081105092259000-9]", new ArrayList<AbstractExternalData>(dataSet.getParents()));
     }
 
     @Test
     public void testGetDataSetWithSample()
     {
-        ExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(5));
+        AbstractExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(5));
 
         assertEquals("20081105092159111-1", dataSet.getCode());
         assertEquals("/CISD/CP-TEST-1", dataSet.getSampleIdentifier());

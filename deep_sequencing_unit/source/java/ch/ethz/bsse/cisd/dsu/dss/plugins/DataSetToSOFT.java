@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -175,7 +175,7 @@ public class DataSetToSOFT implements IProcessingPluginTask
                 {
                     operationLog.info("Create SOFT file for data set " + dataSetCode);
                 }
-                ExternalData srfDataSet = getService().tryGetDataSet(dataSetCode);
+                AbstractExternalData srfDataSet = getService().tryGetDataSet(dataSetCode);
                 Sample flowLaneSample = getFlowLaneSample(srfDataSet);
                 Sample flowCellSample = getFlowCellSample(flowLaneSample);
                 Sample sequencingSample = getSequencingSample(flowLaneSample);
@@ -243,7 +243,7 @@ public class DataSetToSOFT implements IProcessingPluginTask
     }
 
     private String createContent(Sample sequencingSample, Sample flowLaneSample,
-            ExternalData dataSet)
+            AbstractExternalData dataSet)
     {
         Template template = E_MAIL_CONTENT_TEMPLATE.createFreshCopy();
         bindExternalSampleName(template, sequencingSample);
@@ -310,7 +310,7 @@ public class DataSetToSOFT implements IProcessingPluginTask
         return null;
     }
 
-    private Sample getFlowLaneSample(ExternalData dataSet)
+    private Sample getFlowLaneSample(AbstractExternalData dataSet)
     {
         SampleIdentifier identifier = SampleIdentifierFactory.parse(dataSet.getSampleIdentifier());
         return getService().tryGetSampleWithExperiment(identifier);

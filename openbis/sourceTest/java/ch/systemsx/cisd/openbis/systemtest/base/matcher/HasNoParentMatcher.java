@@ -21,7 +21,7 @@ import java.util.Collection;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 public class HasNoParentMatcher extends TypeSafeMatcher<Object>
@@ -44,9 +44,9 @@ public class HasNoParentMatcher extends TypeSafeMatcher<Object>
         if (actual instanceof Sample)
         {
             parents = ((Sample) actual).getParents();
-        } else if (actual instanceof ExternalData)
+        } else if (actual instanceof AbstractExternalData)
         {
-            parents = ((ExternalData) actual).getParents();
+            parents = ((AbstractExternalData) actual).getParents();
         } else
         {
             return false;

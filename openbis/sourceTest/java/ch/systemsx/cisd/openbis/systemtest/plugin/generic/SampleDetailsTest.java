@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -186,10 +186,10 @@ public class SampleDetailsTest extends GenericSystemTestCase
         // directly connected
         boolean showOnlyDirectlyConnected = true;
 
-        final TypedTableResultSet<ExternalData> directlyConnectedResults =
+        final TypedTableResultSet<AbstractExternalData> directlyConnectedResults =
                 commonClientService.listSampleDataSets(TechId.create(sample),
                         DefaultResultSetConfig
-                                .<String, TableModelRowWithObject<ExternalData>> createFetchAll(),
+                                .<String, TableModelRowWithObject<AbstractExternalData>> createFetchAll(),
                         showOnlyDirectlyConnected);
 
         assertEquals(1, directlyConnectedResults.getResultSet().getTotalLength());
@@ -204,10 +204,10 @@ public class SampleDetailsTest extends GenericSystemTestCase
 
         // indirectly connected
         showOnlyDirectlyConnected = false;
-        TypedTableResultSet<ExternalData> indirectlyConnectedResults =
+        TypedTableResultSet<AbstractExternalData> indirectlyConnectedResults =
                 commonClientService.listSampleDataSets(TechId.create(sample),
                         DefaultResultSetConfig
-                                .<String, TableModelRowWithObject<ExternalData>> createFetchAll(),
+                                .<String, TableModelRowWithObject<AbstractExternalData>> createFetchAll(),
                         showOnlyDirectlyConnected);
 
         assertEquals(6, indirectlyConnectedResults.getResultSet().getTotalLength());
@@ -367,12 +367,12 @@ public class SampleDetailsTest extends GenericSystemTestCase
         return null; // satisfy compiler
     }
 
-    private static ExternalData getDataSet(
-            GridRowModels<TableModelRowWithObject<ExternalData>> list, String identifier)
+    private static AbstractExternalData getDataSet(
+            GridRowModels<TableModelRowWithObject<AbstractExternalData>> list, String identifier)
     {
-        for (GridRowModel<TableModelRowWithObject<ExternalData>> gridRowModel : list)
+        for (GridRowModel<TableModelRowWithObject<AbstractExternalData>> gridRowModel : list)
         {
-            ExternalData externalData = gridRowModel.getOriginalObject().getObjectOrNull();
+            AbstractExternalData externalData = gridRowModel.getOriginalObject().getObjectOrNull();
             if (DEBUG)
             {
                 System.out.println(externalData.getIdentifier());

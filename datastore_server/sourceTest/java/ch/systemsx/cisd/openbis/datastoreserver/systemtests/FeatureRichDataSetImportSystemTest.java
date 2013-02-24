@@ -27,7 +27,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -230,7 +230,7 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
 
     private void assertLinkedDataSetImported(IEncapsulatedOpenBISService openBISService)
     {
-        ExternalData a = listOneDataSet(openBISService, "FR_LINK_CODE");
+        AbstractExternalData a = listOneDataSet(openBISService, "FR_LINK_CODE");
 
         assertTrue("The imported dataset should be isLinkData", a.isLinkData());
         assertTrue("The imported dataset should be LinkDataSet", a instanceof LinkDataSet);
@@ -245,11 +245,11 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
     /**
      * List exactly one dataset. assert that it exists.
      */
-    private ExternalData listOneDataSet(IEncapsulatedOpenBISService openBISService, String code)
+    private AbstractExternalData listOneDataSet(IEncapsulatedOpenBISService openBISService, String code)
     {
         List<String> codes = new LinkedList<String>();
         codes.add(code);
-        List<ExternalData> x = openBISService.listDataSetsByCode(codes);
+        List<AbstractExternalData> x = openBISService.listDataSetsByCode(codes);
 
         assertEquals("Exactly one data set expected.", 1, x.size());
 

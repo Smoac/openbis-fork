@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -47,8 +47,8 @@ public class UpdateDataSetContainmentTest extends BaseTest
     public void dataSetCanBeSetToBeContainedByAnotherDataSetByUpdatingTheContainerDataSet()
             throws Exception
     {
-        ExternalData componentCandidate = create(aDataSet().inSample(sample));
-        ExternalData container = create(aDataSet().inSample(sample).asContainer());
+        AbstractExternalData componentCandidate = create(aDataSet().inSample(sample));
+        AbstractExternalData container = create(aDataSet().inSample(sample).asContainer());
 
         perform(anUpdateOf(container).withComponent(componentCandidate));
 
@@ -59,8 +59,8 @@ public class UpdateDataSetContainmentTest extends BaseTest
     public void dataSetCanBeSetToBeContainedByAnotherDataSetByUpdatingTheComponentDataSet()
             throws Exception
     {
-        ExternalData componentCandidate = create(aDataSet().inSample(sample));
-        ExternalData container = create(aDataSet().inSample(sample).asContainer());
+        AbstractExternalData componentCandidate = create(aDataSet().inSample(sample));
+        AbstractExternalData container = create(aDataSet().inSample(sample).asContainer());
 
         perform(anUpdateOf(componentCandidate).withContainer(container));
 
@@ -70,8 +70,8 @@ public class UpdateDataSetContainmentTest extends BaseTest
     @Test
     public void dataSetWithContainerTypeCanBeContainerOfAnotherDataSet() throws Exception
     {
-        ExternalData container = create(aDataSet().inSample(sample).asContainer());
-        ExternalData component = create(aDataSet().inSample(sample));
+        AbstractExternalData container = create(aDataSet().inSample(sample).asContainer());
+        AbstractExternalData component = create(aDataSet().inSample(sample));
 
         perform(anUpdateOf(component).withContainer(container));
 
@@ -81,8 +81,8 @@ public class UpdateDataSetContainmentTest extends BaseTest
     @Test
     public void dataSetWithContainerTypeCanHaveComponents() throws Exception
     {
-        ExternalData container = create(aDataSet().inSample(sample).asContainer());
-        ExternalData component = create(aDataSet().inSample(sample));
+        AbstractExternalData container = create(aDataSet().inSample(sample).asContainer());
+        AbstractExternalData component = create(aDataSet().inSample(sample));
 
         perform(anUpdateOf(container).withComponent(component));
 
@@ -92,8 +92,8 @@ public class UpdateDataSetContainmentTest extends BaseTest
     @Test(expectedExceptions = UserFailureException.class)
     public void dataSetWithComponentTypeCannotBeContainerOfAnotherDataSet() throws Exception
     {
-        ExternalData component1 = create(aDataSet().inSample(sample));
-        ExternalData component2 = create(aDataSet().inSample(sample));
+        AbstractExternalData component1 = create(aDataSet().inSample(sample));
+        AbstractExternalData component2 = create(aDataSet().inSample(sample));
 
         perform(anUpdateOf(component1).withContainer(component2));
     }
@@ -101,8 +101,8 @@ public class UpdateDataSetContainmentTest extends BaseTest
     @Test(expectedExceptions = UserFailureException.class)
     public void dataSetWithComponentTypeCannotHaveComponents() throws Exception
     {
-        ExternalData component1 = create(aDataSet().inSample(sample));
-        ExternalData component2 = create(aDataSet().inSample(sample));
+        AbstractExternalData component1 = create(aDataSet().inSample(sample));
+        AbstractExternalData component2 = create(aDataSet().inSample(sample));
 
         perform(anUpdateOf(component1).withComponent(component2));
     }
@@ -110,9 +110,9 @@ public class UpdateDataSetContainmentTest extends BaseTest
     @Test(expectedExceptions = UserFailureException.class)
     public void dataSetCannotBeSelfContainedViaContainerRelation() throws Exception
     {
-        ExternalData component1 = create(aDataSet().inSample(sample).asContainer());
-        ExternalData component2 = create(aDataSet().inSample(sample).asContainer());
-        ExternalData component3 = create(aDataSet().inSample(sample).asContainer());
+        AbstractExternalData component1 = create(aDataSet().inSample(sample).asContainer());
+        AbstractExternalData component2 = create(aDataSet().inSample(sample).asContainer());
+        AbstractExternalData component3 = create(aDataSet().inSample(sample).asContainer());
 
         perform(anUpdateOf(component1).withContainer(component2));
         perform(anUpdateOf(component2).withContainer(component3));
@@ -122,9 +122,9 @@ public class UpdateDataSetContainmentTest extends BaseTest
     @Test(expectedExceptions = UserFailureException.class)
     public void dataSetCannotBeSelfContainedViaComponentsRelation() throws Exception
     {
-        ExternalData component1 = create(aDataSet().inSample(sample).asContainer());
-        ExternalData component2 = create(aDataSet().inSample(sample).asContainer());
-        ExternalData component3 = create(aDataSet().inSample(sample).asContainer());
+        AbstractExternalData component1 = create(aDataSet().inSample(sample).asContainer());
+        AbstractExternalData component2 = create(aDataSet().inSample(sample).asContainer());
+        AbstractExternalData component3 = create(aDataSet().inSample(sample).asContainer());
 
         perform(anUpdateOf(component1).withComponent(component2));
         perform(anUpdateOf(component2).withComponent(component3));
@@ -134,8 +134,8 @@ public class UpdateDataSetContainmentTest extends BaseTest
     @Test
     public void containmentCanBeRemoved() throws Exception
     {
-        ExternalData component = create(aDataSet().inSample(sample));
-        ExternalData container =
+        AbstractExternalData component = create(aDataSet().inSample(sample));
+        AbstractExternalData container =
                 create(aDataSet().inSample(sample).asContainer().withComponent(component));
 
         perform(anUpdateOf(container).withComponents());
@@ -146,9 +146,9 @@ public class UpdateDataSetContainmentTest extends BaseTest
     @Test
     public void containerOfDataSetCanBeChanged() throws Exception
     {
-        ExternalData component = create(aDataSet().inSample(sample));
+        AbstractExternalData component = create(aDataSet().inSample(sample));
         create(aDataSet().inSample(sample).asContainer().withComponent(component));
-        ExternalData newContainer = create(aDataSet().inSample(sample).asContainer());
+        AbstractExternalData newContainer = create(aDataSet().inSample(sample).asContainer());
 
         perform(anUpdateOf(newContainer).withComponent(component));
 
@@ -159,7 +159,7 @@ public class UpdateDataSetContainmentTest extends BaseTest
         { UserFailureException.class })
     public void dataSetCannotContainItself() throws Exception
     {
-        ExternalData dataset = create(aDataSet().inSample(sample));
+        AbstractExternalData dataset = create(aDataSet().inSample(sample));
 
         perform(anUpdateOf(dataset).withComponent(dataset));
     }
@@ -168,10 +168,10 @@ public class UpdateDataSetContainmentTest extends BaseTest
         { UserFailureException.class })
     public void subcomponentsAreNotAllowed() throws Exception
     {
-        ExternalData component = create(aDataSet().inSample(sample));
-        ExternalData container =
+        AbstractExternalData component = create(aDataSet().inSample(sample));
+        AbstractExternalData container =
                 create(aDataSet().inSample(sample).asContainer().withComponent(component));
-        ExternalData subcomponent = create(aDataSet().inSample(sample));
+        AbstractExternalData subcomponent = create(aDataSet().inSample(sample));
 
         perform(anUpdateOf(component).withComponent(subcomponent));
 
@@ -187,8 +187,8 @@ public class UpdateDataSetContainmentTest extends BaseTest
         Project containerProject = create(aProject().inSpace(containerSpace));
         Experiment containerExperiment = create(anExperiment().inProject(containerProject));
         Sample containerSample = create(aSample().inExperiment(containerExperiment));
-        ExternalData container = create(aDataSet().inSample(containerSample));
-        ExternalData component = create(aDataSet().inSample(sample));
+        AbstractExternalData container = create(aDataSet().inSample(containerSample));
+        AbstractExternalData component = create(aDataSet().inSample(sample));
 
         perform(anUpdateOf(container).withComponent(component));
 
@@ -204,8 +204,8 @@ public class UpdateDataSetContainmentTest extends BaseTest
     public void addingContainerToDataSetIsAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
-        ExternalData container = create(aDataSet().inSample(sample));
-        ExternalData component = create(aDataSet().inSample(sample));
+        AbstractExternalData container = create(aDataSet().inSample(sample));
+        AbstractExternalData component = create(aDataSet().inSample(sample));
         String user =
                 create(aSession().withSpaceRole(spaceRole, sample.getSpace())
                         .withInstanceRole(instanceRole)
@@ -220,8 +220,8 @@ public class UpdateDataSetContainmentTest extends BaseTest
     public void addingContainerToDataSetNotIsAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
-        ExternalData container = create(aDataSet().inSample(sample));
-        ExternalData component = create(aDataSet().inSample(sample));
+        AbstractExternalData container = create(aDataSet().inSample(sample));
+        AbstractExternalData component = create(aDataSet().inSample(sample));
         String user =
                 create(aSession().withSpaceRole(spaceRole, sample.getSpace())
                         .withInstanceRole(instanceRole)
@@ -235,8 +235,8 @@ public class UpdateDataSetContainmentTest extends BaseTest
     public void removingContainerFromDataSetIsAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
-        ExternalData component = create(aDataSet().inSample(sample));
-        ExternalData container =
+        AbstractExternalData component = create(aDataSet().inSample(sample));
+        AbstractExternalData container =
                 create(aDataSet().inSample(sample).asContainer().withComponent(component));
 
         String user =
@@ -253,8 +253,8 @@ public class UpdateDataSetContainmentTest extends BaseTest
     public void removingContainerFromDataSetNotIsAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
-        ExternalData component = create(aDataSet().inSample(sample));
-        ExternalData container =
+        AbstractExternalData component = create(aDataSet().inSample(sample));
+        AbstractExternalData container =
                 create(aDataSet().inSample(sample).asContainer().withComponent(component));
         String user =
                 create(aSession().withSpaceRole(spaceRole, sample.getSpace())

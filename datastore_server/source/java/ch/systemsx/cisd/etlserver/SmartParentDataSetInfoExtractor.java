@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -122,7 +122,7 @@ public class SmartParentDataSetInfoExtractor extends DefaultDataSetInfoExtractor
                 super.getDataSetInformation(incomingDataSetPath, openbisService);
         if (datasetTypePatternOrNull != null)
         {
-            List<ExternalData> datasets =
+            List<AbstractExternalData> datasets =
                     tryFetchParentCandidates(openbisService, dataSetInformation);
             if (datasets != null)
             {
@@ -135,11 +135,11 @@ public class SmartParentDataSetInfoExtractor extends DefaultDataSetInfoExtractor
         return dataSetInformation;
     }
 
-    private static List<ExternalData> filterByTypePattern(List<ExternalData> datasets,
+    private static List<AbstractExternalData> filterByTypePattern(List<AbstractExternalData> datasets,
             String datasetTypePatternOrNull)
     {
-        List<ExternalData> filtered = new ArrayList<ExternalData>();
-        for (ExternalData dataset : datasets)
+        List<AbstractExternalData> filtered = new ArrayList<AbstractExternalData>();
+        for (AbstractExternalData dataset : datasets)
         {
             if (dataset.getEntityType().getCode().matches(datasetTypePatternOrNull))
             {
@@ -149,10 +149,10 @@ public class SmartParentDataSetInfoExtractor extends DefaultDataSetInfoExtractor
         return filtered;
     }
 
-    private List<ExternalData> tryFetchParentCandidates(IEncapsulatedOpenBISService openbisService,
+    private List<AbstractExternalData> tryFetchParentCandidates(IEncapsulatedOpenBISService openbisService,
             DataSetInformation dataSetInformation)
     {
-        List<ExternalData> datasets = null;
+        List<AbstractExternalData> datasets = null;
         SampleIdentifier sampleIdentifier = dataSetInformation.getSampleIdentifier();
         if (sampleIdentifier != null)
         {
@@ -170,7 +170,7 @@ public class SmartParentDataSetInfoExtractor extends DefaultDataSetInfoExtractor
     }
 
     private List<String> getParentDatasetCodes(DataSetInformation dataSetInformation,
-            List<ExternalData> datasets)
+            List<AbstractExternalData> datasets)
     {
         if (datasets.size() == 0)
         {
@@ -210,10 +210,10 @@ public class SmartParentDataSetInfoExtractor extends DefaultDataSetInfoExtractor
         }
     }
 
-    private ExternalData selectLastRegistered(List<ExternalData> datasets)
+    private AbstractExternalData selectLastRegistered(List<AbstractExternalData> datasets)
     {
-        ExternalData lastRegistered = null;
-        for (ExternalData dataset : datasets)
+        AbstractExternalData lastRegistered = null;
+        for (AbstractExternalData dataset : datasets)
         {
             if (lastRegistered == null
                     || (dataset.getRegistrationDate().getTime() > lastRegistered
@@ -225,10 +225,10 @@ public class SmartParentDataSetInfoExtractor extends DefaultDataSetInfoExtractor
         return lastRegistered;
     }
 
-    private static List<String> extractCodes(List<ExternalData> datasets)
+    private static List<String> extractCodes(List<AbstractExternalData> datasets)
     {
         List<String> codes = new ArrayList<String>();
-        for (ExternalData dataset : datasets)
+        for (AbstractExternalData dataset : datasets)
         {
             codes.add(dataset.getCode());
         }

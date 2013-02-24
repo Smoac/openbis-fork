@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.collection.IKeyExtractor;
 import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.common.collection.TableMap.UniqueKeyViolationStrategy;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.GroupByMap;
 import ch.systemsx.cisd.openbis.generic.shared.basic.utils.IGroupKeyExtractor;
@@ -67,14 +67,14 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
         watch.start();
         FeatureVectorDatasetLoader datasetsRetriever =
                 createFeatureVectorDatasetsRetriever(plates, analysisProcedureCriteria);
-        Collection<ExternalData> featureVectorDatasets =
+        Collection<AbstractExternalData> featureVectorDatasets =
                 datasetsRetriever.getFeatureVectorDatasets();
         if (featureVectorDatasets.isEmpty())
         {
             return null;
         }
         List<DatasetReference> datasetPerPlate =
-                chooseSingleDatasetForPlate(new ArrayList<ExternalData>(featureVectorDatasets));
+                chooseSingleDatasetForPlate(new ArrayList<AbstractExternalData>(featureVectorDatasets));
 
         WellFeatureCollection<FeatureVectorValues> features =
                 new FeatureVectorRetriever(featureCodes).tryFetch(datasetPerPlate);
@@ -91,15 +91,15 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
     // runs, where each plate has at most one analysis dataset in each run. {@link
     // UniqueKeyViolationStrategy} could be set to {@link UniqueKeyViolationStrategy.ERROR} in
     // such a case.
-    private static List<DatasetReference> chooseSingleDatasetForPlate(List<ExternalData> datasets)
+    private static List<DatasetReference> chooseSingleDatasetForPlate(List<AbstractExternalData> datasets)
     {
         Collections.sort(datasets);
-        TableMap<String, ExternalData> plateToDatasetMap =
-                new TableMap<String, ExternalData>(datasets,
-                        new IKeyExtractor<String, ExternalData>()
+        TableMap<String, AbstractExternalData> plateToDatasetMap =
+                new TableMap<String, AbstractExternalData>(datasets,
+                        new IKeyExtractor<String, AbstractExternalData>()
                             {
                                 @Override
-                                public String getKey(ExternalData externalData)
+                                public String getKey(AbstractExternalData externalData)
                                 {
                                     Sample plate = externalData.getSample();
                                     return plate != null ? plate.getPermId() : null;
@@ -111,7 +111,7 @@ public class WellFeatureCollectionLoader extends AbstractContentLoader
         {
             if (platePermId != null)
             {
-                ExternalData dataset = plateToDatasetMap.getOrDie(platePermId);
+                AbstractExternalData dataset = plateToDatasetMap.getOrDie(platePermId);
                 DatasetReference datasetReference = ScreeningUtils.createDatasetReference(dataset);
                 datasetPerPlate.add(datasetReference);
             }

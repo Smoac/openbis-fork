@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.ThumbnailsInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -119,7 +119,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                     dataSetOwner.tryToGetExperiment(), dataSetOwner.getExperimentIdentifier());
         }
 
-        private DatasetOwnerInformation(String dataSetCode, ExternalData containerOrNull,
+        private DatasetOwnerInformation(String dataSetCode, AbstractExternalData containerOrNull,
                 Sample sampleOrNull, SampleIdentifier sampleIdentifier,
                 IEntityProperty[] sampleProperties, Experiment experiment,
                 ExperimentIdentifier experimentIdentifier)

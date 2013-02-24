@@ -15,7 +15,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatase
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -58,7 +58,7 @@ class PlateDatasetLoader
     // Running state
     private List<Sample> samples;
 
-    private List<ExternalData> datasets;
+    private List<AbstractExternalData> datasets;
 
     private HashMap<SampleIdentifier, Sample> samplesByIdentifier;
 
@@ -77,7 +77,7 @@ class PlateDatasetLoader
         this.datasetTypeCodePatterns = datasetTypeCodes;
     }
 
-    protected List<ExternalData> getDatasets()
+    protected List<AbstractExternalData> getDatasets()
     {
         return datasets;
     }
@@ -180,7 +180,7 @@ class PlateDatasetLoader
         }
     }
 
-    protected PlateIdentifier createPlateIdentifier(ExternalData parentDataset)
+    protected PlateIdentifier createPlateIdentifier(AbstractExternalData parentDataset)
     {
         final Sample sample = getSample(parentDataset);
         final String plateCode = sample.getCode();
@@ -189,7 +189,7 @@ class PlateDatasetLoader
         return new PlateIdentifier(plateCode, spaceCodeOrNull, sample.getPermId());
     }
 
-    protected static ExperimentIdentifier createExperimentIdentifier(ExternalData parentDataset)
+    protected static ExperimentIdentifier createExperimentIdentifier(AbstractExternalData parentDataset)
     {
         return asExperimentIdentifier(parentDataset.getExperiment());
     }
@@ -202,7 +202,7 @@ class PlateDatasetLoader
         return experimentId;
     }
 
-    protected Geometry extractPlateGeometry(ExternalData dataSet)
+    protected Geometry extractPlateGeometry(AbstractExternalData dataSet)
     {
         Sample sample = getSample(dataSet);
         List<IEntityProperty> properties = sample.getProperties();
@@ -227,7 +227,7 @@ class PlateDatasetLoader
                 + ScreeningConstants.PLATE_GEOMETRY);
     }
 
-    protected Map<String, String> extractProperties(ExternalData dataSet)
+    protected Map<String, String> extractProperties(AbstractExternalData dataSet)
     {
         final Map<String, String> properties = new HashMap<String, String>();
         if (dataSet.getProperties() != null)
@@ -244,7 +244,7 @@ class PlateDatasetLoader
         return properties;
     }
 
-    private Sample getSample(ExternalData dataset)
+    private Sample getSample(AbstractExternalData dataset)
     {
         // Sample may be NULL even though the selector does not begin with try
         Sample sample = dataset.getSample();

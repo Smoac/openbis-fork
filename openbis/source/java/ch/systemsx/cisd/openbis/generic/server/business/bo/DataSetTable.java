@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -451,7 +451,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                 getConversationClient().getDataStoreService(dataStore.getRemoteUrl(),
                         session.getSessionToken());
         String sessionToken = dataStore.getSessionToken();
-        List<ExternalData> cleanDataSets =
+        List<AbstractExternalData> cleanDataSets =
                 DataSetTranslator.translate(list, "?", "?", new HashMap<Long, Set<Metaproject>>(),
                         managedPropertyEvaluatorFactory);
         service.uploadDataSetsToCIFEX(sessionToken, cleanDataSets, context);

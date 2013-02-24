@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -58,7 +58,7 @@ public class ImageDataSetViewer extends GenericDataSetViewer
     }
 
     @Override
-    protected List<TabContent> createAdditionalSectionPanels(ExternalData dataset)
+    protected List<TabContent> createAdditionalSectionPanels(AbstractExternalData dataset)
     {
         List<TabContent> sections = new ArrayList<TabContent>();
 
@@ -67,7 +67,7 @@ public class ImageDataSetViewer extends GenericDataSetViewer
     }
 
     @Override
-    protected void loadDatasetInfo(TechId datasetTechId, AsyncCallback<ExternalData> asyncCallback)
+    protected void loadDatasetInfo(TechId datasetTechId, AsyncCallback<AbstractExternalData> asyncCallback)
     {
         screeningViewContext.getService().getDataSetInfo(datasetTechId, asyncCallback);
     }

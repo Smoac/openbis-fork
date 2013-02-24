@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -46,9 +46,9 @@ public class SimpleDataSetHelperTest extends AssertJUnit
     @Test
     public void testTranslateList()
     {
-        ExternalData ds1 = create(1);
-        ExternalData ds2 = create(2);
-        ExternalData ds3 = new ContainerDataSet();
+        AbstractExternalData ds1 = create(1);
+        AbstractExternalData ds2 = create(2);
+        AbstractExternalData ds3 = new ContainerDataSet();
 
         List<SimpleDataSetInformationDTO> list =
                 SimpleDataSetHelper.filterAndTranslate(Arrays.asList(ds1, ds2, ds3));
@@ -69,7 +69,7 @@ public class SimpleDataSetHelperTest extends AssertJUnit
         check(1, result);
     }
 
-    private ExternalData create(long id)
+    private AbstractExternalData create(long id)
     {
         PhysicalDataSet dataSet = new PhysicalDataSet();
         dataSet.setId(id);

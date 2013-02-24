@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ToStringUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExtractableData;
@@ -110,7 +110,7 @@ public class DataSetInformation implements Serializable
 
     private String containerDatasetPermIdOrNull;
 
-    private ExternalData containerDataSetOrNull;
+    private AbstractExternalData containerDataSetOrNull;
 
     /** This constructor is for serialization. */
     public DataSetInformation()
@@ -496,12 +496,12 @@ public class DataSetInformation implements Serializable
         this.containerDatasetPermIdOrNull = containerDatasetPermIdOrNull;
     }
 
-    public ExternalData tryGetContainerDataSet()
+    public AbstractExternalData tryGetContainerDataSet()
     {
         return containerDataSetOrNull;
     }
 
-    public void setContainerDataSet(ExternalData containerDataSetOrNull)
+    public void setContainerDataSet(AbstractExternalData containerDataSetOrNull)
     {
         this.containerDataSetOrNull = containerDataSetOrNull;
     }

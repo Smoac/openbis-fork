@@ -74,7 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
@@ -206,7 +206,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
-    public List<ExternalData> listBySampleTechId(TechId sampleId, boolean showOnlyDirectlyConnected)
+    public List<AbstractExternalData> listBySampleTechId(TechId sampleId, boolean showOnlyDirectlyConnected)
     {
         if (showOnlyDirectlyConnected)
         {
@@ -231,13 +231,13 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
-    public List<ExternalData> listBySampleIds(Collection<Long> sampleIds)
+    public List<AbstractExternalData> listBySampleIds(Collection<Long> sampleIds)
     {
         return listBySampleIds(sampleIds, DEFAULT_DATASET_FETCH_OPTIONS);
     }
 
     @Override
-    public List<ExternalData> listBySampleIds(Collection<Long> sampleIds,
+    public List<AbstractExternalData> listBySampleIds(Collection<Long> sampleIds,
             EnumSet<DataSetFetchOption> datasetFetchOptions)
     {
         checkFetchOptions(datasetFetchOptions);
@@ -250,7 +250,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
-    public List<ExternalData> listByExperimentTechId(TechId experimentId,
+    public List<AbstractExternalData> listByExperimentTechId(TechId experimentId,
             boolean showOnlyDirectlyConnected)
     {
         DataIterator<DatasetRecord> dataSets;
@@ -265,7 +265,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
-    public List<ExternalData> listByMetaprojectId(Long metaprojectId)
+    public List<AbstractExternalData> listByMetaprojectId(Long metaprojectId)
     {
         DataIterator<DatasetRecord> dataSets = query.getDatasetsForMetaproject(metaprojectId);
         return enrichDatasets(dataSets);
@@ -318,7 +318,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
-    public Map<Sample, List<ExternalData>> listAllDataSetsFor(List<Sample> samples)
+    public Map<Sample, List<AbstractExternalData>> listAllDataSetsFor(List<Sample> samples)
     {
         TableMap<Long, Sample> samplesByID =
                 new TableMap<Long, Sample>(samples, new IKeyExtractor<Long, Sample>()
@@ -329,16 +329,16 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
                             return e.getId();
                         }
                     });
-        Map<Sample, List<ExternalData>> result = new HashMap<Sample, List<ExternalData>>();
+        Map<Sample, List<AbstractExternalData>> result = new HashMap<Sample, List<AbstractExternalData>>();
         Set<Long> sampleIDs = new HashSet<Long>();
         for (Sample sample : samples)
         {
-            result.put(sample, new ArrayList<ExternalData>());
+            result.put(sample, new ArrayList<AbstractExternalData>());
             sampleIDs.add(sample.getId());
         }
-        List<ExternalData> rootDataSets = listBySampleIds(sampleIDs);
+        List<AbstractExternalData> rootDataSets = listBySampleIds(sampleIDs);
         addChildren(rootDataSets);
-        for (ExternalData dataSet : rootDataSets)
+        for (AbstractExternalData dataSet : rootDataSets)
         {
             Sample sample = samplesByID.tryGet(dataSet.getSample().getId());
             assert sample != null;
@@ -347,10 +347,10 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return result;
     }
 
-    private void addChildren(List<ExternalData> dataSets)
+    private void addChildren(List<AbstractExternalData> dataSets)
     {
-        Map<Long, ExternalData> dataSetsByID = new HashMap<Long, ExternalData>();
-        for (ExternalData dataSet : dataSets)
+        Map<Long, AbstractExternalData> dataSetsByID = new HashMap<Long, AbstractExternalData>();
+        for (AbstractExternalData dataSet : dataSets)
         {
             dataSetsByID.put(dataSet.getId(), dataSet);
         }
@@ -376,17 +376,17 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
         if (childIDs.isEmpty() == false)
         {
-            List<ExternalData> children = listByDatasetIds(childIDs);
-            for (ExternalData child : children)
+            List<AbstractExternalData> children = listByDatasetIds(childIDs);
+            for (AbstractExternalData child : children)
             {
                 Set<Long> parentIDs = child2ParentsMap.get(child.getId());
                 for (Long parentID : parentIDs)
                 {
-                    ExternalData dataSet = dataSetsByID.get(parentID);
-                    Collection<ExternalData> childList = dataSet.getChildren();
+                    AbstractExternalData dataSet = dataSetsByID.get(parentID);
+                    Collection<AbstractExternalData> childList = dataSet.getChildren();
                     if (childList == null)
                     {
-                        childList = new ArrayList<ExternalData>(1);
+                        childList = new ArrayList<AbstractExternalData>(1);
                         dataSet.setChildren(childList);
                     }
                     childList.add(child);
@@ -397,19 +397,19 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
-    public List<ExternalData> listByChildTechId(TechId childDatasetId)
+    public List<AbstractExternalData> listByChildTechId(TechId childDatasetId)
     {
         return enrichDatasets(query.getParentDatasetsForChild(childDatasetId.getId()));
     }
 
     @Override
-    public List<ExternalData> listByContainerTechId(TechId containerDatasetId)
+    public List<AbstractExternalData> listByContainerTechId(TechId containerDatasetId)
     {
         return enrichDatasets(query.getContainedDatasetsForContainer(containerDatasetId.getId()));
     }
 
     @Override
-    public List<ExternalData> listByParentTechIds(Collection<Long> parentDatasetIds)
+    public List<AbstractExternalData> listByParentTechIds(Collection<Long> parentDatasetIds)
     {
         DataIterator<DatasetRecord> childrenDataSets =
                 query.getChildDatasetsForParents(new LongOpenHashSet(parentDatasetIds));
@@ -417,13 +417,13 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
-    public List<ExternalData> listByDatasetIds(Collection<Long> datasetIds)
+    public List<AbstractExternalData> listByDatasetIds(Collection<Long> datasetIds)
     {
         return listByDatasetIds(datasetIds, DEFAULT_DATASET_FETCH_OPTIONS);
     }
 
     @Override
-    public List<ExternalData> listByDatasetIds(Collection<Long> datasetIds,
+    public List<AbstractExternalData> listByDatasetIds(Collection<Long> datasetIds,
             EnumSet<DataSetFetchOption> datasetFetchOptions)
     {
         checkFetchOptions(datasetFetchOptions);
@@ -432,13 +432,13 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
-    public List<ExternalData> listByDatasetCode(Collection<String> datasetCodes)
+    public List<AbstractExternalData> listByDatasetCode(Collection<String> datasetCodes)
     {
         return listByDatasetCode(datasetCodes, DEFAULT_DATASET_FETCH_OPTIONS);
     }
 
     @Override
-    public List<ExternalData> listByDatasetCode(Collection<String> datasetCodes,
+    public List<AbstractExternalData> listByDatasetCode(Collection<String> datasetCodes,
             EnumSet<DataSetFetchOption> datasetFetchOptions)
     {
         checkFetchOptions(datasetFetchOptions);
@@ -448,13 +448,13 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
-    public List<ExternalData> listByDataStore(long dataStoreID)
+    public List<AbstractExternalData> listByDataStore(long dataStoreID)
     {
         return listByDataStore(dataStoreID, DEFAULT_DATASET_FETCH_OPTIONS);
     }
 
     @Override
-    public List<ExternalData> listByDataStore(long dataStoreID,
+    public List<AbstractExternalData> listByDataStore(long dataStoreID,
             EnumSet<DataSetFetchOption> datasetFetchOptions)
     {
         checkFetchOptions(datasetFetchOptions);
@@ -462,7 +462,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
-    public List<ExternalData> listByDataStore(long dataStoreID, int limit,
+    public List<AbstractExternalData> listByDataStore(long dataStoreID, int limit,
             EnumSet<DataSetFetchOption> datasetFetchOptions)
     {
         checkFetchOptions(datasetFetchOptions);
@@ -473,7 +473,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
-    public List<ExternalData> listByDataStore(long dataStoreID, Date youngerThan, int limit,
+    public List<AbstractExternalData> listByDataStore(long dataStoreID, Date youngerThan, int limit,
             EnumSet<DataSetFetchOption> datasetFetchOptions)
     {
         checkFetchOptions(datasetFetchOptions);
@@ -514,12 +514,12 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
     }
 
-    private List<ExternalData> orderByDate(List<ExternalData> list)
+    private List<AbstractExternalData> orderByDate(List<AbstractExternalData> list)
     {
-        Collections.sort(list, new Comparator<ExternalData>()
+        Collections.sort(list, new Comparator<AbstractExternalData>()
             {
                 @Override
-                public int compare(ExternalData o1, ExternalData o2)
+                public int compare(AbstractExternalData o1, AbstractExternalData o2)
                 {
                     return o1.getRegistrationDate().compareTo(o2.getRegistrationDate());
                 }
@@ -545,7 +545,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
-    public List<ExternalData> listByTrackingCriteria(TrackingDataSetCriteria criteria)
+    public List<AbstractExternalData> listByTrackingCriteria(TrackingDataSetCriteria criteria)
     {
         DataIterator<DatasetRecord> dataSets;
         String sampleType = criteria.getConnectedSampleTypeCode();
@@ -564,12 +564,12 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
         loadSmallConnectedTables();
         List<DatasetRecord> datasetRecords = asList(dataSets);
-        Long2ObjectMap<ExternalData> datasetMap = createPrimaryDatasets(datasetRecords);
+        Long2ObjectMap<AbstractExternalData> datasetMap = createPrimaryDatasets(datasetRecords);
         return asList(datasetMap);
     }
 
     @Override
-    public List<ExternalData> listByArchiverCriteria(String dataStoreCode,
+    public List<AbstractExternalData> listByArchiverCriteria(String dataStoreCode,
             ArchiverDataSetCriteria criteria)
     {
         loadSmallConnectedTables();
@@ -618,17 +618,17 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         throw new UserFailureException("Data Set type '" + dataSetTypeCode + "' unknown.");
     }
 
-    private List<ExternalData> enrichDatasets(Iterable<DatasetRecord> datasets)
+    private List<AbstractExternalData> enrichDatasets(Iterable<DatasetRecord> datasets)
     {
         return enrichDatasets(datasets, DEFAULT_DATASET_FETCH_OPTIONS);
     }
 
-    private List<ExternalData> enrichDatasets(Iterable<DatasetRecord> datasets,
+    private List<AbstractExternalData> enrichDatasets(Iterable<DatasetRecord> datasets,
             EnumSet<DataSetFetchOption> fetchOptions)
     {
         loadSmallConnectedTables();
         List<DatasetRecord> datasetRecords = asList(datasets);
-        final Long2ObjectMap<ExternalData> datasetMap = createPrimaryDatasets(datasetRecords);
+        final Long2ObjectMap<AbstractExternalData> datasetMap = createPrimaryDatasets(datasetRecords);
         if (fetchOptions.contains(DataSetFetchOption.EXPERIMENT))
         {
             enrichWithExperiments(datasetMap);
@@ -668,7 +668,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return asList(datasetMap);
     }
 
-    private void enrichWithMetaProjects(Long2ObjectMap<ExternalData> datasetMap)
+    private void enrichWithMetaProjects(Long2ObjectMap<AbstractExternalData> datasetMap)
     {
         LongSet set = new LongOpenHashSet();
         set.addAll(datasetMap.keySet());
@@ -684,7 +684,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             mp.setOwnerId(metaProject.owner_name);
             mp.setPrivate(metaProject.is_private);
 
-            ExternalData data = datasetMap.get(metaProject.entity_id);
+            AbstractExternalData data = datasetMap.get(metaProject.entity_id);
 
             if (data != null)
             {
@@ -701,11 +701,11 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
     // assumes that the connection to the sample has been already established and sample has the
     // id set.
-    private void enrichWithSamples(Long2ObjectMap<ExternalData> datasetMap)
+    private void enrichWithSamples(Long2ObjectMap<AbstractExternalData> datasetMap)
     {
         LongSet ids = extractSampleIds(datasetMap);
         Long2ObjectMap<Sample> samples = referencedEntityDAO.getSamples(ids);
-        for (ExternalData dataset : datasetMap.values())
+        for (AbstractExternalData dataset : datasetMap.values())
         {
             if (dataset.getSample() != null)
             {
@@ -716,10 +716,10 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
     }
 
-    private static LongSet extractSampleIds(Long2ObjectMap<ExternalData> datasetMap)
+    private static LongSet extractSampleIds(Long2ObjectMap<AbstractExternalData> datasetMap)
     {
         LongSet ids = new LongOpenHashSet();
-        for (ExternalData dataset : datasetMap.values())
+        for (AbstractExternalData dataset : datasetMap.values())
         {
             if (dataset.getSample() != null)
             {
@@ -732,11 +732,11 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
     // assumes that the connection to experiment has been already established and experiment has the
     // id set.
-    private void enrichWithExperiments(Long2ObjectMap<ExternalData> datasetMap)
+    private void enrichWithExperiments(Long2ObjectMap<AbstractExternalData> datasetMap)
     {
         Long2ObjectMap<Experiment> experimentMap = new Long2ObjectOpenHashMap<Experiment>();
 
-        for (ExternalData dataset : datasetMap.values())
+        for (AbstractExternalData dataset : datasetMap.values())
         {
             long experimentId = dataset.getExperiment().getId();
             Experiment experiment = experimentMap.get(experimentId);
@@ -750,10 +750,10 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
     }
 
-    private void filterDatasetsWithNullExperiments(Long2ObjectMap<ExternalData> datasetMap)
+    private void filterDatasetsWithNullExperiments(Long2ObjectMap<AbstractExternalData> datasetMap)
     {
         LongSet datasetsToRemove = new LongOpenHashSet();
-        for (ExternalData dataset : datasetMap.values())
+        for (AbstractExternalData dataset : datasetMap.values())
         {
             if (dataset.getExperiment() == null)
             {
@@ -776,19 +776,19 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return result;
     }
 
-    private void enrichWithProperties(final Long2ObjectMap<ExternalData> resultMap)
+    private void enrichWithProperties(final Long2ObjectMap<AbstractExternalData> resultMap)
     {
         propertiesEnricher.enrich(resultMap.keySet(), new IEntityPropertiesHolderResolver()
             {
                 @Override
-                public ExternalData get(long id)
+                public AbstractExternalData get(long id)
                 {
                     return resultMap.get(id);
                 }
             });
     }
 
-    private void enrichWithParents(Long2ObjectMap<ExternalData> datasetMap, boolean withProperties)
+    private void enrichWithParents(Long2ObjectMap<AbstractExternalData> datasetMap, boolean withProperties)
     {
         Map<Long, Set<Long>> parentIdsMap = listParentIds(datasetMap.keySet());
         Set<Long> allParentIds = new HashSet<Long>();
@@ -803,21 +803,21 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
         if (parentIterator != null)
         {
-            Long2ObjectMap<ExternalData> parentDatasetMap = withProperties ?
-                    new Long2ObjectOpenHashMap<ExternalData>() : null;
-            Long2ObjectMap<ExternalData> parentMap = createPrimaryDatasets(parentIterator);
+            Long2ObjectMap<AbstractExternalData> parentDatasetMap = withProperties ?
+                    new Long2ObjectOpenHashMap<AbstractExternalData>() : null;
+            Long2ObjectMap<AbstractExternalData> parentMap = createPrimaryDatasets(parentIterator);
 
             for (Entry<Long, Set<Long>> parentIdsEntry : parentIdsMap.entrySet())
             {
                 Long datasetId = parentIdsEntry.getKey();
                 Set<Long> parentIds = parentIdsEntry.getValue();
 
-                ExternalData dataset = datasetMap.get(datasetId);
-                List<ExternalData> parents = new ArrayList<ExternalData>();
+                AbstractExternalData dataset = datasetMap.get(datasetId);
+                List<AbstractExternalData> parents = new ArrayList<AbstractExternalData>();
 
                 for (Long parentId : parentIds)
                 {
-                    ExternalData parent = parentMap.get(parentId);
+                    AbstractExternalData parent = parentMap.get(parentId);
                     if (parent != null)
                     {
                         parents.add(parent);
@@ -837,7 +837,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
     }
 
-    private void enrichWithChildren(Long2ObjectMap<ExternalData> datasetMap, boolean withProperties)
+    private void enrichWithChildren(Long2ObjectMap<AbstractExternalData> datasetMap, boolean withProperties)
     {
         Map<Long, Set<Long>> childrenIdsMap = listChildrenIds(datasetMap.keySet());
         Set<Long> allChildrenIds = new HashSet<Long>();
@@ -852,21 +852,21 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
         if (childrenIterator != null)
         {
-            Long2ObjectMap<ExternalData> childrenDatasetMap = withProperties ?
-                    new Long2ObjectOpenHashMap<ExternalData>() : null;
-            Long2ObjectMap<ExternalData> childrenMap = createPrimaryDatasets(childrenIterator);
+            Long2ObjectMap<AbstractExternalData> childrenDatasetMap = withProperties ?
+                    new Long2ObjectOpenHashMap<AbstractExternalData>() : null;
+            Long2ObjectMap<AbstractExternalData> childrenMap = createPrimaryDatasets(childrenIterator);
 
             for (Entry<Long, Set<Long>> childrenIdsEntry : childrenIdsMap.entrySet())
             {
                 Long datasetId = childrenIdsEntry.getKey();
                 Set<Long> childrenIds = childrenIdsEntry.getValue();
 
-                ExternalData dataset = datasetMap.get(datasetId);
-                List<ExternalData> children = new ArrayList<ExternalData>();
+                AbstractExternalData dataset = datasetMap.get(datasetId);
+                List<AbstractExternalData> children = new ArrayList<AbstractExternalData>();
 
                 for (Long childId : childrenIds)
                 {
-                    ExternalData child = childrenMap.get(childId);
+                    AbstractExternalData child = childrenMap.get(childId);
                     if (child != null)
                     {
                         children.add(child);
@@ -885,11 +885,11 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
     }
 
-    private void enrichWithContainers(Long2ObjectMap<ExternalData> datasetMap)
+    private void enrichWithContainers(Long2ObjectMap<AbstractExternalData> datasetMap)
     {
 
         Set<Long> containersNotLoaded = new HashSet<Long>();
-        for (ExternalData dataSet : datasetMap.values())
+        for (AbstractExternalData dataSet : datasetMap.values())
         {
             ContainerDataSet containerOrNull = dataSet.tryGetContainer();
             Long containerId = (containerOrNull != null) ? containerOrNull.getId() : null;
@@ -909,11 +909,11 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         if (false == containersNotLoaded.isEmpty())
         {
             // load the unavailable container data sets with an additional query
-            List<ExternalData> containersSecondPass = listByDatasetIds(containersNotLoaded);
-            TableMap<Long, ExternalData> secondPassMap =
-                    new TableMap<Long, ExternalData>(containersSecondPass,
-                            KeyExtractorFactory.<ExternalData> createIdKeyExtractor());
-            for (ExternalData dataSet : datasetMap.values())
+            List<AbstractExternalData> containersSecondPass = listByDatasetIds(containersNotLoaded);
+            TableMap<Long, AbstractExternalData> secondPassMap =
+                    new TableMap<Long, AbstractExternalData>(containersSecondPass,
+                            KeyExtractorFactory.<AbstractExternalData> createIdKeyExtractor());
+            for (AbstractExternalData dataSet : datasetMap.values())
             {
                 ContainerDataSet containerOrNull = dataSet.tryGetContainer();
                 Long containerId = (containerOrNull != null) ? containerOrNull.getId() : null;
@@ -926,12 +926,12 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
     }
 
-    private void enrichWithContainedDataSets(Long2ObjectMap<ExternalData> datasetMap)
+    private void enrichWithContainedDataSets(Long2ObjectMap<AbstractExternalData> datasetMap)
     {
-        Long2ObjectMap<ExternalData> fullContextMap =
-                new Long2ObjectOpenHashMap<ExternalData>(datasetMap);
+        Long2ObjectMap<AbstractExternalData> fullContextMap =
+                new Long2ObjectOpenHashMap<AbstractExternalData>(datasetMap);
         LongSet containerIDs = new LongOpenHashSet();
-        for (ExternalData dataSet : datasetMap.values())
+        for (AbstractExternalData dataSet : datasetMap.values())
         {
             if (dataSet.isContainer())
             {
@@ -964,20 +964,20 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
         if (false == notYetLoadedChilren.isEmpty())
         {
-            Long2ObjectMap<ExternalData> childrenSecondPass =
+            Long2ObjectMap<AbstractExternalData> childrenSecondPass =
                     createPrimaryDatasets(asList(query.getDatasets(notYetLoadedChilren)));
             fullContextMap.putAll(childrenSecondPass);
         }
 
         for (Long id : containedDataSetIDs)
         {
-            ExternalData contained = fullContextMap.get(id);
+            AbstractExternalData contained = fullContextMap.get(id);
             Long containerId = contained.tryGetContainer().getId();
             ContainerDataSet container = fullContextMap.get(containerId).tryGetAsContainerDataSet();
             // set container to the child
             contained.setContainer(container);
             // add the child to the container
-            List<ExternalData> containedDataSets = container.getContainedDataSets();
+            List<AbstractExternalData> containedDataSets = container.getContainedDataSets();
             containedDataSets.add(contained);
             container.setContainedDataSets(containedDataSets);
         }
@@ -990,13 +990,13 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return result;
     }
 
-    private Long2ObjectMap<ExternalData> createPrimaryDatasets(Iterable<DatasetRecord> records)
+    private Long2ObjectMap<AbstractExternalData> createPrimaryDatasets(Iterable<DatasetRecord> records)
     {
-        Long2ObjectMap<ExternalData> datasets = new Long2ObjectOpenHashMap<ExternalData>();
+        Long2ObjectMap<AbstractExternalData> datasets = new Long2ObjectOpenHashMap<AbstractExternalData>();
         for (DatasetRecord record : records)
         {
             DataSetType dsType = dataSetTypes.get(record.dsty_id);
-            ExternalData dataSetOrNull = null;
+            AbstractExternalData dataSetOrNull = null;
             if (record.is_placeholder)
             {
                 // placeholder data sets are filtered out
@@ -1021,7 +1021,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     // NOTE: this just marks the data set as invalid without loading any details
-    private void enrichWithDeletion(final ExternalData dataSet, DatasetRecord row)
+    private void enrichWithDeletion(final AbstractExternalData dataSet, DatasetRecord row)
     {
         if (row.del_id != null)
         {
@@ -1072,7 +1072,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return linkDataSet;
     }
 
-    private void convertStandardAttributes(ExternalData dataSet, DatasetRecord record)
+    private void convertStandardAttributes(AbstractExternalData dataSet, DatasetRecord record)
     {
         dataSet.setCode(record.code);
         dataSet.setDataSetType(dataSetTypes.get(record.dsty_id));

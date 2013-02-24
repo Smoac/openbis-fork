@@ -21,7 +21,7 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
@@ -43,12 +43,12 @@ public interface ITrackingServer extends IServer
     public List<Sample> listSamples(final String sessionToken, final TrackingSampleCriteria criteria);
 
     /**
-     * For given sample {@link TechId} returns the corresponding list of {@link ExternalData}.
+     * For given sample {@link TechId} returns the corresponding list of {@link AbstractExternalData}.
      * 
-     * @return a sorted list of {@link ExternalData}.
+     * @return a sorted list of {@link AbstractExternalData}.
      */
     @Transactional(readOnly = true)
-    public List<ExternalData> listDataSets(final String sessionToken,
+    public List<AbstractExternalData> listDataSets(final String sessionToken,
             final TrackingDataSetCriteria criteria);
 
 }

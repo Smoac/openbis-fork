@@ -22,18 +22,18 @@ import java.util.Set;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
-public class ExternalDataHasChildrenMatcher extends TypeSafeMatcher<ExternalData>
+public class ExternalDataHasChildrenMatcher extends TypeSafeMatcher<AbstractExternalData>
 {
 
     private Set<String> expectedChildren;
 
-    public ExternalDataHasChildrenMatcher(ExternalData first, ExternalData... rest)
+    public ExternalDataHasChildrenMatcher(AbstractExternalData first, AbstractExternalData... rest)
     {
         this.expectedChildren = new HashSet<String>();
         expectedChildren.add(first.getCode());
-        for (ExternalData d : rest)
+        for (AbstractExternalData d : rest)
         {
             expectedChildren.add(d.getCode());
         }
@@ -46,14 +46,14 @@ public class ExternalDataHasChildrenMatcher extends TypeSafeMatcher<ExternalData
     }
 
     @Override
-    public boolean matchesSafely(ExternalData actual)
+    public boolean matchesSafely(AbstractExternalData actual)
     {
         if (actual.getChildren().size() != expectedChildren.size())
         {
             return false;
         }
 
-        for (ExternalData child : actual.getChildren())
+        for (AbstractExternalData child : actual.getChildren())
         {
             if (expectedChildren.contains(child.getCode()) == false)
             {

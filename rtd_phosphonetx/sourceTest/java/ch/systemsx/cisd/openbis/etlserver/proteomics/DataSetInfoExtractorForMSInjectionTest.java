@@ -60,7 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -449,9 +449,9 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
             {
                 {
                     one(service).listDataSetsBySampleID(SAMPLE_ID, false);
-                    ExternalData ds1 = createDataSet("RAW_DATA", "raw1", 11);
-                    ExternalData ds2 = createDataSet("MZXML_DATA", "mzxml1", 13);
-                    ExternalData ds3 = createDataSet("RAW_DATA", "raw2", 12);
+                    AbstractExternalData ds1 = createDataSet("RAW_DATA", "raw1", 11);
+                    AbstractExternalData ds2 = createDataSet("MZXML_DATA", "mzxml1", 13);
+                    AbstractExternalData ds3 = createDataSet("RAW_DATA", "raw2", 12);
                     will(returnValue(Arrays.asList(ds1, ds2, ds3)));
                 }
             });
@@ -711,7 +711,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         return entityProperty;
     }
 
-    private ExternalData createDataSet(String type, String code, int timestamp)
+    private AbstractExternalData createDataSet(String type, String code, int timestamp)
     {
         PhysicalDataSet ds = new PhysicalDataSet();
         ds.setDataSetType(new DataSetType(type));

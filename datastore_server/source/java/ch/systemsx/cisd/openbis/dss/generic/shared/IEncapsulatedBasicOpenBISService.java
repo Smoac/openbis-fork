@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -74,7 +74,7 @@ public interface IEncapsulatedBasicOpenBISService
      * token.
      */
     @ManagedAuthentication
-    public ExternalData tryGetDataSet(final String dataSetCode) throws UserFailureException;
+    public AbstractExternalData tryGetDataSet(final String dataSetCode) throws UserFailureException;
 
     /**
      * {@link IETLLIMSService#searchForSamples(String, SearchCriteria)}
@@ -96,7 +96,7 @@ public interface IEncapsulatedBasicOpenBISService
      * {@link IETLLIMSService#searchForDataSets(String, SearchCriteria)}
      */
     @ManagedAuthentication
-    public List<ExternalData> searchForDataSets(SearchCriteria searchCriteria);
+    public List<AbstractExternalData> searchForDataSets(SearchCriteria searchCriteria);
 
     /**
      * {@link IETLLIMSService#listExperiments(String, ProjectIdentifier)}

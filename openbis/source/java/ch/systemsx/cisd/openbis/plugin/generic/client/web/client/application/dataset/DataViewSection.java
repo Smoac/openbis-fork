@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 
@@ -66,11 +66,11 @@ public class DataViewSection extends TabContent
 
     private static String FILES_HOME_VIEW = "Files (Home)";
 
-    private final ExternalData dataset;
+    private final AbstractExternalData dataset;
 
     private IDisposableComponent currentReportOrNull = null;
 
-    public DataViewSection(final IViewContext<?> viewContext, final ExternalData dataset)
+    public DataViewSection(final IViewContext<?> viewContext, final AbstractExternalData dataset)
     {
         super(viewContext.getMessage(Dict.DATA_VIEW), viewContext, dataset);
         this.dataset = dataset;
@@ -247,7 +247,7 @@ public class DataViewSection extends TabContent
 
         private final IViewContext<?> viewContext;
 
-        private final ExternalData dataset;
+        private final AbstractExternalData dataset;
 
         private DatastoreServiceDescriptionModel defaultModel;
 
@@ -256,7 +256,7 @@ public class DataViewSection extends TabContent
         private final boolean hideSmartView;
 
         public DatastoreServiceSelectionWidget(final IViewContext<?> viewContext,
-                final ExternalData dataset, boolean hideFileView, boolean hideSmartView)
+                final AbstractExternalData dataset, boolean hideFileView, boolean hideSmartView)
         {
             super(viewContext, ("data-set_" + dataset.getCode() + "_viewer"), Dict.BUTTON_SHOW,
                     ModelDataPropertyNames.LABEL, "viewer", "viewers");

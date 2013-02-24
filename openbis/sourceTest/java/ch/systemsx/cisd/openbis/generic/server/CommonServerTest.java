@@ -54,7 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -580,7 +580,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         final DataStorePE dataStorePE = new DataStorePE();
         dataStorePE.setCode("DST");
         externalDataPE.setDataStore(dataStorePE);
-        final ExternalData externalData =
+        final AbstractExternalData externalData =
                 DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
                         new ManagedPropertyEvaluatorFactory(null, null));
         prepareGetSession();
@@ -596,7 +596,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        final List<ExternalData> list =
+        final List<AbstractExternalData> list =
                 createServer().listSampleExternalData(SESSION_TOKEN, sampleId,
                         showOnlyDirectlyConnected);
 
@@ -620,7 +620,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         final DataStorePE dataStorePE = new DataStorePE();
         dataStorePE.setCode("DST");
         externalDataPE.setDataStore(dataStorePE);
-        final ExternalData externalData =
+        final AbstractExternalData externalData =
                 DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
                         new ManagedPropertyEvaluatorFactory(null, null));
         prepareGetSession();
@@ -634,7 +634,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        final List<ExternalData> list =
+        final List<AbstractExternalData> list =
                 createServer().listExperimentExternalData(SESSION_TOKEN, experimentId, true);
 
         assertEquals(1, list.size());
@@ -643,7 +643,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
-    private boolean equals(ExternalData data1, ExternalData data2)
+    private boolean equals(AbstractExternalData data1, AbstractExternalData data2)
     {
         return EqualsBuilder.reflectionEquals(data1, data2);
     }

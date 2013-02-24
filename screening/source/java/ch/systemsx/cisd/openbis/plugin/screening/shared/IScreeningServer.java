@@ -24,7 +24,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -156,10 +156,10 @@ public interface IScreeningServer extends IServer
             final TechId sampleId) throws UserFailureException;
 
     /**
-     * For given {@link TechId} returns the corresponding {@link ExternalData}.
+     * For given {@link TechId} returns the corresponding {@link AbstractExternalData}.
      */
     @Transactional(readOnly = true)
-    public ExternalData getDataSetInfo(String sessionToken,
+    public AbstractExternalData getDataSetInfo(String sessionToken,
             TechId datasetId);
 
     /**

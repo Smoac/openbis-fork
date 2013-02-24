@@ -28,7 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * An object holding templates evaluation result data.
@@ -40,7 +40,7 @@ public class FtpFileEvaluationContext
 
     static class EvaluatedElement
     {
-        ExternalData dataSet;
+        AbstractExternalData dataSet;
 
         // will only be filled when the ${fileName} variable
         // is used in the template
@@ -80,7 +80,7 @@ public class FtpFileEvaluationContext
         evaluatedPaths.addAll(evaluatedPath);
     }
 
-    public IHierarchicalContent getHierarchicalContent(ExternalData dataSet)
+    public IHierarchicalContent getHierarchicalContent(AbstractExternalData dataSet)
     {
         String dataSetCode = dataSet.getCode();
         IHierarchicalContent result = contents.get(dataSetCode);
@@ -104,7 +104,7 @@ public class FtpFileEvaluationContext
         contents.clear();
     }
 
-    private IHierarchicalContent createHierarchicalContent(ExternalData dataSet)
+    private IHierarchicalContent createHierarchicalContent(AbstractExternalData dataSet)
     {
         return contentProvider.asContent(dataSet);
     }

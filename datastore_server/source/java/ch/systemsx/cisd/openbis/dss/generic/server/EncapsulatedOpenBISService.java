@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -288,7 +288,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public List<ExternalData> listDataSetsByExperimentID(long experimentID)
+    public List<AbstractExternalData> listDataSetsByExperimentID(long experimentID)
             throws UserFailureException
     {
         TechId id = new TechId(experimentID);
@@ -296,7 +296,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public List<ExternalData> listDataSetsBySampleID(long sampleID,
+    public List<AbstractExternalData> listDataSetsBySampleID(long sampleID,
             boolean showOnlyDirectlyConnected)
     {
         TechId id = new TechId(sampleID);
@@ -305,7 +305,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public List<ExternalData> listDataSetsByCode(List<String> dataSetCodes)
+    public List<AbstractExternalData> listDataSetsByCode(List<String> dataSetCodes)
             throws UserFailureException
     {
         return service.listDataSetsByCode(session.getSessionToken(), dataSetCodes);
@@ -490,13 +490,13 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public ExternalData tryGetDataSet(String dataSetCode) throws UserFailureException
+    public AbstractExternalData tryGetDataSet(String dataSetCode) throws UserFailureException
     {
         return service.tryGetDataSet(session.getSessionToken(), dataSetCode);
     }
 
     @Override
-    public ExternalData tryGetDataSet(String sToken, String dataSetCode)
+    public AbstractExternalData tryGetDataSet(String sToken, String dataSetCode)
             throws UserFailureException
     {
         return service.tryGetDataSet(sToken, dataSetCode);
@@ -599,7 +599,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public List<ExternalData> listNewerDataSets(TrackingDataSetCriteria criteria)
+    public List<AbstractExternalData> listNewerDataSets(TrackingDataSetCriteria criteria)
             throws UserFailureException
     {
         return service
@@ -607,7 +607,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public List<ExternalData> listAvailableDataSets(ArchiverDataSetCriteria criteria)
+    public List<AbstractExternalData> listAvailableDataSets(ArchiverDataSetCriteria criteria)
             throws UserFailureException
     {
         return service.listAvailableDataSets(session.getSessionToken(), session.getDataStoreCode(),
@@ -718,7 +718,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public List<ExternalData> searchForDataSets(SearchCriteria searchCriteria)
+    public List<AbstractExternalData> searchForDataSets(SearchCriteria searchCriteria)
     {
         return service.searchForDataSets(session.getSessionToken(), searchCriteria);
     }
@@ -784,7 +784,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public List<ExternalData> listDataSetsForPostRegistration()
+    public List<AbstractExternalData> listDataSetsForPostRegistration()
     {
         return service.listDataSetsForPostRegistration(session.getSessionToken(),
                 session.getDataStoreCode());

@@ -78,7 +78,7 @@ public class MetaprojectAssignments implements IMetaprojectAssignments
     public List<IDataSetImmutable> getDataSets()
     {
         LinkedList<IDataSetImmutable> experiments = new LinkedList<IDataSetImmutable>();
-        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData dataSet : metaprojectAssignments
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData dataSet : metaprojectAssignments
                 .getDataSets())
         {
             experiments.add(new DataSetImmutable(dataSet, service));

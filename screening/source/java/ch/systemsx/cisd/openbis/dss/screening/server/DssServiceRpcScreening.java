@@ -71,7 +71,7 @@ import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfigurati
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.AbstractFormatSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
@@ -567,12 +567,12 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 @Override
                 public List<String> tryGetContainedDatasets(String datasetCode)
                 {
-                    ExternalData ds = openBISService.tryGetDataSet(datasetCode);
+                    AbstractExternalData ds = openBISService.tryGetDataSet(datasetCode);
                     ContainerDataSet container = ds.tryGetAsContainerDataSet();
                     if (container != null)
                     {
                         List<String> list = new LinkedList<String>();
-                        for (ExternalData contained : container.getContainedDataSets())
+                        for (AbstractExternalData contained : container.getContainedDataSets())
                         {
                             list.add(contained.getCode());
                         }
@@ -1313,7 +1313,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         Set<String> experimentPermIDs = new HashSet<String>();
         for (IDatasetIdentifier dataSetIdentifier : dataSetIdentifiers)
         {
-            ExternalData dataSet =
+            AbstractExternalData dataSet =
                     getOpenBISService().tryGetDataSet(sessionToken,
                             dataSetIdentifier.getDatasetCode());
             if (dataSet == null)
@@ -1498,7 +1498,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                         tryCreateImageLoader(sessionToken, imageReference.getDatasetCode());
                 if (imageAccessor == null) // Check whether this is a feature vector data set
                 {
-                    final ExternalData imageDataset =
+                    final AbstractExternalData imageDataset =
                             tryFindImageDataset(sessionToken, imageReference.getDatasetCode());
                     if (imageDataset != null)
                     {
@@ -1618,9 +1618,9 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return loader;
     }
 
-    private ExternalData tryFindImageDataset(String sessionToken, String datasetCode)
+    private AbstractExternalData tryFindImageDataset(String sessionToken, String datasetCode)
     {
-        ExternalData dataset = tryGetDataSet(sessionToken, datasetCode);
+        AbstractExternalData dataset = tryGetDataSet(sessionToken, datasetCode);
         if (dataset == null)
         {
             throw new IllegalArgumentException("Dataset " + datasetCode + " cannot be found.");
@@ -1630,7 +1630,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             return dataset;
         }
         // it may be the feature dataset
-        Collection<ExternalData> parents = dataset.getParents();
+        Collection<AbstractExternalData> parents = dataset.getParents();
         if (parents.size() > 1)
         {
             throw new IllegalArgumentException("Dataset " + datasetCode
@@ -1638,7 +1638,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         }
         if (parents.size() == 1)
         {
-            ExternalData parent = parents.iterator().next();
+            AbstractExternalData parent = parents.iterator().next();
             if (isImageDataset(parent))
             {
                 return parent;
@@ -1680,7 +1680,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         return outputStream.toByteArray();
     }
 
-    private boolean isImageDataset(ExternalData dataset)
+    private boolean isImageDataset(AbstractExternalData dataset)
     {
         String datasetTypeCode = dataset.getDataSetType().getCode();
         return datasetTypeCode.matches(ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN)

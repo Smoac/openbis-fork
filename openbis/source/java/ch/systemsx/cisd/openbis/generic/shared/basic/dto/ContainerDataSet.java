@@ -25,11 +25,11 @@ import java.util.List;
  * 
  * @author Kaloyan Enimanev
  */
-public class ContainerDataSet extends ExternalData
+public class ContainerDataSet extends AbstractExternalData
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private List<ExternalData> containedDataSets = new ArrayList<ExternalData>();
+    private List<AbstractExternalData> containedDataSets = new ArrayList<AbstractExternalData>();
 
     public ContainerDataSet()
     {
@@ -59,12 +59,12 @@ public class ContainerDataSet extends ExternalData
         return DataSetKind.CONTAINER;
     }
 
-    public List<ExternalData> getContainedDataSets()
+    public List<AbstractExternalData> getContainedDataSets()
     {
         return containedDataSets;
     }
 
-    public void setContainedDataSets(List<ExternalData> containedDataSets)
+    public void setContainedDataSets(List<AbstractExternalData> containedDataSets)
     {
         this.containedDataSets = containedDataSets;
     }

@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
@@ -116,7 +116,7 @@ public class UploadingCommandTest extends AssertJUnit
                     }
 
                     @Override
-                    public IHierarchicalContent asContent(ExternalData dataSet)
+                    public IHierarchicalContent asContent(AbstractExternalData dataSet)
                     {
                         return getContent(dataSet.getCode());
                     }
@@ -199,7 +199,7 @@ public class UploadingCommandTest extends AssertJUnit
 
     private DataSetUploadContext uploadContextNoPasswordNotAuthenticated;
 
-    private List<ExternalData> dataSets;
+    private List<AbstractExternalData> dataSets;
 
     private UploadingCommand command;
 
@@ -247,14 +247,14 @@ public class UploadingCommandTest extends AssertJUnit
         uploadContextNoPasswordNotAuthenticated.setFileName(ZIP_FILENAME);
         createTestData(LOCATION1);
         ds2 = createTestData(LOCATION2);
-        ExternalData dataSet1 =
+        AbstractExternalData dataSet1 =
                 DataSetTranslator.translate(createDataSet("1"), "?", null, null,
                         ExperimentTranslator.LoadableFields.PROPERTIES);
         System.out.println("ds1:" + dataSet1.getExperiment().getProperties());
-        ExternalData dataSet2 =
+        AbstractExternalData dataSet2 =
                 DataSetTranslator.translate(createDataSet("2"), "?", null, null,
                         ExperimentTranslator.LoadableFields.PROPERTIES);
-        dataSets = Arrays.<ExternalData> asList(dataSet1, dataSet2);
+        dataSets = Arrays.<AbstractExternalData> asList(dataSet1, dataSet2);
         command =
                 new UploadingCommand(factory, mailClientParameters, dataSets, uploadContext, null,
                         null);

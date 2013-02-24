@@ -5,7 +5,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * A {@link IOriginalDataProvider} implementation for search data sets.
@@ -13,7 +13,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
  * @author Izbaela Adamczyk
  */
 final class ListDataSetSearchOriginalDataProvider extends
-        AbstractOriginalDataProvider<ExternalData>
+        AbstractOriginalDataProvider<AbstractExternalData>
 {
 
     private final DetailedSearchCriteria criteria;
@@ -30,9 +30,9 @@ final class ListDataSetSearchOriginalDataProvider extends
     //
 
     @Override
-    public final List<ExternalData> getFullOriginalData()
+    public final List<AbstractExternalData> getFullOriginalData()
     {
-        final List<ExternalData> hits = commonServer.searchForDataSets(sessionToken, criteria);
+        final List<AbstractExternalData> hits = commonServer.searchForDataSets(sessionToken, criteria);
         return hits;
     }
 }

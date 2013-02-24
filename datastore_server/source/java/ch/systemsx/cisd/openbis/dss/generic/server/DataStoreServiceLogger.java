@@ -27,7 +27,7 @@ import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -111,11 +111,11 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
     }
 
     @Override
-    public void uploadDataSetsToCIFEX(String sessionToken, List<ExternalData> dataSets,
+    public void uploadDataSetsToCIFEX(String sessionToken, List<AbstractExternalData> dataSets,
             DataSetUploadContext context) throws InvalidAuthenticationException
     {
         StringBuilder builder = new StringBuilder();
-        for (ExternalData externalDataPE : dataSets)
+        for (AbstractExternalData externalDataPE : dataSets)
         {
             builder.append(' ').append(externalDataPE.getCode());
         }

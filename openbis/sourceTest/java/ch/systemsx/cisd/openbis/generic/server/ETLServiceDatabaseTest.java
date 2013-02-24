@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetai
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -240,7 +240,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
                 MatchClauseAttribute.TYPE, "HCS_IMAGE"));
         searchCriteria.addMatchClause(SearchCriteria.MatchClause.createPropertyMatch("COMMENT",
                 "no comment"));
-        List<ExternalData> dataSetsToUpdate =
+        List<AbstractExternalData> dataSetsToUpdate =
                 service.searchForDataSets(sessionToken, searchCriteria);
         assertEquals(13, dataSetsToUpdate.size());
 
@@ -249,7 +249,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         // Update the comment
         String newComment = "This is a new comment. This is not the old comment.";
         List<DataSetBatchUpdatesDTO> dataSetUpdates = new ArrayList<DataSetBatchUpdatesDTO>();
-        for (ExternalData dataSetToUpdate : dataSetsToUpdate)
+        for (AbstractExternalData dataSetToUpdate : dataSetsToUpdate)
         {
             assertTrue("The modification date should be in the distant past", dataSetToUpdate
                     .getModificationDate().compareTo(now) < 0);
@@ -264,14 +264,14 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         performDataSetUpdates(dataSetUpdates, 1);
 
         // Now retrieve the sample again and check that the properties were updated.
-        List<ExternalData> updatedDataSets =
+        List<AbstractExternalData> updatedDataSets =
                 service.searchForDataSets(sessionToken, searchCriteria);
         // The index has not been updated yet, so we have to group the items into those that
         // still have the old comment and those with the new comment
 
-        List<ExternalData> dataSetsWithOldValue = new ArrayList<ExternalData>();
-        List<ExternalData> dataSetsWithNewValue = new ArrayList<ExternalData>();
-        for (ExternalData data : updatedDataSets)
+        List<AbstractExternalData> dataSetsWithOldValue = new ArrayList<AbstractExternalData>();
+        List<AbstractExternalData> dataSetsWithNewValue = new ArrayList<AbstractExternalData>();
+        for (AbstractExternalData data : updatedDataSets)
         {
             String comment = EntityHelper.tryFindPropertyValue(data, "COMMENT");
             if (newComment.equals(comment))
@@ -283,7 +283,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         assertEquals(0, dataSetsWithOldValue.size());
         assertEquals(dataSetsToUpdate.size(), dataSetsWithNewValue.size());
 
-        for (ExternalData dataSetWithNewValue : dataSetsWithNewValue)
+        for (AbstractExternalData dataSetWithNewValue : dataSetsWithNewValue)
         {
             assertTrue("The modification date should be current", dataSetWithNewValue
                     .getModificationDate().compareTo(now) > 0);
@@ -297,7 +297,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
     @Test(expectedExceptions = EnvironmentFailureException.class)
     public void testPerformEntityOperationsUpdateStaleDataSet()
     {
-        ExternalData dataSetToUpdate = findDatasetByCode("20081105092159188-3");
+        AbstractExternalData dataSetToUpdate = findDatasetByCode("20081105092159188-3");
 
         DataSetBatchUpdatesDTO update =
                 createDataSetUpdateDTO(dataSetToUpdate, "COMMENT",
@@ -392,7 +392,7 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         return sampleUpdate;
     }
 
-    private DataSetBatchUpdatesDTO createDataSetUpdateDTO(ExternalData dataSet,
+    private DataSetBatchUpdatesDTO createDataSetUpdateDTO(AbstractExternalData dataSet,
             String propertyCode, String propertyValue)
     {
         // Create the initial information
@@ -540,12 +540,12 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         return samples.get(0);
     }
 
-    private ExternalData findDatasetByCode(String code)
+    private AbstractExternalData findDatasetByCode(String code)
     {
         SearchCriteria searchCriteria = new SearchCriteria();
         searchCriteria.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(
                 MatchClauseAttribute.CODE, code));
-        List<ExternalData> dataSets = service.searchForDataSets(sessionToken, searchCriteria);
+        List<AbstractExternalData> dataSets = service.searchForDataSets(sessionToken, searchCriteria);
         assertEquals(1, dataSets.size());
         return dataSets.get(0);
     }

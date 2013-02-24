@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -78,7 +78,7 @@ public class AssignSampleToExperimentTest extends BaseTest
     public void dataSetsOfSampleAreAssociatedWithNewExperiment() throws Exception
     {
         Sample sample = create(aSample().inExperiment(sourceExperiment));
-        ExternalData dataSet = create(aDataSet().inSample(sample));
+        AbstractExternalData dataSet = create(aDataSet().inSample(sample));
 
         perform(anUpdateOf(sample).toExperiment(destinationExperiment));
 

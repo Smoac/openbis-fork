@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -73,14 +73,14 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
         return create(viewContext, null, false);
     }
 
-    public static DisposableEntityChooser<TableModelRowWithObject<ExternalData>> createWithInitialSearchCriteria(
+    public static DisposableEntityChooser<TableModelRowWithObject<AbstractExternalData>> createWithInitialSearchCriteria(
             final IViewContext<ICommonClientServiceAsync> viewContext,
             DetailedSearchCriteria searchCriteria, boolean forChooser)
     {
         return create(viewContext, searchCriteria, forChooser);
     }
 
-    private static DisposableEntityChooser<TableModelRowWithObject<ExternalData>> create(
+    private static DisposableEntityChooser<TableModelRowWithObject<AbstractExternalData>> create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
             DetailedSearchCriteria searchCriteriaOrNull, boolean forChooser)
     {
@@ -174,7 +174,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
     }
 
     @Override
-    protected ICellListenerAndLinkGenerator<ExternalData> tryGetCellListenerAndLinkGenerator(
+    protected ICellListenerAndLinkGenerator<AbstractExternalData> tryGetCellListenerAndLinkGenerator(
             String columnId)
     {
         if (forChooser)
@@ -185,7 +185,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
     }
 
     @Override
-    protected boolean isEditable(BaseEntityModel<TableModelRowWithObject<ExternalData>> model,
+    protected boolean isEditable(BaseEntityModel<TableModelRowWithObject<AbstractExternalData>> model,
             String columnID)
     {
         return forChooser ? false : super.isEditable(model, columnID);
@@ -193,7 +193,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
 
     @Override
     protected void showNonEditableTableCellMessage(
-            BaseEntityModel<TableModelRowWithObject<ExternalData>> model, String columnID)
+            BaseEntityModel<TableModelRowWithObject<AbstractExternalData>> model, String columnID)
     {
         if (forChooser)
         {
@@ -204,10 +204,10 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
 
     @Override
     protected void listTableRows(
-            DefaultResultSetConfig<String, TableModelRowWithObject<ExternalData>> resultSetConfig,
-            AbstractAsyncCallback<TypedTableResultSet<ExternalData>> callback)
+            DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> resultSetConfig,
+            AbstractAsyncCallback<TypedTableResultSet<AbstractExternalData>> callback)
     {
-        callback.addOnSuccessAction(new ShowResultSetCutInfo<TypedTableResultSet<ExternalData>>(
+        callback.addOnSuccessAction(new ShowResultSetCutInfo<TypedTableResultSet<AbstractExternalData>>(
                 viewContext));
         viewContext.getService().searchForDataSets(chosenSearchCriteria, resultSetConfig, callback);
     }
@@ -230,7 +230,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
     }
 
     /** @return this grid as a disposable component with a specified toolbar at the top. */
-    private DisposableEntityChooser<TableModelRowWithObject<ExternalData>> asDisposableWithToolbar(
+    private DisposableEntityChooser<TableModelRowWithObject<AbstractExternalData>> asDisposableWithToolbar(
             final LayoutContainerWithDisposableComponent containerHolder,
             final IDisposableComponent toolbar)
     {

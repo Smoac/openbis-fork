@@ -60,7 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetUrl;
@@ -336,18 +336,18 @@ public class Translator
     }
 
     /**
-     * Translates specified iterable collection of {@link ExternalData} into a list of
+     * Translates specified iterable collection of {@link AbstractExternalData} into a list of
      * {@link DataSet} instance.
      * 
      * @param connectionsToGet Set of data set connections which should also be translated. This
-     *            assumes that the {@link ExternalData} instances are populated with these
+     *            assumes that the {@link AbstractExternalData} instances are populated with these
      *            connections.
      */
-    public static List<DataSet> translate(Iterable<ExternalData> dataSets,
+    public static List<DataSet> translate(Iterable<AbstractExternalData> dataSets,
             EnumSet<Connections> connectionsToGet)
     {
         ArrayList<DataSet> translated = new ArrayList<DataSet>();
-        for (ExternalData dataSet : dataSets)
+        for (AbstractExternalData dataSet : dataSets)
         {
             translated.add(translate(dataSet, connectionsToGet));
         }
@@ -355,28 +355,28 @@ public class Translator
     }
 
     /**
-     * Translates the specified {@link ExternalData} instance into a {@link DataSet} instance.
+     * Translates the specified {@link AbstractExternalData} instance into a {@link DataSet} instance.
      * 
      * @param connectionsToGet Set of data set connections which should also be translated. This
-     *            assumes that the {@link ExternalData} instance is populated with these
+     *            assumes that the {@link AbstractExternalData} instance is populated with these
      *            connections.
      */
-    public static DataSet translate(ExternalData externalDatum,
+    public static DataSet translate(AbstractExternalData externalDatum,
             EnumSet<Connections> connectionsToGet)
     {
         return translate(externalDatum, connectionsToGet, true);
     }
 
     /**
-     * Translates the specified {@link ExternalData} instance into a {@link DataSet} instance.
+     * Translates the specified {@link AbstractExternalData} instance into a {@link DataSet} instance.
      * 
      * @param connectionsToGet Set of data set connections which should also be translated. This
-     *            assumes that the {@link ExternalData} instance is populated with these
+     *            assumes that the {@link AbstractExternalData} instance is populated with these
      *            connections.
      * @param doRecurseIntoContainedDataSets If <code>true</code>, the translation will recurse into
      *            contained dataset, if <code>false</code>, contained datasets will not be set.
      */
-    private static DataSet translate(ExternalData externalDatum,
+    private static DataSet translate(AbstractExternalData externalDatum,
             EnumSet<Connections> connectionsToGet, boolean doRecurseIntoContainedDataSets)
     {
         DataSetInitializer initializer = new DataSetInitializer();
@@ -413,7 +413,7 @@ public class Translator
 
             ArrayList<DataSet> containedDataSets =
                     new ArrayList<DataSet>(containerDataSet.getContainedDataSets().size());
-            for (ExternalData containedDataSet : containerDataSet.getContainedDataSets())
+            for (AbstractExternalData containedDataSet : containerDataSet.getContainedDataSets())
             {
                 containedDataSets.add(translate(containedDataSet, connectionsToGet, true));
             }
@@ -436,18 +436,18 @@ public class Translator
             switch (connection)
             {
                 case PARENTS:
-                    Collection<ExternalData> parents = externalDatum.getParents();
+                    Collection<AbstractExternalData> parents = externalDatum.getParents();
                     ArrayList<String> parentCodes = new ArrayList<String>();
-                    for (ExternalData parentDatum : nullSafe(parents))
+                    for (AbstractExternalData parentDatum : nullSafe(parents))
                     {
                         parentCodes.add(parentDatum.getCode());
                     }
                     initializer.setParentCodes(parentCodes);
                     break;
                 case CHILDREN:
-                    Collection<ExternalData> children = externalDatum.getChildren();
+                    Collection<AbstractExternalData> children = externalDatum.getChildren();
                     ArrayList<String> childrenCodes = new ArrayList<String>();
-                    for (ExternalData parentDatum : nullSafe(children))
+                    for (AbstractExternalData parentDatum : nullSafe(children))
                     {
                         childrenCodes.add(parentDatum.getCode());
                     }

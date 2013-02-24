@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.ParentDataSetCodes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -144,13 +144,13 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
     static ParentDataSetCodes getParentDataSetCodes(String parentDataSetCodesOrNull,
             String baseExperimentIdentifier, IEncapsulatedOpenBISService service)
     {
-        List<ExternalData> parentDataSets = new ArrayList<ExternalData>();
+        List<AbstractExternalData> parentDataSets = new ArrayList<AbstractExternalData>();
         StringBuilder builder = new StringBuilder();
         if (parentDataSetCodesOrNull != null)
         {
             for (String code : StringUtils.split(parentDataSetCodesOrNull, ", "))
             {
-                ExternalData dataSet = service.tryGetDataSet(code);
+                AbstractExternalData dataSet = service.tryGetDataSet(code);
                 if (dataSet != null)
                 {
                     parentDataSets.add(dataSet);
@@ -174,7 +174,7 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
             }
         }
         List<String> parentDataSetCodes = new ArrayList<String>();
-        for (ExternalData dataSet : parentDataSets)
+        for (AbstractExternalData dataSet : parentDataSets)
         {
             parentDataSetCodes.add(dataSet.getCode());
         }

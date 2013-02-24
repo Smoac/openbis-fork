@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
-public class ExternalDataBuilder extends Builder<ExternalData>
+public class ExternalDataBuilder extends Builder<AbstractExternalData>
 {
     private static int number;
 
@@ -83,16 +83,16 @@ public class ExternalDataBuilder extends Builder<ExternalData>
         return this;
     }
 
-    public ExternalDataBuilder withParents(ExternalData... dataSets)
+    public ExternalDataBuilder withParents(AbstractExternalData... dataSets)
     {
-        for (ExternalData parent : dataSets)
+        for (AbstractExternalData parent : dataSets)
         {
             this.parentCodes.add(parent.getCode());
         }
         return this;
     }
 
-    public ExternalDataBuilder withParent(ExternalData dataSet)
+    public ExternalDataBuilder withParent(AbstractExternalData dataSet)
     {
         return this.withParents(dataSet);
     }
@@ -103,22 +103,22 @@ public class ExternalDataBuilder extends Builder<ExternalData>
         return this;
     }
 
-    public ExternalDataBuilder withComponents(ExternalData... data)
+    public ExternalDataBuilder withComponents(AbstractExternalData... data)
     {
-        for (ExternalData component : data)
+        for (AbstractExternalData component : data)
         {
             this.componentCodes.add(component.getCode());
         }
         return this;
     }
 
-    public ExternalDataBuilder withComponent(ExternalData data)
+    public ExternalDataBuilder withComponent(AbstractExternalData data)
     {
         return this.withComponents(data);
     }
 
     @Override
-    public ExternalData create()
+    public AbstractExternalData create()
     {
         DataSetType dataSetType = new DataSetType();
         dataSetType.setCode("DT" + number++);

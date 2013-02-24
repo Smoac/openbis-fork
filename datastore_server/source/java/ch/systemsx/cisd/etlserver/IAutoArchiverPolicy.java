@@ -19,7 +19,7 @@ package ch.systemsx.cisd.etlserver;
 import java.util.List;
 
 import ch.systemsx.cisd.etlserver.plugins.AutoArchiverTask;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * The interface that should be implemented by all {@link AutoArchiverTask} policies.
@@ -32,6 +32,6 @@ public interface IAutoArchiverPolicy
     /**
      * Returns given list of data sets filtered in a specific way.
      */
-    public List<ExternalData> filter(List<ExternalData> dataSets);
+    public List<AbstractExternalData> filter(List<AbstractExternalData> dataSets);
 
 }

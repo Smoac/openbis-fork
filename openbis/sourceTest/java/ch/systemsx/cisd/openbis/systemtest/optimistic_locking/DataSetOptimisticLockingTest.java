@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
@@ -59,7 +59,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     public void testChangeFileFormatTypeViaPerformEntityOperation()
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
-        ExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment));
+        AbstractExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment));
         assertEquals("XML", ((PhysicalDataSet) dataSet).getFileFormatType().getCode());
         DataSetBatchUpdatesDTO dataSetBatchUpdates = new DataSetBatchUpdatesDTO();
         dataSetBatchUpdates.setVersion(dataSet.getVersion());
@@ -77,7 +77,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
-        ExternalData loadedDataSet = toolBox.loadDataSet(systemSessionToken, dataSet.getCode());
+        AbstractExternalData loadedDataSet = toolBox.loadDataSet(systemSessionToken, dataSet.getCode());
         assertEquals("HDF5", ((PhysicalDataSet) loadedDataSet).getFileFormatType().getCode());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet, "test");
     }
@@ -86,7 +86,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     public void testChangeFileFormatTypeViaUpdateDataSet()
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
-        ExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment));
+        AbstractExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment));
         assertEquals("XML", ((PhysicalDataSet) dataSet).getFileFormatType().getCode());
         DataSetUpdatesDTO dataSetUpdates =
                 new DataSetUpdateBuilder(commonServer, genericServer, dataSet).create();
@@ -96,7 +96,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
 
         etlService.updateDataSet(sessionToken, dataSetUpdates);
 
-        ExternalData loadedDataSet = toolBox.loadDataSet(systemSessionToken, dataSet.getCode());
+        AbstractExternalData loadedDataSet = toolBox.loadDataSet(systemSessionToken, dataSet.getCode());
         assertEquals("HDF5", ((PhysicalDataSet) loadedDataSet).getFileFormatType().getCode());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet, "test");
     }
@@ -105,7 +105,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     public void testChangeFileFormatTypeOfAStaleDataSetViaUpdateDataSet()
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
-        ExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment));
+        AbstractExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment));
         assertEquals("XML", ((PhysicalDataSet) dataSet).getFileFormatType().getCode());
         DataSetUpdatesDTO dataSetUpdates =
                 new DataSetUpdateBuilder(commonServer, genericServer, dataSet).create();
@@ -131,7 +131,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         NewDataSet newDataSet = toolBox.dataSet("DS-1", experiment);
         newDataSet.setDataSetType(new DataSetType("HCS_IMAGE"));
         newDataSet.setDataSetProperties(Arrays.asList(new NewProperty("COMMENT", "1")));
-        ExternalData dataSet = toolBox.createAndLoadDataSet(newDataSet);
+        AbstractExternalData dataSet = toolBox.createAndLoadDataSet(newDataSet);
         DataSetBatchUpdatesDTO dataSetBatchUpdates = new DataSetBatchUpdatesDTO();
         dataSetBatchUpdates.setVersion(dataSet.getVersion());
         dataSetBatchUpdates.setDatasetCode(dataSet.getCode());
@@ -148,7 +148,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
-        ExternalData loadedDataSet = toolBox.loadDataSet(systemSessionToken, dataSet.getCode());
+        AbstractExternalData loadedDataSet = toolBox.loadDataSet(systemSessionToken, dataSet.getCode());
         assertEquals("[COMMENT: 2]", loadedDataSet.getProperties().toString());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet, "test");
     }
@@ -160,7 +160,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         NewDataSet newDataSet = toolBox.dataSet("DS-1", experiment);
         newDataSet.setDataSetType(new DataSetType("HCS_IMAGE"));
         newDataSet.setDataSetProperties(Arrays.asList(new NewProperty("COMMENT", "1")));
-        ExternalData dataSet = toolBox.createAndLoadDataSet(newDataSet);
+        AbstractExternalData dataSet = toolBox.createAndLoadDataSet(newDataSet);
         DataSetUpdatesDTO dataSetUpdates =
                 new DataSetUpdateBuilder(commonServer, genericServer, dataSet).create();
         dataSetUpdates.getProperties().add(new PropertyBuilder("COMMENT").value("2").getProperty());
@@ -169,7 +169,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
 
         etlService.updateDataSet(sessionToken, dataSetUpdates);
 
-        ExternalData loadedDataSet = toolBox.loadDataSet(systemSessionToken, dataSet.getCode());
+        AbstractExternalData loadedDataSet = toolBox.loadDataSet(systemSessionToken, dataSet.getCode());
         assertEquals("[COMMENT: 2]", loadedDataSet.getProperties().toString());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet, "test");
     }
@@ -181,7 +181,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         NewDataSet newDataSet = toolBox.dataSet("DS-1", experiment);
         newDataSet.setDataSetType(new DataSetType("HCS_IMAGE"));
         newDataSet.setDataSetProperties(Arrays.asList(new NewProperty("COMMENT", "1")));
-        ExternalData dataSet = toolBox.createAndLoadDataSet(newDataSet);
+        AbstractExternalData dataSet = toolBox.createAndLoadDataSet(newDataSet);
         DataSetBatchUpdatesDTO dataSetBatchUpdates = new DataSetBatchUpdatesDTO();
         dataSetBatchUpdates.setVersion(dataSet.getVersion());
         dataSetBatchUpdates.setDatasetCode(dataSet.getCode());
@@ -211,7 +211,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     public void testAddMetaProjectViaPerformEntityOperation()
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
-        ExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment));
+        AbstractExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment));
         MetaprojectUpdatesDTO metaProjectUpdate = new MetaprojectUpdatesDTO();
         metaProjectUpdate.setAddedEntities(Arrays.asList(new DataSetCodeId(dataSet.getCode())));
         metaProjectUpdate.setRemovedEntities(Arrays.<IObjectId> asList());
@@ -223,7 +223,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
         String sessionToken = logIntoCommonClientService().getSessionID();
-        ExternalData loadedDataSet = toolBox.loadDataSet(sessionToken, dataSet.getCode());
+        AbstractExternalData loadedDataSet = toolBox.loadDataSet(sessionToken, dataSet.getCode());
         assertEquals(dataSet.getModifier(), loadedDataSet.getModifier());
         assertEquals(dataSet.getModificationDate(), loadedDataSet.getModificationDate());
         assertEquals("/test/TEST_METAPROJECTS",
@@ -238,7 +238,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     public void testAddMetaProjectViaUpdateDataSet()
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
-        ExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment));
+        AbstractExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment));
         DataSetUpdatesDTO dataSetUpdates =
                 new DataSetUpdateBuilder(commonServer, genericServer, dataSet).create();
         dataSetUpdates.setMetaprojectsOrNull(new String[]
@@ -247,7 +247,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
 
         etlService.updateDataSet(sessionToken, dataSetUpdates);
 
-        ExternalData loadedDataSet = toolBox.loadDataSet(sessionToken, dataSet.getCode());
+        AbstractExternalData loadedDataSet = toolBox.loadDataSet(sessionToken, dataSet.getCode());
         assertEquals(dataSet.getModifier(), loadedDataSet.getModifier());
         assertEquals(dataSet.getModificationDate(), loadedDataSet.getModificationDate());
         assertEquals("/test/TEST_METAPROJECTS",
@@ -262,7 +262,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     public void testChangeExperimentViaPerformEntityOperation()
     {
         Experiment experiment1 = toolBox.createAndLoadExperiment(1);
-        ExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment1));
+        AbstractExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment1));
         assertEquals(experiment1.getIdentifier(), dataSet.getExperiment().getIdentifier());
         Experiment experiment2 = toolBox.createAndLoadExperiment(2);
         DataSetBatchUpdatesDTO dataSetBatchUpdates = new DataSetBatchUpdatesDTO();
@@ -281,7 +281,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
-        ExternalData loadedDataSet = toolBox.loadDataSet(dataSet.getCode());
+        AbstractExternalData loadedDataSet = toolBox.loadDataSet(dataSet.getCode());
         assertEquals(experiment2.getIdentifier(), loadedDataSet.getExperiment().getIdentifier());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet, "test");
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
@@ -300,7 +300,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     public void testChangeExperimentViaUpdateDataSet()
     {
         Experiment experiment1 = toolBox.createAndLoadExperiment(1);
-        ExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment1));
+        AbstractExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment1));
         assertEquals(experiment1.getIdentifier(), dataSet.getExperiment().getIdentifier());
         Experiment experiment2 = toolBox.createAndLoadExperiment(2);
         DataSetUpdatesDTO dataSetUpdates =
@@ -311,7 +311,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
 
         etlService.updateDataSet(sessionToken, dataSetUpdates);
 
-        ExternalData loadedDataSet = toolBox.loadDataSet(dataSet.getCode());
+        AbstractExternalData loadedDataSet = toolBox.loadDataSet(dataSet.getCode());
         assertEquals(experiment2.getIdentifier(), loadedDataSet.getExperiment().getIdentifier());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet, "test");
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
@@ -331,7 +331,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     {
         Experiment experiment1 = toolBox.createAndLoadExperiment(1);
         Sample sample1 = toolBox.createAndLoadSample(1, experiment1);
-        ExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", sample1));
+        AbstractExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", sample1));
         assertEquals(experiment1.getIdentifier(), dataSet.getExperiment().getIdentifier());
         assertEquals(sample1.getIdentifier(), dataSet.getSampleIdentifier());
         Experiment experiment2 = toolBox.createAndLoadExperiment(2);
@@ -352,7 +352,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
-        ExternalData loadedDataSet = toolBox.loadDataSet(dataSet.getCode());
+        AbstractExternalData loadedDataSet = toolBox.loadDataSet(dataSet.getCode());
         assertEquals(experiment2.getIdentifier(), loadedDataSet.getExperiment().getIdentifier());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet, "test");
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
@@ -382,7 +382,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     {
         Experiment experiment1 = toolBox.createAndLoadExperiment(1);
         Sample sample1 = toolBox.createAndLoadSample(1, experiment1);
-        ExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", sample1));
+        AbstractExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", sample1));
         assertEquals(experiment1.getIdentifier(), dataSet.getExperiment().getIdentifier());
         assertEquals(sample1.getIdentifier(), dataSet.getSampleIdentifier());
         Experiment experiment2 = toolBox.createAndLoadExperiment(2);
@@ -395,7 +395,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
 
         etlService.updateDataSet(sessionToken, dataSetUpdates);
 
-        ExternalData loadedDataSet = toolBox.loadDataSet(dataSet.getCode());
+        AbstractExternalData loadedDataSet = toolBox.loadDataSet(dataSet.getCode());
         assertEquals(experiment2.getIdentifier(), loadedDataSet.getExperiment().getIdentifier());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet, "test");
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
@@ -424,7 +424,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     public void testCreateChildDataSets()
     {
         Experiment experiment1 = toolBox.createAndLoadExperiment(1);
-        ExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment1));
+        AbstractExternalData dataSet = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment1));
         Experiment experiment2 = toolBox.createAndLoadExperiment(2);
         NewDataSet child = toolBox.dataSet("DS-1-C", experiment2);
         child.setParentDataSetCodes(Arrays.asList(dataSet.getCode()));
@@ -437,9 +437,9 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
-        ExternalData loadedDataSet = toolBox.loadDataSet(dataSet.getCode());
-        ExternalData loadedChild = toolBox.loadDataSet(child.getCode());
-        ExternalData loadedGrandChild = toolBox.loadDataSet(grandChild.getCode());
+        AbstractExternalData loadedDataSet = toolBox.loadDataSet(dataSet.getCode());
+        AbstractExternalData loadedChild = toolBox.loadDataSet(child.getCode());
+        AbstractExternalData loadedGrandChild = toolBox.loadDataSet(grandChild.getCode());
         assertEquals(experiment1.getIdentifier(), loadedDataSet.getExperiment().getIdentifier());
         assertEquals("[DS-1-C]", toolBox.extractCodes(loadedDataSet.getChildren()).toString());
         assertEquals(experiment2.getIdentifier(), loadedChild.getExperiment().getIdentifier());
@@ -457,12 +457,12 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     public void testChangeParentViaPerformEntityOperation()
     {
         Experiment experiment1 = toolBox.createAndLoadExperiment(1);
-        ExternalData dataSet1 = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment1));
-        ExternalData dataSet2 = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-2", experiment1));
+        AbstractExternalData dataSet1 = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment1));
+        AbstractExternalData dataSet2 = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-2", experiment1));
         Experiment experiment2 = toolBox.createAndLoadExperiment(2);
         NewDataSet newDataSet = toolBox.dataSet("DS-3", experiment2);
         newDataSet.setParentDataSetCodes(Arrays.asList(dataSet1.getCode()));
-        ExternalData child = toolBox.createAndLoadDataSet(newDataSet);
+        AbstractExternalData child = toolBox.createAndLoadDataSet(newDataSet);
         DataSetBatchUpdatesDTO dataSetBatchUpdates = new DataSetBatchUpdatesDTO();
         dataSetBatchUpdates.setVersion(child.getVersion());
         dataSetBatchUpdates.setDatasetCode(child.getCode());
@@ -480,9 +480,9 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
 
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
-        ExternalData loadedDataSet1 = toolBox.loadDataSet(dataSet1.getCode());
-        ExternalData loadedDataSet2 = toolBox.loadDataSet(dataSet2.getCode());
-        ExternalData loadedChild = toolBox.loadDataSet(child.getCode());
+        AbstractExternalData loadedDataSet1 = toolBox.loadDataSet(dataSet1.getCode());
+        AbstractExternalData loadedDataSet2 = toolBox.loadDataSet(dataSet2.getCode());
+        AbstractExternalData loadedChild = toolBox.loadDataSet(child.getCode());
         assertEquals(experiment1.getIdentifier(), loadedDataSet1.getExperiment().getIdentifier());
         assertEquals("[]", toolBox.extractCodes(loadedDataSet1.getChildren()).toString());
         assertEquals("[DS-3]", toolBox.extractCodes(loadedDataSet2.getChildren()).toString());
@@ -497,12 +497,12 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
     public void testChangeParentViaUpdateDataSet()
     {
         Experiment experiment1 = toolBox.createAndLoadExperiment(1);
-        ExternalData dataSet1 = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment1));
-        ExternalData dataSet2 = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-2", experiment1));
+        AbstractExternalData dataSet1 = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-1", experiment1));
+        AbstractExternalData dataSet2 = toolBox.createAndLoadDataSet(toolBox.dataSet("DS-2", experiment1));
         Experiment experiment2 = toolBox.createAndLoadExperiment(2);
         NewDataSet newDataSet = toolBox.dataSet("DS-3", experiment2);
         newDataSet.setParentDataSetCodes(Arrays.asList(dataSet1.getCode()));
-        ExternalData child = toolBox.createAndLoadDataSet(newDataSet);
+        AbstractExternalData child = toolBox.createAndLoadDataSet(newDataSet);
         DataSetUpdatesDTO dataSetUpdates =
                 new DataSetUpdateBuilder(commonServer, genericServer, child).create();
         dataSetUpdates.setModifiedParentDatasetCodesOrNull(new String[]
@@ -512,9 +512,9 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
 
         etlService.updateDataSet(sessionToken, dataSetUpdates);
 
-        ExternalData loadedDataSet1 = toolBox.loadDataSet(dataSet1.getCode());
-        ExternalData loadedDataSet2 = toolBox.loadDataSet(dataSet2.getCode());
-        ExternalData loadedChild = toolBox.loadDataSet(child.getCode());
+        AbstractExternalData loadedDataSet1 = toolBox.loadDataSet(dataSet1.getCode());
+        AbstractExternalData loadedDataSet2 = toolBox.loadDataSet(dataSet2.getCode());
+        AbstractExternalData loadedChild = toolBox.loadDataSet(child.getCode());
         assertEquals(experiment1.getIdentifier(), loadedDataSet1.getExperiment().getIdentifier());
         assertEquals("[]", toolBox.extractCodes(loadedDataSet1.getChildren()).toString());
         assertEquals("[DS-3]", toolBox.extractCodes(loadedDataSet2.getChildren()).toString());
@@ -541,7 +541,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
 
         ContainerDataSet loadedContainerDataSet =
                 (ContainerDataSet) toolBox.loadDataSet(containerDataSet.getCode());
-        ExternalData loadedContainedDataSet = toolBox.loadDataSet(containedDataSet.getCode());
+        AbstractExternalData loadedContainedDataSet = toolBox.loadDataSet(containedDataSet.getCode());
         assertEquals("[DS-2]", toolBox.extractCodes(loadedContainerDataSet.getContainedDataSets())
                 .toString());
         assertEquals("DS-1", loadedContainedDataSet.tryGetContainer().getCode());
@@ -561,7 +561,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         toolBox.createAndLoadDataSet(containerDataSet1);
         NewContainerDataSet containerDataSet2 = toolBox.containerDataSet("DS-2", experiment);
         toolBox.createAndLoadDataSet(containerDataSet2);
-        ExternalData dataSet = toolBox.loadDataSet(containedDataSet.getCode());
+        AbstractExternalData dataSet = toolBox.loadDataSet(containedDataSet.getCode());
         assertEquals("DS-1", dataSet.tryGetContainer().getCode());
         DataSetBatchUpdatesDTO dataSetBatchUpdates = new DataSetBatchUpdatesDTO();
         dataSetBatchUpdates.setVersion(dataSet.getVersion());
@@ -582,7 +582,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
                 (ContainerDataSet) toolBox.loadDataSet(containerDataSet1.getCode());
         ContainerDataSet loadedContainerDataSet2 =
                 (ContainerDataSet) toolBox.loadDataSet(containerDataSet2.getCode());
-        ExternalData loadedContainedDataSet = toolBox.loadDataSet(containedDataSet.getCode());
+        AbstractExternalData loadedContainedDataSet = toolBox.loadDataSet(containedDataSet.getCode());
         assertEquals("[]", toolBox.extractCodes(loadedContainerDataSet1.getContainedDataSets())
                 .toString());
         assertEquals("[DS-3]", toolBox.extractCodes(loadedContainerDataSet2.getContainedDataSets())
@@ -606,7 +606,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         toolBox.createAndLoadDataSet(containerDataSet1);
         NewContainerDataSet containerDataSet2 = toolBox.containerDataSet("DS-2", experiment);
         toolBox.createAndLoadDataSet(containerDataSet2);
-        ExternalData dataSet = toolBox.loadDataSet(containedDataSet.getCode());
+        AbstractExternalData dataSet = toolBox.loadDataSet(containedDataSet.getCode());
         assertEquals("DS-1", dataSet.tryGetContainer().getCode());
         DataSetBatchUpdatesDTO dataSetBatchUpdates = new DataSetBatchUpdatesDTO();
         dataSetBatchUpdates.setVersion(dataSet.getVersion());
@@ -628,7 +628,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
                 (ContainerDataSet) toolBox.loadDataSet(containerDataSet1.getCode());
         ContainerDataSet loadedContainerDataSet2 =
                 (ContainerDataSet) toolBox.loadDataSet(containerDataSet2.getCode());
-        ExternalData loadedContainedDataSet = toolBox.loadDataSet(containedDataSet.getCode());
+        AbstractExternalData loadedContainedDataSet = toolBox.loadDataSet(containedDataSet.getCode());
         assertEquals("[]", toolBox.extractCodes(loadedContainerDataSet1.getContainedDataSets())
                 .toString());
         assertEquals("[DS-3]", toolBox.extractCodes(loadedContainerDataSet2.getContainedDataSets())
@@ -675,8 +675,8 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
 
         loadedContainerDataSet = (ContainerDataSet) toolBox.loadDataSet(containerDataSet.getCode());
-        ExternalData loadedDataSet1 = toolBox.loadDataSet(dataSet1.getCode());
-        ExternalData loadedDataSet2 = toolBox.loadDataSet(dataSet2.getCode());
+        AbstractExternalData loadedDataSet1 = toolBox.loadDataSet(dataSet1.getCode());
+        AbstractExternalData loadedDataSet2 = toolBox.loadDataSet(dataSet2.getCode());
         assertEquals("[DS-2]", toolBox.extractCodes(loadedContainerDataSet.getContainedDataSets())
                 .toString());
         assertEquals(null, loadedDataSet1.tryGetContainer());
@@ -719,8 +719,8 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         etlService.updateDataSet(sessionToken, dataSetBatchUpdates);
 
         loadedContainerDataSet = (ContainerDataSet) toolBox.loadDataSet(containerDataSet.getCode());
-        ExternalData loadedDataSet1 = toolBox.loadDataSet(dataSet1.getCode());
-        ExternalData loadedDataSet2 = toolBox.loadDataSet(dataSet2.getCode());
+        AbstractExternalData loadedDataSet1 = toolBox.loadDataSet(dataSet1.getCode());
+        AbstractExternalData loadedDataSet2 = toolBox.loadDataSet(dataSet2.getCode());
         assertEquals("[DS-2]", toolBox.extractCodes(loadedContainerDataSet.getContainedDataSets())
                 .toString());
         assertEquals(null, loadedDataSet1.tryGetContainer());

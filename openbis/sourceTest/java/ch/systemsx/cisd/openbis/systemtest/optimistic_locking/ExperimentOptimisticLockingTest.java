@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -316,9 +316,9 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
         NewDataSet dataSet = toolBox.dataSet("DS-1", exp1);
         builder.dataSet(dataSet);
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
-        List<ExternalData> dataSets =
+        List<AbstractExternalData> dataSets =
                 etlService.listDataSetsByExperimentID(systemSessionToken, new TechId(exp1));
-        ExternalData loadedDataSet = dataSets.get(0);
+        AbstractExternalData loadedDataSet = dataSets.get(0);
         assertEquals(dataSet.getCode(), loadedDataSet.getCode());
         DataSetUpdatesDTO update = new DataSetUpdatesDTO();
         update.setDatasetId(new TechId(loadedDataSet));
@@ -334,13 +334,13 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
         Experiment loadedExperiment1 = toolBox.loadExperiment(exp1);
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedExperiment1,
                 "test");
-        List<ExternalData> dataSets1 =
+        List<AbstractExternalData> dataSets1 =
                 etlService.listDataSetsByExperimentID(systemSessionToken, new TechId(exp1));
         assertEquals("[]", dataSets1.toString());
         Experiment loadedExperiment2 = toolBox.loadExperiment(exp2);
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedExperiment2,
                 "test");
-        List<ExternalData> dataSets2 =
+        List<AbstractExternalData> dataSets2 =
                 etlService.listDataSetsByExperimentID(systemSessionToken, new TechId(exp2));
         assertEquals(dataSet.getCode(), dataSets2.get(0).getCode());
     }

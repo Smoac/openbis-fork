@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewDataSet;
@@ -54,7 +54,7 @@ public class MultiThreadDataSetOptimisticLockingTest extends MultiThreadOptimist
     public void testRegisterChildDataSetsForAParentDataSetInTwoThreads()
     {
         final Experiment experiment = toolBox.createAndLoadExperiment(1);
-        final ExternalData parentDataSet =
+        final AbstractExternalData parentDataSet =
                 toolBox.createAndLoadDataSet(toolBox.dataSet("DS-PARENT", experiment));
         final MessageChannel messageChannelMain =
                 new MessageChannelBuilder(10000).name("child data sets main").logger(operationLog)
@@ -107,7 +107,7 @@ public class MultiThreadDataSetOptimisticLockingTest extends MultiThreadOptimist
         etlService.performEntityOperations(systemSessionToken, builder.getDetails());
         messageChannelSecond.assertNextMessage(ToolBox.REGISTERED);
 
-        ExternalData loadedParentDataSet = toolBox.loadDataSet(parentDataSet.getCode());
+        AbstractExternalData loadedParentDataSet = toolBox.loadDataSet(parentDataSet.getCode());
         assertEquals(experiment.getIdentifier(), loadedParentDataSet.getExperiment()
                 .getIdentifier());
         assertEquals("[DS-CHILD1, DS-CHILD2, DS-CHILD3]",
@@ -120,19 +120,19 @@ public class MultiThreadDataSetOptimisticLockingTest extends MultiThreadOptimist
     public void testTrashAndRevertDataSet()
     {
         Experiment experiment = toolBox.createAndLoadExperiment(1);
-        ExternalData parentDataSet =
+        AbstractExternalData parentDataSet =
                 toolBox.createAndLoadDataSet(toolBox.dataSet("DS-PARENT", experiment));
         Sample sample = toolBox.createAndLoadSample(1, experiment);
         NewDataSet newDataSet = toolBox.dataSet("DS-1", experiment);
         newDataSet.setSampleIdentifierOrNull(SampleIdentifierFactory.parse(sample));
         newDataSet.setParentDataSetCodes(Arrays.asList(parentDataSet.getCode()));
-        ExternalData dataSet = toolBox.createAndLoadDataSet(newDataSet);
+        AbstractExternalData dataSet = toolBox.createAndLoadDataSet(newDataSet);
         NewContainerDataSet newContainerDataSet = toolBox.containerDataSet("DS-CONT", experiment);
         newContainerDataSet.setContainedDataSetCodes(Arrays.asList(dataSet.getCode()));
-        ExternalData containerDataSet = toolBox.createAndLoadDataSet(newContainerDataSet);
+        AbstractExternalData containerDataSet = toolBox.createAndLoadDataSet(newContainerDataSet);
         NewDataSet newChilddataSet = toolBox.dataSet("DS-CHILD", experiment);
         newChilddataSet.setParentDataSetCodes(Arrays.asList(newDataSet.getCode()));
-        ExternalData childDataSet = toolBox.createAndLoadDataSet(newChilddataSet);
+        AbstractExternalData childDataSet = toolBox.createAndLoadDataSet(newChilddataSet);
         assertEquals(dataSet.getCode(), childDataSet.getParents().iterator().next().getCode());
         assertEquals(parentDataSet.getCode(), dataSet.getParents().iterator().next().getCode());
         assertEquals(experiment.getIdentifier(), dataSet.getExperiment().getIdentifier());
@@ -148,9 +148,9 @@ public class MultiThreadDataSetOptimisticLockingTest extends MultiThreadOptimist
 
         Experiment loadedExperiment = toolBox.loadExperiment(experiment);
         Sample loadedSample = toolBox.loadSample(sample);
-        ExternalData loadedContainerDataSet = toolBox.loadDataSet(containerDataSet.getCode());
-        ExternalData loadedParentDataSet = toolBox.loadDataSet(parentDataSet.getCode());
-        ExternalData loadedChildDataSet = toolBox.loadDataSet(childDataSet.getCode());
+        AbstractExternalData loadedContainerDataSet = toolBox.loadDataSet(containerDataSet.getCode());
+        AbstractExternalData loadedParentDataSet = toolBox.loadDataSet(parentDataSet.getCode());
+        AbstractExternalData loadedChildDataSet = toolBox.loadDataSet(childDataSet.getCode());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedExperiment,
                 "test");
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedSample, "test");
@@ -171,7 +171,7 @@ public class MultiThreadDataSetOptimisticLockingTest extends MultiThreadOptimist
         loadedExperiment = toolBox.loadExperiment(experiment);
         loadedSample = toolBox.loadSample(sample);
         loadedContainerDataSet = toolBox.loadDataSet(containerDataSet.getCode());
-        ExternalData loadedDataSet = toolBox.loadDataSet(dataSet.getCode());
+        AbstractExternalData loadedDataSet = toolBox.loadDataSet(dataSet.getCode());
         loadedParentDataSet = toolBox.loadDataSet(parentDataSet.getCode());
         loadedChildDataSet = toolBox.loadDataSet(childDataSet.getCode());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedExperiment,

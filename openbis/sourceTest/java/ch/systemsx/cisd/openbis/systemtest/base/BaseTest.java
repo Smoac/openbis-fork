@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -277,12 +277,12 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         return new SampleUpdateBuilder(commonServer, genericServer, refresh(sample));
     }
 
-    protected DataSetUpdateBuilder anUpdateOf(ExternalData dataset)
+    protected DataSetUpdateBuilder anUpdateOf(AbstractExternalData dataset)
     {
         return new DataSetUpdateBuilder(commonServer, genericServer, refresh(dataset));
     }
 
-    protected DataSetDeletionBuilder trash(ExternalData dataset)
+    protected DataSetDeletionBuilder trash(AbstractExternalData dataset)
     {
         return new DataSetDeletionBuilder(commonServer, genericServer, refresh(dataset));
     }
@@ -337,17 +337,17 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         return new InProjectMatcher(refresh(project));
     }
 
-    protected Matcher<ExternalData> inSample(Sample sample)
+    protected Matcher<AbstractExternalData> inSample(Sample sample)
     {
         return new InSampleMatcher(refresh(sample));
     }
 
-    protected Matcher<ExternalData> hasParents(ExternalData first, ExternalData... rest)
+    protected Matcher<AbstractExternalData> hasParents(AbstractExternalData first, AbstractExternalData... rest)
     {
         return new ExternalDataHasParentsMatcher(refresh(first), refresh(rest));
     }
 
-    protected Matcher<ExternalData> hasChildren(ExternalData first, ExternalData... rest)
+    protected Matcher<AbstractExternalData> hasChildren(AbstractExternalData first, AbstractExternalData... rest)
     {
         return new ExternalDataHasChildrenMatcher(refresh(first), refresh(rest));
     }
@@ -357,12 +357,12 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         return new HasNoParentMatcher();
     }
 
-    protected Matcher<ExternalData> hasNoChildren()
+    protected Matcher<AbstractExternalData> hasNoChildren()
     {
         return new HasNoChildrenMatcher();
     }
 
-    protected Matcher<ExternalData> hasNoSample()
+    protected Matcher<AbstractExternalData> hasNoSample()
     {
         return new ExternalDataHasNoSampleMatcher();
     }
@@ -382,7 +382,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         return new SampleHasContainerMatcher(refresh(container));
     }
 
-    protected Matcher<ExternalData> hasContainer(ExternalData container)
+    protected Matcher<AbstractExternalData> hasContainer(AbstractExternalData container)
     {
         return new ExternalDataHasContainerMatcher(refresh(container));
     }
@@ -421,11 +421,11 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         return result;
     }
 
-    protected ExternalData[] refresh(ExternalData[] dataSets)
+    protected AbstractExternalData[] refresh(AbstractExternalData[] dataSets)
     {
-        ExternalData[] result = new ExternalData[dataSets.length];
+        AbstractExternalData[] result = new AbstractExternalData[dataSets.length];
         int i = 0;
-        for (ExternalData data : dataSets)
+        for (AbstractExternalData data : dataSets)
         {
             result[i] = refresh(data);
             i++;
@@ -433,7 +433,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         return result;
     }
 
-    protected ExternalData refresh(ExternalData data)
+    protected AbstractExternalData refresh(AbstractExternalData data)
     {
         return etlService.tryGetDataSet(systemSessionToken, data.getCode());
     }
@@ -487,9 +487,9 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     public <T> void assertThat(T actual, Matcher<T> matcher)
     {
         T refreshed = actual;
-        if (actual instanceof ExternalData)
+        if (actual instanceof AbstractExternalData)
         {
-            refreshed = (T) refresh((ExternalData) actual);
+            refreshed = (T) refresh((AbstractExternalData) actual);
         } else if (actual instanceof Sample)
         {
             refreshed = (T) refresh((Sample) actual);

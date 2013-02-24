@@ -21,16 +21,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * @author Piotr Buczek
  */
 class DataSetChildrenSection extends AbstractDataSetsSection
 {
-    private final ExternalData dataset;
+    private final AbstractExternalData dataset;
 
-    DataSetChildrenSection(IViewContext<?> viewContext, ExternalData dataset)
+    DataSetChildrenSection(IViewContext<?> viewContext, AbstractExternalData dataset)
     {
         super("Children (Data Sets)", viewContext, dataset);
         this.dataset = dataset;

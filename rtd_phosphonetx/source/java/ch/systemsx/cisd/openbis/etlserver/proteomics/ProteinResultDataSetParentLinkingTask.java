@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -112,13 +112,13 @@ public class ProteinResultDataSetParentLinkingTask implements IMaintenanceTask
                 {
                     continue;
                 }
-                List<ExternalData> dataSets =
+                List<AbstractExternalData> dataSets =
                         service.listDataSetsByExperimentID(experiment.getId());
                 if (dataSets.isEmpty())
                 {
                     continue;
                 }
-                for (ExternalData ds : dataSets)
+                for (AbstractExternalData ds : dataSets)
                 {
                     if (ds instanceof PhysicalDataSet == false)
                     {

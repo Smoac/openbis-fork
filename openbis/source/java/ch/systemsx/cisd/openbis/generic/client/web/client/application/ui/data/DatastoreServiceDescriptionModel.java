@@ -8,7 +8,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SimplifiedBaseModelData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * {@link ModelData} for {@link DatastoreServiceDescription}.
@@ -40,7 +40,7 @@ public class DatastoreServiceDescriptionModel extends SimplifiedBaseModelData
      *            converted
      */
     public final static List<DatastoreServiceDescriptionModel> convert(
-            final List<DatastoreServiceDescription> services, final ExternalData datasetOrNull)
+            final List<DatastoreServiceDescription> services, final AbstractExternalData datasetOrNull)
     {
         final List<DatastoreServiceDescriptionModel> result =
                 new ArrayList<DatastoreServiceDescriptionModel>();
