@@ -99,8 +99,8 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
                 predicate.evaluate(createPerson(), createRoles(false), Arrays.asList(sampleWithId,
                         sampleWithIdAndExperiment, sampleWithIdAndIdentifer));
 
-        assertEquals("ERROR: \"User 'megapixel' does not have enough privileges to read "
-                + "from database instance 'DB2'.\"", result.toString());
+        assertEquals("ERROR: \"User 'megapixel' does not have enough privileges to modify "
+                + "database instance 'DB2'.\"", result.toString());
         context.assertIsSatisfied();
     }
 

@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.common.conversation.context.ServiceConversationsThreadContext;
 import ch.systemsx.cisd.openbis.common.conversation.progress.IServiceConversationProgressListener;
-import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
@@ -49,9 +49,10 @@ public class SampleUpdatesCollectionPredicate extends AbstractPredicate<List<Sam
 
     public SampleUpdatesCollectionPredicate()
     {
-        sampleTechIdCollectionPredicate = new SampleTechIdCollectionPredicate();
+        this.sampleTechIdCollectionPredicate = new SampleTechIdCollectionPredicate(false);
         this.spacePredicate = new SpaceIdentifierPredicate();
-        sampleOwnerIdentifierCollectionPredicate = new SampleOwnerIdentifierCollectionPredicate();
+        this.sampleOwnerIdentifierCollectionPredicate =
+                new SampleOwnerIdentifierCollectionPredicate(false);
     }
 
     @Override

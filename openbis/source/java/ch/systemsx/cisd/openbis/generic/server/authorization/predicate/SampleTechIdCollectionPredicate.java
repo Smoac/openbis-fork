@@ -37,9 +37,14 @@ public class SampleTechIdCollectionPredicate extends
         DelegatedPredicate<List<SampleOwnerIdentifier>, List<TechId>>
 {
 
+    public SampleTechIdCollectionPredicate(boolean isReadAccess)
+    {
+        super(new SampleOwnerIdentifierCollectionPredicate(isReadAccess));
+    }
+
     public SampleTechIdCollectionPredicate()
     {
-        super(new SampleOwnerIdentifierCollectionPredicate(true));
+        this(true);
     }
 
     @Override

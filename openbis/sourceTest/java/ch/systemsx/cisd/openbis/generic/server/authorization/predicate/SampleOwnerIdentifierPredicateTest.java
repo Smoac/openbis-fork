@@ -23,7 +23,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -84,7 +83,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
     }
 
     @Test
-    public void testNotAllowedDatabaseInstance()
+    public void testGenericAllowedDatabaseInstance()
     {
         SampleOwnerIdentifierPredicate predicate = new SampleOwnerIdentifierPredicate();
         PersonPE person = createPerson();
@@ -95,14 +94,12 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
 
         Status status = predicate.evaluate(person, roles, identifier);
 
-        assertEquals(true, status.isError());
-        assertEquals("User 'megapixel' does not have enough privileges to read "
-                + "from database instance 'DB2'.", status.tryGetErrorMessage());
+        assertEquals(Status.OK, status);
         context.assertIsSatisfied();
     }
 
     @Test
-    public void testAllowedGroup()
+    public void testAllowedSpace()
     {
         SampleOwnerIdentifierPredicate predicate = new SampleOwnerIdentifierPredicate();
         PersonPE person = createPerson();
@@ -119,7 +116,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
     }
 
     @Test
-    public void testNotAllowedGroup()
+    public void testNotAllowedSpace()
     {
         SampleOwnerIdentifierPredicate predicate = new SampleOwnerIdentifierPredicate();
         PersonPE person = createPerson();
