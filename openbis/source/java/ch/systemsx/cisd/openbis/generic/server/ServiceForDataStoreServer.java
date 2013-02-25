@@ -32,7 +32,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.transaction.annotation.Transactional;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.DefaultSessionManager;
@@ -256,9 +255,8 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 {
 
     @Private
-    static final EnumSet<DataSetFetchOption> DATASET_FETCH_OPTIONS_FILE_DATASETS =
-            EnumSet.of(DataSetFetchOption.BASIC, DataSetFetchOption.EXPERIMENT,
-                    DataSetFetchOption.SAMPLE);
+    static final EnumSet<DataSetFetchOption> DATASET_FETCH_OPTIONS_FILE_DATASETS = EnumSet.of(
+            DataSetFetchOption.BASIC, DataSetFetchOption.EXPERIMENT, DataSetFetchOption.SAMPLE);
 
     private final IDAOFactory daoFactory;
 
@@ -1190,7 +1188,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<SimpleDataSetInformationDTO> listOldestPhysicalDataSets(String sessionToken,
             String dataStoreCode, int limit) throws UserFailureException
     {
@@ -1204,7 +1202,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<SimpleDataSetInformationDTO> listOldestPhysicalDataSets(String sessionToken,
             String dataStoreCode, Date youngerThan, int limit) throws UserFailureException
     {
@@ -1220,8 +1218,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<AbstractExternalData> listAvailableDataSets(String sessionToken,
-            String dataStoreCode,
-            ArchiverDataSetCriteria criteria)
+            String dataStoreCode, ArchiverDataSetCriteria criteria)
     {
         Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
