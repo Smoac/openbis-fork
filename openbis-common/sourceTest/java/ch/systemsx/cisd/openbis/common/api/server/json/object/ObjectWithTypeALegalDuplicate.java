@@ -4,7 +4,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import ch.systemsx.cisd.openbis.common.api.server.json.JsonUniqueCheckIgnore;
 
 /*
  * Copyright 2012 ETH Zuerich, CISD
@@ -25,7 +24,6 @@ import ch.systemsx.cisd.openbis.common.api.server.json.JsonUniqueCheckIgnore;
 /**
  * @author pkupczyk
  */
-@JsonUniqueCheckIgnore
 @JsonObject(ObjectWithTypeAFactory.TYPE)
 public class ObjectWithTypeALegalDuplicate
 {

@@ -31,7 +31,6 @@ import org.testng.annotations.Test;
 import com.google.common.base.Predicate;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import ch.systemsx.cisd.openbis.common.api.server.json.JsonUniqueCheckIgnore;
 import ch.systemsx.cisd.openbis.common.api.server.json.util.ClassReferences;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
@@ -91,16 +90,22 @@ public class JsonAnnotationTest
     @Test
     public void jsonTypeNamesAreUnique()
     {
+        // Classes that are allowed to have already existing @JsonTypeName
+        Collection<String> whiteList = new HashSet<String>();
+        whiteList
+                .add("ch.systemsx.cisd.openbis.common.api.server.json.object.ObjectWithTypeALegalDuplicate");
+        whiteList
+                .add("ch.systemsx.cisd.openbis.common.api.server.json.object.ObjectWithTypeBIllegalDuplicate");
+        whiteList.add("ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentIdentifier");
+
         Map<String, Collection<Class<?>>> names = new HashMap<String, Collection<Class<?>>>();
         for (Class<?> clazz : ClassReferences.ref.getTypesAnnotatedWith(JsonObject.class))
         {
-            if (clazz.getAnnotation(JsonUniqueCheckIgnore.class) != null)
+            if (whiteList.contains(clazz.getCanonicalName()) == false)
             {
-                continue;
+                String name = clazz.getAnnotation(JsonObject.class).value();
+                addValueToCollectionMap(names, name, clazz);
             }
-
-            String name = clazz.getAnnotation(JsonObject.class).value();
-            addValueToCollectionMap(names, name, clazz);
         }
 
         assertThat(duplicatedValuesIn(names), is(emptyMap));
