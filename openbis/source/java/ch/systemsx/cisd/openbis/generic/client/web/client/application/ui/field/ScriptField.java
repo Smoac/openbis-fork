@@ -32,7 +32,10 @@ public class ScriptField extends MultilineVarcharField
 
     public ScriptField(IMessageProvider messageProvider)
     {
-        super(messageProvider.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.SCRIPT), true, 20);
+        super(
+                messageProvider
+                        .getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.PLUGIN_SCRIPT),
+                true, 20);
         getMessages().setBlankText(BLANK_TEXT_MSG);
         treatTabKeyAsInput();
     }

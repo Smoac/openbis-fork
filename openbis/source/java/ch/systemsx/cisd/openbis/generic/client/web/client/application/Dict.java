@@ -441,6 +441,8 @@ public abstract class Dict
 
     public static final String SCRIPT = "script";
 
+    public static final String PLUGIN_SCRIPT = "plugin_script";
+
     public static final String IS_SHOWN_IN_EDIT_VIEW = "is_shown_in_edit_view";
 
     public static final String SHOW_RAW_VALUE_IN_FORMS = "show_raw_value_in_forms";

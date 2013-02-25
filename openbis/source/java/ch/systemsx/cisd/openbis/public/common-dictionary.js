@@ -360,7 +360,7 @@ var common = {
   is_show_container: "Show Container?",
   is_show_parents: "Show Parents?",
   is_show_parent_metadata: "Show Parent Metadata?",
-  validation_script: "Validation Script",
+  validation_script: "Validation Plugin",
   //
   // Property Type Browser
   //
@@ -411,8 +411,8 @@ var common = {
   is_managed: "Managed?",
   is_shown_in_editor_view: "Shown in Editor View?",
   show_raw_value: "Show Raw Value in Forms?",
-  script: "Script",
-  scriptable: "Handled by Script",
+  script: "Plugin",
+  scriptable: "Handled by Plugin",
   unassign_button_label: "Release Assignment",
   unassignment_confirmation_dialog_title: "Unassignment Confirmation",
   unassignment_confirmation_template_without_properties: "Removing assignment between {0} type {1} and property type {2}. This can be safely done because no {0} has this property filled in.<br><br>Do you want to remove the assignment?",
@@ -506,7 +506,7 @@ var common = {
   PROPERTY_TYPES_MENU_ASSIGN_TO_MATERIAL_TYPE: "Assign To Material Type",
   PROPERTY_TYPES_MENU_ASSIGN_TO_DATA_SET_TYPE: "Assign To Data Set Type", 
   
-  SCRIPT_MENU_BROWSE: "Scripts",
+  SCRIPT_MENU_BROWSE: "Plugins",
 
   ACTIVE_USERS_COUNT: "Active Users Report",
   
@@ -944,11 +944,12 @@ topic_create_metaprojects: "Create Metaprojects",
 //
 // Script Browser
 //
-add_script_title: "Add a new script",
-title_choose_script: "Choose {0} Script",
-script_browser: "Scripts",
-script_type: "Script Type",
-script_registration: "Script Registration",
+add_script_title: "Add a new plugin",
+plugin_script: "Script",
+title_choose_script: "Choose {0} Plugin",
+script_browser: "Plugins",
+script_type: "Plugin Type",
+script_registration: "Plugin Registration",
 evaluation_result: "Evaluation Result",
 script_tester: "Script Tester",
 entity_details: "Details",
