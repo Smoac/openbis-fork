@@ -35,7 +35,7 @@ import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
  * @author Bernd Rinn
  */
 @SuppressWarnings("unused")
-@JsonObject("GenericExperimentIdentifier")
+@JsonObject("ExperimentIdentifier")
 public class ExperimentIdentifier implements Serializable, IPermanentIdentifier, IDatabaseIdentifier
 {
     private static final long serialVersionUID = 1L;
