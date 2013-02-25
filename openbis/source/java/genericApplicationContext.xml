@@ -228,7 +228,7 @@
     <!-- 
         // ETL Service 
     -->
-    <bean id="etl-service" class="ch.systemsx.cisd.openbis.generic.server.ETLService">
+    <bean id="etl-service" class="ch.systemsx.cisd.openbis.generic.server.ServiceForDataStoreServer">
         <constructor-arg ref="authentication-service" />
         <constructor-arg ref="session-manager" />
         <constructor-arg ref="dao-factory" />
