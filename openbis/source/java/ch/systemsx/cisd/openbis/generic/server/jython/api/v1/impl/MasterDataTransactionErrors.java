@@ -132,4 +132,29 @@ public class MasterDataTransactionErrors
         VocabularyRegistrationError error = new VocabularyRegistrationError(ex, vocabulary);
         errors.add(error);
     }
+
+    public void addVocabularyTermsRegistrationError(Exception ex,
+            final List<VocabularyTerm> newTerms)
+    {
+        errors.add(new TransactionError(ex)
+            {
+                @Override
+                public String getDescription()
+                {
+                    return "Failed to register new terms: " + newTerms;
+                }
+            });
+    }
+
+    public void updateVocabularyTermError(Exception ex, final VocabularyTermImmutable term)
+    {
+        errors.add(new TransactionError(ex)
+            {
+                @Override
+                public String getDescription()
+                {
+                    return "Failed to update vocabulary term " + term.getCode() + ".";
+                }
+            });
+    }
 }

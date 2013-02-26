@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabulary;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyTerm;
 
@@ -24,6 +28,26 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyTerm;
  */
 public class Vocabulary extends VocabularyImmutable implements IVocabulary
 {
+    private static final Comparator<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm> TERM_COMPARATOR =
+            new Comparator<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm>()
+                {
+                    @Override
+                    public int compare(
+                            ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm t1,
+                            ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm t2)
+                    {
+                        long o1 = getOrdinal(t1);
+                        long o2 = getOrdinal(t2);
+                        return o1 < o2 ? -1 : (o1 > o2 ? 1 : 0);
+                    }
+
+                    long getOrdinal(
+                            ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm t1)
+                    {
+                        Long ordinal = t1.getOrdinal();
+                        return ordinal == null ? Long.MAX_VALUE : ordinal;
+                    }
+                };
 
     Vocabulary(String code)
     {
@@ -64,7 +88,21 @@ public class Vocabulary extends VocabularyImmutable implements IVocabulary
     public void addTerm(IVocabularyTerm term)
     {
         VocabularyTerm internalTerm = (VocabularyTerm) term;
-        getVocabulary().getTerms().add(internalTerm.getVocabularyTerm());
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm> terms =
+                getVocabulary().getTerms();
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm vocabularyTerm =
+                internalTerm.getVocabularyTerm();
+        if (vocabularyTerm.getOrdinal() == null)
+        {
+            terms.add(vocabularyTerm);
+            return;
+        }
+        int index = Collections.binarySearch(terms, vocabularyTerm, TERM_COMPARATOR);
+        if (index < 0)
+        {
+            index = -(index + 1);
+        }
+        terms.add(index, vocabularyTerm);
     }
 
 }

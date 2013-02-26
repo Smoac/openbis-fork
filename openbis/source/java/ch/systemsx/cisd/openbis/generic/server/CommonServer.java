@@ -154,6 +154,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IdentifierExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
@@ -164,7 +165,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImport;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -187,7 +187,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
@@ -226,6 +225,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyUpdates;
@@ -1341,11 +1341,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("WRITE_VOCABULARY_TERM")
     public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
-            List<String> vocabularyTerms, Long previousTermOrdinal)
+            List<VocabularyTerm> vocabularyTerms, Long previousTermOrdinal)
     {
         assert sessionToken != null : "Unspecified session token";
         assert vocabularyId != null : "Unspecified vocabulary id";
-        assert previousTermOrdinal != null : "Unspecified previous term ordinal";
 
         final Session session = getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
@@ -1455,7 +1454,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
-    public List<AbstractExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria)
+    public List<AbstractExternalData> searchForDataSets(String sessionToken,
+            DetailedSearchCriteria criteria)
     {
         final Session session = getSession(sessionToken);
         SearchHelper searchHelper =
@@ -1552,7 +1552,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Map<Long, Set<Metaproject>> translation =
                 MetaprojectTranslator.translateMetaprojectAssignments(assignments);
 
-        final List<AbstractExternalData> list = new ArrayList<AbstractExternalData>(resultSet.size());
+        final List<AbstractExternalData> list =
+                new ArrayList<AbstractExternalData>(resultSet.size());
         for (final DataPE hit : resultSet)
         {
             HibernateUtils.initialize(hit.getChildRelationships());
@@ -1585,7 +1586,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Map<Long, Set<Metaproject>> translation =
                 MetaprojectTranslator.translateMetaprojectAssignments(assignments);
 
-        final List<AbstractExternalData> list = new ArrayList<AbstractExternalData>(resultSet.size());
+        final List<AbstractExternalData> list =
+                new ArrayList<AbstractExternalData>(resultSet.size());
         for (final DataPE hit : resultSet)
         {
             HibernateUtils.initialize(hit.getChildRelationships());
@@ -3567,7 +3569,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             }
             if (dataSet instanceof PhysicalDataSet)
             {
-                updates.setFileFormatTypeCode(((PhysicalDataSet) dataSet).getFileFormatType().getCode());
+                updates.setFileFormatTypeCode(((PhysicalDataSet) dataSet).getFileFormatType()
+                        .getCode());
             }
             updateDataSet(sessionToken, updates);
         } catch (UserFailureException e)

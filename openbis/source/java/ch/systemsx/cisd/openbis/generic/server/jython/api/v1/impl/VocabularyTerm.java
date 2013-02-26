@@ -23,6 +23,10 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyTerm;
  */
 public class VocabularyTerm extends VocabularyTermImmutable implements IVocabularyTerm
 {
+    VocabularyTerm(ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm term)
+    {
+        super(term);
+    }
 
     VocabularyTerm(String code)
     {

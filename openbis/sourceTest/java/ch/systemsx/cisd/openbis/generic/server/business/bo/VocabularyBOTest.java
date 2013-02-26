@@ -279,7 +279,11 @@ public final class VocabularyBOTest extends AbstractBOTest
     {
         final VocabularyPE vocabulary = new VocabularyPE();
         final VocabularyBO vocabularyBO = createVocabularyBO();
-        final List<String> newTerms = Arrays.asList("a", "b");
+        VocabularyTerm t1 = new VocabularyTerm();
+        t1.setCode("a");
+        VocabularyTerm t2 = new VocabularyTerm();
+        t2.setCode("b");
+        final List<VocabularyTerm> newTerms = Arrays.asList(t1, t2);
         final Long previousTermPosition = 5L;
 
         context.checking(new Expectations()
@@ -326,7 +330,7 @@ public final class VocabularyBOTest extends AbstractBOTest
 
         VocabularyBO vocabularyBO = createVocabularyBO();
         vocabularyBO.load("voc-code");
-        List<String> newTerms = Arrays.asList("a");
+        List<VocabularyTerm> newTerms = Arrays.asList(new VocabularyTerm());
         try
         {
             vocabularyBO.addNewTerms(newTerms, 0L);

@@ -17,7 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IAbstractType;
@@ -44,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScriptImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabulary;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyTermImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
@@ -69,6 +74,12 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     private final List<FileFormatType> createdFileTypes = new ArrayList<FileFormatType>();
 
     private final List<Vocabulary> createdVocabularies = new ArrayList<Vocabulary>();
+
+    private final Map<Long, List<VocabularyTerm>> createdVocabularyTerms =
+            new HashMap<Long, List<VocabularyTerm>>();
+
+    private final List<VocabularyTermImmutable> updatedVocabularyTerms =
+            new ArrayList<VocabularyTermImmutable>();
 
     private final List<PropertyAssignment> createdAssignments = new ArrayList<PropertyAssignment>();
 
@@ -408,6 +419,50 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     }
 
     @Override
+    public void addVocabularyTermTo(IVocabularyImmutable vocabulary, IVocabularyTerm term)
+    {
+        if (vocabulary instanceof Vocabulary)
+        {
+            ((Vocabulary) vocabulary).addTerm(term);
+            return;
+        }
+        Long id = ((VocabularyImmutable) vocabulary).getVocabulary().getId();
+        List<VocabularyTerm> terms = createdVocabularyTerms.get(id);
+        if (terms == null)
+        {
+            terms = new ArrayList<VocabularyTerm>();
+            createdVocabularyTerms.put(id, terms);
+        }
+        terms.add((VocabularyTerm) term);
+    }
+
+    @Override
+    public IVocabularyTerm getVocabularyTerm(IVocabularyImmutable vocabulary,
+            String vocabularyTermCode)
+    {
+        List<IVocabularyTermImmutable> terms = vocabulary.getTerms();
+        for (IVocabularyTermImmutable term : terms)
+        {
+            if (vocabularyTermCode.equalsIgnoreCase(term.getCode()))
+            {
+                return new VocabularyTerm(((VocabularyTermImmutable) term).getVocabularyTerm());
+            }
+        }
+        throw new IllegalArgumentException("Vocabulary " + vocabulary.getCode() + " has no term "
+                + vocabularyTermCode.toUpperCase());
+    }
+
+    @Override
+    public void updateVocabularyTerm(IVocabularyTerm term)
+    {
+        VocabularyTermImmutable t = (VocabularyTermImmutable) term;
+        if (t.getVocabularyTerm().getId() != null)
+        {
+            updatedVocabularyTerms.add(t);
+        }
+    }
+
+    @Override
     public IVocabularyImmutable getVocabulary(String code)
     {
         return findVocabularyForCode(commonServer.listVocabularies(), code);
@@ -466,6 +521,8 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     {
         registerFileFormatTypes(createdFileTypes);
         registerVocabularies(createdVocabularies);
+        addVocabularyTerms(createdVocabularyTerms);
+        updateVocabularyTerms(updatedVocabularyTerms);
         registerExperimentTypes(createdExperimentTypes);
         registerSampleTypes(createdSampleTypes);
         registerDataSetTypes(createdDataSetTypes);
@@ -598,6 +655,37 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
             } catch (Exception ex)
             {
                 transactionErrors.addVocabularyRegistrationError(ex, vocabulary);
+            }
+        }
+    }
+
+    private void addVocabularyTerms(Map<Long, List<VocabularyTerm>> terms)
+    {
+        Set<Entry<Long, List<VocabularyTerm>>> entrySet = terms.entrySet();
+        for (Entry<Long, List<VocabularyTerm>> entry : entrySet)
+        {
+            Long vocaId = entry.getKey();
+            List<VocabularyTerm> newTerms = entry.getValue();
+            try
+            {
+                commonServer.addVocabularyTerms(vocaId, newTerms, null);
+            } catch (Exception ex)
+            {
+                transactionErrors.addVocabularyTermsRegistrationError(ex, newTerms);
+            }
+        }
+    }
+
+    private void updateVocabularyTerms(List<VocabularyTermImmutable> terms)
+    {
+        for (VocabularyTermImmutable term : terms)
+        {
+            try
+            {
+                commonServer.update(term);
+            } catch (Exception ex)
+            {
+                transactionErrors.updateVocabularyTermError(ex, term);
             }
         }
     }

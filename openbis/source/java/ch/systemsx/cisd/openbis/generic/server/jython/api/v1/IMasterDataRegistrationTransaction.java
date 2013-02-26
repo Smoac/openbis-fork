@@ -266,6 +266,23 @@ public interface IMasterDataRegistrationTransaction
     IVocabularyTerm createNewVocabularyTerm(String code);
 
     /**
+     * Adds the specified vocabulary term to the specified vocabulary.
+     */
+    void addVocabularyTermTo(IVocabularyImmutable vocabulary, IVocabularyTerm term);
+
+    /**
+     * Returns the vocabulary term with specified code from the specified vocabulary.
+     * 
+     * @throws IllegalArgumentException if the specified vocabulary or term doesn't exists.
+     */
+    IVocabularyTerm getVocabularyTerm(IVocabularyImmutable vocabulary, String vocabularyTermCode);
+
+    /**
+     * Updates the specified vocabulary term.
+     */
+    void updateVocabularyTerm(IVocabularyTerm term);
+
+    /**
      * Create a new external data management system to register with the openBIS AS.
      * 
      * @param code the external data management system's code.

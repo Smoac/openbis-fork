@@ -43,8 +43,8 @@ final class VocabularyTermDAO extends AbstractGenericEntityDAO<VocabularyTermPE>
      * appropriate debugging level for class {@link JdbcAccessor}.
      */
     @SuppressWarnings("unused")
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, VocabularyTermDAO.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            VocabularyTermDAO.class);
 
     VocabularyTermDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
@@ -64,5 +64,16 @@ final class VocabularyTermDAO extends AbstractGenericEntityDAO<VocabularyTermPE>
         executeUpdate("UPDATE " + TableNames.CONTROLLED_VOCABULARY_TERM_TABLE
                 + " SET ordinal = ordinal + ?" + " WHERE covo_id = ? AND ordinal >= ?", increment,
                 vocabularyId, fromOrdinal);
+    }
+
+    @Override
+    public long getMaximumOrdinal(VocabularyPE vocabulary)
+    {
+        Long vocabularyId = HibernateUtils.getId(vocabulary);
+        Number max =
+                (Number) getUniqueResult("select max(ordinal) from "
+                        + TableNames.CONTROLLED_VOCABULARY_TERM_TABLE + " where covo_id = %s",
+                        vocabularyId);
+        return max == null ? 0 : max.longValue();
     }
 }

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
@@ -59,7 +60,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluat
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
@@ -361,7 +361,8 @@ public interface ICommonServer extends IServer
             List<ExperimentIdentifier> experimentIdentifiers);
 
     /**
-     * For given sample {@link TechId} returns the corresponding list of {@link AbstractExternalData}.
+     * For given sample {@link TechId} returns the corresponding list of
+     * {@link AbstractExternalData}.
      * 
      * @return a sorted list of {@link AbstractExternalData}.
      */
@@ -370,7 +371,8 @@ public interface ICommonServer extends IServer
             final TechId sampleId, final boolean showOnlyDirectlyConnected);
 
     /**
-     * For given experiment {@link TechId} returns the corresponding list of {@link AbstractExternalData}.
+     * For given experiment {@link TechId} returns the corresponding list of
+     * {@link AbstractExternalData}.
      * 
      * @return a sorted list of {@link AbstractExternalData}.
      */
@@ -573,7 +575,7 @@ public interface ICommonServer extends IServer
     @Transactional
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
-            List<String> vocabularyTerms, Long previousTermOrdinal);
+            List<VocabularyTerm> vocabularyTerms, Long previousTermOrdinal);
 
     /**
      * Adds new unofficial terms to a vocabulary starting from specified ordinal + 1.
@@ -625,7 +627,8 @@ public interface ICommonServer extends IServer
      * Searches for data sets that fulfill the specified search criteria.
      */
     @Transactional(readOnly = true)
-    public List<AbstractExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria);
+    public List<AbstractExternalData> searchForDataSets(String sessionToken,
+            DetailedSearchCriteria criteria);
 
     /**
      * Searches for samples that fulfill the specified search criteria. The search is executed on

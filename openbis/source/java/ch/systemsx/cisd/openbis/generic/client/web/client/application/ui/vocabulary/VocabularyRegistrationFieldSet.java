@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -46,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 
 /**
  * A {@link FieldSet} extension for registering vocabulary.
@@ -376,15 +372,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
         {
             vocabulary.setUploadedFromFile(fromFile.getValue());
             vocabulary.setURLTemplate(getURLTemplateValue());
-            // free text
-            final List<VocabularyTerm> vocabularyTerms = new ArrayList<VocabularyTerm>();
-            for (final String termCode : VocabularyTermValidator.getTerms(getTermsAreaValue()))
-            {
-                final VocabularyTerm vocabularyTerm = new VocabularyTerm();
-                vocabularyTerm.setCode(termCode);
-                vocabularyTerms.add(vocabularyTerm);
-            }
-            vocabulary.setTerms(vocabularyTerms);
+            vocabulary.setTerms(VocabularyTermValidator.getTerms(getTermsAreaValue()));
         }
 
         public boolean isUploadFileDefined()

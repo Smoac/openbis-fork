@@ -42,9 +42,9 @@ final class VocabularyTermValidator implements Validator
         }
     }
 
-    final static List<String> getTerms(final String value)
+    final static List<VocabularyTerm> getTerms(final String value)
     {
-        final List<String> terms = new ArrayList<String>();
+        final List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
         if (StringUtils.isBlank(value) == false)
         {
             final String[] split = value.split("[,\n\r\t\f ]");
@@ -52,7 +52,9 @@ final class VocabularyTermValidator implements Validator
             {
                 if (StringUtils.isBlank(text) == false)
                 {
-                    terms.add(text);
+                    VocabularyTerm term = new VocabularyTerm();
+                    term.setCode(text);
+                    terms.add(term);
                 }
             }
         }
@@ -62,20 +64,20 @@ final class VocabularyTermValidator implements Validator
     @Override
     final public String validate(Field<?> field, String value)
     {
-        final List<String> terms = VocabularyTermValidator.getTerms(value);
+        final List<VocabularyTerm> terms = VocabularyTermValidator.getTerms(value);
         if (terms.size() == 0)
         {
             return messageProvider.getMessage(Dict.MISSING_VOCABULARY_TERMS);
         }
-        for (final String term : terms)
+        for (final VocabularyTerm term : terms)
         {
             CodeFieldKind codeKind = CodeFieldKind.CODE_WITH_COLON;
-            if (term.matches(codeKind.getPattern()) == false)
+            if (term.getCode().matches(codeKind.getPattern()) == false)
             {
-                return messageProvider.getMessage(Dict.INVALID_CODE_MESSAGE, codeKind
-                        .getAllowedCharacters());
+                return messageProvider.getMessage(Dict.INVALID_CODE_MESSAGE,
+                        codeKind.getAllowedCharacters());
             }
-            if (existingTerms.contains(term.toUpperCase()))
+            if (existingTerms.contains(term.getCode().toUpperCase()))
             {
                 return messageProvider.getMessage(Dict.VOCABULARY_TERMS_VALIDATION_MESSAGE, term);
             }

@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -54,7 +55,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -985,7 +985,11 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testAddVocabularyTerms()
     {
-        final List<String> terms = Arrays.asList("aöé", "büç");
+        VocabularyTerm t1 = new VocabularyTerm();
+        t1.setCode("aöé");
+        VocabularyTerm t2 = new VocabularyTerm();
+        t2.setCode("büç");
+        final List<VocabularyTerm> terms = Arrays.asList(t1, t2);
         final TechId vocabularyId = CommonTestUtils.TECH_ID;
         final Long previousTermOrdinal = 0L;
         prepareGetSession();

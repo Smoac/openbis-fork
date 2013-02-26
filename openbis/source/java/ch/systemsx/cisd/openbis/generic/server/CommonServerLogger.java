@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetapr
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
@@ -61,7 +62,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluat
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
@@ -386,8 +386,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public List<AbstractExternalData> listDataSetRelationships(String sessionToken, TechId datasetId,
-            DataSetRelationshipRole role)
+    public List<AbstractExternalData> listDataSetRelationships(String sessionToken,
+            TechId datasetId, DataSetRelationshipRole role)
     {
         logAccess(sessionToken, "list_dataset_relationships", "ID(%s), ROLE(%s)", datasetId, role);
         return null;
@@ -585,7 +585,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     @Override
     public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
-            List<String> vocabularyTerms, Long previousTermOrdinal)
+            List<VocabularyTerm> vocabularyTerms, Long previousTermOrdinal)
     {
         logTracking(sessionToken, "add_vocabulary_terms", "ID(%s) TERMS(%s) PREVIOUS_ORDINAL(%s)",
                 vocabularyId, abbreviate(vocabularyTerms), Long.toString(previousTermOrdinal));
@@ -640,7 +640,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public List<AbstractExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria)
+    public List<AbstractExternalData> searchForDataSets(String sessionToken,
+            DetailedSearchCriteria criteria)
     {
         logAccess(sessionToken, "search_for_datasets", "criteria(%s)", criteria);
         return null;

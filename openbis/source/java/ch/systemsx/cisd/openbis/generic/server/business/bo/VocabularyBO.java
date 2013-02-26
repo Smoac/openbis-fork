@@ -117,27 +117,34 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         }
     }
 
-    private void addNewTerms(List<String> newTermCodes, Long previousTermOrdinal, boolean isOfficial)
+    private void addNewTerms(List<VocabularyTerm> newTerms, Long previousTermOrdinal,
+            boolean isOfficial)
     {
         assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
-        assert previousTermOrdinal != null : "Unspecified previous term ordinal";
         if (vocabularyPE.isManagedInternally())
         {
             throw new UserFailureException(
                     "Not allowed to add terms to an internally managed vocabulary.");
         }
-
-        // need to shift existing terms to create space for new terms
-        increaseVocabularyTermOrdinals(previousTermOrdinal + 1, newTermCodes.size());
-        Long currentTermOrdinal = previousTermOrdinal + 1;
-        for (String code : newTermCodes)
+        Long currentTermOrdinal;
+        if (previousTermOrdinal == null)
         {
-            addTerm(code, currentTermOrdinal++, isOfficial);
+            currentTermOrdinal = getVocabularyTermDAO().getMaximumOrdinal(vocabularyPE) + 1;
+        } else
+        {
+            currentTermOrdinal = previousTermOrdinal + 1;
+            // need to shift existing terms to create space for new terms
+            increaseVocabularyTermOrdinals(currentTermOrdinal, newTerms.size());
+        }
+
+        for (VocabularyTerm newTerm : newTerms)
+        {
+            addTerm(newTerm, currentTermOrdinal++, isOfficial);
         }
     }
 
     @Override
-    public void addNewTerms(List<String> newTermCodes, Long previousTermOrdinal)
+    public void addNewTerms(List<VocabularyTerm> newTermCodes, Long previousTermOrdinal)
     {
         addNewTerms(newTermCodes, previousTermOrdinal, true);
     }
@@ -177,11 +184,6 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         vocabularyTermPE.setOrdinal(ordinal);
         vocabularyTermPE.setOfficial(isOfficial);
         vocabularyPE.addTerm(vocabularyTermPE);
-    }
-
-    private void addTerm(String code, Long ordinal, Boolean isOfficial)
-    {
-        addTerm(code, null, null, ordinal, isOfficial);
     }
 
     private void addTerm(VocabularyTerm term, Long ordinal, Boolean isOfficial)

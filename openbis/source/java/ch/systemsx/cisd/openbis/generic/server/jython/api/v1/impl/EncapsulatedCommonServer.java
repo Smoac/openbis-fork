@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.ISampleTypeImmutabl
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScriptImmutable;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -208,6 +209,24 @@ public class EncapsulatedCommonServer
     {
         NewVocabulary newVocabulary = asNewVocabulary(vocabulary.getVocabulary());
         commonServer.registerVocabulary(sessionToken, newVocabulary);
+    }
+
+    public void addVocabularyTerms(Long vocabularyId, List<VocabularyTerm> terms,
+            Long previousTermOrdinal)
+    {
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm> list =
+                new ArrayList<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm>();
+        for (VocabularyTerm vocabularyTerm : terms)
+        {
+            list.add(vocabularyTerm.getVocabularyTerm());
+        }
+        commonServer.addVocabularyTerms(sessionToken, new TechId(vocabularyId), list,
+                previousTermOrdinal);
+    }
+
+    public void update(VocabularyTermImmutable term)
+    {
+        commonServer.updateVocabularyTerm(sessionToken, term.getVocabularyTerm());
     }
 
     public List<IPropertyAssignmentImmutable> listPropertyAssignments()

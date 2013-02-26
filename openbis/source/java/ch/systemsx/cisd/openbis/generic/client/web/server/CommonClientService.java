@@ -123,6 +123,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
@@ -151,7 +152,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
@@ -928,7 +928,8 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public TypedTableResultSet<AbstractExternalData> listExperimentDataSets(final TechId experimentId,
+    public TypedTableResultSet<AbstractExternalData> listExperimentDataSets(
+            final TechId experimentId,
             DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria,
             final boolean onlyDirectlyConnected)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -945,7 +946,8 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public TypedTableResultSet<AbstractExternalData> listMetaprojectDataSets(final TechId metaprojectId,
+    public TypedTableResultSet<AbstractExternalData> listMetaprojectDataSets(
+            final TechId metaprojectId,
             DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -968,7 +970,8 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public TypedTableResultSet<AbstractExternalData> listDataSetRelationships(final TechId datasetId,
+    public TypedTableResultSet<AbstractExternalData> listDataSetRelationships(
+            final TechId datasetId,
             final DataSetRelationshipRole role,
             final DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1305,7 +1308,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public void addVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms,
+    public void addVocabularyTerms(TechId vocabularyId, List<VocabularyTerm> vocabularyTerms,
             Long previousTermOrdinal)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {

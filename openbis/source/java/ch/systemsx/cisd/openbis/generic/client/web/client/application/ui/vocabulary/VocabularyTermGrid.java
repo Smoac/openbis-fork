@@ -510,7 +510,7 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                 @Override
                 protected void register(AsyncCallback<Void> registrationCallback)
                 {
-                    List<String> newVocabularyTermCodes = extractNewVocabularyTermCodes();
+                    List<VocabularyTerm> newVocabularyTermCodes = extractNewVocabularyTermCodes();
                     Long previousTermOrdinal = extractPreviousTermOrdinal();
                     viewContext.getService().addVocabularyTerms(TechId.create(vocabulary),
                             newVocabularyTermCodes, previousTermOrdinal, registrationCallback);
@@ -540,7 +540,7 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                     return result;
                 }
 
-                private List<String> extractNewVocabularyTermCodes()
+                private List<VocabularyTerm> extractNewVocabularyTermCodes()
                 {
                     return VocabularyTermValidator.getTerms(newTermCodesArea.getValue());
                 }

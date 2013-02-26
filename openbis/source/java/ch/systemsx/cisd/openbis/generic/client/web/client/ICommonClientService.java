@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
@@ -72,7 +73,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
@@ -585,19 +585,23 @@ public interface ICommonClientService extends IClientService
     /**
      * For given <var>experimentId</var> returns corresponding list of {@link AbstractExternalData}.
      */
-    public TypedTableResultSet<AbstractExternalData> listExperimentDataSets(final TechId experimentId,
+    public TypedTableResultSet<AbstractExternalData> listExperimentDataSets(
+            final TechId experimentId,
             DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria,
             boolean onlyDirectlyConnected) throws UserFailureException;
 
     /**
-     * For given <var>metaprojectId</var> returns corresponding list of {@link AbstractExternalData}.
+     * For given <var>metaprojectId</var> returns corresponding list of {@link AbstractExternalData}
+     * .
      */
-    public TypedTableResultSet<AbstractExternalData> listMetaprojectDataSets(final TechId metaprojectId,
+    public TypedTableResultSet<AbstractExternalData> listMetaprojectDataSets(
+            final TechId metaprojectId,
             DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> criteria)
             throws UserFailureException;
 
     /**
-     * For given <var>metaprojectId</var> returns corresponding list of {@link AbstractExternalData}.
+     * For given <var>metaprojectId</var> returns corresponding list of {@link AbstractExternalData}
+     * .
      */
     public List<AbstractExternalData> listMetaprojectDataSets(final Long metaprojectId)
             throws UserFailureException;
@@ -674,7 +678,7 @@ public interface ICommonClientService extends IClientService
      * Adds specified terms to the specified vocabulary after specified ordinal (first shift all
      * terms with bigger ordinal).
      */
-    public void addVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms,
+    public void addVocabularyTerms(TechId vocabularyId, List<VocabularyTerm> vocabularyTerms,
             Long previousTermOrdinal) throws UserFailureException;
 
     /**
@@ -715,7 +719,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns {@link AbstractExternalData} fulfilling given {@link DetailedSearchCriteria}.
      */
-    public TypedTableResultSet<AbstractExternalData> searchForDataSets(DetailedSearchCriteria criteria,
+    public TypedTableResultSet<AbstractExternalData> searchForDataSets(
+            DetailedSearchCriteria criteria,
             final IResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> resultSetConfig)
             throws UserFailureException;
 

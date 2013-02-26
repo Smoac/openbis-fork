@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
@@ -74,7 +75,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
@@ -514,7 +514,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#listDataSetRelationships(TechId, DataSetRelationshipRole,
      *      DefaultResultSetConfig)
      */
-    public void listDataSetRelationships(TechId datasetId, DataSetRelationshipRole role,
+    public void listDataSetRelationships(
+            TechId datasetId,
+            DataSetRelationshipRole role,
             DefaultResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> resultSetConfig,
             AsyncCallback<TypedTableResultSet<AbstractExternalData>> callback);
 
@@ -564,7 +566,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#addVocabularyTerms(TechId, List, Long) */
-    public void addVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms,
+    public void addVocabularyTerms(TechId vocabularyId, List<VocabularyTerm> vocabularyTerms,
             Long previousTermOrdinal, AsyncCallback<Void> callback);
 
     /** @see ICommonClientService#addUnofficialVocabularyTerm(TechId, String, String, String, Long) */
@@ -598,7 +600,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#searchForDataSets(DetailedSearchCriteria, IResultSetConfig)
      */
-    public void searchForDataSets(DetailedSearchCriteria criteria,
+    public void searchForDataSets(
+            DetailedSearchCriteria criteria,
             final IResultSetConfig<String, TableModelRowWithObject<AbstractExternalData>> resultSetConfig,
             final AsyncCallback<TypedTableResultSet<AbstractExternalData>> callback);
 

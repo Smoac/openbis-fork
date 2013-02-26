@@ -41,4 +41,9 @@ public interface IVocabularyTermDAO extends IGenericDAO<VocabularyTermPE>
     void increaseVocabularyTermOrdinals(final VocabularyPE vocabulary, final Long fromOrdinal,
             final int increment);
 
+    /**
+     * Returns the maximum ordinal over all terms of the specified vocabulary.
+     */
+    long getMaximumOrdinal(VocabularyPE vocabulary);
+
 }
