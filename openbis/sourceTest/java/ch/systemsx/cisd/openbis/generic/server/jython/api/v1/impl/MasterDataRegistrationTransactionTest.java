@@ -26,6 +26,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.EntityKind;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IDataSetType;
@@ -37,17 +38,22 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyAssignment
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.ISampleType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabulary;
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetTypeBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentTypeBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.MaterialTypeBuilder;
@@ -58,6 +64,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleTypeBuil
  */
 public class MasterDataRegistrationTransactionTest extends AssertJUnit
 {
+    private static final long VOCA_TERM_ID = 4711L;
+
+    private static final long VOCA_ID = 42L;
+
     private static final String KNOWN_PROPERTY = "DESCRIPTION";
 
     private static final String SESSION_TOKEN = "seesion-token";
@@ -327,7 +337,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
     @Test
     public void testGetOrCreateKnownVocabulary()
     {
-        prepareListVocabularys();
+        prepareListVocabularies();
 
         IVocabulary vocabulary = transaction.getOrCreateNewVocabulary(KNOWN);
         vocabulary.setDescription("description");
@@ -340,7 +350,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
     @Test
     public void testGetOrCreateUnknownVocabulary()
     {
-        prepareListVocabularys();
+        prepareListVocabularies();
 
         IVocabulary vocabulary = transaction.getOrCreateNewVocabulary(UNKNOWN);
         vocabulary.setDescription("description");
@@ -350,13 +360,19 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    private void prepareListVocabularys()
+    private void prepareListVocabularies()
     {
         context.checking(new Expectations()
             {
                 {
                     Vocabulary vocabulary = new Vocabulary();
                     vocabulary.setCode(KNOWN);
+                    vocabulary.setId(VOCA_ID);
+                    VocabularyTerm term1 = new VocabularyTerm();
+                    term1.setId(VOCA_TERM_ID);
+                    term1.setCode("T1");
+                    term1.setLabel("t1");
+                    vocabulary.getTerms().add(term1);
                     one(server).listVocabularies(SESSION_TOKEN, true, false);
                     will(returnValue(Arrays.asList(vocabulary)));
                 }
@@ -465,6 +481,253 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
         assertEquals("new label", edms.getLabel());
         assertEquals("new url template", edms.getUrlTemplate());
         assertTrue(edms.isOpenBIS());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testAddTermToExistingVocabulary()
+    {
+        prepareListVocabularies();
+        final RecordingMatcher<List<VocabularyTerm>> newTermsMatcher =
+                new RecordingMatcher<List<VocabularyTerm>>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(server).addVocabularyTerms(with(SESSION_TOKEN), with(new TechId(VOCA_ID)),
+                            with(newTermsMatcher), with((Long) null));
+                }
+            });
+
+        IVocabulary voca = transaction.getOrCreateNewVocabulary(KNOWN);
+        IVocabularyTerm term = transaction.createNewVocabularyTerm("ABC");
+        term.setLabel("abc");
+        term.setDescription("Hello abc");
+        transaction.addVocabularyTermTo(voca, term);
+        transaction.commit();
+
+        assertEquals("[abc [ABC]]", newTermsMatcher.recordedObject().toString());
+        assertEquals("Hello abc", newTermsMatcher.recordedObject().get(0).getDescription());
+        assertEquals(false, transaction.hasErrors());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdateTermOfExistingVocabulary()
+    {
+        prepareListVocabularies();
+        final RecordingMatcher<IVocabularyTermUpdates> termMatcher =
+                new RecordingMatcher<IVocabularyTermUpdates>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(server).updateVocabularyTerm(with(SESSION_TOKEN), with(termMatcher));
+                }
+            });
+
+        IVocabulary voca = transaction.getOrCreateNewVocabulary(KNOWN);
+        IVocabularyTerm term = transaction.getVocabularyTerm(voca, "t1");
+        term.setLabel("Term one");
+        term.setDescription("a new description");
+        transaction.updateVocabularyTerm(term);
+        transaction.commit();
+
+        assertEquals("Term one [T1]", termMatcher.recordedObject().toString());
+        assertEquals("a new description", termMatcher.recordedObject().getDescription());
+        assertEquals(false, transaction.hasErrors());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUnknownTermOfExistingVocabulary()
+    {
+        prepareListVocabularies();
+
+        IVocabulary voca = transaction.getOrCreateNewVocabulary(KNOWN);
+        try
+        {
+            transaction.getVocabularyTerm(voca, "unknown");
+            fail("IllegalArgumentException expected.");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Vocabulary KNOWN has no term UNKNOWN.", ex.getMessage());
+        }
+
+        assertEquals(false, transaction.hasErrors());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testAddTermToNewVocabulary()
+    {
+        prepareListVocabularies();
+        final RecordingMatcher<NewVocabulary> newVocaMatcher =
+                new RecordingMatcher<NewVocabulary>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(server).registerVocabulary(with(SESSION_TOKEN), with(newVocaMatcher));
+                }
+            });
+
+        IVocabulary voca = transaction.getOrCreateNewVocabulary(UNKNOWN);
+        voca.setDescription("Hello new vocabulary");
+        voca.setInternalNamespace(true);
+        voca.setChosenFromList(true);
+        voca.setManagedInternally(true);
+        voca.setUrlTemplate("url-template");
+
+        IVocabularyTerm term1 = transaction.createNewVocabularyTerm("A");
+        term1.setLabel("Alpha");
+        term1.setDescription("Hello A");
+        term1.setOrdinal(3L);
+        voca.addTerm(term1);
+        IVocabularyTerm term2 = transaction.createNewVocabularyTerm("B");
+        term2.setLabel("Beta");
+        term2.setDescription("Hello B");
+        term2.setOrdinal(1L);
+        transaction.addVocabularyTermTo(voca, term2);
+        transaction.commit();
+
+        NewVocabulary newVoca = newVocaMatcher.recordedObject();
+        assertEquals(UNKNOWN, newVoca.getCode());
+        assertEquals("Hello new vocabulary", newVoca.getDescription());
+        assertEquals("url-template", newVoca.getURLTemplate());
+        assertEquals(true, newVoca.isChosenFromList());
+        assertEquals(true, newVoca.isInternalNamespace());
+        assertEquals(true, newVoca.isManagedInternally());
+        List<VocabularyTerm> terms = newVoca.getTerms();
+        assertEquals("[Beta [B], Alpha [A]]", terms.toString());
+        assertEquals("Hello B", terms.get(0).getDescription());
+        assertEquals(1L, terms.get(0).getOrdinal().longValue());
+        assertEquals("Hello A", terms.get(1).getDescription());
+        assertEquals(3L, terms.get(1).getOrdinal().longValue());
+        assertEquals(false, transaction.hasErrors());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdateTermOfNewVocabulary()
+    {
+        prepareListVocabularies();
+        final RecordingMatcher<NewVocabulary> newVocaMatcher =
+                new RecordingMatcher<NewVocabulary>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(server).registerVocabulary(with(SESSION_TOKEN), with(newVocaMatcher));
+                }
+            });
+
+        IVocabulary voca = transaction.getOrCreateNewVocabulary(UNKNOWN);
+        voca.addTerm(transaction.createNewVocabularyTerm("Alpha"));
+        IVocabularyTerm term = transaction.getVocabularyTerm(voca, "ALpha");
+        term.setLabel("Alphaaaa");
+        transaction.updateVocabularyTerm(term);
+        transaction.commit();
+
+        NewVocabulary newVoca = newVocaMatcher.recordedObject();
+        assertEquals(UNKNOWN, newVoca.getCode());
+        List<VocabularyTerm> terms = newVoca.getTerms();
+        assertEquals("[Alphaaaa [Alpha]]", terms.toString());
+        assertEquals(false, transaction.hasErrors());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUnknownTermOfNewVocabulary()
+    {
+        prepareListVocabularies();
+
+        IVocabulary voca = transaction.getOrCreateNewVocabulary(UNKNOWN);
+        try
+        {
+            transaction.getVocabularyTerm(voca, "abc");
+            fail("IllegalArgumentException expected.");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Vocabulary UNKNOWN has no term ABC.", ex.getMessage());
+        }
+
+        assertEquals(false, transaction.hasErrors());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testAddVocabularyTermsFailed()
+    {
+        prepareListVocabularies();
+        final Exception throwable = new RuntimeException("Oohps!");
+        context.checking(new Expectations()
+            {
+                {
+                    one(server).addVocabularyTerms(with(SESSION_TOKEN), with(new TechId(VOCA_ID)),
+                            with(any(List.class)), with((Long) null));
+                    will(throwException(throwable));
+                }
+            });
+
+        IVocabulary voca = transaction.getOrCreateNewVocabulary(KNOWN);
+        transaction.addVocabularyTermTo(voca, transaction.createNewVocabularyTerm("ABC"));
+        transaction.addVocabularyTermTo(voca, transaction.createNewVocabularyTerm("Delta"));
+        transaction.commit();
+
+        assertEquals("Failed to register new terms [ABC, DELTA]: Oohps!", transaction
+                .getTransactionErrors().getErrors().get(0).getDescription());
+        assertSame(throwable, transaction.getTransactionErrors().getErrors().get(0).getException());
+        assertEquals(1, transaction.getTransactionErrors().getErrors().size());
+        assertEquals(true, transaction.hasErrors());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCreateVocabularyFailed()
+    {
+        prepareListVocabularies();
+        final Exception throwable = new RuntimeException("Oohps!");
+        context.checking(new Expectations()
+            {
+                {
+                    one(server).registerVocabulary(with(SESSION_TOKEN),
+                            with(any(NewVocabulary.class)));
+                    will(throwException(throwable));
+                }
+            });
+
+        transaction.getOrCreateNewVocabulary(UNKNOWN);
+        transaction.commit();
+
+        assertEquals("Failed to register vocabulary 'UNKNOWN': Oohps!", transaction
+                .getTransactionErrors().getErrors().get(0).getDescription());
+        assertSame(throwable, transaction.getTransactionErrors().getErrors().get(0).getException());
+        assertEquals(1, transaction.getTransactionErrors().getErrors().size());
+        assertEquals(true, transaction.hasErrors());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdateVocabularyTermsFailed()
+    {
+        prepareListVocabularies();
+        final Exception throwable = new RuntimeException("Oohps!");
+        context.checking(new Expectations()
+            {
+                {
+                    one(server).updateVocabularyTerm(with(SESSION_TOKEN),
+                            with(any(IVocabularyTermUpdates.class)));
+                    will(throwException(throwable));
+                }
+            });
+
+        IVocabulary voca = transaction.getOrCreateNewVocabulary(KNOWN);
+        IVocabularyTerm term = transaction.getVocabularyTerm(voca, "t1");
+        transaction.updateVocabularyTerm(term);
+        transaction.commit();
+
+        assertEquals("Failed to update vocabulary term 'T1': Oohps!", transaction
+                .getTransactionErrors().getErrors().get(0).getDescription());
+        assertSame(throwable, transaction.getTransactionErrors().getErrors().get(0).getException());
+        assertEquals(1, transaction.getTransactionErrors().getErrors().size());
+        assertEquals(true, transaction.hasErrors());
         context.assertIsSatisfied();
     }
 }

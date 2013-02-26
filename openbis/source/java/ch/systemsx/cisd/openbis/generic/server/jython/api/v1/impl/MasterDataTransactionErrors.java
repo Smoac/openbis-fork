@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IAbstractType;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IPropertyAssignment;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabulary;
@@ -141,7 +142,13 @@ public class MasterDataTransactionErrors
                 @Override
                 public String getDescription()
                 {
-                    return "Failed to register new terms: " + newTerms;
+                    CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
+                    for (VocabularyTerm term : newTerms)
+                    {
+                        builder.append(term.getCode().toUpperCase());
+                    }
+                    return "Failed to register new terms [" + builder + "]: "
+                            + getException().getMessage();
                 }
             });
     }
@@ -153,7 +160,8 @@ public class MasterDataTransactionErrors
                 @Override
                 public String getDescription()
                 {
-                    return "Failed to update vocabulary term " + term.getCode() + ".";
+                    return "Failed to update vocabulary term '" + term.getCode() + "': "
+                            + getException().getMessage();
                 }
             });
     }

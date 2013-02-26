@@ -449,7 +449,7 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
             }
         }
         throw new IllegalArgumentException("Vocabulary " + vocabulary.getCode() + " has no term "
-                + vocabularyTermCode.toUpperCase());
+                + vocabularyTermCode.toUpperCase() + ".");
     }
 
     @Override
