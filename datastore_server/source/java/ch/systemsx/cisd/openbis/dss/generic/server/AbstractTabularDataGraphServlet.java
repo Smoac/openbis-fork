@@ -44,7 +44,7 @@ public abstract class AbstractTabularDataGraphServlet extends AbstractDatasetDow
 
     protected TabularDataGraphCollectionConfiguration configuration;
 
-    private static final String PROPERTIES_FILE_KEY = "properties-file";
+    protected static final String PROPERTIES_FILE_KEY = "properties-file";
 
     public static final String FILE_PATH_PARAM = "file";
 
@@ -227,7 +227,8 @@ public abstract class AbstractTabularDataGraphServlet extends AbstractDatasetDow
         return configuration;
     }
 
-    protected abstract ITabularData getDatasetLines(HttpServletRequest request, String dataSetCode, String filePathOrNull)
+    protected abstract ITabularData getDatasetLines(HttpServletRequest request, String dataSetCode,
+            String filePathOrNull)
             throws IOException;
 
 }

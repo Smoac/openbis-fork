@@ -53,7 +53,8 @@ public class TabularDataGraphConfiguration
      * @param imageWidth The desired width of the resulting image
      * @param imageHeight The desired height of the resulting image
      */
-    protected TabularDataGraphConfiguration(GraphType graphType, String title, CodeAndLabel xAxisColumn,
+    protected TabularDataGraphConfiguration(GraphType graphType, String title,
+            CodeAndLabel xAxisColumn,
             CodeAndLabel yAxisColumn, int imageWidth, int imageHeight)
     {
         this.graphType = graphType;
@@ -96,7 +97,7 @@ public class TabularDataGraphConfiguration
     /**
      * The width of the resulting image.
      */
-    protected int getImageWidth()
+    public int getImageWidth()
     {
         return imageWidth;
     }
@@ -104,8 +105,18 @@ public class TabularDataGraphConfiguration
     /**
      * The height of the resulting image.
      */
-    protected int getImageHeight()
+    public int getImageHeight()
     {
         return imageHeight;
+    }
+
+    public String getXLabel()
+    {
+        return xAxisColumn.getLabel();
+    }
+
+    public String getYLabel()
+    {
+        return yAxisColumn.getLabel();
     }
 }

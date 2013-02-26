@@ -28,8 +28,8 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
-import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphConfiguration.GraphType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;
@@ -75,9 +75,9 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
 
     public static final String Y_AXIS_KEY = "y-axis";
 
-    private static final String COLUMN_KEY = "column";
+    public static final String COLUMN_KEY = "column";
 
-    private static final String NUMBER_OF_BINS_KEY = "number-of-bins";
+    public static final String NUMBER_OF_BINS_KEY = "number-of-bins";
 
     private final char columnDelimiter;
 
