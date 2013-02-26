@@ -96,7 +96,6 @@ public class JsonAnnotationTest
                 .add("ch.systemsx.cisd.openbis.common.api.server.json.object.ObjectWithTypeALegalDuplicate");
         whiteList
                 .add("ch.systemsx.cisd.openbis.common.api.server.json.object.ObjectWithTypeBIllegalDuplicate");
-        whiteList.add("ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentIdentifier");
 
         Map<String, Collection<Class<?>>> names = new HashMap<String, Collection<Class<?>>>();
         for (Class<?> clazz : ClassReferences.ref.getTypesAnnotatedWith(JsonObject.class))
