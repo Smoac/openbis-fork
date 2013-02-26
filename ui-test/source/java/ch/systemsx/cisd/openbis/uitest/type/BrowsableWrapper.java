@@ -118,7 +118,7 @@ public class BrowsableWrapper implements Browsable
     {
         idColumn = "Name";
         idValue = script.getName();
-        columns = Arrays.asList("Name", "Description", "Entity Kind", "Script Type", "Script");
+        columns = Arrays.asList("Name", "Description", "Entity Kind", "Plugin Type", "Script");
         browserLocation = new ScriptBrowserLocation();
     }
 

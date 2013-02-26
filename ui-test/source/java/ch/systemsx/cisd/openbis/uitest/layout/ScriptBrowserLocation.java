@@ -37,7 +37,7 @@ public class ScriptBrowserLocation implements Location<ScriptBrowser>
     @Override
     public String getTabName()
     {
-        return "Scripts";
+        return "Plugins";
     }
 
     @Override
