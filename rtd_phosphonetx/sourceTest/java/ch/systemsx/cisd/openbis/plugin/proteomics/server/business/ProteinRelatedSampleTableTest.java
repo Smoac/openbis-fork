@@ -62,7 +62,7 @@ public class ProteinRelatedSampleTableTest extends AbstractBOTestCase
         super.setUp();
         table =
                 new ProteinRelatedSampleTable(daoFactory, specificDAOFactory,
-                        new ManagedPropertyEvaluatorFactory(null, null));
+                        new ManagedPropertyEvaluatorFactory(null));
 
         SpacePE space =
                 new SpacePEBuilder()

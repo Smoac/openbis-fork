@@ -100,7 +100,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         service =
                 new ProteomicsDataServiceInternal(sessionManager, daoFactory,
                         propertiesBatchManager, commonBoFactory, boFactory,
-                        new ManagedPropertyEvaluatorFactory(null, null));
+                        new ManagedPropertyEvaluatorFactory(null));
         experimentType = new ExperimentTypePE();
         experimentType.setCode(EXPERIMENT_TYPE);
         experimentType.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());

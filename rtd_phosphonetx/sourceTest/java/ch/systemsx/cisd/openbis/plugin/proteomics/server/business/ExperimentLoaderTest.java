@@ -40,7 +40,7 @@ public class ExperimentLoaderTest extends AbstractLoaderTestCase
     public void test()
     {
         ExperimentLoader loader =
-                new ExperimentLoader(daoFactory, new ManagedPropertyEvaluatorFactory(null, null));
+                new ExperimentLoader(daoFactory, new ManagedPropertyEvaluatorFactory(null));
         List<Sample> samples = loadSamples(980L, 981L, 986L);
 
         loader.enrichWithExperiments(samples);
@@ -69,7 +69,7 @@ public class ExperimentLoaderTest extends AbstractLoaderTestCase
         for (Long id : ids)
         {
             list.add(SampleTranslator.translate(sampleDAO.tryGetByTechId(new TechId(id)), "", null,
-                    new ManagedPropertyEvaluatorFactory(null, null)));
+                    new ManagedPropertyEvaluatorFactory(null)));
 
         }
         return list;
