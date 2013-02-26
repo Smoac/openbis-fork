@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabulary;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyTerm;
 
@@ -26,9 +30,13 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IVocabularyTerm;
  */
 class VocabularyWrapper extends VocabularyImmutable implements IVocabulary
 {
-    VocabularyWrapper(VocabularyImmutable vocabulary)
+    private final Map<Long, List<VocabularyTerm>> createdVocabularyTerms;
+
+    VocabularyWrapper(VocabularyImmutable vocabulary,
+            Map<Long, List<VocabularyTerm>> createdVocabularyTerms)
     {
         super(vocabulary.getVocabulary());
+        this.createdVocabularyTerms = createdVocabularyTerms;
     }
 
     @Override
@@ -59,5 +67,13 @@ class VocabularyWrapper extends VocabularyImmutable implements IVocabulary
     @Override
     public void addTerm(IVocabularyTerm term)
     {
+        Long id = getVocabulary().getId();
+        List<VocabularyTerm> terms = createdVocabularyTerms.get(id);
+        if (terms == null)
+        {
+            terms = new ArrayList<VocabularyTerm>();
+            createdVocabularyTerms.put(id, terms);
+        }
+        terms.add((VocabularyTerm) term);
     }
 }

@@ -30,6 +30,14 @@ file_type_ZIP.setDescription('A zipped package')
 
 vocabulary_TREATMENT_TYPE = tr.getVocabulary('TREATMENT_TYPE')
 
+vocabulary_TREATMENT_TYPE.addTerm(vocabulary_term_TREATMENT_TYPE_PH)
+vocabulary_term_TREATMENT_TYPE_PH = tr.createNewVocabularyTerm('PH')
+vocabulary_term_TREATMENT_TYPE_PH.setDescription(None)
+vocabulary_term_TREATMENT_TYPE_PH.setUrl(None)
+vocabulary_term_TREATMENT_TYPE_PH.setLabel('ph')
+vocabulary_term_TREATMENT_TYPE_PH.setOrdinal(1)
+vocabulary_TREATMENT_TYPE.addTerm(vocabulary_term_TREATMENT_TYPE_PH)
+
 exp_type_BIOLOGICAL_EXPERIMENT = tr.getOrCreateNewExperimentType('BIOLOGICAL_EXPERIMENT')
 exp_type_BIOLOGICAL_EXPERIMENT.setDescription('A biological experiment')
 

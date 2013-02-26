@@ -502,7 +502,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
         IVocabularyTerm term = transaction.createNewVocabularyTerm("ABC");
         term.setLabel("abc");
         term.setDescription("Hello abc");
-        transaction.addVocabularyTermTo(voca, term);
+        voca.addTerm(term);
         transaction.commit();
 
         assertEquals("[abc [ABC]]", newTermsMatcher.recordedObject().toString());
@@ -585,7 +585,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
         term2.setLabel("Beta");
         term2.setDescription("Hello B");
         term2.setOrdinal(1L);
-        transaction.addVocabularyTermTo(voca, term2);
+        voca.addTerm(term2);
         transaction.commit();
 
         NewVocabulary newVoca = newVocaMatcher.recordedObject();
@@ -652,6 +652,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testAddVocabularyTermsFailed()
     {
@@ -667,8 +668,8 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
             });
 
         IVocabulary voca = transaction.getOrCreateNewVocabulary(KNOWN);
-        transaction.addVocabularyTermTo(voca, transaction.createNewVocabularyTerm("ABC"));
-        transaction.addVocabularyTermTo(voca, transaction.createNewVocabularyTerm("Delta"));
+        voca.addTerm(transaction.createNewVocabularyTerm("ABC"));
+        voca.addTerm(transaction.createNewVocabularyTerm("Delta"));
         transaction.commit();
 
         assertEquals("Failed to register new terms [ABC, DELTA]: Oohps!", transaction

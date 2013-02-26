@@ -419,24 +419,6 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
     }
 
     @Override
-    public void addVocabularyTermTo(IVocabularyImmutable vocabulary, IVocabularyTerm term)
-    {
-        if (vocabulary instanceof Vocabulary)
-        {
-            ((Vocabulary) vocabulary).addTerm(term);
-            return;
-        }
-        Long id = ((VocabularyImmutable) vocabulary).getVocabulary().getId();
-        List<VocabularyTerm> terms = createdVocabularyTerms.get(id);
-        if (terms == null)
-        {
-            terms = new ArrayList<VocabularyTerm>();
-            createdVocabularyTerms.put(id, terms);
-        }
-        terms.add((VocabularyTerm) term);
-    }
-
-    @Override
     public IVocabularyTerm getVocabularyTerm(IVocabularyImmutable vocabulary,
             String vocabularyTermCode)
     {
@@ -474,7 +456,7 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
         IVocabularyImmutable vocabulary = getVocabulary(code);
         if (vocabulary != null)
         {
-            return new VocabularyWrapper((VocabularyImmutable) vocabulary);
+            return new VocabularyWrapper((VocabularyImmutable) vocabulary, createdVocabularyTerms);
         }
         return createNewVocabulary(code);
     }
