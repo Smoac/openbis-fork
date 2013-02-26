@@ -20,24 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.Radio;
-import com.extjs.gxt.ui.client.widget.form.RadioGroup;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
-import com.google.gwt.user.client.Element;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -70,6 +52,24 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
+
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.google.gwt.user.client.Element;
 
 /**
  * The property type assignment panel.
@@ -200,7 +200,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
             IScriptTypeProvider scriptTypeProvider, EntityKind entityKindOrNull)
     {
         ScriptChooserField field =
-                ScriptChooserField.create(viewContext.getMessage(Dict.SCRIPT), true, null,
+                ScriptChooserField.create(viewContext.getMessage(Dict.PLUGIN_PLUGIN), true, null,
                         viewContext, scriptTypeProvider, entityKindOrNull);
         field.setId(ID_PREFIX + "script_chooser");
         FieldUtil.setVisibility(false, field);

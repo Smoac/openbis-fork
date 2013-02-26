@@ -19,13 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.script
 import java.util.Arrays;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -58,6 +51,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * Grid displaying scripts.
@@ -104,15 +104,16 @@ public class ScriptGrid extends TypedTableGrid<Script>
 
         final Button addScriptButton =
                 new Button(viewContext.getMessage(Dict.BUTTON_ADD,
-                        viewContext.getMessage(Dict.SCRIPT)), new SelectionListener<ButtonEvent>()
-                    {
-                        @Override
-                        public void componentSelected(ButtonEvent ce)
-                        {
-                            DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext)
-                                    .getScriptRegistration(entityKindOrNull));
-                        }
-                    });
+                        viewContext.getMessage(Dict.PLUGIN_PLUGIN)),
+                        new SelectionListener<ButtonEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ButtonEvent ce)
+                                {
+                                    DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
+                                            viewContext).getScriptRegistration(entityKindOrNull));
+                                }
+                            });
         addScriptButton.setId(ADD_BUTTON_ID);
         addButton(addScriptButton);
 
@@ -228,7 +229,7 @@ public class ScriptGrid extends TypedTableGrid<Script>
                 public String getTabTitle()
                 {
                     return viewContext.getMessage(Dict.EDIT_TITLE,
-                            viewContext.getMessage(Dict.SCRIPT), "");
+                            viewContext.getMessage(Dict.PLUGIN_PLUGIN), "");
                 }
 
                 @Override
@@ -267,7 +268,7 @@ public class ScriptGrid extends TypedTableGrid<Script>
         @Override
         protected String getEntityName()
         {
-            return messageProvider.getMessage(Dict.SCRIPT);
+            return messageProvider.getMessage(Dict.PLUGIN_PLUGIN);
         }
 
     }
