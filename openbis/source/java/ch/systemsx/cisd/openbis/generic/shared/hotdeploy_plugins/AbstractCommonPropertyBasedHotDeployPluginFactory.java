@@ -26,7 +26,7 @@ import ch.ethz.cisd.hotdeploy.PluginEventListener;
 import ch.ethz.cisd.hotdeploy.PluginMapHolder;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
-import ch.systemsx.cisd.openbis.generic.shared.IHotDeploymentController;
+import ch.systemsx.cisd.openbis.generic.server.IHotDeploymentController;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.ICommonPropertyBasedHotDeployPlugin;
 
