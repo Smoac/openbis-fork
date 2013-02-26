@@ -31,8 +31,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.IDataSourceFactory;
 
 /**
  * Creates a {@link DataSource} using {@link DatabaseConfigurationContext} and given properties. The
- * database is migrated to the version specified by {@link #VERSION_HOLDER_CLASS_KEY} property
- * if specified.
+ * database is migrated to the version specified by {@link #VERSION_HOLDER_CLASS_KEY} property if
+ * specified.
  * 
  * @author Izabela Adamczyk
  */
@@ -40,6 +40,8 @@ public class DefaultDataSourceFactory implements IDataSourceFactory
 {
 
     public static final String VERSION_HOLDER_CLASS_KEY = "version-holder-class";
+
+    public static final String VERSION_KEY = "version";
 
     @Override
     public DataSourceWithDefinition create(Properties dbProps)
@@ -54,13 +56,24 @@ public class DefaultDataSourceFactory implements IDataSourceFactory
         {
             throw new ConfigurationFailureException("db engine code not specified in " + dbProps);
         }
-        String versionClass = dbProps.getProperty(VERSION_HOLDER_CLASS_KEY);
-        if (versionClass != null)
+
+        // First try to get the version from the properties
+        String propertiesVersion = dbProps.getProperty(VERSION_KEY);
+        if (propertiesVersion != null)
         {
-            IDatabaseVersionHolder versionHolder =
-                ClassUtils.create(IDatabaseVersionHolder.class, versionClass);
-            String version = versionHolder.getDatabaseVersion();
+            String version = propertiesVersion;
             DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, version);
+        } else
+        {
+            // Now try the version-holder-class-based varient
+            String versionClass = dbProps.getProperty(VERSION_HOLDER_CLASS_KEY);
+            if (versionClass != null)
+            {
+                IDatabaseVersionHolder versionHolder =
+                        ClassUtils.create(IDatabaseVersionHolder.class, versionClass);
+                String version = versionHolder.getDatabaseVersion();
+                DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, version);
+            }
         }
         return new DataSourceWithDefinition(context.getDataSource(),
                 DataSourceDefinition.createFromContext(context));
