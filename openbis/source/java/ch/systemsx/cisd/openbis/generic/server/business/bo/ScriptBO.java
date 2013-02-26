@@ -23,6 +23,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonDynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonEntityValidationCalculator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -131,7 +132,71 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         script.setScript(newScript.getScript());
         script.setScriptType(newScript.getScriptType());
         script.setPluginType(newScript.getPluginType());
-        script.setEntityKind(newScript.getEntityKind());
+        script.setEntityKind(newScript.getEntityKind() == null ? null
+                : newScript.getEntityKind().length == 1 ? newScript.getEntityKind()[0] : null);
+    }
+
+    @Override
+    public void tryDefineOrUpdateIfPossible(Script newScript)
+    {
+        assert newScript != null : "Script cannot be null";
+        assert newScript.getName() != null : "Script name cannot be null";
+
+        IScriptDAO scriptDAO = getScriptDAO();
+        script = scriptDAO.tryFindByName(newScript.getName());
+        if (script == null)
+        {
+            define(newScript);
+        } else
+        {
+            if (newScript.getPluginType() == script.getPluginType()
+                    && newScript.getScriptType() == script.getScriptType())
+            {
+                script.setDescription(newScript.getDescription());
+                script.setAvailable(newScript.isAvailable());
+                script.setScript(newScript.getScript());
+                script.setEntityKind(newScript.getEntityKind() == null ? null : newScript
+                        .getEntityKind().length == 1 ? newScript.getEntityKind()[0] : null);
+            } else
+            {
+                StringBuilder sb = new StringBuilder("Cannot register ");
+                sb.append(newScript.getPluginType())
+                        .append(" ")
+                        .append(newScript.getScriptType())
+                        .append(" plugin '")
+                        .append(newScript.getName())
+                        .append("' because plugin of different kind with the same name already exists.");
+                throw new IllegalArgumentException(sb.toString());
+            }
+        }
+    }
+
+    @Override
+    public void tryDeleteOrInvalidatePredeployedPlugin(String name, ScriptType scriptType)
+    {
+        assert name != null : "Script name cannot be null";
+        assert scriptType != null : "Script type cannot be null";
+
+        IScriptDAO scriptDAO = getScriptDAO();
+        script = scriptDAO.tryFindByName(name);
+
+        if (script != null)
+        {
+            if (script.getPluginType() == PluginType.PREDEPLOYED
+                    && script.getScriptType() == scriptType)
+            {
+                script.setAvailable(false);
+                save();
+            } else
+            {
+                StringBuilder sb = new StringBuilder("Cannot delete ");
+                sb.append(scriptType)
+                        .append(" plugin '")
+                        .append(name)
+                        .append("' because plugin of different kind with the same name already exists.");
+                throw new IllegalArgumentException(sb.toString());
+            }
+        }
     }
 
     @Override
@@ -185,5 +250,4 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
             calculator.checkScriptCompilation();
         }
     }
-
 }

@@ -40,7 +40,7 @@ public class SampleValidatorTest extends AuthorizationTestCase
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, SampleTranslator.translate(
                 createSample(createAnotherSpace()), BASE_URL, null,
-                new ManagedPropertyEvaluatorFactory(null, null))));
+                new ManagedPropertyEvaluatorFactory(null))));
     }
 
     @Test
@@ -50,7 +50,7 @@ public class SampleValidatorTest extends AuthorizationTestCase
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, SampleTranslator.translate(
                 createSample(createDatabaseInstance()), BASE_URL, null,
-                new ManagedPropertyEvaluatorFactory(null, null))));
+                new ManagedPropertyEvaluatorFactory(null))));
     }
 
     @Test
@@ -60,7 +60,7 @@ public class SampleValidatorTest extends AuthorizationTestCase
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(false, validator.isValid(person, SampleTranslator.translate(
                 createSample(createDatabaseInstance("blabla")), BASE_URL, null,
-                new ManagedPropertyEvaluatorFactory(null, null))));
+                new ManagedPropertyEvaluatorFactory(null))));
     }
 
     @Test
@@ -70,7 +70,7 @@ public class SampleValidatorTest extends AuthorizationTestCase
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, SampleTranslator.translate(
                 createSample(createSpace()), BASE_URL, null, new ManagedPropertyEvaluatorFactory(
-                        null, null))));
+                        null))));
     }
 
     @Test
@@ -80,7 +80,6 @@ public class SampleValidatorTest extends AuthorizationTestCase
         PersonPE person = createPersonWithRoleAssignments();
         SpacePE group = createSpace("blabla", createAnotherDatabaseInstance());
         assertEquals(false, validator.isValid(person, SampleTranslator.translate(
-                createSample(group), BASE_URL, null,
-                new ManagedPropertyEvaluatorFactory(null, null))));
+                createSample(group), BASE_URL, null, new ManagedPropertyEvaluatorFactory(null))));
     }
 }

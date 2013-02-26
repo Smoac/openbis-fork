@@ -312,6 +312,8 @@ public final class ColumnNames
 
     public static final String PLUGIN_TYPE = "plugin_type";
 
+    public static final String IS_AVAILABLE = "" + "is_available";
+
     public static final String PRESENT_IN_ARCHIVE = "present_in_archive";
 
     public static final String STORAGE_CONFIRMATION = "storage_confirmation";

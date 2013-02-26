@@ -132,9 +132,9 @@ public final class CommonServerTest extends AbstractServerTestCase
                 new CommonServer(authenticationService, sessionManager, daoFactory,
                         propertiesBatchManager, commonBusinessObjectFactory,
                         dataStoreServiceRegistrator, new LastModificationState(),
-                        new EntityValidatorFactory(null, null),
-                        new DynamicPropertyCalculatorFactory(null, null),
-                        new ManagedPropertyEvaluatorFactory(null, null));
+                        new EntityValidatorFactory(null),
+                        new DynamicPropertyCalculatorFactory(null),
+                        new ManagedPropertyEvaluatorFactory(null));
         server.setSampleTypeSlaveServerPlugin(sampleTypeSlaveServerPlugin);
         server.setDataSetTypeSlaveServerPlugin(dataSetTypeSlaveServerPlugin);
         server.setBaseIndexURL(SESSION_TOKEN, BASE_INDEX_URL);
@@ -582,7 +582,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         externalDataPE.setDataStore(dataStorePE);
         final AbstractExternalData externalData =
                 DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
-                        new ManagedPropertyEvaluatorFactory(null, null));
+                        new ManagedPropertyEvaluatorFactory(null));
         prepareGetSession();
         final boolean showOnlyDirectlyConnected = true;
         context.checking(new Expectations()
@@ -622,7 +622,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         externalDataPE.setDataStore(dataStorePE);
         final AbstractExternalData externalData =
                 DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
-                        new ManagedPropertyEvaluatorFactory(null, null));
+                        new ManagedPropertyEvaluatorFactory(null));
         prepareGetSession();
         context.checking(new Expectations()
             {

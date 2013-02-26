@@ -1693,4 +1693,17 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logAccess(sessionToken, "list_predeployed_plugins", "SCRIPT_TYPE(%s)", scriptType);
         return null;
     }
+
+    @Override
+    public void registerOrUpdatePredeployedPlugin(String sessionToken, Script script)
+    {
+        logAccess(sessionToken, "register_or_update_predeployed_plugin", "NAME(%s)",
+                script.getName());
+    }
+
+    @Override
+    public void invalidatePredeployedPlugin(String sessionToken, String name, ScriptType scriptType)
+    {
+        logAccess(sessionToken, "invalidate_predeployed_plugin", "NAME(%s)", name);
+    }
 }

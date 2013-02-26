@@ -30,10 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PersonBuilder;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ScriptProviderTest extends AbstractProviderTest
@@ -77,13 +74,14 @@ public class ScriptProviderTest extends AbstractProviderTest
         assertEquals(2, rows.size());
         context.assertIsSatisfied();
     }
-    
+
     private Script script(EntityKind kind)
     {
         Script script = new Script();
         script.setName("my-" + kind + "-script");
         script.setDescription("A script for " + kind);
-        script.setEntityKind(kind);
+        script.setEntityKind(new EntityKind[]
+            { kind });
         script.setScript("do something with " + kind);
         script.setScriptType(ScriptType.DYNAMIC_PROPERTY);
         script.setRegistrationDate(new Date(4711));

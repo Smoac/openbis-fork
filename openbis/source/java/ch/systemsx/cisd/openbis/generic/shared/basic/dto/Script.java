@@ -40,20 +40,22 @@ public class Script extends AbstractRegistrationHolder implements Comparable<Scr
 
     private String script;
 
-    private EntityKind entityKind;
+    private EntityKind[] entityKind;
 
     private PluginType pluginType;
+
+    private boolean available;
 
     public Script()
     {
     }
 
-    public EntityKind getEntityKind()
+    public EntityKind[] getEntityKind()
     {
         return entityKind;
     }
 
-    public void setEntityKind(EntityKind entityKind)
+    public void setEntityKind(EntityKind[] entityKind)
     {
         this.entityKind = entityKind;
     }
@@ -125,6 +127,16 @@ public class Script extends AbstractRegistrationHolder implements Comparable<Scr
     public void setPluginType(PluginType pluginType)
     {
         this.pluginType = pluginType;
+    }
+
+    public boolean isAvailable()
+    {
+        return available;
+    }
+
+    public void setAvailable(boolean available)
+    {
+        this.available = available;
     }
 
     @Override

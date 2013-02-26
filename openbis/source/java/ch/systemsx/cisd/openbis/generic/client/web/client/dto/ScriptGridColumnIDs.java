@@ -20,16 +20,26 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.script.
 
 /**
  * IDs of column of {@link ScriptGrid}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ScriptGridColumnIDs
 {
-    public static final String NAME = "NAME"; 
-    public static final String DESCRIPTION = "DESCRIPTION"; 
-    public static final String SCRIPT = "SCRIPT"; 
-    public static final String ENTITY_KIND = "ENTITY_KIND"; 
-    public static final String SCRIPT_TYPE = "SCRIPT_TYPE"; 
-    public static final String REGISTRATOR = "REGISTRATOR"; 
-    public static final String REGISTRATION_DATE = "REGISTRATION_DATE"; 
+    public static final String NAME = "NAME";
+
+    public static final String DESCRIPTION = "DESCRIPTION";
+
+    public static final String SCRIPT = "SCRIPT";
+
+    public static final String ENTITY_KIND = "ENTITY_KIND";
+
+    public static final String SCRIPT_TYPE = "SCRIPT_TYPE";
+
+    public static final String PLUGIN_TYPE = "PLUGIN_TYPE";
+
+    public static final String REGISTRATOR = "REGISTRATOR";
+
+    public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
+
+    public static final String IS_AVAILABLE = "IS_AVAILABLE";
 }

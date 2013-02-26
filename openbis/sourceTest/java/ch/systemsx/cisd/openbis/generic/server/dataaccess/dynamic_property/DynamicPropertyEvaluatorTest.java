@@ -80,8 +80,7 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
             };
         evaluator =
                 new DynamicPropertyEvaluator(daoFactory, sessionProvider,
-                        new DynamicPropertyCalculatorFactory(null, null),
-                        managedPropertyEvaluatorFactory);
+                        new DynamicPropertyCalculatorFactory(null), managedPropertyEvaluatorFactory);
     }
 
     @Test

@@ -37,7 +37,7 @@ public class DynamicPropertyEvaluatorDbTest extends AbstractDAOTest
     {
         evaluator =
                 new DynamicPropertyEvaluator(daoFactory, null,
-                        new DynamicPropertyCalculatorFactory(null, null),
-                        new ManagedPropertyEvaluatorFactory(null, null));
+                        new DynamicPropertyCalculatorFactory(null),
+                        new ManagedPropertyEvaluatorFactory(null));
     }
 }

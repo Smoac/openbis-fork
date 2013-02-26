@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.ICorePluginResourceLoader;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
@@ -49,4 +51,15 @@ public interface ICommonServerForInternalUse extends ICommonServer
     @Transactional
     public List<DataStore> listDataStores();
 
+    /**
+     * Registers predeployed plugin
+     */
+    @Transactional
+    public void registerOrUpdatePredeployedPlugin(String sessionToken, Script script);
+
+    /**
+     * Invalidates predeployed plugin.
+     */
+    @Transactional
+    public void invalidatePredeployedPlugin(String sessionToken, String name, ScriptType scriptType);
 }

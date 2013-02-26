@@ -57,6 +57,13 @@ public class Script extends ScriptImmutable implements IScript
     @Override
     public void setEntityForScript(String entityKind)
     {
-        script.setEntityKind(EntityKind.valueOf(entityKind));
+        if (entityKind == null)
+        {
+            script.setEntityKind(null);
+        } else
+        {
+            script.setEntityKind(new EntityKind[]
+                { EntityKind.valueOf(entityKind) });
+        }
     }
 }

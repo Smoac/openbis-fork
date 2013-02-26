@@ -40,7 +40,7 @@ public class ExperimentValidatorTest extends AuthorizationTestCase
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, ExperimentTranslator.translate(
                 createExperiment(createAnotherSpace()), BASE_URL, null,
-                new ManagedPropertyEvaluatorFactory(null, null))));
+                new ManagedPropertyEvaluatorFactory(null))));
     }
 
     @Test
@@ -50,7 +50,7 @@ public class ExperimentValidatorTest extends AuthorizationTestCase
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, ExperimentTranslator.translate(
                 createExperiment(createSpace()), BASE_URL, null,
-                new ManagedPropertyEvaluatorFactory(null, null))));
+                new ManagedPropertyEvaluatorFactory(null))));
     }
 
     @Test
@@ -59,8 +59,8 @@ public class ExperimentValidatorTest extends AuthorizationTestCase
         ExperimentValidator validator = new ExperimentValidator();
         PersonPE person = createPersonWithRoleAssignments();
         SpacePE group = createSpace("blabla", createAnotherDatabaseInstance());
-        assertEquals(false, validator.isValid(person, ExperimentTranslator.translate(
-                createExperiment(group), BASE_URL, null, new ManagedPropertyEvaluatorFactory(null,
-                        null))));
+        assertEquals(false,
+                validator.isValid(person, ExperimentTranslator.translate(createExperiment(group),
+                        BASE_URL, null, new ManagedPropertyEvaluatorFactory(null))));
     }
 }

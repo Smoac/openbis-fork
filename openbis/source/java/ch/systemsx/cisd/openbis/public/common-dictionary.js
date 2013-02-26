@@ -975,6 +975,7 @@ progress_processing: "Processing",
 //
 predeployed_plugin_name: "Plugin name",
 plugin_type: "Plugin Type",
+is_available: "Available?",
 
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

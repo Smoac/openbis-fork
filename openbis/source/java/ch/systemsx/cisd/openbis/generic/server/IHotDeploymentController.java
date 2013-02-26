@@ -18,7 +18,10 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.io.File;
 
+import ch.ethz.cisd.hotdeploy.PluginEvent;
 import ch.ethz.cisd.hotdeploy.PluginMapHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
+import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.ICommonPropertyBasedHotDeployPlugin;
 
 /**
  * @author Pawel Glyzewski
@@ -27,5 +30,9 @@ public interface IHotDeploymentController
 {
     public void addPluginDirectory(File pluginDirectory);
 
-    public <T> PluginMapHolder<T> getPluginMap(Class<T> pluginClass);
+    public <T extends ICommonPropertyBasedHotDeployPlugin> PluginMapHolder<T> getPluginMap(
+            Class<T> pluginClass);
+
+    public void pluginChanged(PluginEvent event, ICommonPropertyBasedHotDeployPlugin plugin,
+            ScriptType scriptType);
 }

@@ -78,6 +78,8 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
 
     private EntityKind entityKind;
 
+    private boolean available;
+
     //
     // assignments using the script - readonly
     //
@@ -310,6 +312,18 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
     public void setPluginType(PluginType pluginType)
     {
         this.pluginType = pluginType;
+    }
+
+    @NotNull(message = ValidationMessages.IS_AVAILABLE_NOT_NULL_MESSAGE)
+    @Column(name = ColumnNames.IS_AVAILABLE)
+    public boolean isAvailable()
+    {
+        return available;
+    }
+
+    public void setAvailable(boolean available)
+    {
+        this.available = available;
     }
 
     @Transient

@@ -16,15 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import ch.ethz.cisd.hotdeploy.PluginMapHolder;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
-import ch.systemsx.cisd.openbis.generic.server.IHotDeploymentController;
 import ch.systemsx.cisd.openbis.generic.server.JythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
@@ -32,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
+import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.AbstractCommonPropertyBasedHotDeployPluginFactory;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IManagedPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IManagedPropertyHotDeployEvaluator;
 
@@ -42,22 +35,13 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IManagedProp
  * @author Jakub Straszewski
  * @author Pawel Glyzewski
  */
-public class ManagedPropertyEvaluatorFactory implements IManagedPropertyEvaluatorFactory
+public class ManagedPropertyEvaluatorFactory extends
+        AbstractCommonPropertyBasedHotDeployPluginFactory<IManagedPropertyHotDeployEvaluator>
+        implements IManagedPropertyEvaluatorFactory
 {
-    private PluginMapHolder<IManagedPropertyHotDeployEvaluator> predeployedPlugins;
-
-    public ManagedPropertyEvaluatorFactory(IHotDeploymentController hotDeploymentController,
-            String pluginDirectoryPath)
+    public ManagedPropertyEvaluatorFactory(String pluginDirectoryPath)
     {
-        if (false == StringUtils.isBlank(pluginDirectoryPath))
-        {
-            this.predeployedPlugins =
-                    hotDeploymentController.getPluginMap(IManagedPropertyHotDeployEvaluator.class);
-            hotDeploymentController.addPluginDirectory(new File(pluginDirectoryPath));
-        } else
-        {
-            this.predeployedPlugins = null;
-        }
+        super(pluginDirectoryPath);
     }
 
     @Override
@@ -89,13 +73,8 @@ public class ManagedPropertyEvaluatorFactory implements IManagedPropertyEvaluato
             case JYTHON:
                 return createJythonManagedPropertyEvaluator(scriptBody);
             case PREDEPLOYED:
-                if (predeployedPlugins == null)
-                {
-                    throw new UserFailureException(
-                            "Predeployed managed property evaluator plugins are not configured properly.");
-                }
                 IManagedPropertyEvaluator managedPropertyEvaluator =
-                        predeployedPlugins.tryGet(scriptName);
+                        tryGetPredeployedPluginByName(scriptName);
                 if (managedPropertyEvaluator == null)
                 {
                     throw new UserFailureException("Couldn't find plugin named '" + scriptName
@@ -122,13 +101,26 @@ public class ManagedPropertyEvaluatorFactory implements IManagedPropertyEvaluato
     }
 
     @Override
-    public List<String> listPredeployedPlugins()
+    protected String getPluginDescription()
     {
-        if (predeployedPlugins == null)
-        {
-            return Collections.emptyList();
-        }
+        return "managed property evaluator";
+    }
 
-        return new ArrayList<String>(predeployedPlugins.getPluginNames());
+    @Override
+    protected Class<IManagedPropertyHotDeployEvaluator> getPluginClass()
+    {
+        return IManagedPropertyHotDeployEvaluator.class;
+    }
+
+    @Override
+    protected ScriptType getScriptType()
+    {
+        return ScriptType.MANAGED_PROPERTY;
+    }
+
+    @Override
+    protected String getDefaultPluginSubDirName()
+    {
+        return "managed-properties";
     }
 }

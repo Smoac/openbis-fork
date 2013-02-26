@@ -193,7 +193,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                 context.mock(ISessionManager.class, "sessionManagerForEntityOperations");
         sessionPerson = new PersonPE();
         session.setPerson(sessionPerson);
-        managedPropertyEvaluatorFactory = new ManagedPropertyEvaluatorFactory(null, null);
+        managedPropertyEvaluatorFactory = new ManagedPropertyEvaluatorFactory(null);
     }
 
     @Test

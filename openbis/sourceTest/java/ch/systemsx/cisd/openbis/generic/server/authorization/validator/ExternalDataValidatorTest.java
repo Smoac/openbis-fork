@@ -34,7 +34,7 @@ public class ExternalDataValidatorTest extends AuthorizationTestCase
     {
         PhysicalDataSet data = new PhysicalDataSet();
         data.setExperiment(ExperimentTranslator.translate(createExperiment(group),
-                "http://someURL", null, new ManagedPropertyEvaluatorFactory(null, null)));
+                "http://someURL", null, new ManagedPropertyEvaluatorFactory(null)));
         return data;
     }
 

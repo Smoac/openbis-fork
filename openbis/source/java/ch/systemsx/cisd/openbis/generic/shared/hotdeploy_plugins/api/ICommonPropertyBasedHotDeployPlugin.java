@@ -42,5 +42,4 @@ public interface ICommonPropertyBasedHotDeployPlugin extends Plugin
      * Returns set of supported entities of this property-based plugin.
      */
     public EnumSet<EntityKind> getSupportedEntityKinds();
-
 }

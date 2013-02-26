@@ -16,22 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
-import java.util.List;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.ICommonPropertyBasedHotDeployPluginFactory;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IManagedPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IManagedPropertyHotDeployEvaluator;
 
 /**
  * @author Pawel Glyzewski
  */
-public interface IManagedPropertyEvaluatorFactory
+public interface IManagedPropertyEvaluatorFactory extends
+        ICommonPropertyBasedHotDeployPluginFactory<IManagedPropertyHotDeployEvaluator>
 {
     public IManagedPropertyEvaluator createManagedPropertyEvaluator(
             EntityTypePropertyTypePE entityTypePropertyTypePE);
 
     public IManagedPropertyEvaluator createManagedPropertyEvaluator(
             EntityTypePropertyType<?> entityTypePropertyType);
-
-    public List<String> listPredeployedPlugins();
 }

@@ -16,42 +16,27 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import ch.ethz.cisd.hotdeploy.PluginMapHolder;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
-import ch.systemsx.cisd.openbis.generic.server.IHotDeploymentController;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculatorHotDeployPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.AbstractCommonPropertyBasedHotDeployPluginFactory;
 
 /**
  * The class is responsible for getting a dynamic property calculator.
  * 
  * @author Pawel Glyzewski
  */
-public class DynamicPropertyCalculatorFactory implements IDynamicPropertyCalculatorFactory
+public class DynamicPropertyCalculatorFactory
+        extends
+        AbstractCommonPropertyBasedHotDeployPluginFactory<IDynamicPropertyCalculatorHotDeployPlugin>
+        implements IDynamicPropertyCalculatorFactory
 {
-    private PluginMapHolder<IDynamicPropertyCalculatorHotDeployPlugin> predeployedPlugins;
-
-    public DynamicPropertyCalculatorFactory(IHotDeploymentController hotDeploymentController,
-            String pluginDirectoryPath)
+    public DynamicPropertyCalculatorFactory(String pluginDirectoryPath)
     {
-        if (false == StringUtils.isBlank(pluginDirectoryPath))
-        {
-            this.predeployedPlugins =
-                    hotDeploymentController
-                            .getPluginMap(IDynamicPropertyCalculatorHotDeployPlugin.class);
-            hotDeploymentController.addPluginDirectory(new File(pluginDirectoryPath));
-        } else
-        {
-            this.predeployedPlugins = null;
-        }
+        super(pluginDirectoryPath);
     }
 
     @Override
@@ -63,13 +48,8 @@ public class DynamicPropertyCalculatorFactory implements IDynamicPropertyCalcula
             case JYTHON:
                 return JythonDynamicPropertyCalculator.create(etpt.getScript().getScript());
             case PREDEPLOYED:
-                if (predeployedPlugins == null)
-                {
-                    throw new UserFailureException(
-                            "Predeployed dynamic property calculator plugins are not configured properly.");
-                }
                 IDynamicPropertyCalculator dynamicPropertyCalculator =
-                        predeployedPlugins.tryGet(etpt.getScript().getName());
+                        tryGetPredeployedPluginByName(etpt.getScript().getName());
                 if (dynamicPropertyCalculator == null)
                 {
                     throw new UserFailureException("Couldn't find plugin named '"
@@ -83,13 +63,26 @@ public class DynamicPropertyCalculatorFactory implements IDynamicPropertyCalcula
     }
 
     @Override
-    public List<String> listPredeployedPlugins()
+    protected String getPluginDescription()
     {
-        if (predeployedPlugins == null)
-        {
-            return Collections.emptyList();
-        }
+        return "dynamic property";
+    }
 
-        return new ArrayList<String>(predeployedPlugins.getPluginNames());
+    @Override
+    protected Class<IDynamicPropertyCalculatorHotDeployPlugin> getPluginClass()
+    {
+        return IDynamicPropertyCalculatorHotDeployPlugin.class;
+    }
+
+    @Override
+    protected ScriptType getScriptType()
+    {
+        return ScriptType.DYNAMIC_PROPERTY;
+    }
+
+    @Override
+    protected String getDefaultPluginSubDirName()
+    {
+        return "dynamic-properties";
     }
 }

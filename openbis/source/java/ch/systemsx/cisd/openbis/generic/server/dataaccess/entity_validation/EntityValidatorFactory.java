@@ -16,41 +16,26 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import ch.ethz.cisd.hotdeploy.PluginMapHolder;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
-import ch.systemsx.cisd.openbis.generic.server.IHotDeploymentController;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.INonAbstractEntityAdapter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonEntityValidationCalculator.IValidationRequestDelegate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
+import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.AbstractCommonPropertyBasedHotDeployPluginFactory;
 
 /**
  * @author Pawel Glyzewski
  */
-public class EntityValidatorFactory implements IEntityValidatorFactory
+public class EntityValidatorFactory extends
+        AbstractCommonPropertyBasedHotDeployPluginFactory<IEntityValidatorHotDeployPlugin>
+        implements IEntityValidatorFactory
 {
-    private final PluginMapHolder<IEntityValidatorHotDeployPlugin> predeployedPlugins;
-
-    public EntityValidatorFactory(IHotDeploymentController hotDeploymentController,
-            String pluginDirectoryPath)
+    public EntityValidatorFactory(String pluginDirectoryPath)
     {
-        if (false == StringUtils.isBlank(pluginDirectoryPath))
-        {
-            this.predeployedPlugins =
-                    hotDeploymentController.getPluginMap(IEntityValidatorHotDeployPlugin.class);
-            hotDeploymentController.addPluginDirectory(new File(pluginDirectoryPath));
-        } else
-        {
-            this.predeployedPlugins = null;
-        }
+        super(pluginDirectoryPath);
     }
 
     @Override
@@ -80,12 +65,7 @@ public class EntityValidatorFactory implements IEntityValidatorFactory
             case JYTHON:
                 return new JythonEntityValidator(script);
             case PREDEPLOYED:
-                if (predeployedPlugins == null)
-                {
-                    throw new UserFailureException(
-                            "Predeployed entity validation plugins are not configured properly.");
-                }
-                IEntityValidator entityValidator = predeployedPlugins.tryGet(scriptName);
+                IEntityValidator entityValidator = tryGetPredeployedPluginByName(scriptName);
                 if (entityValidator == null)
                 {
                     throw new UserFailureException("Couldn't find plugin named '" + scriptName
@@ -99,13 +79,26 @@ public class EntityValidatorFactory implements IEntityValidatorFactory
     }
 
     @Override
-    public List<String> listPredeployedPlugins()
+    protected String getPluginDescription()
     {
-        if (predeployedPlugins == null)
-        {
-            return Collections.emptyList();
-        }
+        return "entity validation";
+    }
 
-        return new ArrayList<String>(predeployedPlugins.getPluginNames());
+    @Override
+    protected Class<IEntityValidatorHotDeployPlugin> getPluginClass()
+    {
+        return IEntityValidatorHotDeployPlugin.class;
+    }
+
+    @Override
+    protected ScriptType getScriptType()
+    {
+        return ScriptType.ENTITY_VALIDATION;
+    }
+
+    @Override
+    protected String getDefaultPluginSubDirName()
+    {
+        return "entity-validation";
     }
 }

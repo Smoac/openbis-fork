@@ -2967,6 +2967,38 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    public void registerOrUpdatePredeployedPlugin(String sessionToken, Script script)
+    {
+        Session session = getSession(sessionToken);
+        try
+        {
+            IScriptBO bo = businessObjectFactory.createScriptBO(session);
+            bo.tryDefineOrUpdateIfPossible(script);
+            bo.save();
+        } catch (IllegalArgumentException e)
+        {
+            operationLog.warn(e.getMessage());
+        }
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    public void invalidatePredeployedPlugin(String sessionToken, String name, ScriptType scriptType)
+    {
+        Session session = getSession(sessionToken);
+
+        try
+        {
+            IScriptBO bo = businessObjectFactory.createScriptBO(session);
+            bo.tryDeleteOrInvalidatePredeployedPlugin(name, scriptType);
+        } catch (IllegalArgumentException e)
+        {
+            operationLog.warn(e.getMessage());
+        }
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void deleteAuthorizationGroups(String sessionToken, List<TechId> authGroupIds,
             String reason)
     {
@@ -2999,7 +3031,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final List<ScriptPE> scripts =
                 getDAOFactory().getScriptDAO().listEntities(scriptTypeOrNull, entityKindOrNull);
         Collections.sort(scripts);
-        return ScriptTranslator.translate(scripts);
+        return ScriptTranslator.enhancePredeployedPlugins(ScriptTranslator.translate(scripts),
+                entityValidationFactory, dynamicPropertyCalculatorFactory,
+                managedPropertyEvaluatorFactory);
     }
 
     @Override

@@ -20,6 +20,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 
 /**
  * Business object of a script.
@@ -46,5 +47,9 @@ public interface IScriptBO extends IEntityBusinessObject
      * Updates the script.
      */
     public void update(IScriptUpdates updates);
+
+    public void tryDefineOrUpdateIfPossible(Script script);
+
+    public void tryDeleteOrInvalidatePredeployedPlugin(String name, ScriptType scriptType);
 
 }

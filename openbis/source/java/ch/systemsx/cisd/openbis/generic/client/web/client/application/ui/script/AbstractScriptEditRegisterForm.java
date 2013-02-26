@@ -32,7 +32,6 @@ import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 
@@ -45,8 +44,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.D
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PluginTypeSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PredeployedPluginSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.ScriptTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
@@ -67,10 +64,6 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
 
     protected final ScriptTypeSelectionWidget scriptTypeChooserOrNull;
 
-    protected final PluginTypeSelectionWidget pluginTypeChooserOrNull;
-
-    protected final PredeployedPluginSelectionWidget predeployedPluginsWidget;
-
     protected final TextField<String> nameField;
 
     protected final DescriptionField descriptionField;
@@ -90,55 +83,34 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
     protected AbstractScriptEditRegisterForm(
             final IViewContext<ICommonClientServiceAsync> viewContext, EntityKind entityKindOrNull)
     {
-        this(viewContext, null, null, entityKindOrNull);
+        this(viewContext, null, entityKindOrNull);
     }
 
     public AbstractScriptEditRegisterForm(IViewContext<ICommonClientServiceAsync> viewContext,
-            ScriptTypeSelectionWidget scriptTypeChooser,
-            PluginTypeSelectionWidget pluginTypeChooser, EntityKind entityKindOrNull)
+            ScriptTypeSelectionWidget scriptTypeChooser, EntityKind entityKindOrNull)
     {
-        this(viewContext, null, scriptTypeChooser, pluginTypeChooser, entityKindOrNull);
+        this(viewContext, null, scriptTypeChooser, entityKindOrNull);
     }
 
     protected AbstractScriptEditRegisterForm(
             final IViewContext<ICommonClientServiceAsync> viewContext, TechId scriptIdOrNull,
-            ScriptTypeSelectionWidget scriptTypeChooserOrNull,
-            PluginTypeSelectionWidget pluginTypeChooserOrNull, EntityKind entityKindOrNull)
+            ScriptTypeSelectionWidget scriptTypeChooserOrNull, EntityKind entityKindOrNull)
     {
         super(viewContext, createId(scriptIdOrNull), DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
 
-        this.predeployedPluginsWidget = new PredeployedPluginSelectionWidget(viewContext);
-        this.predeployedPluginsWidget.setVisible(false);
-
         this.scriptTypeChooserOrNull = scriptTypeChooserOrNull;
-        this.pluginTypeChooserOrNull = pluginTypeChooserOrNull;
-        if (scriptTypeChooserOrNull != null || pluginTypeChooserOrNull != null)
+        if (scriptTypeChooserOrNull != null)
         {
             ToolBar toolBar = null;
             toolBar = new ToolBar();
             setTopComponent(toolBar);
 
-            if (scriptTypeChooserOrNull != null)
-            {
-                scriptTypeChooserOrNull.setWidth(200);
-                toolBar.add(new LabelToolItem(scriptTypeChooserOrNull.getFieldLabel()
-                        + GenericConstants.LABEL_SEPARATOR));
-                toolBar.add(scriptTypeChooserOrNull);
-                scriptTypeChooserOrNull
-                        .addSelectionChangedListener(createScriptTypeChangedListener());
-            }
-
-            if (pluginTypeChooserOrNull != null)
-            {
-                pluginTypeChooserOrNull.setWidth(200);
-                toolBar.add(new SeparatorToolItem());
-                toolBar.add(new LabelToolItem(pluginTypeChooserOrNull.getFieldLabel()
-                        + GenericConstants.LABEL_SEPARATOR));
-                toolBar.add(pluginTypeChooserOrNull);
-                pluginTypeChooserOrNull
-                        .addSelectionChangedListener(createPluginTypeChangedListener());
-            }
+            scriptTypeChooserOrNull.setWidth(200);
+            toolBar.add(new LabelToolItem(scriptTypeChooserOrNull.getFieldLabel()
+                    + GenericConstants.LABEL_SEPARATOR));
+            toolBar.add(scriptTypeChooserOrNull);
+            scriptTypeChooserOrNull.addSelectionChangedListener(createScriptTypeChangedListener());
         }
 
         this.nameField = new VarcharField(viewContext.getMessage(Dict.NAME), true);
@@ -170,21 +142,13 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
                 public void handleEvent(BaseEvent be)
                 {
                     PluginType pluginTypeOrNull = null;
-                    if (AbstractScriptEditRegisterForm.this.pluginTypeChooserOrNull != null)
-                    {
-                        pluginTypeOrNull =
-                                AbstractScriptEditRegisterForm.this.pluginTypeChooserOrNull
-                                        .getSimpleValue();
-                    }
-                    scriptExecution.update(nameField.isVisible() ? nameField.getValue()
-                            : predeployedPluginsWidget.tryGetSelectedValue(), scriptField
-                            .getValue(), pluginTypeOrNull);
+                    scriptExecution.update(nameField.getValue(), scriptField.getValue(),
+                            pluginTypeOrNull);
                 }
             };
 
         scriptField.addListener(Events.Change, scriptParametersListener);
         nameField.addListener(Events.Change, scriptParametersListener);
-        predeployedPluginsWidget.addListener(Events.SelectionChange, scriptParametersListener);
     }
 
     private SelectionChangedListener<SimpleComboValue<ScriptType>> createScriptTypeChangedListener()
@@ -197,25 +161,7 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
                     SimpleComboValue<ScriptType> selectedItem = se.getSelectedItem();
                     if (selectedItem != null)
                     {
-                        onPluginOrScriptTypeChanged(pluginTypeChooserOrNull.getSimpleValue(),
-                                selectedItem.getValue());
-                    }
-                }
-            };
-    }
-
-    private SelectionChangedListener<SimpleComboValue<PluginType>> createPluginTypeChangedListener()
-    {
-        return new SelectionChangedListener<SimpleComboValue<PluginType>>()
-            {
-                @Override
-                public void selectionChanged(SelectionChangedEvent<SimpleComboValue<PluginType>> se)
-                {
-                    SimpleComboValue<PluginType> selectedItem = se.getSelectedItem();
-                    if (selectedItem != null)
-                    {
-                        onPluginOrScriptTypeChanged(selectedItem.getValue(),
-                                scriptTypeChooserOrNull.getSimpleValue());
+                        onPluginOrScriptTypeChanged(PluginType.JYTHON, selectedItem.getValue());
                     }
                 }
             };
@@ -223,11 +169,8 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
 
     protected void onPluginOrScriptTypeChanged(PluginType pluginType, ScriptType scriptType)
     {
-        predeployedPluginsWidget.updateScriptType(scriptType);
         nameField.setVisible(pluginType == PluginType.JYTHON);
         FieldUtil.setMandatoryFlag(nameField, pluginType == PluginType.JYTHON);
-        predeployedPluginsWidget.setVisible(pluginType == PluginType.PREDEPLOYED);
-        FieldUtil.setMandatoryFlag(predeployedPluginsWidget, pluginType == PluginType.PREDEPLOYED);
         scriptField.setVisible(pluginType == PluginType.JYTHON);
         scriptField.setEnabled(pluginType == PluginType.JYTHON);
         rightPanel.setVisible(scriptType == ScriptType.DYNAMIC_PROPERTY
@@ -241,9 +184,7 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
             scriptField.setValidator(null);
         }
 
-        scriptExecution.update(nameField.isVisible() ? nameField.getValue()
-                : predeployedPluginsWidget.tryGetSelectedValue(), scriptField.getValue(),
-                pluginType);
+        scriptExecution.update(nameField.getValue(), scriptField.getValue(), pluginType);
     }
 
     private IValidable asValidable(final FormPanel panel)
@@ -278,13 +219,11 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
     {
         super.resetPanel();
         nameField.reset();
-        predeployedPluginsWidget.reset();
     }
 
     private final void addFormFields()
     {
         formPanel.add(nameField);
-        formPanel.add(predeployedPluginsWidget);
         formPanel.add(entityKindField);
         formPanel.add(descriptionField);
         formPanel.add(scriptField);

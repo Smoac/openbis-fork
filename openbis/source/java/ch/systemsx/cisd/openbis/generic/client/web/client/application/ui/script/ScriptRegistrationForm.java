@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.script
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PluginTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.ScriptTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
@@ -36,17 +35,13 @@ public class ScriptRegistrationForm extends AbstractScriptEditRegisterForm
     {
         ScriptTypeSelectionWidget scriptTypeChooser =
                 ScriptTypeSelectionWidget.createAllScriptTypes(viewContext);
-        PluginTypeSelectionWidget pluginTypeChooser =
-                PluginTypeSelectionWidget.createAllPluginTypes(viewContext);
-        return new ScriptRegistrationForm(viewContext, scriptTypeChooser, pluginTypeChooser,
-                entityKindOrNull);
+        return new ScriptRegistrationForm(viewContext, scriptTypeChooser, entityKindOrNull);
     }
 
     protected ScriptRegistrationForm(IViewContext<ICommonClientServiceAsync> viewContext,
-            ScriptTypeSelectionWidget scriptTypeChooser,
-            PluginTypeSelectionWidget pluginTypeChooser, EntityKind entityKindOrNull)
+            ScriptTypeSelectionWidget scriptTypeChooser, EntityKind entityKindOrNull)
     {
-        super(viewContext, scriptTypeChooser, pluginTypeChooser, entityKindOrNull);
+        super(viewContext, scriptTypeChooser, entityKindOrNull);
         setResetButtonVisible(true);
     }
 
@@ -61,21 +56,19 @@ public class ScriptRegistrationForm extends AbstractScriptEditRegisterForm
     @Override
     public Script getScript()
     {
-        PluginType pluginType = pluginTypeChooserOrNull.getSimpleValue();
+        PluginType pluginType = PluginType.JYTHON;
 
         Script newScript = new Script();
         newScript.setDescription(descriptionField.getValue());
-        if (pluginType == PluginType.JYTHON)
-        {
-            newScript.setScript(scriptField.getValue());
-            newScript.setName(nameField.getValue());
-        } else
-        {
-            newScript.setName(predeployedPluginsWidget.getValue().getValue());
-        }
+        newScript.setScript(scriptField.getValue());
+        newScript.setName(nameField.getValue());
+
         newScript.setScriptType(scriptTypeChooserOrNull.getSimpleValue());
         newScript.setPluginType(pluginType);
-        newScript.setEntityKind(entityKindField.tryGetEntityKind());
+        newScript.setEntityKind(entityKindField.tryGetEntityKind() == null ? null
+                : new EntityKind[]
+                    { entityKindField.tryGetEntityKind() });
+        newScript.setAvailable(true);
         return newScript;
     }
 

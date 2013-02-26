@@ -262,5 +262,4 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         criteria.add(Restrictions.in("userId", userIds));
         return cast(criteria.list());
     }
-
 }

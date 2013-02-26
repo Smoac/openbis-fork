@@ -42,7 +42,9 @@ public class ScriptImmutable implements IScriptImmutable
     @Override
     public String getEntity()
     {
-        ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind kind = script.getEntityKind();
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind kind =
+                script.getEntityKind() == null || script.getEntityKind().length != 1 ? null
+                        : script.getEntityKind()[0];
         return kind == null ? null : kind.toString();
     }
 

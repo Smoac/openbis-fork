@@ -16,24 +16,22 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation;
 
-import java.util.List;
-
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.INonAbstractEntityAdapter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonEntityValidationCalculator.IValidationRequestDelegate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.ICommonPropertyBasedHotDeployPluginFactory;
 
 /**
  * @author Pawel Glyzewski
  */
-public interface IEntityValidatorFactory
+public interface IEntityValidatorFactory extends
+        ICommonPropertyBasedHotDeployPluginFactory<IEntityValidatorHotDeployPlugin>
 {
     public IEntityValidator createEntityValidator(EntityTypePE entityTypePE,
             IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequestedDelegate);
 
     public IEntityValidator createEntityValidator(PluginType pluginType, String scriptName,
             String script);
-
-    public List<String> listPredeployedPlugins();
 }
