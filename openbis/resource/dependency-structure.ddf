@@ -13,7 +13,10 @@
 [generic.shared] = ${generic}.shared.* excluding ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory \
 																				 ch.systemsx.cisd.openbis.generic.shared.managed_property.JythonManagedPropertyEvaluator \
 																				 ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluator \
-																				 ch.systemsx.cisd.openbis.generic.shared.translator.PropertyTranslatorUtils
+																				 ch.systemsx.cisd.openbis.generic.shared.translator.PropertyTranslatorUtils \
+																				 ch.systemsx.cisd.openbis.generic.shared.translator.ScriptTranslator \
+																				 ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.AbstractCommonPropertyBasedHotDeployPluginFactory \
+																				 ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.ICommonPropertyBasedHotDeployPluginFactory
 
 check sets [generic.client] [generic.server] [generic.shared]
 
