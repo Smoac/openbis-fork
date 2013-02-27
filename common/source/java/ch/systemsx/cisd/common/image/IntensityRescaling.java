@@ -35,7 +35,7 @@ public class IntensityRescaling
     public static enum Channel
     {
         RED(0, 16), GREEN(1, 8), BLUE(2, 0);
-        
+
         private int band;
 
         private int shift;
@@ -193,11 +193,11 @@ public class IntensityRescaling
             return channels;
         }
 
-        for (int i = 0; i < image.getHeight(); i++)
+        for (int y = 0; y < image.getHeight(); y++)
         {
-            for (int j = 0; j < image.getWidth(); j++)
+            for (int x = 0; x < image.getWidth(); x++)
             {
-                int rgb = image.getRGB(i, j);
+                int rgb = image.getRGB(x, y);
                 if (((rgb >> 16) & 0xff) > 0)
                 {
                     channels.add(Channel.RED);
