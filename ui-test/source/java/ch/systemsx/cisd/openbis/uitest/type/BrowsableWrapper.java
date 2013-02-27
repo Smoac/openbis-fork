@@ -108,7 +108,7 @@ public class BrowsableWrapper implements Browsable
     {
         idColumn = "Code";
         idValue = type.getCode();
-        columns = Arrays.asList("Code", "Description", "Database Instance", "Validation Script",
+        columns = Arrays.asList("Code", "Description", "Database Instance", "Validation Plugin",
                 "Listable?", "Show Container?", "Show Parents?", "Unique Subcodes",
                 "Generate Codes Automatically", "Show Parent Metadata?", "Generated Code Prefix");
         browserLocation = new SampleTypeBrowserLocation();
