@@ -54,6 +54,10 @@ public class DynamicFileTabularDataGraphServlet extends FileTabularDataGraphServ
 
     private static final String PARAM_DELIMITER = "delimiter";
 
+    private static final String PARAM_COLUMNS = "columns";
+
+    private static final String PARAM_BINS = "bins";
+
     private static final long serialVersionUID = 1L;
 
     private TabularDataGraphCollectionConfiguration commonConfig;
@@ -142,10 +146,10 @@ public class DynamicFileTabularDataGraphServlet extends FileTabularDataGraphServ
             config.setImageHeight(height);
         }
 
-        propertyOverride(TabularDataGraphCollectionConfiguration.COLUMN_KEY,
-                props, name, "col3");
-        propertyOverride(TabularDataGraphCollectionConfiguration.NUMBER_OF_BINS_KEY,
-                props, name, "8");
+        propertyOverride(TabularDataGraphCollectionConfiguration.COLUMN_KEY, PARAM_COLUMNS,
+                props, name, request);
+        propertyOverride(TabularDataGraphCollectionConfiguration.NUMBER_OF_BINS_KEY, PARAM_BINS,
+                props, name, request);
 
         config.setProperties(props);
 
