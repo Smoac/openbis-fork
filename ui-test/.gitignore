@@ -1,1 +1,7 @@
 targets
+\.activity
+\.dynamic_property_evaluator_queue
+\.shredder
+\.updater
+dss-root
+log-registrations
