@@ -231,7 +231,7 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
     {
         comment = '#';
 
-        this.columnDelimiter = PropertyUtils.getChar(properties, SEPARATOR_PROPERTY_KEY, ';');
+        this.columnDelimiter = PropertyUtils.getChar(properties, SEPARATOR_PROPERTY_KEY, ',');
         this.ignoreComments =
                 PropertyUtils.getBoolean(properties, IGNORE_COMMENTS_PROPERTY_KEY, true);
 
