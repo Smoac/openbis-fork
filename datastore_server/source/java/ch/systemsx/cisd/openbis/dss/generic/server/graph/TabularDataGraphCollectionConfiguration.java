@@ -217,11 +217,6 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
         return new TabularDataGraphCollectionConfiguration(configurationProps);
     }
 
-    /**
-     * Create a configuration from the properties file located at path.
-     * 
-     * @param path Path to the properties file.
-     */
     public static TabularDataGraphCollectionConfiguration getConfiguration(
             DynamicTabularDataGraphCollectionConfiguration config)
             throws EnvironmentFailureException
