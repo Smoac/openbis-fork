@@ -65,15 +65,16 @@ public class ScriptProviderTest extends AbstractProviderTest
                 getHeaderEntityKinds(tableModel).toString());
         List<TableModelRowWithObject<Script>> rows = tableModel.getRows();
         assertSame(s1, rows.get(0).getObjectOrNull());
-        assertEquals("[my-EXPERIMENT-script, A script for EXPERIMENT, "
-                + "do something with EXPERIMENT, Experiment, Dynamic Property Evaluator, "
-                + "Jython Script Plugin, Einstein, Albert, Thu Jan 01 01:00:04 CET 1970, no]", rows
-                .get(0).getValues().toString());
+        assertEquals(
+                "[my-EXPERIMENT-script, A script for EXPERIMENT, "
+                        + "do something with EXPERIMENT, Experiment, Dynamic Property Evaluator, Jython Script Plugin, "
+                        + "Einstein, Albert, Thu Jan 01 01:00:04 CET 1970, yes]", rows.get(0)
+                        .getValues().toString());
         assertSame(s2, rows.get(1).getObjectOrNull());
-        assertEquals("[my-null-script, A script for null, do something with null, All, "
-                + "Dynamic Property Evaluator, Jython Script Plugin, "
-                + "Einstein, Albert, Thu Jan 01 01:00:04 CET 1970, no]", rows.get(1).getValues()
-                .toString());
+        assertEquals(
+                "[my-null-script, A script for null, do something with null, All, "
+                        + "Dynamic Property Evaluator, Jython Script Plugin, Einstein, Albert, Thu Jan 01 01:00:04 CET 1970, yes]",
+                rows.get(1).getValues().toString());
         assertEquals(2, rows.size());
         context.assertIsSatisfied();
     }
@@ -83,11 +84,8 @@ public class ScriptProviderTest extends AbstractProviderTest
         Script script = new Script();
         script.setName("my-" + kind + "-script");
         script.setDescription("A script for " + kind);
-        if (kind != null)
-        {
-            script.setEntityKind(new EntityKind[]
-                { kind });
-        }
+        script.setEntityKind(kind == null ? null : new EntityKind[]
+            { kind });
         script.setScript("do something with " + kind);
         script.setScriptType(ScriptType.DYNAMIC_PROPERTY);
         script.setPluginType(PluginType.JYTHON);
