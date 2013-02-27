@@ -356,12 +356,33 @@
       <param name="gwt.module.name" value="ch.systemsx.cisd.openbis.OpenBIS" />
     </antcall>
   </target>
+	
+ <!--
+      // Compiles the javascript for Firefox using GWT compiler.
+	  -->
+  <target name="compile-firefox-javascript" depends="prepare-web-client" description="Compiles the javascript using GWT compiler.">
+    <antcall target="compile-gwt-module-flexible">
+      <param name="gwt.module.name" value="ch.systemsx.cisd.openbis.OpenBISFirefox" />
+      <param name="gwt.output.name" value="ch.systemsx.cisd.openbis.OpenBIS" />
+    </antcall>
+  </target>
 
   <!--
     Compiles a GWT module to Javascript. As a side effect ${webbap.dist} is deleted. Parameters: gwt.module.name: Fully
     qualified name of the module.
   -->
   <target name="compile-gwt-module">
+    <antcall target="compile-gwt-module-flexible">
+      <param name="gwt.module.name" value="${gwt.module.name}" />
+      <param name="gwt.output.name" value="${gwt.module.name}" />
+    </antcall>
+  </target>
+	
+  <!--
+    Compiles a GWT module to Javascript. As a side effect ${webbap.dist} is deleted. Parameters: gwt.module.name: Fully
+    qualified name of the module.
+  -->
+  <target name="compile-gwt-module-flexible">
   	<mkdir dir="${webapp.dist}"/>
     <delete includeEmptyDirs="true">
     	<fileset dir="${webapp.dist}" excludes="*.jar"/>
@@ -377,9 +398,9 @@
       <arg value="-XdisableClassMetadata" />
     </java>
     <move todir="${webapp.dist}">
-      <fileset dir="${webapp.dist}/${gwt.module.name}" />
+      <fileset dir="${webapp.dist}/${gwt.output.name}" />
     </move>
-  </target>
+  </target>	
 	
  <!--
       // Creates build information.
@@ -401,6 +422,16 @@
 			<param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBIS" />
 		</antcall>
   </target>
+	
+  <!--
+    // Override 'prepare-gwt' target by writing out 'OpenBIS.gwt-without-entry-point.xml' and updating
+    'ClientPluginProvider.java'.
+  -->
+  <target name="prepare-firefox-gwt">
+		<antcall target="do-prepare-gwt">
+			<param name="module-test.module" value="ch.systemsx.cisd.openbis.OpenBISFirefox" />
+		</antcall>
+  </target>	
   
   <target name="do-prepare-gwt"
   	depends="prepare-web-client, compile-tests, openbis-common-common.prepare-gwt"
