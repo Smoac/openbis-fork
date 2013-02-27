@@ -105,6 +105,7 @@ public class ScriptProvider extends AbstractCommonTableModelProvider<Script>
             if (false == isFirst)
             {
                 sb.append(", ");
+                isFirst = false;
             }
             sb.append(entityKind.getDescription());
         }
