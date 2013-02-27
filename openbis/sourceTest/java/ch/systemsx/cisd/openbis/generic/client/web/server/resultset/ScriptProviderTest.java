@@ -24,6 +24,7 @@ import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -55,22 +56,24 @@ public class ScriptProviderTest extends AbstractProviderTest
         TypedTableModel<Script> tableModel = scriptProvider.createTableModel();
 
         assertEquals(
-                "[NAME, DESCRIPTION, SCRIPT, ENTITY_KIND, SCRIPT_TYPE, REGISTRATOR, REGISTRATION_DATE]",
+                "[NAME, DESCRIPTION, SCRIPT, ENTITY_KIND, SCRIPT_TYPE, PLUGIN_TYPE, REGISTRATOR, REGISTRATION_DATE, IS_AVAILABLE]",
                 getHeaderIDs(tableModel).toString());
-        assertEquals("[VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, TIMESTAMP]",
+        assertEquals(
+                "[VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, VARCHAR]",
                 getHeaderDataTypes(tableModel).toString());
-        assertEquals("[null, null, null, null, null, null, null]", getHeaderEntityKinds(tableModel)
-                .toString());
+        assertEquals("[null, null, null, null, null, null, null, null, null]",
+                getHeaderEntityKinds(tableModel).toString());
         List<TableModelRowWithObject<Script>> rows = tableModel.getRows();
         assertSame(s1, rows.get(0).getObjectOrNull());
         assertEquals("[my-EXPERIMENT-script, A script for EXPERIMENT, "
                 + "do something with EXPERIMENT, Experiment, Dynamic Property Evaluator, "
-                + "Einstein, Albert, Thu Jan 01 01:00:04 CET 1970]", rows.get(0).getValues()
-                .toString());
+                + "Jython Script Plugin, Einstein, Albert, Thu Jan 01 01:00:04 CET 1970, no]", rows
+                .get(0).getValues().toString());
         assertSame(s2, rows.get(1).getObjectOrNull());
         assertEquals("[my-null-script, A script for null, do something with null, All, "
-                + "Dynamic Property Evaluator, Einstein, Albert, Thu Jan 01 01:00:04 CET 1970]",
-                rows.get(1).getValues().toString());
+                + "Dynamic Property Evaluator, Jython Script Plugin, "
+                + "Einstein, Albert, Thu Jan 01 01:00:04 CET 1970, no]", rows.get(1).getValues()
+                .toString());
         assertEquals(2, rows.size());
         context.assertIsSatisfied();
     }
@@ -80,10 +83,14 @@ public class ScriptProviderTest extends AbstractProviderTest
         Script script = new Script();
         script.setName("my-" + kind + "-script");
         script.setDescription("A script for " + kind);
-        script.setEntityKind(new EntityKind[]
-            { kind });
+        if (kind != null)
+        {
+            script.setEntityKind(new EntityKind[]
+                { kind });
+        }
         script.setScript("do something with " + kind);
         script.setScriptType(ScriptType.DYNAMIC_PROPERTY);
+        script.setPluginType(PluginType.JYTHON);
         script.setRegistrationDate(new Date(4711));
         script.setRegistrator(new PersonBuilder().name("Albert", "Einstein").getPerson());
         return script;
