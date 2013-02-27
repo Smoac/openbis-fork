@@ -213,8 +213,9 @@ public class DataSet
     @Retry
     public DataSet getContainerOrNull()
     {
-        final DataSet containerOrNull = (getMetadata().getContainerOrNull() != null) ?
-                new DataSet(facade, dssComponent, getMetadata().getContainerOrNull(), null) : null;
+        final DataSet containerOrNull =
+                (getMetadata().getContainerOrNull() != null) ? new DataSet(facade, dssComponent,
+                        getMetadata().getContainerOrNull(), null) : null;
         return containerOrNull;
     }
 
@@ -421,6 +422,27 @@ public class DataSet
     {
         return getDataSetDss().getLinkOrCopyOfContent(overrideStoreRootPathOrNull, downloadDir,
                 pathInDataSet);
+    }
+
+    /**
+     * @see ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss#getSessionURLForFile(java.lang.String)
+     */
+    @Retry
+    public String getSessionURLForFile(String path) throws IllegalArgumentException,
+            InvalidSessionException
+    {
+        return getDataSetDss().getSessionURLForFile(path);
+    }
+
+    /**
+     * @see ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss#getURLForFileWithTimeout(String,
+     *      long)
+     */
+    @Retry
+    public String getURLForFileWithTimeout(String path, long validityDurationInSeconds)
+            throws IllegalArgumentException, InvalidSessionException
+    {
+        return getDataSetDss().getURLForFileWithTimeout(path, validityDurationInSeconds);
     }
 
     /**
