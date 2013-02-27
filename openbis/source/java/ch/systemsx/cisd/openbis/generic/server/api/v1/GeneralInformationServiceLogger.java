@@ -26,7 +26,6 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
@@ -34,16 +33,13 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
@@ -390,31 +386,32 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
-    @Override
-    public List<Attachment> listAttachmentsForProject(String sessionToken,
-            ProjectIdentifier project, boolean allVersions)
-    {
-        logAccess(sessionToken, "listAttachmentsForProject", "PROJECT(%s)", "ALL_VERSIONS(%s)",
-                project, allVersions);
-        return null;
-    }
-
-    @Override
-    public List<Attachment> listAttachmentsForExperiment(String sessionToken,
-            ExperimentIdentifier experiment, boolean allVersions)
-    {
-        logAccess(sessionToken, "listAttachmentsForExperiment", "EXPERIMENT(%s)",
-                "ALL_VERSIONS(%s)", experiment, allVersions);
-        return null;
-    }
-
-    @Override
-    public List<Attachment> listAttachmentsForSample(String sessionToken, SampleIdentifier sample,
-            boolean allVersions)
-    {
-        logAccess(sessionToken, "listAttachmentsForSample", "SAMPLE(%s)", "ALL_VERSIONS(%s)",
-                sample, allVersions);
-        return null;
-    }
-
+    // @Override
+    // public List<Attachment> listAttachmentsForProject(String sessionToken,
+    // ProjectIdentifier project, boolean allVersions)
+    // {
+    // logAccess(sessionToken, "listAttachmentsForProject", "PROJECT(%s)", "ALL_VERSIONS(%s)",
+    // project, allVersions);
+    // return null;
+    // }
+    //
+    // @Override
+    // public List<Attachment> listAttachmentsForExperiment(String sessionToken,
+    // ExperimentIdentifier experiment, boolean allVersions)
+    // {
+    // logAccess(sessionToken, "listAttachmentsForExperiment", "EXPERIMENT(%s)",
+    // "ALL_VERSIONS(%s)", experiment, allVersions);
+    // return null;
+    // }
+    //
+    // @Override
+    // public List<Attachment> listAttachmentsForSample(String sessionToken, SampleIdentifier
+    // sample,
+    // boolean allVersions)
+    // {
+    // logAccess(sessionToken, "listAttachmentsForSample", "SAMPLE(%s)", "ALL_VERSIONS(%s)",
+    // sample, allVersions);
+    // return null;
+    // }
+    //
 }
