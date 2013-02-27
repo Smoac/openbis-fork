@@ -44,7 +44,7 @@ public class Script extends AbstractRegistrationHolder implements Comparable<Scr
 
     private PluginType pluginType;
 
-    private boolean available;
+    private boolean available = true;
 
     public Script()
     {
