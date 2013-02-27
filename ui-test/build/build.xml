@@ -6,13 +6,13 @@
 
 	
 	<target name="prepare-gwt">
-	    <subant target="prepare-gwt">
+	    <subant target="prepare-firefox-gwt">
 	      <fileset dir="../openbis/build" includes="build.xml"/>
 	    </subant>
 	</target>
 
 	<target name="compile-javascript">
-	    <subant target="compile-javascript">
+	    <subant target="compile-firefox-javascript">
 	      <fileset dir="../openbis/build" includes="build.xml"/>
 	    </subant>
 	</target>
