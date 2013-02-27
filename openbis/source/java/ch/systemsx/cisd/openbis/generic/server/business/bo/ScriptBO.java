@@ -134,6 +134,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         script.setPluginType(newScript.getPluginType());
         script.setEntityKind(newScript.getEntityKind() == null ? null
                 : newScript.getEntityKind().length == 1 ? newScript.getEntityKind()[0] : null);
+        script.setAvailable(true);
     }
 
     @Override
