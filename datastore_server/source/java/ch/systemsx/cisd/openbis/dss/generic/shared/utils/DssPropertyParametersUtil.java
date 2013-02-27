@@ -25,6 +25,7 @@ import java.util.Set;
 
 import ch.ethz.cisd.hotdeploy.PluginContainer;
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -283,9 +284,32 @@ public class DssPropertyParametersUtil
 
         try
         {
+            File libDir = new File("lib");
+            for (File link : libDir.listFiles())
+            {
+                if (link.getName().startsWith("autolink-"))
+                {
+                    link.delete();
+                }
+            }
+
             for (String key : pluginFolders.keySet())
             {
-                System.out.println(key + " " + pluginFolders.get(key).getCanonicalPath());
+                File pluginLibFolder = new File(pluginFolders.get(key).getCanonicalPath() + "/lib");
+                if (pluginLibFolder.exists())
+                {
+                    for (File jar : pluginLibFolder.listFiles())
+                    {
+                        if (jar.isFile() && jar.getName().endsWith(".jar"))
+                        {
+                            String link =
+                                    libDir.getAbsolutePath() + "/autolink-" + key + "-"
+                                            + jar.getName();
+                            Unix.createSymbolicLink(jar.getAbsolutePath(), link);
+                        }
+                    }
+                }
+
             }
         } catch (IOException ex)
         {
