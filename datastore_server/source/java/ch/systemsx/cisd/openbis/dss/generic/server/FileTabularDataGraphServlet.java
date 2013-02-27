@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,16 +50,32 @@ public class FileTabularDataGraphServlet extends AbstractTabularDataGraphServlet
 
         RequestParams requestParams = new RequestParams(request);
 
-        IHierarchicalContentProvider contentProvider =
-                applicationContext.getHierarchicalContentProvider(requestParams.getSessionId());
-        IHierarchicalContent content = contentProvider.asContent(dataSetCode);
-        IHierarchicalContentNode node = content.getNode(pathOrNull);
+        File file;
+        IHierarchicalContent content = null;
+        try
+        {
+            if (dataSetCode == null)
+            {
+                file = new File(pathOrNull);
+            } else
+            {
+                IHierarchicalContentProvider contentProvider =
+                        applicationContext.getHierarchicalContentProvider(requestParams
+                                .getSessionId());
+                content = contentProvider.asContent(dataSetCode);
+                IHierarchicalContentNode node = content.getNode(pathOrNull);
+                file = node.getFile();
+            }
 
-        ITabularData data =
-                CsvFileReaderHelper.getDatasetFileLines(node.getFile(), getConfiguration(request));
-
-        content.close();
-
-        return data;
+            ITabularData data =
+                    CsvFileReaderHelper.getDatasetFileLines(file, getConfiguration(request));
+            return data;
+        } finally
+        {
+            if (content != null)
+            {
+                content.close();
+            }
+        }
     }
 }

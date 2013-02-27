@@ -67,8 +67,6 @@ public class DynamicFileTabularDataGraphServlet extends FileTabularDataGraphServ
         DynamicTabularDataGraphCollectionConfiguration config =
                 new DynamicTabularDataGraphCollectionConfiguration();
 
-        config.setColumnDelimiter(commonConfig.getColumnDelimiter());
-
         Properties props = new Properties();
 
         if (name != null)
@@ -85,6 +83,7 @@ public class DynamicFileTabularDataGraphServlet extends FileTabularDataGraphServ
 
             config.setImageHeight(graphConfig.getImageHeight());
             config.setImageWidth(graphConfig.getImageWidth());
+            config.setColumnDelimiter(commonConfig.getColumnDelimiter());
         } else
         {
             name = DYNAMIC_GRAPH_NAME;
@@ -195,6 +194,7 @@ public class DynamicFileTabularDataGraphServlet extends FileTabularDataGraphServ
     protected synchronized void doSpecificInitialization(Enumeration<String> parameterNames,
             ServletConfig servletConfig)
     {
+
         if (commonConfig == null)
         {
             String propertiesFilePath = servletConfig.getInitParameter(PROPERTIES_FILE_KEY);

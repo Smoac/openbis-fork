@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Enumeration;
@@ -27,9 +28,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.ITabularDataGraph;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphCollectionConfiguration;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ITabularData;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SessionWorkspaceUtil;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -77,7 +81,7 @@ public abstract class AbstractTabularDataGraphServlet extends AbstractDatasetDow
         public RequestParams(HttpServletRequest request)
         {
             sessionId = getRequiredParameter(request, Utils.SESSION_ID_PARAM);
-            datasetCode = getRequiredParameter(request, DATASET_CODE_PARAM);
+            datasetCode = getOptionalParameter(request, DATASET_CODE_PARAM);
             filePathOrNull = getOptionalParameter(request, FILE_PATH_PARAM);
             graphName = getOptionalParameter(request, GRAPH_TYPE_CODE, "dynamic");
             width = getIntParam(request, WIDTH_PARAM, 0);
@@ -179,6 +183,30 @@ public abstract class AbstractTabularDataGraphServlet extends AbstractDatasetDow
             String datasetCode = params.datasetCode;
             String filePathOrNull = params.filePathOrNull;
 
+            if (datasetCode == null)
+            {
+                ExposablePropertyPlaceholderConfigurer config =
+                        (ExposablePropertyPlaceholderConfigurer) ServiceProvider
+                                .getApplicationContext()
+                                .getBean(
+                                        ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME);
+
+                String workspace =
+                        config.getResolvedProps().getProperty(
+                                SessionWorkspaceUtil.SESSION_WORKSPACE_ROOT_DIR_KEY);
+
+                if (workspace == null)
+                {
+                    workspace = SessionWorkspaceUtil.SESSION_WORKSPACE_ROOT_DIR_DEFAULT;
+                }
+
+                File sessionWorkspace =
+                        new SessionWorkspaceProvider(new File(workspace), sessionId)
+                                .getSessionWorkspace();
+
+                filePathOrNull = sessionWorkspace.getAbsolutePath() + "/" + filePathOrNull;
+            }
+
             // Get the session and user from the request
             HttpSession session = tryGetOrCreateSession(request, sessionId);
             if (session == null)
@@ -189,7 +217,18 @@ public abstract class AbstractTabularDataGraphServlet extends AbstractDatasetDow
             // Check that the user has view access to the data
             // NOTE: This throws an exception -- it may be nicer to return an image for a
             // non-accessible dataset...
-            ensureDatasetAccessible(datasetCode, session, sessionId);
+            if (datasetCode != null)
+            {
+                ensureDatasetAccessible(datasetCode, session, sessionId);
+            } else
+            {
+                if (filePathOrNull == null || new File(filePathOrNull).exists() == false)
+                {
+                    throw new UserFailureException("File '" + filePathOrNull
+                            + "' is not accessible.");
+                }
+
+            }
 
             // Get the tabular data
             ITabularData fileLines = getDatasetLines(request, datasetCode, filePathOrNull);

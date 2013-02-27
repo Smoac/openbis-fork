@@ -23,14 +23,14 @@ import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 
 /**
  * Utility functions for session workspace.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class SessionWorkspaceUtil
 {
-    private static final String SESSION_WORKSPACE_ROOT_DIR_KEY = "session-workspace-root-dir";
+    public static final String SESSION_WORKSPACE_ROOT_DIR_KEY = "session-workspace-root-dir";
 
-    private static final String SESSION_WORKSPACE_ROOT_DIR_DEFAULT = "data/sessionWorkspace";
+    public static final String SESSION_WORKSPACE_ROOT_DIR_DEFAULT = "data/sessionWorkspace";
 
     public static File getSessionWorkspace(Properties properties)
     {
