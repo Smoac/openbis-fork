@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -69,8 +70,6 @@ public final class LogInterceptor implements MethodInterceptor, Serializable
 
     private static final long serialVersionUID = 1L;
 
-    private final Stopwatch timer = new Stopwatch();
-
     //
     // MethodInterceptor
     //
@@ -91,6 +90,9 @@ public final class LogInterceptor implements MethodInterceptor, Serializable
         InvocationLoggerContext invocationLoggerContext =
                 new InvocationLoggerContext(sessionTokenOrNull);
         final Object logger = loggerFactory.createLogger(invocationLoggerContext);
+
+        StopWatch timer = new StopWatch();
+
         try
         {
             timer.start();
@@ -104,7 +106,7 @@ public final class LogInterceptor implements MethodInterceptor, Serializable
         } finally
         {
             timer.stop();
-            invocationLoggerContext.elapsedTime = timer.getTimeElapsed();
+            invocationLoggerContext.elapsedTime = timer.getTime();
             final Method method = invocation.getMethod();
             try
             {
@@ -145,32 +147,4 @@ public final class LogInterceptor implements MethodInterceptor, Serializable
         return firstArgument instanceof String ? (String) firstArgument : null;
     }
 
-    //
-    // Helper classes
-    //
-
-    private final static class Stopwatch implements Serializable
-    {
-        private static final long serialVersionUID = 1L;
-
-        private long start = 0;
-
-        private long stop = 0;
-
-        void start()
-        {
-            start = System.currentTimeMillis();
-        }
-
-        void stop()
-        {
-            stop = System.currentTimeMillis();
-        }
-
-        long getTimeElapsed()
-        {
-            return stop - start;
-
-        }
-    }
 }
