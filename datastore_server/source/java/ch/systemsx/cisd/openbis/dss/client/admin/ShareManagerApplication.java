@@ -67,7 +67,7 @@ public class ShareManagerApplication
     {
         LogLog.setQuietMode(true);
         ShareManagerApplication application =
-                new ShareManagerApplication(new ListSharesCommand(), new MoveDataSetCommand());
+                new ShareManagerApplication(new ListSharesCommand(), new MoveDataSetsCommand());
         try
         {
             application.parseAndRun(args);
