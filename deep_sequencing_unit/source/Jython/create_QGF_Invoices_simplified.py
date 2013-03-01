@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Copyright 2012 ETH Zuerich, CISD
   
@@ -16,7 +17,8 @@ limitations under the License.
 @author Manuel Kohler
 
 @description:
-Creates Excel-based invoices for the Quantitative Genomics Facility, D-BSSE, ETH Zurich
+Creates Excel-based invoices for the Quantitative Genomics Facility,
+D-BSSE, ETH Zurich
 
 @attention:
 Runs under Jython
@@ -46,8 +48,9 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SampleFetchOption
 excelFormats = {"xls": "HSSFWorkbook()" , "xlsx": "XSSFWorkbook()"}
 
 # This list is imply used to keep the order of elements of the 'columnHeadersMap'
-columnHeadersList = ["BARCODE", "INDEX2", "PREPARED_BY", "EXTERNAL_SAMPLE_NAME", "BIOLOGICAL_SAMPLE_ARRIVED", "QC_AT_DBSSE",
-                     "CONTACT_PERSON_NAME", "KIT", "PRICE", "NOTES"]
+columnHeadersList = ["EXTERNAL_SAMPLE_NAME", "BARCODE", "INDEX2", "CONTACT_PERSON_NAME",
+                     "BIOLOGICAL_SAMPLE_ARRIVED", "PREPARED_BY", "KIT", "QC_AT_DBSSE",
+                     "CELL_PLASTICITY_SYSTEMSX",  "PRICE", "NOTES"]
 
 columnHeadersMap = {"EXTERNAL_SAMPLE_NAME": "Sample Name",
                     "BARCODE": "Index",
@@ -58,6 +61,7 @@ columnHeadersMap = {"EXTERNAL_SAMPLE_NAME": "Sample Name",
                     "CONTACT_PERSON_NAME" : "Contact Person",
                     "NOTES" : "Notes",
                     "BIOLOGICAL_SAMPLE_ARRIVED": "Received",
+                    "CELL_PLASTICITY_SYSTEMSX": "Cell Plasticity",
                     "PRICE" : "Price"}
 
 class uniqueRow():
@@ -121,8 +125,8 @@ def getVocabulary(service, vocabularyCode):
     vocabularyMap[term.getCode()] = term.getLabel()
   return vocabularyMap
 
-def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDict, piSpace,
-                flowCellProperties, flowcellName, logger, format="xls"):
+def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDict,
+               piSpace, flowCellProperties, flowcellName, logger,format="xls"):
   '''
   Writes out all data to an Excel file
   '''
@@ -165,7 +169,7 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
   sheet.setZoom(3, 2)
 
   writeHeader()
-  createRow("Principal Investigator", piName)
+  createRow("Principal Investigator", piName.replace("_", " "))
   createRow("Data Space", piSpace)
   createRow("Run Folder Name", flowcellName)
   createRow()
@@ -182,6 +186,8 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
     sampleHeader.getCell(myColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
 
   listofLanes = piDict[piName]
+  listofLanes.sort()
+  logger.debug(listofLanes)
   for lane in listofLanes:
     singleSampleColumns = uniqueColumn()
 
@@ -191,8 +197,8 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
       logger.debug(sampleValues['PRINCIPAL_INVESTIGATOR_NAME'])
       logger.debug(piName)
       logger.debug(sample)
-      # if there is a shared lane do not mix them
-      if (sampleValues['PRINCIPAL_INVESTIGATOR_NAME'] != piName):
+      # if there is a shared lane do not mix them 
+      if (sanitizeString(sampleValues['PRINCIPAL_INVESTIGATOR_NAME']) != sanitizeString(piName)):
         continue
 
       rowN = sheet.createRow(myRows.getNextRow())
@@ -201,15 +207,14 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
       rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(configMap['sampleCodePrefix'] + sample)
       rowN.getCell(singleSampleColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
 
-
       for column in columnHeadersList:
         if (column == 'BIOLOGICAL_SAMPLE_ARRIVED'):
           try:
             value = sampleValues[column].split(" ")[0]
           except:
-            value = sampleValues[column]
+            value = sampleValues[column] 
         else:
-          value = sampleValues[column]
+          value = sampleValues[column]  
 
         rowN.createCell(singleSampleColumns.getNextColumn()).setCellValue(value)
         rowN.getCell(singleSampleColumns.getCurrentColumn()).setCellStyle(setFont(wb, configMap, 10))
@@ -250,6 +255,9 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
   fileOut.close();
 
 def sanitizeString(myString):
+  myString = myString.replace(u'ä', 'ae')
+  myString = myString.replace(u'ü', 'ue')
+  myString = myString.replace(u'ö', 'oe')
   return re.sub('[^A-Za-z0-9]+', '_', myString)
 
 def setUpLogger(logPath, logLevel=logging.INFO):
@@ -355,6 +363,7 @@ def getFLowcellData(service, configMap, flowcell, logger):
   sampleDict = {}
   piDict = {}
   spaceDict = {}
+  invoiceDict = {}
 
   for lane in range(1, numberOfLanes + 1):
     myLane = flowcell + ":" + str(lane)
@@ -373,8 +382,10 @@ def getFLowcellData(service, configMap, flowcell, logger):
         sampleProperties = samples.getProperties()
         s[sampleCode.split("-")[-1]] = sampleProperties
         sampleDict[lane] = s
-        pi = sampleProperties[configMap["pIPropertyName"]]
+        pi = sanitizeString(sampleProperties[configMap["pIPropertyName"]])
+        sentInvoice = {'true': True, 'false': False}.get((sampleProperties['INVOICE']).lower())
         logger.debug("PI for " + sampleCode + ": " + pi)
+        logger.debug("Invoice sent for " + sampleCode + ": " + str(sentInvoice))
 
         if piDict.has_key(pi):
           piDict[pi].append(lane)
@@ -383,18 +394,26 @@ def getFLowcellData(service, configMap, flowcell, logger):
         else:
           piDict[pi] = [lane]
 
-        spaceDict[pi] = l.getSpaceCode()
+        if not sentInvoice:
+          if invoiceDict.has_key(pi):
+            invoiceDict[pi].append(lane)
+            # Making the lanes unique
+            invoiceDict[pi] = list(set(invoiceDict[pi]))
+          else:
+            invoiceDict[pi] = [lane]
 
+        spaceDict[pi] = l.getSpaceCode()
+  
   logger.debug(spaceDict)
-  logger.debug("piDictionary:")
-  logger.debug(piDict)
 
   logger.info("Found the following PIs on the lanes: ")
   logger.info(piDict)
+  logger.info("Found the following PIs with non-invoiced samples : ")
+  logger.info(invoiceDict)
 
   # simply sort the hashmap
   treeMap = TreeMap (flowCellProperties)
-  return laneDict, sampleDict, piDict, treeMap, spaceDict
+  return laneDict, sampleDict, piDict, treeMap, spaceDict, invoiceDict
 
 
 '''
@@ -405,6 +424,7 @@ def main():
 
   # for now setting the format by hand
   format = "xlsx"
+  magicString = "@Invoice@"
 
   logger = setUpLogger('log/')
   logger.info('Started Creation Invoices...')
@@ -416,12 +436,16 @@ def main():
 
   service = login(logger, configMap)
   flowcellName = myoptions.flowcell
-  laneDict, sampleDict, piDict, flowCellProperties, spaceDict = getFLowcellData(service, configMap, flowcellName, logger)
+  laneDict, sampleDict, piDict, flowCellProperties, spaceDict, invoiceDict = getFLowcellData(service, configMap, flowcellName, logger)
 
   for piName in piDict:
     # create an Excel file for each PI
-    writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDict, spaceDict[piName],
-               flowCellProperties, flowcellName, logger, format)
+    writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict,
+               piDict, spaceDict[piName], flowCellProperties,
+               flowcellName, logger, format)
+  
+  for invoicePi in invoiceDict: 
+    print (magicString + invoicePi)
 
   service.logout()
 
