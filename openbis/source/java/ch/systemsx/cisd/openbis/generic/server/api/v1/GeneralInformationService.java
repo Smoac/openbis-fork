@@ -44,8 +44,11 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capabili
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentAugmentedCodePredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ExperimentListPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleListPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SamplePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DataSetByExperimentIdentifierValidator;
@@ -55,6 +58,9 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByI
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.datasetlister.DataSetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.datasetlister.IDataSetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.samplelister.ISampleLister;
@@ -66,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.Translator;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
@@ -85,7 +92,11 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.IProjectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
@@ -96,13 +107,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -1086,127 +1101,66 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return result;
     }
 
-    // @Override
-    // @Transactional(readOnly = true)
-    // @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    // public List<Attachment> listAttachmentsForProject(String sessionToken,
-    // @AuthorizationGuard(guardClass = ProjectIdentifierPredicate.class)
-    // ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ProjectIdentifier project,
-    // boolean allVersions)
-    // {
-    // final TechId techId;
-    // if (project.getDatabaseId() != null)
-    // {
-    // techId = new TechId(project.getDatabaseId());
-    // } else if (project.getPermId() != null)
-    // {
-    // final Long id =
-    // boFactory.getEntityResolver().tryResolveProjectIdByPermId(
-    // project.getPermId());
-    // if (id == null)
-    // {
-    // return Collections.emptyList();
-    // }
-    // techId = new TechId(id);
-    // } else if (project.getCode() != null)
-    // {
-    // final Long id =
-    // boFactory.getEntityResolver().tryResolveProjectIdByCode(
-    // project.getSpaceCode(), project.getCode());
-    // if (id == null)
-    // {
-    // return Collections.emptyList();
-    // }
-    // techId = new TechId(id);
-    // } else
-    // {
-    // throw new IllegalArgumentException("No identifier given.");
-    // }
-    // final List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> attachments =
-    // commonServer.listProjectAttachments(sessionToken, techId);
-    // return Translator.translateAttachments(attachments, allVersions);
-    // }
-    //
-    // @Override
-    // @Transactional(readOnly = true)
-    // @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    // public List<Attachment> listAttachmentsForExperiment(String sessionToken,
-    // @AuthorizationGuard(guardClass = ExperimentIdentifierPredicate.class)
-    // ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentIdentifier experiment,
-    // boolean allVersions)
-    // {
-    // final TechId techId;
-    // if (experiment.getDatabaseId() != null)
-    // {
-    // techId = new TechId(experiment.getDatabaseId());
-    // } else if (experiment.getPermId() != null)
-    // {
-    // final Long id =
-    // boFactory.getEntityResolver().tryResolveExperimentIdByPermId(
-    // experiment.getPermId());
-    // if (id == null)
-    // {
-    // return Collections.emptyList();
-    // }
-    // techId = new TechId(id);
-    // } else if (experiment.getCode() != null)
-    // {
-    // final Long id =
-    // boFactory.getEntityResolver().tryResolveExperimentIdByCode(
-    // experiment.getSpaceCode(), experiment.getProjectCode(),
-    // experiment.getCode());
-    // if (id == null)
-    // {
-    // return Collections.emptyList();
-    // }
-    // techId = new TechId(id);
-    // } else
-    // {
-    // throw new IllegalArgumentException("No identifier given.");
-    // }
-    // final List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> attachments =
-    // commonServer.listExperimentAttachments(sessionToken, techId);
-    // return Translator.translateAttachments(attachments, allVersions);
-    // }
-    //
-    // @Override
-    // @Transactional(readOnly = true)
-    // @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    // public List<Attachment> listAttachmentsForSample(String sessionToken,
-    // @AuthorizationGuard(guardClass = SampleIdentifierPredicate.class)
-    // SampleIdentifier sample,
-    // boolean allVersions)
-    // {
-    // final TechId techId;
-    // if (sample.getDatabaseId() != null)
-    // {
-    // techId = new TechId(sample.getDatabaseId());
-    // } else if (sample.getPermId() != null)
-    // {
-    // final Long id =
-    // boFactory.getEntityResolver().tryResolveSampleIdByPermId(
-    // sample.getPermId());
-    // if (id == null)
-    // {
-    // return Collections.emptyList();
-    // }
-    // techId = new TechId(id);
-    // } else if (sample.getCode() != null)
-    // {
-    // final Long id =
-    // boFactory.getEntityResolver().tryResolveSampleIdByCode(
-    // sample.getSpaceCode(), sample.getCode());
-    // if (id == null)
-    // {
-    // return Collections.emptyList();
-    // }
-    // techId = new TechId(id);
-    // } else
-    // {
-    // throw new IllegalArgumentException("No identifier given.");
-    // }
-    // final List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> attachments =
-    // commonServer.listSampleAttachments(sessionToken, techId);
-    // return Translator.translateAttachments(attachments, allVersions);
-    // }
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Attachment> listAttachmentsForProject(String sessionToken,
+            @AuthorizationGuard(guardClass = ProjectIdPredicate.class)
+            IProjectId projectId, boolean allVersions)
+    {
+        Session session = getSession(sessionToken);
+
+        IProjectBO projectBO = boFactory.createProjectBO(session);
+        ProjectPE project = projectBO.tryFindByProjectId(projectId);
+        if (project == null)
+        {
+            throw new UserFailureException("No project found for id '" + projectId + "'.");
+        }
+        return listAttachments(sessionToken, projectId, project, allVersions);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Attachment> listAttachmentsForExperiment(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentIdPredicate.class)
+            IExperimentId experimentId, boolean allVersions)
+    {
+        Session session = getSession(sessionToken);
+
+        IExperimentBO experimentBO = boFactory.createExperimentBO(session);
+        ExperimentPE experiment = experimentBO.tryFindByExperimentId(experimentId);
+        if (experiment == null)
+        {
+            throw new UserFailureException("No experiment found for id '" + experimentId + "'.");
+        }
+        return listAttachments(sessionToken, experimentId, experiment, allVersions);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Attachment> listAttachmentsForSample(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleIdPredicate.class)
+            ISampleId sampleId, boolean allVersions)
+    {
+        Session session = getSession(sessionToken);
+
+        ISampleBO sampleBO = boFactory.createSampleBO(session);
+        SamplePE sample = sampleBO.tryFindBySampleId(sampleId);
+        if (sample == null)
+        {
+            throw new UserFailureException("No sample found for id '" + sampleId + "'.");
+        }
+        return listAttachments(sessionToken, sampleId, sample, allVersions);
+    }
+
+    private List<Attachment> listAttachments(String sessionToken, IObjectId objectId,
+            AttachmentHolderPE attachmentHolder, boolean allVersions)
+    {
+        List<AttachmentPE> attachments =
+                getDAOFactory().getAttachmentDAO().listAttachments(attachmentHolder);
+        return Translator.translateAttachments(sessionToken, objectId, attachmentHolder,
+                attachments, allVersions);
+    }
 }

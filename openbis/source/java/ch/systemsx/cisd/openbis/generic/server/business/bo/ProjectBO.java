@@ -30,6 +30,10 @@ import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.IProjectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectPermIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -45,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -126,6 +131,39 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     public final ProjectPE getProject()
     {
         return project;
+    }
+
+    @Override
+    public ProjectPE tryFindByProjectId(IProjectId projectId)
+    {
+        if (projectId == null)
+        {
+            throw new IllegalArgumentException("Project id cannot be null");
+        }
+        if (projectId instanceof ProjectIdentifierId)
+        {
+            ProjectIdentifierId identifierId = (ProjectIdentifierId) projectId;
+            ProjectIdentifier identifier =
+                    new ProjectIdentifierFactory(identifierId.getIdentifier()).createIdentifier();
+            return tryFindByIdentifier(identifier);
+        }
+        if (projectId instanceof ProjectPermIdId)
+        {
+            ProjectPermIdId permIdId = (ProjectPermIdId) projectId;
+            return getProjectDAO().tryGetByPermID(permIdId.getPermId());
+        }
+        if (projectId instanceof ProjectTechIdId)
+        {
+            ProjectTechIdId techIdId = (ProjectTechIdId) projectId;
+            return getProjectDAO().tryGetByTechId(new TechId(techIdId.getTechId()));
+        }
+        throw new IllegalArgumentException("Unsupported project id: " + projectId);
+    }
+
+    private ProjectPE tryFindByIdentifier(ProjectIdentifier identifier)
+    {
+        return getProjectDAO().tryFindProject(identifier.getDatabaseInstanceCode(),
+                identifier.getSpaceCode(), identifier.getProjectCode());
     }
 
     @Override

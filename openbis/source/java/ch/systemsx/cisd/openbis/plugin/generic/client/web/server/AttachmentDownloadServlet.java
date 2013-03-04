@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.AttachmentDownloadConstants.ATTACHMENT_DOWNLOAD_SERVLET_NAME;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,11 +27,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.AbstractCommandController;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractFileDownloadServlet;
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.shared.basic.AttachmentDownloadConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
@@ -39,16 +45,19 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
  */
 @Controller
 @RequestMapping(
-    { "/attachment-download", "/openbis/attachment-download" })
+    { "/" + ATTACHMENT_DOWNLOAD_SERVLET_NAME, "/openbis/" + ATTACHMENT_DOWNLOAD_SERVLET_NAME })
 public class AttachmentDownloadServlet extends AbstractFileDownloadServlet
 {
 
     @Resource(name = ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVER)
     private IGenericServer server;
 
+    @Resource(name = ResourceNames.COMMON_SERVICE)
+    private ICommonClientService commonService;
+
     public AttachmentDownloadServlet()
     {
-
+        setRequireSession(false);
     }
 
     // For testing purposes only
@@ -61,7 +70,8 @@ public class AttachmentDownloadServlet extends AbstractFileDownloadServlet
     @Override
     protected FileContent getFileContent(final HttpServletRequest request) throws Exception
     {
-        final String versionStringOrNull = request.getParameter(GenericConstants.VERSION_PARAMETER);
+        final String versionStringOrNull =
+                request.getParameter(AttachmentDownloadConstants.VERSION_PARAMETER);
         Integer versionOrNull = null;
 
         if (versionStringOrNull != null)
@@ -69,20 +79,31 @@ public class AttachmentDownloadServlet extends AbstractFileDownloadServlet
             versionOrNull = Integer.parseInt(versionStringOrNull);
         }
 
-        String fileName = request.getParameter(GenericConstants.FILE_NAME_PARAMETER);
+        String fileName = request.getParameter(AttachmentDownloadConstants.FILE_NAME_PARAMETER);
         String encoding = request.getCharacterEncoding();
         if (encoding == null)
         {
             encoding = "ISO-8859-1";
         }
-        final String techIdString = request.getParameter(GenericConstants.TECH_ID_PARAMETER);
+        final String techIdString =
+                request.getParameter(AttachmentDownloadConstants.TECH_ID_PARAMETER);
         final String attachmentHolderKind =
-                request.getParameter(GenericConstants.ATTACHMENT_HOLDER_PARAMETER);
-
-        if (StringUtils.isNotBlank(fileName) && StringUtils.isNotBlank(techIdString)
+                request.getParameter(AttachmentDownloadConstants.ATTACHMENT_HOLDER_PARAMETER);
+        TechId techId = null;
+        if (StringUtils.isNotBlank(techIdString))
+        {
+            techId = new TechId(Long.parseLong(techIdString));
+        } else
+        {
+            String permId = request.getParameter(PermlinkUtilities.PERM_ID_PARAMETER_KEY);
+            if (StringUtils.isNotBlank(permId))
+            {
+                techId = new TechId(getTechId(attachmentHolderKind, permId));
+            }
+        }
+        if (StringUtils.isNotBlank(fileName) && techId != null
                 && StringUtils.isNotBlank(attachmentHolderKind))
         {
-            final TechId techId = new TechId(Long.parseLong(techIdString));
             if (attachmentHolderKind.equals(AttachmentHolderKind.EXPERIMENT.name()))
             {
                 return getExperimentFile(request, versionOrNull, fileName, techId);
@@ -93,6 +114,21 @@ public class AttachmentDownloadServlet extends AbstractFileDownloadServlet
             {
                 return getProjectFile(request, versionOrNull, fileName, techId);
             }
+        }
+        return null;
+    }
+
+    private Long getTechId(String attachmentHolderKind, String permId)
+    {
+        if (attachmentHolderKind.equals(AttachmentHolderKind.EXPERIMENT.name()))
+        {
+            return commonService.getEntityInformationHolder(EntityKind.EXPERIMENT, permId).getId();
+        } else if (attachmentHolderKind.equals(AttachmentHolderKind.SAMPLE.name()))
+        {
+            return commonService.getProjectInfoByPermId(permId).getId();
+        } else if (attachmentHolderKind.equals(AttachmentHolderKind.PROJECT.name()))
+        {
+            return commonService.getEntityInformationHolder(EntityKind.SAMPLE, permId).getId();
         }
         return null;
     }
@@ -123,4 +159,5 @@ public class AttachmentDownloadServlet extends AbstractFileDownloadServlet
                         versionOrNull);
         return new FileContent(attachment.getContent(), attachment.getFileName());
     }
+
 }

@@ -24,6 +24,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
@@ -40,7 +41,10 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.IProjectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
@@ -486,4 +490,33 @@ public interface IGeneralInformationService extends IRpcService
      */
     public MetaprojectAssignments getMetaproject(String sessionToken, IMetaprojectId metaprojectId);
 
+    /**
+     * Lists attachments of specified project.
+     * 
+     * @param allVersions If <code>true</code>, return all versions of the attachments, otherwise
+     *            return only the latest version.
+     * @since 1.22
+     */
+    public List<Attachment> listAttachmentsForProject(String sessionToken,
+            IProjectId projectId, boolean allVersions);
+    
+    /**
+     * Lists attachments of specified experiment.
+     * 
+     * @param allVersions If <code>true</code>, return all versions of the attachments, otherwise
+     *            return only the latest version.
+     * @since 1.22
+     */
+    public List<Attachment> listAttachmentsForExperiment(String sessionToken,
+            IExperimentId experimentId, boolean allVersions);
+    
+    /**
+     * Lists attachments of specified sample.
+     * 
+     * @param allVersions If <code>true</code>, return all versions of the attachments, otherwise
+     *            return only the latest version.
+     * @since 1.22
+     */
+    public List<Attachment> listAttachmentsForSample(String sessionToken,
+            ISampleId sampleId, boolean allVersions);
 }

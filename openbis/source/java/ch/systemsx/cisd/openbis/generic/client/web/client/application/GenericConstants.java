@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import com.google.gwt.core.client.GWT;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.AttachmentDownloadConstants;
+
 /**
  * Some generic constants.
  * 
@@ -54,16 +56,7 @@ public final class GenericConstants
 
     /** Name of the servlet to download an experiment attachment. */
     public static final String ATTACHMENT_DOWNLOAD_SERVLET_NAME =
-            createServicePath("attachment-download");
-
-    /** The HTTP URL parameter used to specify the version. */
-    public static final String VERSION_PARAMETER = "version";
-
-    /** The HTTP URL parameter used to specify the file name. */
-    public static final String FILE_NAME_PARAMETER = "fileName";
-
-    /** The HTTP URL parameter used to specify the attachment holder. */
-    public static final String ATTACHMENT_HOLDER_PARAMETER = "attachmentHolder";
+            createServicePath(AttachmentDownloadConstants.ATTACHMENT_DOWNLOAD_SERVLET_NAME);
 
     /** Name of the servlet to export and download a file. */
     public static final String FILE_EXPORTER_DOWNLOAD_SERVLET_NAME =
@@ -73,9 +66,6 @@ public final class GenericConstants
     public static final String EXPORT_CRITERIA_KEY_PARAMETER = "exportDataKey";
 
     public static final String LABEL_SEPARATOR = ":";
-
-    /** The HTTP URL parameter used to specify the technical id. */
-    public static final String TECH_ID_PARAMETER = "id";
 
     /** Name of the servlet to download a template. */
     public static final String TEMPLATE_SERVLET_NAME = createServicePath("template-download");
@@ -109,7 +99,7 @@ public final class GenericConstants
     public static final String WITH_EXPERIMENTS = "with_experiments";
 
     public static final String WITH_SPACE = "with_space";
-    
+
     public static final String BATCH_OPERATION_KIND = "batch_operation_kind";
 
     public static final String ITEMS_TEXTAREA_REGEX = "\n|\r\n|, *";

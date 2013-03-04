@@ -31,6 +31,7 @@ import java.util.Map;
 import org.apache.commons.lang.ObjectUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment.AttachmentInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.ControlledVocabularyPropertyTypeInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -39,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitial
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType.DataSetTypeInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment.ExperimentInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
@@ -56,11 +58,17 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary.VocabularyInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.AttachmentDownloadConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetUrl;
@@ -68,6 +76,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 
 /**
@@ -355,7 +365,8 @@ public class Translator
     }
 
     /**
-     * Translates the specified {@link AbstractExternalData} instance into a {@link DataSet} instance.
+     * Translates the specified {@link AbstractExternalData} instance into a {@link DataSet}
+     * instance.
      * 
      * @param connectionsToGet Set of data set connections which should also be translated. This
      *            assumes that the {@link AbstractExternalData} instance is populated with these
@@ -368,7 +379,8 @@ public class Translator
     }
 
     /**
-     * Translates the specified {@link AbstractExternalData} instance into a {@link DataSet} instance.
+     * Translates the specified {@link AbstractExternalData} instance into a {@link DataSet}
+     * instance.
      * 
      * @param connectionsToGet Set of data set connections which should also be translated. This
      *            assumes that the {@link AbstractExternalData} instance is populated with these
@@ -601,55 +613,75 @@ public class Translator
         return list;
     }
 
-    public static List<Attachment> translateAttachments(
-            List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment> attachments,
-            boolean allVersions)
+    public static List<Attachment> translateAttachments(String sessionToken,
+            IObjectId attachmentHolderId, AttachmentHolderPE attachmentHolderPE,
+            List<AttachmentPE> attachments, boolean allVersions)
     {
-        Collections.sort(attachments,
-                new Comparator<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment>()
-                    {
-                        @Override
-                        public int compare(
-                                ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment o1,
-                                ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment o2)
-                        {
-                            final int fileNameComp = o1.getFileName().compareTo(o2.getFileName());
-                            // Newest version first.
-                            return (fileNameComp == 0) ? (o2.getVersion() - o1.getVersion())
-                                    : fileNameComp;
-                        }
-                    });
-        final List<Attachment> list = new ArrayList<Attachment>(attachments.size());
+        Collections.sort(attachments, new Comparator<AttachmentPE>()
+            {
+                @Override
+                public int compare(AttachmentPE a1, AttachmentPE a2)
+                {
+                    int fileNameCompare = a1.getFileName().compareTo(a2.getFileName());
+                    // Newest version first.
+                    return fileNameCompare == 0 ? a2.getVersion() - a1.getVersion()
+                            : fileNameCompare;
+                }
+            });
+        List<Attachment> result = new ArrayList<Attachment>();
         String lastFilenameSeen = null;
-        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment attachment : attachments)
+        for (AttachmentPE attachmentPE : attachments)
         {
             // The newest version will be first. If allVersions == false, skip all the older
             // versions.
-            if (allVersions == false
-                    && ObjectUtils.equals(lastFilenameSeen, attachment.getFileName()))
+            String fileName = attachmentPE.getFileName();
+            if (allVersions == false && ObjectUtils.equals(lastFilenameSeen, fileName))
             {
                 continue;
             }
-            list.add(translate(attachment));
-            lastFilenameSeen = attachment.getFileName();
+            result.add(translate(sessionToken, attachmentHolderId, attachmentHolderPE, attachmentPE));
+            lastFilenameSeen = fileName;
         }
-        return list;
+        return result;
     }
 
-    public static Attachment translate(
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment attachment)
+    private static Attachment translate(String sessionToken, IObjectId attachmentHolderId,
+            AttachmentHolderPE attachmentHolderPE, AttachmentPE attachment)
     {
-        final Attachment.AttachmentInitializer initializer = new Attachment.AttachmentInitializer();
+        AttachmentInitializer initializer = new AttachmentInitializer();
+        initializer.setAttachmentHolderId(attachmentHolderId);
         initializer.setFileName(attachment.getFileName());
         initializer.setVersion(attachment.getVersion());
         initializer.setTitle(attachment.getTitle());
         initializer.setDescription(attachment.getDescription());
-        initializer.setRegistrationDate(attachment.getRegistrationDate());
-        initializer.setUserId(attachment.getRegistrator().getUserId());
-        initializer.setUserEmail(attachment.getRegistrator().getEmail());
-        initializer.setUserFirstName(attachment.getRegistrator().getFirstName());
-        initializer.setUserLastName(attachment.getRegistrator().getLastName());
-        initializer.setPermLink(attachment.getPermlink());
+        EntityRegistrationDetailsInitializer regDetailsInitializer =
+                new EntityRegistrationDetailsInitializer();
+        regDetailsInitializer.setRegistrationDate(attachment.getRegistrationDate());
+        regDetailsInitializer.setUserId(attachment.getRegistrator().getUserId());
+        regDetailsInitializer.setFirstName(attachment.getRegistrator().getFirstName());
+        regDetailsInitializer.setLastName(attachment.getRegistrator().getLastName());
+        regDetailsInitializer.setEmail(attachment.getRegistrator().getEmail());
+        initializer.setRegistrationDetails(new EntityRegistrationDetails(regDetailsInitializer));
+        URLMethodWithParameters url =
+                new URLMethodWithParameters("/openbis/"
+                        + AttachmentDownloadConstants.ATTACHMENT_DOWNLOAD_SERVLET_NAME);
+        url.addParameter(GenericSharedConstants.SESSION_ID_PARAMETER, sessionToken);
+        url.addParameter(AttachmentDownloadConstants.ATTACHMENT_HOLDER_PARAMETER,
+                attachmentHolderPE.getAttachmentHolderKind().toString());
+        if (attachmentHolderPE instanceof IIdHolder)
+        {
+            IIdHolder idHolder = (IIdHolder) attachmentHolderPE;
+            url.addParameter(AttachmentDownloadConstants.TECH_ID_PARAMETER, idHolder.getId()
+                    .toString());
+        } else
+        {
+            url.addParameter(PermlinkUtilities.PERM_ID_PARAMETER_KEY,
+                    attachmentHolderPE.getPermId());
+        }
+        url.addParameter(AttachmentDownloadConstants.FILE_NAME_PARAMETER, attachment.getFileName());
+        url.addParameter(AttachmentDownloadConstants.VERSION_PARAMETER,
+                Integer.toString(attachment.getVersion()));
+        initializer.setDownloadLink(url.toString());
         return new Attachment(initializer);
     }
 }

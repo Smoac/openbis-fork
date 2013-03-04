@@ -28,6 +28,7 @@ import org.springframework.web.servlet.mvc.AbstractController;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
 
 /**
  * @author Franz-Josef Elmer
@@ -36,6 +37,11 @@ public abstract class AbstractServlet extends AbstractController
 {
     protected final String getSessionToken(final HttpServletRequest request)
     {
+        String sessionToken = request.getParameter(GenericSharedConstants.SESSION_ID_PARAMETER);
+        if (sessionToken != null)
+        {
+            return sessionToken;
+        }
         return getParameter(request, SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY);
     }
 

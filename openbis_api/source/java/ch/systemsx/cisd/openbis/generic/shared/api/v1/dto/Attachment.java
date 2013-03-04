@@ -21,6 +21,7 @@ import java.util.Date;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 
 /**
  * Immutable value object representing an attachment.
@@ -34,6 +35,8 @@ public class Attachment implements Serializable, Comparable<Attachment>
 {
     private static final long serialVersionUID = 1L;
 
+    private IObjectId attachmentHolderId;
+    
     private String fileName;
 
     private int version;
@@ -42,20 +45,14 @@ public class Attachment implements Serializable, Comparable<Attachment>
 
     private String description;
 
-    private Date registrationDate;
-
-    private String userFirstName;
-
-    private String userLastName;
-
-    private String userEmail;
-
-    private String userId;
-
-    private String permLink;
+    private EntityRegistrationDetails registrationDetails;
+    
+    private String downloadLink;
 
     public static class AttachmentInitializer
     {
+        private IObjectId attachmentHolderId;
+        
         private String fileName;
 
         private int version;
@@ -64,17 +61,19 @@ public class Attachment implements Serializable, Comparable<Attachment>
 
         private String description;
 
-        private Date registrationDate;
+        private EntityRegistrationDetails registrationDetails;
+        
+        private String downloadLink;
 
-        private String userFirstName;
+        public IObjectId getAttachmentHolderId()
+        {
+            return attachmentHolderId;
+        }
 
-        private String userLastName;
-
-        private String userEmail;
-
-        private String userId;
-
-        private String permLink;
+        public void setAttachmentHolderId(IObjectId attachmentHolderId)
+        {
+            this.attachmentHolderId = attachmentHolderId;
+        }
 
         public String getFileName()
         {
@@ -116,64 +115,24 @@ public class Attachment implements Serializable, Comparable<Attachment>
             this.description = description;
         }
 
-        public Date getRegistrationDate()
+        public EntityRegistrationDetails getRegistrationDetails()
         {
-            return registrationDate;
+            return registrationDetails;
         }
 
-        public void setRegistrationDate(Date registrationDate)
+        public void setRegistrationDetails(EntityRegistrationDetails registrationDetails)
         {
-            this.registrationDate = registrationDate;
+            this.registrationDetails = registrationDetails;
         }
 
-        public String getUserFirstName()
+        public String getDownloadLink()
         {
-            return userFirstName;
+            return downloadLink;
         }
 
-        public void setUserFirstName(String userFirstName)
+        public void setDownloadLink(String downloadLink)
         {
-            this.userFirstName = userFirstName;
-        }
-
-        public String getUserLastName()
-        {
-            return userLastName;
-        }
-
-        public void setUserLastName(String userLastName)
-        {
-            this.userLastName = userLastName;
-        }
-
-        public String getUserEmail()
-        {
-            return userEmail;
-        }
-
-        public void setUserEmail(String userEmail)
-        {
-            this.userEmail = userEmail;
-        }
-
-        public String getUserId()
-        {
-            return userId;
-        }
-
-        public void setUserId(String userId)
-        {
-            this.userId = userId;
-        }
-
-        public String getPermLink()
-        {
-            return permLink;
-        }
-
-        public void setPermLink(String permLink)
-        {
-            this.permLink = permLink;
+            this.downloadLink = downloadLink;
         }
 
     }
@@ -184,16 +143,22 @@ public class Attachment implements Serializable, Comparable<Attachment>
 
     public Attachment(AttachmentInitializer initializer)
     {
+        setAttachmentHolderId(initializer.getAttachmentHolderId());
         setFileName(initializer.getFileName());
         setVersion(initializer.getVersion());
-        setRegistrationDate(initializer.getRegistrationDate());
         setTitle(initializer.getTitle());
         setDescription(initializer.getDescription());
-        setUserId(initializer.getUserId());
-        setUserEmail(initializer.getUserEmail());
-        setUserFirstName(initializer.getUserFirstName());
-        setUserLastName(initializer.getUserLastName());
-        setPermLink(initializer.getPermLink());
+        setRegistrationDetails(initializer.getRegistrationDetails());
+        setDownloadLink(initializer.getDownloadLink());
+    }
+
+    /**
+     * Returns the id of the entity holding this attachment. This will be the id which has been
+     * used to retrieve this attachment.
+     */
+    public IObjectId getAttachmentHolderId()
+    {
+        return attachmentHolderId;
     }
 
     /**
@@ -230,53 +195,21 @@ public class Attachment implements Serializable, Comparable<Attachment>
     }
 
     /**
-     * Returns the date when this attachment was uploaded.
+     * Return the registration details.
      */
-    public Date getRegistrationDate()
+    public EntityRegistrationDetails getRegistrationDetails()
     {
-        return registrationDate;
+        return registrationDetails;
     }
 
     /**
-     * Returns the first name of the user who uploaded this attachment.
+     * Returns the download link. In combination with the basic URL (containing host name and port)
+     * it can be used to create a URL for downloading the attachment file.
      */
-    public String getUserFirstName()
+    public String getDownloadLink()
     {
-        return userFirstName;
+        return downloadLink;
     }
-
-    /**
-     * Returns the last name of the user who uploaded this attachment.
-     */
-    public String getUserLastName()
-    {
-        return userLastName;
-    }
-
-    /**
-     * Returns the email of the user who uploaded this attachment.
-     */
-    public String getUserEmail()
-    {
-        return userEmail;
-    }
-
-    /**
-     * Returns the user id of the user who uploaded this attachment.
-     */
-    public String getUserId()
-    {
-        return userId;
-    }
-
-    /**
-     * Returns the permanent hyperlink of this attachment.
-     */
-    public String getPermLink()
-    {
-        return permLink;
-    }
-
     //
     // JSON-RPC
     //
@@ -305,34 +238,19 @@ public class Attachment implements Serializable, Comparable<Attachment>
         this.description = StringUtils.isBlank(description) ? "" : description;
     }
 
-    private void setRegistrationDate(Date registrationDate)
+    private void setAttachmentHolderId(IObjectId attachmentHolderId)
     {
-        this.registrationDate = registrationDate;
+        this.attachmentHolderId = attachmentHolderId;
     }
 
-    private void setUserFirstName(String userFirstName)
+    private void setRegistrationDetails(EntityRegistrationDetails registrationDetails)
     {
-        this.userFirstName = userFirstName;
+        this.registrationDetails = registrationDetails;
     }
 
-    private void setUserLastName(String userLastName)
+    private void setDownloadLink(String downloadLink)
     {
-        this.userLastName = userLastName;
-    }
-
-    private void setUserEmail(String userEmail)
-    {
-        this.userEmail = userEmail;
-    }
-
-    private void setUserId(String userId)
-    {
-        this.userId = userId;
-    }
-
-    private void setPermLink(String permLink)
-    {
-        this.permLink = permLink;
+        this.downloadLink = downloadLink;
     }
 
     @Override
@@ -387,10 +305,12 @@ public class Attachment implements Serializable, Comparable<Attachment>
     public String toString()
     {
         return "Attachment [fileName=" + fileName + ", version=" + version + ", title=" + title
-                + ", description=" + description + ", registrationDate=" + registrationDate
-                + ", userFirstName=" + userFirstName + ", userLastName=" + userLastName
-                + ", userEmail=" + userEmail + ", userId=" + userId + ", permLink=" + permLink
-                + "]";
+                + ", description=" + description + ", registrationDate="
+                + registrationDetails.getRegistrationDate() + ", userFirstName="
+                + registrationDetails.getUserFirstName() + ", userLastName="
+                + registrationDetails.getUserLastName() + ", userEmail="
+                + registrationDetails.getUserEmail() + ", userId="
+                + registrationDetails.getUserId() + ", downloadLink=" + downloadLink + "]";
     }
 
 }

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.IProjectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -50,6 +51,12 @@ public interface IProjectBO extends IEntityBusinessObject
      * Returns the loaded project.
      */
     public ProjectPE getProject();
+
+    /**
+     * Returns a project found by the given id or null if it does not exist. Does not change the
+     * state of this object, especially the result of {@link #getProject()}.
+     */
+    public ProjectPE tryFindByProjectId(final IProjectId projectId);
 
     /**
      * Loads a project given by its identifier.

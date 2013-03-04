@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.attach
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.AttachmentDownloadConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 
@@ -40,13 +41,15 @@ public class AttachmentDownloadHelper
                 new URLMethodWithParameters(GenericConstants.ATTACHMENT_DOWNLOAD_SERVLET_NAME);
         if (version != null)
         {
-            methodWithParameters.addParameter(GenericConstants.VERSION_PARAMETER, version);
+            methodWithParameters.addParameter(AttachmentDownloadConstants.VERSION_PARAMETER,
+                    version);
         }
-        methodWithParameters.addParameter(GenericConstants.FILE_NAME_PARAMETER, fileName);
-        methodWithParameters.addParameter(GenericConstants.ATTACHMENT_HOLDER_PARAMETER,
+        methodWithParameters
+                .addParameter(AttachmentDownloadConstants.FILE_NAME_PARAMETER, fileName);
+        methodWithParameters.addParameter(AttachmentDownloadConstants.ATTACHMENT_HOLDER_PARAMETER,
                 attachmentHolder.getAttachmentHolderKind().name());
         // NOTE: this exp.getId() could be null if exp is a proxy
-        methodWithParameters.addParameter(GenericConstants.TECH_ID_PARAMETER,
+        methodWithParameters.addParameter(AttachmentDownloadConstants.TECH_ID_PARAMETER,
                 attachmentHolder.getId());
         return methodWithParameters.toString();
     }

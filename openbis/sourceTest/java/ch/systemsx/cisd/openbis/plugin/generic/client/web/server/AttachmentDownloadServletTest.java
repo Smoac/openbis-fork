@@ -27,10 +27,11 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractFileDownloadServlet.FileContent;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.AttachmentDownloadConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -87,16 +88,20 @@ public final class AttachmentDownloadServletTest
         context.checking(new Expectations()
             {
                 {
-                    one(servletRequest).getParameter(GenericConstants.VERSION_PARAMETER);
+                    one(servletRequest).getParameter(AttachmentDownloadConstants.VERSION_PARAMETER);
                     will(returnValue(CommonTestUtils.VERSION_22 + ""));
-                    one(servletRequest).getParameter(GenericConstants.FILE_NAME_PARAMETER);
+                    one(servletRequest).getParameter(
+                            AttachmentDownloadConstants.FILE_NAME_PARAMETER);
                     will(returnValue(CommonTestUtils.FILENAME));
                     one(servletRequest).getCharacterEncoding();
                     will(returnValue(null));
-                    one(servletRequest).getParameter(GenericConstants.ATTACHMENT_HOLDER_PARAMETER);
+                    one(servletRequest).getParameter(
+                            AttachmentDownloadConstants.ATTACHMENT_HOLDER_PARAMETER);
                     will(returnValue(AttachmentHolderKind.EXPERIMENT.name()));
-                    one(servletRequest).getParameter(GenericConstants.TECH_ID_PARAMETER);
+                    one(servletRequest).getParameter(AttachmentDownloadConstants.TECH_ID_PARAMETER);
                     will(returnValue(CommonTestUtils.TECH_ID.toString()));
+                    one(servletRequest).getParameter(GenericSharedConstants.SESSION_ID_PARAMETER);
+                    will(returnValue(null));
 
                     one(servletRequest).getSession(false);
                     will(Expectations.returnValue(httpSession));
@@ -114,8 +119,8 @@ public final class AttachmentDownloadServletTest
             });
         FileContent fileContent = createServlet().getFileContent(servletRequest);
         AssertJUnit.assertEquals(attachmentPE.getFileName(), fileContent.getFileName());
-        AssertJUnit.assertEquals(attachmentPE.getAttachmentContent().getValue(), fileContent
-                .getContent());
+        AssertJUnit.assertEquals(attachmentPE.getAttachmentContent().getValue(),
+                fileContent.getContent());
         context.assertIsSatisfied();
     }
 }
