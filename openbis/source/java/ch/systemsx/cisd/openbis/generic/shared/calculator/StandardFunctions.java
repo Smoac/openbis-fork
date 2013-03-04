@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.calculator.customcolumn.CustomCol
  */
 public final class StandardFunctions
 {
-    static final Double DOUBLE_DEFAULT_VALUE = new Double(-Double.MAX_VALUE);
+    static final Double DOUBLE_DEFAULT_VALUE = Double.NaN;
 
     static final Integer INTEGER_DEFAULT_VALUE = new Integer(Integer.MIN_VALUE);
 
