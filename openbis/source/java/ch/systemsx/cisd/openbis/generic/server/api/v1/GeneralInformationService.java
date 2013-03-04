@@ -136,7 +136,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class GeneralInformationService extends AbstractServer<IGeneralInformationService> implements
         IGeneralInformationService
 {
-    public static final int MINOR_VERSION = 22;
+    public static final int MINOR_VERSION = 23;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;

@@ -495,7 +495,7 @@ public interface IGeneralInformationService extends IRpcService
      * 
      * @param allVersions If <code>true</code>, return all versions of the attachments, otherwise
      *            return only the latest version.
-     * @since 1.22
+     * @since 1.23
      */
     public List<Attachment> listAttachmentsForProject(String sessionToken,
             IProjectId projectId, boolean allVersions);
@@ -505,7 +505,7 @@ public interface IGeneralInformationService extends IRpcService
      * 
      * @param allVersions If <code>true</code>, return all versions of the attachments, otherwise
      *            return only the latest version.
-     * @since 1.22
+     * @since 1.23
      */
     public List<Attachment> listAttachmentsForExperiment(String sessionToken,
             IExperimentId experimentId, boolean allVersions);
@@ -515,7 +515,7 @@ public interface IGeneralInformationService extends IRpcService
      * 
      * @param allVersions If <code>true</code>, return all versions of the attachments, otherwise
      *            return only the latest version.
-     * @since 1.22
+     * @since 1.23
      */
     public List<Attachment> listAttachmentsForSample(String sessionToken,
             ISampleId sampleId, boolean allVersions);

@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.ObjectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Identifies a projec by identifier.
+ * Identifies a project by identifier.
  *
  * @author Franz-Josef Elmer
  */

@@ -46,8 +46,8 @@ public class ProjectPermIdPredicate extends AbstractSpacePredicate<String>
                 authorizationDataProvider.tryGetProjectByPermId(new PermId(permId));
         if (project == null)
         {
-            return Status.createError(String.format("User '%s' does not have enough privileges.",
-                    person.getUserId()));
+            return Status.createError(String.format("There is no project with perm id '%s'."
+                    + permId));
         }
         return evaluateSpace(person, allowedRoles, project.getSpace());
     }
