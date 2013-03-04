@@ -820,7 +820,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
             assertEquals("franz-josef.elmer@systemsx.ch", a.getRegistrationDetails().getUserEmail());
             assertNotNull(a.getRegistrationDetails().getUserFirstName());
             assertNotNull(a.getRegistrationDetails().getUserLastName());
-            assertEquals("/openbis/attachment-download?sessionID=" + sessionToken
+            assertEquals("/openbis/openbis/attachment-download?sessionID=" + sessionToken
                     + "&attachmentHolder=EXPERIMENT&id=2&fileName=exampleExperiments.txt&version="
                     + version, a.getDownloadLink());
             --version;
@@ -852,7 +852,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         assertEquals("franz-josef.elmer@systemsx.ch", a.getRegistrationDetails().getUserEmail());
         assertNotNull(a.getRegistrationDetails().getUserFirstName());
         assertNotNull(a.getRegistrationDetails().getUserLastName());
-        assertEquals("/openbis/attachment-download?sessionID=" + sessionToken
+        assertEquals("/openbis/openbis/attachment-download?sessionID=" + sessionToken
                 + "&attachmentHolder=EXPERIMENT&id=2&fileName=exampleExperiments.txt&version=4",
                 a.getDownloadLink());
 
@@ -892,7 +892,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         assertEquals("franz-josef.elmer@systemsx.ch", a.getRegistrationDetails().getUserEmail());
         assertNotNull(a.getRegistrationDetails().getUserFirstName());
         assertNotNull(a.getRegistrationDetails().getUserLastName());
-        assertEquals("/openbis/attachment-download?sessionID=" + sessionToken
+        assertEquals("/openbis/openbis/attachment-download?sessionID=" + sessionToken
                 + "&attachmentHolder=SAMPLE&id=987&fileName=sampleHistory.txt&version=1",
                 a.getDownloadLink());
 
@@ -960,7 +960,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         assertEquals("franz-josef.elmer@systemsx.ch", a.getRegistrationDetails().getUserEmail());
         assertNotNull(a.getRegistrationDetails().getUserFirstName());
         assertNotNull(a.getRegistrationDetails().getUserLastName());
-        assertEquals("/openbis/attachment-download?sessionID=" + sessionToken
+        assertEquals("/openbis/openbis/attachment-download?sessionID=" + sessionToken
                 + "&attachmentHolder=PROJECT&id=3&fileName=projectDescription.txt&version=1",
                 a.getDownloadLink());
     }

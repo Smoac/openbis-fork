@@ -663,7 +663,7 @@ public class Translator
         regDetailsInitializer.setEmail(attachment.getRegistrator().getEmail());
         initializer.setRegistrationDetails(new EntityRegistrationDetails(regDetailsInitializer));
         URLMethodWithParameters url =
-                new URLMethodWithParameters("/openbis/"
+                new URLMethodWithParameters("/openbis/openbis/"
                         + AttachmentDownloadConstants.ATTACHMENT_DOWNLOAD_SERVLET_NAME);
         url.addParameter(GenericSharedConstants.SESSION_ID_PARAMETER, sessionToken);
         url.addParameter(AttachmentDownloadConstants.ATTACHMENT_HOLDER_PARAMETER,

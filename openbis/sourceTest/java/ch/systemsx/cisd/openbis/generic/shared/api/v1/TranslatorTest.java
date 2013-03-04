@@ -259,13 +259,13 @@ public class TranslatorTest extends AssertJUnit
                 + "registrationDate=Thu Jan 01 01:00:04 CET 1970, "
                 + "userFirstName=Albert, userLastName=Einstein, "
                 + "userEmail=ae@ae.ch, userId=ae, "
-                + "downloadLink=/openbis/attachment-download?sessionID=st-1&"
+                + "downloadLink=/openbis/openbis/attachment-download?sessionID=st-1&"
                 + "attachmentHolder=EXPERIMENT&id=1234&fileName=test.txt&version=2], "
                 + "Attachment [fileName=test.txt, version=1, title=Title, "
                 + "description=File:test.txt, version:1, "
                 + "registrationDate=Thu Jan 01 01:00:04 CET 1970, "
                 + "userFirstName=Albert, userLastName=Einstein, userEmail=ae@ae.ch, userId=ae, "
-                + "downloadLink=/openbis/attachment-download?sessionID=st-1&"
+                + "downloadLink=/openbis/openbis/attachment-download?sessionID=st-1&"
                 + "attachmentHolder=EXPERIMENT&id=1234&fileName=test.txt&version=1]]",
                 attachments.toString());
         assertEquals(2, attachments.size());
@@ -291,13 +291,13 @@ public class TranslatorTest extends AssertJUnit
                 + "registrationDate=Thu Jan 01 01:00:04 CET 1970, "
                 + "userFirstName=Albert, userLastName=Einstein, "
                 + "userEmail=ae@ae.ch, userId=ae, "
-                + "downloadLink=/openbis/attachment-download?sessionID=st-1&"
+                + "downloadLink=/openbis/openbis/attachment-download?sessionID=st-1&"
                 + "attachmentHolder=EXPERIMENT&id=1234&fileName=greetings.txt&version=2], "
                 + "Attachment [fileName=test.txt, version=3, title=Title, "
                 + "description=File:test.txt, version:3, "
                 + "registrationDate=Thu Jan 01 01:00:04 CET 1970, "
                 + "userFirstName=Albert, userLastName=Einstein, userEmail=ae@ae.ch, userId=ae, "
-                + "downloadLink=/openbis/attachment-download?sessionID=st-1&"
+                + "downloadLink=/openbis/openbis/attachment-download?sessionID=st-1&"
                 + "attachmentHolder=EXPERIMENT&id=1234&fileName=test.txt&version=3]]",
                 attachments.toString());
         assertEquals(2, attachments.size());
