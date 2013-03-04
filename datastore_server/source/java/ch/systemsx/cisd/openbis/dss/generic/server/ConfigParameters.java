@@ -185,6 +185,7 @@ public final class ConfigParameters implements IServletPropertiesManager
                 PropertyUtils.getInt(properties, AUTH_CACHE_CLEANUP_TIMER_PERIOD,
                         DEFAULT_AUTH_CACHE_CLEANUP_TIMER_PERIOD_MINS);
         pluginServlets = new LinkedHashMap<String, PluginServletConfig>();
+        addSystemServlets();
         SectionProperties[] pluginServicesProperties =
                 PropertyParametersUtil.extractSectionProperties(properties,
                         Constants.PLUGIN_SERVICES_LIST_KEY, false);
@@ -208,6 +209,19 @@ public final class ConfigParameters implements IServletPropertiesManager
             String key = keyPrefix + sectionProperties.getKey();
             addServletProperties(key, servletProps);
         }
+    }
+
+    /**
+     * Register any servlets that are part of the system and should always be available.
+     */
+    private void addSystemServlets()
+    {
+        String servletClass =
+                "ch.systemsx.cisd.openbis.dss.generic.server.DynamicFileTabularDataGraphServlet";
+        String servletPath = "/graphservice/*";
+        PluginServletConfig servletConfig =
+                new PluginServletConfig(servletClass, servletPath, new Properties());
+        pluginServlets.put(servletPath, servletConfig);
     }
 
     @Override
