@@ -192,7 +192,7 @@ public class RowCalculatorTest extends AssertJUnit
         RowCalculator calculator =
                 createCalculator(parameters, "map(float, [${x},'  ',2,2.5,'3'])");
 
-        assertEquals("[0.0, -1.7976931348623157E308, 2.0, 2.5, 3.0]", calculator.evalAsString());
+        assertEquals("[0.0, NaN, 2.0, 2.5, 3.0]", calculator.evalAsString());
 
     }
 
