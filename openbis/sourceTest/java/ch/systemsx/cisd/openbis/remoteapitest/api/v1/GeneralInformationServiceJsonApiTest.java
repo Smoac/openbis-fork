@@ -22,10 +22,13 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.net.MalformedURLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +39,11 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.string.ToStringComparator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
@@ -54,7 +59,15 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentPermIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectPermIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SamplePermIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleTechIdId;
 import ch.systemsx.cisd.openbis.remoteapitest.RemoteApiTestCase;
 
 /**
@@ -783,171 +796,173 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         return null;
     }
 
-    // @Test
-    // public void testListAttachmentsForExperimentAllVersions()
-    // {
-    // final List<Experiment> experiments =
-    // generalInformationService.listExperiments(sessionToken,
-    // Collections.singletonList("/CISD/NEMO/EXP1"));
-    // assertEquals(1, experiments.size());
-    //
-    // final List<Attachment> attachments =
-    // generalInformationService.listAttachmentsForExperiment(sessionToken,
-    // ExperimentIdentifier.createFromEntity(experiments.get(0)),
-    // true);
-    // assertEquals(4, attachments.size());
-    // int version = 4;
-    // for (Attachment a : attachments)
-    // {
-    // assertEquals("exampleExperiments.txt", a.getFileName());
-    // assertEquals(version, a.getVersion());
-    // assertEquals("", a.getTitle());
-    // assertEquals("", a.getDescription());
-    // assertTrue(a.getRegistrationDate().getTime() > 0);
-    // assertEquals("test", a.getUserId());
-    // assertEquals("franz-josef.elmer@systemsx.ch", a.getUserEmail());
-    // assertNotNull(a.getUserFirstName());
-    // assertNotNull(a.getUserLastName());
-    // assertEquals(
-    // String.format(
-    // "http://localhost/openbis/index.html?viewMode=SIMPLE#action=DOWNLOAD_ATTACHMENT&file=exampleExperiments.txt&version=%d&entity=EXPERIMENT&permId=200811050951882-1028",
-    // version),
-    // a.getPermLink());
-    // --version;
-    // }
-    // }
-    //
-    // @Test
-    // public void testListAttachmentsForExperimentLatestVersion()
-    // {
-    // final List<Experiment> experiments =
-    // generalInformationService.listExperiments(sessionToken,
-    // Collections.singletonList("/CISD/NEMO/EXP1"));
-    // assertEquals(1, experiments.size());
-    //
-    // final List<Attachment> attachments =
-    // generalInformationService.listAttachmentsForExperiment(sessionToken,
-    // ExperimentIdentifier.createFromEntity(experiments.get(0)), false);
-    // assertEquals(1, attachments.size());
-    // final Attachment a = attachments.get(0);
-    // assertEquals("exampleExperiments.txt", a.getFileName());
-    // assertEquals(4, a.getVersion());
-    // assertEquals("", a.getTitle());
-    // assertEquals("", a.getDescription());
-    // assertTrue(a.getRegistrationDate().getTime() > 0);
-    // assertEquals("test", a.getUserId());
-    // assertEquals("franz-josef.elmer@systemsx.ch", a.getUserEmail());
-    // assertNotNull(a.getUserFirstName());
-    // assertNotNull(a.getUserLastName());
-    // assertEquals(
-    // "http://localhost/openbis/index.html?viewMode=SIMPLE#action=DOWNLOAD_ATTACHMENT&file=exampleExperiments.txt&version=4&entity=EXPERIMENT&permId=200811050951882-1028",
-    // a.getPermLink());
-    //
-    // final List<Attachment> attachments2 =
-    // generalInformationService.listAttachmentsForExperiment(sessionToken,
-    // ExperimentIdentifier.createFromAugmentedCode("/CISD/NEMO/EXP1"), false);
-    //
-    // assertEquals(1, attachments2.size());
-    //
-    // final Attachment a2 = attachments2.get(0);
-    // assertEquals(a, a2);
-    // }
-    //
-    // @Test
-    // public void testListAttachmentsForSample()
-    // {
-    // SearchCriteria searchCriteria = new SearchCriteria();
-    // searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
-    // "3VCP6"));
-    //
-    // final List<Sample> samples =
-    // generalInformationService.searchForSamples(sessionToken, searchCriteria);
-    // assertEquals(1, samples.size());
-    //
-    // final List<Attachment> attachments =
-    // generalInformationService.listAttachmentsForSample(sessionToken,
-    // SampleIdentifier.createFromEntity(samples.get(0)),
-    // true);
-    // assertEquals(1, attachments.size());
-    //
-    // final Attachment a = attachments.get(0);
-    // assertEquals("sampleHistory.txt", a.getFileName());
-    // assertEquals("", a.getTitle());
-    // assertEquals("", a.getDescription());
-    // assertEquals(1, a.getVersion());
-    // assertTrue(a.getRegistrationDate().getTime() > 0);
-    // assertEquals("test", a.getUserId());
-    // assertEquals("franz-josef.elmer@systemsx.ch", a.getUserEmail());
-    // assertNotNull(a.getUserFirstName());
-    // assertNotNull(a.getUserLastName());
-    // assertEquals(
-    // "http://localhost/openbis/index.html?viewMode=SIMPLE#action=DOWNLOAD_ATTACHMENT&file=sampleHistory.txt&version=1&entity=SAMPLE&permId=200811050946559-980",
-    // a.getPermLink());
-    //
-    // final List<Attachment> attachments2 =
-    // generalInformationService.listAttachmentsForSample(sessionToken,
-    // SampleIdentifier.createFromPermId("200811050946559-980"), true);
-    //
-    // assertEquals(1, attachments2.size());
-    //
-    // final Attachment a2 = attachments2.get(0);
-    // assertEquals(a, a2);
-    //
-    // final List<Attachment> attachments3 =
-    // generalInformationService.listAttachmentsForSample(sessionToken,
-    // SampleIdentifier.createFromAugmentedCode("/CISD/3VCP6"), true);
-    //
-    // assertEquals(1, attachments3.size());
-    //
-    // final Attachment a3 = attachments3.get(0);
-    // assertEquals(a, a3);
-    // }
-    //
-    // @Test
-    // public void testListAttachmentsForProjectNoAttachment()
-    // {
-    // final List<Attachment> attachments =
-    // generalInformationService.listAttachmentsForProject(sessionToken,
-    // ProjectIdentifier.createFromAugmentedCode("/CISD/DEFAULT"), true);
-    //
-    // assertEquals(0, attachments.size());
-    // }
-    //
-    // @Test
-    // public void testListAttachmentsForProjectNonExisting()
-    // {
-    // final List<Attachment> attachments =
-    // generalInformationService.listAttachmentsForProject(sessionToken,
-    // ProjectIdentifier.createFromAugmentedCode("/NONE/EXISTENT"), true);
-    //
-    // assertEquals(0, attachments.size());
-    // }
-    //
-    // @Test
-    // public void testListAttachmentsForProjects() throws ParseException
-    // {
-    // final List<Attachment> attachments =
-    // generalInformationService.listAttachmentsForProject(sessionToken,
-    // ProjectIdentifier.createFromPermId("20120814110011738-103"), true);
-    //
-    // assertEquals(1, attachments.size());
-    //
-    // final Attachment a = attachments.get(0);
-    // assertEquals("projectDescription.txt", a.getFileName());
-    // assertEquals("The Project", a.getTitle());
-    // assertEquals("All about it.", a.getDescription());
-    // assertEquals(1, a.getVersion());
-    // final Date date =
-    // new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z")
-    // .parse("2012-01-03 08:27:57.123 +0100");
-    // assertEquals(date, a.getRegistrationDate());
-    // assertEquals("test", a.getUserId());
-    // assertEquals("franz-josef.elmer@systemsx.ch", a.getUserEmail());
-    // assertNotNull(a.getUserFirstName());
-    // assertNotNull(a.getUserLastName());
-    // assertEquals(
-    // "http://localhost/openbis/index.html?viewMode=SIMPLE#action=DOWNLOAD_ATTACHMENT&file=projectDescription.txt&version=1&entity=PROJECT&code=NEMO&space=CISD",
-    // a.getPermLink());
-    // }
+    @Test
+    public void testListAttachmentsForExperimentAllVersions()
+    {
+        final List<Experiment> experiments =
+                generalInformationService.listExperiments(sessionToken,
+                        Collections.singletonList("/CISD/NEMO/EXP1"));
+        assertEquals(1, experiments.size());
+
+        final List<Attachment> attachments =
+                generalInformationService.listAttachmentsForExperiment(sessionToken,
+                        new ExperimentTechIdId(experiments.get(0).getId()), true);
+        assertEquals(4, attachments.size());
+        int version = 4;
+        for (Attachment a : attachments)
+        {
+            assertEquals("exampleExperiments.txt", a.getFileName());
+            assertEquals(version, a.getVersion());
+            assertEquals("", a.getTitle());
+            assertEquals("", a.getDescription());
+            assertTrue(a.getRegistrationDetails().getRegistrationDate().getTime() > 0);
+            assertEquals("test", a.getRegistrationDetails().getUserId());
+            assertEquals("franz-josef.elmer@systemsx.ch", a.getRegistrationDetails().getUserEmail());
+            assertNotNull(a.getRegistrationDetails().getUserFirstName());
+            assertNotNull(a.getRegistrationDetails().getUserLastName());
+            assertEquals("/openbis/attachment-download?sessionID=" + sessionToken
+                    + "&attachmentHolder=EXPERIMENT&id=2&fileName=exampleExperiments.txt&version="
+                    + version, a.getDownloadLink());
+            --version;
+        }
+    }
+
+    @Test
+    public void testListAttachmentsForExperimentLatestVersion() throws ParseException
+    {
+        final List<Experiment> experiments =
+                generalInformationService.listExperiments(sessionToken,
+                        Collections.singletonList("/CISD/NEMO/EXP1"));
+        assertEquals(1, experiments.size());
+
+        final List<Attachment> attachments =
+                generalInformationService.listAttachmentsForExperiment(sessionToken,
+                        new ExperimentPermIdId(experiments.get(0).getPermId()), false);
+        assertEquals(1, attachments.size());
+        final Attachment a = attachments.get(0);
+        assertEquals("exampleExperiments.txt", a.getFileName());
+        assertEquals(4, a.getVersion());
+        assertEquals("", a.getTitle());
+        assertEquals("", a.getDescription());
+        final Date date =
+                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z")
+                        .parse("2008-12-10 13:49:27.901 +0100");
+        assertEquals(date, a.getRegistrationDetails().getRegistrationDate());
+        assertEquals("test", a.getRegistrationDetails().getUserId());
+        assertEquals("franz-josef.elmer@systemsx.ch", a.getRegistrationDetails().getUserEmail());
+        assertNotNull(a.getRegistrationDetails().getUserFirstName());
+        assertNotNull(a.getRegistrationDetails().getUserLastName());
+        assertEquals("/openbis/attachment-download?sessionID=" + sessionToken
+                + "&attachmentHolder=EXPERIMENT&id=2&fileName=exampleExperiments.txt&version=4",
+                a.getDownloadLink());
+
+        final List<Attachment> attachments2 =
+                generalInformationService.listAttachmentsForExperiment(sessionToken,
+                        new ExperimentIdentifierId("/CISD/NEMO/EXP1"), false);
+
+        assertEquals(1, attachments2.size());
+
+        final Attachment a2 = attachments2.get(0);
+        assertEquals(a, a2);
+    }
+
+    @Test
+    public void testListAttachmentsForSample()
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "3VCP6"));
+
+        final List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria);
+        assertEquals(1, samples.size());
+
+        final List<Attachment> attachments =
+                generalInformationService.listAttachmentsForSample(sessionToken,
+                        new SampleTechIdId(samples.get(0).getId()), true);
+        assertEquals(1, attachments.size());
+
+        final Attachment a = attachments.get(0);
+        assertEquals("sampleHistory.txt", a.getFileName());
+        assertEquals("", a.getTitle());
+        assertEquals("", a.getDescription());
+        assertEquals(1, a.getVersion());
+        assertTrue(a.getRegistrationDetails().getRegistrationDate().getTime() > 0);
+        assertEquals("test", a.getRegistrationDetails().getUserId());
+        assertEquals("franz-josef.elmer@systemsx.ch", a.getRegistrationDetails().getUserEmail());
+        assertNotNull(a.getRegistrationDetails().getUserFirstName());
+        assertNotNull(a.getRegistrationDetails().getUserLastName());
+        assertEquals("/openbis/attachment-download?sessionID=" + sessionToken
+                + "&attachmentHolder=SAMPLE&id=987&fileName=sampleHistory.txt&version=1",
+                a.getDownloadLink());
+
+        final List<Attachment> attachments2 =
+                generalInformationService.listAttachmentsForSample(sessionToken,
+                        new SamplePermIdId("200811050946559-980"), true);
+
+        assertEquals(1, attachments2.size());
+
+        final Attachment a2 = attachments2.get(0);
+        assertEquals(a, a2);
+
+        final List<Attachment> attachments3 =
+                generalInformationService.listAttachmentsForSample(sessionToken,
+                        new SampleIdentifierId("/CISD/3VCP6"), true);
+
+        assertEquals(1, attachments3.size());
+
+        final Attachment a3 = attachments3.get(0);
+        assertEquals(a, a3);
+    }
+
+    @Test
+    public void testListAttachmentsForProjectNoAttachment()
+    {
+        final List<Attachment> attachments =
+                generalInformationService.listAttachmentsForProject(sessionToken,
+                        new ProjectIdentifierId("/CISD/DEFAULT"), true);
+
+        assertEquals(0, attachments.size());
+    }
+
+    @Test
+    public void testListAttachmentsForProjectNonExisting()
+    {
+        try
+        {
+            generalInformationService.listAttachmentsForProject(sessionToken,
+                    new ProjectIdentifierId("/NONE/EXISTENT"), true);
+        } catch (UserFailureException ex)
+        {
+            assertEquals("No project found for id '/NONE/EXISTENT'.", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testListAttachmentsForProjects() throws ParseException
+    {
+        final List<Attachment> attachments =
+                generalInformationService.listAttachmentsForProject(sessionToken,
+                        new ProjectPermIdId("20120814110011738-103"), true);
+
+        assertEquals(1, attachments.size());
+
+        final Attachment a = attachments.get(0);
+        assertEquals("projectDescription.txt", a.getFileName());
+        assertEquals("The Project", a.getTitle());
+        assertEquals("All about it.", a.getDescription());
+        assertEquals(1, a.getVersion());
+        final Date date =
+                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z")
+                        .parse("2012-01-03 08:27:57.123 +0100");
+        assertEquals(date, a.getRegistrationDetails().getRegistrationDate());
+        assertEquals("test", a.getRegistrationDetails().getUserId());
+        assertEquals("franz-josef.elmer@systemsx.ch", a.getRegistrationDetails().getUserEmail());
+        assertNotNull(a.getRegistrationDetails().getUserFirstName());
+        assertNotNull(a.getRegistrationDetails().getUserLastName());
+        assertEquals("/openbis/attachment-download?sessionID=" + sessionToken
+                + "&attachmentHolder=PROJECT&id=3&fileName=projectDescription.txt&version=1",
+                a.getDownloadLink());
+    }
 
 }

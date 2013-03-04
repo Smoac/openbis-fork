@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -25,8 +26,10 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentPermIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -38,6 +41,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuil
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.LinkDataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleTypeBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * @author Franz-Josef Elmer
@@ -234,6 +240,85 @@ public class TranslatorTest extends AssertJUnit
         assertEquals(dsLink.getLinkDataSet().getExternalCode(), translated.getExternalDataSetCode());
         assertEquals("http://www.EX_CODE.ch", translated.getExternalDataSetLink());
         assertEquals(edms, translated.getExternalDataManagementSystem());
+    }
+
+    @Test
+    public void testTranslateAttachmentsWithAllVersions()
+    {
+        AttachmentPE a1 = attachment("test.txt", 1);
+        AttachmentPE a2 = attachment("test.txt", 2);
+        ExperimentPE attachmentHolder = new ExperimentPE();
+        attachmentHolder.setId(1234L);
+
+        List<Attachment> attachments =
+                Translator.translateAttachments("st-1", new ExperimentPermIdId("perm1"),
+                        attachmentHolder, Arrays.asList(a1, a2), true);
+
+        assertEquals("[Attachment [fileName=test.txt, version=2, title=Title, "
+                + "description=File:test.txt, version:2, "
+                + "registrationDate=Thu Jan 01 01:00:04 CET 1970, "
+                + "userFirstName=Albert, userLastName=Einstein, "
+                + "userEmail=ae@ae.ch, userId=ae, "
+                + "downloadLink=/openbis/attachment-download?sessionID=st-1&"
+                + "attachmentHolder=EXPERIMENT&id=1234&fileName=test.txt&version=2], "
+                + "Attachment [fileName=test.txt, version=1, title=Title, "
+                + "description=File:test.txt, version:1, "
+                + "registrationDate=Thu Jan 01 01:00:04 CET 1970, "
+                + "userFirstName=Albert, userLastName=Einstein, userEmail=ae@ae.ch, userId=ae, "
+                + "downloadLink=/openbis/attachment-download?sessionID=st-1&"
+                + "attachmentHolder=EXPERIMENT&id=1234&fileName=test.txt&version=1]]",
+                attachments.toString());
+        assertEquals(2, attachments.size());
+    }
+
+    @Test
+    public void testTranslateAttachmentsWithLatestVersions()
+    {
+        AttachmentPE a1 = attachment("test.txt", 1);
+        AttachmentPE a2 = attachment("greetings.txt", 1);
+        AttachmentPE a3 = attachment("greetings.txt", 2);
+        AttachmentPE a4 = attachment("test.txt", 2);
+        AttachmentPE a5 = attachment("test.txt", 3);
+        ExperimentPE attachmentHolder = new ExperimentPE();
+        attachmentHolder.setId(1234L);
+
+        List<Attachment> attachments =
+                Translator.translateAttachments("st-1", new ExperimentPermIdId("perm1"),
+                        attachmentHolder, Arrays.asList(a1, a2, a3, a4, a5), false);
+
+        assertEquals("[Attachment [fileName=greetings.txt, version=2, title=Title, "
+                + "description=File:greetings.txt, version:2, "
+                + "registrationDate=Thu Jan 01 01:00:04 CET 1970, "
+                + "userFirstName=Albert, userLastName=Einstein, "
+                + "userEmail=ae@ae.ch, userId=ae, "
+                + "downloadLink=/openbis/attachment-download?sessionID=st-1&"
+                + "attachmentHolder=EXPERIMENT&id=1234&fileName=greetings.txt&version=2], "
+                + "Attachment [fileName=test.txt, version=3, title=Title, "
+                + "description=File:test.txt, version:3, "
+                + "registrationDate=Thu Jan 01 01:00:04 CET 1970, "
+                + "userFirstName=Albert, userLastName=Einstein, userEmail=ae@ae.ch, userId=ae, "
+                + "downloadLink=/openbis/attachment-download?sessionID=st-1&"
+                + "attachmentHolder=EXPERIMENT&id=1234&fileName=test.txt&version=3]]",
+                attachments.toString());
+        assertEquals(2, attachments.size());
+
+    }
+
+    private AttachmentPE attachment(String fileName, int version)
+    {
+        AttachmentPE attachment = new AttachmentPE();
+        attachment.setFileName(fileName);
+        attachment.setVersion(version);
+        attachment.setTitle("Title");
+        attachment.setDescription("File:" + fileName + ", version:" + version);
+        PersonPE registrator = new PersonPE();
+        registrator.setUserId("ae");
+        registrator.setFirstName("Albert");
+        registrator.setLastName("Einstein");
+        registrator.setEmail("ae@ae.ch");
+        attachment.setRegistrator(registrator);
+        attachment.setRegistrationDate(new Date(4711));
+        return attachment;
     }
 
     private void assertBasicAttributes(
