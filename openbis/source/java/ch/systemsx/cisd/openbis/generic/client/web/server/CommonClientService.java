@@ -90,6 +90,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.FileFormatTy
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.GridCustomFilterProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MatchingEntitiesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MetaprojectProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.PersonsProvider;
@@ -2571,6 +2572,8 @@ public final class CommonClientService extends AbstractClientService implements
     {
         final String sessionToken = getSessionToken();
 
+        IResultSetManager<String> resultSetManager = getResultSetManager();
+        resultSetManager.lockResultSet(updates.getResultSetKey());
         final EntityKind entityKind = updates.getEntityKind();
         final TechId entityId = updates.getEntityId();
         final List<PropertyUpdates> modifiedProperties = updates.getModifiedProperties();

@@ -2334,9 +2334,8 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
      * implementation does nothing.
      */
     protected void applyModifications(BaseEntityModel<TableModelRowWithObject<T>> model,
-            List<IModification> modifications, AsyncCallback<IUpdateResult> callBack)
+            String resultSetKey, List<IModification> modifications, AsyncCallback<IUpdateResult> callBack)
     {
-
     }
 
     private class TableModificationsManager
@@ -2360,12 +2359,12 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                 {
                     @Override
                     public void applyModifications(
-                            BaseEntityModel<TableModelRowWithObject<T>> model,
-                            List<IModification> modifications)
+                            BaseEntityModel<TableModelRowWithObject<T>> model, List<IModification> modifications)
                     {
                         AsyncCallback<IUpdateResult> callBack =
                                 createApplyModificationsCallback(model, modifications);
-                        TypedTableGrid.this.applyModifications(model, modifications, callBack);
+                        TypedTableGrid.this.applyModifications(model, resultSetKeyOrNull,
+                                modifications, callBack);
                     }
                 });
         }

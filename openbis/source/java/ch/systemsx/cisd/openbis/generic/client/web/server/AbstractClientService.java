@@ -152,7 +152,7 @@ public abstract class AbstractClientService implements IClientService,
     }
 
     @SuppressWarnings("unchecked")
-    protected final <K> IResultSetManager<K> getResultSetManager()
+    protected final IResultSetManager<String> getResultSetManager()
     {
         HttpSession httpSession = getHttpSession();
         if (httpSession == null)
@@ -160,7 +160,7 @@ public abstract class AbstractClientService implements IClientService,
             throw new ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException(
                     "Your session has expired, please log in again.");
         }
-        return (IResultSetManager<K>) httpSession
+        return (IResultSetManager<String>) httpSession
                 .getAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
     }
 

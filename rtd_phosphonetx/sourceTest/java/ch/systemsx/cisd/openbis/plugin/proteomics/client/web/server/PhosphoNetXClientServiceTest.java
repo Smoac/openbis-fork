@@ -97,6 +97,11 @@ public class PhosphoNetXClientServiceTest extends AbstractFileSystemTestCase
         public void removeResultSet(K resultSetKey) throws UserFailureException
         {
         }
+
+        @Override
+        public void lockResultSet(K resultSetKey)
+        {
+        }
         
     }
     

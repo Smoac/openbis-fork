@@ -43,4 +43,13 @@ public interface IResultSetManager<K>
      * Remove the data mapped to given <var>resultSetKey</var>.
      */
     public void removeResultSet(final K resultSetKey) throws UserFailureException;
+
+    /**
+     * Locks specified result set. Lock will be released after invocation of
+     * {@link #removeResultSet(Object)} and after reloading of the result set.
+     * {@link #getResultSet(String, IResultSetConfig, IOriginalDataProvider)} waits until lock is
+     * released.
+     */
+    public void lockResultSet(K resultSetKey);
+
 }

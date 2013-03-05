@@ -109,11 +109,13 @@ public abstract class AbstractEntityGrid<E extends IEntityInformationHolderWithP
 
     @Override
     protected void applyModifications(BaseEntityModel<TableModelRowWithObject<E>> model,
-            List<IModification> modifications, AsyncCallback<IUpdateResult> callBack)
+            String resultSetKeyOrNull, List<IModification> modifications,
+            AsyncCallback<IUpdateResult> callBack)
     {
         final EntityKind entityKind = getEntityKindOrNull();
         final TechId entityId = new TechId(model.getBaseObject().getId());
-        final EntityPropertyUpdates updates = new EntityPropertyUpdates(entityKind, entityId);
+        final EntityPropertyUpdates updates =
+                new EntityPropertyUpdates(resultSetKeyOrNull, entityKind, entityId);
         for (IModification modification : modifications)
         {
             String propertyCode =

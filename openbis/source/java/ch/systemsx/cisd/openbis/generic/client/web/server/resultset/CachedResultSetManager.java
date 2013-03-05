@@ -469,6 +469,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     private final Map<K, Future<?>> cache = Collections
             .synchronizedMap(new HashMap<K, Future<?>>());
 
+    private final Set<K> lockedResultSets = Collections.synchronizedSet(new HashSet<K>());
+
     private final ThreadPoolExecutor executor = new NamingThreadPoolExecutor(
             "Background Table Loader").corePoolSize(10).daemonize();
 
@@ -974,6 +976,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
     private <T> void addToCache(K dataKey, Future<TableData<T>> tableData)
     {
+        unlockResultSet(dataKey);
         cache.put(dataKey, tableData);
         debug(cache.size() + " keys in cache: " + cache.keySet());
     }
@@ -988,6 +991,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
     private <T> TableData<T> tryGetCachedTableData(K dataKey)
     {
+        waitUntilUnlocked(dataKey);
         Future<TableData<T>> tableData = cast(cache.get(dataKey));
         if (tableData == null)
         {
@@ -1024,6 +1028,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     @Override
     public final void removeResultSet(final K resultSetKey)
     {
+        unlockResultSet(resultSetKey);
         assert resultSetKey != null : "Unspecified data key holder.";
         if (cache.remove(resultSetKey) != null)
         {
@@ -1032,6 +1037,31 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         {
             operationLog.warn(String.format("No result set for key '%s' could be found.",
                     resultSetKey));
+        }
+    }
+
+    @Override
+    public void lockResultSet(K resultSetKey)
+    {
+        lockedResultSets.add(resultSetKey);
+    }
+
+    private void unlockResultSet(K resultSetKey)
+    {
+        lockedResultSets.remove(resultSetKey);
+    }
+
+    private void waitUntilUnlocked(K resultSetKey)
+    {
+        while (lockedResultSets.contains(resultSetKey))
+        {
+            try
+            {
+                Thread.sleep(100);
+            } catch (Exception ex)
+            {
+                operationLog.error("Interrupted while waiting on unlocking " + resultSetKey, ex);
+            }
         }
     }
 

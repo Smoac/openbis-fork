@@ -40,14 +40,27 @@ public class EntityPropertyUpdates implements Serializable
 
     private List<PropertyUpdates> modifiedProperties = new ArrayList<PropertyUpdates>();
 
+    private String resultSetKey;
+
     public EntityPropertyUpdates()
     {
     }
 
-    public EntityPropertyUpdates(EntityKind entityKind, TechId entityId)
+    public EntityPropertyUpdates(String resultSetKey, EntityKind entityKind, TechId entityId)
     {
+        this.resultSetKey = resultSetKey;
         this.entityKind = entityKind;
         this.entityId = entityId;
+    }
+
+    public String getResultSetKey()
+    {
+        return resultSetKey;
+    }
+
+    public void setResultSetKey(String resultSetKey)
+    {
+        this.resultSetKey = resultSetKey;
     }
 
     public EntityKind getEntityKind()
