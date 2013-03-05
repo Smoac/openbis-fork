@@ -14,6 +14,8 @@ var _openbisInternal = function(openbisUrl){
 	this.init(openbisUrl);
 }
 
+$.extend(_openbisInternal.prototype, _openbisInternalGeneric.prototype);
+
 _openbisInternal.prototype.init = function(openbisUrl){
 	_openbisInternalGeneric.prototype.init.call(this, openbisUrl);
 	this.screeningUrl = openbisUrl + "/rmi-screening-api-v1.json"
@@ -23,10 +25,7 @@ _openbisInternal.prototype.getScreeningDataStoreApiUrlForDataStoreUrl = function
 	return dataStoreUrl + "/rmi-datastore-server-screening-api-v1.json"
 }
 
-$.extend(_openbisInternal.prototype, _openbisIternalGeneric.prototype);
-
 var _openbisGeneric = openbis;
-
 
 /**
  * =========================
@@ -41,8 +40,8 @@ var _openbisGeneric = openbis;
  * 
  */
 
-var openbis = function(openbisUrl, dssUrl){
-	this._internal = _openbisInternal(openbisUrl, dssUrl);
+var openbis = function(openbisUrl){
+	this._internal = new _openbisInternal(openbisUrl);
 }
 
 $.extend(openbis.prototype, _openbisGeneric.prototype);
