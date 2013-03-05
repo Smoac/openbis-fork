@@ -124,7 +124,7 @@ public class DatasetImageOverviewServlet extends AbstractDatasetDownloadServlet
             writeResponseContent(responseStream, response);
         } catch (Exception e)
         {
-            e.printStackTrace();
+            operationLog.error("", e);
             printErrorResponse(response, "Invalid Request");
         }
     }

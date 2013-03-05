@@ -252,7 +252,7 @@ public abstract class AbstractTabularDataGraphServlet extends AbstractDatasetDow
 
         } catch (Exception e)
         {
-            e.printStackTrace();
+            operationLog.error("", e);
             printErrorResponse(response, "Invalid Request");
         }
     }

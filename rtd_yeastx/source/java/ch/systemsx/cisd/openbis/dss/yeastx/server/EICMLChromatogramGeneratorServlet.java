@@ -217,8 +217,8 @@ public class EICMLChromatogramGeneratorServlet extends AbstractDatasetDownloadSe
 
         } catch (Exception e)
         {
+            operationLog.error("", e);
             printErrorResponse(response, "Invalid Request");
-            e.printStackTrace();
         }
     }
 
