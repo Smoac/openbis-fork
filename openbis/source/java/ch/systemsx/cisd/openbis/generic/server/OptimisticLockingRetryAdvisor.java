@@ -80,8 +80,6 @@ public class OptimisticLockingRetryAdvisor extends DefaultPointcutAdvisor
             {
                 try
                 {
-                    // System.out.println("try " + (i + 1) + ". time: "
-                    // + invocation.getMethod().getName() + "@" + invocation.getThis());
                     if (invocation instanceof ReflectiveMethodInvocation)
                     {
                         return ((ReflectiveMethodInvocation) invocation).invocableClone().proceed();
