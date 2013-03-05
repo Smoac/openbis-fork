@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
+import org.springframework.aop.framework.ReflectiveMethodInvocation;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.RootClassFilter;
 import org.springframework.core.Ordered;
@@ -81,7 +82,13 @@ public class OptimisticLockingRetryAdvisor extends DefaultPointcutAdvisor
                 {
                     // System.out.println("try " + (i + 1) + ". time: "
                     // + invocation.getMethod().getName() + "@" + invocation.getThis());
-                    return invocation.proceed();
+                    if (invocation instanceof ReflectiveMethodInvocation)
+                    {
+                        return ((ReflectiveMethodInvocation) invocation).invocableClone().proceed();
+                    } else
+                    {
+                        return invocation.proceed();
+                    }
                 } catch (Exception ex)
                 {
                     latestException = ex;

@@ -308,6 +308,11 @@
 
     <bean class="ch.systemsx.cisd.openbis.common.spring.LogAdvisor" />
     <bean class="ch.systemsx.cisd.openbis.common.spring.MarkerLogApplicationListener"/>
+    
+    <!--
+    	// Optimistic Lock Failure Retrying
+    -->
+    <bean class="ch.systemsx.cisd.openbis.generic.server.OptimisticLockingRetryAdvisor" />
 
         
     <!--
