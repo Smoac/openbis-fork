@@ -27,8 +27,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.PluginServletConfig;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ConfigParametersTest extends AssertJUnit
@@ -37,7 +35,7 @@ public class ConfigParametersTest extends AssertJUnit
     public void testMinimumConfig()
     {
         ConfigParameters configParameters = new ConfigParameters(createMandatoryProperties());
-        
+
         assertEquals("store", configParameters.getStorePath().getPath());
         assertEquals(4711, configParameters.getPort());
         assertEquals("my-url", configParameters.getServerURL());
@@ -51,11 +49,11 @@ public class ConfigParametersTest extends AssertJUnit
                 configParameters.getAuthCacheCleanupTimerPeriodMins());
         assertEquals(ConfigParameters.DEFAULT_AUTH_CACHE_EXPIRATION_TIME_MINS,
                 configParameters.getAuthCacheExpirationTimeMins());
-        assertEquals(0, configParameters.getPluginServlets().size());
+        assertEquals(1, configParameters.getPluginServlets().size());
         assertEquals(ConfigParameters.WEBSTART_JAR_PATH_DEFAULT,
                 configParameters.getWebstartJarPath());
     }
-    
+
     @Test
     public void testPluginServices()
     {
@@ -67,16 +65,16 @@ public class ConfigParametersTest extends AssertJUnit
         properties.setProperty("s2." + ConfigParameters.PLUGIN_SERVICE_PATH_KEY, "path2");
         properties.setProperty("s2.a", "alpha");
         ConfigParameters configParameters = new ConfigParameters(properties);
-        
+
         List<PluginServletConfig> pluginServlets = configParameters.getPluginServlets();
-        assertEquals("class1", pluginServlets.get(0).getServletClass());
-        assertEquals("path1", pluginServlets.get(0).getServletPath());
-        assertEquals("class2", pluginServlets.get(1).getServletClass());
-        assertEquals("path2", pluginServlets.get(1).getServletPath());
-        assertTrue(pluginServlets.get(1).getServletProperties().containsKey("a"));
-        assertEquals(2, pluginServlets.size());
+        assertEquals("class1", pluginServlets.get(1).getServletClass());
+        assertEquals("path1", pluginServlets.get(1).getServletPath());
+        assertEquals("class2", pluginServlets.get(2).getServletClass());
+        assertEquals("path2", pluginServlets.get(2).getServletPath());
+        assertTrue(pluginServlets.get(2).getServletProperties().containsKey("a"));
+        assertEquals(3, pluginServlets.size());
     }
-    
+
     @Test
     public void testPluginServicesWithDuplicatedPath()
     {
@@ -97,21 +95,22 @@ public class ConfigParametersTest extends AssertJUnit
                     + "configured for the path 'path1'.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testAddServletProperties()
     {
         ConfigParameters configParameters = new ConfigParameters(createMandatoryProperties());
-        
+
         Properties properties = new Properties();
         properties.setProperty(ConfigParameters.PLUGIN_SERVICE_CLASS_KEY, "class1");
         properties.setProperty(ConfigParameters.PLUGIN_SERVICE_PATH_KEY, "path1");
         configParameters.addServletProperties("my-servlet", properties);
 
         List<PluginServletConfig> pluginServlets = configParameters.getPluginServlets();
-        assertEquals("class1", pluginServlets.get(0).getServletClass());
-        assertEquals("path1", pluginServlets.get(0).getServletPath());
-        assertEquals(1, pluginServlets.size());
+        // System-injected servlets come first. Of these, there are one.
+        assertEquals("class1", pluginServlets.get(1).getServletClass());
+        assertEquals("path1", pluginServlets.get(1).getServletPath());
+        assertEquals(2, pluginServlets.size());
     }
 
     @Test
@@ -136,7 +135,7 @@ public class ConfigParametersTest extends AssertJUnit
                     + "configured for the path 'path1'.", ex.getMessage());
         }
     }
-    
+
     private Properties createMandatoryProperties()
     {
         Properties properties = new Properties();
@@ -150,6 +149,5 @@ public class ConfigParametersTest extends AssertJUnit
         properties.setProperty(ConfigParameters.KEYSTORE_KEY_PASSWORD_KEY, "key-store-key-password");
         return properties;
     }
-    
-    
+
 }
