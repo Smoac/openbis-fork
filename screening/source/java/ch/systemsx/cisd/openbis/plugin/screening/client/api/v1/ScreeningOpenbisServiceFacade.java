@@ -878,7 +878,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     };
 
-        return dssMultiplexer.process(featureDatasets, handler);
+        return dssMultiplexer.process(featureDatasets, handler).withoutDuplicates();
     }
 
     /**
@@ -946,8 +946,9 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     };
 
-        return dssMultiplexer.process(identifiersIncludingContained == null ? featureDatasets
-                : identifiersIncludingContained, handler);
+        return dssMultiplexer.process(
+                identifiersIncludingContained == null ? featureDatasets
+                        : identifiersIncludingContained, handler).withoutDuplicates();
     }
 
     private SearchSubCriteria getContainerSearchCriteria(String containerCode)
@@ -1035,7 +1036,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     };
 
-        return dssMultiplexer.process(featureDatasets, handler);
+        return dssMultiplexer.process(featureDatasets, handler).withDuplicates();
     }
 
     @Override
@@ -1089,7 +1090,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     };
 
-        return dssMultiplexer.process(datasetWellReferences, handler);
+        return dssMultiplexer.process(datasetWellReferences, handler).withDuplicates();
     }
 
     private boolean isEmpty(final List<String> featureCodeOrNull)
@@ -1747,7 +1748,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             String channel, IImageTransformerFactory transformerFactoryOrNull)
     {
         Map<String, List<IDatasetIdentifier>> map =
-                DssServiceRpcScreeningMultiplexer.getReferencesPerDss(dataSetIdentifiers);
+                DssServiceRpcScreeningMultiplexer.getReferencesPerDataStore(dataSetIdentifiers);
         Set<Entry<String, List<IDatasetIdentifier>>> entrySet = map.entrySet();
         for (Entry<String, List<IDatasetIdentifier>> entry : entrySet)
         {
@@ -1764,7 +1765,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             List<IDatasetIdentifier> dataSetIdentifiers, String channel)
     {
         Map<String, List<IDatasetIdentifier>> map =
-                DssServiceRpcScreeningMultiplexer.getReferencesPerDss(dataSetIdentifiers);
+                DssServiceRpcScreeningMultiplexer.getReferencesPerDataStore(dataSetIdentifiers);
         Set<Entry<String, List<IDatasetIdentifier>>> entrySet = map.entrySet();
         if (entrySet.size() != 1)
         {
@@ -1833,7 +1834,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     };
 
-        return dssMultiplexer.process(imageDatasets, handler);
+        return dssMultiplexer.process(imageDatasets, handler).withDuplicates();
     }
 
     @Override
@@ -2104,7 +2105,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 new ArrayList<IDatasetIdentifier>(dataSetIdentifiers.size());
         simplerList.addAll(dataSetIdentifiers);
         Map<String, List<IDatasetIdentifier>> map =
-                DssServiceRpcScreeningMultiplexer.getReferencesPerDss(simplerList);
+                DssServiceRpcScreeningMultiplexer.getReferencesPerDataStore(simplerList);
         Set<Entry<String, List<IDatasetIdentifier>>> entrySet = map.entrySet();
         if (entrySet.size() != 1)
         {

@@ -100,7 +100,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = DssServiceRpcScreeningHolder.class)
-@Test(enabled = false)
 public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCase
 {
     private static final String MY_DATA_SET_TYPE = "my-data-set";

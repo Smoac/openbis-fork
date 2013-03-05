@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.screening.shared.api.internal;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -49,73 +50,22 @@ public class DssServiceRpcScreeningMultiplexer implements IDssServiceRpcScreenin
     }
 
     @Override
-    public <R extends IDatasetIdentifier, V> List<V> process(final List<? extends R> references,
-            final IDssServiceRpcScreeningBatchHandler<R, V> handler)
+    public <R extends IDatasetIdentifier, V> DssServiceRpcScreeningBatchResults<V> process(
+            final List<? extends R> references,
+            final IDssServiceRpcScreeningBatchHandler<R, V> batchHandler)
     {
-        Map<String, List<R>> referencesPerDss = getReferencesPerDss(cast(references));
-        List<ITerminableFuture<List<V>>> dssFutures = new ArrayList<ITerminableFuture<List<V>>>();
-        final long callMillis = System.currentTimeMillis();
+        Map<String, List<R>> referencesPerDataStore = getReferencesPerDataStore(cast(references));
 
-        for (Entry<String, List<R>> entry : referencesPerDss.entrySet())
-        {
-            final String dssUrl = entry.getKey();
-            final List<R> referencesForDss = entry.getValue();
+        Map<String, ITerminableFuture<List<V>>> futuresPerDataStore =
+                submitReferencesToDataStores(referencesPerDataStore, batchHandler);
 
-            ITerminableFuture<List<V>> dssFuture =
-                    ConcurrencyUtilities.submit(executor, new INamedCallable<List<V>>()
-                        {
-                            @Override
-                            public List<V> call(IStoppableExecutor<List<V>> stoppableExecutor)
-                                    throws Exception
-                            {
-                                final DssServiceRpcScreeningHolder dssServiceHolder =
-                                        dssServiceFactory.createDssService(dssUrl);
-                                return handler.handle(dssServiceHolder, referencesForDss);
-                            }
-
-                            @Override
-                            public String getCallableName()
-                            {
-                                return dssUrl + "(" + callMillis + ")";
-                            }
-                        });
-            dssFutures.add(dssFuture);
-        }
-
-        List<V> allResults = new ArrayList<V>();
-
-        try
-        {
-            for (ITerminableFuture<List<V>> dssFuture : dssFutures)
-            {
-                List<V> dssResults = ConcurrencyUtilities.tryGetResult(dssFuture, -1);
-                if (dssResults != null)
-                {
-                    allResults.addAll(dssResults);
-                }
-            }
-        } catch (RuntimeException e)
-        {
-            for (ITerminableFuture<List<V>> dssFuture : dssFutures)
-            {
-                dssFuture.cancel(true);
-            }
-            throw e;
-        }
-
-        return allResults;
+        return gatherResultsFromDataStores(futuresPerDataStore);
     }
 
-    @SuppressWarnings("unchecked")
-    private <R extends IDatasetIdentifier> List<R> cast(List<? extends R> references)
+    public static <R extends IDatasetIdentifier> Map<String, List<R>> getReferencesPerDataStore(
+            final List<R> references)
     {
-        return (List<R>) references;
-    }
-
-    public static <R extends IDatasetIdentifier> Map<String, List<R>> getReferencesPerDss(
-            List<R> references)
-    {
-        HashMap<String, List<R>> referencesPerDss = new HashMap<String, List<R>>();
+        HashMap<String, List<R>> referencesPerDataStore = new HashMap<String, List<R>>();
 
         if (references != null)
         {
@@ -123,22 +73,97 @@ public class DssServiceRpcScreeningMultiplexer implements IDssServiceRpcScreenin
             {
                 if (reference != null)
                 {
-                    String url = reference.getDatastoreServerUrl();
-                    if (url != null)
+                    String dataStoreUrl = reference.getDatastoreServerUrl();
+                    if (dataStoreUrl != null)
                     {
-                        List<R> list = referencesPerDss.get(url);
-                        if (list == null)
+                        List<R> dataStoreReferences = referencesPerDataStore.get(dataStoreUrl);
+                        if (dataStoreReferences == null)
                         {
-                            list = new ArrayList<R>();
-                            referencesPerDss.put(url, list);
+                            dataStoreReferences = new ArrayList<R>();
+                            referencesPerDataStore.put(dataStoreUrl, dataStoreReferences);
                         }
-                        list.add(reference);
+                        dataStoreReferences.add(reference);
                     }
                 }
             }
         }
 
-        return referencesPerDss;
+        return referencesPerDataStore;
+    }
+
+    private <R extends IDatasetIdentifier, V> Map<String, ITerminableFuture<List<V>>> submitReferencesToDataStores(
+            final Map<String, List<R>> referencesPerDataStore,
+            final IDssServiceRpcScreeningBatchHandler<R, V> batchHandler)
+    {
+        Map<String, ITerminableFuture<List<V>>> futuresPerDataStore =
+                new LinkedHashMap<String, ITerminableFuture<List<V>>>();
+        final long submitTime = System.currentTimeMillis();
+
+        for (Entry<String, List<R>> referencePerDataStore : referencesPerDataStore.entrySet())
+        {
+            final String dataStoreUrl = referencePerDataStore.getKey();
+            final List<R> dataStoreReferences = referencePerDataStore.getValue();
+
+            ITerminableFuture<List<V>> dataStoreFuture =
+                    ConcurrencyUtilities.submit(executor, new INamedCallable<List<V>>()
+                        {
+                            @Override
+                            public List<V> call(IStoppableExecutor<List<V>> stoppableExecutor)
+                                    throws Exception
+                            {
+                                final DssServiceRpcScreeningHolder dataStoreServiceHolder =
+                                        dssServiceFactory.createDssService(dataStoreUrl);
+                                return batchHandler.handle(dataStoreServiceHolder,
+                                        dataStoreReferences);
+                            }
+
+                            @Override
+                            public String getCallableName()
+                            {
+                                return dataStoreUrl + "(" + submitTime + ")";
+                            }
+                        });
+            futuresPerDataStore.put(dataStoreUrl, dataStoreFuture);
+        }
+
+        return futuresPerDataStore;
+    }
+
+    private <V> DssServiceRpcScreeningBatchResults<V> gatherResultsFromDataStores(
+            final Map<String, ITerminableFuture<List<V>>> futuresPerDataStore)
+    {
+        DssServiceRpcScreeningBatchResults<V> results = new DssServiceRpcScreeningBatchResults<V>();
+
+        try
+        {
+            for (Map.Entry<String, ITerminableFuture<List<V>>> futurePerDataStore : futuresPerDataStore
+                    .entrySet())
+            {
+                String dataStoreUrl = futurePerDataStore.getKey();
+                ITerminableFuture<List<V>> dataStoreFuture = futurePerDataStore.getValue();
+
+                List<V> dataStoreResults = ConcurrencyUtilities.tryGetResult(dataStoreFuture, -1);
+                if (dataStoreResults != null)
+                {
+                    results.addDataStoreResults(dataStoreUrl, dataStoreResults);
+                }
+            }
+        } catch (RuntimeException e)
+        {
+            for (ITerminableFuture<List<V>> dataStoreFuture : futuresPerDataStore.values())
+            {
+                dataStoreFuture.cancel(true);
+            }
+            throw e;
+        }
+
+        return results;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <R extends IDatasetIdentifier> List<R> cast(List<? extends R> references)
+    {
+        return (List<R>) references;
     }
 
 }

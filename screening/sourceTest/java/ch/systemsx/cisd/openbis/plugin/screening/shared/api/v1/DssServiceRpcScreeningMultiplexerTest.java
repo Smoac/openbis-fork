@@ -216,7 +216,7 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
     @Test
     public void testWithNullReferenceLists()
     {
-        List<String> results = multiplexer.process(null, batchHandler);
+        List<String> results = multiplexer.process(null, batchHandler).withDuplicates();
         assertTrue(results.isEmpty());
     }
 
@@ -224,7 +224,8 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
     public void testWithEmptyReferenceLists()
     {
         List<String> results =
-                multiplexer.process(new ArrayList<IDatasetIdentifier>(), batchHandler);
+                multiplexer.process(new ArrayList<IDatasetIdentifier>(), batchHandler)
+                        .withDuplicates();
         assertTrue(results.isEmpty());
     }
 
@@ -330,7 +331,7 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
                 }
             });
 
-        return multiplexer.process(allDatasets, batchHandler);
+        return multiplexer.process(allDatasets, batchHandler).withDuplicates();
     }
 
 }
