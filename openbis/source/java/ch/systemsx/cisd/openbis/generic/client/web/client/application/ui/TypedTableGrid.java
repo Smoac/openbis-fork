@@ -1858,19 +1858,19 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         debug("saving new cache key");
     }
 
-    private void disposeCache()
+    protected void disposeCache()
     {
-        if (resultSetKeyOrNull != null)
-        {
-            removeResultSet(resultSetKeyOrNull);
-            resultSetKeyOrNull = null;
-        }
+        removeResultSet(resultSetKeyOrNull);
+        resultSetKeyOrNull = null;
     }
 
-    private void removeResultSet(String resultSetKey)
+    protected void removeResultSet(String resultSetKey)
     {
-        viewContext.getService().removeResultSet(resultSetKey,
-                new VoidAsyncCallback<Void>(viewContext));
+        if (resultSetKey != null)
+        {
+            viewContext.getService().removeResultSet(resultSetKey,
+                    new VoidAsyncCallback<Void>(viewContext));
+        }
     }
 
     /**
@@ -2334,7 +2334,8 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
      * implementation does nothing.
      */
     protected void applyModifications(BaseEntityModel<TableModelRowWithObject<T>> model,
-            String resultSetKey, List<IModification> modifications, AsyncCallback<IUpdateResult> callBack)
+            String resultSetKey, List<IModification> modifications,
+            AsyncCallback<IUpdateResult> callBack)
     {
     }
 
@@ -2359,7 +2360,8 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                 {
                     @Override
                     public void applyModifications(
-                            BaseEntityModel<TableModelRowWithObject<T>> model, List<IModification> modifications)
+                            BaseEntityModel<TableModelRowWithObject<T>> model,
+                            List<IModification> modifications)
                     {
                         AsyncCallback<IUpdateResult> callBack =
                                 createApplyModificationsCallback(model, modifications);

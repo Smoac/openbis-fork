@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.en
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -157,6 +158,8 @@ public final class DetailedSearchFieldsSelectionWidget extends
         @Override
         protected void process(final TypedTableResultSet<PropertyType> result)
         {
+            ResultSet<TableModelRowWithObject<PropertyType>> resultSet = result.getResultSet();
+            resultSetKey = resultSet.getResultSetKey();
             List<TableModelRowWithObject<PropertyType>> rows =
                     result.getResultSet().getList().extractOriginalObjects();
             propertyTypes = new ArrayList<PropertyType>();
@@ -181,6 +184,7 @@ public final class DetailedSearchFieldsSelectionWidget extends
             setValue(findAnyFieldItem(items));
 
             dataLoaded = true;
+            removeResultSetFromCache();
         }
     }
 

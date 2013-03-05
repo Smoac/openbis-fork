@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.P
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -103,10 +104,12 @@ public final class PropertyTypeSelectionWidget extends
         @Override
         protected void process(final TypedTableResultSet<PropertyType> result)
         {
+            ResultSet<TableModelRowWithObject<PropertyType>> resultSet = result.getResultSet();
+            resultSetKey = resultSet.getResultSetKey();
             final ListStore<PropertyTypeComboModel> propertyTypeStore = getStore();
             propertyTypeStore.removeAll();
             List<TableModelRowWithObject<PropertyType>> rows =
-                    result.getResultSet().getList().extractOriginalObjects();
+                    resultSet.getList().extractOriginalObjects();
             ArrayList<PropertyType> types = new ArrayList<PropertyType>();
             for (TableModelRowWithObject<PropertyType> row : rows)
             {
@@ -123,6 +126,7 @@ public final class PropertyTypeSelectionWidget extends
                 setReadOnly(true);
             }
             applyEmptyText();
+            removeResultSetFromCache();
         }
     }
 

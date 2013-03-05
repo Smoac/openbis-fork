@@ -118,7 +118,8 @@ public final class ProjectSelectionWidget extends
         return selected instanceof Project ? (Project) selected : null;
     }
 
-    private final class ListProjectsCallback extends AbstractAsyncCallback<TypedTableResultSet<Project>>
+    private final class ListProjectsCallback extends
+            AbstractAsyncCallback<TypedTableResultSet<Project>>
     {
         ListProjectsCallback(final IViewContext<?> viewContext)
         {
@@ -128,9 +129,11 @@ public final class ProjectSelectionWidget extends
         @Override
         protected void process(final TypedTableResultSet<Project> result)
         {
+            resultSetKey = result.getResultSet().getResultSetKey();
             final ListStore<ProjectComboModel> projectStore = getStore();
             projectStore.removeAll();
-            projectStore.add(convertItems(result.getResultSet().getList().extractOriginalObjects()));
+            projectStore
+                    .add(convertItems(result.getResultSet().getList().extractOriginalObjects()));
             if (projectStore.getCount() > 0)
             {
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, CHOOSE_SUFFIX));
@@ -143,6 +146,7 @@ public final class ProjectSelectionWidget extends
             applyEmptyText();
             dataLoaded = true;
             selectProjectAndUpdateOriginal(initialProjectIdentifierOrNull);
+            removeResultSetFromCache();
         }
 
     }
@@ -184,15 +188,15 @@ public final class ProjectSelectionWidget extends
     @Override
     protected void loadData(AbstractAsyncCallback<List<TableModelRowWithObject<Project>>> callback)
     {
-        DefaultResultSetConfig<String, TableModelRowWithObject<Project>> config = DefaultResultSetConfig.createFetchAll();
+        DefaultResultSetConfig<String, TableModelRowWithObject<Project>> config =
+                DefaultResultSetConfig.createFetchAll();
         viewContext.getCommonService().listProjects(config, new ListProjectsCallback(viewContext));
         callback.ignore();
     }
 
     public void trySelectByIdentifier(String projectIdentifier)
     {
-        GWTUtils
-                .setSelectedItem(this, ModelDataPropertyNames.PROJECT_IDENTIFIER, projectIdentifier);
+        GWTUtils.setSelectedItem(this, ModelDataPropertyNames.PROJECT_IDENTIFIER, projectIdentifier);
     }
 
     @Override

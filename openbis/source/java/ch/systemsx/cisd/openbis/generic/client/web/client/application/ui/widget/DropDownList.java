@@ -227,6 +227,11 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
     @Override
     public void dispose()
     {
+        removeResultSetFromCache();
+    }
+
+    protected void removeResultSetFromCache()
+    {
         if (resultSetKey != null && viewContextOrNull != null)
         {
             viewContextOrNull.getCommonService().removeResultSet(resultSetKey,

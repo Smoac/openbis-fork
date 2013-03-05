@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.widget.Component;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -77,6 +78,11 @@ final class QuerySectionPanel extends DisposableTabContent
                 @Override
                 public void dispose()
                 {
+                    IDatabaseModificationObserver mobserver = viewer.getModificationObserver();
+                    if (mobserver instanceof IDisposableComponent)
+                    {
+                        ((IDisposableComponent) mobserver).dispose();
+                    }
                 }
 
                 @Override

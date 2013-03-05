@@ -35,6 +35,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ProcessingDisplayCallback;
@@ -42,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
@@ -131,8 +133,12 @@ public class ExperimentViewer extends GenericExperimentViewer
     private AsyncCallback<List<DatastoreServiceDescription>> createCallback(
             final ContentPanel contentPanel, TypedTableResultSet<AbstractExternalData> result)
     {
+        ResultSet<TableModelRowWithObject<AbstractExternalData>> resultSet = result.getResultSet();
+        String resultSetKey = resultSet.getResultSetKey();
+        viewContext.getCommonService().removeResultSet(resultSetKey,
+                new VoidAsyncCallback<Void>(viewContext));
         final List<String> dataSetCodes = new ArrayList<String>();
-        for (GridRowModel<TableModelRowWithObject<AbstractExternalData>> gridRowModel : result.getResultSet().getList())
+        for (GridRowModel<TableModelRowWithObject<AbstractExternalData>> gridRowModel : resultSet.getList())
         {
             dataSetCodes.add(gridRowModel.getOriginalObject().getObjectOrNull().getCode());
         }

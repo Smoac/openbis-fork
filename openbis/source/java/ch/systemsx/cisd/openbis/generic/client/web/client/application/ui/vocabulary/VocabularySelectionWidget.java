@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -105,14 +106,18 @@ public class VocabularySelectionWidget extends DropDownList<BaseModelData, Vocab
                         @Override
                         public void onSuccess(TypedTableResultSet<Vocabulary> result)
                         {
+                            ResultSet<TableModelRowWithObject<Vocabulary>> resultSet =
+                                    result.getResultSet();
+                            resultSetKey = resultSet.getResultSetKey();
                             List<TableModelRowWithObject<Vocabulary>> rows =
-                                    result.getResultSet().getList().extractOriginalObjects();
+                                    resultSet.getList().extractOriginalObjects();
                             List<Vocabulary> vocabularies = new ArrayList<Vocabulary>();
                             for (TableModelRowWithObject<Vocabulary> row : rows)
                             {
                                 vocabularies.add(row.getObjectOrNull());
                             }
                             callback.onSuccess(vocabularies);
+                            removeResultSetFromCache();
                         }
                     });
     }

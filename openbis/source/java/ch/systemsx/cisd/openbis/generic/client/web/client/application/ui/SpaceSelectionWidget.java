@@ -175,6 +175,7 @@ public class SpaceSelectionWidget extends DropDownList<SpaceModel, Space>
                         viewContext.getMessage(Dict.GROUPS)));
                 setReadOnly(true);
             }
+            removeResultSetFromCache();
         }
 
         int getSpaceGroupIndex(ListStore<SpaceModel> spaceStore)

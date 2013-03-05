@@ -1033,10 +1033,6 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         if (cache.remove(resultSetKey) != null)
         {
             debug(String.format("Result set for key '%s' has been removed.", resultSetKey));
-        } else
-        {
-            operationLog.warn(String.format("No result set for key '%s' could be found.",
-                    resultSetKey));
         }
     }
 

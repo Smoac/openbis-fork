@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -78,7 +79,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
 /**
  * @author Franz-Josef Elmer
  */
-public class QueryEditor extends Dialog
+public class QueryEditor extends Dialog implements IDisposableComponent
 {
     public static final String ID = Constants.QUERY_ID_PREFIX + "_query_editor";
 
@@ -196,6 +197,8 @@ public class QueryEditor extends Dialog
 
     private final QueryDatabaseSelectionWidget queryDatabaseSelectionWidget;
 
+    private IDisposableComponent reportAsDisposable;
+
     // entity type selection widgets (not more than one will be shown at the same time)
 
     private MaterialTypeSelectionWidget materialTypeField;
@@ -277,6 +280,21 @@ public class QueryEditor extends Dialog
 
         setPosition(5, 70);
         setWidth(parentWidth);
+    }
+
+    @Override
+    public Component getComponent()
+    {
+        return this;
+    }
+
+    @Override
+    public void dispose()
+    {
+        if (reportAsDisposable != null)
+        {
+            reportAsDisposable.dispose();
+        }
     }
 
     private void createEntityTypeFields()
@@ -484,11 +502,13 @@ public class QueryEditor extends Dialog
         return testButton;
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[0];
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
     }
@@ -571,7 +591,9 @@ public class QueryEditor extends Dialog
                 public void execute(final IDisposableComponent reportComponent)
                 {
                     removeAll();
+                    dispose();
                     add(reportComponent.getComponent());
+                    reportAsDisposable = reportComponent;
                     if (getHeight() < parentHeight)
                     {
                         setHeight(parentHeight);

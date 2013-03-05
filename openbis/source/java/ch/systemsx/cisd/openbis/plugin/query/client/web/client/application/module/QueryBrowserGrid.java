@@ -109,11 +109,13 @@ public class QueryBrowserGrid extends TypedTableGrid<QueryExpression>
             IViewContext<IQueryClientServiceAsync> viewContext)
     {
         QueryBrowserGrid browser = new QueryBrowserGrid(viewContext);
-        return new DatabaseModificationAwareComponent(browser, browser);
+        return new DatabaseModificationAwareComponent(browser, browser.asDisposableWithoutToolbar());
     }
 
     @SuppressWarnings("hiding")
     private final IViewContext<IQueryClientServiceAsync> viewContext;
+
+    private QueryEditor queryEditor;
 
     QueryBrowserGrid(IViewContext<IQueryClientServiceAsync> viewContext)
     {
@@ -121,6 +123,16 @@ public class QueryBrowserGrid extends TypedTableGrid<QueryExpression>
                 DisplayTypeIDGenerator.QUERY_EDITOR);
         this.viewContext = viewContext;
         extendBottomToolbar();
+    }
+
+    @Override
+    protected void disposeCache()
+    {
+        if (queryEditor != null)
+        {
+            queryEditor.dispose();
+        }
+        super.disposeCache();
     }
 
     private void extendBottomToolbar()
@@ -133,8 +145,11 @@ public class QueryBrowserGrid extends TypedTableGrid<QueryExpression>
                                 @Override
                                 public void componentSelected(ButtonEvent ce)
                                 {
-                                    new QueryEditor(viewContext, null, createRefreshGridAction(),
-                                            getWidth(), getHeight()).show();
+                                    queryEditor =
+                                            new QueryEditor(viewContext, null,
+                                                    createRefreshGridAction(), getWidth(),
+                                                    getHeight());
+                                    queryEditor.show();
                                 }
 
                             });
@@ -152,15 +167,19 @@ public class QueryBrowserGrid extends TypedTableGrid<QueryExpression>
                                 {
                                     QueryExpression query =
                                             selectedItem.getBaseObject().getObjectOrNull();
-                                    new QueryEditor(viewContext, query, createRefreshGridAction(),
-                                            getWidth(), getHeight()).show();
+                                    queryEditor =
+                                            new QueryEditor(viewContext, query,
+                                                    createRefreshGridAction(), getWidth(),
+                                                    getHeight());
+                                    queryEditor.show();
                                 }
 
                             });
         addButton(editButton);
         Button deleteButton =
                 createSelectedItemsButton(
-                        viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_DELETE),
+                        viewContext
+                                .getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_DELETE),
                         new AbstractCreateDialogListener()
                             {
                                 @Override

@@ -43,7 +43,8 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBind
 /**
  * @author Piotr Buczek
  */
-public class QueryViewer extends ContentPanel implements IDatabaseModificationObserver
+public class QueryViewer extends ContentPanel implements IDatabaseModificationObserver,
+        IDisposableComponent
 {
 
     public static DatabaseModificationAwareComponent create(
@@ -56,6 +57,8 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
     public static final String ID = Constants.QUERY_ID_PREFIX + "_custom-query-viewer";
 
     private final IViewContext<IQueryClientServiceAsync> viewContext;
+
+    private IDisposableComponent currentGridAsDisposable;
 
     private Component currentGridOrNull;
 
@@ -130,6 +133,21 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
         queryProvider.update(observedModifications);
     }
 
+    @Override
+    public Component getComponent()
+    {
+        return this;
+    }
+
+    @Override
+    public void dispose()
+    {
+        if (currentGridAsDisposable != null)
+        {
+            currentGridAsDisposable.dispose();
+        }
+    }
+
     private IReportInformationProvider createReportInformationProvider(final String sqlQuery,
             final Long queryIdOrNull)
     {
@@ -169,7 +187,9 @@ public class QueryViewer extends ContentPanel implements IDatabaseModificationOb
                     if (currentGridOrNull != null)
                     {
                         remove(currentGridOrNull);
+                        dispose();
                     }
+                    currentGridAsDisposable = reportComponent;
                     currentGridOrNull = reportComponent.getComponent();
                     add(currentGridOrNull);
                     layout();
