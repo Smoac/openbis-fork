@@ -83,5 +83,6 @@
 	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/jetty-webapp.jar"/>
 	<classpathentry kind="lib" path="/libraries/lucene-queries/lucene-queries.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-hotdeploy/cisd-hotdeploy.jar" sourcepath="/libraries/cisd-hotdeploy/cisd-hotdeploy-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/poi/ooxml-lib/xmlbeans-2.3.0.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>
