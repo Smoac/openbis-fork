@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 
 /**
  * Business object handling table of {@link Deletion} objects.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public interface IDeletionTable
@@ -34,6 +34,13 @@ public interface IDeletionTable
      *            entities which are the root of the deletion tree.
      */
     public void load(boolean withEntities);
-    
+
+    /**
+     * Load all {@link Deletion} objects.
+     * 
+     * @param limit will fetch only that many entities of certain type
+     */
+    public void load(int limit);
+
     public List<Deletion> getDeletions();
 }

@@ -47,7 +47,7 @@ public class DeletionsProvider extends AbstractCommonTableModelProvider<Deletion
     @Override
     protected TypedTableModel<Deletion> createTableModel()
     {
-        List<Deletion> deletions = commonServer.listDeletions(sessionToken, true);
+        List<Deletion> deletions = commonServer.listDeletions(sessionToken, MAX_NUMBER);
         TypedTableModelBuilder<Deletion> builder = new TypedTableModelBuilder<Deletion>();
         builder.addColumn(DELETION_DATE).withDefaultWidth(300);
         builder.addColumn(DELETER).withDefaultWidth(200);
@@ -59,48 +59,40 @@ public class DeletionsProvider extends AbstractCommonTableModelProvider<Deletion
             builder.column(DELETION_DATE).addDate(deletion.getRegistrationDate());
             builder.column(DELETER).addPerson(deletion.getRegistrator());
             builder.column(REASON).addString(deletion.getReason());
-            List<IEntityInformationHolderWithIdentifier> deletedEntities =
-                    deletion.getDeletedEntities();
-            if (deletedEntities.isEmpty() == false)
+            if (deletion.getDeletedEntities().isEmpty() == false)
             {
-                builder.column(ENTITIES).addString(
-                        createDescriptionOfDeletedEntities(deletedEntities));
+                builder.column(ENTITIES).addString(createDescriptionOfDeletedEntities(deletion));
             }
         }
         return builder.getModel();
     }
 
-    private String createDescriptionOfDeletedEntities(
-            List<IEntityInformationHolderWithIdentifier> deletedEntities)
+    private String createDescriptionOfDeletedEntities(Deletion deletion)
     {
         StringBuilder builder = new StringBuilder();
-        String experiments = createList(deletedEntities, EntityKind.EXPERIMENT);
+        String experiments = createList(deletion, EntityKind.EXPERIMENT, "Experiment");
         if (experiments.length() > 0)
         {
-            builder.append(moreThenOneLine(experiments) ? "Experiments:\n" : "Experiment ");
             builder.append(experiments);
         }
-        String samples = createList(deletedEntities, EntityKind.SAMPLE);
+        String samples = createList(deletion, EntityKind.SAMPLE, "Sample");
         if (samples.length() > 0)
         {
-            builder.append(moreThenOneLine(samples) ? "Samples:\n" : "Sample ");
             builder.append(samples);
         }
-        String dataSets = createList(deletedEntities, EntityKind.DATA_SET);
+        String dataSets = createList(deletion, EntityKind.DATA_SET, "Data Set");
         if (dataSets.length() > 0)
         {
-            builder.append(moreThenOneLine(dataSets) ? "Data Sets:\n" : "Data Set ");
             builder.append(dataSets);
         }
         return builder.toString();
     }
 
-    private String createList(List<IEntityInformationHolderWithIdentifier> deletedEntities,
-            EntityKind entityKind)
+    private String createList(Deletion deletion, EntityKind entityKind, String name)
     {
         StringBuilder builder = new StringBuilder();
         int count = 0;
-        for (IEntityInformationHolderWithIdentifier entity : deletedEntities)
+        for (IEntityInformationHolderWithIdentifier entity : deletion.getDeletedEntities())
         {
             if (entity.getEntityKind() == entityKind)
             {
@@ -108,20 +100,56 @@ public class DeletionsProvider extends AbstractCommonTableModelProvider<Deletion
                 {
                     builder.append("  ").append(entity.getIdentifier()).append(" (");
                     builder.append(entity.getEntityType().getCode()).append(")\n");
+                    count++;
                 }
-                count++;
             }
         }
-        int numberOfAdditionalEntities = count - MAX_NUMBER;
+
+        int numberOfAdditionalEntities = 0;
+
+        switch (entityKind)
+        {
+            case DATA_SET:
+                numberOfAdditionalEntities = deletion.getTotalDatasetsCount();
+                break;
+            case SAMPLE:
+                numberOfAdditionalEntities = deletion.getTotalSamplesCount();
+                break;
+            case EXPERIMENT:
+                numberOfAdditionalEntities = deletion.getTotalExperimentsCount();
+                break;
+            default:
+                // nothing
+                break;
+        }
+
+        numberOfAdditionalEntities -= count;
+
+        if (count == 0)
+        {
+            if (numberOfAdditionalEntities == 0)
+            {
+                return "";
+            } else if (numberOfAdditionalEntities == 1)
+            {
+                return "1 " + name + "\n";
+            } else if (numberOfAdditionalEntities > 1)
+            {
+                return numberOfAdditionalEntities + " " + name + "s\n";
+            }
+        }
+
         if (numberOfAdditionalEntities > 0)
         {
-            builder.append("  and ").append(numberOfAdditionalEntities).append(" more");
+            builder.append("  and ").append(numberOfAdditionalEntities).append(" more\n");
         }
-        return builder.toString();
+
+        if (count == 1)
+        {
+            return name + " " + builder.toString();
+        }
+
+        return name + "s:\n" + builder.toString();
     }
 
-    private boolean moreThenOneLine(String text)
-    {
-        return text.split("\n").length > 1;
-    }
 }

@@ -33,6 +33,12 @@ public final class Deletion extends AbstractRegistrationHolder implements IIdHol
 
     private Long id;
 
+    private int totalSamplesCount;
+
+    private int totalDatasetsCount;
+
+    private int totalExperimentsCount;
+
     /** Reason of deletion. */
     private String reasonOrNull;
 
@@ -68,6 +74,40 @@ public final class Deletion extends AbstractRegistrationHolder implements IIdHol
     public List<IEntityInformationHolderWithIdentifier> getDeletedEntities()
     {
         return deletedEntities;
+    }
+
+    /*
+     * The deletion counts are supposed to be used in situations when not all deleted entities are
+     * fetched into the <code>deletedEntities<?code>
+     */
+    public int getTotalSamplesCount()
+    {
+        return totalSamplesCount;
+    }
+
+    public void setTotalSamplesCount(int totalSamplesCount)
+    {
+        this.totalSamplesCount = totalSamplesCount;
+    }
+
+    public int getTotalDatasetsCount()
+    {
+        return totalDatasetsCount;
+    }
+
+    public void setTotalDatasetsCount(int totalDatasetsCount)
+    {
+        this.totalDatasetsCount = totalDatasetsCount;
+    }
+
+    public int getTotalExperimentsCount()
+    {
+        return totalExperimentsCount;
+    }
+
+    public void setTotalExperimentsCount(int totalExperimentsCount)
+    {
+        this.totalExperimentsCount = totalExperimentsCount;
     }
 
 }

@@ -25,9 +25,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedSamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IDeletablePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -59,6 +56,17 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
     @Override
     public void load(boolean withEntities)
     {
+        load(withEntities, 0);
+    }
+
+    @Override
+    public void load(int limit)
+    {
+        load(true, limit);
+    }
+
+    private void load(boolean withEntities, int limit)
+    {
         final List<DeletionPE> deletionPEs = getDeletionDAO().listAllEntities();
         Collections.sort(deletionPEs);
         deletions = DeletionTranslator.translate(deletionPEs);
@@ -71,12 +79,12 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
         {
             findersMap.put(deletionPE.getId(), new RootEntitiesFinder());
         }
-        List<TechId> deletionIDs = TechId.createList(deletionPEs);
-        if (false == deletionIDs.isEmpty())
+
+        if (false == deletions.isEmpty())
         {
-            findExperiments(findersMap, deletionIDs);
-            findSamples(findersMap, deletionIDs);
-            findDataSets(findersMap, deletionIDs);
+            findEntities(TrashEntity.EXPERIMENT, findersMap, limit);
+            findEntities(TrashEntity.SAMPLE, findersMap, limit);
+            findEntities(TrashEntity.DATA_SET, findersMap, limit);
         }
         for (Deletion deletion : deletions)
         {
@@ -84,38 +92,84 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
         }
     }
 
-    private void findDataSets(Map<Long, RootEntitiesFinder> findersMap, List<TechId> deletionIDs)
+    private void findEntities(TrashEntity kind, Map<Long, RootEntitiesFinder> findersMap, int limit)
     {
         IDeletionDAO deletionDAO = getDeletionDAO();
-        List<TechId> deletedDataSetIds = deletionDAO.findTrashedDataSetIds(deletionIDs);
-        List<DeletedDataPE> dataSets =
-                cast(getDeletionDAO().listDeletedEntities(EntityKind.DATA_SET, deletedDataSetIds));
-        addEntities(dataSets, findersMap);
+
+        for (Deletion deletion : deletions)
+        {
+            List<TechId> deletedEntitiesIds =
+                    kind.deletedEntityIds(deletionDAO,
+                            Collections.singletonList(new TechId(deletion.getId())));
+            EntityKind entityKind = kind.entityKind;
+            int count = deletedEntitiesIds.size();
+
+            switch (entityKind)
+            {
+                case DATA_SET:
+                    deletion.setTotalDatasetsCount(count);
+                    break;
+                case SAMPLE:
+                    deletion.setTotalSamplesCount(count);
+                    break;
+                case EXPERIMENT:
+                    deletion.setTotalExperimentsCount(count);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported entity type " + entityKind);
+            }
+            if (limit > 0 && limit < deletedEntitiesIds.size())
+            {
+                deletedEntitiesIds = deletedEntitiesIds.subList(0, limit);
+            }
+
+            List<? extends IDeletablePE> entities =
+                    deletionDAO.listDeletedEntities(kind.entityKind, deletedEntitiesIds);
+            addEntities(entities, findersMap);
+
+        }
+
     }
 
-    private void findSamples(Map<Long, RootEntitiesFinder> findersMap, List<TechId> deletionIDs)
+    private enum TrashEntity
     {
-        IDeletionDAO deletionDAO = getDeletionDAO();
-        List<TechId> deletedSampleIds = deletionDAO.findTrashedSampleIds(deletionIDs);
-        List<DeletedSamplePE> samples =
-                cast(getDeletionDAO().listDeletedEntities(EntityKind.SAMPLE, deletedSampleIds));
-        addEntities(samples, findersMap);
-    }
+        SAMPLE(EntityKind.SAMPLE)
+        {
+            @Override
+            List<TechId> deletedEntityIds(IDeletionDAO dao, List<TechId> deletionIDs)
+            {
+                return dao.findTrashedSampleIds(deletionIDs);
+            }
 
-    private void findExperiments(Map<Long, RootEntitiesFinder> findersMap, List<TechId> deletionIDs)
-    {
-        IDeletionDAO deletionDAO = getDeletionDAO();
-        List<TechId> deletedExperimentIds = deletionDAO.findTrashedExperimentIds(deletionIDs);
-        List<DeletedExperimentPE> experiments =
-                cast(getDeletionDAO().listDeletedEntities(EntityKind.EXPERIMENT,
-                        deletedExperimentIds));
-        addEntities(experiments, findersMap);
-    }
+        },
+        EXPERIMENT(EntityKind.EXPERIMENT)
+        {
+            @Override
+            List<TechId> deletedEntityIds(IDeletionDAO dao, List<TechId> deletionIDs)
+            {
+                return dao.findTrashedExperimentIds(deletionIDs);
+            }
 
-    @SuppressWarnings("unchecked")
-    private final static <T> T cast(final Object object)
-    {
-        return (T) object;
+        },
+        DATA_SET(EntityKind.DATA_SET)
+        {
+            @Override
+            List<TechId> deletedEntityIds(IDeletionDAO dao, List<TechId> deletionIDs)
+            {
+                return dao.findTrashedDataSetIds(deletionIDs);
+            }
+
+        };
+
+        private TrashEntity(EntityKind entityKind)
+        {
+            this.entityKind = entityKind;
+        }
+
+        final EntityKind entityKind;
+
+        abstract List<TechId> deletedEntityIds(IDeletionDAO dao, List<TechId> deletionIDs);
+
     }
 
     private void addEntities(List<? extends IDeletablePE> entities,

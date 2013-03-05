@@ -3695,6 +3695,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @ReturnValueFilter(validatorClass = DeletionValidator.class)
+    public List<Deletion> listDeletions(String sessionToken, int limit)
+    {
+        Session session = getSession(sessionToken);
+        IDeletionTable deletionTable = businessObjectFactory.createDeletionTable(session);
+        deletionTable.load(limit);
+        return deletionTable.getDeletions();
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @Capability("RESTORE")
     public void revertDeletions(final String sessionToken,
             @AuthorizationGuard(guardClass = RevertDeletionPredicate.class)
