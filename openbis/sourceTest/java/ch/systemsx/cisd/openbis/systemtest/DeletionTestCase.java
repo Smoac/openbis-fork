@@ -201,7 +201,8 @@ public class DeletionTestCase extends SystemTestCase
 
         List<TableModelRowWithObject<Deletion>> deletionTable = getDeletionTable();
         List<ISerializableComparable> row = deletionTable.get(0).getValues();
-        assertEquals("Experiment   /CISD/DEFAULT/E1 (COMPOUND_HCS)\n", row.get(2).toString());
+        assertEquals("Experiment   /CISD/DEFAULT/E1 (COMPOUND_HCS)",
+                row.get(2).toString().split("\n")[0]);
         assertEquals(REASON, row.get(3).toString());
         assertEquals(1, deletionTable.size());
 
