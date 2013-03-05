@@ -2857,6 +2857,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<DataStore> listDataStores(String sessionToken)
+    {
+        checkSession(sessionToken);
+        return listDataStores();
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken,
             DataStoreServiceKind dataStoreServiceKind)
     {

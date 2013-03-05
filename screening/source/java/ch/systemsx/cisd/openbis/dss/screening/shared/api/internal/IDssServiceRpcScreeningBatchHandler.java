@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 ETH Zuerich, CISD
+ * Copyright 2013 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
+package ch.systemsx.cisd.openbis.dss.screening.shared.api.internal;
+
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 
 /**
- * A factory for {@link ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening}.
- *
- * @author Franz-Josef Elmer
+ * @author pkupczyk
  */
-interface IDssServiceFactory
+public interface IDssServiceRpcScreeningBatchHandler<R extends IDatasetIdentifier, V>
 {
-    public DssServiceRpcScreeningHolder createDssService(String serverUrl);
+    public List<V> handle(DssServiceRpcScreeningHolder dssService, List<R> references);
 }

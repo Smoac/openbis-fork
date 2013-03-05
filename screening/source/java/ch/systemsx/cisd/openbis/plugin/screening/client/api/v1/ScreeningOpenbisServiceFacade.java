@@ -41,8 +41,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.DssServiceRpcScreeningHolder;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.DssServiceRpcScreeningMultiplexer;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.IDssServiceRpcScreeningBatchHandler;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.IDssServiceRpcScreeningFactory;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -77,6 +80,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetM
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
@@ -100,21 +104,20 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
     static final int MAJOR_VERSION_DSS = 1;
 
-    static final String DSS_SCREENING_API = "/rmi-datastore-server-screening-api-v"
-            + MAJOR_VERSION_DSS + "/";
-
     private static final String OPENBIS_SCREENING_API = "/rmi-screening-api-v" + MAJOR_VERSION_AS;
 
     static final long SERVER_TIMEOUT_MILLIS = 5 * DateUtils.MILLIS_PER_MINUTE;
 
-    private static final IDssServiceFactory DSS_SERVICE_FACTORY = new IDssServiceFactory()
-        {
-            @Override
-            public DssServiceRpcScreeningHolder createDssService(String serverUrl)
-            {
-                return new DssServiceRpcScreeningHolder(serverUrl);
-            }
-        };
+    private static final IDssServiceRpcScreeningFactory DSS_SERVICE_FACTORY =
+            new IDssServiceRpcScreeningFactory()
+                {
+                    @Override
+                    public DssServiceRpcScreeningHolder createDssService(String serverUrl)
+                    {
+                        return new DssServiceRpcScreeningHolder(serverUrl, MAJOR_VERSION_DSS,
+                                SERVER_TIMEOUT_MILLIS);
+                    }
+                };
 
     private final IScreeningApiServer openbisScreeningServer;
 
@@ -124,15 +127,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
     private final IDssComponent dssComponent;
 
-    private final DataStoreMultiplexer<PlateImageReference> plateImageReferencesMultiplexer;
-
-    private final DataStoreMultiplexer<IFeatureVectorDatasetIdentifier> featureVectorDataSetIdentifierMultiplexer;
-
-    private final DataStoreMultiplexer<FeatureVectorDatasetReference> featureVectorDataSetReferenceMultiplexer;
-
-    private final DataStoreMultiplexer<FeatureVectorDatasetWellReference> featureVectorDataSetWellReferenceMultiplexer;
-
-    private final DataStoreMultiplexer<IImageDatasetIdentifier> metaDataMultiplexer;
+    private final DssServiceRpcScreeningMultiplexer dssMultiplexer;
 
     private final String sessionToken;
 
@@ -143,7 +138,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
     private final WellImageCache imageCache = new WellImageCache();
 
-    private IDssServiceFactory dssServiceCache;
+    private IDssServiceRpcScreeningFactory dssServiceCache;
 
     private final IOpenbisServiceFacade openbisServiceFacade;
 
@@ -255,7 +250,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     ScreeningOpenbisServiceFacade(String sessionToken, IScreeningApiServer screeningServer,
-            int minorVersion, final IDssServiceFactory dssServiceFactory,
+            int minorVersion, final IDssServiceRpcScreeningFactory dssServiceFactory,
             IDssComponent dssComponent, IGeneralInformationService generalInformationService,
             IGeneralInformationChangingService generalInformationChangingService)
     {
@@ -269,7 +264,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         generalInformationChangingService, dssComponent);
 
         this.minorVersionApplicationServer = minorVersion;
-        dssServiceCache = new IDssServiceFactory()
+        dssServiceCache = new IDssServiceRpcScreeningFactory()
             {
                 private final Map<String/* url */, DssServiceRpcScreeningHolder> cache =
                         new HashMap<String, DssServiceRpcScreeningHolder>();
@@ -286,15 +281,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                     return dssServiceHolder;
                 }
             };
-        plateImageReferencesMultiplexer =
-                new DataStoreMultiplexer<PlateImageReference>(dssServiceCache);
-        metaDataMultiplexer = new DataStoreMultiplexer<IImageDatasetIdentifier>(dssServiceCache);
-        featureVectorDataSetIdentifierMultiplexer =
-                new DataStoreMultiplexer<IFeatureVectorDatasetIdentifier>(dssServiceCache);
-        featureVectorDataSetReferenceMultiplexer =
-                new DataStoreMultiplexer<FeatureVectorDatasetReference>(dssServiceCache);
-        featureVectorDataSetWellReferenceMultiplexer =
-                new DataStoreMultiplexer<FeatureVectorDatasetWellReference>(dssServiceCache);
+
+        dssMultiplexer = new DssServiceRpcScreeningMultiplexer(dssServiceCache);
     }
 
     /**
@@ -874,23 +862,23 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public List<String> listAvailableFeatureCodes(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
-        final Set<String> result = new HashSet<String>();
-        featureVectorDataSetIdentifierMultiplexer.process(featureDatasets,
-                new IReferenceHandler<IFeatureVectorDatasetIdentifier>()
+        IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, String> handler =
+                new IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, String>()
                     {
                         @Override
                         @SuppressWarnings("deprecation")
-                        public void handle(DssServiceRpcScreeningHolder dssService,
+                        public List<String> handle(DssServiceRpcScreeningHolder dssService,
                                 List<IFeatureVectorDatasetIdentifier> references)
                         {
                             checkDSSMinimalMinorVersion(dssService, "listAvailableFeatureNames",
                                     List.class);
                             // Use old method in order to allow accessing older servers.
-                            result.addAll(dssService.getService().listAvailableFeatureNames(
-                                    sessionToken, references));
+                            return dssService.getService().listAvailableFeatureNames(sessionToken,
+                                    references);
                         }
-                    });
-        return new ArrayList<String>(result);
+                    };
+
+        return dssMultiplexer.process(featureDatasets, handler);
     }
 
     /**
@@ -903,8 +891,6 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public List<FeatureInformation> listAvailableFeatures(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
-        final Set<FeatureInformation> result = new HashSet<FeatureInformation>();
-
         List<DataSet> containedDataSets = getContainedDataSets(featureDatasets);
 
         List<IFeatureVectorDatasetIdentifier> identifiersIncludingContained = null;
@@ -925,23 +911,26 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             }
         }
 
-        featureVectorDataSetIdentifierMultiplexer.process(
-                identifiersIncludingContained == null ? featureDatasets
-                        : identifiersIncludingContained,
-                new IReferenceHandler<IFeatureVectorDatasetIdentifier>()
+        IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, FeatureInformation> handler =
+                new IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, FeatureInformation>()
                     {
                         @Override
-                        public void handle(DssServiceRpcScreeningHolder dssService,
+                        public List<FeatureInformation> handle(
+                                DssServiceRpcScreeningHolder dssService,
                                 List<IFeatureVectorDatasetIdentifier> references)
                         {
                             if (hasDSSMethod(dssService, "listAvailableFeatures", List.class))
                             {
-                                result.addAll(dssService.getService().listAvailableFeatures(
-                                        sessionToken, references));
+                                return dssService.getService().listAvailableFeatures(sessionToken,
+                                        references);
                             } else
                             {
                                 checkDSSMinimalMinorVersion(dssService,
                                         "listAvailableFeatureNames", List.class);
+
+                                List<FeatureInformation> result =
+                                        new ArrayList<FeatureInformation>();
+
                                 // Use old method in order to allow accessing older servers.
                                 @SuppressWarnings("deprecation")
                                 final List<String> codes =
@@ -951,10 +940,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                 {
                                     result.add(new FeatureInformation(code, code, ""));
                                 }
+
+                                return result;
                             }
                         }
-                    });
-        return new ArrayList<FeatureInformation>(result);
+                    };
+
+        return dssMultiplexer.process(identifiersIncludingContained == null ? featureDatasets
+                : identifiersIncludingContained, handler);
     }
 
     private SearchSubCriteria getContainerSearchCriteria(String containerCode)
@@ -1027,21 +1020,22 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 (isEmpty(featureCodesOrNull)) ? listAvailableFeatureNames(featureDatasets)
                         : featureCodesOrNull;
 
-        final List<FeatureVectorDataset> result = new ArrayList<FeatureVectorDataset>();
-        featureVectorDataSetReferenceMultiplexer.process(featureDatasets,
-                new IReferenceHandler<FeatureVectorDatasetReference>()
+        IDssServiceRpcScreeningBatchHandler<FeatureVectorDatasetReference, FeatureVectorDataset> handler =
+                new IDssServiceRpcScreeningBatchHandler<FeatureVectorDatasetReference, FeatureVectorDataset>()
                     {
                         @Override
-                        public void handle(DssServiceRpcScreeningHolder dssService,
+                        public List<FeatureVectorDataset> handle(
+                                DssServiceRpcScreeningHolder dssService,
                                 List<FeatureVectorDatasetReference> references)
                         {
                             checkDSSMinimalMinorVersion(dssService, "loadFeatures", List.class,
                                     List.class);
-                            result.addAll(dssService.getService().loadFeatures(sessionToken,
-                                    references, featureNames));
+                            return dssService.getService().loadFeatures(sessionToken, references,
+                                    featureNames);
                         }
-                    });
-        return result;
+                    };
+
+        return dssMultiplexer.process(featureDatasets, handler);
     }
 
     @Override
@@ -1080,23 +1074,22 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 (isEmpty(featureCodesOrNull)) ? listAvailableFeatureNames(datasetWellReferences)
                         : featureCodesOrNull;
 
-        final List<FeatureVectorWithDescription> result =
-                new ArrayList<FeatureVectorWithDescription>();
-        featureVectorDataSetWellReferenceMultiplexer.process(datasetWellReferences,
-                new IReferenceHandler<FeatureVectorDatasetWellReference>()
+        IDssServiceRpcScreeningBatchHandler<FeatureVectorDatasetWellReference, FeatureVectorWithDescription> handler =
+                new IDssServiceRpcScreeningBatchHandler<FeatureVectorDatasetWellReference, FeatureVectorWithDescription>()
                     {
                         @Override
-                        public void handle(DssServiceRpcScreeningHolder dssService,
+                        public List<FeatureVectorWithDescription> handle(
+                                DssServiceRpcScreeningHolder dssService,
                                 List<FeatureVectorDatasetWellReference> references)
                         {
                             checkDSSMinimalMinorVersion(dssService,
                                     "loadFeaturesForDatasetWellReferences", List.class, List.class);
-                            result.addAll(dssService.getService()
-                                    .loadFeaturesForDatasetWellReferences(sessionToken, references,
-                                            featureNames));
+                            return dssService.getService().loadFeaturesForDatasetWellReferences(
+                                    sessionToken, references, featureNames);
                         }
-                    });
-        return result;
+                    };
+
+        return dssMultiplexer.process(datasetWellReferences, handler);
     }
 
     private boolean isEmpty(final List<String> featureCodeOrNull)
@@ -1325,11 +1318,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     {
         try
         {
-            plateImageReferencesMultiplexer.process(imageReferences,
-                    new IReferenceHandler<PlateImageReference>()
+            IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void> handler =
+                    new IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void>()
                         {
                             @Override
-                            public void handle(DssServiceRpcScreeningHolder dssService,
+                            public List<Void> handle(DssServiceRpcScreeningHolder dssService,
                                     List<PlateImageReference> references)
                             {
                                 final InputStream stream;
@@ -1372,8 +1365,12 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                     }
                                 }
 
+                                return null;
                             }
-                        });
+                        };
+
+            dssMultiplexer.process(imageReferences, handler);
+
         } catch (WrappedIOException ex)
         {
             throw ex.getIoException();
@@ -1387,11 +1384,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     {
         try
         {
-            plateImageReferencesMultiplexer.process(imageReferences,
-                    new IReferenceHandler<PlateImageReference>()
+            IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void> handler =
+                    new IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void>()
                         {
                             @Override
-                            public void handle(DssServiceRpcScreeningHolder dssService,
+                            public List<Void> handle(DssServiceRpcScreeningHolder dssService,
                                     List<PlateImageReference> references)
                             {
                                 final InputStream stream;
@@ -1413,8 +1410,13 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
                                 processImagesStreamUnchecked(plateImageHandler, imageReferences,
                                         stream);
+
+                                return null;
                             }
-                        });
+                        };
+
+            dssMultiplexer.process(imageReferences, handler);
+
         } catch (WrappedIOException ex)
         {
             throw ex.getIoException();
@@ -1518,11 +1520,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public void loadImages(List<PlateImageReference> imageReferences, final ImageSize sizeOrNull,
             final IPlateImageHandler plateImageHandler) throws IOException
     {
-        plateImageReferencesMultiplexer.process(imageReferences,
-                new IReferenceHandler<PlateImageReference>()
+        IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void> handler =
+                new IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void>()
                     {
                         @Override
-                        public void handle(DssServiceRpcScreeningHolder dssService,
+                        public List<Void> handle(DssServiceRpcScreeningHolder dssService,
                                 List<PlateImageReference> references)
                         {
                             checkDSSMinimalMinorVersion(dssService, "loadImages", List.class,
@@ -1532,8 +1534,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                             sizeOrNull);
 
                             processImagesStreamUnchecked(plateImageHandler, references, stream);
+                            return null;
                         }
-                    });
+                    };
+
+        dssMultiplexer.process(imageReferences, handler);
     }
 
     @Override
@@ -1599,11 +1604,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public void loadThumbnailImages(List<PlateImageReference> imageReferences,
             final IPlateImageHandler plateImageHandler) throws IOException
     {
-        plateImageReferencesMultiplexer.process(imageReferences,
-                new IReferenceHandler<PlateImageReference>()
+        IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void> handler =
+                new IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void>()
                     {
                         @Override
-                        public void handle(DssServiceRpcScreeningHolder dssService,
+                        public List<Void> handle(DssServiceRpcScreeningHolder dssService,
                                 List<PlateImageReference> references)
                         {
                             checkDSSMinimalMinorVersion(dssService, "loadThumbnailImages",
@@ -1612,20 +1617,22 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                     dssService.getService().loadThumbnailImages(sessionToken,
                                             references);
                             processImagesStreamUnchecked(plateImageHandler, references, stream);
-
+                            return null;
                         }
-                    });
+                    };
+
+        dssMultiplexer.process(imageReferences, handler);
     }
 
     @Override
     public void loadThumbnailImages(List<PlateImageReference> imageReferences,
             final IImageOutputStreamProvider outputStreamProvider) throws IOException
     {
-        plateImageReferencesMultiplexer.process(imageReferences,
-                new IReferenceHandler<PlateImageReference>()
+        IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void> handler =
+                new IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void>()
                     {
                         @Override
-                        public void handle(DssServiceRpcScreeningHolder dssService,
+                        public List<Void> handle(DssServiceRpcScreeningHolder dssService,
                                 List<PlateImageReference> references)
                         {
                             checkDSSMinimalMinorVersion(dssService, "loadThumbnailImages",
@@ -1656,9 +1663,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                     throw new WrappedIOException(ex);
                                 }
                             }
-
+                            return null;
                         }
-                    });
+                    };
+
+        dssMultiplexer.process(imageReferences, handler);
     }
 
     @Override
@@ -1666,11 +1675,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             final ImageRepresentationFormat format, final IPlateImageHandler plateImageHandler)
             throws IOException
     {
-        plateImageReferencesMultiplexer.process(imageReferences,
-                new IReferenceHandler<PlateImageReference>()
+        IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void> handler =
+                new IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void>()
                     {
                         @Override
-                        public void handle(DssServiceRpcScreeningHolder dssService,
+                        public List<Void> handle(DssServiceRpcScreeningHolder dssService,
                                 List<PlateImageReference> references)
                         {
                             checkDSSMinimalMinorVersion(dssService, "loadPhysicalThumbnails",
@@ -1679,9 +1688,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                     dssService.getService().loadPhysicalThumbnails(sessionToken,
                                             references, format);
                             processImagesStreamUnchecked(plateImageHandler, references, stream);
-
+                            return null;
                         }
-                    });
+                    };
+
+        dssMultiplexer.process(imageReferences, handler);
     }
 
     @Override
@@ -1689,11 +1700,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             final ImageRepresentationFormat format,
             final IImageOutputStreamProvider outputStreamProvider) throws IOException
     {
-        plateImageReferencesMultiplexer.process(imageReferences,
-                new IReferenceHandler<PlateImageReference>()
+        IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void> handler =
+                new IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void>()
                     {
                         @Override
-                        public void handle(DssServiceRpcScreeningHolder dssService,
+                        public List<Void> handle(DssServiceRpcScreeningHolder dssService,
                                 List<PlateImageReference> references)
                         {
                             checkDSSMinimalMinorVersion(dssService, "loadPhysicalThumbnails",
@@ -1724,16 +1735,19 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                     throw new WrappedIOException(ex);
                                 }
                             }
-
+                            return null;
                         }
-                    });
+                    };
+
+        dssMultiplexer.process(imageReferences, handler);
     }
 
     @Override
     public void saveImageTransformerFactory(List<IDatasetIdentifier> dataSetIdentifiers,
             String channel, IImageTransformerFactory transformerFactoryOrNull)
     {
-        Map<String, List<IDatasetIdentifier>> map = getReferencesPerDss(dataSetIdentifiers);
+        Map<String, List<IDatasetIdentifier>> map =
+                DssServiceRpcScreeningMultiplexer.getReferencesPerDss(dataSetIdentifiers);
         Set<Entry<String, List<IDatasetIdentifier>>> entrySet = map.entrySet();
         for (Entry<String, List<IDatasetIdentifier>> entry : entrySet)
         {
@@ -1749,7 +1763,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public IImageTransformerFactory getImageTransformerFactoryOrNull(
             List<IDatasetIdentifier> dataSetIdentifiers, String channel)
     {
-        Map<String, List<IDatasetIdentifier>> map = getReferencesPerDss(dataSetIdentifiers);
+        Map<String, List<IDatasetIdentifier>> map =
+                DssServiceRpcScreeningMultiplexer.getReferencesPerDss(dataSetIdentifiers);
         Set<Entry<String, List<IDatasetIdentifier>>> entrySet = map.entrySet();
         if (entrySet.size() != 1)
         {
@@ -1779,39 +1794,46 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public List<ImageDatasetMetadata> listImageMetadata(
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
-        final List<ImageDatasetMetadata> result = new ArrayList<ImageDatasetMetadata>();
-        metaDataMultiplexer.process(imageDatasets, new IReferenceHandler<IImageDatasetIdentifier>()
-            {
-                @Override
-                public void handle(DssServiceRpcScreeningHolder dssService,
-                        List<IImageDatasetIdentifier> references)
-                {
-                    checkDSSMinimalMinorVersion(dssService, "listImageMetadata", List.class);
-                    final Iterator<IImageDatasetIdentifier> it = references.iterator();
-                    while (it.hasNext())
+        IDssServiceRpcScreeningBatchHandler<IImageDatasetIdentifier, ImageDatasetMetadata> handler =
+                new IDssServiceRpcScreeningBatchHandler<IImageDatasetIdentifier, ImageDatasetMetadata>()
                     {
-                        final IImageDatasetIdentifier ref = it.next();
-                        final ImageDatasetMetadata cached = imageMetadataCache.get(ref);
-                        if (cached != null)
+                        @Override
+                        public List<ImageDatasetMetadata> handle(
+                                DssServiceRpcScreeningHolder dssService,
+                                List<IImageDatasetIdentifier> references)
                         {
-                            result.add(cached);
-                            it.remove();
+                            List<ImageDatasetMetadata> result =
+                                    new ArrayList<ImageDatasetMetadata>();
+
+                            checkDSSMinimalMinorVersion(dssService, "listImageMetadata", List.class);
+                            final Iterator<IImageDatasetIdentifier> it = references.iterator();
+                            while (it.hasNext())
+                            {
+                                final IImageDatasetIdentifier ref = it.next();
+                                final ImageDatasetMetadata cached = imageMetadataCache.get(ref);
+                                if (cached != null)
+                                {
+                                    result.add(cached);
+                                    it.remove();
+                                }
+                            }
+                            if (references.isEmpty())
+                            {
+                                return result;
+                            }
+                            final List<ImageDatasetMetadata> metadata =
+                                    dssService.getService().listImageMetadata(sessionToken,
+                                            references);
+                            for (ImageDatasetMetadata md : metadata)
+                            {
+                                imageMetadataCache.put(md.getImageDataset(), md);
+                            }
+                            result.addAll(metadata);
+                            return result;
                         }
-                    }
-                    if (references.isEmpty())
-                    {
-                        return;
-                    }
-                    final List<ImageDatasetMetadata> metadata =
-                            dssService.getService().listImageMetadata(sessionToken, references);
-                    for (ImageDatasetMetadata md : metadata)
-                    {
-                        imageMetadataCache.put(md.getImageDataset(), md);
-                    }
-                    result.addAll(metadata);
-                }
-            });
-        return result;
+                    };
+
+        return dssMultiplexer.process(imageDatasets, handler);
     }
 
     @Override
@@ -1872,58 +1894,6 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             return ioException;
         }
 
-    }
-
-    private interface IReferenceHandler<R extends IDatasetIdentifier>
-    {
-        public void handle(DssServiceRpcScreeningHolder dssService, List<R> references);
-    }
-
-    private static final class DataStoreMultiplexer<R extends IDatasetIdentifier>
-    {
-        private final IDssServiceFactory dssServiceFactory;
-
-        public DataStoreMultiplexer(IDssServiceFactory dssServiceFactory)
-        {
-            this.dssServiceFactory = dssServiceFactory;
-        }
-
-        public void process(List<? extends R> references, IReferenceHandler<R> handler)
-        {
-            Map<String, List<R>> referencesPerDss = getReferencesPerDss(cast(references));
-            Set<Entry<String, List<R>>> entrySet = referencesPerDss.entrySet();
-            for (Entry<String, List<R>> entry : entrySet)
-            {
-                final DssServiceRpcScreeningHolder dssServiceHolder =
-                        dssServiceFactory.createDssService(entry.getKey());
-                handler.handle(dssServiceHolder, entry.getValue());
-            }
-        }
-
-        @SuppressWarnings("unchecked")
-        private List<R> cast(List<? extends R> references)
-        {
-            return (List<R>) references;
-        }
-
-    }
-
-    private static <R extends IDatasetIdentifier> Map<String, List<R>> getReferencesPerDss(
-            List<R> references)
-    {
-        HashMap<String, List<R>> referencesPerDss = new HashMap<String, List<R>>();
-        for (R reference : references)
-        {
-            String url = reference.getDatastoreServerUrl();
-            List<R> list = referencesPerDss.get(url);
-            if (list == null)
-            {
-                list = new ArrayList<R>();
-                referencesPerDss.put(url, list);
-            }
-            list.add(reference);
-        }
-        return referencesPerDss;
     }
 
     private void checkDSSMinimalMinorVersion(final DssServiceRpcScreeningHolder serviceHolder,
@@ -2006,11 +1976,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             final LoadImageConfiguration configuration, final IPlateImageHandler plateImageHandler)
             throws IOException
     {
-        plateImageReferencesMultiplexer.process(imageReferences,
-                new IReferenceHandler<PlateImageReference>()
+        IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void> handler =
+                new IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void>()
                     {
                         @Override
-                        public void handle(DssServiceRpcScreeningHolder dssService,
+                        public List<Void> handle(DssServiceRpcScreeningHolder dssService,
                                 List<PlateImageReference> references)
                         {
                             checkDSSMinimalMinorVersion(dssService, "loadImages", List.class,
@@ -2019,9 +1989,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                     dssService.getService().loadImages(sessionToken, references,
                                             configuration);
                             processImagesStreamUnchecked(plateImageHandler, references, stream);
-
+                            return null;
                         }
-                    });
+                    };
+
+        dssMultiplexer.process(imageReferences, handler);
     }
 
     @Override
@@ -2029,11 +2001,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             final IPlateImageHandler plateImageHandler, final ImageRepresentationFormat format)
             throws IOException
     {
-        plateImageReferencesMultiplexer.process(imageReferences,
-                new IReferenceHandler<PlateImageReference>()
+        IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void> handler =
+                new IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void>()
                     {
                         @Override
-                        public void handle(DssServiceRpcScreeningHolder dssService,
+                        public List<Void> handle(DssServiceRpcScreeningHolder dssService,
                                 List<PlateImageReference> references)
                         {
                             checkDSSMinimalMinorVersion(dssService, "loadImages", List.class,
@@ -2042,8 +2014,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                     dssService.getService().loadImages(sessionToken, references,
                                             format);
                             processImagesStreamUnchecked(plateImageHandler, references, stream);
+                            return null;
                         }
-                    });
+                    };
+
+        dssMultiplexer.process(imageReferences, handler);
     }
 
     @Override
@@ -2051,11 +2026,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             final IPlateImageHandler plateImageHandler,
             final IImageRepresentationFormatSelectionCriterion... criteria) throws IOException
     {
-        plateImageReferencesMultiplexer.process(imageReferences,
-                new IReferenceHandler<PlateImageReference>()
+        IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void> handler =
+                new IDssServiceRpcScreeningBatchHandler<PlateImageReference, Void>()
                     {
                         @Override
-                        public void handle(DssServiceRpcScreeningHolder dssService,
+                        public List<Void> handle(DssServiceRpcScreeningHolder dssService,
                                 List<PlateImageReference> references)
                         {
                             checkDSSMinimalMinorVersion(dssService, "loadImages", List.class,
@@ -2064,9 +2039,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                     dssService.getService().loadImages(sessionToken, references,
                                             criteria);
                             processImagesStreamUnchecked(plateImageHandler, references, stream);
-
+                            return null;
                         }
-                    });
+                    };
+
+        dssMultiplexer.process(imageReferences, handler);
     }
 
     private void processImagesStreamUnchecked(final IPlateImageHandler plateImageHandler,
@@ -2126,7 +2103,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         List<IDatasetIdentifier> simplerList =
                 new ArrayList<IDatasetIdentifier>(dataSetIdentifiers.size());
         simplerList.addAll(dataSetIdentifiers);
-        Map<String, List<IDatasetIdentifier>> map = getReferencesPerDss(simplerList);
+        Map<String, List<IDatasetIdentifier>> map =
+                DssServiceRpcScreeningMultiplexer.getReferencesPerDss(simplerList);
         Set<Entry<String, List<IDatasetIdentifier>>> entrySet = map.entrySet();
         if (entrySet.size() != 1)
         {

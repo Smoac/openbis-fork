@@ -28,7 +28,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.IDataSetFilter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
@@ -48,6 +47,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetM
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
@@ -924,7 +924,6 @@ public interface IScreeningOpenbisServiceFacade
      * 
      * @param imageReferences The data set, well, channel, and tile of the image to be returned.
      * @param format The format of the image to return.
-     * @param plateImageHandler Handles delivered images.
      */
     void loadPhysicalThumbnails(List<PlateImageReference> imageReferences,
             ImageRepresentationFormat format, IImageOutputStreamProvider outputStreamProvider)

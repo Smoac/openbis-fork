@@ -24,7 +24,6 @@ import java.util.List;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.collection.IModifiable;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
@@ -197,15 +196,19 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
     }
 
     @Override
-    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
-            LoadImageConfiguration configuration)
+    public InputStream loadImages(
+            String sessionToken,
+            List<PlateImageReference> imageReferences,
+            ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration configuration)
     {
         return handleNotSupportedMethod();
     }
 
     @Override
-    public List<String> loadImagesBase64(String sessionToken,
-            List<PlateImageReference> imageReferences, LoadImageConfiguration configuration)
+    public List<String> loadImagesBase64(
+            String sessionToken,
+            List<PlateImageReference> imageReferences,
+            ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration configuration)
     {
         return service.loadImagesBase64(sessionToken, imageReferences, configuration);
     }

@@ -93,6 +93,24 @@ public abstract class AbstractServerLogger implements IServer
         return CollectionUtils.abbreviate(object, 10);
     }
 
+    protected int size(Collection<?> c)
+    {
+        if (c == null)
+        {
+            return 0;
+        }
+        return c.size();
+    }
+
+    protected int size(Object[] t)
+    {
+        if (t == null)
+        {
+            return 0;
+        }
+        return t.length;
+    }
+
     //
 
     private String tryToCreatePrefix(String sessionTokenOrNull)

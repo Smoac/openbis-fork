@@ -67,11 +67,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.screening.server.logic.ImageRepresentationFormatFinder;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.AbstractFormatSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
@@ -636,8 +635,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     }
 
     @Override
-    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
-            LoadImageConfiguration configuration)
+    public InputStream loadImages(
+            String sessionToken,
+            List<PlateImageReference> imageReferences,
+            ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration configuration)
     {
         final Map<String, IImagingDatasetLoader> imageLoadersMap =
                 getImageDatasetsMap(sessionToken, imageReferences);
@@ -648,8 +649,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     }
 
     @Override
-    public List<String> loadImagesBase64(String sessionToken,
-            List<PlateImageReference> imageReferences, LoadImageConfiguration configuration)
+    public List<String> loadImagesBase64(
+            String sessionToken,
+            List<PlateImageReference> imageReferences,
+            ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration configuration)
     {
         return convertToBase64(loadImages(sessionToken, imageReferences, configuration));
     }
@@ -829,7 +832,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public InputStream loadImages(String sessionToken, IDatasetIdentifier dataSetIdentifier,
             List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull)
     {
-        final IImagingDatasetLoader imageAccessor = createImageLoader(sessionToken, dataSetIdentifier);
+        final IImagingDatasetLoader imageAccessor =
+                createImageLoader(sessionToken, dataSetIdentifier);
 
         final List<PlateImageReference> imageReferences =
                 createPlateImageReferences(imageAccessor, dataSetIdentifier, wellPositions, channel);
@@ -871,7 +875,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public InputStream loadImages(String sessionToken, IDatasetIdentifier dataSetIdentifier,
             String channel, ImageSize thumbnailSizeOrNull)
     {
-        final IImagingDatasetLoader imageAccessor = createImageLoader(sessionToken, dataSetIdentifier);
+        final IImagingDatasetLoader imageAccessor =
+                createImageLoader(sessionToken, dataSetIdentifier);
         List<MicroscopyImageReference> imageReferences =
                 listImageReferences(dataSetIdentifier, channel, imageAccessor);
         final Size sizeOrNull = tryAsSize(thumbnailSizeOrNull);
@@ -904,7 +909,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public InputStream loadThumbnailImages(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<String> channels)
     {
-        final IImagingDatasetLoader imageAccessor = createImageLoader(sessionToken, dataSetIdentifier);
+        final IImagingDatasetLoader imageAccessor =
+                createImageLoader(sessionToken, dataSetIdentifier);
         assert imageAccessor != null : "imageAccessor not found for: " + dataSetIdentifier;
         final List<MicroscopyImageReference> imageReferences =
                 listImageReferences(dataSetIdentifier, channels, imageAccessor);
@@ -1502,8 +1508,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                             tryFindImageDataset(sessionToken, imageReference.getDatasetCode());
                     if (imageDataset != null)
                     {
-                        imageAccessor =
-                                createImageLoader(sessionToken, imageDataset.getCode());
+                        imageAccessor = createImageLoader(sessionToken, imageDataset.getCode());
                     } else
                     {
                         throw UserFailureException.fromTemplate(

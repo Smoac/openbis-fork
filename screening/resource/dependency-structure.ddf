@@ -8,7 +8,7 @@
 [screening_openbis] = ${screening}.*
 
 [dss_authorization] = ${root}.dss.generic.shared.api.internal.authorization.* ${root}.dss.screening.shared.api.internal.authorization.*
-[dss_api] = ${root}.dss.screening.shared.api.v1.** ${root}.dss.client.api.v1.** ${root}.dss.generic.shared.api.v1.**
+[dss_api] = ${root}.dss.screening.shared.api.** ${root}.dss.client.api.v1.** ${root}.dss.generic.shared.api.v1.**
 [dss] = ${root}.dss.* ch.systemsx.cisd.etlserver.* excluding [dss_api] [dss_authorization]
 check sets [screening_openbis] [dss] [dss_api] [dss_authorization]
 

@@ -350,25 +350,28 @@ public interface IDssServiceRpcScreening extends IRpcService
      * position, channel and tile). The format and properties of the returned images are configured
      * by the configuration.
      * <p>
-     * The options are described in {@link LoadImageConfiguration}.
+     * The options are described in
+     * {@link ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration}.
      * <p>
      * The encoding of the result is described in
      * {@link IDssServiceRpcScreening#loadImages(String, List)}.
      * 
      * @see IDssServiceRpcScreening#loadImages(String, List)
-     * @see LoadImageConfiguration
+     * @see ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration
      * @since 1.8
      */
     @MinimalMinorVersion(8)
     @DataSetAccessGuard
-    public InputStream loadImages(String sessionToken,
+    public InputStream loadImages(
+            String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
-            List<PlateImageReference> imageReferences, LoadImageConfiguration configuration);
+            List<PlateImageReference> imageReferences,
+            ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration configuration);
 
     /**
      * Returns the same images as
-     * {@link IDssServiceRpcScreening#loadImages(String, List, LoadImageConfiguration)} but the
-     * result is a list of base64 encoded strings that contain the image data.
+     * {@link IDssServiceRpcScreening#loadImages(String, List, ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration)}
+     * but the result is a list of base64 encoded strings that contain the image data.
      * 
      * @since 1.11
      */
@@ -378,7 +381,7 @@ public interface IDssServiceRpcScreening extends IRpcService
     String sessionToken, @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class)
     @JsonRpcParam("imageReferences")
     List<PlateImageReference> imageReferences, @JsonRpcParam("configuration")
-    LoadImageConfiguration configuration);
+    ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration configuration);
 
     /**
      * Provides images for the specified list of image references (specified by data set code, well

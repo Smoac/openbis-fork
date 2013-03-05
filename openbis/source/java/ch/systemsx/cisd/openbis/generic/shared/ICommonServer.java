@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -1099,6 +1100,13 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
     public void addProjectAttachments(String sessionToken, TechId projectId,
             NewAttachment attachment);
+
+    /**
+     * Lists all DSS server registered this openBIS server instance. Any of the returned instances
+     * could be offline at the time of the listing.
+     */
+    @Transactional(readOnly = true)
+    public List<DataStore> listDataStores(String sessionToken);
 
     /** Lists all available datastore services of the specified kind */
     @Transactional(readOnly = true)

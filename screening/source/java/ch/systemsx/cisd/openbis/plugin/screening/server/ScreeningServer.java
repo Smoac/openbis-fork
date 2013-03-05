@@ -25,6 +25,7 @@ import javax.annotation.Resource;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +33,11 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.DssServiceRpcScreeningHolder;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.DssServiceRpcScreeningMultiplexer;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.IDssServiceRpcScreeningBatchHandler;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.IDssServiceRpcScreeningFactory;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.IDssServiceRpcScreeningMultiplexer;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
@@ -52,9 +58,9 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -103,15 +109,27 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellContentLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentImageMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageRepresentationFormatSelectionCriterion;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
@@ -152,10 +170,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageResolution
 public final class ScreeningServer extends AbstractServer<IScreeningServer> implements
         IScreeningServer, IScreeningApiServer, InitializingBean, IAnalysisSettingSetter
 {
+
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 9;
+    public static final int MINOR_VERSION = 10;
 
     @Resource(name = ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
     private IScreeningBusinessObjectFactory businessObjectFactory;
@@ -172,8 +191,19 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
 
     private AnalysisSettings analysisSettings;
 
+    private IDssServiceRpcScreeningMultiplexer dssMultiplexer;
+
     public ScreeningServer()
     {
+        dssMultiplexer = new DssServiceRpcScreeningMultiplexer(new IDssServiceRpcScreeningFactory()
+            {
+                @Override
+                public DssServiceRpcScreeningHolder createDssService(String serverUrl)
+                {
+                    return new DssServiceRpcScreeningHolder(serverUrl, getMajorVersion(),
+                            5 * DateUtils.MILLIS_PER_MINUTE);
+                }
+            });
     }
 
     @Private
@@ -181,11 +211,13 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             IPropertiesBatchManager propertiesBatchManager,
             final IScreeningBusinessObjectFactory businessObjectFactory,
             final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
-            final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin)
+            final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin,
+            final IDssServiceRpcScreeningMultiplexer dssMultiplexer)
     {
         super(sessionManager, daoFactory, propertiesBatchManager, sampleTypeSlaveServerPlugin,
                 dataSetTypeSlaveServerPlugin);
         this.businessObjectFactory = businessObjectFactory;
+        this.dssMultiplexer = dssMultiplexer;
     }
 
     @Override
@@ -716,6 +748,297 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         checkSession(sessionToken);
         return createScreeningApiImpl(sessionToken).getExperimentImageMetadata(experimentIdentifer);
+    }
+
+    @Override
+    public List<String> listAvailableFeatureCodes(final String sessionToken,
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
+    {
+        checkSession(sessionToken);
+
+        IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, String> handler =
+                new IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, String>()
+                    {
+                        @Override
+                        public List<String> handle(DssServiceRpcScreeningHolder dssService,
+                                List<IFeatureVectorDatasetIdentifier> references)
+                        {
+                            return dssService.getService().listAvailableFeatureCodes(sessionToken,
+                                    references);
+                        }
+                    };
+
+        return dssMultiplexer.process(featureDatasets, handler);
+    }
+
+    @Override
+    public List<FeatureInformation> listAvailableFeatures(final String sessionToken,
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
+    {
+        checkSession(sessionToken);
+
+        IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, FeatureInformation> handler =
+                new IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, FeatureInformation>()
+                    {
+                        @Override
+                        public List<FeatureInformation> handle(
+                                DssServiceRpcScreeningHolder dssService,
+                                List<IFeatureVectorDatasetIdentifier> references)
+                        {
+                            return dssService.getService().listAvailableFeatures(sessionToken,
+                                    references);
+                        }
+                    };
+
+        return dssMultiplexer.process(featureDatasets, handler);
+    }
+
+    @Override
+    public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset> loadFeatures(
+            final String sessionToken, List<FeatureVectorDatasetReference> featureDatasets,
+            final List<String> featureCodes)
+    {
+        checkSession(sessionToken);
+
+        IDssServiceRpcScreeningBatchHandler<FeatureVectorDatasetReference, ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset> handler =
+                new IDssServiceRpcScreeningBatchHandler<FeatureVectorDatasetReference, ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset>()
+                    {
+                        @Override
+                        public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset> handle(
+                                DssServiceRpcScreeningHolder dssService,
+                                List<FeatureVectorDatasetReference> references)
+                        {
+                            return dssService.getService().loadFeatures(sessionToken, references,
+                                    featureCodes);
+                        }
+                    };
+
+        return dssMultiplexer.process(featureDatasets, handler);
+    }
+
+    @Override
+    public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
+            final String sessionToken,
+            List<FeatureVectorDatasetWellReference> datasetWellReferences,
+            final List<String> featureCodes)
+    {
+        checkSession(sessionToken);
+
+        IDssServiceRpcScreeningBatchHandler<FeatureVectorDatasetWellReference, FeatureVectorWithDescription> handler =
+                new IDssServiceRpcScreeningBatchHandler<FeatureVectorDatasetWellReference, FeatureVectorWithDescription>()
+                    {
+                        @Override
+                        public List<FeatureVectorWithDescription> handle(
+                                DssServiceRpcScreeningHolder dssService,
+                                List<FeatureVectorDatasetWellReference> references)
+                        {
+                            return dssService.getService().loadFeaturesForDatasetWellReferences(
+                                    sessionToken, references, featureCodes);
+                        }
+                    };
+
+        return dssMultiplexer.process(datasetWellReferences, handler);
+    }
+
+    @Override
+    public List<String> loadImagesBase64(final String sessionToken,
+            List<PlateImageReference> imageReferences, final boolean convertToPng)
+    {
+        checkSession(sessionToken);
+
+        IDssServiceRpcScreeningBatchHandler<PlateImageReference, String> handler =
+                new IDssServiceRpcScreeningBatchHandler<PlateImageReference, String>()
+                    {
+                        @Override
+                        public List<String> handle(DssServiceRpcScreeningHolder dssService,
+                                List<PlateImageReference> references)
+                        {
+                            return dssService.getService().loadImagesBase64(sessionToken,
+                                    references, convertToPng);
+                        }
+                    };
+
+        return dssMultiplexer.process(imageReferences, handler);
+    }
+
+    @Override
+    public List<String> loadThumbnailImagesBase64(final String sessionToken,
+            List<PlateImageReference> imageReferences)
+    {
+        checkSession(sessionToken);
+
+        IDssServiceRpcScreeningBatchHandler<PlateImageReference, String> handler =
+                new IDssServiceRpcScreeningBatchHandler<PlateImageReference, String>()
+                    {
+                        @Override
+                        public List<String> handle(DssServiceRpcScreeningHolder dssService,
+                                List<PlateImageReference> references)
+                        {
+                            return dssService.getService().loadThumbnailImagesBase64(sessionToken,
+                                    references);
+                        }
+                    };
+
+        return dssMultiplexer.process(imageReferences, handler);
+    }
+
+    @Override
+    public List<String> loadImagesBase64(final String sessionToken,
+            List<PlateImageReference> imageReferences, final ImageSize size)
+    {
+        checkSession(sessionToken);
+
+        IDssServiceRpcScreeningBatchHandler<PlateImageReference, String> handler =
+                new IDssServiceRpcScreeningBatchHandler<PlateImageReference, String>()
+                    {
+                        @Override
+                        public List<String> handle(DssServiceRpcScreeningHolder dssService,
+                                List<PlateImageReference> references)
+                        {
+                            return dssService.getService().loadImagesBase64(sessionToken,
+                                    references, size);
+                        }
+                    };
+
+        return dssMultiplexer.process(imageReferences, handler);
+    }
+
+    @Override
+    public List<String> loadImagesBase64(final String sessionToken,
+            List<PlateImageReference> imageReferences)
+    {
+        checkSession(sessionToken);
+
+        IDssServiceRpcScreeningBatchHandler<PlateImageReference, String> handler =
+                new IDssServiceRpcScreeningBatchHandler<PlateImageReference, String>()
+                    {
+                        @Override
+                        public List<String> handle(DssServiceRpcScreeningHolder dssService,
+                                List<PlateImageReference> references)
+                        {
+                            return dssService.getService().loadImagesBase64(sessionToken,
+                                    references);
+                        }
+                    };
+
+        return dssMultiplexer.process(imageReferences, handler);
+    }
+
+    @Override
+    public List<String> loadImagesBase64(final String sessionToken,
+            List<PlateImageReference> imageReferences, final LoadImageConfiguration configuration)
+    {
+        IDssServiceRpcScreeningBatchHandler<PlateImageReference, String> handler =
+                new IDssServiceRpcScreeningBatchHandler<PlateImageReference, String>()
+                    {
+                        @Override
+                        public List<String> handle(DssServiceRpcScreeningHolder dssService,
+                                List<PlateImageReference> references)
+                        {
+                            return dssService.getService().loadImagesBase64(sessionToken,
+                                    references, configuration);
+                        }
+                    };
+
+        return dssMultiplexer.process(imageReferences, handler);
+    }
+
+    @Override
+    public List<String> loadImagesBase64(final String sessionToken,
+            List<PlateImageReference> imageReferences, final ImageRepresentationFormat format)
+    {
+        IDssServiceRpcScreeningBatchHandler<PlateImageReference, String> handler =
+                new IDssServiceRpcScreeningBatchHandler<PlateImageReference, String>()
+                    {
+                        @Override
+                        public List<String> handle(DssServiceRpcScreeningHolder dssService,
+                                List<PlateImageReference> references)
+                        {
+                            return dssService.getService().loadImagesBase64(sessionToken,
+                                    references, format);
+                        }
+                    };
+
+        return dssMultiplexer.process(imageReferences, handler);
+    }
+
+    @Override
+    public List<String> loadImagesBase64(final String sessionToken,
+            List<PlateImageReference> imageReferences,
+            final IImageRepresentationFormatSelectionCriterion... criteria)
+    {
+        IDssServiceRpcScreeningBatchHandler<PlateImageReference, String> handler =
+                new IDssServiceRpcScreeningBatchHandler<PlateImageReference, String>()
+                    {
+                        @Override
+                        public List<String> handle(DssServiceRpcScreeningHolder dssService,
+                                List<PlateImageReference> references)
+                        {
+                            return dssService.getService().loadImagesBase64(sessionToken,
+                                    references, criteria);
+                        }
+                    };
+
+        return dssMultiplexer.process(imageReferences, handler);
+    }
+
+    @Override
+    public List<ImageDatasetMetadata> listImageMetadata(final String sessionToken,
+            List<? extends IImageDatasetIdentifier> imageDatasets)
+    {
+        IDssServiceRpcScreeningBatchHandler<IImageDatasetIdentifier, ImageDatasetMetadata> handler =
+                new IDssServiceRpcScreeningBatchHandler<IImageDatasetIdentifier, ImageDatasetMetadata>()
+                    {
+                        @Override
+                        public List<ImageDatasetMetadata> handle(
+                                DssServiceRpcScreeningHolder dssService,
+                                List<IImageDatasetIdentifier> references)
+                        {
+                            return dssService.getService().listImageMetadata(sessionToken,
+                                    references);
+                        }
+                    };
+
+        return dssMultiplexer.process(imageDatasets, handler);
+    }
+
+    @Override
+    public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
+            final String sessionToken, List<? extends IDatasetIdentifier> imageDatasets)
+    {
+        IDssServiceRpcScreeningBatchHandler<IDatasetIdentifier, DatasetImageRepresentationFormats> handler =
+                new IDssServiceRpcScreeningBatchHandler<IDatasetIdentifier, DatasetImageRepresentationFormats>()
+                    {
+                        @Override
+                        public List<DatasetImageRepresentationFormats> handle(
+                                DssServiceRpcScreeningHolder dssService,
+                                List<IDatasetIdentifier> references)
+                        {
+                            return dssService.getService().listAvailableImageRepresentationFormats(
+                                    sessionToken, references);
+                        }
+                    };
+
+        return dssMultiplexer.process(imageDatasets, handler);
+    }
+
+    @Override
+    public List<String> loadPhysicalThumbnailsBase64(final String sessionToken,
+            List<PlateImageReference> imageReferences, final ImageRepresentationFormat format)
+    {
+        IDssServiceRpcScreeningBatchHandler<PlateImageReference, String> handler =
+                new IDssServiceRpcScreeningBatchHandler<PlateImageReference, String>()
+                    {
+                        @Override
+                        public List<String> handle(DssServiceRpcScreeningHolder dssService,
+                                List<PlateImageReference> references)
+                        {
+                            return dssService.getService().loadPhysicalThumbnailsBase64(
+                                    sessionToken, references, format);
+                        }
+                    };
+
+        return dssMultiplexer.process(imageReferences, handler);
     }
 
 }

@@ -79,6 +79,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
@@ -606,6 +607,14 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                 commonServer.listSampleExternalData(sessionToken, new TechId(sample.getId()),
                         areOnlyDirectlyConnectedIncluded);
         return Translator.translate(externalData, EnumSet.noneOf(Connections.class));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<DataStore> listDataStores(String sessionToken)
+    {
+        return Translator.translateDataStores(commonServer.listDataStores(sessionToken));
     }
 
     @Override

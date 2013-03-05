@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
@@ -193,6 +194,13 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     {
         logAccess(sessionToken, "list-data-sets", "SAMPLE(%s) INCLUDE-CONNECTED(%s)", sample,
                 areOnlyDirectlyConnectedIncluded);
+        return null;
+    }
+
+    @Override
+    public List<DataStore> listDataStores(String sessionToken)
+    {
+        logAccess(sessionToken, "list-data-stores");
         return null;
     }
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
+package ch.systemsx.cisd.openbis.dss.screening.shared.api.internal;
 
-import ch.rinn.restrictions.Private;
+import ch.rinn.restrictions.Private; 
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 
@@ -25,35 +25,34 @@ import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreen
  * 
  * @author Bernd Rinn
  */
-class DssServiceRpcScreeningHolder
+public class DssServiceRpcScreeningHolder
 {
+
     private final IDssServiceRpcScreening service;
 
     private final String serverUrl;
 
-    private final int majorVersion;
+    private Integer majorVersion;
 
-    private final int minorVersion;
+    private Integer minorVersion;
 
     @Private
-    DssServiceRpcScreeningHolder(String serverUrl, IDssServiceRpcScreening service)
+    public DssServiceRpcScreeningHolder(String serverUrl, IDssServiceRpcScreening service)
     {
         this.serverUrl = serverUrl;
         this.service = service;
-        this.majorVersion = service.getMajorVersion();
-        this.minorVersion = service.getMinorVersion();
     }
 
-    DssServiceRpcScreeningHolder(String serverUrl)
+    public DssServiceRpcScreeningHolder(String serverUrl, int majorVersion, long timeout)
     {
-        this(serverUrl, createService(serverUrl));
+        this(serverUrl, createService(serverUrl, majorVersion, timeout));
     }
 
-    private static IDssServiceRpcScreening createService(String serverUrl)
+    private static IDssServiceRpcScreening createService(String serverUrl, int majorVersion,
+            long timeout)
     {
         return HttpInvokerUtils.createStreamSupportingServiceStub(IDssServiceRpcScreening.class,
-                serverUrl + ScreeningOpenbisServiceFacade.DSS_SCREENING_API,
-                ScreeningOpenbisServiceFacade.SERVER_TIMEOUT_MILLIS);
+                serverUrl + "/rmi-datastore-server-screening-api-v" + majorVersion + "/", timeout);
     }
 
     public IDssServiceRpcScreening getService()
@@ -68,11 +67,19 @@ class DssServiceRpcScreeningHolder
 
     public int getMajorVersion()
     {
+        if (majorVersion == null)
+        {
+            majorVersion = service.getMajorVersion();
+        }
         return majorVersion;
     }
 
     public int getMinorVersion()
     {
+        if (minorVersion == null)
+        {
+            minorVersion = service.getMinorVersion();
+        }
         return minorVersion;
     }
 

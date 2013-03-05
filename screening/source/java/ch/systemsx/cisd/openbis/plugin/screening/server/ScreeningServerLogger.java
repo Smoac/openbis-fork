@@ -25,8 +25,8 @@ import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -39,15 +39,27 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentImageMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageRepresentationFormatSelectionCriterion;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
@@ -456,4 +468,133 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
                 experimentIdentifer);
         return null;
     }
+
+    @Override
+    public List<String> listAvailableFeatureCodes(String sessionToken,
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
+    {
+        logAccess(sessionToken, "listAvailableFeatureCodes", "#featureDatasets(%s)",
+                size(featureDatasets));
+        return null;
+    }
+
+    @Override
+    public List<FeatureInformation> listAvailableFeatures(String sessionToken,
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
+    {
+        logAccess(sessionToken, "listAvailableFeatures", "#featureDatasets(%s)",
+                size(featureDatasets));
+        return null;
+    }
+
+    @Override
+    public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset> loadFeatures(
+            String sessionToken, List<FeatureVectorDatasetReference> featureDatasets,
+            List<String> featureCodes)
+    {
+        logAccess(sessionToken, "loadFeatures", "#featureDatasets(%s), featureCodes(%s)",
+                size(featureDatasets), abbreviate(featureCodes));
+        return null;
+    }
+
+    @Override
+    public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
+            String sessionToken, List<FeatureVectorDatasetWellReference> datasetWellReferences,
+            List<String> featureCodes)
+    {
+        logAccess(sessionToken, "loadFeaturesForDatasetWellReferences",
+                "#datasetWellReferences(%s), featureCodes(%s)", size(datasetWellReferences),
+                abbreviate(featureCodes));
+        return null;
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, boolean convertToPng)
+    {
+        logAccess(sessionToken, "loadImagesBase64", "#imageReferences(%s), convertToPng(%s)",
+                size(imageReferences), convertToPng);
+        return null;
+    }
+
+    @Override
+    public List<String> loadThumbnailImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences)
+    {
+        logAccess(sessionToken, "loadThumbnailImagesBase64", "#imageReferences(%s)",
+                size(imageReferences));
+        return null;
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageSize size)
+    {
+        logAccess(sessionToken, "loadImagesBase64", "#imageReferences(%s), size(%s)",
+                size(imageReferences), size);
+        return null;
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences)
+    {
+        logAccess(sessionToken, "loadImagesBase64", "#imageReferences(%s)", size(imageReferences));
+        return null;
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, LoadImageConfiguration configuration)
+    {
+        logAccess(sessionToken, "loadImagesBase64", "#imageReferences(%s), configuration(%s)",
+                size(imageReferences), configuration);
+        return null;
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageRepresentationFormat format)
+    {
+        logAccess(sessionToken, "loadImagesBase64", "#imageReferences(%s), format(%s)",
+                size(imageReferences), format);
+        return null;
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences,
+            IImageRepresentationFormatSelectionCriterion... criteria)
+    {
+        logAccess(sessionToken, "loadImagesBase64", "#imageReferences(%s), #criteria(%s)",
+                size(imageReferences), size(criteria));
+        return null;
+    }
+
+    @Override
+    public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
+            List<? extends IImageDatasetIdentifier> imageDatasets)
+    {
+        logAccess(sessionToken, "listImageMetadata", "#imageDatasets(%s)", size(imageDatasets));
+        return null;
+    }
+
+    @Override
+    public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
+            String sessionToken, List<? extends IDatasetIdentifier> imageDatasets)
+    {
+        logAccess(sessionToken, "listAvailableImageRepresentationFormats", "#imageDatasets(%s)",
+                size(imageDatasets));
+        return null;
+    }
+
+    @Override
+    public List<String> loadPhysicalThumbnailsBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageRepresentationFormat format)
+    {
+        logAccess(sessionToken, "loadPhysicalThumbnailsBase64", "#imageReferences(%s), format(%s)",
+                size(imageReferences), format);
+        return null;
+    }
+
 }

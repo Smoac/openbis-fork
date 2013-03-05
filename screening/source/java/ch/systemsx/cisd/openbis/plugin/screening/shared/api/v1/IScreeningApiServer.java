@@ -22,16 +22,30 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.api.MinimalMinorVersion;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentImageMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageRepresentationFormatSelectionCriterion;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
@@ -247,5 +261,165 @@ public interface IScreeningApiServer extends IRpcService
     @MinimalMinorVersion(1)
     ExperimentImageMetadata getExperimentImageMetadata(String sessionToken,
             ExperimentIdentifier experimentIdentifer);
+
+    /**
+     * Groups the specified objects by a data store code and calls
+     * {@link IDssServiceRpcScreening#listAvailableFeatureCodes(String, List)} method for each group
+     * of objects on appropriate data store server. Results from the data stores are combined and
+     * returned as a result of this method.
+     * 
+     * @since 1.10
+     */
+    @Transactional(readOnly = true)
+    @MinimalMinorVersion(10)
+    public List<String> listAvailableFeatureCodes(String sessionToken,
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
+
+    /**
+     * Groups the specified objects by a data store code and calls
+     * {@link IDssServiceRpcScreening#listAvailableFeatures(String, List)} method for each group of
+     * objects on appropriate data store server. Results from the data stores are combined and
+     * returned as a result of this method.
+     * 
+     * @since 1.10
+     */
+    @Transactional(readOnly = true)
+    @MinimalMinorVersion(10)
+    public List<FeatureInformation> listAvailableFeatures(String sessionToken,
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
+
+    /**
+     * Groups the specified objects by a data store code and calls
+     * {@link IDssServiceRpcScreening#loadFeatures(String, List, List)} method for each group of
+     * objects on appropriate data store server. Results from the data stores are combined and
+     * returned as a result of this method.
+     * 
+     * @since 1.10
+     */
+    public List<FeatureVectorDataset> loadFeatures(String sessionToken,
+            List<FeatureVectorDatasetReference> featureDatasets, List<String> featureCodes);
+
+    /**
+     * Groups the specified objects by a data store code and calls
+     * {@link IDssServiceRpcScreening#loadFeaturesForDatasetWellReferences(String, List, List)}
+     * method for each group of objects on appropriate data store server. Results from the data
+     * stores are combined and returned as a result of this method.
+     * 
+     * @since 1.10
+     */
+    public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
+            String sessionToken, List<FeatureVectorDatasetWellReference> datasetWellReferences,
+            List<String> featureCodes);
+
+    /**
+     * Groups the specified objects by a data store code and calls
+     * {@link IDssServiceRpcScreening#loadImagesBase64(String, List, boolean)} method for each group
+     * of objects on appropriate data store server. Results from the data stores are combined and
+     * returned as a result of this method.
+     * 
+     * @since 1.10
+     */
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, boolean convertToPng);
+
+    /**
+     * Groups the specified objects by a data store code and calls
+     * {@link IDssServiceRpcScreening#loadThumbnailImagesBase64(String, List)} method for each group
+     * of objects on appropriate data store server. Results from the data stores are combined and
+     * returned as a result of this method.
+     * 
+     * @since 1.10
+     */
+    public List<String> loadThumbnailImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences);
+
+    /**
+     * Groups the specified objects by a data store code and calls
+     * {@link IDssServiceRpcScreening#loadImagesBase64(String, List, ImageSize)} method for each
+     * group of objects on appropriate data store server. Results from the data stores are combined
+     * and returned as a result of this method.
+     * 
+     * @since 1.10
+     */
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageSize size);
+
+    /**
+     * Groups the specified objects by a data store code and calls
+     * {@link IDssServiceRpcScreening#loadImagesBase64(String, List)} method for each group of
+     * objects on appropriate data store server. Results from the data stores are combined and
+     * returned as a result of this method.
+     * 
+     * @since 1.10
+     */
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences);
+
+    /**
+     * Groups the specified objects by a data store code and calls
+     * {@link IDssServiceRpcScreening#loadImagesBase64(String, List, LoadImageConfiguration)} method
+     * for each group of objects on appropriate data store server. Results from the data stores are
+     * combined and returned as a result of this method.
+     * 
+     * @since 1.10
+     */
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, LoadImageConfiguration configuration);
+
+    /**
+     * Groups the specified objects by a data store code and calls
+     * {@link IDssServiceRpcScreening#loadImagesBase64(String, List, ImageRepresentationFormat)}
+     * method for each group of objects on appropriate data store server. Results from the data
+     * stores are combined and returned as a result of this method.
+     * 
+     * @since 1.10
+     */
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageRepresentationFormat format);
+
+    /**
+     * Groups the specified objects by a data store code and calls
+     * {@link IDssServiceRpcScreening#loadImagesBase64(String, List, IImageRepresentationFormatSelectionCriterion...)}
+     * method for each group of objects on appropriate data store server. Results from the data
+     * stores are combined and returned as a result of this method.
+     * 
+     * @since 1.10
+     */
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences,
+            IImageRepresentationFormatSelectionCriterion... criteria);
+
+    /**
+     * Groups the specified objects by a data store code and calls
+     * {@link IDssServiceRpcScreening#listImageMetadata(String, List)} method for each group of
+     * objects on appropriate data store server. Results from the data stores are combined and
+     * returned as a result of this method.
+     * 
+     * @since 1.10
+     */
+    public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
+            List<? extends IImageDatasetIdentifier> imageDatasets);
+
+    /**
+     * Groups the specified objects by a data store code and calls
+     * {@link IDssServiceRpcScreening#listAvailableImageRepresentationFormats(String, List)} method
+     * for each group of objects on appropriate data store server. Results from the data stores are
+     * combined and returned as a result of this method.
+     * 
+     * @since 1.10
+     */
+    public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
+            String sessionToken, List<? extends IDatasetIdentifier> imageDatasets);
+
+    /**
+     * Groups the specified objects by a data store code and calls
+     * {@link IDssServiceRpcScreening#loadPhysicalThumbnailsBase64(String, List, ImageRepresentationFormat)}
+     * method for each group of objects on appropriate data store server. Results from the data
+     * stores are combined and returned as a result of this method.
+     * 
+     * @since 1.10
+     */
+    public List<String> loadPhysicalThumbnailsBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageRepresentationFormat format);
 
 }

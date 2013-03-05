@@ -23,15 +23,28 @@ import java.util.List;
 import ch.systemsx.cisd.common.collection.IModifiable;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentImageMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageRepresentationFormatSelectionCriterion;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
@@ -199,6 +212,110 @@ public class ScreeningServerJson implements IScreeningApiServer
         return server.getExperimentImageMetadata(sessionToken, experimentIdentifer);
     }
 
+    @Override
+    public List<String> listAvailableFeatureCodes(String sessionToken,
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
+    {
+        return server.listAvailableFeatureCodes(sessionToken, featureDatasets);
+    }
+
+    @Override
+    public List<FeatureInformation> listAvailableFeatures(String sessionToken,
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
+    {
+        return new FeatureInformationList(server.listAvailableFeatures(sessionToken,
+                featureDatasets));
+    }
+
+    @Override
+    public List<FeatureVectorDataset> loadFeatures(String sessionToken,
+            List<FeatureVectorDatasetReference> featureDatasets, List<String> featureCodes)
+    {
+        return new FeatureVectorDatasetList(server.loadFeatures(sessionToken, featureDatasets,
+                featureCodes));
+    }
+
+    @Override
+    public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
+            String sessionToken, List<FeatureVectorDatasetWellReference> datasetWellReferences,
+            List<String> featureCodes)
+    {
+        return new FeatureVectorWithDescriptionList(server.loadFeaturesForDatasetWellReferences(
+                sessionToken, datasetWellReferences, featureCodes));
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, boolean convertToPng)
+    {
+        return server.loadImagesBase64(sessionToken, imageReferences, convertToPng);
+    }
+
+    @Override
+    public List<String> loadThumbnailImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences)
+    {
+        return server.loadThumbnailImagesBase64(sessionToken, imageReferences);
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageSize size)
+    {
+        return server.loadImagesBase64(sessionToken, imageReferences, size);
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences)
+    {
+        return server.loadImagesBase64(sessionToken, imageReferences);
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, LoadImageConfiguration configuration)
+    {
+        return server.loadImagesBase64(sessionToken, imageReferences, configuration);
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageRepresentationFormat format)
+    {
+        return server.loadImagesBase64(sessionToken, imageReferences, format);
+    }
+
+    @Override
+    public List<String> loadImagesBase64(String sessionToken,
+            List<PlateImageReference> imageReferences,
+            IImageRepresentationFormatSelectionCriterion... criteria)
+    {
+        return server.loadImagesBase64(sessionToken, imageReferences, criteria);
+    }
+
+    @Override
+    public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
+            List<? extends IImageDatasetIdentifier> imageDatasets)
+    {
+        return new ImageDatasetMetadataList(server.listImageMetadata(sessionToken, imageDatasets));
+    }
+
+    @Override
+    public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
+            String sessionToken, List<? extends IDatasetIdentifier> imageDatasets)
+    {
+        return new DatasetImageRepresentationFormatsList(
+                server.listAvailableImageRepresentationFormats(sessionToken, imageDatasets));
+    }
+
+    @Override
+    public List<String> loadPhysicalThumbnailsBase64(String sessionToken,
+            List<PlateImageReference> imageReferences, ImageRepresentationFormat format)
+    {
+        return server.loadPhysicalThumbnailsBase64(sessionToken, imageReferences, format);
+    }
+
     /*
      * The collections listed below have been created to help Jackson library embed/detect types of
      * the collection's items during JSON serialization/deserialization. (see
@@ -282,7 +399,8 @@ public class ScreeningServerJson implements IScreeningApiServer
         }
     }
 
-    private static class WellIdentifierList extends ArrayList<WellIdentifier> implements IModifiable
+    private static class WellIdentifierList extends ArrayList<WellIdentifier> implements
+            IModifiable
     {
         private static final long serialVersionUID = 1L;
 
@@ -298,6 +416,62 @@ public class ScreeningServerJson implements IScreeningApiServer
         private static final long serialVersionUID = 1L;
 
         public PlateWellMaterialMappingList(Collection<? extends PlateWellMaterialMapping> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class FeatureInformationList extends ArrayList<FeatureInformation> implements
+            IModifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public FeatureInformationList(Collection<? extends FeatureInformation> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class FeatureVectorDatasetList extends ArrayList<FeatureVectorDataset> implements
+            IModifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public FeatureVectorDatasetList(Collection<? extends FeatureVectorDataset> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class FeatureVectorWithDescriptionList extends
+            ArrayList<FeatureVectorWithDescription> implements IModifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public FeatureVectorWithDescriptionList(Collection<? extends FeatureVectorWithDescription> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class ImageDatasetMetadataList extends ArrayList<ImageDatasetMetadata> implements
+            IModifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public ImageDatasetMetadataList(Collection<? extends ImageDatasetMetadata> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class DatasetImageRepresentationFormatsList extends
+            ArrayList<DatasetImageRepresentationFormats> implements IModifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public DatasetImageRepresentationFormatsList(
+                Collection<? extends DatasetImageRepresentationFormats> c)
         {
             super(c);
         }

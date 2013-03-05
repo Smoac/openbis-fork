@@ -1150,6 +1150,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
+    public List<DataStore> listDataStores(String sessionToken)
+    {
+        logAccess(sessionToken, "listDataStores");
+        return null;
+    }
+
+    @Override
     public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken,
             DataStoreServiceKind dataStoreServiceKind)
     {

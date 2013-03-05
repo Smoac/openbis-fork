@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType.DataSetTypeInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
@@ -104,6 +105,26 @@ public class Translator
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project project : projects)
         {
             translated.add(translate(project));
+        }
+
+        return translated;
+    }
+
+    public static DataStore translate(
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore dataStore)
+    {
+        return new DataStore(dataStore.getCode(), dataStore.getDownloadUrl(),
+                dataStore.getHostUrl());
+    }
+
+    public static List<DataStore> translateDataStores(
+            List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore> dataStores)
+    {
+        ArrayList<DataStore> translated = new ArrayList<DataStore>();
+
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore dataStore : dataStores)
+        {
+            translated.add(translate(dataStore));
         }
 
         return translated;

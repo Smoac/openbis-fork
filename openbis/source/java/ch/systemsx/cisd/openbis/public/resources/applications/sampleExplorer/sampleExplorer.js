@@ -18,7 +18,7 @@ $.extend(sampleExplorer.prototype, {
 		widget.append(this.renderHome());
 		
 		this.openbis.getSessionToken(function(getSessionTokenResponse){
-			$this.openbis.sessionToken = getSessionTokenResponse.result;
+			$this.openbis.useSession(getSessionTokenResponse.result);
 			widget.append($this.renderTree());
 			widget.append($this.renderView());
 		});

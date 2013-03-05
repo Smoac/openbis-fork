@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
@@ -281,6 +282,14 @@ public interface IGeneralInformationService extends IRpcService
             boolean areOnlyDirectlyConnectedIncluded);
 
     /**
+     * Lists all DSS server registered this openBIS server instance. Any of the returned instances
+     * could be offline at the time of the listing.
+     * 
+     * @since 1.23
+     */
+    public List<DataStore> listDataStores(String sessionToken);
+
+    /**
      * Returns the URL for the default data store server for this openBIS AS.
      * 
      * @since 1.4
@@ -497,9 +506,9 @@ public interface IGeneralInformationService extends IRpcService
      *            return only the latest version.
      * @since 1.23
      */
-    public List<Attachment> listAttachmentsForProject(String sessionToken,
-            IProjectId projectId, boolean allVersions);
-    
+    public List<Attachment> listAttachmentsForProject(String sessionToken, IProjectId projectId,
+            boolean allVersions);
+
     /**
      * Lists attachments of specified experiment.
      * 
@@ -509,7 +518,7 @@ public interface IGeneralInformationService extends IRpcService
      */
     public List<Attachment> listAttachmentsForExperiment(String sessionToken,
             IExperimentId experimentId, boolean allVersions);
-    
+
     /**
      * Lists attachments of specified sample.
      * 
@@ -517,6 +526,6 @@ public interface IGeneralInformationService extends IRpcService
      *            return only the latest version.
      * @since 1.23
      */
-    public List<Attachment> listAttachmentsForSample(String sessionToken,
-            ISampleId sampleId, boolean allVersions);
+    public List<Attachment> listAttachmentsForSample(String sessionToken, ISampleId sampleId,
+            boolean allVersions);
 }

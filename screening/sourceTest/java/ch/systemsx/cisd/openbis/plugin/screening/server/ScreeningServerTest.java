@@ -23,6 +23,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.IDssServiceRpcScreeningMultiplexer;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
@@ -52,6 +53,7 @@ public class ScreeningServerTest extends AbstractServerTestCase
     private IScreeningBusinessObjectFactory screeningBOFactory;
     private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
     private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
+    private IDssServiceRpcScreeningMultiplexer dssMultiplexer;
     private ScreeningServer server;
     private SamplePE exampleSample;
 
@@ -61,10 +63,11 @@ public class ScreeningServerTest extends AbstractServerTestCase
         screeningBOFactory = context.mock(IScreeningBusinessObjectFactory.class);
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
+        dssMultiplexer = context.mock(IDssServiceRpcScreeningMultiplexer.class);
         server =
                 new ScreeningServer(sessionManager, daoFactory, propertiesBatchManager,
                         screeningBOFactory, sampleTypeSlaveServerPlugin,
-                        dataSetTypeSlaveServerPlugin);
+                        dataSetTypeSlaveServerPlugin, dssMultiplexer);
         PropertyTypePE propertyType =
                 CommonTestUtils.createPropertyType("A", DataTypeCode.VARCHAR, null, null);
         SampleTypePEBuilder typeBuilder = new SampleTypePEBuilder().id(1).code("ABC");

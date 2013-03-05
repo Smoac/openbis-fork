@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2013 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.screening.shared.api.v1;
+package ch.systemsx.cisd.openbis.dss.screening.shared.api.internal;
 
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 
 /**
- * This class exists only for backward compatibility. Please use
- * {@link ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration}
- * instead.
- * 
  * @author pkupczyk
  */
-@JsonObject("LoadImageConfigurationDss")
-@Deprecated
-public class LoadImageConfiguration extends
-        ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration
+public interface IDssServiceRpcScreeningMultiplexer
 {
 
-    private static final long serialVersionUID = 1L;
+    public <R extends IDatasetIdentifier, V> List<V> process(final List<? extends R> references,
+            final IDssServiceRpcScreeningBatchHandler<R, V> batchHandler);
 
 }

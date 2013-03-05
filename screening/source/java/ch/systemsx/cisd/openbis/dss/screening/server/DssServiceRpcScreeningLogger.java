@@ -23,7 +23,6 @@ import java.util.List;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.LoadImageConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
@@ -325,8 +324,10 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
     }
 
     @Override
-    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
-            LoadImageConfiguration configuration)
+    public InputStream loadImages(
+            String sessionToken,
+            List<PlateImageReference> imageReferences,
+            ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration configuration)
     {
         logAccess(sessionToken, "load_images", "IMAGE_REFERENCES(%s) CONFIGURATION(%s)",
                 imageReferences, configuration);
@@ -334,8 +335,10 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
     }
 
     @Override
-    public List<String> loadImagesBase64(String sessionToken,
-            List<PlateImageReference> imageReferences, LoadImageConfiguration configuration)
+    public List<String> loadImagesBase64(
+            String sessionToken,
+            List<PlateImageReference> imageReferences,
+            ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration configuration)
     {
         logAccess(sessionToken, "load_images_base64", "IMAGE_REFERENCES(%s) CONFIGURATION(%s)",
                 imageReferences, configuration);
