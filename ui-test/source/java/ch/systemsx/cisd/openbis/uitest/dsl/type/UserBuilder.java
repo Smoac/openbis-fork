@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
 import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
 import ch.systemsx.cisd.openbis.uitest.rmi.CreateUserRmi;
@@ -31,7 +34,9 @@ public class UserBuilder implements Builder<User>
 
     private String name;
 
-    private Space space;
+    private Collection<Space> adminOf;
+
+    private Space homeSpace;
 
     public UserBuilder(UidGenerator uid)
     {
@@ -40,6 +45,8 @@ public class UserBuilder implements Builder<User>
         {
             name = name.substring(0, 50);
         }
+        this.adminOf = new HashSet<Space>();
+        this.homeSpace = null;
     }
 
     @SuppressWarnings("hiding")
@@ -52,7 +59,13 @@ public class UserBuilder implements Builder<User>
     @SuppressWarnings("hiding")
     public UserBuilder asAdminOf(Space space)
     {
-        this.space = space;
+        adminOf.add(space);
+        return this;
+    }
+
+    public UserBuilder withHomeSpace(Space space)
+    {
+        this.homeSpace = space;
         return this;
     }
 
@@ -61,7 +74,7 @@ public class UserBuilder implements Builder<User>
     {
         if (Ui.PUBLIC_API.equals(ui))
         {
-            return openbis.execute(new CreateUserRmi(new UserDsl(name), space));
+            return openbis.execute(new CreateUserRmi(new UserDsl(name), homeSpace, adminOf));
         } else if (Ui.DUMMY.equals(ui))
         {
             return new UserDsl(name);

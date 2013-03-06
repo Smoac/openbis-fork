@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright 2013 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.menu;
+package ch.systemsx.cisd.openbis.uitest.type;
 
-import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.widget.Link;
+import ch.systemsx.cisd.openbis.uitest.dsl.IdentifiedBy;
 
-public class ImportMenu
+/**
+ * @author anttil
+ */
+public interface ImportFile
 {
+    public void add(Sample sample, IdentifiedBy idType);
 
-    @Locate("openbis_top-menu_SAMPLE_MENU_IMPORT")
-    private Link sampleRegistration;
+    public void add(Material material);
 
-    @Locate("openbis_top-menu_GENERAL_IMPORT_MENU")
-    private Link generalBatchImport;
+    public void add(Experiment experiment);
 
-    public void sampleRegistration()
-    {
-        sampleRegistration.click();
-    }
+    public String getPath();
 
-    public void generalBatchImport()
-    {
-        generalBatchImport.click();
-    }
-
+    public int getTypeCount();
 }

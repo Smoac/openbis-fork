@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
 import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
@@ -89,13 +90,19 @@ public class SampleTypeBuilder implements Builder<SampleType>
         return this;
     }
 
+    public SampleTypeBuilder withCodePrefix(String prefix)
+    {
+        this.code = prefix + "_" + UUID.randomUUID().toString();
+        return this;
+    }
+
     public SampleTypeBuilder thatShowsParents()
     {
         this.showsParents = true;
         return this;
     }
 
-    public SampleTypeBuilder thatShowsContainer()
+    public SampleTypeBuilder thatCanBeComponent()
     {
         this.showsContainer = true;
         return this;

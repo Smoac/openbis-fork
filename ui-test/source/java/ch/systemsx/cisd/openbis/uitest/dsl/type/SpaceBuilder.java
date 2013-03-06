@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
+import java.util.UUID;
+
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
 import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
 import ch.systemsx.cisd.openbis.uitest.gui.CreateSpaceGui;
@@ -43,6 +45,12 @@ public class SpaceBuilder implements Builder<Space>
     public SpaceBuilder withCode(String code)
     {
         this.code = code;
+        return this;
+    }
+
+    public SpaceBuilder withCodePrefix(String prefix)
+    {
+        this.code = prefix + "_" + UUID.randomUUID().toString();
         return this;
     }
 

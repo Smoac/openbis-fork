@@ -64,7 +64,11 @@ public class TabBar
         Collection<String> tabs = new HashSet<String>();
         for (WebElement link : getTabLinks())
         {
-            tabs.add(link.getText());
+            // strip awqy tabs that are not real tabs
+            if (link.getText().trim().isEmpty() == false)
+            {
+                tabs.add(link.getText());
+            }
         }
         return tabs;
     }

@@ -37,10 +37,13 @@ public class Console extends Writer
 
     private long timeout;
 
+    private String error;
+
     public Console()
     {
         buffering = false;
         timeout = DEFAULT_TIMEOUT;
+        this.error = null;
     }
 
     @Override
@@ -84,6 +87,7 @@ public class Console extends Writer
     public void reset()
     {
         this.timeout = DEFAULT_TIMEOUT;
+        this.error = null;
     }
 
     public void waitFor(String... text)
@@ -102,6 +106,12 @@ public class Console extends Writer
             {
                 this.buffering = false;
                 break;
+            }
+
+            if (line != null && error != null && containsAll(line, new String[]
+                { error }))
+            {
+                throw new CommandNotSuccessful("Failed: " + line);
             }
 
             if (System.currentTimeMillis() - startTime > timeout)
@@ -124,5 +134,10 @@ public class Console extends Writer
             return false;
         }
         return true;
+    }
+
+    public void setError(String error)
+    {
+        this.error = error;
     }
 }

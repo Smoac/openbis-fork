@@ -63,7 +63,7 @@ public class SprintTest extends SprintSuite
                 create(aSampleType()
                         .withCode("sprint_test")
                         .thatIsNotListable()
-                        .thatShowsContainer()
+                        .thatCanBeComponent()
                         .thatShowsParents());
         assertThat(browserEntryOf(sampleType), exists());
         assertThat(sampleTypesInSampleBrowser(), doNotContain(sampleType));

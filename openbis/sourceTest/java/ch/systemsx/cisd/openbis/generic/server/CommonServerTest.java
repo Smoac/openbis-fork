@@ -1813,6 +1813,8 @@ public final class CommonServerTest extends AbstractServerTestCase
 
                     one(groupDAO).getByTechId(groupId);
                     will(returnValue(group));
+
+                    allowing(personDAO).updatePerson(person);
                 }
             });
 
@@ -1839,6 +1841,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     Session mySession = createSession(CommonTestUtils.USER_ID);
                     mySession.setPerson(person);
                     will(returnValue(mySession));
+                    allowing(personDAO).updatePerson(person);
                 }
             });
 

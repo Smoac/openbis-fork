@@ -84,6 +84,7 @@ import ch.systemsx.cisd.openbis.uitest.gui.DeleteSampleTypeGui;
 import ch.systemsx.cisd.openbis.uitest.gui.DeleteSpaceGui;
 import ch.systemsx.cisd.openbis.uitest.gui.DeleteVocabularyGui;
 import ch.systemsx.cisd.openbis.uitest.gui.EmptyTrashGui;
+import ch.systemsx.cisd.openbis.uitest.gui.GeneralBatchImportGui;
 import ch.systemsx.cisd.openbis.uitest.gui.LoginGui;
 import ch.systemsx.cisd.openbis.uitest.gui.LogoutGui;
 import ch.systemsx.cisd.openbis.uitest.gui.RegisterSampleBatchGui;
@@ -121,6 +122,8 @@ import ch.systemsx.cisd.openbis.uitest.type.DataSetType;
 import ch.systemsx.cisd.openbis.uitest.type.Entity;
 import ch.systemsx.cisd.openbis.uitest.type.Experiment;
 import ch.systemsx.cisd.openbis.uitest.type.ExperimentType;
+import ch.systemsx.cisd.openbis.uitest.type.GeneralBatchImportFile;
+import ch.systemsx.cisd.openbis.uitest.type.ImportFile;
 import ch.systemsx.cisd.openbis.uitest.type.Material;
 import ch.systemsx.cisd.openbis.uitest.type.MetaProject;
 import ch.systemsx.cisd.openbis.uitest.type.Project;
@@ -219,6 +222,9 @@ public abstract class SeleniumTest
     {
         if (driver == null)
         {
+            // System.setProperty("webdriver.chrome.driver",
+            // "/Users/anttil/Downloads/chromedriver");
+            // driver = new ChromeDriver();
             driver = new FirefoxDriver();
             setImplicitWaitToDefault();
             driver.manage().deleteAllCookies();
@@ -324,13 +330,43 @@ public abstract class SeleniumTest
     public <T> T as(User user, T t)
     {
         openbis.changeLogin(assume(aUser().withName(SeleniumTest.ADMIN_USER)));
+
+        if (ui.equals(Ui.WEB))
+        {
+            logout();
+            login(SeleniumTest.ADMIN_USER, "pwd");
+            TabBar tabs = pages.load(TabBar.class);
+            for (String tab : tabs.getTabs())
+            {
+                pages.load(TabBar.class).closeTab(tab);
+            }
+
+        }
         return t;
     }
 
     public User user(User user)
     {
         openbis.changeLogin(user);
+
+        if (ui.equals(Ui.WEB))
+        {
+            logout();
+            login(user.getName(), "pwd");
+            TabBar tabs = pages.load(TabBar.class);
+            for (String tab : tabs.getTabs())
+            {
+                pages.load(TabBar.class).closeTab(tab);
+            }
+
+        }
+
         return user;
+    }
+
+    public User user(UserBuilder builder)
+    {
+        return user(using(publicApi(), create(builder)));
     }
 
     public static void setImplicitWait(long amount, TimeUnit unit)
@@ -492,6 +528,17 @@ public abstract class SeleniumTest
         return new CurrentPageMatcher(pageClass);
     }
 
+    public Matcher<BrowserRow> hasSpace(Space space)
+    {
+        return containsValue("Space", space.getCode());
+    }
+
+    public Matcher<BrowserRow> hasContainer(Sample sample)
+    {
+        return containsValue("Container", "/" + sample.getSpace().getCode() + "/"
+                + sample.getCode());
+    }
+
     protected Matcher<RegisterSample> hasInputsForProperties(PropertyType... fields)
     {
         return new RegisterSampleFormContainsInputsForPropertiesMatcher(fields);
@@ -547,10 +594,37 @@ public abstract class SeleniumTest
         return new CollectionContainsExactlyMatcher<T>(t);
     }
 
-    public <T> T create(Builder<T> builder) throws Exception
+    public <T> T create(Builder<T> builder)
     {
         T t = builder.build(openbis, ui);
         return t;
+    }
+
+    protected GeneralBatchImportFileBuilder aGeneralBatchImportFile()
+    {
+        return new GeneralBatchImportFileBuilder();
+    }
+
+    public <T extends ImportFile> T create(T importFile)
+    {
+        return importFile;
+    }
+
+    public <T extends ImportFile> T in(T importFile)
+    {
+        return importFile;
+    }
+
+    public Sample create(ImportFile file, SampleBuilder builder, IdentifiedBy idType)
+    {
+        Sample sample = assume(builder);
+        file.add(sample, idType);
+        return sample;
+    }
+
+    public Sample create(ImportFile file, SampleBuilder builder)
+    {
+        return create(file, builder, IdentifiedBy.SPACE_AND_CODE);
     }
 
     protected <T> T assume(Builder<T> builder)
@@ -890,5 +964,11 @@ public abstract class SeleniumTest
     public void batchRegister(List<Sample> samples)
     {
         openbis.execute(new RegisterSampleBatchGui(samples));
+    }
+
+    public Void generalBatchImport(GeneralBatchImportFile file)
+    {
+        openbis.execute(new GeneralBatchImportGui(file));
+        return null;
     }
 }

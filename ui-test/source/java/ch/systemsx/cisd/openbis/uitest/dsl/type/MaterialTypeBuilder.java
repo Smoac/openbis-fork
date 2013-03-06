@@ -34,6 +34,13 @@ public class MaterialTypeBuilder implements Builder<MaterialType>
         this.code = uid.uid();
     }
 
+    @SuppressWarnings("hiding")
+    public MaterialTypeBuilder withCode(String code)
+    {
+        this.code = code;
+        return this;
+    }
+
     @Override
     public MaterialType build(Application openbis, Ui ui)
     {

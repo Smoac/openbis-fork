@@ -16,9 +16,13 @@
 
 package ch.systemsx.cisd.openbis.uitest.rmi;
 
+import java.util.Collection;
+
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.uitest.dsl.Command;
 import ch.systemsx.cisd.openbis.uitest.dsl.Inject;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
@@ -38,12 +42,15 @@ public class CreateUserRmi implements Command<User>
 
     private User user;
 
-    private Space space;
+    private Space homeSpace;
 
-    public CreateUserRmi(User user, Space space)
+    private Collection<Space> adminOf;
+
+    public CreateUserRmi(User user, Space homeSpace, Collection<Space> adminOf)
     {
         this.user = user;
-        this.space = space;
+        this.homeSpace = homeSpace;
+        this.adminOf = adminOf;
     }
 
     @Override
@@ -51,15 +58,37 @@ public class CreateUserRmi implements Command<User>
     {
         String userName = user.getName();
         commonServer.registerPerson(session, userName);
-        if (this.space != null)
+        if (adminOf.isEmpty() == false)
         {
-            commonServer.registerSpaceRole(session, RoleCode.ADMIN, Identifiers.get(space), Grantee
-                    .createPerson(userName));
+            for (Space space : adminOf)
+            {
+                commonServer.registerSpaceRole(session, RoleCode.ADMIN, Identifiers.get(space),
+                        Grantee
+                                .createPerson(userName));
+            }
         } else
         {
             commonServer.registerInstanceRole(session, RoleCode.ADMIN, Grantee
                     .createPerson(userName));
         }
+
+        if (homeSpace != null)
+        {
+            String userSession =
+                    commonServer.tryAuthenticate(userName, "pwd").getSessionToken();
+
+            for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space space : commonServer
+                    .listSpaces(session, new DatabaseInstanceIdentifier("CISD")))
+            {
+                if (space.getCode().equalsIgnoreCase(homeSpace.getCode()))
+                {
+                    commonServer.changeUserHomeSpace(userSession, new TechId(space.getId()));
+                    return user;
+                }
+            }
+            throw new IllegalArgumentException("Home space could not be set");
+        }
+
         return user;
     }
 }

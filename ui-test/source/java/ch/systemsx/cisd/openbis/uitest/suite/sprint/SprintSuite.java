@@ -32,11 +32,13 @@ public abstract class SprintSuite extends SeleniumTest
         useGui();
         login(ADMIN_USER, ADMIN_PASSWORD);
 
-        // this is because of BIS-184
-        if (tabsContain(sampleBrowser()))
-        {
-            switchTabTo(sampleBrowser()).allSpaces();
-        }
+        // TODO
+        // This is because changing filters later at the same time with columns
+        // causes StaleElementReferenceExceptions. Should be fixed.
+        create(aSampleType());
+        browser().goTo(sampleBrowser()).allSpaces();
+        browser().goTo(sampleBrowser()).getPaging().settings();
+        browser().goTo(sampleBrowser()).getSettings().showFilters("Subcode");
     }
 
     @AfterTest

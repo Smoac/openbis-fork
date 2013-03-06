@@ -89,7 +89,7 @@ public class SampleBuilder implements Builder<Sample>
         return this;
     }
 
-    public SampleBuilder in(Sample container)
+    public SampleBuilder containedBy(Sample container)
     {
         this.container = container;
         return this;

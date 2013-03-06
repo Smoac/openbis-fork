@@ -835,7 +835,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                     groupIdOrNull == null ? null : getDAOFactory().getSpaceDAO().getByTechId(
                             groupIdOrNull);
             person.setHomeSpace(homeGroup);
-            // don't need to updatePerson(person) with DAO because it is attached to a session
+            getDAOFactory().getPersonDAO().updatePerson(person);
         }
     }
 

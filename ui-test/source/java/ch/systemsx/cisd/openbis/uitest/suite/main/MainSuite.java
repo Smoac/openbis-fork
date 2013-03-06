@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.uitest.suite.main;
 
 import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
@@ -26,6 +27,8 @@ import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
  */
 public abstract class MainSuite extends SeleniumTest
 {
+    private boolean fixtureRun = false;
+
     @BeforeTest
     public void before()
     {
@@ -33,11 +36,29 @@ public abstract class MainSuite extends SeleniumTest
 
         login(ADMIN_USER, ADMIN_PASSWORD);
 
-        // this is because of BIS-184
-        if (tabsContain(sampleBrowser()))
+        // This is because changing filters later at the same time with columns
+        // causes StaleElementReferenceExceptions and I cannot figure out how to fix them.
+        create(aSampleType());
+        browser().goTo(sampleBrowser()).allSpaces();
+        browser().goTo(sampleBrowser()).getPaging().settings();
+        browser().goTo(sampleBrowser()).getSettings().showFilters("Subcode");
+
+        fixturex();
+    }
+
+    @BeforeMethod(alwaysRun = true)
+    protected synchronized void fixturex()
+    {
+        if (fixtureRun == false)
         {
-            switchTabTo(sampleBrowser()).allSpaces();
+            fixture();
         }
+        fixtureRun = true;
+    }
+
+    protected void fixture()
+    {
+
     }
 
     @AfterTest

@@ -56,6 +56,10 @@ public class RegisterSample
     private DropDown spaces;
 
     @Lazy
+    @Locate("openbis_generic-sample-register_formcontainer")
+    private Text container;
+
+    @Lazy
     @Locate("openbis_generic-sample-register_formsave-button")
     private Button save;
 
@@ -80,6 +84,13 @@ public class RegisterSample
             experiment.write("/" + sample.getSpace().getCode() + "/"
                     + sample.getExperiment().getProject().getCode()
                     + "/" + sample.getExperiment().getCode());
+        }
+
+        if (sample.getContainer() != null)
+        {
+            Sample containerSample = sample.getContainer();
+            container.write("/" + containerSample.getSpace().getCode() + "/"
+                    + containerSample.getCode());
         }
 
         Map<PropertyType, Object> properties = sample.getProperties();

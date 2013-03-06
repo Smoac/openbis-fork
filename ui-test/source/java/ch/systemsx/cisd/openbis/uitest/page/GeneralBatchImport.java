@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.uitest.menu;
+package ch.systemsx.cisd.openbis.uitest.page;
 
 import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
-import ch.systemsx.cisd.openbis.uitest.widget.Link;
+import ch.systemsx.cisd.openbis.uitest.widget.Button;
+import ch.systemsx.cisd.openbis.uitest.widget.FileUpload;
 
-public class ImportMenu
+/**
+ * @author anttil
+ */
+public class GeneralBatchImport
 {
 
-    @Locate("openbis_top-menu_SAMPLE_MENU_IMPORT")
-    private Link sampleRegistration;
+    @Locate("general-import_1")
+    public FileUpload upload;
 
-    @Locate("openbis_top-menu_GENERAL_IMPORT_MENU")
-    private Link generalBatchImport;
+    @Locate("openbis_general-importsave-button")
+    public Button save;
 
-    public void sampleRegistration()
+    public void upload(String file)
     {
-        sampleRegistration.click();
-    }
-
-    public void generalBatchImport()
-    {
-        generalBatchImport.click();
+        upload.setFile(file);
+        save.click();
     }
 
 }

@@ -98,7 +98,7 @@ public class BrowsableWrapper implements Browsable
 
     public BrowsableWrapper(Sample sample)
     {
-        idColumn = "Code";
+        idColumn = "Subcode";
         idValue = sample.getCode();
         columns = getColumns(sample);
         browserLocation = new SampleBrowserLocation();
@@ -165,8 +165,8 @@ public class BrowsableWrapper implements Browsable
     private Collection<String> getColumns(Sample sample)
     {
         Collection<String> cols = new HashSet<String>();
-        cols.addAll(Arrays.asList("Code", "Experiment", "Parents", "Space", "Sample Type",
-                "Project"));
+        cols.addAll(Arrays.asList("Code", "Subcode", "Experiment", "Parents", "Space",
+                "Sample Type", "Project", "Container"));
         for (PropertyTypeAssignment propertyTypeAssignment : sample.getType()
                 .getPropertyTypeAssignments())
         {
