@@ -751,6 +751,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<String> listAvailableFeatureCodes(final String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
@@ -772,6 +773,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<FeatureInformation> listAvailableFeatures(final String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
@@ -794,6 +796,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset> loadFeatures(
             final String sessionToken, List<FeatureVectorDatasetReference> featureDatasets,
             final List<String> featureCodes)
@@ -817,6 +820,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
             final String sessionToken,
             List<FeatureVectorDatasetWellReference> datasetWellReferences,
@@ -841,6 +845,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<String> loadImagesBase64(final String sessionToken,
             List<PlateImageReference> imageReferences, final boolean convertToPng)
     {
@@ -862,6 +867,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<String> loadThumbnailImagesBase64(final String sessionToken,
             List<PlateImageReference> imageReferences)
     {
@@ -883,6 +889,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<String> loadImagesBase64(final String sessionToken,
             List<PlateImageReference> imageReferences, final ImageSize size)
     {
@@ -904,6 +911,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<String> loadImagesBase64(final String sessionToken,
             List<PlateImageReference> imageReferences)
     {
@@ -925,6 +933,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<String> loadImagesBase64(final String sessionToken,
             List<PlateImageReference> imageReferences, final LoadImageConfiguration configuration)
     {
@@ -944,6 +953,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<String> loadImagesBase64(final String sessionToken,
             List<PlateImageReference> imageReferences, final ImageRepresentationFormat format)
     {
@@ -963,6 +973,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<String> loadImagesBase64(final String sessionToken,
             List<PlateImageReference> imageReferences,
             final IImageRepresentationFormatSelectionCriterion... criteria)
@@ -983,6 +994,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<ImageDatasetMetadata> listImageMetadata(final String sessionToken,
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
@@ -1003,6 +1015,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
             final String sessionToken, List<? extends IDatasetIdentifier> imageDatasets)
     {
@@ -1023,6 +1036,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<String> loadPhysicalThumbnailsBase64(final String sessionToken,
             List<PlateImageReference> imageReferences, final ImageRepresentationFormat format)
     {

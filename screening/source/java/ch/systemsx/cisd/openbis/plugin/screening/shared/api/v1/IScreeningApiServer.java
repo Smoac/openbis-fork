@@ -296,6 +296,8 @@ public interface IScreeningApiServer extends IRpcService
      * 
      * @since 1.10
      */
+    @Transactional(readOnly = true)
+    @MinimalMinorVersion(10)
     public List<FeatureVectorDataset> loadFeatures(String sessionToken,
             List<FeatureVectorDatasetReference> featureDatasets, List<String> featureCodes);
 
@@ -307,6 +309,8 @@ public interface IScreeningApiServer extends IRpcService
      * 
      * @since 1.10
      */
+    @Transactional(readOnly = true)
+    @MinimalMinorVersion(10)
     public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
             String sessionToken, List<FeatureVectorDatasetWellReference> datasetWellReferences,
             List<String> featureCodes);
@@ -319,6 +323,8 @@ public interface IScreeningApiServer extends IRpcService
      * 
      * @since 1.10
      */
+    @Transactional(readOnly = true)
+    @MinimalMinorVersion(10)
     public List<String> loadImagesBase64(String sessionToken,
             List<PlateImageReference> imageReferences, boolean convertToPng);
 
@@ -330,6 +336,8 @@ public interface IScreeningApiServer extends IRpcService
      * 
      * @since 1.10
      */
+    @Transactional(readOnly = true)
+    @MinimalMinorVersion(10)
     public List<String> loadThumbnailImagesBase64(String sessionToken,
             List<PlateImageReference> imageReferences);
 
@@ -341,6 +349,8 @@ public interface IScreeningApiServer extends IRpcService
      * 
      * @since 1.10
      */
+    @Transactional(readOnly = true)
+    @MinimalMinorVersion(10)
     public List<String> loadImagesBase64(String sessionToken,
             List<PlateImageReference> imageReferences, ImageSize size);
 
@@ -352,6 +362,8 @@ public interface IScreeningApiServer extends IRpcService
      * 
      * @since 1.10
      */
+    @Transactional(readOnly = true)
+    @MinimalMinorVersion(10)
     public List<String> loadImagesBase64(String sessionToken,
             List<PlateImageReference> imageReferences);
 
@@ -363,6 +375,8 @@ public interface IScreeningApiServer extends IRpcService
      * 
      * @since 1.10
      */
+    @Transactional(readOnly = true)
+    @MinimalMinorVersion(10)
     public List<String> loadImagesBase64(String sessionToken,
             List<PlateImageReference> imageReferences, LoadImageConfiguration configuration);
 
@@ -374,6 +388,8 @@ public interface IScreeningApiServer extends IRpcService
      * 
      * @since 1.10
      */
+    @Transactional(readOnly = true)
+    @MinimalMinorVersion(10)
     public List<String> loadImagesBase64(String sessionToken,
             List<PlateImageReference> imageReferences, ImageRepresentationFormat format);
 
@@ -385,6 +401,8 @@ public interface IScreeningApiServer extends IRpcService
      * 
      * @since 1.10
      */
+    @Transactional(readOnly = true)
+    @MinimalMinorVersion(10)
     public List<String> loadImagesBase64(String sessionToken,
             List<PlateImageReference> imageReferences,
             IImageRepresentationFormatSelectionCriterion... criteria);
@@ -397,6 +415,8 @@ public interface IScreeningApiServer extends IRpcService
      * 
      * @since 1.10
      */
+    @Transactional(readOnly = true)
+    @MinimalMinorVersion(10)
     public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
             List<? extends IImageDatasetIdentifier> imageDatasets);
 
@@ -408,6 +428,8 @@ public interface IScreeningApiServer extends IRpcService
      * 
      * @since 1.10
      */
+    @Transactional(readOnly = true)
+    @MinimalMinorVersion(10)
     public List<DatasetImageRepresentationFormats> listAvailableImageRepresentationFormats(
             String sessionToken, List<? extends IDatasetIdentifier> imageDatasets);
 
@@ -419,6 +441,8 @@ public interface IScreeningApiServer extends IRpcService
      * 
      * @since 1.10
      */
+    @Transactional(readOnly = true)
+    @MinimalMinorVersion(10)
     public List<String> loadPhysicalThumbnailsBase64(String sessionToken,
             List<PlateImageReference> imageReferences, ImageRepresentationFormat format);
 
