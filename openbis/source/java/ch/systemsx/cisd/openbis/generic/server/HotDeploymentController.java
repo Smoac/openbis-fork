@@ -17,11 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.ethz.cisd.hotdeploy.PluginContainer;
+import ch.ethz.cisd.hotdeploy.PluginDescriptor;
 import ch.ethz.cisd.hotdeploy.PluginEvent;
 import ch.ethz.cisd.hotdeploy.PluginMapHolder;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -114,6 +116,39 @@ public class HotDeploymentController implements IHotDeploymentController
                 commonServer.logout(sessionCtx.getSessionToken());
             }
         }
+    }
+
+    @Override
+    public void disablePlugin(String pluginName)
+    {
+        PluginDescriptor pluginDescription = tryGetPlugin(pluginName);
+        if (pluginDescription == null)
+        {
+            operationLog.warn("Couldn't disable unknown plugin: " + pluginName);
+        } else
+        {
+            boolean success = pluginContainer.disablePlugin(pluginDescription.getPluginClass());
+            if (success)
+            {
+                operationLog.info("Plugin '" + pluginName + "' successfully disabled.");
+            } else
+            {
+                operationLog.warn("Disabling plugin '" + pluginName + "' failed.");
+            }
+        }
+    }
+
+    private PluginDescriptor tryGetPlugin(String pluginName)
+    {
+        List<PluginDescriptor> plugins = pluginContainer.getPlugins();
+        for (PluginDescriptor pluginDescriptor : plugins)
+        {
+            if (pluginDescriptor.getPluginName().equals(pluginName))
+            {
+                return pluginDescriptor;
+            }
+        }
+        return null;
     }
 
     protected void setCommonServer(ICommonServerForInternalUse commonServer)

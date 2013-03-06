@@ -42,6 +42,8 @@ public abstract class AbstractCommonPropertyBasedHotDeployPluginFactory<T extend
 
     private final String pluginDirectoryPath;
 
+    private IHotDeploymentController hotDeploymentController;
+
     public AbstractCommonPropertyBasedHotDeployPluginFactory(String pluginDirectoryPath)
     {
         if (pluginDirectoryPath != null && pluginDirectoryPath.startsWith("${")
@@ -77,8 +79,9 @@ public abstract class AbstractCommonPropertyBasedHotDeployPluginFactory<T extend
     }
 
     @Override
-    public void initializeHotDeployment(final IHotDeploymentController hotDeploymentController)
+    public void initializeHotDeployment(final IHotDeploymentController controller)
     {
+        hotDeploymentController = controller;
         if (false == StringUtils.isBlank(pluginDirectoryPath))
         {
             this.predeployedPlugins = hotDeploymentController.getPluginMap(getPluginClass());
@@ -97,6 +100,12 @@ public abstract class AbstractCommonPropertyBasedHotDeployPluginFactory<T extend
         {
             this.predeployedPlugins = null;
         }
+    }
+
+    @Override
+    public IHotDeploymentController getHotDeploymentController()
+    {
+        return hotDeploymentController;
     }
 
     protected abstract String getPluginDescription();

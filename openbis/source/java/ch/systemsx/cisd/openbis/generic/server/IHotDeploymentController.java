@@ -35,4 +35,6 @@ public interface IHotDeploymentController
 
     public void pluginChanged(PluginEvent event, ICommonPropertyBasedHotDeployPlugin plugin,
             ScriptType scriptType);
+
+    public void disablePlugin(String pluginName);
 }

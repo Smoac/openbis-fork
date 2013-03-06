@@ -34,4 +34,6 @@ public interface ICommonPropertyBasedHotDeployPluginFactory<T extends ICommonPro
      * Initializes hot deployment with given controller
      */
     public void initializeHotDeployment(final IHotDeploymentController hotDeploymentController);
+
+    public IHotDeploymentController getHotDeploymentController();
 }

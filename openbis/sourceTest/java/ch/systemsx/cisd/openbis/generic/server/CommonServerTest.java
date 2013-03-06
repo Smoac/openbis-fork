@@ -147,6 +147,8 @@ public final class CommonServerTest extends AbstractServerTestCase
 
     private IEntityValidatorHotDeployPlugin entityValidatorHotDeployPlugin;
 
+    private IHotDeploymentController hotDeploymentController;
+
     private final ICommonServer createServer()
     {
         return createServer(new EntityValidatorFactory(null), new DynamicPropertyCalculatorFactory(
@@ -188,6 +190,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         dynamicPropertyCalculatorFactory = context.mock(IDynamicPropertyCalculatorFactory.class);
         entityValidatorFactory = context.mock(IEntityValidatorFactory.class);
         entityValidatorHotDeployPlugin = context.mock(IEntityValidatorHotDeployPlugin.class);
+        hotDeploymentController = context.mock(IHotDeploymentController.class);
     }
 
     @Test
@@ -1093,6 +1096,44 @@ public final class CommonServerTest extends AbstractServerTestCase
         assertEquals(PluginType.PREDEPLOYED, scripts.get(2).getPluginType());
         assertEquals("[SAMPLE, DATA_SET]", Arrays.asList(scripts.get(2).getEntityKind()).toString());
         assertEquals(3, scripts.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDeleteScripts()
+    {
+        prepareGetSession();
+        final TechId id1 = new TechId(3);
+        final TechId id2 = new TechId(4);
+        final ScriptPE jythonValidationScript =
+                new ScriptPEBuilder().name("s3").pluginType(PluginType.JYTHON)
+                        .scriptType(ScriptType.ENTITY_VALIDATION).getScript();
+        final ScriptPE predeployedValidationScript =
+                new ScriptPEBuilder().name("s4").pluginType(PluginType.PREDEPLOYED)
+                        .scriptType(ScriptType.ENTITY_VALIDATION).getScript();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createScriptBO(session);
+                    will(returnValue(scriptBO));
+
+                    one(scriptBO).deleteByTechId(id1);
+                    will(returnValue(jythonValidationScript));
+
+                    one(scriptBO).deleteByTechId(id2);
+                    will(returnValue(predeployedValidationScript));
+
+                    one(entityValidatorFactory).getHotDeploymentController();
+                    will(returnValue(hotDeploymentController));
+
+                    one(hotDeploymentController).disablePlugin("s4");
+                }
+            });
+
+        createServer(entityValidatorFactory, dynamicPropertyCalculatorFactory,
+                managedPropertyEvaluatorFactory).deleteScripts(SESSION_TOKEN,
+                Arrays.asList(id1, id2));
+
         context.assertIsSatisfied();
     }
 

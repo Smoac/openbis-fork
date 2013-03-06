@@ -227,6 +227,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyUpdates;
@@ -2083,9 +2084,30 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         Session session = getSession(sessionToken);
         IScriptBO scriptBO = businessObjectFactory.createScriptBO(session);
+        List<String> namesOfPredeployedPlugins = new ArrayList<String>();
         for (TechId id : scriptIds)
         {
-            scriptBO.deleteByTechId(id);
+            ScriptPE script = scriptBO.deleteByTechId(id);
+            if (script.getPluginType() == PluginType.PREDEPLOYED)
+            {
+                namesOfPredeployedPlugins.add(script.getName());
+            }
+        }
+        if (namesOfPredeployedPlugins.isEmpty())
+        {
+            return;
+        }
+        IHotDeploymentController hotDeploymentController =
+                entityValidationFactory.getHotDeploymentController();
+        if (hotDeploymentController == null)
+        {
+            operationLog
+                    .warn("Can not disable hot-deployed plugins because of missing controller.");
+            return;
+        }
+        for (String name : namesOfPredeployedPlugins)
+        {
+            hotDeploymentController.disablePlugin(name);
         }
     }
 

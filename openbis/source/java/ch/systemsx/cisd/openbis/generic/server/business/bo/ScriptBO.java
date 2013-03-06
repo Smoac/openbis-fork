@@ -81,15 +81,17 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
     }
 
     @Override
-    public void deleteByTechId(TechId groupId) throws UserFailureException
+    public ScriptPE deleteByTechId(TechId groupId) throws UserFailureException
     {
         loadDataByTechId(groupId);
         try
         {
             getScriptDAO().delete(script);
+            return script;
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("Script '%s'", script.getName()));
+            return null; // never invoked
         }
     }
 

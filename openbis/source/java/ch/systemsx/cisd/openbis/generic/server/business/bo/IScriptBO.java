@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
  * Business object of a script.
@@ -31,12 +32,12 @@ public interface IScriptBO extends IEntityBusinessObject
 {
 
     /**
-     * Deletes script for specified reason.
+     * Deletes and returns script of specified id.
      * 
      * @param scriptId script technical identifier
      * @throws UserFailureException if script with given technical identifier is not found.
      */
-    public void deleteByTechId(TechId scriptId);
+    public ScriptPE deleteByTechId(TechId scriptId);
 
     /**
      * Defines a new script.
