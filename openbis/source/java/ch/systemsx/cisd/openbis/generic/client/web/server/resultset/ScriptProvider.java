@@ -28,6 +28,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ScriptGridC
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -76,8 +77,7 @@ public class ScriptProvider extends AbstractCommonTableModelProvider<Script>
             builder.column(NAME).addString(script.getName());
             builder.column(DESCRIPTION).addString(script.getDescription());
             builder.column(SCRIPT).addString(script.getScript());
-            EntityKind[] kinds = script.getEntityKind();
-            builder.column(ENTITY_KIND).addString(buildDescription(kinds));
+            builder.column(ENTITY_KIND).addString(buildDescription(script.getEntityKind()));
             builder.column(SCRIPT_TYPE).addString(script.getScriptType().getDescription());
             builder.column(PLUGIN_TYPE).addString(script.getPluginType().getDescription());
             builder.column(REGISTRATOR).addPerson(script.getRegistrator());
@@ -98,18 +98,12 @@ public class ScriptProvider extends AbstractCommonTableModelProvider<Script>
             return entityKinds[0].getDescription();
         }
 
-        StringBuilder sb = new StringBuilder();
-        boolean isFirst = true;
+        CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
         for (EntityKind entityKind : entityKinds)
         {
-            if (false == isFirst)
-            {
-                sb.append(", ");
-                isFirst = false;
-            }
-            sb.append(entityKind.getDescription());
+            builder.append(entityKind.getDescription());
         }
 
-        return sb.toString();
+        return builder.toString();
     }
 }

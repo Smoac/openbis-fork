@@ -1413,9 +1413,5 @@ public abstract class Dict
 
     public static final String PROGRESS_PROCESSING = "progress_processing";
 
-    // Predeployed plugins
-
-    public static final String PREDEPLOYED_PLUGIN_NAME = "predeployed_plugin_name";
-
     // ----- end generic ------------------
 }

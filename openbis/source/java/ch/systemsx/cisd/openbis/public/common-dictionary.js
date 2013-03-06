@@ -950,6 +950,8 @@ plugin_script: "Script",
 title_choose_script: "Choose {0} Plugin",
 script_browser: "Plugins",
 script_type: "Plugin Type",
+plugin_type: "Plugin Kind",
+is_available: "Available?",
 script_registration: "Plugin Registration",
 evaluation_result: "Evaluation Result",
 script_tester: "Script Tester",
@@ -971,12 +973,6 @@ clear: "Clear",
 progress_uploading: "Uploading",
 progress_processing: "Processing",
 
-//
-// Pregeployed Plugins
-//
-predeployed_plugin_name: "Plugin name",
-plugin_type: "Plugin Type",
-is_available: "Available?",
 
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

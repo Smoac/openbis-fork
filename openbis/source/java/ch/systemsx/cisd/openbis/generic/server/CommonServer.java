@@ -27,6 +27,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -3039,9 +3040,39 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final List<ScriptPE> scripts =
                 getDAOFactory().getScriptDAO().listEntities(scriptTypeOrNull, entityKindOrNull);
         Collections.sort(scripts);
-        return ScriptTranslator.enhancePredeployedPlugins(ScriptTranslator.translate(scripts),
-                entityValidationFactory, dynamicPropertyCalculatorFactory,
-                managedPropertyEvaluatorFactory);
+        List<Script> result =
+                ScriptTranslator.enhancePredeployedPlugins(ScriptTranslator.translate(scripts),
+                        entityValidationFactory, dynamicPropertyCalculatorFactory,
+                        managedPropertyEvaluatorFactory);
+        if (entityKindOrNull != null)
+        {
+            for (Iterator<Script> iterator = result.iterator(); iterator.hasNext();)
+            {
+                Script script = iterator.next();
+                if (isApplicableScript(script, entityKindOrNull) == false)
+                {
+                    iterator.remove();
+                }
+            }
+        }
+        return result;
+    }
+
+    private boolean isApplicableScript(Script script, EntityKind entityKind)
+    {
+        EntityKind[] entityKinds = script.getEntityKind();
+        if (entityKinds == null)
+        {
+            return true;
+        }
+        for (EntityKind ek : entityKinds)
+        {
+            if (ek == entityKind)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -3283,7 +3314,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         getSession(sessionToken);
         ScriptPE script = getDAOFactory().getScriptDAO().getByTechId(scriptId);
-        return ScriptTranslator.translate(script);
+        return ScriptTranslator.enhancePredeployedPlugin(ScriptTranslator.translate(script),
+                entityValidationFactory, dynamicPropertyCalculatorFactory,
+                managedPropertyEvaluatorFactory);
     }
 
     @Override

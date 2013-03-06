@@ -74,6 +74,8 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
 
     protected ScriptExecutionFramework scriptExecution;
 
+    protected VarcharField entityKindListField;
+
     abstract protected void saveScript();
 
     abstract protected void setValues();
@@ -117,6 +119,8 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
         this.nameField.setId(getId() + "-script-registration-name");
         this.scriptExecution =
                 new ScriptExecutionFramework(viewContext, asValidable(formPanel), entityKindOrNull);
+        entityKindListField = new VarcharField(viewContext.getMessage(Dict.ENTITY_KIND), false);
+        entityKindListField.setVisible(false);
         this.entityKindField =
                 new EntityKindSelectionWidget(viewContext, entityKindOrNull,
                         scriptIdOrNull == null, true);
@@ -169,14 +173,17 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
 
     protected void onPluginOrScriptTypeChanged(PluginType pluginType, ScriptType scriptType)
     {
-        nameField.setVisible(pluginType == PluginType.JYTHON);
-        FieldUtil.setMandatoryFlag(nameField, pluginType == PluginType.JYTHON);
-        scriptField.setVisible(pluginType == PluginType.JYTHON);
-        scriptField.setEnabled(pluginType == PluginType.JYTHON);
+        boolean pluginTypeIsPython = pluginType == PluginType.JYTHON;
+        nameField.setVisible(pluginTypeIsPython);
+        FieldUtil.setMandatoryFlag(nameField, pluginTypeIsPython);
+        entityKindField.setVisible(pluginTypeIsPython);
+        entityKindListField.setVisible(pluginTypeIsPython == false);
+        scriptField.setVisible(pluginTypeIsPython);
+        scriptField.setEnabled(pluginTypeIsPython);
         rightPanel.setVisible(scriptType == ScriptType.DYNAMIC_PROPERTY
                 || scriptType == ScriptType.ENTITY_VALIDATION);
         this.scriptExecution.setScriptType(scriptType);
-        if (pluginType == PluginType.JYTHON)
+        if (pluginTypeIsPython)
         {
             scriptField.setValidator(validatorsByScriptType.get(scriptType));
         } else
@@ -224,6 +231,7 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
     private final void addFormFields()
     {
         formPanel.add(nameField);
+        formPanel.add(entityKindListField);
         formPanel.add(entityKindField);
         formPanel.add(descriptionField);
         formPanel.add(scriptField);

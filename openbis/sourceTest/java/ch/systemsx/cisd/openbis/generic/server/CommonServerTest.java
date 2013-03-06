@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,8 +36,11 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.EntityValidatorFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.IEntityValidatorFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.IEntityValidatorHotDeployPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
@@ -62,11 +66,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -91,14 +97,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.ExperimentTypePEBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.builders.ScriptPEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.ICommonPropertyBasedHotDeployPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IManagedPropertyHotDeployEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
@@ -126,15 +137,32 @@ public final class CommonServerTest extends AbstractServerTestCase
 
     private IDataStoreServiceRegistrator dataStoreServiceRegistrator;
 
+    private IEntityValidatorFactory entityValidatorFactory;
+
+    private IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory;
+
+    private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
+    private IManagedPropertyHotDeployEvaluator managedPropertyHotDeployEvaluator;
+
+    private IEntityValidatorHotDeployPlugin entityValidatorHotDeployPlugin;
+
     private final ICommonServer createServer()
+    {
+        return createServer(new EntityValidatorFactory(null), new DynamicPropertyCalculatorFactory(
+                null), new ManagedPropertyEvaluatorFactory(null));
+    }
+
+    public ICommonServer createServer(IEntityValidatorFactory entityValidatorFactory2,
+            IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory2,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory2)
     {
         CommonServer server =
                 new CommonServer(authenticationService, sessionManager, daoFactory,
                         propertiesBatchManager, commonBusinessObjectFactory,
                         dataStoreServiceRegistrator, new LastModificationState(),
-                        new EntityValidatorFactory(null),
-                        new DynamicPropertyCalculatorFactory(null),
-                        new ManagedPropertyEvaluatorFactory(null));
+                        entityValidatorFactory2, dynamicPropertyCalculatorFactory2,
+                        managedPropertyEvaluatorFactory2);
         server.setSampleTypeSlaveServerPlugin(sampleTypeSlaveServerPlugin);
         server.setDataSetTypeSlaveServerPlugin(dataSetTypeSlaveServerPlugin);
         server.setBaseIndexURL(SESSION_TOKEN, BASE_INDEX_URL);
@@ -155,6 +183,11 @@ public final class CommonServerTest extends AbstractServerTestCase
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
         dataStoreServiceRegistrator = context.mock(IDataStoreServiceRegistrator.class);
+        managedPropertyEvaluatorFactory = context.mock(IManagedPropertyEvaluatorFactory.class);
+        managedPropertyHotDeployEvaluator = context.mock(IManagedPropertyHotDeployEvaluator.class);
+        dynamicPropertyCalculatorFactory = context.mock(IDynamicPropertyCalculatorFactory.class);
+        entityValidatorFactory = context.mock(IEntityValidatorFactory.class);
+        entityValidatorHotDeployPlugin = context.mock(IEntityValidatorHotDeployPlugin.class);
     }
 
     @Test
@@ -943,6 +976,123 @@ public final class CommonServerTest extends AbstractServerTestCase
         final List<Vocabulary> vocabularies =
                 createServer().listVocabularies(SESSION_TOKEN, true, excludeInternal);
         assertEquals(0, vocabularies.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListAllScripts()
+    {
+        prepareGetSession();
+        final ScriptPE experimentJythonValidationScript =
+                new ScriptPEBuilder().name("s1").available().description("script one")
+                        .entityKind(EntityKind.EXPERIMENT).script("blabla")
+                        .pluginType(PluginType.JYTHON).scriptType(ScriptType.ENTITY_VALIDATION)
+                        .getScript();
+        final ScriptPE jythonDynamicPropertiesScript =
+                new ScriptPEBuilder().name("s2").pluginType(PluginType.JYTHON)
+                        .scriptType(ScriptType.DYNAMIC_PROPERTY).getScript();
+        final ScriptPE predeployedManagedPropertiesScript =
+                new ScriptPEBuilder().name("s3").pluginType(PluginType.PREDEPLOYED)
+                        .scriptType(ScriptType.MANAGED_PROPERTY).getScript();
+        context.checking(new Expectations()
+            {
+                {
+                    one(scriptDAO).listEntities(null, null);
+                    will(returnValue(Arrays.asList(experimentJythonValidationScript,
+                            jythonDynamicPropertiesScript, predeployedManagedPropertiesScript)));
+
+                    one(managedPropertyEvaluatorFactory).tryGetPredeployedPluginByName("s3");
+                    will(returnValue(managedPropertyHotDeployEvaluator));
+
+                    one(managedPropertyHotDeployEvaluator).getSupportedEntityKinds();
+                    will(returnValue(EnumSet.of(
+                            ICommonPropertyBasedHotDeployPlugin.EntityKind.DATA_SET,
+                            ICommonPropertyBasedHotDeployPlugin.EntityKind.MATERIAL)));
+                }
+            });
+
+        List<Script> scripts =
+                createServer(entityValidatorFactory, dynamicPropertyCalculatorFactory,
+                        managedPropertyEvaluatorFactory).listScripts(SESSION_TOKEN, null, null);
+
+        assertEquals("s1", scripts.get(0).getName());
+        assertEquals("script one", scripts.get(0).getDescription());
+        assertEquals("blabla", scripts.get(0).getScript());
+        assertEquals(ScriptType.ENTITY_VALIDATION, scripts.get(0).getScriptType());
+        assertEquals(PluginType.JYTHON, scripts.get(0).getPluginType());
+        assertEquals("[EXPERIMENT]", Arrays.asList(scripts.get(0).getEntityKind()).toString());
+        assertEquals(true, scripts.get(0).isAvailable());
+        assertEquals("s2", scripts.get(1).getName());
+        assertEquals(ScriptType.DYNAMIC_PROPERTY, scripts.get(1).getScriptType());
+        assertEquals(PluginType.JYTHON, scripts.get(1).getPluginType());
+        assertEquals(null, scripts.get(1).getEntityKind());
+        assertEquals(false, scripts.get(1).isAvailable());
+        assertEquals("s3", scripts.get(2).getName());
+        assertEquals(ScriptType.MANAGED_PROPERTY, scripts.get(2).getScriptType());
+        assertEquals(PluginType.PREDEPLOYED, scripts.get(2).getPluginType());
+        assertEquals("[DATA_SET, MATERIAL]", Arrays.asList(scripts.get(2).getEntityKind())
+                .toString());
+        assertEquals(3, scripts.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListAllSampleValidationScripts()
+    {
+        prepareGetSession();
+        final ScriptPE experimentJythonValidationScript =
+                new ScriptPEBuilder().name("s1").available().description("script one")
+                        .entityKind(EntityKind.EXPERIMENT).script("blabla")
+                        .pluginType(PluginType.JYTHON).scriptType(ScriptType.ENTITY_VALIDATION)
+                        .getScript();
+        final ScriptPE sampleJythonValidationScript =
+                new ScriptPEBuilder().name("s2").entityKind(EntityKind.SAMPLE)
+                        .pluginType(PluginType.JYTHON).scriptType(ScriptType.ENTITY_VALIDATION)
+                        .getScript();
+        final ScriptPE jythonValidationScript =
+                new ScriptPEBuilder().name("s3").pluginType(PluginType.JYTHON)
+                        .scriptType(ScriptType.ENTITY_VALIDATION).getScript();
+        final ScriptPE predeployedValidationScript =
+                new ScriptPEBuilder().name("s4").pluginType(PluginType.PREDEPLOYED)
+                        .scriptType(ScriptType.ENTITY_VALIDATION).getScript();
+        context.checking(new Expectations()
+            {
+                {
+                    one(scriptDAO).listEntities(ScriptType.ENTITY_VALIDATION, EntityKind.SAMPLE);
+                    will(returnValue(Arrays.asList(experimentJythonValidationScript,
+                            sampleJythonValidationScript, jythonValidationScript,
+                            predeployedValidationScript)));
+
+                    one(entityValidatorFactory).tryGetPredeployedPluginByName("s4");
+                    will(returnValue(entityValidatorHotDeployPlugin));
+
+                    one(entityValidatorHotDeployPlugin).getSupportedEntityKinds();
+                    will(returnValue(EnumSet.of(
+                            ICommonPropertyBasedHotDeployPlugin.EntityKind.DATA_SET,
+                            ICommonPropertyBasedHotDeployPlugin.EntityKind.SAMPLE)));
+                }
+            });
+
+        List<Script> scripts =
+                createServer(entityValidatorFactory, dynamicPropertyCalculatorFactory,
+                        managedPropertyEvaluatorFactory).listScripts(SESSION_TOKEN,
+                        ScriptType.ENTITY_VALIDATION, EntityKind.SAMPLE);
+
+        assertEquals("s2", scripts.get(0).getName());
+        assertEquals(ScriptType.ENTITY_VALIDATION, scripts.get(0).getScriptType());
+        assertEquals(PluginType.JYTHON, scripts.get(0).getPluginType());
+        assertEquals("[SAMPLE]", Arrays.asList(scripts.get(0).getEntityKind()).toString());
+        assertEquals(false, scripts.get(0).isAvailable());
+        assertEquals("s3", scripts.get(1).getName());
+        assertEquals(ScriptType.ENTITY_VALIDATION, scripts.get(1).getScriptType());
+        assertEquals(PluginType.JYTHON, scripts.get(1).getPluginType());
+        assertEquals(null, scripts.get(1).getEntityKind());
+        assertEquals(false, scripts.get(1).isAvailable());
+        assertEquals("s4", scripts.get(2).getName());
+        assertEquals(ScriptType.ENTITY_VALIDATION, scripts.get(2).getScriptType());
+        assertEquals(PluginType.PREDEPLOYED, scripts.get(2).getPluginType());
+        assertEquals("[SAMPLE, DATA_SET]", Arrays.asList(scripts.get(2).getEntityKind()).toString());
+        assertEquals(3, scripts.size());
         context.assertIsSatisfied();
     }
 

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.INonAbstractEntityAdapter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonEntityValidationCalculator.IValidationRequestDelegate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
@@ -25,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.AbstractCommonPropertyBasedHotDeployPluginFactory;
+import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityAdaptor;
 
 /**
  * @author Pawel Glyzewski
@@ -57,7 +57,7 @@ public class EntityValidatorFactory extends
     }
 
     @Override
-    public IEntityValidator createEntityValidator(PluginType pluginType, String scriptName,
+    public IEntityValidator createEntityValidator(PluginType pluginType, final String scriptName,
             String script)
     {
         switch (pluginType)
@@ -66,13 +66,25 @@ public class EntityValidatorFactory extends
                 return new JythonEntityValidator(script);
             case PREDEPLOYED:
                 IEntityValidator entityValidator = tryGetPredeployedPluginByName(scriptName);
-                if (entityValidator == null)
+                if (entityValidator != null)
                 {
-                    throw new UserFailureException("Couldn't find plugin named '" + scriptName
-                            + "'.");
+                    return entityValidator;
                 }
+                return new IEntityValidator()
+                    {
+                        @Override
+                        public String validate(IEntityAdaptor entity, boolean isNew)
+                        {
+                            return "Couldn't find plugin named '" + scriptName + "'.";
+                        }
 
-                return entityValidator;
+                        @Override
+                        public void init(
+                                IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequestedDelegate)
+                        {
+                        }
+                    };
+
         }
 
         return null;

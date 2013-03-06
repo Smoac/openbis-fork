@@ -81,35 +81,43 @@ public final class ScriptTranslator
     {
         for (Script script : scripts)
         {
-            if (script.getPluginType() == PluginType.PREDEPLOYED)
-            {
-                ICommonPropertyBasedHotDeployPlugin plugin = null;
-                switch (script.getScriptType())
-                {
-                    case ENTITY_VALIDATION:
-                        plugin =
-                                entityValidationFactory.tryGetPredeployedPluginByName(script
-                                        .getName());
-                        break;
-                    case DYNAMIC_PROPERTY:
-                        plugin =
-                                dynamicPropertyCalculatorFactory
-                                        .tryGetPredeployedPluginByName(script.getName());
-                        break;
-                    case MANAGED_PROPERTY:
-                        plugin =
-                                managedPropertyEvaluatorFactory
-                                        .tryGetPredeployedPluginByName(script.getName());
-                }
+            enhancePredeployedPlugin(script, entityValidationFactory,
+                    dynamicPropertyCalculatorFactory, managedPropertyEvaluatorFactory);
+        }
+        return scripts;
+    }
 
-                if (plugin != null)
-                {
-                    script.setEntityKind(translateEntityKinds(plugin.getSupportedEntityKinds()));
-                }
+    public static Script enhancePredeployedPlugin(Script script,
+            IEntityValidatorFactory entityValidationFactory,
+            IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+    {
+        if (script.getPluginType() == PluginType.PREDEPLOYED)
+        {
+            ICommonPropertyBasedHotDeployPlugin plugin = null;
+            switch (script.getScriptType())
+            {
+                case ENTITY_VALIDATION:
+                    plugin =
+                            entityValidationFactory.tryGetPredeployedPluginByName(script.getName());
+                    break;
+                case DYNAMIC_PROPERTY:
+                    plugin =
+                            dynamicPropertyCalculatorFactory.tryGetPredeployedPluginByName(script
+                                    .getName());
+                    break;
+                case MANAGED_PROPERTY:
+                    plugin =
+                            managedPropertyEvaluatorFactory.tryGetPredeployedPluginByName(script
+                                    .getName());
+            }
+
+            if (plugin != null)
+            {
+                script.setEntityKind(translateEntityKinds(plugin.getSupportedEntityKinds()));
             }
         }
-
-        return scripts;
+        return script;
     }
 
     public static EntityKind[] translateEntityKinds(

@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
@@ -77,12 +78,37 @@ public class ScriptEditForm extends AbstractScriptEditRegisterForm
         FieldUtil.setValueWithUnescaping(scriptField, originalScript.getScript());
         FieldUtil.setValueWithUnescaping(nameField, originalScript.getName());
 
-        String entityKind =
-                originalScript.getEntityKind() == null
-                        || originalScript.getEntityKind().length != 1 ? GenericConstants.ALL_ENTITY_KINDS
-                        : originalScript.getEntityKind()[0].name();
-        entityKindField.setSimpleValue(entityKind);
-        descriptionField.setEnabled(originalScript.getPluginType() == PluginType.JYTHON);
+        boolean pluginTypeIsPython = originalScript.getPluginType() == PluginType.JYTHON;
+        if (pluginTypeIsPython)
+        {
+            String entityKind =
+                    originalScript.getEntityKind() == null
+                            || originalScript.getEntityKind().length != 1 ? GenericConstants.ALL_ENTITY_KINDS
+                            : originalScript.getEntityKind()[0].name();
+            entityKindField.setSimpleValue(entityKind);
+        } else
+        {
+            StringBuilder builder = new StringBuilder();
+            if (originalScript.getEntityKind() == null)
+            {
+                builder.append(GenericConstants.ALL_ENTITY_KINDS);
+            } else
+            {
+                for (EntityKind entityKind : originalScript.getEntityKind())
+                {
+                    if (builder.length() > 0)
+                    {
+                        builder.append(", ");
+                    }
+                    builder.append(entityKind);
+                }
+            }
+            entityKindListField.setValue(builder.toString());
+            entityKindListField.setEnabled(false);
+        }
+        entityKindField.setVisible(pluginTypeIsPython);
+        entityKindListField.setVisible(pluginTypeIsPython == false);
+        descriptionField.setEnabled(pluginTypeIsPython);
     }
 
     public void updateOriginalValues()
@@ -90,6 +116,7 @@ public class ScriptEditForm extends AbstractScriptEditRegisterForm
         descriptionField.setOriginalValue(descriptionField.getValue());
         scriptField.setOriginalValue(scriptField.getValue());
         nameField.setOriginalValue(nameField.getValue());
+        entityKindListField.setOriginalValue(entityKindListField.getValue());
         entityKindField.setOriginalValue(entityKindField.getValue());
     }
 
