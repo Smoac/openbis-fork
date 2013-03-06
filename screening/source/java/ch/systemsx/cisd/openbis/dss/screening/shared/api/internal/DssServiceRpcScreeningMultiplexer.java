@@ -46,7 +46,7 @@ public class DssServiceRpcScreeningMultiplexer implements IDssServiceRpcScreenin
             throw new IllegalArgumentException("Dss service factory cannot be null");
         }
         this.dssServiceFactory = dssServiceFactory;
-        this.executor = new NamingThreadPoolExecutor("Dss service screening multiplexer");
+        this.executor = new NamingThreadPoolExecutor("Dss service screening multiplexer").daemonize();
     }
 
     @Override
