@@ -208,6 +208,7 @@ public class ScreeningClientApiTest
             }
         }
         facade.logout();
+        System.out.println("Test finished");
     }
 
     private static String renderMaterialProperties(Map<String, Material> materialProperties)
