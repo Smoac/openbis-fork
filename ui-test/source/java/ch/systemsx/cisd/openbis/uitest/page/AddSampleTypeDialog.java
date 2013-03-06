@@ -98,16 +98,21 @@ public class AddSampleTypeDialog
         scriptName.write(name);
     }
 
+    public void setUniqueSubcodes(boolean checked)
+    {
+        uniqueSubcodes.set(checked);
+    }
+
     public void fillWith(SampleType sampleType)
     {
         setCode(sampleType.getCode());
         setListable(sampleType.isListable());
         setShowContainer(sampleType.isShowContainer());
         setShowParents(sampleType.isShowParents());
+        setUniqueSubcodes(sampleType.isUniqueSubcodes());
         if (sampleType.getValidationScript() != null)
         {
             setScriptName(sampleType.getValidationScript().getName());
         }
     }
-
 }

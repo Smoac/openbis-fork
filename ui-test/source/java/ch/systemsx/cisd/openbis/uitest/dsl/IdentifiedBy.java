@@ -36,7 +36,48 @@ public enum IdentifiedBy
         @Override
         public String format(Sample sample)
         {
+            if (sample.getContainer() != null)
+            {
+                throw new IllegalArgumentException(sample + " has container");
+            }
             return sample.getCode();
+        }
+    },
+    CODE_AND_SUBCODE
+    {
+        @Override
+        public String format(Sample sample)
+        {
+            if (sample.getContainer() == null)
+            {
+                throw new IllegalArgumentException(sample + " does not have a container");
+            }
+            return sample.getContainer().getCode() + ":" + sample.getCode();
+        }
+    },
+    SUBCODE
+    {
+        @Override
+        public String format(Sample sample)
+        {
+            if (sample.getContainer() == null)
+            {
+                throw new IllegalArgumentException(sample + " is not a component sample");
+            }
+            return sample.getCode();
+        }
+    },
+    SPACE_AND_CODE_AND_SUBCODE
+    {
+        @Override
+        public String format(Sample sample)
+        {
+            if (sample.getContainer() == null)
+            {
+                throw new IllegalArgumentException(sample + " is not a component sample");
+            }
+            return "/" + sample.getContainer().getSpace().getCode() + "/"
+                    + sample.getContainer().getCode() + ":" + sample.getCode();
         }
     };
 

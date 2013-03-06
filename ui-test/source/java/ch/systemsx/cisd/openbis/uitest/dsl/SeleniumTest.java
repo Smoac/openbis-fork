@@ -539,6 +539,11 @@ public abstract class SeleniumTest
                 + sample.getCode());
     }
 
+    public Matcher<BrowserRow> hasNoContainer()
+    {
+        return containsValue("Container", "");
+    }
+
     protected Matcher<RegisterSample> hasInputsForProperties(PropertyType... fields)
     {
         return new RegisterSampleFormContainsInputsForPropertiesMatcher(fields);
@@ -615,16 +620,28 @@ public abstract class SeleniumTest
         return importFile;
     }
 
-    public Sample create(ImportFile file, SampleBuilder builder, IdentifiedBy idType)
+    public Sample create(ImportFile file, SampleBuilder builder, IdentifiedBy identifiedBy)
     {
         Sample sample = assume(builder);
+
+        IdentifiedBy idType;
+        if (identifiedBy == null)
+        {
+            idType =
+                    sample.getContainer() == null ? IdentifiedBy.SPACE_AND_CODE
+                            : sample.getSpace() == null ? IdentifiedBy.SUBCODE
+                                    : IdentifiedBy.SPACE_AND_CODE;
+        } else
+        {
+            idType = identifiedBy;
+        }
         file.add(sample, idType);
         return sample;
     }
 
     public Sample create(ImportFile file, SampleBuilder builder)
     {
-        return create(file, builder, IdentifiedBy.SPACE_AND_CODE);
+        return create(file, builder, null);
     }
 
     protected <T> T assume(Builder<T> builder)

@@ -62,6 +62,6 @@ public class CellContentMatcher extends TypeSafeMatcher<BrowserRow>
             return false;
         }
 
-        return expected.equalsIgnoreCase(link ? actual.getUrl() : actual.getText());
+        return expected.equalsIgnoreCase(link ? actual.getUrl() : actual.getText().trim());
     }
 }

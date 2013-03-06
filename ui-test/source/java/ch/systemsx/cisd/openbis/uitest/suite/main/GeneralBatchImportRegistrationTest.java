@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.uitest.suite.main;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import java.lang.reflect.Method;
-
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.CommandNotSuccessful;
@@ -35,41 +33,9 @@ import ch.systemsx.cisd.openbis.uitest.type.User;
  */
 public class GeneralBatchImportRegistrationTest extends MainSuite
 {
-    SampleType basic;
-
-    SampleType componentType;
-
-    Space sampleSpace;
-
-    Space defaultSpace;
-
-    Space homeSpace;
-
-    Space componentSpace;
-
-    User withHomeSpace;
-
-    User withoutHomeSpace;
-
-    @Override
-    public void fixture()
-    {
-        System.out.println("GeneralBatchImportRegistrationTest - Fixture");
-        defaultSpace = create(aSpace().withCodePrefix("DEFAULT_SPACE"));
-        sampleSpace = create(aSpace().withCodePrefix("SAMPLE_SPACE"));
-        homeSpace = create(aSpace().withCodePrefix("HOME_SPACE"));
-        componentSpace = create(aSpace().withCodePrefix("COMPONENT_SPACE"));
-
-        basic = create(aSampleType().withCodePrefix("BASIC"));
-        componentType = create(aSampleType().thatCanBeComponent().withCodePrefix("COMPONENT"));
-
-        withHomeSpace = using(publicApi(), create(aUser().withHomeSpace(homeSpace)));
-        withoutHomeSpace = using(publicApi(), create(aUser()));
-
-    }
 
     @Test
-    public void spaceOfBasicSampleIsReadFromIdentifier(Method method)
+    public void spaceOfSampleIdentifiedWithSpaceAndCodeIsDefinedByIdentifier()
             throws Exception
     {
         GeneralBatchImportFile file =
@@ -86,7 +52,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
     }
 
     @Test
-    public void spaceOfBasicSampleIsSetToDefaultSpaceOfImportFileIfIdentifierDoesNotHaveSpaceInformation()
+    public void spaceOfSampleIdentifiedWithCodeDefinedByDefaultSpaceOfImportFile()
             throws Exception
     {
         GeneralBatchImportFile file =
@@ -99,7 +65,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
     }
 
     @Test
-    public void spaceOfBasicSampleIsSetToUserHomeSpaceIfIdentifierDoesNotHaveSpaceInformationAndDefaultSpaceOfImportFileIsNotSet()
+    public void spaceOfSampleIdentifiedWithCodeDefinedByUserHomeSpaceIfDefaultSpaceOfImportFileIsNotSet()
             throws Exception
     {
         GeneralBatchImportFile file = create(aGeneralBatchImportFile());
@@ -111,7 +77,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
     }
 
     @Test(expectedExceptions = CommandNotSuccessful.class)
-    public void importFailsIfSpaceOfSampleCannotBeDerivedFromIdentifierOrDefaultSpaceOfImportFileOrHomeSpace()
+    public void importFailsIfSampleIsIdentifiedWithCodeAndDefaultSpaceOfImportFileIsNotSetAndHomeSpaceIsNotSet()
             throws Exception
     {
         GeneralBatchImportFile file = create(aGeneralBatchImportFile());
@@ -121,14 +87,13 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
     }
 
     @Test
-    public void spaceOfComponentSampleIsReadFromIdentifier(Method m)
+    public void spaceOfComponentSampleIdentifiedWithSpaceAndCodeIsDefinedByIdentifier()
             throws Exception
     {
         GeneralBatchImportFile file =
                 create(aGeneralBatchImportFile()
                         .withDefaultSpace(defaultSpace)
-                        .withSampleContainerColumn()
-                        .withName(m.getName()));
+                        .withSampleContainerColumn());
 
         Sample container =
                 create(in(file),
@@ -153,14 +118,67 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
     }
 
     @Test
-    public void spaceOfComponentSampleIsSetToDefaultSpaceOfImportFileIfIdentifierDoesNotHaveSpaceInformation(
-            Method m) throws Exception
+    public void spaceOfComponentSampleIdentifiedWithSpaceAndCodeAndSubcodeIsDefinedByIdentifier()
+            throws Exception
+    {
+        GeneralBatchImportFile file =
+                create(aGeneralBatchImportFile()
+                        .withDefaultSpace(defaultSpace));
+
+        Sample container =
+                create(in(file),
+                        aSample()
+                                .in(sampleSpace)
+                                .ofType(basic),
+                        IdentifiedBy.SPACE_AND_CODE);
+
+        Sample component =
+                create(in(file),
+                        aSample()
+                                .ofType(componentType)
+                                .containedBy(container),
+                        IdentifiedBy.SPACE_AND_CODE_AND_SUBCODE);
+
+        as(user(withHomeSpace), generalBatchImport(file));
+
+        assertThat(browserEntryOf(component), hasSpace(sampleSpace));
+    }
+
+    @Test
+    public void componentSampleIdentifiedWithSpaceAndCodeAndSubcodeCreatedAsSampleWithoutContainer()
+            throws Exception
+    {
+        GeneralBatchImportFile file =
+                create(aGeneralBatchImportFile()
+                        .withDefaultSpace(defaultSpace));
+
+        Sample container =
+                create(in(file),
+                        aSample()
+                                .in(sampleSpace)
+                                .ofType(basic),
+                        IdentifiedBy.SPACE_AND_CODE);
+
+        Sample component =
+                create(in(file),
+                        aSample()
+                                .ofType(componentType)
+                                .containedBy(container),
+                        IdentifiedBy.SPACE_AND_CODE_AND_SUBCODE);
+
+        as(user(withHomeSpace), generalBatchImport(file));
+
+        assertThat(browserEntryOf(component), hasNoContainer());
+    }
+
+    @Test
+    public void spaceOfComponentSampleIdentifiedWithSubcodeIsSetToDefaultSpaceOfImportFile()
+            throws Exception
     {
         GeneralBatchImportFile file =
                 create(aGeneralBatchImportFile()
                         .withSampleContainerColumn()
-                        .withDefaultSpace(defaultSpace)
-                        .withName(m.getName()));
+                        .withDefaultSpace(defaultSpace));
 
         Sample container =
                 create(in(file),
@@ -170,7 +188,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         Sample component =
                 create(in(file),
                         aSample().ofType(componentType).containedBy(container),
-                        IdentifiedBy.CODE);
+                        IdentifiedBy.SUBCODE);
 
         as(user(withHomeSpace), generalBatchImport(file));
 
@@ -179,10 +197,141 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
 
     }
 
-    @Test
-    public void importFailsIfContainerIdentifierHasMismatchInSpaces() throws Exception
+    @Test(expectedExceptions = CommandNotSuccessful.class)
+    public void importFailsIfComponentIsDefinedByCodeAndSubcodeAndContainerColumnExistsWithNonConflictingData()
+            throws Exception
     {
+        GeneralBatchImportFile file =
+                create(aGeneralBatchImportFile()
+                        .withSampleContainerColumn()
+                        .withDefaultSpace(defaultSpace));
 
+        Sample container =
+                create(in(file),
+                        aSample().in(sampleSpace).ofType(basic),
+                        IdentifiedBy.SPACE_AND_CODE);
+
+        create(in(file),
+                aSample().ofType(componentType).containedBy(container),
+                IdentifiedBy.CODE_AND_SUBCODE);
+
+        generalBatchImport(file);
     }
 
+    @Test(expectedExceptions = CommandNotSuccessful.class)
+    public void importFailsIfComponentIsDefinedBySpaceAndCodeAndSubcodeAndContainerColumnExistsWithNonConflictingData()
+            throws Exception
+    {
+        GeneralBatchImportFile file =
+                create(aGeneralBatchImportFile()
+                        .withSampleContainerColumn()
+                        .withDefaultSpace(defaultSpace));
+
+        Sample container =
+                create(in(file),
+                        aSample().in(sampleSpace).ofType(basic),
+                        IdentifiedBy.SPACE_AND_CODE);
+
+        create(in(file),
+                aSample().ofType(componentType).in(sampleSpace).containedBy(container),
+                IdentifiedBy.SPACE_AND_CODE_AND_SUBCODE);
+
+        generalBatchImport(file);
+    }
+
+    @Test
+    public void spaceOfComponentSampleIdentifiedWithCodeAndSubcodeIsSetToImportFileDefaultSpace()
+            throws Exception
+    {
+        GeneralBatchImportFile file =
+                create(aGeneralBatchImportFile()
+                        .withDefaultSpace(defaultSpace));
+
+        Sample container =
+                create(in(file),
+                        aSample().in(sampleSpace).ofType(basic),
+                        IdentifiedBy.SPACE_AND_CODE);
+
+        Sample component =
+                create(in(file),
+                        aSample().ofType(componentType).containedBy(container),
+                        IdentifiedBy.CODE_AND_SUBCODE);
+
+        generalBatchImport(file);
+
+        assertThat(browserEntryOf(component), hasSpace(defaultSpace));
+    }
+
+    @Test
+    public void componentSampleIdentifiedWithCodeAndSubcodeIsCreatedAsSampleWithoutContainer()
+            throws Exception
+    {
+        GeneralBatchImportFile file =
+                create(aGeneralBatchImportFile()
+                        .withDefaultSpace(defaultSpace));
+
+        Sample container =
+                create(in(file),
+                        aSample().in(sampleSpace).ofType(basic),
+                        IdentifiedBy.SPACE_AND_CODE);
+
+        Sample component =
+                create(in(file),
+                        aSample().ofType(componentType).containedBy(container),
+                        IdentifiedBy.CODE_AND_SUBCODE);
+
+        generalBatchImport(file);
+
+        assertThat(browserEntryOf(component), hasNoContainer());
+    }
+
+    @Test(expectedExceptions = CommandNotSuccessful.class)
+    public void importFailsIfComponentSampleTypeHasCodeUniquenessAttributeSetAndSameSpaceHasAnyTwoComponentsWithSameSubcode()
+            throws Exception
+    {
+        SampleType uniqueSubCodesType =
+                create(aSampleType().thatCanBeComponent().thatHasUniqueSubcodes());
+
+        GeneralBatchImportFile file = create(aGeneralBatchImportFile().withSampleContainerColumn());
+        Sample container1 = create(in(file), aSample().ofType(basic).in(sampleSpace));
+        Sample container2 = create(in(file), aSample().ofType(basic).in(sampleSpace));
+        create(in(file), aSample().ofType(uniqueSubCodesType).withCode("subcode").containedBy(
+                container1).in(componentSpace));
+        create(in(file), aSample().ofType(uniqueSubCodesType).withCode("subcode").containedBy(
+                container2).in(componentSpace));
+
+        generalBatchImport(file);
+    }
+
+    @Override
+    public void fixture()
+    {
+        System.out.println("GeneralBatchImportRegistrationTest - Fixture");
+        defaultSpace = create(aSpace().withCodePrefix("DEFAULT_SPACE"));
+        sampleSpace = create(aSpace().withCodePrefix("SAMPLE_SPACE"));
+        homeSpace = create(aSpace().withCodePrefix("HOME_SPACE"));
+        componentSpace = create(aSpace().withCodePrefix("COMPONENT_SPACE"));
+
+        basic = create(aSampleType().withCodePrefix("BASIC"));
+        componentType = create(aSampleType().thatCanBeComponent().withCodePrefix("COMPONENT"));
+
+        withHomeSpace = using(publicApi(), create(aUser().withHomeSpace(homeSpace)));
+        withoutHomeSpace = using(publicApi(), create(aUser()));
+    }
+
+    SampleType basic;
+
+    SampleType componentType;
+
+    Space sampleSpace;
+
+    Space defaultSpace;
+
+    Space homeSpace;
+
+    Space componentSpace;
+
+    User withHomeSpace;
+
+    User withoutHomeSpace;
 }

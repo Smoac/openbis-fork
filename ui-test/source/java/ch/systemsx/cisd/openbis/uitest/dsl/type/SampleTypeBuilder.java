@@ -108,6 +108,12 @@ public class SampleTypeBuilder implements Builder<SampleType>
         return this;
     }
 
+    public SampleTypeBuilder thatHasUniqueSubcodes()
+    {
+        this.hasUniqueSubcodes = true;
+        return this;
+    }
+
     public SampleTypeBuilder withPrefix(String prefix)
     {
         this.generatedCodePrefix = prefix;
