@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -25,7 +24,6 @@ import java.util.Set;
 
 import ch.ethz.cisd.hotdeploy.PluginContainer;
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -133,7 +131,7 @@ public class DssPropertyParametersUtil
         return extendProperties(PropertyIOUtils.loadProperties(filePath));
     }
 
-    private static ExtendedProperties extendProperties(Properties properties)
+    static ExtendedProperties extendProperties(Properties properties)
     {
         Properties systemProperties = System.getProperties();
         ExtendedProperties dssSystemProperties =
@@ -267,53 +265,5 @@ public class DssPropertyParametersUtil
         template.bind("path-key", pathKey);
         ConfigurationFailureException e = new ConfigurationFailureException(template.createText());
         return e;
-    }
-
-    public static void main(String[] args)
-    {
-        ExtendedProperties properties =
-                DssPropertyParametersUtil
-                        .loadProperties(DssPropertyParametersUtil.SERVICE_PROPERTIES_FILE);
-        CorePluginsUtils.addCorePluginsProperties(properties, ScannerType.DSS);
-        ExtendedProperties serviceProperties =
-                DssPropertyParametersUtil.extendProperties(properties);
-        CorePluginsInjector injector =
-                new CorePluginsInjector(ScannerType.DSS, DssPluginType.values());
-        Map<String, File> pluginFolders =
-                injector.injectCorePlugins(serviceProperties);
-
-        try
-        {
-            File libDir = new File("lib");
-            for (File link : libDir.listFiles())
-            {
-                if (link.getName().startsWith("autolink-"))
-                {
-                    link.delete();
-                }
-            }
-
-            for (String key : pluginFolders.keySet())
-            {
-                File pluginLibFolder = new File(pluginFolders.get(key).getCanonicalPath() + "/lib");
-                if (pluginLibFolder.exists())
-                {
-                    for (File jar : pluginLibFolder.listFiles())
-                    {
-                        if (jar.isFile() && jar.getName().endsWith(".jar"))
-                        {
-                            String link =
-                                    libDir.getAbsolutePath() + "/autolink-" + key + "-"
-                                            + jar.getName();
-                            Unix.createSymbolicLink(jar.getAbsolutePath(), link);
-                        }
-                    }
-                }
-
-            }
-        } catch (IOException ex)
-        {
-            ex.printStackTrace();
-        }
     }
 }
