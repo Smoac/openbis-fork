@@ -1022,12 +1022,12 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     loader.tryGetThumbnail(imageReference.getChannel(), channelStackRef,
                             new RequestedImageSize(size, false, false), transformation);
 
-            IHierarchicalContentNode content = imr.tryGetRawContent();
+            IHierarchicalContentNode content = imr != null ? imr.tryGetRawContent() : null;
 
             if (content == null)
             {
                 throw new UserFailureException(
-                        "Couldn't fetch the image as row content, as it is only a partial content of an image");
+                        "Couldn't fetch the image as raw content, as it is only a partial content of an image");
             }
             imageContents.add(content);
         }

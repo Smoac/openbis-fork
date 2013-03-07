@@ -122,7 +122,7 @@ var listImageReferencesAndFormatForPlateIdentifierAndWellPositionAndChannel = fu
 			facade.listAvailableImageRepresentationFormats(imageDataSets, function(formatResponse){
 				action({
 					imageReferences : imageReferencesResponse.result,
-					formats : formatResponse.result[0].imageRepresentationFormats[0]
+					format : formatResponse.result[0].imageRepresentationFormats[0]
 				});
 			});
 		});
@@ -428,17 +428,22 @@ test("loadImagesBase64ForImageReferencesAndImageConversion()", function(){
 	});
 });
 
+/*
+
+TODO generate thumbnails
+
 test("loadThumbnailImagesBase64ForImageReferences()", function(){
 	createFacadeAndLogin(function(facade){
 		listImageReferencesForPlateIdentifierAndWellPositionAndChannel(facade, "/PLATONIC/PLATE-1", 1, 1, "DAPI", function(imageReferences){
 			facade.loadThumbnailImagesBase64ForImageReferences(imageReferences, function(response){
-				// TODO generate some thumbnails at screening sprint server
-				assertObjectsCount(response.result, 0);
+				assertObjectsCount(response.result, 9);
 				facade.close();
 			});
 		});
 	});
 });
+
+*/
 
 test("loadImagesBase64ForImageReferencesAndImageSize()", function(){
 	createFacadeAndLogin(function(facade){
@@ -500,3 +505,166 @@ test("loadImagesBase64ForImageReferencesAndImageRepresentationFormatCriteria()",
 		});
 	});
 });
+
+test("listImageMetadata()", function(){
+	createFacadeAndLogin(function(facade){
+		listImageDatasetReferencesForPlateIdentifier(facade, "/PLATONIC/PLATE-1", function(imageDataSets){
+			facade.listImageMetadata(imageDataSets, function(response){
+				assertObjectsCount(response.result, 3);
+				assertObjectsWithValuesFunction(response.result, "datasetCode", function(result){
+					return result.imageDataset.datasetCode;
+				}, ["20110913111517610-82996", "20110913112525450-83000", "20110913113026096-83001"]);
+				facade.close();
+			});
+		});
+	});
+});
+
+test("listAvailableImageRepresentationFormats()", function(){
+	createFacadeAndLogin(function(facade){
+		listImageDatasetReferencesForPlateIdentifier(facade, "/PLATONIC/PLATE-1", function(imageDataSets){
+			facade.listAvailableImageRepresentationFormats(imageDataSets, function(response){
+				assertObjectsCount(response.result, 3);
+				assertObjectsWithValuesFunction(response.result, "datasetCode", function(result){
+					return result.dataset.datasetCode;
+				}, ["20110913111517610-82996", "20110913112525450-83000", "20110913113026096-83001"]);
+				facade.close();
+			});
+		});
+	});
+});
+
+/*
+
+TODO generate thumbnails
+
+test("loadPhysicalThumbnailsBase64ForImageReferencesAndImageRepresentationFormat()", function(){
+	createFacadeAndLogin(function(facade){
+		listImageReferencesAndFormatForPlateIdentifierAndWellPositionAndChannel(facade, "/PLATONIC/PLATE-1", 1, 1, "DAPI", function(results){
+			facade.loadPhysicalThumbnailsBase64ForImageReferencesAndImageRepresentationFormat(results.imageReferences, results.format, function(response){
+				assertObjectsCount(response.result, 9);
+				facade.close();
+			});
+		});
+	});
+});
+
+*/
+
+test("loadImagesBase64ForDataSetIdentifierAndWellPositionsAndChannelAndImageSize()", function(){
+	createFacadeAndLogin(function(facade){
+		listImageDatasetReferencesForPlateIdentifier(facade, "/PLATONIC/PLATE-1", function(imageDataSets){
+			var dataSetIdentifier = imageDataSets[0];
+			var wellPositions = [ createWellPosition(1, 1) ];
+			var channel = "DAPI";
+			var thumbnailSizeOrNull = createImageSize(100, 100);
+			
+			facade.loadImagesBase64ForDataSetIdentifierAndWellPositionsAndChannelAndImageSize(dataSetIdentifier, wellPositions , channel, thumbnailSizeOrNull, function(response){
+				assertObjectsCount(response.result, 9);
+				facade.close();
+			});
+		});
+	});
+});
+
+test("loadImagesBase64ForDataSetIdentifierAndChannelAndImageSize()", function(){
+	createFacadeAndLogin(function(facade){
+		var datasetCodes = ["20110913114645299-83009"];
+		
+		facade.getDatasetIdentifiers(datasetCodes, function(response){
+			var datasetIdentifier = response.result[0];
+			var channel = "RGB";
+			var thumbnailSizeOrNull = createImageSize(100, 100);
+			
+			facade.loadImagesBase64ForDataSetIdentifierAndChannelAndImageSize(datasetIdentifier, channel, thumbnailSizeOrNull, function(response){
+				assertObjectsCount(response.result, 1);
+				facade.close();
+			});
+		});
+	});
+});
+
+/*
+
+TODO generate thumbnails
+
+test("loadThumbnailImagesBase64ForDataSetIdentifierAndChannels()", function(){
+	createFacadeAndLogin(function(facade){
+		var datasetCodes = ["20110913114645299-83009"];
+		
+		facade.getDatasetIdentifiers(datasetCodes, function(response){
+			var datasetIdentifier = response.result[0];
+			var channels = ["RGB"];
+			
+			facade.loadThumbnailImagesBase64ForDataSetIdentifierAndChannels(datasetIdentifier, channels, function(response){
+				assertObjectsCount(response.result, 1);
+				facade.close();
+			});
+		});
+	});
+});
+
+*/
+
+test("listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel()", function(){
+	createFacadeAndLogin(function(facade){
+		listImageDatasetReferencesForPlateIdentifier(facade, "/PLATONIC/PLATE-1", function(imageDataSets){
+			var dataSetIdentifier = imageDataSets[0];
+			var wellPositions = [ createWellPosition(1, 1) ];
+			var channel = "DAPI";
+			
+			facade.listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel(dataSetIdentifier, wellPositions , channel, function(response){
+				assertObjectsCount(response.result, 9);
+				facade.close();
+			});
+		});
+	});
+});
+
+test("listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannels()", function(){
+	createFacadeAndLogin(function(facade){
+		listImageDatasetReferencesForPlateIdentifier(facade, "/PLATONIC/PLATE-1", function(imageDataSets){
+			var dataSetIdentifier = imageDataSets[0];
+			var wellPositions = [ createWellPosition(1, 1) ];
+			var channels = ["DAPI"];
+			
+			facade.listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannels(dataSetIdentifier, wellPositions , channels, function(response){
+				assertObjectsCount(response.result, 9);
+				facade.close();
+			});
+		});
+	});
+});
+
+test("listImageReferencesForDataSetIdentifierAndChannel()", function(){
+	createFacadeAndLogin(function(facade){
+		var datasetCodes = ["20110913114645299-83009"];
+		
+		facade.getDatasetIdentifiers(datasetCodes, function(response){
+			var datasetIdentifier = response.result[0];
+			var channel = "RGB";
+			
+			facade.listImageReferencesForDataSetIdentifierAndChannel(datasetIdentifier, channel, function(response){
+				assertObjectsCount(response.result, 1);
+				facade.close();
+			});
+		});
+	});
+});
+
+test("listImageReferencesForDataSetIdentifierAndChannels()", function(){
+	createFacadeAndLogin(function(facade){
+		var datasetCodes = ["20110913114645299-83009"];
+		
+		facade.getDatasetIdentifiers(datasetCodes, function(response){
+			var datasetIdentifier = response.result[0];
+			var channels = ["RGB"];
+			
+			facade.listImageReferencesForDataSetIdentifierAndChannels(datasetIdentifier, channels, function(response){
+				assertObjectsCount(response.result, 1);
+				facade.close();
+			});
+		});
+	});
+});
+
