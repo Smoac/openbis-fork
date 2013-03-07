@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.uitest.dsl.type.SampleBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.SamplePropertyTypeAssignmentBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.SampleTypeBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.SampleTypeUpdateBuilder;
+import ch.systemsx.cisd.openbis.uitest.dsl.type.SampleUpdateBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.ScriptBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.SpaceBuilder;
 import ch.systemsx.cisd.openbis.uitest.dsl.type.UpdateBuilder;
@@ -620,7 +621,7 @@ public abstract class SeleniumTest
         return importFile;
     }
 
-    public Sample create(ImportFile file, SampleBuilder builder, IdentifiedBy identifiedBy)
+    public Sample create(ImportFile file, Builder<Sample> builder, IdentifiedBy identifiedBy)
     {
         Sample sample = assume(builder);
 
@@ -639,7 +640,7 @@ public abstract class SeleniumTest
         return sample;
     }
 
-    public Sample create(ImportFile file, SampleBuilder builder)
+    public Sample create(ImportFile file, Builder<Sample> builder)
     {
         return create(file, builder, null);
     }
@@ -810,7 +811,12 @@ public abstract class SeleniumTest
         return new SampleTypeUpdateBuilder(type);
     }
 
-    protected void perform(UpdateBuilder builder)
+    protected SampleUpdateBuilder anUpdateOf(Sample sample)
+    {
+        return new SampleUpdateBuilder(sample);
+    }
+
+    protected void perform(UpdateBuilder<?> builder)
     {
         builder.update(openbis, ui);
     }

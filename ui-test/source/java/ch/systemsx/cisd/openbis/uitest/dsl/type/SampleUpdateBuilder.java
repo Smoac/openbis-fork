@@ -18,44 +18,43 @@ package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
 import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
-import ch.systemsx.cisd.openbis.uitest.gui.UpdateSampleTypeGui;
-import ch.systemsx.cisd.openbis.uitest.type.SampleType;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
+import ch.systemsx.cisd.openbis.uitest.type.Sample;
 
 /**
  * @author anttil
  */
-public class SampleTypeUpdateBuilder implements UpdateBuilder<SampleType>
+public class SampleUpdateBuilder implements UpdateBuilder<Sample>
 {
 
-    private SampleTypeDsl type;
+    private SampleDsl sample;
 
-    public SampleTypeUpdateBuilder(SampleType type)
+    public SampleUpdateBuilder(Sample sample)
     {
-        this.type = (SampleTypeDsl) type;
+        this.sample = (SampleDsl) sample;
     }
 
-    public SampleTypeUpdateBuilder settingItListable()
+    public SampleUpdateBuilder settingContainerTo(Sample container)
     {
-        type.setListable(true);
+        sample.setContainer(container);
         return this;
     }
 
-    public SampleTypeUpdateBuilder settingItNonListable()
+    public SampleUpdateBuilder settingProperty(PropertyType propertyType, Object object)
     {
-        type.setListable(false);
+        sample.getProperties().put(propertyType, object);
         return this;
     }
 
     @Override
-    public SampleType update(Application openbis, Ui ui)
+    public Sample update(Application openbis, Ui ui)
     {
-        openbis.execute(new UpdateSampleTypeGui(type));
-        return type;
+        return sample;
     }
 
     @Override
-    public SampleType build(Application openbis, Ui ui)
+    public Sample build(Application openbis, Ui ui)
     {
-        return type;
+        return sample;
     }
 }

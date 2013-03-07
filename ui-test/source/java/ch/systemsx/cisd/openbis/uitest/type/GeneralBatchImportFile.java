@@ -83,51 +83,22 @@ public class GeneralBatchImportFile implements ImportFile
         for (SampleType type : types)
         {
             workbook.write(sampleSheet, "[" + type.getCode() + "]");
-            if (hasSampleContainerColumn && type.isShowContainer())
-            {
-                workbook.write(sampleSheet, "Identifier", "CURRENT_CONTAINER");
-            } else
-            {
-                workbook.write(sampleSheet, "Identifier");
-            }
+
+            Header header = new Header(type, hasSampleContainerColumn);
+            workbook.write(sampleSheet, header.getLabels().toArray(new String[0]));
 
             for (Sample sample : samples)
             {
                 if (sample.getType().equals(type))
                 {
-                    workbook.write(sampleSheet, getCells(sample));
+                    workbook.write(sampleSheet, header.getValuesFor(sample, identifierTypes)
+                            .toArray(new String[0]));
                 }
             }
         }
 
         File f = workbook.writeToDisk();
         return f.getAbsolutePath();
-    }
-
-    private String[] getCells(Sample sample)
-    {
-        List<String> cells = new ArrayList<String>();
-
-        cells.add(getIdentifier(sample));
-
-        if (hasSampleContainerColumn && sample.getContainer() != null)
-        {
-            cells.add(getIdentifier(sample.getContainer()));
-        }
-
-        return cells.toArray(new String[0]);
-    }
-
-    private String getIdentifier(Sample sample)
-    {
-
-        IdentifiedBy idType = identifierTypes.get(sample);
-        if (idType == null)
-        {
-            idType = IdentifiedBy.SPACE_AND_CODE;
-        }
-
-        return idType.format(sample);
     }
 
     @Override

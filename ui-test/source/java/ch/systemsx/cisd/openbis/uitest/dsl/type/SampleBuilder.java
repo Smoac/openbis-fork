@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.UUID;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
 import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
@@ -74,6 +75,12 @@ public class SampleBuilder implements Builder<Sample>
     public SampleBuilder withCode(String code)
     {
         this.code = code;
+        return this;
+    }
+
+    public SampleBuilder withCodePrefix(String prefix)
+    {
+        this.code = prefix + "_" + UUID.randomUUID().toString();
         return this;
     }
 

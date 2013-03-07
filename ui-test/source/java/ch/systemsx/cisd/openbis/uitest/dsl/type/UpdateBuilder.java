@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.uitest.dsl.Ui;
 /**
  * @author anttil
  */
-public interface UpdateBuilder
+public interface UpdateBuilder<T> extends Builder<T>
 {
-    public void update(Application openbis, Ui ui);
+    public T update(Application openbis, Ui ui);
 }

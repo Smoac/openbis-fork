@@ -18,11 +18,15 @@ package ch.systemsx.cisd.openbis.uitest.suite.main;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.util.UUID;
+
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.CommandNotSuccessful;
 import ch.systemsx.cisd.openbis.uitest.dsl.IdentifiedBy;
+import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.GeneralBatchImportFile;
+import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
 import ch.systemsx.cisd.openbis.uitest.type.Sample;
 import ch.systemsx.cisd.openbis.uitest.type.SampleType;
 import ch.systemsx.cisd.openbis.uitest.type.Space;
@@ -52,7 +56,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
     }
 
     @Test
-    public void spaceOfSampleIdentifiedWithCodeDefinedByDefaultSpaceOfImportFile()
+    public void spaceOfSampleIdentifiedWithCodeIsDefinedByDefaultSpaceOfImportFile()
             throws Exception
     {
         GeneralBatchImportFile file =
@@ -65,7 +69,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
     }
 
     @Test
-    public void spaceOfSampleIdentifiedWithCodeDefinedByUserHomeSpaceIfDefaultSpaceOfImportFileIsNotSet()
+    public void spaceOfSampleIdentifiedWithCodeIsDefinedByUserHomeSpaceIfDefaultSpaceOfImportFileIsNotSet()
             throws Exception
     {
         GeneralBatchImportFile file = create(aGeneralBatchImportFile());
@@ -83,7 +87,16 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         GeneralBatchImportFile file = create(aGeneralBatchImportFile());
         create(in(file), aSample().ofType(basic), IdentifiedBy.CODE);
 
-        as(user(withoutHomeSpace), generalBatchImport(file));
+        try
+        {
+            as(user(withoutHomeSpace), generalBatchImport(file));
+        } finally
+        {
+            if (SeleniumTest.ADMIN_USER.equals(loggedInAs()) == false)
+            {
+                user(assume(aUser().withName(SeleniumTest.ADMIN_USER)));
+            }
+        }
     }
 
     @Test
@@ -145,7 +158,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
     }
 
     @Test
-    public void componentSampleIdentifiedWithSpaceAndCodeAndSubcodeCreatedAsSampleWithoutContainer()
+    public void componentSampleIdentifiedWithSpaceAndCodeAndSubcodeIsCreatedAsSampleWithoutContainer()
             throws Exception
     {
         GeneralBatchImportFile file =
@@ -303,10 +316,55 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         generalBatchImport(file);
     }
 
+    @Test
+    public void propertiesOfSamplesAreImported() throws Exception
+    {
+        SampleType sampleType = create(aSampleType());
+        PropertyType propertyType = create(aVarcharPropertyType());
+        create(aSamplePropertyTypeAssignment()
+                .with(sampleType)
+                .with(propertyType));
+
+        String propertyValue = UUID.randomUUID().toString();
+
+        GeneralBatchImportFile file = create(aGeneralBatchImportFile());
+        Sample sample =
+                create(in(file), aSample().ofType(sampleType).withProperty(propertyType,
+                        propertyValue).in(sampleSpace));
+        generalBatchImport(file);
+
+        assertThat(browserEntryOf(sample), containsValue(propertyType.getLabel(), propertyValue));
+    }
+
+    @Test
+    public void registrationOfMultipleSamplesPerTypeIsPossible() throws Exception
+    {
+        GeneralBatchImportFile file =
+                create(aGeneralBatchImportFile()
+                        .withoutSampleContainerColumn());
+
+        Sample container = create(in(file), aSample().ofType(basic).in(sampleSpace));
+        Sample container2 = create(in(file), aSample().ofType(basic).in(sampleSpace));
+
+        Sample contained =
+                create(in(file), aSample().containedBy(container).ofType(componentType).in(
+                        sampleSpace));
+        Sample contained2 =
+                create(in(file), aSample().containedBy(container2).ofType(componentType).in(
+                        sampleSpace));
+
+        generalBatchImport(file);
+
+        assertThat(browserEntryOf(container), exists());
+        assertThat(browserEntryOf(contained), exists());
+        assertThat(browserEntryOf(container2), exists());
+        assertThat(browserEntryOf(contained2), exists());
+
+    }
+
     @Override
     public void fixture()
     {
-        System.out.println("GeneralBatchImportRegistrationTest - Fixture");
         defaultSpace = create(aSpace().withCodePrefix("DEFAULT_SPACE"));
         sampleSpace = create(aSpace().withCodePrefix("SAMPLE_SPACE"));
         homeSpace = create(aSpace().withCodePrefix("HOME_SPACE"));
