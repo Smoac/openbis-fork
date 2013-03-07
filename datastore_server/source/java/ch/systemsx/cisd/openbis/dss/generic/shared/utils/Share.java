@@ -88,6 +88,8 @@ public final class Share
     private ShufflePriority shufflePriority = ShufflePriority.SPEED;
 
     private boolean withdrawShare;
+    
+    private boolean ignoredForShuffling;
 
     private Set<String> experimentIdentifiers;
 
@@ -225,5 +227,15 @@ public final class Share
     public void setWithdrawShare(boolean withdrawShare)
     {
         this.withdrawShare = withdrawShare;
+    }
+
+    public boolean isIgnoredForShuffling()
+    {
+        return ignoredForShuffling;
+    }
+
+    public void setIgnoredForShuffling(boolean ignoredForShuffling)
+    {
+        this.ignoredForShuffling = ignoredForShuffling;
     }
 }

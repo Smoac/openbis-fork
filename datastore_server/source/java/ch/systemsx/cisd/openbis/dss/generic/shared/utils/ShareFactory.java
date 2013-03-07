@@ -59,6 +59,8 @@ public class ShareFactory
     static final String SHUFFLE_PRIORITY_PROP = "shuffle-priority";
 
     public static final String WITHDRAW_SHARE_PROP = "withdraw-share";
+    
+    public static final String IGNORED_FOR_SHUFFLING_PROP = "ignored-for-shuffling";
 
     public static final String EXPERIMENTS_PROP = "experiments";
 
@@ -68,6 +70,8 @@ public class ShareFactory
 
     private boolean withdrawShare;
 
+    private boolean ignoredForShuffling;
+    
     private Set<String> experimentIdentifiers = Collections.emptySet();
 
     Share createShare(final SharesHolder sharesHolder, File shareRoot,
@@ -78,6 +82,7 @@ public class ShareFactory
         Share share = new Share(sharesHolder, shareRoot, speed, freeSpaceProvider);
         share.setShufflePriority(shufflePriority);
         share.setWithdrawShare(withdrawShare);
+        share.setIgnoredForShuffling(ignoredForShuffling);
         share.setExperimentIdentifiers(experimentIdentifiers);
         return share;
 
@@ -143,6 +148,7 @@ public class ShareFactory
             }
 
             withdrawShare = PropertyUtils.getBoolean(props, WITHDRAW_SHARE_PROP, false);
+            ignoredForShuffling = PropertyUtils.getBoolean(props, IGNORED_FOR_SHUFFLING_PROP, false);
             experimentIdentifiers =
                     new HashSet<String>(Arrays.asList(PropertyParametersUtil.parseItemisedProperty(
                             props.getProperty(EXPERIMENTS_PROP, ""), EXPERIMENTS_PROP)));

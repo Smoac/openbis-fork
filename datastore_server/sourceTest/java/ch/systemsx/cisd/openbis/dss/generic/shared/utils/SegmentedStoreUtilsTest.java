@@ -458,7 +458,8 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         incomingFolder.mkdirs();
         File share1 = new File(store, "1");
         share1.mkdirs();
-        FileUtilities.writeToFile(new File(share1, "share.properties"), "withdraw-share = true");
+        FileUtilities.writeToFile(new File(share1, "share.properties"),
+                ShareFactory.WITHDRAW_SHARE_PROP + " = true");
 
         String share = SegmentedStoreUtils.findIncomingShare(incomingFolder, store, log);
 
@@ -468,6 +469,40 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                         + SegmentedStoreUtilsTest.class.getName()
                         + "/incoming] can not be assigned to share 1 because its property "
                         + "withdraw-share is set to true.\n", log.toString());
+    }
+
+    @Test
+    public void testFindIncomingShareToBeIgnoredInShuffling()
+    {
+        File incomingFolder = new File(workingDirectory, "incoming");
+        incomingFolder.mkdirs();
+        File share1 = new File(store, "1");
+        share1.mkdirs();
+        FileUtilities.writeToFile(new File(share1, "share.properties"),
+                ShareFactory.IGNORED_FOR_SHUFFLING_PROP + " = true");
+        
+        String share = SegmentedStoreUtils.findIncomingShare(incomingFolder, store, log);
+        
+        assertEquals("1", share);
+        assertEquals("", log.toString());
+    }
+    
+    @Test
+    public void testGetShares()
+    {
+        File share1 = new File(store, "1");
+        share1.mkdirs();
+        FileUtilities.writeToFile(new File(share1, "share.properties"),
+                ShareFactory.IGNORED_FOR_SHUFFLING_PROP + " = true");
+        File share2 = new File(store, "2");
+        share2.mkdirs();
+        
+        List<Share> shares =
+                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE,
+                        freeSpaceProvider, service, log, timeProvider);
+        
+        assertEquals("2", shares.get(0).getShareId());
+        assertEquals(1, shares.size());
     }
 
     private File dataSetFile(String shareId, boolean empty)

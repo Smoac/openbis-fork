@@ -224,7 +224,10 @@ public class SegmentedStoreUtils
         {
             final Share share =
                     new ShareFactory().createShare(sharesHolder, file, freeSpaceProvider, log);
-            shares.put(share.getShareId(), share);
+            if (share.isIgnoredForShuffling() == false)
+            {
+                shares.put(share.getShareId(), share);
+            }
         }
         return shares;
     }

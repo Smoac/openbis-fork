@@ -41,6 +41,7 @@ public class ShareFactoryTest extends AssertJUnit
         assertEquals(70, share.getSpeed());
         assertEquals(ShufflePriority.SPEED, share.getShufflePriority());
         assertEquals(false, share.isWithdrawShare());
+        assertEquals(false, share.isIgnoredForShuffling());
     }
 
     @Test
@@ -50,6 +51,7 @@ public class ShareFactoryTest extends AssertJUnit
         assertEquals(12, share.getSpeed());
         assertEquals(ShufflePriority.MOVE_TO_EXTENSION, share.getShufflePriority());
         assertEquals(true, share.isWithdrawShare());
+        assertEquals(true, share.isIgnoredForShuffling());
         assertEquals(0, share.getExperimentIdentifiers().size());
     }
 
@@ -72,6 +74,7 @@ public class ShareFactoryTest extends AssertJUnit
         assertEquals(12, share.getSpeed());
         assertEquals(ShufflePriority.SPEED, share.getShufflePriority());
         assertEquals(false, share.isWithdrawShare());
+        assertEquals(false, share.isIgnoredForShuffling());
         assertEquals(0, share.getExperimentIdentifiers().size());
     }
     
