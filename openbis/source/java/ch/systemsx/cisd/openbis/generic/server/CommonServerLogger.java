@@ -1461,9 +1461,9 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public List<Deletion> listDeletions(String sessionToken, int limit)
+    public List<Deletion> listOriginalDeletions(String sessionToken)
     {
-        logAccess(sessionToken, "listDeletions", "LIMIT(%s)", limit);
+        logAccess(sessionToken, "listOriginalDeletions");
         return null;
     }
 

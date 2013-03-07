@@ -40,6 +40,19 @@ public interface IDeletionDAO extends IGenericDAO<DeletionPE>
      * Moves entities with given ids to trash using specified deletion. Ignores ids of entities that
      * don't exist or are already in the trash.
      * 
+     * @param isOriginalDeletion if true than the specified entities are considered originally
+     *            deleted entities
+     * @return number of trashed entities
+     */
+    int trash(EntityKind entityKind, List<TechId> entityIds, DeletionPE deletion,
+            boolean isOriginalDeletion) throws DataAccessException;
+
+    /**
+     * Moves entities with given ids to trash using specified deletion. Ignores ids of entities that
+     * don't exist or are already in the trash.
+     * <p>
+     * The entites are considered to be originally deleted
+     * 
      * @return number of trashed entities
      */
     int trash(EntityKind entityKind, List<TechId> entityIds, DeletionPE deletion)
@@ -76,6 +89,17 @@ public interface IDeletionDAO extends IGenericDAO<DeletionPE>
 
     /** Returns list of codes of data sets moved to trash in specified deletions. */
     List<TechId> findTrashedDataSetIds(List<TechId> deletionIds);
+
+    /**
+     * Returns list of ids of samples originally moved to trash in specified deletions.
+     */
+    List<TechId> findOriginalTrashedSampleIds(List<TechId> deletionIds);
+
+    /** Returns list of ids of experiments originally moved to trash in specified deletions. */
+    List<TechId> findOriginalTrashedExperimentIds(List<TechId> deletionIds);
+
+    /** Returns list of codes of data sets originally moved to trash in specified deletions. */
+    List<TechId> findOriginalTrashedDataSetIds(List<TechId> deletionIds);
 
     /** Returns list of deletions with given ids */
     List<DeletionPE> findAllById(List<Long> ids);

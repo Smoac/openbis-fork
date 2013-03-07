@@ -36,11 +36,9 @@ public interface IDeletionTable
     public void load(boolean withEntities);
 
     /**
-     * Load all {@link Deletion} objects.
-     * 
-     * @param limit will fetch only that many entities of certain type
+     * Load all {@link Deletion} objects with original entities.
      */
-    public void load(int limit);
+    public void loadOriginal();
 
     public List<Deletion> getDeletions();
 }

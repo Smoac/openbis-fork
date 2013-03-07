@@ -156,7 +156,7 @@ public final class TrashBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(deletionDAO).trash(EntityKind.EXPERIMENT, experimentIds, deletion);
+                    one(deletionDAO).trash(EntityKind.EXPERIMENT, experimentIds, deletion, true);
                     will(returnValue(0));
                 }
             });
@@ -178,7 +178,7 @@ public final class TrashBOTest extends AbstractBOTest
                     one(dataSetTable).getNonDeletableExternalDataSets();
                     will(returnValue(Arrays.asList()));
 
-                    one(deletionDAO).trash(EntityKind.EXPERIMENT, experimentIds, deletion);
+                    one(deletionDAO).trash(EntityKind.EXPERIMENT, experimentIds, deletion, true);
                     will(returnValue(experimentIds.size()));
 
                     // trash dependent samples
@@ -188,7 +188,7 @@ public final class TrashBOTest extends AbstractBOTest
                     RecordingMatcher<List<TechId>> sampleIdsMatcher =
                             new RecordingMatcher<List<TechId>>();
                     one(deletionDAO).trash(with(same(EntityKind.SAMPLE)), with(sampleIdsMatcher),
-                            with(same(deletion)));
+                            with(same(deletion)), with(false));
                     will(returnValue(0));
 
                     // trash dependent data sets
@@ -199,7 +199,7 @@ public final class TrashBOTest extends AbstractBOTest
                     will(returnValue(dataSetIds));
 
                     oneOf(deletionDAO).trash(with(same(EntityKind.DATA_SET)), with(dsIdsMatcher),
-                            with(same(deletion)));
+                            with(same(deletion)), with(false));
                     will(returnValue(0));
                 }
             });
@@ -229,7 +229,7 @@ public final class TrashBOTest extends AbstractBOTest
                     one(dataSetTable).getNonDeletableExternalDataSets();
                     will(returnValue(Arrays.asList()));
 
-                    one(deletionDAO).trash(EntityKind.EXPERIMENT, experimentIds, deletion);
+                    one(deletionDAO).trash(EntityKind.EXPERIMENT, experimentIds, deletion, true);
                     will(returnValue(experimentIds.size()));
 
                     // trash dependent samples - see prepareDeletionOfSamplesWithDependencies
@@ -244,11 +244,11 @@ public final class TrashBOTest extends AbstractBOTest
                     will(returnValue(dataSetIds));
 
                     one(deletionDAO).trash(with(same(EntityKind.DATA_SET)),
-                            with(dataSetIdsMatcher), with(same(deletion)));
+                            with(dataSetIdsMatcher), with(same(deletion)), with(false));
                     will(returnValue(dataSetIds.size()));
                 }
             });
-        prepareDeletionOfSamplesWithDependencies(deletion, sampleIds);
+        prepareDeletionOfSamplesWithDependencies(deletion, sampleIds, false);
         trashBO.trashExperiments(experimentIds);
         verifyRecordedLists(dataSetIds, dataSetIdsMatcher);
         context.assertIsSatisfied();
@@ -262,7 +262,7 @@ public final class TrashBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(deletionDAO).trash(EntityKind.SAMPLE, sampleIds, deletion);
+                    one(deletionDAO).trash(EntityKind.SAMPLE, sampleIds, deletion, true);
                     will(returnValue(0));
                 }
             });
@@ -275,13 +275,13 @@ public final class TrashBOTest extends AbstractBOTest
     {
         final DeletionPE deletion = createDeletion();
         final List<TechId> sampleIds = EXAMPLE_ID_LIST;
-        prepareDeletionOfSamplesWithDependencies(deletion, sampleIds);
+        prepareDeletionOfSamplesWithDependencies(deletion, sampleIds, true);
         trashBO.trashSamples(sampleIds);
         context.assertIsSatisfied();
     }
 
     private void prepareDeletionOfSamplesWithDependencies(final DeletionPE deletion,
-            final List<TechId> sampleIds)
+            final List<TechId> sampleIds, final boolean firstLevelOfDependency)
     {
         context.checking(new Expectations()
             {
@@ -294,7 +294,7 @@ public final class TrashBOTest extends AbstractBOTest
                             new RecordingMatcher<List<TechId>>();
 
                     one(deletionDAO).trash(with(same(EntityKind.SAMPLE)), with(sampleIdsMatcher),
-                            with(same(deletion)));
+                            with(same(deletion)), with(firstLevelOfDependency));
                     will(returnValue(sampleIds.size()));
 
                     // don't trash dependent children
@@ -306,7 +306,7 @@ public final class TrashBOTest extends AbstractBOTest
                     RecordingMatcher<List<TechId>> componentIdsMatcher =
                             new RecordingMatcher<List<TechId>>();
                     one(deletionDAO).trash(with(same(EntityKind.SAMPLE)),
-                            with(componentIdsMatcher), with(same(deletion)));
+                            with(componentIdsMatcher), with(same(deletion)), with(false));
                     will(returnValue(0));
 
                     // trash dependent data sets
@@ -321,7 +321,7 @@ public final class TrashBOTest extends AbstractBOTest
                     will(returnValue(TechId.createList(70, 71, 72, 73)));
 
                     one(deletionDAO).trash(with(same(EntityKind.DATA_SET)),
-                            with(dataSetIdsMatcher), with(same(deletion)));
+                            with(dataSetIdsMatcher), with(same(deletion)), with(false));
                     will(returnValue(2));
 
                     verifyRecordedLists(sampleIds, sampleIdsMatcher);
@@ -335,6 +335,7 @@ public final class TrashBOTest extends AbstractBOTest
         final DeletionPE deletion = createDeletion();
         final List<TechId> dataSetIds = TechId.createList(1, 2, 3);
         final List<TechId> allIds = TechId.createList(1, 2, 3, 5, 6);
+        final List<TechId> someIds = TechId.createList(5, 6);
         context.checking(new Expectations()
             {
                 {
@@ -345,8 +346,12 @@ public final class TrashBOTest extends AbstractBOTest
                     one(dataDAO).listContainedDataSetsRecursively(dataSetIds);
                     will(returnValue(allIds));
 
-                    one(deletionDAO).trash(EntityKind.DATA_SET, allIds, deletion);
-                    will(returnValue(allIds.size()));
+                    one(deletionDAO).trash(EntityKind.DATA_SET, dataSetIds, deletion, true);
+                    will(returnValue(dataSetIds.size()));
+
+                    one(deletionDAO).trash(EntityKind.DATA_SET, someIds, deletion, false);
+                    will(returnValue(someIds.size()));
+
                 }
             });
         trashBO.trashDataSets(dataSetIds);

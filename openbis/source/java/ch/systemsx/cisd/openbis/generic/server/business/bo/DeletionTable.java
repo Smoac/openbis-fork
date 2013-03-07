@@ -56,16 +56,16 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
     @Override
     public void load(boolean withEntities)
     {
-        load(withEntities, 0);
+        load(withEntities, false);
     }
 
     @Override
-    public void load(int limit)
+    public void loadOriginal()
     {
-        load(true, limit);
+        load(true, true);
     }
 
-    private void load(boolean withEntities, int limit)
+    private void load(boolean withEntities, boolean onlyOriginal)
     {
         final List<DeletionPE> deletionPEs = getDeletionDAO().listAllEntities();
         Collections.sort(deletionPEs);
@@ -82,9 +82,9 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
 
         if (false == deletions.isEmpty())
         {
-            findEntities(TrashEntity.EXPERIMENT, findersMap, limit);
-            findEntities(TrashEntity.SAMPLE, findersMap, limit);
-            findEntities(TrashEntity.DATA_SET, findersMap, limit);
+            findEntities(TrashEntity.EXPERIMENT, findersMap, onlyOriginal);
+            findEntities(TrashEntity.SAMPLE, findersMap, onlyOriginal);
+            findEntities(TrashEntity.DATA_SET, findersMap, onlyOriginal);
         }
         for (Deletion deletion : deletions)
         {
@@ -92,16 +92,28 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
         }
     }
 
-    private void findEntities(TrashEntity kind, Map<Long, RootEntitiesFinder> findersMap, int limit)
+    private void findEntities(TrashEntity kind, Map<Long, RootEntitiesFinder> findersMap,
+            boolean onlyOriginal)
     {
         IDeletionDAO deletionDAO = getDeletionDAO();
 
         for (Deletion deletion : deletions)
         {
-            List<TechId> deletedEntitiesIds =
-                    kind.deletedEntityIds(deletionDAO,
-                            Collections.singletonList(new TechId(deletion.getId())));
+            List<TechId> deletedEntitiesIds;
+
+            if (onlyOriginal)
+            {
+                deletedEntitiesIds =
+                        kind.originalDeletedEntityIds(deletionDAO,
+                                Collections.singletonList(new TechId(deletion.getId())));
+            } else
+            {
+                deletedEntitiesIds =
+                        kind.deletedEntityIds(deletionDAO,
+                                Collections.singletonList(new TechId(deletion.getId())));
+            }
             EntityKind entityKind = kind.entityKind;
+
             int count = deletedEntitiesIds.size();
 
             switch (entityKind)
@@ -117,10 +129,6 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
                     break;
                 default:
                     throw new IllegalArgumentException("Unsupported entity type " + entityKind);
-            }
-            if (limit > 0 && limit < deletedEntitiesIds.size())
-            {
-                deletedEntitiesIds = deletedEntitiesIds.subList(0, limit);
             }
 
             List<? extends IDeletablePE> entities =
@@ -141,6 +149,12 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
                 return dao.findTrashedSampleIds(deletionIDs);
             }
 
+            @Override
+            List<TechId> originalDeletedEntityIds(IDeletionDAO dao, List<TechId> deletionIDs)
+            {
+                return dao.findOriginalTrashedSampleIds(deletionIDs);
+            }
+
         },
         EXPERIMENT(EntityKind.EXPERIMENT)
         {
@@ -150,6 +164,11 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
                 return dao.findTrashedExperimentIds(deletionIDs);
             }
 
+            @Override
+            List<TechId> originalDeletedEntityIds(IDeletionDAO dao, List<TechId> deletionIDs)
+            {
+                return dao.findOriginalTrashedExperimentIds(deletionIDs);
+            }
         },
         DATA_SET(EntityKind.DATA_SET)
         {
@@ -159,6 +178,11 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
                 return dao.findTrashedDataSetIds(deletionIDs);
             }
 
+            @Override
+            List<TechId> originalDeletedEntityIds(IDeletionDAO dao, List<TechId> deletionIDs)
+            {
+                return dao.findOriginalTrashedDataSetIds(deletionIDs);
+            }
         };
 
         private TrashEntity(EntityKind entityKind)
@@ -169,6 +193,8 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
         final EntityKind entityKind;
 
         abstract List<TechId> deletedEntityIds(IDeletionDAO dao, List<TechId> deletionIDs);
+
+        abstract List<TechId> originalDeletedEntityIds(IDeletionDAO dao, List<TechId> deletionIDs);
 
     }
 

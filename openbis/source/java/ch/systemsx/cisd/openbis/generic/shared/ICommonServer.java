@@ -1367,12 +1367,12 @@ public interface ICommonServer extends IServer
     public List<Deletion> listDeletions(String sessionToken, boolean withDeletedEntities);
 
     /**
-     * Returns all deletions. Additionally limit number of entities fetched per limit per item
+     * Returns all deletions, but only including original entities.
      * 
      * @return a sorted list of {@link Deletion}.
      */
     @Transactional(readOnly = true)
-    public List<Deletion> listDeletions(String sessionToken, int limit);
+    public List<Deletion> listOriginalDeletions(String sessionToken);
 
     /**
      * Reverts specified deletions (puts back all entities moved to trash in the deletions).

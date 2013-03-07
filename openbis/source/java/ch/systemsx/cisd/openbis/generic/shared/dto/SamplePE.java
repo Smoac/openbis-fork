@@ -226,6 +226,12 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
      */
     private DeletionPE deletion;
 
+    /**
+     * If not null than this object has been originally trashed. (As oposed to the entities which
+     * were trashed as being dependent on other trashed entity)
+     */
+    private Integer originalDeletion;
+
     private Set<SamplePropertyPE> properties = new HashSet<SamplePropertyPE>();
 
     /**
@@ -310,6 +316,17 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     public void setDeletion(final DeletionPE deletion)
     {
         this.deletion = deletion;
+    }
+
+    @Column(name = ColumnNames.ORIGINAL_DELETION_COLUMN, nullable = false)
+    public Integer getOriginalDeletion()
+    {
+        return originalDeletion;
+    }
+
+    public void setOriginalDeletion(Integer originalDeletion)
+    {
+        this.originalDeletion = originalDeletion;
     }
 
     @Transient

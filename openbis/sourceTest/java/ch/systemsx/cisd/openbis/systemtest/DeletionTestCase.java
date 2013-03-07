@@ -166,20 +166,23 @@ public class DeletionTestCase extends SystemTestCase
     @AfterMethod(alwaysRun = true)
     public void tearDown()
     {
-        List<Experiment> existingExperiments = new ArrayList<Experiment>();
-        if (registeredExperiments != null)
+        if (commonServer != null)
         {
-            for (Experiment exp : registeredExperiments)
+            List<Experiment> existingExperiments = new ArrayList<Experiment>();
+            if (registeredExperiments != null)
             {
-                if (isExistingExperiment(exp.getCode()))
+                for (Experiment exp : registeredExperiments)
                 {
-                    existingExperiments.add(exp);
+                    if (isExistingExperiment(exp.getCode()))
+                    {
+                        existingExperiments.add(exp);
+                    }
                 }
             }
+            commonServer.deleteExperiments(sessionToken, TechId.createList(existingExperiments),
+                    REASON, DeletionType.TRASH);
+            commonServer.deletePermanently(sessionToken, TechId.createList(listDeletions()));
         }
-        commonServer.deleteExperiments(sessionToken, TechId.createList(existingExperiments),
-                REASON, DeletionType.TRASH);
-        commonServer.deletePermanently(sessionToken, TechId.createList(listDeletions()));
     }
 
     @Test

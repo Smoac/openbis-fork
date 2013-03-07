@@ -68,6 +68,8 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
 
     private static final String CONTAINER_ID = "containerId";
 
+    private static final String ORIGINAL_DELETION = "originalDeletion";
+
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an
      * appropriate debugging level for class {@link JdbcAccessor}. </p>
@@ -159,9 +161,11 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                 {
 
                     String query =
-                            String.format("UPDATE %s SET modification_timestamp = now(), "
-                                    + "del_id = NULL, pers_id_modifier = :modifierId "
-                                    + "WHERE del_id = :deletionId", entityKind.getAllTableName());
+                            String.format(
+                                    "UPDATE %s SET modification_timestamp = now(), "
+                                            + "del_id = NULL, orig_del = NULL, pers_id_modifier = :modifierId "
+                                            + "WHERE del_id = :deletionId",
+                                    entityKind.getAllTableName());
                     final SQLQuery sqlQuery = session.createSQLQuery(query);
                     sqlQuery.setParameter("deletionId", HibernateUtils.getId(deletion));
                     sqlQuery.setParameter("modifierId", HibernateUtils.getId(modifier));
@@ -297,8 +301,15 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
     }
 
     @Override
+    public int trash(EntityKind entityKind, List<TechId> entityIds, DeletionPE deletion)
+            throws DataAccessException
+    {
+        return trash(entityKind, entityIds, deletion, false);
+    }
+
+    @Override
     public int trash(final EntityKind entityKind, final List<TechId> entityIds,
-            final DeletionPE deletion) throws DataAccessException
+            final DeletionPE deletion, final boolean isOriginalDeletion) throws DataAccessException
     {
         if (entityIds.isEmpty())
         {
@@ -321,7 +332,8 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
                             .createQuery(
                                     "UPDATE VERSIONED "
                                             + entityKind.getEntityClass().getSimpleName()
-                                            + " SET deletion = :deletion"
+                                            + " SET deletion = :deletion" + ", originalDeletion = "
+                                            + (isOriginalDeletion ? " :deletion" : " NULL")
                                             + " WHERE deletion IS NULL AND id IN (:ids) ")
                             .setParameter("deletion", deletion)
                             .setParameterList("ids", TechId.asLongs(entityIds)).executeUpdate();
@@ -562,5 +574,26 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
 
         List<Long> result = cast(getHibernateTemplate().findByCriteria(criteria));
         return TechId.createList(result);
+    }
+
+    @Override
+    public List<TechId> findOriginalTrashedDataSetIds(List<TechId> deletionIds)
+    {
+        return findTrashedEntityIds(deletionIds, EntityKind.DATA_SET,
+                Restrictions.isNotNull(ORIGINAL_DELETION));
+    }
+
+    @Override
+    public List<TechId> findOriginalTrashedExperimentIds(List<TechId> deletionIds)
+    {
+        return findTrashedEntityIds(deletionIds, EntityKind.EXPERIMENT,
+                Restrictions.isNotNull(ORIGINAL_DELETION));
+    }
+
+    @Override
+    public List<TechId> findOriginalTrashedSampleIds(List<TechId> deletionIds)
+    {
+        return findTrashedEntityIds(deletionIds, EntityKind.SAMPLE,
+                Restrictions.isNotNull(ORIGINAL_DELETION));
     }
 }

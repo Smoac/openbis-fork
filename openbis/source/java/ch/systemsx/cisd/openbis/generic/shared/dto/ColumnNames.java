@@ -130,6 +130,8 @@ public final class ColumnNames
 
     public static final String DELETION_COLUMN = "del_id";
 
+    public static final String ORIGINAL_DELETION_COLUMN = "orig_del";
+
     public static final String IS_COMPLETE_COLUMN = "is_complete";
 
     public static final String IS_DATA_ACQUSITION = "is_data_acquisition";

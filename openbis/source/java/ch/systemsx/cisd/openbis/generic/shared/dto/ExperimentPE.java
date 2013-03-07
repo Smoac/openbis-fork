@@ -148,6 +148,12 @@ public class ExperimentPE extends AttachmentHolderPE implements
 
     private int version;
 
+    /**
+     * If not null than this object has been originally trashed. (As oposed to the entities which
+     * were trashed as being dependent on other trashed entity)
+     */
+    private Integer originalDeletion;
+
     private String permId;
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
@@ -552,6 +558,17 @@ public class ExperimentPE extends AttachmentHolderPE implements
     public void setVersion(int version)
     {
         this.version = version;
+    }
+
+    @Column(name = ColumnNames.ORIGINAL_DELETION_COLUMN, nullable = false)
+    public Integer getOriginalDeletion()
+    {
+        return originalDeletion;
+    }
+
+    public void setOriginalDeletion(Integer originalDeletion)
+    {
+        this.originalDeletion = originalDeletion;
     }
 
     @Override

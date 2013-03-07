@@ -47,7 +47,7 @@ public class DeletionsProvider extends AbstractCommonTableModelProvider<Deletion
     @Override
     protected TypedTableModel<Deletion> createTableModel()
     {
-        List<Deletion> deletions = commonServer.listDeletions(sessionToken, MAX_NUMBER);
+        List<Deletion> deletions = commonServer.listOriginalDeletions(sessionToken);
         TypedTableModelBuilder<Deletion> builder = new TypedTableModelBuilder<Deletion>();
         builder.addColumn(DELETION_DATE).withDefaultWidth(300);
         builder.addColumn(DELETER).withDefaultWidth(200);

@@ -47,6 +47,8 @@ abstract class AbstractDeletedEntityPE implements IDeletablePE, Serializable
 
     private DeletionPE deletion;
 
+    private Integer originalDeletion;
+
     // additional info
 
     private String code;
@@ -77,6 +79,17 @@ abstract class AbstractDeletedEntityPE implements IDeletablePE, Serializable
     public void setDeletion(final DeletionPE deletion)
     {
         this.deletion = deletion;
+    }
+
+    @Column(name = ColumnNames.ORIGINAL_DELETION_COLUMN, nullable = false)
+    public Integer getOriginalDeletion()
+    {
+        return originalDeletion;
+    }
+
+    public void setOriginalDeletion(Integer originalDeletion)
+    {
+        this.originalDeletion = originalDeletion;
     }
 
     //

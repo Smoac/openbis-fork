@@ -3759,11 +3759,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @ReturnValueFilter(validatorClass = DeletionValidator.class)
-    public List<Deletion> listDeletions(String sessionToken, int limit)
+    public List<Deletion> listOriginalDeletions(String sessionToken)
     {
         Session session = getSession(sessionToken);
         IDeletionTable deletionTable = businessObjectFactory.createDeletionTable(session);
-        deletionTable.load(limit);
+        deletionTable.loadOriginal();
         return deletionTable.getDeletions();
     }
 

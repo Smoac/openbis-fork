@@ -78,20 +78,33 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     }
 
     @Override
+    public void trashDataSets(List<TechId> dataSetIds)
+    {
+        trashDataSets(dataSetIds, true);
+    }
+
+    @Override
+    public void trashExperiments(List<TechId> experimentIds)
+    {
+        trashExperiments(experimentIds, true);
+    }
+
+    @Override
     public void trashSamples(final List<TechId> sampleIds)
     {
         assert deletion != null;
 
-        trashSamples(sampleIds, CascadeSampleDependentComponents.TRUE);
+        trashSamples(sampleIds, CascadeSampleDependentComponents.TRUE, true);
     }
 
     private void trashSamples(final List<TechId> sampleIds,
-            final CascadeSampleDependentComponents cascadeType)
+            final CascadeSampleDependentComponents cascadeType, boolean isOriginalDeletion)
     {
         assert deletion != null;
 
         TrashBatchOperation batchOperation =
-                new TrashBatchOperation(EntityKind.SAMPLE, sampleIds, deletion, getDeletionDAO());
+                new TrashBatchOperation(EntityKind.SAMPLE, sampleIds, deletion, getDeletionDAO(),
+                        isOriginalDeletion);
         BatchOperationExecutor.executeInBatches(batchOperation);
 
         if (batchOperation.counter > 0)
@@ -104,14 +117,13 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         }
     }
 
-    @Override
-    public void trashExperiments(final List<TechId> experimentIds)
+    public void trashExperiments(final List<TechId> experimentIds, boolean isOriginalDeletion)
     {
         assert deletion != null;
 
         TrashBatchOperation batchOperation =
                 new TrashBatchOperation(EntityKind.EXPERIMENT, experimentIds, deletion,
-                        getDeletionDAO());
+                        getDeletionDAO(), isOriginalDeletion);
         BatchOperationExecutor.executeInBatches(batchOperation);
 
         if (batchOperation.counter > 0)
@@ -121,18 +133,34 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         }
     }
 
-    @Override
-    public void trashDataSets(final List<TechId> dataSetIds)
+    public void trashDataSets(final List<TechId> dataSetIds, boolean isOriginalDeletion)
     {
         assert deletion != null;
 
         List<TechId> allIdsAsList = getDataDAO().listContainedDataSetsRecursively(dataSetIds);
         checkForNonDeletableDataSets(allIdsAsList);
 
-        TrashBatchOperation batchOperation =
-                new TrashBatchOperation(EntityKind.DATA_SET, allIdsAsList, deletion,
-                        getDeletionDAO());
-        BatchOperationExecutor.executeInBatches(batchOperation);
+        if (isOriginalDeletion)
+        {
+
+            allIdsAsList.removeAll(dataSetIds);
+
+            TrashBatchOperation batchOperation =
+                    new TrashBatchOperation(EntityKind.DATA_SET, dataSetIds, deletion,
+                            getDeletionDAO(), true);
+            BatchOperationExecutor.executeInBatches(batchOperation);
+
+            batchOperation =
+                    new TrashBatchOperation(EntityKind.DATA_SET, allIdsAsList, deletion,
+                            getDeletionDAO(), false);
+            BatchOperationExecutor.executeInBatches(batchOperation);
+        } else
+        {
+            TrashBatchOperation batchOperation =
+                    new TrashBatchOperation(EntityKind.DATA_SET, allIdsAsList, deletion,
+                            getDeletionDAO(), false);
+            BatchOperationExecutor.executeInBatches(batchOperation);
+        }
     }
 
     private void checkForNonDeletableDataSets(List<TechId> allIdsAsList)
@@ -187,7 +215,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         BatchOperationExecutor.executeInBatches(batchOperation);
         // We have a business rule that there is just 1 level of components and using this here
         // improves performance.
-        trashSamples(batchOperation.getResults(), CascadeSampleDependentComponents.FALSE);
+        trashSamples(batchOperation.getResults(), CascadeSampleDependentComponents.FALSE, false);
     }
 
     private void trashSampleDependentDataSets(List<TechId> sampleIds)
@@ -203,7 +231,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                         }
                     };
         BatchOperationExecutor.executeInBatches(batchOperation);
-        trashDataSets(batchOperation.getResults());
+        trashDataSets(batchOperation.getResults(), false);
     }
 
     private void trashExperimentDependentSamples(List<TechId> experimentIds)
@@ -219,7 +247,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                         }
                     };
         BatchOperationExecutor.executeInBatches(batchOperation);
-        trashSamples(batchOperation.getResults(), CascadeSampleDependentComponents.TRUE);
+        trashSamples(batchOperation.getResults(), CascadeSampleDependentComponents.TRUE, false);
     }
 
     private void trashExperimentDependentDataSets(List<TechId> experimentIds)
@@ -235,7 +263,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
                         }
                     };
         BatchOperationExecutor.executeInBatches(batchOperation);
-        trashDataSets(batchOperation.getResults());
+        trashDataSets(batchOperation.getResults(), false);
     }
 
     @Override
@@ -261,21 +289,24 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
 
         private final IDeletionDAO deletionDAO;
 
+        private final boolean isOriginalDeletion;
+
         private int counter = 0;
 
         public TrashBatchOperation(EntityKind entityKind, List<TechId> entityIds,
-                DeletionPE deletion, IDeletionDAO deletionDAO)
+                DeletionPE deletion, IDeletionDAO deletionDAO, boolean isOriginalDeletion)
         {
             this.entityKind = entityKind;
             this.entityIds = entityIds;
             this.deletion = deletion;
             this.deletionDAO = deletionDAO;
+            this.isOriginalDeletion = isOriginalDeletion;
         }
 
         @Override
         public void execute(List<TechId> entities)
         {
-            counter += deletionDAO.trash(entityKind, entities, deletion);
+            counter += deletionDAO.trash(entityKind, entities, deletion, isOriginalDeletion);
         }
 
         @Override
