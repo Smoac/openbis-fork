@@ -67,6 +67,68 @@ var createImageSize = function(width, height){
 	};
 }
 
+var createLoadImageConfiguration = function(width, height){
+	return {
+		"@type" : "LoadImageConfiguration",
+		"desiredImageSize" : createImageSize(width, height)
+	};
+}
+
+var createImageRepresentationFormat = function(dataSetCode, width, height){
+	return {
+		"@type" : "ImageRepresentationFormat",
+		"dataSetCode" : dataSetCode,
+		"width" : width,
+		"height" : height
+	};
+}
+
+var createSizeCriterion = function(width, height, type){
+	return {
+		"@type" : "SizeCriterion",
+		"width" : width,
+		"height" : height,
+		"type" : type
+	};
+}
+
+var listImageDatasetReferencesForPlateIdentifier = function(facade, plateIdentifier, action){
+	var plateIdentifiers = [ createPlateIdentifier(plateIdentifier) ];
+	
+	facade.listImageDatasets(plateIdentifiers, function(response){
+		action(response.result);
+	});
+}
+
+var listImageReferencesForPlateIdentifierAndWellPositionAndChannel = function(facade, plateIdentifier, wellRow, wellColumn, channel, action){
+	listImageDatasetReferencesForPlateIdentifier(facade, plateIdentifier, function(dataSetReferences){
+		var dataSetIdentifier = dataSetReferences[0];
+		var wellPositions = [ createWellPosition(wellRow, wellColumn) ];
+		
+		facade.listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel(dataSetIdentifier, wellPositions, channel, function(response){
+			action(response.result);
+		});
+	});
+}
+
+var listImageReferencesAndFormatForPlateIdentifierAndWellPositionAndChannel = function(facade, plateIdentifier, wellRow, wellColumn, channel, action){
+	listImageDatasetReferencesForPlateIdentifier(facade, plateIdentifier, function(dataSetReferences){
+		var dataSetIdentifier = dataSetReferences[0];
+		var wellPositions = [ createWellPosition(wellRow, wellColumn) ];
+		
+		facade.listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel(dataSetIdentifier, wellPositions, channel, function(imageReferencesResponse){
+			var imageDataSets = [ dataSetIdentifier ];
+			
+			facade.listAvailableImageRepresentationFormats(imageDataSets, function(formatResponse){
+				action({
+					imageReferences : imageReferencesResponse.result,
+					formats : formatResponse.result[0].imageRepresentationFormats[0]
+				});
+			});
+		});
+	});
+}
+
 test("listPlates()", function(){
 	createFacadeAndLogin(function(facade){
 		
@@ -355,21 +417,12 @@ test("loadFeaturesForDatasetWellReferences()", function(){
 
 test("loadImagesBase64ForImageReferencesAndImageConversion()", function(){
 	createFacadeAndLogin(function(facade){
-		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
-		
-		facade.listImageDatasets(plateIdentifiers, function(response){
-			var dataSetIdentifier = response.result[0];
-			var wellPositions = [ createWellPosition(1, 1) ];
-			var channel = "DAPI";
+		listImageReferencesForPlateIdentifierAndWellPositionAndChannel(facade, "/PLATONIC/PLATE-1", 1, 1, "DAPI", function(imageReferences){
+			var convertToPng = false;
 			
-			facade.listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel(dataSetIdentifier, wellPositions, channel, function(response){
-				var imageReferences = response.result;
-				var convertToPng = false;
-				
-				facade.loadImagesBase64ForImageReferencesAndImageConversion(imageReferences, convertToPng, function(response){
-					assertObjectsCount(response.result, 9);
-					facade.close();
-				});
+			facade.loadImagesBase64ForImageReferencesAndImageConversion(imageReferences, convertToPng, function(response){
+				assertObjectsCount(response.result, 9);
+				facade.close();
 			});
 		});
 	});
@@ -377,21 +430,11 @@ test("loadImagesBase64ForImageReferencesAndImageConversion()", function(){
 
 test("loadThumbnailImagesBase64ForImageReferences()", function(){
 	createFacadeAndLogin(function(facade){
-		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ]; 
-		
-		facade.listImageDatasets(plateIdentifiers, function(response){
-			var dataSetIdentifier = response.result[0];
-			var wellPositions = [ createWellPosition(1, 1) ];
-			var channel = "DAPI";
-			
-			facade.listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel(dataSetIdentifier, wellPositions, channel, function(response){
-				var imageReferences = response.result;
-				
-				facade.loadThumbnailImagesBase64ForImageReferences(imageReferences, function(response){
-					// TODO generate some thumbnails at screening sprint server
-					assertObjectsCount(response.result, 0);
-					facade.close();
-				});
+		listImageReferencesForPlateIdentifierAndWellPositionAndChannel(facade, "/PLATONIC/PLATE-1", 1, 1, "DAPI", function(imageReferences){
+			facade.loadThumbnailImagesBase64ForImageReferences(imageReferences, function(response){
+				// TODO generate some thumbnails at screening sprint server
+				assertObjectsCount(response.result, 0);
+				facade.close();
 			});
 		});
 	});
@@ -399,21 +442,60 @@ test("loadThumbnailImagesBase64ForImageReferences()", function(){
 
 test("loadImagesBase64ForImageReferencesAndImageSize()", function(){
 	createFacadeAndLogin(function(facade){
-		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
-		
-		facade.listImageDatasets(plateIdentifiers, function(response){
-			var dataSetIdentifier = response.result[0];
-			var wellPositions = [ createWellPosition(1, 1) ];
-			var channel = "DAPI";
+		listImageReferencesForPlateIdentifierAndWellPositionAndChannel(facade, "/PLATONIC/PLATE-1", 1, 1, "DAPI", function(imageReferences){
+			var imageSize = createImageSize(100, 100);
 			
-			facade.listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel(dataSetIdentifier, wellPositions, channel, function(response){
-				var imageReferences = response.result;
-				var imageSize = createImageSize(100, 100);
-				
-				facade.loadImagesBase64ForImageReferencesAndImageSize(imageReferences, imageSize, function(response){
-					assertObjectsCount(response.result, 9);
-					facade.close();
-				});
+			facade.loadImagesBase64ForImageReferencesAndImageSize(imageReferences, imageSize, function(response){
+				assertObjectsCount(response.result, 9);
+				facade.close();
+			});
+		});
+	});
+});
+
+test("loadImagesBase64ForImageReferences()", function(){
+	createFacadeAndLogin(function(facade){
+		listImageReferencesForPlateIdentifierAndWellPositionAndChannel(facade, "/PLATONIC/PLATE-1", 1, 1, "DAPI", function(imageReferences){
+			facade.loadImagesBase64ForImageReferences(imageReferences, function(response){
+				assertObjectsCount(response.result, 9);
+				facade.close();
+			});
+		});
+	});
+});
+
+test("loadImagesBase64ForImageReferencesAndImageConfiguration()", function(){
+	createFacadeAndLogin(function(facade){
+		listImageReferencesForPlateIdentifierAndWellPositionAndChannel(facade, "/PLATONIC/PLATE-1", 1, 1, "DAPI", function(imageReferences){
+			var configuration = createLoadImageConfiguration(100, 100);
+			
+			facade.loadImagesBase64ForImageReferencesAndImageConfiguration(imageReferences, configuration, function(response){
+				assertObjectsCount(response.result, 9);
+				facade.close();
+			});
+		});
+	});
+});
+
+test("loadImagesBase64ForImageReferencesAndImageRepresentationFormat()", function(){
+	createFacadeAndLogin(function(facade){
+		listImageReferencesAndFormatForPlateIdentifierAndWellPositionAndChannel(facade, "/PLATONIC/PLATE-1", 1, 1, "DAPI", function(results){
+			facade.loadImagesBase64ForImageReferencesAndImageRepresentationFormat(results.imageReferences, results.format, function(response){
+				assertObjectsCount(response.result, 9);
+				facade.close();
+			});
+		});
+	});
+});
+
+test("loadImagesBase64ForImageReferencesAndImageRepresentationFormatCriteria()", function(){
+	createFacadeAndLogin(function(facade){
+		listImageReferencesForPlateIdentifierAndWellPositionAndChannel(facade, "/PLATONIC/PLATE-1", 1, 1, "DAPI", function(imageReferences){
+			var criteria = [ createSizeCriterion(100, 100, 'SMALLEST_COVERING_BOUNDING_BOX') ];
+			
+			facade.loadImagesBase64ForImageReferencesAndImageRepresentationFormatCriteria(imageReferences, criteria, function(response){
+				assertObjectsCount(response.result, 9);
+				facade.close();
 			});
 		});
 	});
