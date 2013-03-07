@@ -82,6 +82,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 {
     private final SessionTokenManager sessionTokenManager;
 
+    private final OpenbisSessionTokenCache sessionTokenCache;
+    
     private final IDataSetCommandExecutorFactory commandExecutorFactory;
 
     private final MailClientParameters mailClientParameters;
@@ -106,10 +108,10 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
     private ConfigProvider config;
 
-    public DataStoreService(SessionTokenManager sessionTokenManager,
+    public DataStoreService(SessionTokenManager sessionTokenManager, OpenbisSessionTokenCache sessionTokenCache,
             MailClientParameters mailClientParameters, IPluginTaskInfoProvider pluginTaskParameters)
     {
-        this(sessionTokenManager, new IDataSetCommandExecutorFactory()
+        this(sessionTokenManager, sessionTokenCache, new IDataSetCommandExecutorFactory()
             {
                 @Override
                 public IDataSetCommandExecutor create(File store, File queueDir)
@@ -120,10 +122,11 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     }
 
     DataStoreService(SessionTokenManager sessionTokenManager,
-            IDataSetCommandExecutorFactory commandExecutorFactory,
+            OpenbisSessionTokenCache sessionTokenCache, IDataSetCommandExecutorFactory commandExecutorFactory,
             MailClientParameters mailClientParameters, IPluginTaskInfoProvider pluginTaskParameters)
     {
         this.sessionTokenManager = sessionTokenManager;
+        this.sessionTokenCache = sessionTokenCache;
         this.commandExecutorFactory = commandExecutorFactory;
         this.mailClientParameters = mailClientParameters;
         this.pluginTaskInfoProvider = pluginTaskParameters;
@@ -491,6 +494,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     @Override
     public void cleanupSession(String userSessionToken)
     {
+        sessionTokenCache.removeSessionToken(userSessionToken);
         final File sessionWorkspace =
                 new File(pluginTaskInfoProvider.getSessionWorkspaceRootDir(), userSessionToken);
         if (sessionWorkspace.exists())

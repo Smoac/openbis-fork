@@ -90,7 +90,6 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
         this.applicationContext = applicationContext;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public final void init(final ServletConfig servletConfig) throws ServletException
     {
@@ -170,6 +169,10 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
             appendServletSessionTimeout(sb);
             operationLog.info(sb.toString());
         }
+        if (applicationContext.getSessionTokenCache().isValidSessionToken(sessionIdOrNull) == false)
+        {
+            return null;
+        }
         return session;
     }
 
@@ -180,7 +183,6 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
         sb.append(" sec");
     }
 
-    @SuppressWarnings("unchecked")
     private void appendRequestParameters(final HttpServletRequest request, StringBuilder sb)
     {
         Enumeration<String> e = request.getParameterNames();

@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfo
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBuilder;
@@ -61,13 +62,13 @@ public class DataStoreServiceTest extends AssertJUnit
 
         private final String expectedCIFEXURL;
 
-        MockDataStoreService(SessionTokenManager sessionTokenManager,
+        MockDataStoreService(SessionTokenManager sessionTokenManager, OpenbisSessionTokenCache sessionTokenCache,
                 IDataSetCommandExecutorFactory commandExecutorFactory,
                 MailClientParameters mailClientParameters,
                 ICIFEXRPCServiceFactory cifexServiceFactory, String expectedCIFEXURL,
                 IPluginTaskInfoProvider pluginTaskParameters)
         {
-            super(sessionTokenManager, commandExecutorFactory, mailClientParameters,
+            super(sessionTokenManager, sessionTokenCache, commandExecutorFactory, mailClientParameters,
                     pluginTaskParameters);
             this.cifexServiceFactory = cifexServiceFactory;
             this.expectedCIFEXURL = expectedCIFEXURL;
@@ -101,12 +102,15 @@ public class DataStoreServiceTest extends AssertJUnit
 
     private IShareIdManager shareIdManager;
 
+    private IServiceForDataStoreServer openbisService;
+
     @BeforeMethod
     public void setup()
     {
         context = new Mockery();
         sessionTokenManager = new SessionTokenManager();
         sessionToken = sessionTokenManager.drawSessionToken();
+        openbisService = context.mock(IServiceForDataStoreServer.class);
         commandExecutorFactory = context.mock(IDataSetCommandExecutorFactory.class);
         commandExecutor = context.mock(IDataSetCommandExecutor.class);
         shareIdManager = context.mock(IShareIdManager.class);
@@ -289,9 +293,11 @@ public class DataStoreServiceTest extends AssertJUnit
                     will(returnValue(commandExecutor));
                 }
             });
+        OpenbisSessionTokenCache sessionTokenCache = new OpenbisSessionTokenCache(openbisService);
         MockDataStoreService service =
-                new MockDataStoreService(sessionTokenManager, commandExecutorFactory,
-                        mailClientParameters, cifexServiceFactory, CIFEX_URL, pluginTaskParameters);
+                new MockDataStoreService(sessionTokenManager, sessionTokenCache,
+                        commandExecutorFactory, mailClientParameters, cifexServiceFactory,
+                        CIFEX_URL, pluginTaskParameters);
         service.setShareIdManager(shareIdManager);
         service.afterPropertiesSet();
         return service;

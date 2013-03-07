@@ -145,8 +145,12 @@ public class DataStoreServer
         assert server == null : "Server already started";
         ConfigParameters configParams = getConfigParameters();
         final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
+        OpenbisSessionTokenCache sessionTokenCache =
+                (OpenbisSessionTokenCache) ServiceProvider.getApplicationContext().getBean(
+                        "as-session-token-cache");
         final ApplicationContext applicationContext =
-                new ApplicationContext(openBISService, ServiceProvider.getShareIdManager(),
+                new ApplicationContext(openBISService, sessionTokenCache,
+                        ServiceProvider.getShareIdManager(),
                         ServiceProvider.getHierarchicalContentProvider(), configParams);
         DssSessionAuthorizationHolder.setAuthorizer(new DatasetSessionAuthorizer(configParams
                 .getAuthCacheExpirationTimeMins(), configParams

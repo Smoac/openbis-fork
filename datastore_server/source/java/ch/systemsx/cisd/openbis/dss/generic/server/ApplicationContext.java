@@ -37,11 +37,15 @@ class ApplicationContext
 
     private final IHierarchicalContentProvider hierarchicalContentProvider;
 
-    ApplicationContext(IEncapsulatedOpenBISService service, IShareIdManager shareIdManager,
+    private final OpenbisSessionTokenCache sessionTokenCache;
+
+    ApplicationContext(IEncapsulatedOpenBISService service,
+            OpenbisSessionTokenCache sessionTokenCache, IShareIdManager shareIdManager,
             IHierarchicalContentProvider hierarchicalContentProvider,
             ConfigParameters configParameters)
     {
         this.dataSetService = service;
+        this.sessionTokenCache = sessionTokenCache;
         this.shareIdManager = shareIdManager;
         this.configParameters = configParameters;
         this.hierarchicalContentProvider = hierarchicalContentProvider;
@@ -50,6 +54,11 @@ class ApplicationContext
     public final IEncapsulatedOpenBISService getDataSetService()
     {
         return dataSetService;
+    }
+
+    public OpenbisSessionTokenCache getSessionTokenCache()
+    {
+        return sessionTokenCache;
     }
 
     public IShareIdManager getShareIdManager()

@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExpressionValidator;
+import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
@@ -147,6 +148,9 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
     @Resource(name = ComponentNames.DAO_FACTORY)
     private IDAOFactory daoFactory;
+
+    @Resource(name = ComponentNames.DSS_FACTORY)
+    private IDataStoreServiceFactory dssFactory;
 
     @Resource(name = ComponentNames.REMOTE_HOST_VALIDATOR)
     private IRemoteHostValidator remoteHostValidator;
@@ -447,6 +451,8 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         try
         {
             sessionManager.closeSession(sessionToken);
+            SessionFactory.cleanUpSessionOnDataStoreServers(sessionToken,
+                    daoFactory.getDataStoreDAO(), dssFactory);
         } catch (InvalidSessionException e)
         {
             // ignore the situation when session is not available
@@ -460,6 +466,8 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         try
         {
             sessionManager.expireSession(sessionToken);
+            SessionFactory.cleanUpSessionOnDataStoreServers(sessionToken,
+                    daoFactory.getDataStoreDAO(), dssFactory);
         } catch (InvalidSessionException e)
         {
             // ignore the situation when session is not available

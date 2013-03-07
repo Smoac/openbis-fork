@@ -56,6 +56,10 @@
 	      <property name="dataStoreCode" value="${data-store-server-code}"/>
 	  </bean>
 	  
+	  <bean id="as-session-token-cache" class="ch.systemsx.cisd.openbis.dss.generic.server.OpenbisSessionTokenCache">
+	      <constructor-arg ref="etl-lims-service"/>
+	  </bean>
+   
 	  <bean id="reauthenticateInterceptor" class="ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISAuthenticationInterceptor">
 	        <constructor-arg ref="session-token-manager"/>
 	        <constructor-arg ref="etl-lims-service"/>
@@ -73,7 +77,7 @@
 	  <bean id="reauthenticateAdvisor" class="ch.systemsx.cisd.openbis.dss.generic.server.openbisauth.OpenBISAuthenticationAdvisor">
 	      <constructor-arg ref="reauthenticateInterceptor"/>
 	  </bean>
-   
+	  
     <bean id="openBIS-service" class="ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService">
        <constructor-arg ref="etl-lims-service"/>
        <constructor-arg ref="sessionHolder"/>
@@ -96,6 +100,7 @@
     
     <bean id="data-store-service" class="ch.systemsx.cisd.openbis.dss.generic.server.DataStoreService">
         <constructor-arg ref="session-token-manager" />
+        <constructor-arg ref="as-session-token-cache" />
         <constructor-arg>
             <bean class="ch.systemsx.cisd.common.mail.MailClientParameters">
                 <property name="from" value="${mail.from}"/>

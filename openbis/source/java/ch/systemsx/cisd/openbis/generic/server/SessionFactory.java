@@ -74,23 +74,27 @@ public final class SessionFactory implements ISessionFactory<Session>
                     @Override
                     public void cleanup()
                     {
-                        for (DataStorePE datastore : datastoreDAO.listDataStores())
-                        {
-                            final String remoteUrl = datastore.getRemoteUrl();
-                            if (StringUtils.isBlank(remoteUrl) == false)
-                            {
-                                dssFactory.createMonitored(remoteUrl).cleanupSession(
-                                        sessionToken);
-                            } else
-                            {
-                                operationLog.warn("datastore remoteUrl of datastore "
-                                        + datastore.getCode()
-                                        + " is empty - skipping DSS session cleanup.");
-                            }
-                        }
+                        cleanUpSessionOnDataStoreServers(sessionToken, datastoreDAO, dssFactory);
                     }
                 });
         }
         return session;
+    }
+
+    public static void cleanUpSessionOnDataStoreServers(String sessionToken,
+            IDataStoreDAO datastoreDAO, IDataStoreServiceFactory dssFactory)
+    {
+        for (DataStorePE datastore : datastoreDAO.listDataStores())
+        {
+            final String remoteUrl = datastore.getRemoteUrl();
+            if (StringUtils.isBlank(remoteUrl) == false)
+            {
+                dssFactory.createMonitored(remoteUrl).cleanupSession(sessionToken);
+            } else
+            {
+                operationLog.warn("datastore remoteUrl of datastore " + datastore.getCode()
+                        + " is empty - skipping DSS session cleanup.");
+            }
+        }
     }
 }

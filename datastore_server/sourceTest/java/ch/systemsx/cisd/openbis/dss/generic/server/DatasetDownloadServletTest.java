@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
+import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -155,6 +156,8 @@ public class DatasetDownloadServletTest
 
     private IHierarchicalContentProvider hierarchicalContentProvider;
 
+    private IServiceForDataStoreServer service;
+
     @BeforeMethod
     public void setUp()
     {
@@ -165,6 +168,7 @@ public class DatasetDownloadServletTest
         response = context.mock(HttpServletResponse.class);
         shareIdManager = context.mock(IShareIdManager.class);
         openbisService = context.mock(IEncapsulatedOpenBISService.class);
+        service = context.mock(IServiceForDataStoreServer.class);
         // test with DefaultFileBasedHierarchicalContentFactory to actually access files
         final IHierarchicalContentFactory fileBasedContentFactory =
                 new DefaultFileBasedHierarchicalContentFactory();
@@ -207,6 +211,7 @@ public class DatasetDownloadServletTest
         final StringWriter writer = new StringWriter();
         final AbstractExternalData externalData = createDataSet();
         prepareParseRequestURL();
+        prepareCheckSession();
         prepareForObtainingDataSetFromServer(externalData);
         prepareForGettingDataSetFromSession(externalData, "");
         prepareLocking();
@@ -274,6 +279,16 @@ public class DatasetDownloadServletTest
                 }
             });
     }
+    
+    private void prepareCheckSession()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).checkSession(EXAMPLE_SESSION_ID);
+                }
+            });
+    }
 
     @Test()
     public void testInitialDoGetButDataSetNotFoundInStore() throws Exception
@@ -281,6 +296,7 @@ public class DatasetDownloadServletTest
         final StringWriter writer = new StringWriter();
         final AbstractExternalData externalData = createDataSet();
         prepareParseRequestURL();
+        prepareCheckSession();
         prepareForObtainingDataSetFromServer(externalData);
         prepareLocking();
         context.checking(new Expectations()
@@ -318,6 +334,7 @@ public class DatasetDownloadServletTest
     {
         final StringWriter writer = new StringWriter();
         prepareParseRequestURL();
+        prepareCheckSession();
         prepareForObtainingDataSetFromServer(null);
         context.checking(new Expectations()
             {
@@ -356,6 +373,7 @@ public class DatasetDownloadServletTest
     {
         final StringWriter writer = new StringWriter();
         final AbstractExternalData externalData = createDataSet();
+        prepareCheckSession();
         prepareForObtainingDataSetFromServer(externalData);
         prepareForGettingDataSetFromSession(externalData, ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
         prepareLocking();
@@ -392,6 +410,7 @@ public class DatasetDownloadServletTest
 
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         prepareParseRequestURL();
+        prepareCheckSession();
         prepareCheckDatasetAccess();
         prepareForObtainingDataSetFromServer(externalData);
         prepareLocking();
@@ -436,6 +455,7 @@ public class DatasetDownloadServletTest
         BufferedImage image = new BufferedImage(100, 200, BufferedImage.TYPE_INT_RGB);
         ImageIO.write(image, "png", EXAMPLE_FILE);
         prepareParseRequestURLForThumbnail(100, 50);
+        prepareCheckSession();
         final AbstractExternalData externalData = createDataSet();
         prepareCheckDatasetAccess();
         prepareForObtainingDataSetFromServer(externalData);
@@ -487,6 +507,7 @@ public class DatasetDownloadServletTest
         final StringWriter writer = new StringWriter();
         final AbstractExternalData externalData = createDataSet();
         prepareParseRequestURL();
+        prepareCheckSession();
         prepareForObtainingDataSetFromServer(externalData);
         prepareLocking();
         context.checking(new Expectations()
@@ -822,8 +843,9 @@ public class DatasetDownloadServletTest
         properties.setProperty(ConfigParameters.KEYSTORE_KEY_PASSWORD_KEY, "y");
         properties.setProperty(ConfigParameters.DOWNLOAD_URL, "http://localhost:8080");
         ConfigParameters configParameters = new ConfigParameters(properties);
-        return new DatasetDownloadServlet(new ApplicationContext(openbisService, shareIdManager,
-                hierarchicalContentProvider, configParameters));
+        OpenbisSessionTokenCache sessionTokenCache = new OpenbisSessionTokenCache(service);
+        return new DatasetDownloadServlet(new ApplicationContext(openbisService, sessionTokenCache,
+                shareIdManager, hierarchicalContentProvider, configParameters));
     }
 
     private String getNormalizedLogContent()
