@@ -133,6 +133,7 @@ public class ImageQuantityStructure implements Iterable<ImageId>
 
     }
 
+    @Override
     public Iterator<ImageId> iterator()
     {
         return ImageRunner.iterator(ImageQuantityStructure.this, null);

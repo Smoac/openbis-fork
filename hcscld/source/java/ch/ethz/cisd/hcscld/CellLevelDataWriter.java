@@ -55,18 +55,19 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
         this.writer = writer;
         this.manageWriter = manageWriter;
         this.datasetsWritten = new HashSet<IDatasetVerifyer>();
-        if (writer.hasAttribute("/", getCLDFormatTagAttributeName()) == false)
+        if (writer.object().hasAttribute("/", getCLDFormatTagAttributeName()) == false)
         {
             if (writer.getGroupMembers("/").isEmpty() == false)
             {
                 throw new UnsupportedFileFormatException(
                         "File is HDF5, but doesn't have a proper CLD tag or version.");
             }
-            writer.compounds().setAttr("/", getCLDFormatTagAttributeName(),
+            writer.compound().setAttr("/", getCLDFormatTagAttributeName(),
                     CURRENT_FORMAT_DESCRIPTOR);
         }
     }
 
+    @Override
     public ICellLevelFeatureWritableDataset addFeatureDataset(String datasetCode,
             ImageQuantityStructure quantityStructure)
     {
@@ -77,6 +78,7 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
         return dataset;
     }
 
+    @Override
     public ICellLevelClassificationWritableDataset addClassificationDataset(String datasetCode,
             ImageQuantityStructure quantityStructure, Class<? extends Enum<?>> enumType)
     {
@@ -87,6 +89,7 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
         return dataset;
     }
 
+    @Override
     public ICellLevelClassificationWritableDataset addClassificationDataset(String datasetCode,
             ImageQuantityStructure quantityStructure, List<String> options)
     {
@@ -97,6 +100,7 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
         return dataset;
     }
 
+    @Override
     public ICellLevelSegmentationWritableDataset addSegmentationDataset(String datasetCode,
             ImageQuantityStructure quantityStructure, ImageGeometry imageGeometry,
             boolean storeEdgeMasks)
@@ -108,6 +112,7 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
         return dataset;
     }
 
+    @Override
     public ICellLevelTrackingWritableDataset addTrackingDataset(String datasetCode,
             ImageQuantityStructure quantityStructure)
     {
@@ -144,7 +149,7 @@ class CellLevelDataWriter extends CellLevelDataReader implements ICellLevelDataW
             writer.close();
         } else
         {
-            writer.flush();
+            writer.file().flush();
         }
         if (builder != null)
         {

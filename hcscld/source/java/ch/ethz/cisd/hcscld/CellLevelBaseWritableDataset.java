@@ -83,8 +83,9 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         super(writer, datasetCode, objectTypeStore, quantityStructure, formatVersionNumber);
         this.writer = writer;
         this.flushableOrNull = flushableOrNull;
-        writer.addFlushable(new Flushable()
+        writer.file().addFlushable(new Flushable()
             {
+                @Override
                 public void flush() throws IOException
                 {
                     ObjectNamespaceContainer container = persistObjectNamespaces();
@@ -97,13 +98,13 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         this.datasetTypeDescriptor =
                 new CellLevelDatasetTypeDescriptor(datasetType, formatType, formatVersionNumber,
                         this);
-        writer.createGroup(getObjectPath());
-        writer.compounds().setAttr(getObjectPath(), getDatasetTypeAttributeName(),
+        writer.object().createGroup(getObjectPath());
+        writer.compound().setAttr(getObjectPath(), getDatasetTypeAttributeName(),
                 datasetTypeDescriptor);
-        writer.setTimeStampAttribute(getObjectPath(), getCreationTimestampDatasetAttributeName(),
+        writer.time().setAttr(getObjectPath(), getCreationTimestampDatasetAttributeName(),
                 System.currentTimeMillis());
         writer.writeCompound(getImageQuantityStructureObjectPath(), quantityStructure);
-        writer.createGroup(getDatasetAnnotationObjectPath());
+        writer.object().createGroup(getDatasetAnnotationObjectPath());
     }
 
     void run(IImageRunnable runnable, Object stateOrNull)
@@ -111,6 +112,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         ImageRunner.run(quantityStructure, runnable, stateOrNull);
     }
 
+    @Override
     public CellLevelDatasetType getType()
     {
         return datasetTypeDescriptor.getDatasetType();
@@ -123,7 +125,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
 
     HDF5EnumerationType addEnumGlobal(String name, Class<? extends Enum<?>> enumClass)
     {
-        return writer.enums().getType(name, getEnumOptions(enumClass));
+        return writer.enumeration().getType(name, getEnumOptions(enumClass));
     }
 
     HDF5EnumerationType addEnum(Class<? extends Enum<?>> enumClass)
@@ -134,14 +136,14 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
     static HDF5EnumerationType addEnum(IHDF5Writer writer, String datasetCode, String name,
             List<String> values)
     {
-        return writer.enums().getType(datasetCode + "_" + name,
+        return writer.enumeration().getType(datasetCode + "_" + name,
                 values.toArray(new String[values.size()]));
     }
 
     static HDF5EnumerationType addEnum(IHDF5Writer writer, String datasetCode,
             Class<? extends Enum<?>> enumClass)
     {
-        return writer.enums().getType(datasetCode + "_" + enumClass.getSimpleName(),
+        return writer.enumeration().getType(datasetCode + "_" + enumClass.getSimpleName(),
                 getEnumOptions(enumClass));
     }
 
@@ -172,26 +174,31 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         }
     }
 
+    @Override
     public ICellLevelFeatureWritableDataset toFeatureDataset()
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public ICellLevelClassificationWritableDataset toClassificationDataset()
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public ICellLevelSegmentationWritableDataset toSegmentationDataset()
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public ICellLevelTrackingDataset toTrackingDataset() throws WrongDatasetTypeException
     {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public ObjectType addObjectType(String id) throws UniqueViolationException
     {
         final ObjectType result =
@@ -199,6 +206,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         return result;
     }
 
+    @Override
     public ObjectType addObjectType(String id, ObjectNamespace group)
             throws UniqueViolationException
     {
@@ -206,6 +214,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         return result;
     }
 
+    @Override
     public ObjectNamespace addObjectNamespace(String id)
     {
         return objectTypeStore.addObjectNamespace(id);
@@ -213,10 +222,10 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
 
     void checkCompatible(ObjectType objectType) throws WrongObjectTypeException
     {
-        if (writer.getFile().equals(objectType.getFile()) == false
+        if (writer.file().getFile().equals(objectType.getFile()) == false
                 && getDatasetCode().equals(objectType.getDatasetCode()) == false)
         {
-            throw new WrongObjectTypeException(getDatasetCode(), writer.getFile(),
+            throw new WrongObjectTypeException(getDatasetCode(), writer.file().getFile(),
                     objectType.getDatasetCode(), objectType.getFile());
         }
     }
@@ -230,7 +239,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         if (objectTypeStore.hasObjectNamespaces())
         {
             objectNamespacesType =
-                    writer.enums().getType(getObjectNamespacesObjectPath(),
+                    writer.enumeration().getType(getObjectNamespacesObjectPath(),
                             toString(objectTypeStore.getObjectNamespaces()));
         } else
         {
@@ -240,12 +249,12 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         if (objectTypeStore.hasObjectTypes())
         {
             objectTypesType =
-                    writer.enums().getType(getObjectTypesObjectPath(),
+                    writer.enumeration().getType(getObjectTypesObjectPath(),
                             toString(objectTypeStore.getObjectTypes()));
             for (ObjectNamespace cgroup : objectTypeStore.getObjectNamespaces())
             {
                 final String path = getObjectTypeCompanionGroupObjectPath(cgroup.getId());
-                writer.enums().writeArray(
+                writer.enumeration().writeArray(
                         path,
                         new HDF5EnumerationValueArray(objectTypesType, toString(cgroup
                                 .getObjectTypes())));
@@ -268,6 +277,7 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         return options;
     }
 
+    @Override
     public void setTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
     {
         checkSequenceLength(timeValues.getLength());
@@ -275,15 +285,17 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         writer.writeTimeDurationArray(getTimeSeriesSequenceAnnotationObjectPath(), timeValues);
     }
 
+    @Override
     public void setDepthScanSequenceAnnotation(DepthScanAnnotation zValues)
     {
         checkSequenceLength(zValues.getZValues().length);
         checkDepthScanSequence();
         final String objectPath = getDepthScanSequenceAnnotationObjectPath();
-        writer.writeDoubleArray(objectPath, zValues.getZValues());
-        writer.setStringAttribute(objectPath, "unit", zValues.getUnit());
+        writer.float64().writeArray(objectPath, zValues.getZValues());
+        writer.string().setAttr(objectPath, "unit", zValues.getUnit());
     }
 
+    @Override
     public void setCustomSequenceAnnotation(String[] customDescriptions)
     {
         checkSequenceLength(customDescriptions.length);
@@ -333,20 +345,23 @@ class CellLevelBaseWritableDataset extends CellLevelDataset implements ICellLeve
         }
     }
 
+    @Override
     public void setPlateBarcode(String plateBarcode)
     {
-        writer.setStringAttribute(getObjectPath(), getPlateBarcodeAttributeName(), plateBarcode);
+        writer.string().setAttr(getObjectPath(), getPlateBarcodeAttributeName(), plateBarcode);
     }
 
+    @Override
     public void setParentDatasetCode(String parentDatasetCode)
     {
-        writer.setStringAttribute(getObjectPath(), getParentDatasetAttributeName(),
+        writer.string().setAttr(getObjectPath(), getParentDatasetAttributeName(),
                 parentDatasetCode);
     }
 
+    @Override
     public void addDatasetAnnotation(String annotationKey, String annotation)
     {
-        writer.writeStringVariableLength(getDatasetAnnotationObjectPath(annotationKey), annotation);
+        writer.string().write(getDatasetAnnotationObjectPath(annotationKey), annotation);
     }
 
 }

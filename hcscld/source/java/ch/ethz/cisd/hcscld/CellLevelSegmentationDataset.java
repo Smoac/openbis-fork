@@ -51,7 +51,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         super(reader, datasetCode, quantityStructure, formatVersionNumber);
         checkFormat(FORMAT_TYPE, formatType);
         this.imageGeometry = imageGeometry;
-        this.indexType = reader.compounds().getInferredType(SegmentedObjectBox.class);
+        this.indexType = reader.compound().getInferredType(SegmentedObjectBox.class);
     }
 
     HDF5CompoundType<SegmentedObjectBox> getIndexType()
@@ -59,61 +59,69 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         return indexType;
     }
 
+    @Override
     public CellLevelDatasetType getType()
     {
         return CellLevelDatasetType.SEGMENTATION;
     }
 
+    @Override
     public ImageGeometry getImageGeometry()
     {
         return imageGeometry;
     }
 
+    @Override
     public ICellLevelClassificationDataset toClassificationDataset()
     {
         throw new WrongDatasetTypeException(datasetCode, CellLevelDatasetType.CLASSIFICATION,
                 CellLevelDatasetType.SEGMENTATION);
     }
 
+    @Override
     public ICellLevelFeatureDataset toFeatureDataset()
     {
         throw new WrongDatasetTypeException(datasetCode, CellLevelDatasetType.FEATURES,
                 CellLevelDatasetType.SEGMENTATION);
     }
 
+    @Override
     public ICellLevelTrackingDataset toTrackingDataset() throws WrongDatasetTypeException
     {
         throw new WrongDatasetTypeException(datasetCode, CellLevelDatasetType.TRACKING,
                 CellLevelDatasetType.SEGMENTATION);
     }
 
+    @Override
     public ICellLevelSegmentationDataset toSegmentationDataset()
     {
         return this;
     }
 
+    @Override
     public SegmentedObject getObject(ImageId wellId, ObjectType objectType, int objectId,
             boolean withEdge)
     {
         final SegmentedObjectBox objectBox =
-                reader.compounds().readArrayBlock(
+                reader.compound().readArrayBlock(
                         getObjectPath(wellId, INDEX_PREFIX, objectType.getId()), indexType, 1,
                         objectId)[0];
         return getObject(wellId, objectType, objectId, objectBox, withEdge);
     }
 
+    @Override
     public SegmentedObject tryFindObject(ImageId wellId, ObjectType objectType, int x, int y,
             boolean withEdge)
     {
         final String objectPath = getObjectPath(wellId, INDEX_PREFIX, objectType.getId());
-        final SegmentedObjectBox[] objectBoxes = reader.compounds().readArray(objectPath, indexType);
+        final SegmentedObjectBox[] objectBoxes = reader.compound().readArray(objectPath, indexType);
         for (int id = 0; id < objectBoxes.length; ++id)
         {
             final SegmentedObjectBox box = objectBoxes[id];
             if (box.inBox(x, y))
             {
                 final int bitIndex = box.getAbsoluteBitIndex(x, y);
-                if (reader.isBitSetInBitField(
+                if (reader.bool().isBitSet(
                         getObjectPath(wellId, MASKS_PREFIX, objectType.getId()), bitIndex))
                 {
                     return getObject(wellId, objectType, id, box, withEdge);
@@ -123,6 +131,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         return null;
     }
 
+    @Override
     public SegmentedObject tryFindObject(ImageId wellId, int x, int y, boolean withEdge)
     {
         for (ObjectType objectType : getObjectTypes())
@@ -140,7 +149,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
             SegmentedObjectBox objectBox, boolean withEdge)
     {
         final BitSet mask =
-                reader.readBitFieldBlockWithOffset(
+                reader.bool().readBitFieldBlockWithOffset(
                         getObjectPath(wellId, MASKS_PREFIX, objectType.getId()),
                         objectBox.getSizeInWords(), objectBox.getOffsetInWords());
         final BitSet edgeMask;
@@ -151,7 +160,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
             if (reader.exists(edgeMaskObjectPath))
             {
                 edgeMask =
-                        reader.readBitFieldBlockWithOffset(edgeMaskObjectPath,
+                        reader.bool().readBitFieldBlockWithOffset(edgeMaskObjectPath,
                                 objectBox.getSizeInWords(), objectBox.getOffsetInWords());
             } else
             {
@@ -168,10 +177,11 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         return new SegmentedObject(objectBox, objectIndex, mask, edgeMask);
     }
 
+    @Override
     public SegmentedObject[] getObjects(ImageId wellId, ObjectType objectType, boolean withEdge)
     {
         final String objectPath = getObjectPath(wellId, INDEX_PREFIX, objectType.getId());
-        final SegmentedObjectBox[] objectBoxes = reader.compounds().readArray(objectPath, indexType);
+        final SegmentedObjectBox[] objectBoxes = reader.compound().readArray(objectPath, indexType);
         final BitSet[] masks =
                 getMasks(wellId, getObjectPath(wellId, MASKS_PREFIX, objectType.getId()),
                         objectBoxes);
@@ -197,6 +207,7 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         return results;
     }
 
+    @Override
     public boolean hasObjects(ImageId wellId, ObjectType objectType)
     {
         return reader.exists(getObjectPath(wellId, INDEX_PREFIX, objectType.getId()));

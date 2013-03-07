@@ -54,20 +54,24 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
 
     private final Iterable<CellLevelFeatures> EMPTY_ITERABLE = new Iterable<CellLevelFeatures>()
         {
+            @Override
             public Iterator<CellLevelFeatures> iterator()
             {
                 return new Iterator<CellLevelFeatures>()
                     {
+                        @Override
                         public boolean hasNext()
                         {
                             return false;
                         }
 
+                        @Override
                         public CellLevelFeatures next()
                         {
                             throw new NoSuchElementException();
                         }
 
+                        @Override
                         public void remove()
                         {
                             throw new UnsupportedOperationException();
@@ -112,6 +116,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             return namespaceId.getValue();
         }
 
+        @Override
         public int compareTo(FeatureGroupDescriptor o)
         {
             return idUpperCase.compareTo(o.idUpperCase);
@@ -180,6 +185,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             this.featureNames = Arrays.asList(memberNameArray);
         }
 
+        @Override
         public String getId()
         {
             return id;
@@ -195,30 +201,36 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             return type;
         }
 
+        @Override
         public List<String> getFeatureNames()
         {
             return featureNames;
         }
 
+        @Override
         public List<Feature> getFeatures()
         {
             return features;
         }
 
+        @Override
         public ObjectNamespace getNamespace()
         {
             return namespace;
         }
 
+        @Override
         public int getNumberOfFeatures()
         {
             return featureNames.size();
         }
 
+        @Override
         public Iterator<ImageId> iterator()
         {
             return ImageRunner.iterator(quantityStructure, new IExistChecker()
                 {
+                    @Override
                     public boolean exists(ImageId imageId)
                     {
                         return hasWellFieldValues(imageId);
@@ -229,7 +241,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         boolean hasWellFieldValues(ImageId imageId)
         {
             final String path = getObjectPath(imageId);
-            return reader.exists(path) && reader.getSize(path) > 0;
+            return reader.exists(path) && reader.object().getSize(path) > 0;
         }
 
         boolean existsIn(ImageId imageId)
@@ -315,7 +327,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         for (FeatureGroupDescriptor fgd : featureGroupDesc)
         {
             final HDF5CompoundType<Object[]> type =
-                    reader.compounds().getNamedType(getFeatureGroupTypePath(fgd.getId()),
+                    reader.compound().getNamedType(getFeatureGroupTypePath(fgd.getId()),
                             Object[].class, hintsOrNull);
             result.put(fgd.getId().toUpperCase(), new FeatureGroup(fgd.getId(),
                     getObjectNamespace(fgd.getNamespaceId()), type));
@@ -328,56 +340,66 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         return getObjectPath(DATASET_TYPE_DIR, "Compound_" + id.toUpperCase());
     }
 
+    @Override
     public CellLevelDatasetType getType()
     {
         return CellLevelDatasetType.FEATURES;
     }
 
+    @Override
     public ICellLevelClassificationDataset toClassificationDataset()
     {
         throw new WrongDatasetTypeException(datasetCode, CellLevelDatasetType.CLASSIFICATION,
                 CellLevelDatasetType.FEATURES);
     }
 
+    @Override
     public ICellLevelSegmentationDataset toSegmentationDataset()
     {
         throw new WrongDatasetTypeException(datasetCode, CellLevelDatasetType.SEGMENTATION,
                 CellLevelDatasetType.FEATURES);
     }
 
+    @Override
     public ICellLevelTrackingDataset toTrackingDataset() throws WrongDatasetTypeException
     {
         throw new WrongDatasetTypeException(datasetCode, CellLevelDatasetType.TRACKING,
                 CellLevelDatasetType.FEATURES);
     }
 
+    @Override
     public ICellLevelFeatureDataset toFeatureDataset()
     {
         return this;
     }
 
+    @Override
     public Object[] getValues(ImageId id, IFeatureGroup featureGroup, int cellId)
     {
-        return reader.compounds().readArrayBlockWithOffset(
+        return reader.compound().readArrayBlockWithOffset(
                 ((FeatureGroup) featureGroup).getObjectPath(id),
                 ((FeatureGroup) featureGroup).getType(), 1, cellId)[0];
     }
 
+    @Override
     public Object[][] getValues(ImageId id, IFeatureGroup featureGroup)
     {
-        return reader.compounds().readArray(((FeatureGroup) featureGroup).getObjectPath(id),
+        return reader.compound().readArray(((FeatureGroup) featureGroup).getObjectPath(id),
                 ((FeatureGroup) featureGroup).getType());
     }
 
+    @Override
     public boolean hasValues(ImageId id, IFeatureGroup featureGroup)
     {
         return reader.exists(((FeatureGroup) featureGroup).getObjectPath(id));
     }
 
+    @Override
     public Iterable<CellLevelFeatures> getValues(final IFeatureGroup featureGroup)
     {
         return new Iterable<CellLevelFeatures>()
             {
+                @Override
                 public Iterator<CellLevelFeatures> iterator()
                 {
                     return new Iterator<CellLevelFeatures>()
@@ -386,6 +408,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
 
                             CellLevelFeatures next = null;
 
+                            @Override
                             public boolean hasNext()
                             {
                                 if (next == null)
@@ -396,7 +419,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                                     }
                                     final ImageId id = idIterator.next();
                                     final Object[][] data =
-                                            reader.compounds()
+                                            reader.compound()
                                                     .readArray(
                                                             ((FeatureGroup) featureGroup)
                                                                     .getObjectPath(id),
@@ -406,6 +429,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                                 return true;
                             }
 
+                            @Override
                             public CellLevelFeatures next()
                             {
                                 try
@@ -421,6 +445,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                                 }
                             }
 
+                            @Override
                             public void remove()
                             {
                                 throw new UnsupportedOperationException();
@@ -430,6 +455,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             };
     }
 
+    @Override
     public Object[] getValues(ImageId id, ObjectNamespace namespace, int cellId)
     {
         final int numberOfFeatures = totalNumberOfFeatures.get(namespace);
@@ -449,6 +475,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         return result;
     }
 
+    @Override
     public Object[][] getValues(ImageId id, ObjectNamespace namespace)
     {
         Object[][] result = null;
@@ -484,6 +511,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         return result;
     }
 
+    @Override
     public boolean hasValues(ImageId id, ObjectNamespace namespace)
     {
         int featureGroupsWithValues = 0;
@@ -501,6 +529,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         return featureGroupsWithValues > 0;
     }
 
+    @Override
     public Iterable<CellLevelFeatures> getValues()
     {
         final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
@@ -513,6 +542,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         }
     }
 
+    @Override
     public Object[] getValues(ImageId id, int cellId) throws IllegalStateException
     {
         final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
@@ -525,6 +555,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         }
     }
 
+    @Override
     public Object[][] getValues(ImageId id) throws IllegalStateException
     {
         final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
@@ -537,6 +568,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         }
     }
 
+    @Override
     public boolean hasValues(ImageId id)
     {
         final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
@@ -549,6 +581,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         }
     }
 
+    @Override
     public Iterable<CellLevelFeatures> getValues(final ObjectNamespace namespace)
     {
         final FeatureGroup all =
@@ -556,6 +589,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                         : new NamespaceFeatureGroup(namespace);
         return new Iterable<CellLevelFeatures>()
             {
+                @Override
                 public Iterator<CellLevelFeatures> iterator()
                 {
                     return new Iterator<CellLevelFeatures>()
@@ -564,6 +598,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
 
                             CellLevelFeatures next = null;
 
+                            @Override
                             public boolean hasNext()
                             {
                                 if (next == null)
@@ -583,6 +618,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                                 return true;
                             }
 
+                            @Override
                             public CellLevelFeatures next()
                             {
                                 try
@@ -598,6 +634,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                                 }
                             }
 
+                            @Override
                             public void remove()
                             {
                                 throw new UnsupportedOperationException();
@@ -607,11 +644,13 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             };
     }
 
+    @Override
     public List<IFeatureGroup> getFeatureGroups()
     {
         return Collections.unmodifiableList(new ArrayList<IFeatureGroup>(featureGroups.values()));
     }
 
+    @Override
     public IFeatureGroup getFeatureGroup(String id) throws IllegalArgumentException
     {
         final String idUpper = id.toUpperCase();

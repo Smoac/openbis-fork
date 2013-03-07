@@ -58,6 +58,7 @@ class CellLevelTrackingWritableDataset extends CellLevelTrackingDataset implemen
     {
         return new IObjectNamespaceBasedFlushable()
             {
+                @Override
                 public void flush(ObjectNamespaceContainer namespaceTypeContainer)
                 {
                     final HDF5EnumerationType namespacesEnumType =
@@ -71,7 +72,7 @@ class CellLevelTrackingWritableDataset extends CellLevelTrackingDataset implemen
                     }
                     Arrays.sort(values);
                     final HDF5CompoundType<ObjectTrackingType> type =
-                            base.writer.compounds().getType(
+                            base.writer.compound().getType(
                                     getObjectPath(DATASET_TYPE_DIR, "ObjectTrackingType"),
                                     ObjectTrackingType.class,
                                     mapping("parentObjectNamespace").fieldName(
@@ -82,7 +83,7 @@ class CellLevelTrackingWritableDataset extends CellLevelTrackingDataset implemen
                                             "childObjectNamespaceEnum")
                                             .enumType(namespacesEnumType),
                                     mapping("childImageSequenceIdx"));
-                    base.writer.compounds().writeArray(
+                    base.writer.compound().writeArray(
                             getObjectPath(OBJECT_TRACKING_TYPE_DATASET_NAME), type, values);
                 }
             };
@@ -112,17 +113,20 @@ class CellLevelTrackingWritableDataset extends CellLevelTrackingDataset implemen
         return this;
     }
 
+    @Override
     public ObjectType addObjectType(String id) throws UniqueViolationException
     {
         return base.addObjectType(id);
     }
 
+    @Override
     public ObjectType addObjectType(String id, ObjectNamespace group)
             throws UniqueViolationException
     {
         return base.addObjectType(id, group);
     }
 
+    @Override
     public ObjectNamespace addObjectNamespace(String id)
     {
         return base.addObjectNamespace(id);
@@ -138,36 +142,43 @@ class CellLevelTrackingWritableDataset extends CellLevelTrackingDataset implemen
         return base.addEnum(enumClass);
     }
 
+    @Override
     public void setTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
     {
         base.setTimeSeriesSequenceAnnotation(timeValues);
     }
 
+    @Override
     public void setDepthScanSequenceAnnotation(DepthScanAnnotation zValues)
     {
         base.setDepthScanSequenceAnnotation(zValues);
     }
 
+    @Override
     public void setCustomSequenceAnnotation(String[] customSequenceDescriptions)
     {
         base.setCustomSequenceAnnotation(customSequenceDescriptions);
     }
 
+    @Override
     public void setPlateBarcode(String plateBarcode)
     {
         base.setPlateBarcode(plateBarcode);
     }
 
+    @Override
     public void setParentDatasetCode(String parentDatasetCode)
     {
         base.setParentDatasetCode(parentDatasetCode);
     }
 
+    @Override
     public void addDatasetAnnotation(String annotationKey, String annotation)
     {
         base.addDatasetAnnotation(annotationKey, annotation);
     }
 
+    @Override
     public ObjectTrackingType createObjectTrackingType(ObjectNamespace parentNamespace,
             int parentSequenceId, ObjectNamespace childNamespace, int childSequenceId)
     {
@@ -177,12 +188,14 @@ class CellLevelTrackingWritableDataset extends CellLevelTrackingDataset implemen
         return trackingType;
     }
 
+    @Override
     public ObjectTrackingType createObjectTrackingType(ObjectNamespace parentObjectNamespace,
             ObjectNamespace childObjectNamespace)
     {
         return createObjectTrackingType(parentObjectNamespace, 0, childObjectNamespace, 0);
     }
 
+    @Override
     public ObjectTrackingType createObjectTrackingType(ObjectNamespace objectNamespace,
             int parentImageSequenceId, int childImageSequenceId)
     {
@@ -190,6 +203,7 @@ class CellLevelTrackingWritableDataset extends CellLevelTrackingDataset implemen
                 childImageSequenceId);
     }
 
+    @Override
     public void writeObjectTracking(ImageSequenceId id, ObjectTrackingType type,
             ObjectTrackingBuilder tracking)
     {
@@ -198,33 +212,33 @@ class CellLevelTrackingWritableDataset extends CellLevelTrackingDataset implemen
         final HDF5IntStorageFeatures features;
         if (CellLevelBaseWritableDataset.shouldDeflate(tracking.getTotalSizeInBytes()))
         {
-            features = HDF5IntStorageFeatures.INT_AUTO_SCALING_DEFLATE_UNSIGNED;
+            features = HDF5IntStorageFeatures.INT_AUTO_SCALING_DEFLATE;
         } else
         {
-            features = HDF5IntStorageFeatures.INT_COMPACT_UNSIGNED;
+            features = HDF5IntStorageFeatures.INT_COMPACT;
         }
         switch (tracking.getStorageForm())
         {
             case UNSIGNED_BYTE:
             {
-                base.writer.createByteMDArray(objectPath, tracking.getLinking().dimensions(),
+                base.writer.uint8().createMDArray(objectPath, tracking.getLinking().dimensions(),
                         features);
                 break;
             }
             case UNSIGNED_SHORT:
             {
-                base.writer.createShortMDArray(objectPath, tracking.getLinking().dimensions(),
+                base.writer.uint16().createMDArray(objectPath, tracking.getLinking().dimensions(),
                         features);
                 break;
             }
             case UNSIGNED_INT:
             {
-                base.writer.createIntMDArray(objectPath, tracking.getLinking().dimensions(),
+                base.writer.uint32().createMDArray(objectPath, tracking.getLinking().dimensions(),
                         features);
                 break;
             }
         }
-        base.writer.writeIntMDArrayBlock(objectPath, tracking.getLinking(), new long[]
+        base.writer.uint32().writeMDArrayBlock(objectPath, tracking.getLinking(), new long[]
             { 0, 0 });
     }
 
@@ -241,11 +255,13 @@ class CellLevelTrackingWritableDataset extends CellLevelTrackingDataset implemen
     {
         return new IDatasetVerifyer()
             {
+                @Override
                 public String verify()
                 {
                     return null;
                 }
 
+                @Override
                 public String getDatasetCode()
                 {
                     return datasetCode;

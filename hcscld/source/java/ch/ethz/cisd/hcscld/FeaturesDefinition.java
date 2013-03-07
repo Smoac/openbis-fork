@@ -109,12 +109,14 @@ class FeaturesDefinition implements IFeaturesDefinition
                 members.toArray(new HDF5CompoundMemberMapping[members.size()]), hintsOrNull);
     }
 
+    @Override
     public IFeaturesDefinition objectNamespace(@SuppressWarnings("hiding") ObjectNamespace namespace)
     {
         this.namespace = namespace;
         return this;
     }
     
+    @Override
     public FeaturesDefinition addInt8Feature(String name)
     {
         checkDataset();
@@ -123,6 +125,7 @@ class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
+    @Override
     public FeaturesDefinition addInt16Feature(String name)
     {
         checkDataset();
@@ -131,6 +134,7 @@ class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
+    @Override
     public FeaturesDefinition addInt32Feature(String name)
     {
         checkDataset();
@@ -139,6 +143,7 @@ class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
+    @Override
     public FeaturesDefinition addInt64Feature(String name)
     {
         checkDataset();
@@ -147,6 +152,7 @@ class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
+    @Override
     public FeaturesDefinition addFloat32Feature(String name)
     {
         checkDataset();
@@ -155,6 +161,7 @@ class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
+    @Override
     public FeaturesDefinition addFloat64Feature(String name)
     {
         checkDataset();
@@ -163,6 +170,7 @@ class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
+    @Override
     public FeaturesDefinition addBooleanFeature(String name)
     {
         checkDataset();
@@ -171,6 +179,7 @@ class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
+    @Override
     public FeaturesDefinition addStringFeature(String name, int len)
     {
         checkDataset();
@@ -179,6 +188,7 @@ class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
+    @Override
     public FeaturesDefinition addEnumFeature(String name, String enumName, List<String> options)
     {
         checkDataset();
@@ -188,6 +198,7 @@ class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
+    @Override
     public FeaturesDefinition addEnumFeature(String name, Class<? extends Enum<?>> enumClass)
     {
         checkDataset();
@@ -198,14 +209,16 @@ class FeaturesDefinition implements IFeaturesDefinition
         return this;
     }
 
+    @Override
     public void create()
     {
         checkDataset();
         checkNamespace();
         datasetOrNull.addFeatureGroupInternal(
-                CellLevelFeatureWritableDataset.DEFAULT_FEATURE_GROUP_NAME, this);
+                CellLevelFeatureDataset.DEFAULT_FEATURE_GROUP_NAME, this);
     }
 
+    @Override
     public IFeatureGroup createFeatureGroup(String id)
     {
         checkDataset();
@@ -213,6 +226,7 @@ class FeaturesDefinition implements IFeaturesDefinition
         return datasetOrNull.addFeatureGroup(id, this);
     }
 
+    @Override
     public List<Feature> getFeatures()
     {
         return Collections.unmodifiableList(memberDefinitions);

@@ -210,6 +210,7 @@ public class ObjectTrackingType implements Comparable<ObjectTrackingType>
     // Comparable
     //
     
+    @Override
     public int compareTo(ObjectTrackingType o)
     {
         int comp;

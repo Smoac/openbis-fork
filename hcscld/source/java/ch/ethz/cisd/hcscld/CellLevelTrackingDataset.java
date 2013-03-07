@@ -52,17 +52,20 @@ public class CellLevelTrackingDataset extends CellLevelDataset implements ICellL
         }
     }
 
+    @Override
     public CellLevelDatasetType getType()
     {
         return CellLevelDatasetType.TRACKING;
     }
 
+    @Override
     public ICellLevelFeatureDataset toFeatureDataset() throws WrongDatasetTypeException
     {
         throw new WrongDatasetTypeException(datasetCode, CellLevelDatasetType.TRACKING,
                 CellLevelDatasetType.FEATURES);
     }
 
+    @Override
     public ICellLevelClassificationDataset toClassificationDataset()
             throws WrongDatasetTypeException
     {
@@ -70,22 +73,26 @@ public class CellLevelTrackingDataset extends CellLevelDataset implements ICellL
                 CellLevelDatasetType.CLASSIFICATION);
     }
 
+    @Override
     public ICellLevelSegmentationDataset toSegmentationDataset() throws WrongDatasetTypeException
     {
         throw new WrongDatasetTypeException(datasetCode, CellLevelDatasetType.TRACKING,
                 CellLevelDatasetType.SEGMENTATION);
     }
 
+    @Override
     public ICellLevelTrackingDataset toTrackingDataset() throws WrongDatasetTypeException
     {
         return this;
     }
 
+    @Override
     public ObjectTrackingTypes getObjectTrackingTypes()
     {
         return objectTrackingTypes;
     }
 
+    @Override
     public ObjectTracking getObjectTracking(ImageSequenceId imageSequenceId,
             ObjectTrackingType objectTrackingType)
     {
@@ -96,7 +103,7 @@ public class CellLevelTrackingDataset extends CellLevelDataset implements ICellL
         }
         try
         {
-            return new ObjectTracking(objectTrackingType, reader.readIntMDArray(objectTrackingType
+            return new ObjectTracking(objectTrackingType, reader.int32().readMDArray(objectTrackingType
                     .getObjectPath(imageSequenceId)));
         } catch (HDF5SymbolTableException ex)
         {
@@ -111,6 +118,7 @@ public class CellLevelTrackingDataset extends CellLevelDataset implements ICellL
         }
     }
 
+    @Override
     public boolean hasObjectTracking(ImageSequenceId imageSequenceId,
             ObjectTrackingType objectTrackingType) throws IllegalArgumentException
     {

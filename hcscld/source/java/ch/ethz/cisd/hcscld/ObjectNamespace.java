@@ -19,7 +19,7 @@ package ch.ethz.cisd.hcscld;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,7 +42,7 @@ public class ObjectNamespace implements IId, Comparable<ObjectNamespace>
 
     ObjectNamespace(File file, String datasetCode, String id)
     {
-        this(file, datasetCode, id, new HashSet<ObjectType>());
+        this(file, datasetCode, id, new LinkedHashSet<ObjectType>());
     }
 
     ObjectNamespace(File file, String datasetCode, String id, Set<ObjectType> objectTypes)
@@ -76,6 +76,7 @@ public class ObjectNamespace implements IId, Comparable<ObjectNamespace>
         return datasetCode;
     }
 
+    @Override
     public String getId()
     {
         return id;
@@ -136,6 +137,7 @@ public class ObjectNamespace implements IId, Comparable<ObjectNamespace>
     // Comparable
     //
     
+    @Override
     public int compareTo(ObjectNamespace o)
     {
         return id.compareTo(o.id);

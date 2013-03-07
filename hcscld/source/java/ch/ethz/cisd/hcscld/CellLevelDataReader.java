@@ -122,7 +122,7 @@ class CellLevelDataReader implements ICellLevelDataReader
                             (descOrNull == null) ? "NO DESCRIPTOR" : descOrNull));
         }
         this.hdf5DatasetTypeEnum =
-                reader.enums().getType("datasetTypes",
+                reader.enumeration().getType("datasetTypes",
                         new String[]
                             { CellLevelDatasetType.SEGMENTATION.name(),
                                     CellLevelDatasetType.FEATURES.name(),
@@ -133,11 +133,12 @@ class CellLevelDataReader implements ICellLevelDataReader
 
     private CellLevelDatasetTypeDescriptor getDatasetTypeDesc(String datasetCode)
     {
-        return reader.compounds().getAttr(CellLevelDataset.getDatasetPath(datasetCode),
+        return reader.compound().getAttr(CellLevelDataset.getDatasetPath(datasetCode),
                 CellLevelDataset.getDatasetTypeAttributeName(),
                 CellLevelDatasetTypeDescriptor.class);
     }
 
+    @Override
     public List<ICellLevelDataset> getDataSets()
     {
         final List<String> codes = reader.getGroupMembers("/");
@@ -175,6 +176,7 @@ class CellLevelDataReader implements ICellLevelDataReader
         return result;
     }
 
+    @Override
     public ICellLevelDataset getDataSet(String datasetCode)
     {
         final CellLevelDatasetTypeDescriptor desc = getDatasetTypeDesc(datasetCode);
@@ -215,24 +217,28 @@ class CellLevelDataReader implements ICellLevelDataReader
         return hints;
     }
 
+    @Override
     public ICellLevelDataReader enumAsString()
     {
         hints.setEnumReturnType(EnumReturnType.STRING);
         return this;
     }
 
+    @Override
     public ICellLevelDataReader enumAsOrdinal()
     {
         hints.setEnumReturnType(EnumReturnType.ORDINAL);
         return this;
     }
 
+    @Override
     public ICellLevelDataReader enumAsHDF5Enum()
     {
         hints.setEnumReturnType(EnumReturnType.HDF5ENUMERATIONVALUE);
         return this;
     }
 
+    @Override
     public void close()
     {
         if (manageReader)
@@ -243,9 +249,9 @@ class CellLevelDataReader implements ICellLevelDataReader
 
     FormatDescriptor tryGetCLDFormat()
     {
-        if (reader.hasAttribute("/", getCLDFormatTagAttributeName()))
+        if (reader.object().hasAttribute("/", getCLDFormatTagAttributeName()))
         {
-            return reader.compounds().getAttr("/", getCLDFormatTagAttributeName(),
+            return reader.compound().getAttr("/", getCLDFormatTagAttributeName(),
                     FormatDescriptor.class);
         } else
         {

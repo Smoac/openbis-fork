@@ -29,18 +29,21 @@ public interface ICellLevelWritableDataset extends ICellLevelDataset
      * Returns the data set as {@link ICellLevelFeatureWritableDataset}, if the data set is a
      * feature data set and <code>null</code> otherwise.
      */
+    @Override
     public ICellLevelFeatureWritableDataset toFeatureDataset();
 
     /**
      * Returns the data set as {@link ICellLevelClassificationWritableDataset}, if the data set is a
      * classification data set and <code>null</code> otherwise.
      */
+    @Override
     public ICellLevelClassificationWritableDataset toClassificationDataset();
 
     /**
      * Returns the data set as {@link ICellLevelSegmentationWritableDataset}, if the data set is a
      * segmentation data set and <code>null</code> otherwise.
      */
+    @Override
     public ICellLevelSegmentationWritableDataset toSegmentationDataset();
 
     /**

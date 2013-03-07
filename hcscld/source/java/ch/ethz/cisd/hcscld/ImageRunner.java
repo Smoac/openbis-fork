@@ -102,6 +102,7 @@ class ImageRunner
                     return id;
                 }
 
+                @Override
                 public boolean hasNext()
                 {
                     if (next == null)
@@ -111,6 +112,7 @@ class ImageRunner
                     return (next != null);
                 }
 
+                @Override
                 public ImageId next()
                 {
                     try
@@ -126,6 +128,7 @@ class ImageRunner
                     }
                 }
 
+                @Override
                 public void remove()
                 {
                     throw new UnsupportedOperationException();

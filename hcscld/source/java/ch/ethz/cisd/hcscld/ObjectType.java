@@ -18,7 +18,7 @@ package ch.ethz.cisd.hcscld;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -48,7 +48,7 @@ public class ObjectType implements IId
         this.id = id.toUpperCase();
         this.file = file;
         this.datasetCode = datasetCode;
-        final Set<ObjectType> companionSet = new HashSet<ObjectType>(Arrays.asList(companions));
+        final Set<ObjectType> companionSet = new LinkedHashSet<ObjectType>(Arrays.asList(companions));
         companionSet.add(this);
         this.objectNamespace = new ObjectNamespace(file, datasetCode, id, companionSet);
     }
@@ -56,6 +56,7 @@ public class ObjectType implements IId
     /**
      * Returns the object type id.
      */
+    @Override
     public String getId()
     {
         return id;

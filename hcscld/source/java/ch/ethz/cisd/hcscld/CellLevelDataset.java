@@ -69,25 +69,25 @@ abstract class CellLevelDataset implements ICellLevelDataset
      */
     private ObjectTypeStore readObjectTypeStore()
     {
-        final ObjectTypeStore result = new ObjectTypeStore(reader.getFile(), getDatasetCode());
-        if (reader.isDataType(getObjectNamespacesObjectPath()) == false)
+        final ObjectTypeStore result = new ObjectTypeStore(reader.file().getFile(), getDatasetCode());
+        if (reader.object().isDataType(getObjectNamespacesObjectPath()) == false)
         {
             return result;
         }
         final List<String> objectTypeCompanionGroups =
-                reader.enums().getType(getObjectNamespacesObjectPath()).getValues();
+                reader.enumeration().getType(getObjectNamespacesObjectPath()).getValues();
         for (String id : objectTypeCompanionGroups)
         {
             result.addObjectNamespace(id);
         }
-        if (reader.isDataType(getObjectTypesObjectPath()) == false)
+        if (reader.object().isDataType(getObjectTypesObjectPath()) == false)
         {
             return result;
         }
         for (String cgId : objectTypeCompanionGroups)
         {
             final String cgObjectPath = getObjectTypeCompanionGroupObjectPath(cgId);
-            for (String otId : reader.enums().readArray(cgObjectPath).toStringArray())
+            for (String otId : reader.enumeration().readArray(cgObjectPath).toStringArray())
             {
                 final ObjectNamespace cgroup = result.tryGetObjectNamespace(cgId);
                 result.addObjectType(otId, cgroup);
@@ -96,67 +96,77 @@ abstract class CellLevelDataset implements ICellLevelDataset
         return result;
     }
 
+    @Override
     public String getDatasetCode()
     {
         return datasetCode;
     }
 
+    @Override
     public Date getCreationDate()
     {
-        return reader.getDateAttribute(getObjectPath(), getCreationTimestampDatasetAttributeName());
+        return reader.time().getAttr(getObjectPath(), getCreationTimestampDatasetAttributeName());
     }
 
+    @Override
     public ImageQuantityStructure getImageQuantityStructure()
     {
         return quantityStructure;
     }
 
+    @Override
     public HDF5TimeDurationArray tryGetTimeSeriesSequenceAnnotation()
     {
         final String objectPath = getTimeSeriesSequenceAnnotationObjectPath();
-        return reader.exists(objectPath) ? reader.readTimeDurationArray(objectPath) : null;
+        return reader.exists(objectPath) ? reader.duration().readArray(objectPath) : null;
     }
 
+    @Override
     public DepthScanAnnotation tryGetDepthScanSequenceAnnotation()
     {
         final String objectPath = getDepthScanSequenceAnnotationObjectPath();
         final double[] zValues =
-                reader.exists(objectPath) ? reader.readDoubleArray(objectPath) : null;
+                reader.exists(objectPath) ? reader.float64().readArray(objectPath) : null;
         if (zValues == null)
         {
             return null;
         }
-        final String unit = reader.getStringAttribute(objectPath, "unit");
+        final String unit = reader.string().getAttr(objectPath, "unit");
         return new DepthScanAnnotation(unit, zValues);
     }
 
+    @Override
     public String[] tryGetCustomSequenceAnnotation()
     {
         final String objectPath = getCustomSequenceAnnotationObjectPath();
         return reader.exists(objectPath) ? reader.readStringArray(objectPath) : null;
     }
 
+    @Override
     public String tryGetPlateBarcode()
     {
         final String objectPath = getObjectPath();
         final String plateBarcodeAttributeName = getPlateBarcodeAttributeName();
-        return reader.hasAttribute(objectPath, plateBarcodeAttributeName) ? reader
-                .getStringAttribute(objectPath, plateBarcodeAttributeName) : null;
+        return reader.object().hasAttribute(objectPath, plateBarcodeAttributeName) ? reader
+                .string().getAttr(objectPath, plateBarcodeAttributeName) : null;
     }
 
+    @Override
     public String tryGetParentDatasetCode()
     {
         final String objectPath = getObjectPath();
         final String parentDatasetAttributeName = getParentDatasetAttributeName();
-        return reader.hasAttribute(objectPath, parentDatasetAttributeName) ? reader
-                .getStringAttribute(objectPath, parentDatasetAttributeName) : null;
+        return reader.object().hasAttribute(objectPath, parentDatasetAttributeName) ? reader
+                .string().getAttr(objectPath, parentDatasetAttributeName) : null;
     }
 
+    @Override
     public ObjectType tryGetObjectType(String objectTypeId)
     {
         return objectTypeStore.tryGetObjectType(objectTypeId);
     }
 
+    @Override
     public ObjectType getObjectType(String objectTypeId) throws IllegalArgumentException
     {
         final ObjectType objectType = objectTypeStore.tryGetObjectType(objectTypeId);
@@ -168,16 +178,19 @@ abstract class CellLevelDataset implements ICellLevelDataset
         return objectType;
     }
 
+    @Override
     public Collection<ObjectType> getObjectTypes()
     {
         return objectTypeStore.getObjectTypes();
     }
 
+    @Override
     public ObjectNamespace tryGetObjectNamespace(String objectNamespaceId)
     {
         return objectTypeStore.tryGetObjectNamespace(objectNamespaceId);
     }
 
+    @Override
     public ObjectNamespace getObjectNamespace(String objectNamespaceId)
     {
         final ObjectNamespace objectNamespace =
@@ -190,6 +203,7 @@ abstract class CellLevelDataset implements ICellLevelDataset
         return objectNamespace;
     }
 
+    @Override
     public Collection<ObjectNamespace> getObjectNamespaces()
     {
         return objectTypeStore.getObjectNamespaces();
@@ -236,11 +250,13 @@ abstract class CellLevelDataset implements ICellLevelDataset
         return getObjectPath(DATASET_TYPE_DIR, "Enum_ObjectNamespaces");
     }
 
+    @Override
     public Set<String> getDatasetAnnotationKeys()
     {
         return new HashSet<String>(reader.getGroupMembers(getDatasetAnnotationObjectPath()));
     }
 
+    @Override
     public String tryGetDatasetAnnotation(String annotationKey)
     {
         final String datasetAnnotationObjectPath = getDatasetAnnotationObjectPath(annotationKey);

@@ -666,12 +666,12 @@ public class FeatureDatasetRoundtripTest
         }
         final IHDF5Reader reader = HDF5Factory.openForReading(f);
         HDF5CompoundType<FeatureGroupDescriptor> type =
-                reader.compounds().getDataSetType("Dataset_123/FeatureGroups",
+                reader.compound().getDataSetType("Dataset_123/FeatureGroups",
                         FeatureGroupDescriptor.class,
                         HDF5CompoundMemberMapping.mapping("id").dimensions(new int[]
                             { 100 }), HDF5CompoundMemberMapping.mapping("namespaceId"));
         final FeatureGroupDescriptor[] featureGroups =
-                reader.compounds().readArray("/Dataset_123/FeatureGroups", type);
+                reader.compound().readArray("/Dataset_123/FeatureGroups", type);
         assertEquals(3, featureGroups.length);
         assertEquals("a", featureGroups[0].getId());
         assertEquals("M", featureGroups[1].getId());

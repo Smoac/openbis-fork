@@ -89,32 +89,38 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
         return this;
     }
 
+    @Override
     public ObjectType addObjectType(String id) throws UniqueViolationException
     {
         return base.addObjectType(id);
     }
 
+    @Override
     public ObjectType addObjectType(String id, ObjectNamespace group)
             throws UniqueViolationException
     {
         return base.addObjectType(id, group);
     }
 
+    @Override
     public ObjectNamespace addObjectNamespace(String id)
     {
         return base.addObjectNamespace(id);
     }
 
+    @Override
     public void setTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
     {
         base.setTimeSeriesSequenceAnnotation(timeValues);
     }
 
+    @Override
     public void setDepthScanSequenceAnnotation(DepthScanAnnotation zValues)
     {
         base.setDepthScanSequenceAnnotation(zValues);
     }
 
+    @Override
     public void setCustomSequenceAnnotation(String[] customSequenceDescriptions)
     {
         base.setCustomSequenceAnnotation(customSequenceDescriptions);
@@ -130,21 +136,25 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
         return base.addEnum(enumClass);
     }
 
+    @Override
     public void setPlateBarcode(String plateBarcode)
     {
         base.setPlateBarcode(plateBarcode);
     }
 
+    @Override
     public void setParentDatasetCode(String parentDatasetCode)
     {
         base.setParentDatasetCode(parentDatasetCode);
     }
 
+    @Override
     public void addDatasetAnnotation(String annotationKey, String annotation)
     {
         base.addDatasetAnnotation(annotationKey, annotation);
     }
 
+    @Override
     public void writeClassification(ImageId id, ObjectNamespace namespace, Enum<?>[] classifications)
     {
         namespace.checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
@@ -154,28 +164,30 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
         {
             ordinals[i] = classifications[i].ordinal();
         }
-        base.writer.enums().writeArray(getClassPath(id, namespace),
+        base.writer.enumeration().writeArray(getClassPath(id, namespace),
                 new HDF5EnumerationValueArray(hdf5EnumType, ordinals), HDF5IntStorageFeatures
                         .createFromGeneric(CellLevelBaseWritableDataset
                                 .getStorageFeatures(classifications.length)));
     }
 
+    @Override
     public void writeClassification(ImageId id, ObjectNamespace namespace, String[] classifications)
     {
         namespace.checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
                 classifications.length);
-        base.writer.enums().writeArray(getClassPath(id, namespace),
+        base.writer.enumeration().writeArray(getClassPath(id, namespace),
                 new HDF5EnumerationValueArray(hdf5EnumType, classifications),
                 HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
                         .getStorageFeatures(classifications.length)));
     }
 
+    @Override
     public void writeClassification(ImageId id, ObjectNamespace namespace,
             int[] classificationOrdinals)
     {
         namespace.checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
                 classificationOrdinals.length);
-        base.writer.enums().writeArray(getClassPath(id, namespace),
+        base.writer.enumeration().writeArray(getClassPath(id, namespace),
                 new HDF5EnumerationValueArray(hdf5EnumType, classificationOrdinals),
                 HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
                         .getStorageFeatures(classificationOrdinals.length)));
@@ -197,11 +209,13 @@ class CellLevelClassificationWritableDataset extends CellLevelClassificationData
     {
         return new IDatasetVerifyer()
             {
+                @Override
                 public String verify()
                 {
                     return null;
                 }
 
+                @Override
                 public String getDatasetCode()
                 {
                     return datasetCode;

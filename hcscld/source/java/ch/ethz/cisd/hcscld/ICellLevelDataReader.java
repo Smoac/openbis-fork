@@ -61,5 +61,6 @@ public interface ICellLevelDataReader extends Closeable
     public ICellLevelDataReader enumAsHDF5Enum();
 
     // New signature: we only throw IOExceptionUnchecked.
+    @Override
     public void close() throws IOExceptionUnchecked;
 }

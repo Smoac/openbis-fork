@@ -56,6 +56,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     {
         return new IObjectNamespaceBasedFlushable()
             {
+                @Override
                 public void flush(ObjectNamespaceContainer namespaceTypeContainer)
                 {
                     if (featureGroups.size() == 0)
@@ -63,7 +64,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                         return;
                     }
                     final HDF5CompoundType<FeatureGroupDescriptor> featureGroupCompoundType =
-                            base.writer.compounds().getType(
+                            base.writer.compound().getType(
                                     getObjectPath(DATASET_TYPE_DIR, "FeatureGroupDescriptor"),
                                     FeatureGroupDescriptor.class,
                                     HDF5CompoundMemberMapping.mapping("id").dimensions(new int[]
@@ -81,7 +82,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                                                 .getNamespace().getId()));
                     }
                     Arrays.sort(descriptors);
-                    base.writer.compounds().writeArray(getFeatureGroupsFilename(),
+                    base.writer.compound().writeArray(getFeatureGroupsFilename(),
                             featureGroupCompoundType, descriptors);
                 }
             };
@@ -111,17 +112,20 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         return (ICellLevelTrackingWritableDataset) super.toTrackingDataset();
     }
 
+    @Override
     public ObjectType addObjectType(String id) throws UniqueViolationException
     {
         return base.addObjectType(id);
     }
 
+    @Override
     public ObjectType addObjectType(String id, ObjectNamespace group)
             throws UniqueViolationException
     {
         return base.addObjectType(id, group);
     }
 
+    @Override
     public ObjectNamespace addObjectNamespace(String id)
     {
         return base.addObjectNamespace(id);
@@ -137,36 +141,43 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         return base.addEnum(enumClass);
     }
 
+    @Override
     public void setTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
     {
         base.setTimeSeriesSequenceAnnotation(timeValues);
     }
 
+    @Override
     public void setDepthScanSequenceAnnotation(DepthScanAnnotation zValues)
     {
         base.setDepthScanSequenceAnnotation(zValues);
     }
 
+    @Override
     public void setCustomSequenceAnnotation(String[] customSequenceDescriptions)
     {
         base.setCustomSequenceAnnotation(customSequenceDescriptions);
     }
 
+    @Override
     public void setPlateBarcode(String plateBarcode)
     {
         base.setPlateBarcode(plateBarcode);
     }
 
+    @Override
     public void setParentDatasetCode(String parentDatasetCode)
     {
         base.setParentDatasetCode(parentDatasetCode);
     }
 
+    @Override
     public void addDatasetAnnotation(String annotationKey, String annotation)
     {
         base.addDatasetAnnotation(annotationKey, annotation);
     }
 
+    @Override
     public IFeaturesDefinition createFeaturesDefinition()
     {
         return new FeaturesDefinition(this);
@@ -196,19 +207,20 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     {
         final String idUpperCase = id.toUpperCase();
         final HDF5CompoundType<Object[]> type =
-                base.writer.compounds().getType(getFeatureGroupTypePath(idUpperCase),
+                base.writer.compound().getType(getFeatureGroupTypePath(idUpperCase),
                         Object[].class, features.getMembers(hintsOrNull));
         final FeatureGroup featureGroup = new FeatureGroup(id, features.getNamespace(), type);
         addFeatureGroupToInternalList(idUpperCase, featureGroup);
         return featureGroup;
     }
 
+    @Override
     public void writeFeatures(ImageId id, IFeatureGroup featureGroup, Object[][] featureValues)
     {
         final FeatureGroup fg = (FeatureGroup) featureGroup;
         fg.getNamespace().checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
                 featureValues.length);
-        base.writer.compounds().writeArray(
+        base.writer.compound().writeArray(
                 fg.getObjectPath(id),
                 fg.getType(),
                 featureValues,
@@ -216,13 +228,14 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                         * fg.getType().getRecordSize()));
     }
 
+    @Override
     public void writeFeatures(ImageId id, Object[][] featureValues)
     {
         checkDefaultFeatureGroup();
         final FeatureGroup fg = getFirstFeatureGroup();
         fg.getNamespace().checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
                 featureValues.length);
-        base.writer.compounds().writeArray(
+        base.writer.compound().writeArray(
                 fg.getObjectPath(id),
                 fg.getType(),
                 featureValues,
@@ -256,11 +269,13 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     {
         return new IDatasetVerifyer()
             {
+                @Override
                 public String verify()
                 {
                     return null;
                 }
 
+                @Override
                 public String getDatasetCode()
                 {
                     return datasetCode;

@@ -80,52 +80,62 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
         return (ICellLevelClassificationWritableDataset) super.toClassificationDataset();
     }
 
+    @Override
     public ObjectType addObjectType(String id) throws UniqueViolationException
     {
         return base.addObjectType(id);
     }
 
+    @Override
     public ObjectType addObjectType(String id, ObjectNamespace group)
             throws UniqueViolationException
     {
         return base.addObjectType(id, group);
     }
 
+    @Override
     public ObjectNamespace addObjectNamespace(String id)
     {
         return base.addObjectNamespace(id);
     }
 
+    @Override
     public void setTimeSeriesSequenceAnnotation(HDF5TimeDurationArray timeValues)
     {
         base.setTimeSeriesSequenceAnnotation(timeValues);
     }
 
+    @Override
     public void setDepthScanSequenceAnnotation(DepthScanAnnotation zValues)
     {
         base.setDepthScanSequenceAnnotation(zValues);
     }
 
+    @Override
     public void setCustomSequenceAnnotation(String[] customSequenceDescriptions)
     {
         base.setCustomSequenceAnnotation(customSequenceDescriptions);
     }
 
+    @Override
     public void setPlateBarcode(String plateBarcode)
     {
         base.setPlateBarcode(plateBarcode);
     }
 
+    @Override
     public void setParentDatasetCode(String parentDatasetCode)
     {
         base.setParentDatasetCode(parentDatasetCode);
     }
 
+    @Override
     public void addDatasetAnnotation(String annotationKey, String annotation)
     {
         base.addDatasetAnnotation(annotationKey, annotation);
     }
 
+    @Override
     public void writeImageSegmentation(ImageId id, ObjectType objectType,
             List<SegmentedObject> objects)
     {
@@ -178,15 +188,15 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
                         edgeMaskArray.length);
             }
         }
-        base.writer.compounds().writeArray(getObjectPath(id, INDEX_PREFIX, objectType.getId()),
+        base.writer.compound().writeArray(getObjectPath(id, INDEX_PREFIX, objectType.getId()),
                 getIndexType(), objects.toArray(new SegmentedObjectBox[objects.size()]),
                 HDF5GenericStorageFeatures.GENERIC_DEFLATE);
-        base.writer.writeBitField(getObjectPath(id, MASKS_PREFIX, objectType.getId()),
+        base.writer.bool().writeBitField(getObjectPath(id, MASKS_PREFIX, objectType.getId()),
                 BitSetConversionUtils.fromStorageForm(allMasksArray),
                 HDF5GenericStorageFeatures.GENERIC_DEFLATE);
         if (storeEdgeMasks)
         {
-            base.writer.writeBitField(getObjectPath(id, EDGE_MASKS_PREFIX, objectType.getId()),
+            base.writer.bool().writeBitField(getObjectPath(id, EDGE_MASKS_PREFIX, objectType.getId()),
                     BitSetConversionUtils.fromStorageForm(allEdgeMasksArray),
                     HDF5GenericStorageFeatures.GENERIC_DEFLATE);
         }
@@ -209,6 +219,7 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
     {
         return new IDatasetVerifyer()
             {
+                @Override
                 public String verify()
                 {
                     final Set<ObjectType> objectTypesNotWritten =
@@ -252,6 +263,7 @@ class CellLevelSegmentationWritableDataset extends CellLevelSegmentationDataset 
                     return null;
                 }
 
+                @Override
                 public String getDatasetCode()
                 {
                     return datasetCode;
