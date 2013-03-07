@@ -8,9 +8,9 @@ var createExperimentIdentfier = function(identifierString){
 	
 	return {
 		"@type" : "ExperimentIdentifier",
-		spaceCode : parts[1],
-		projectCode : parts[2],
-		experimentCode : parts[3]
+		"spaceCode" : parts[1],
+		"projectCode" : parts[2],
+		"experimentCode" : parts[3]
 	};
 }
 
@@ -29,25 +29,25 @@ var createMaterialIdentifier = function(identifierString){
 	
 	return {
 		"@type" : "MaterialIdentifierScreening",
-		materialTypeIdentifier : {
+		"materialTypeIdentifier" : {
 			"@type" : "MaterialTypeIdentifierScreening",
-			materialTypeCode : parts[1]
+			"materialTypeCode" : parts[1]
 		},
-		materialCode : parts[2]
+		"materialCode" : parts[2]
 	};
 }
 
 var createMaterialTypeIdentifier = function(typeCode){
 	return {
 		"@type" : "MaterialTypeIdentifierScreening",
-		materialTypeCode : typeCode
+		"materialTypeCode" : typeCode
 	};
 }
 
 var createWellIdentifier = function(permId){
 	return {
 		"@type" : "WellIdentifier",
-		permId : permId
+		"permId" : permId
 	};
 }
 
@@ -56,6 +56,14 @@ var createWellPosition = function(wellRow, wellColumn){
 		"@type" : "WellPosition",
 		"wellRow" : wellRow,
 		"wellColumn" : wellColumn
+	};
+}
+
+var createImageSize = function(width, height){
+	return {
+		"@type" : "ImageSize",
+		"width" : width,
+		"height" : height
 	};
 }
 
@@ -380,6 +388,29 @@ test("loadThumbnailImagesBase64ForImageReferences()", function(){
 				var imageReferences = response.result;
 				
 				facade.loadThumbnailImagesBase64ForImageReferences(imageReferences, function(response){
+					// TODO generate some thumbnails at screening sprint server
+					assertObjectsCount(response.result, 0);
+					facade.close();
+				});
+			});
+		});
+	});
+});
+
+test("loadImagesBase64ForImageReferencesAndImageSize()", function(){
+	createFacadeAndLogin(function(facade){
+		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
+		
+		facade.listImageDatasets(plateIdentifiers, function(response){
+			var dataSetIdentifier = response.result[0];
+			var wellPositions = [ createWellPosition(1, 1) ];
+			var channel = "DAPI";
+			
+			facade.listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel(dataSetIdentifier, wellPositions, channel, function(response){
+				var imageReferences = response.result;
+				var imageSize = createImageSize(100, 100);
+				
+				facade.loadImagesBase64ForImageReferencesAndImageSize(imageReferences, imageSize, function(response){
 					assertObjectsCount(response.result, 9);
 					facade.close();
 				});

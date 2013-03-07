@@ -5,24 +5,24 @@
  */
 
 if(typeof openbis == 'undefined' || typeof _openbisInternal == 'undefined'){
-	alert('Loading of openbis-screening.js failed - openbis.js is missing');
+    alert('Loading of openbis-screening.js failed - openbis.js is missing');
 }
 
 var _openbisInternalGeneric = _openbisInternal;
 
 var _openbisInternal = function(openbisUrl){
-	this.init(openbisUrl);
+    this.init(openbisUrl);
 }
 
 $.extend(_openbisInternal.prototype, _openbisInternalGeneric.prototype);
 
 _openbisInternal.prototype.init = function(openbisUrl){
-	_openbisInternalGeneric.prototype.init.call(this, openbisUrl);
-	this.screeningUrl = openbisUrl + "/rmi-screening-api-v1.json"
+    _openbisInternalGeneric.prototype.init.call(this, openbisUrl);
+    this.screeningUrl = openbisUrl + "/rmi-screening-api-v1.json"
 }
 
 _openbisInternal.prototype.getScreeningDataStoreApiUrlForDataStoreUrl = function(dataStoreUrl){
-	return dataStoreUrl + "/rmi-datastore-server-screening-api-v1.json"
+    return dataStoreUrl + "/rmi-datastore-server-screening-api-v1.json"
 }
 
 var _openbisGeneric = openbis;
@@ -333,7 +333,12 @@ openbis.prototype.loadImagesBase64ForImageReferencesAndImageConversion = functio
     this._internal.ajaxRequest({
             url: this._internal.screeningUrl,
             data: { "method" : "loadImagesBase64",
-                    "params" : [ this.getSession(), imageReferences, convertToPng ] },
+                    "params" : {
+                        "sessionToken" : this.getSession(),
+                        "imageReferences" : imageReferences,
+                        "convertToPng" : convertToPng
+                    }
+            },
             success: action
     });
 }
@@ -346,7 +351,11 @@ openbis.prototype.loadThumbnailImagesBase64ForImageReferences = function(imageRe
     this._internal.ajaxRequest({
             url: this._internal.screeningUrl,
             data: { "method" : "loadThumbnailImagesBase64",
-                    "params" : [ this.getSession(), imageReferences ] },
+                    "params" : {
+                        "sessionToken" : this.getSession(), 
+                        "imageReferences" : imageReferences 
+                    } 
+            },
             success: action
     });
 }
@@ -359,7 +368,12 @@ openbis.prototype.loadImagesBase64ForImageReferencesAndImageSize = function(imag
     this._internal.ajaxRequest({
             url: this._internal.screeningUrl,
             data: { "method" : "loadImagesBase64",
-                    "params" : [ this.getSession(), imageReferences, size ] },
+                    "params" : {
+                        "sessionToken" : this.getSession(), 
+                        "imageReferences" : imageReferences,
+                        "size" : size 
+                    } 
+            },
             success: action
     });
 }
@@ -372,7 +386,11 @@ openbis.prototype.loadImagesBase64ForImageReferences = function(imageReferences,
     this._internal.ajaxRequest({
             url: this._internal.screeningUrl,
             data: { "method" : "loadImagesBase64",
-                    "params" : [ this.getSession(), imageReferences ] },
+                    "params" : { 
+                        "sessionToken" : this.getSession(),
+                        "imageReferences" : imageReferences 
+                    }
+            },
             success: action
     });
 }
@@ -385,7 +403,12 @@ openbis.prototype.loadImagesBase64ForImageReferencesAndImageConfiguration = func
     this._internal.ajaxRequest({
             url: this._internal.screeningUrl,
             data: { "method" : "loadImagesBase64",
-                    "params" : [ this.getSession(), imageReferences, configuration ] },
+                    "params" : { 
+                        "sessionToken" : this.getSession(), 
+                        "imageReferences" : imageReferences, 
+                        "configuration" : configuration 
+                    } 
+            },
             success: action
     });
 }
@@ -398,7 +421,12 @@ openbis.prototype.loadImagesBase64ForImageReferencesAndImageRepresentationFormat
     this._internal.ajaxRequest({
             url: this._internal.screeningUrl,
             data: { "method" : "loadImagesBase64",
-                    "params" : [ this.getSession(), imageReferences, format ] },
+                    "params" : {
+                        "sessionToken" : this.getSession(), 
+                        "imageReferences" : imageReferences, 
+                        "format" : format 
+                    } 
+            },
             success: action
     });
 }
@@ -411,7 +439,12 @@ openbis.prototype.loadImagesBase64ForImageReferencesAndImageRepresentationFormat
     this._internal.ajaxRequest({
             url: this._internal.screeningUrl,
             data: { "method" : "loadImagesBase64",
-                    "params" : [ this.getSession(), imageReferences, criteria ] },
+                    "params" : { 
+                        "sessionToken" : this.getSession(), 
+                        "imageReferences" : imageReferences, 
+                        "criteria" : criteria 
+                    } 
+            },
             success: action
     });
 }
@@ -469,7 +502,14 @@ openbis.prototype.loadImagesBase64ForDataSetIdentifierAndWellPositionsAndChannel
     this._internal.ajaxRequest({
             url: this._internal.getScreeningDataStoreApiUrlForDataStoreUrl(dataSetIdentifier.datastoreServerUrl),
             data: { "method" : "loadImagesBase64",
-                    "params" : [ this.getSession(), dataSetIdentifier, wellPositions, channel, thumbnailSizeOrNull ] },
+                    "params" : { 
+                        "sessionToken" : this.getSession(), 
+                        "dataSetIdentifier" : dataSetIdentifier, 
+                        "wellPositions" : wellPositions, 
+                        "channel" : channel, 
+                        "thumbnailSizeOrNull" : thumbnailSizeOrNull 
+                    } 
+            },
             success: action
     });
 }
@@ -482,7 +522,13 @@ openbis.prototype.loadImagesBase64ForDataSetIdentifierAndChannelAndImageSize = f
     this._internal.ajaxRequest({
             url: this._internal.getScreeningDataStoreApiUrlForDataStoreUrl(dataSetIdentifier.datastoreServerUrl),
             data: { "method" : "loadImagesBase64",
-                    "params" : [ this.getSession(), dataSetIdentifier, channel, thumbnailSizeOrNull ] },
+                    "params" : { 
+                        "sessionToken" : this.getSession(), 
+                        "dataSetIdentifier" : dataSetIdentifier,
+                        "channel" : channel, 
+                        "thumbnailSizeOrNull" : thumbnailSizeOrNull 
+                    } 
+            },
             success: action
     });
 }
@@ -495,7 +541,12 @@ openbis.prototype.loadThumbnailImagesBase64ForDataSetIdentifierAndChannels = fun
     this._internal.ajaxRequest({
             url: this._internal.getScreeningDataStoreApiUrlForDataStoreUrl(dataSetIdentifier.datastoreServerUrl),
             data: { "method" : "loadThumbnailImagesBase64",
-                    "params" : [ this.getSession(), dataSetIdentifier, channels ] },
+                    "params" : { 
+                        "sessionToken" : this.getSession(), 
+                        "dataSetIdentifier" : dataSetIdentifier, 
+                        "channels" : channels 
+                    } 
+            },
             success: action
     });
 }
@@ -508,7 +559,13 @@ openbis.prototype.listPlateImageReferencesForDataSetIdentifierAndWellPositionsAn
     this._internal.ajaxRequest({
             url: this._internal.getScreeningDataStoreApiUrlForDataStoreUrl(dataSetIdentifier.datastoreServerUrl),
             data: { "method" : "listPlateImageReferences",
-                    "params" : [ this.getSession(), dataSetIdentifier, wellPositions, channel ] },
+                    "params" : { 
+                        "sessionToken" : this.getSession(), 
+                        "dataSetIdentifier" : dataSetIdentifier, 
+                        "wellPositions" : wellPositions, 
+                        "channel" : channel 
+                    } 
+            },
             success: action
     });
 }
@@ -521,7 +578,13 @@ openbis.prototype.listPlateImageReferencesForDataSetIdentifierAndWellPositionsAn
     this._internal.ajaxRequest({
             url: this._internal.getScreeningDataStoreApiUrlForDataStoreUrl(dataSetIdentifier.datastoreServerUrl),
             data: { "method" : "listPlateImageReferences",
-                    "params" : [ this.getSession(), dataSetIdentifier, wellPositions, channels ] },
+                    "params" : { 
+                        "sessionToken" : this.getSession(), 
+                        "dataSetIdentifier" : dataSetIdentifier, 
+                        "wellPositions" : wellPositions, 
+                        "channels" : channels 
+                    } 
+            },
             success: action
     });
 }
@@ -534,7 +597,12 @@ openbis.prototype.listImageReferencesForDataSetIdentifierAndChannel = function(d
     this._internal.ajaxRequest({
             url: this._internal.getScreeningDataStoreApiUrlForDataStoreUrl(dataSetIdentifier.datastoreServerUrl),
             data: { "method" : "listImageReferences",
-                    "params" : [ this.getSession(), dataSetIdentifier, channel ] },
+                    "params" : { 
+                        "sessionToken" : this.getSession(), 
+                        "dataSetIdentifier" : dataSetIdentifier, 
+                        "channel" : channel 
+                    } 
+            },
             success: action
     });
 }
@@ -547,7 +615,12 @@ openbis.prototype.listImageReferencesForDataSetIdentifierAndChannels = function(
     this._internal.ajaxRequest({
             url: this._internal.getScreeningDataStoreApiUrlForDataStoreUrl(dataSetIdentifier.datastoreServerUrl),
             data: { "method" : "listImageReferences",
-                    "params" : [ this.getSession(), dataSetIdentifier, channels ] },
+                    "params" : {
+                        "sessionToken" : this.getSession(), 
+                        "dataSetIdentifier" : dataSetIdentifier, 
+                        "channels" : channels 
+                    } 
+            },
             success: action
     });
 }

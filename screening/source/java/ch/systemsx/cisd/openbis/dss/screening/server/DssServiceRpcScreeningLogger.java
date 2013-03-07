@@ -125,7 +125,7 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
             boolean convertToPng)
     {
         logAccess(sessionToken, "load_images_base64", "IMAGE_REFERENCES(%s) CONVERT(%s)",
-                references);
+                references, convertToPng);
         return null;
     }
 
