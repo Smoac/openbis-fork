@@ -3,6 +3,62 @@
  * with screening sprint server database version
  */
 
+var createExperimentIdentfier = function(identifierString){
+	var parts = identifierString.split("/");
+	
+	return {
+		"@type" : "ExperimentIdentifier",
+		spaceCode : parts[1],
+		projectCode : parts[2],
+		experimentCode : parts[3]
+	};
+}
+
+var createPlateIdentifier = function(identifierString){
+	var parts = identifierString.split("/");
+	
+	return {
+		"@type" : "PlateIdentifier",
+		"spaceCodeOrNull" : parts[1],
+		"plateCode" : parts[2]
+	};
+}
+
+var createMaterialIdentifier = function(identifierString){
+	var parts = identifierString.split("/");
+	
+	return {
+		"@type" : "MaterialIdentifierScreening",
+		materialTypeIdentifier : {
+			"@type" : "MaterialTypeIdentifierScreening",
+			materialTypeCode : parts[1]
+		},
+		materialCode : parts[2]
+	};
+}
+
+var createMaterialTypeIdentifier = function(typeCode){
+	return {
+		"@type" : "MaterialTypeIdentifierScreening",
+		materialTypeCode : typeCode
+	};
+}
+
+var createWellIdentifier = function(permId){
+	return {
+		"@type" : "WellIdentifier",
+		permId : permId
+	};
+}
+
+var createWellPosition = function(wellRow, wellColumn){
+	return {
+		"@type" : "WellPosition",
+		"wellRow" : wellRow,
+		"wellColumn" : wellColumn
+	};
+}
+
 test("listPlates()", function(){
 	createFacadeAndLogin(function(facade){
 		
@@ -13,15 +69,12 @@ test("listPlates()", function(){
 	});
 });
 
+
+
 test("listPlatesForExperiment()", function(){
 	createFacadeAndLogin(function(facade){
-		var experimentIdentifier = {
-			"@type" : "ExperimentIdentifier",
-			spaceCode : "PLATONIC",
-			projectCode : "SCREENING-EXAMPLES",
-			experimentCode : "EXP-1"
-		};
-
+		var experimentIdentifier = createExperimentIdentfier("/PLATONIC/SCREENING-EXAMPLES/EXP-1"); 
+		
 		facade.listPlatesForExperiment(experimentIdentifier, function(response){
 			assertObjectsCount(response.result, 4);
 			assertObjectsWithValues(response.result, "plateCode", ["PLATE-1","PLATE-2", "PLATE-16-BIT", "SANOFI-EXAMPLE"]);
@@ -32,18 +85,8 @@ test("listPlatesForExperiment()", function(){
 
 test("getPlateMetadataList()", function(){
 	createFacadeAndLogin(function(facade){
-		var plateIdentifiers = 
-		[{
-			"@type" : "PlateIdentifier",
-			spaceCodeOrNull : "PLATONIC",
-			plateCode : "PLATE-1"
-		},
-		{
-			"@type" : "PlateIdentifier",
-			spaceCodeOrNull : "PLATONIC",
-			plateCode : "PLATE-2"
-		}];
-
+		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1"), createPlateIdentifier("/PLATONIC/PLATE-2") ];
+		
 		facade.getPlateMetadataList(plateIdentifiers, function(response){
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithValues(response.result, "plateCode", ["PLATE-1","PLATE-2"]);
@@ -76,12 +119,7 @@ test("listExperimentsVisibleToUser()", function(){
 
 test("listFeatureVectorDatasets()", function(){
 	createFacadeAndLogin(function(facade){
-		var plateIdentifiers = 
-			[{
-				"@type" : "PlateIdentifier",
-				spaceCodeOrNull : "PLATONIC",
-				plateCode : "PLATE-1"
-			}]; 
+		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
 		
 		facade.listFeatureVectorDatasets(plateIdentifiers, function(response){
 			assertObjectsCount(response.result, 1);
@@ -93,12 +131,7 @@ test("listFeatureVectorDatasets()", function(){
 
 test("listImageDatasets()", function(){
 	createFacadeAndLogin(function(facade){
-		var plateIdentifiers = 
-			[{
-				"@type" : "PlateIdentifier",
-				spaceCodeOrNull : "PLATONIC",
-				plateCode : "PLATE-1"
-			}]; 
+		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
 		
 		facade.listImageDatasets(plateIdentifiers, function(response){
 			assertObjectsCount(response.result, 3);
@@ -110,12 +143,7 @@ test("listImageDatasets()", function(){
 
 test("listRawImageDatasets()", function(){
 	createFacadeAndLogin(function(facade){
-		var plateIdentifiers = 
-			[{
-				"@type" : "PlateIdentifier",
-				spaceCodeOrNull : "PLATONIC",
-				plateCode : "PLATE-1"
-			}]; 
+		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
 		
 		facade.listRawImageDatasets(plateIdentifiers, function(response){
 			assertObjectsCount(response.result, 3);
@@ -127,12 +155,7 @@ test("listRawImageDatasets()", function(){
 
 test("listSegmentationImageDatasets()", function(){
 	createFacadeAndLogin(function(facade){
-		var plateIdentifiers = 
-			[{
-				"@type" : "PlateIdentifier",
-				spaceCodeOrNull : "PLATONIC",
-				plateCode : "PLATE-1"
-			}]; 
+		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
 		
 		facade.listSegmentationImageDatasets(plateIdentifiers, function(response){
 			assertObjectsCount(response.result, 2);
@@ -156,20 +179,8 @@ test("getDatasetIdentifiers()", function(){
 
 test("listPlateWellsForExperimentAndMaterial()", function(){
 	createFacadeAndLogin(function(facade){
-		var experimentIdentifer = {
-			"@type" : "ExperimentIdentifier",
-			spaceCode : "TEST",
-			projectCode : "TEST-PROJECT",
-			experimentCode : "E1"
-		};
-		var materialIdentifier = {
-			"@type" : "MaterialIdentifierScreening",
-			materialTypeIdentifier : {
-				"@type" : "MaterialTypeIdentifierScreening",
-				materialTypeCode : "GENE"
-			},
-			materialCode : "1"
-		};
+		var experimentIdentifer = createExperimentIdentfier("/TEST/TEST-PROJECT/E1"); 
+		var materialIdentifier = createMaterialIdentifier("/GENE/1"); 
 		var findDatasets = true;
 		
 		facade.listPlateWellsForExperimentAndMaterial(experimentIdentifer, materialIdentifier, findDatasets, function(response){
@@ -184,14 +195,7 @@ test("listPlateWellsForExperimentAndMaterial()", function(){
 
 test("listPlateWellsForMaterial()", function(){
 	createFacadeAndLogin(function(facade){
-		var materialIdentifier = {
-			"@type" : "MaterialIdentifierScreening",
-			materialTypeIdentifier : {
-				"@type" : "MaterialTypeIdentifierScreening",
-				materialTypeCode : "GENE"
-			},
-			materialCode : "1"
-		};
+		var materialIdentifier = createMaterialIdentifier("/GENE/1");
 		var findDatasets = true;
 		
 		facade.listPlateWellsForMaterial(materialIdentifier, findDatasets, function(response){
@@ -206,11 +210,7 @@ test("listPlateWellsForMaterial()", function(){
 
 test("listPlateWells()", function(){
 	createFacadeAndLogin(function(facade){
-		var plateIdentifier = {
-			"@type" : "PlateIdentifier",
-			spaceCodeOrNull : "PLATONIC",
-			plateCode : "PLATE-1"
-		};
+		var plateIdentifier = createPlateIdentifier("/PLATONIC/PLATE-1");
 		
 		facade.listPlateWells(plateIdentifier, function(response){
 			assertObjectsCount(response.result, 79);
@@ -221,10 +221,7 @@ test("listPlateWells()", function(){
 
 test("getWellSample()", function(){
 	createFacadeAndLogin(function(facade){
-		var wellIdentifier = {
-			"@type" : "WellIdentifier",
-			permId : "20100823133909745-963"
-		};
+		var wellIdentifier = createWellIdentifier("20100823133909745-963");
 		
 		facade.getWellSample(wellIdentifier, function(response){
 			equal(response.result.code, "PLATE-1-A:A3", "Well code is correct");
@@ -235,11 +232,7 @@ test("getWellSample()", function(){
 
 test("getPlateSample()", function(){
 	createFacadeAndLogin(function(facade){
-		var plateIdentifier = {
-			"@type" : "PlateIdentifier",
-			spaceCodeOrNull : "PLATONIC",
-			plateCode : "PLATE-1"
-		};
+		var plateIdentifier = createPlateIdentifier("/PLATONIC/PLATE-1");
 		
 		facade.getPlateSample(plateIdentifier, function(response){
 			equal(response.result.code, "PLATE-1", "Plate code is correct");
@@ -250,15 +243,8 @@ test("getPlateSample()", function(){
 
 test("listPlateMaterialMapping()", function(){
 	createFacadeAndLogin(function(facade){
-		var plateIdentifiers = [{
-			"@type" : "PlateIdentifier",
-			spaceCodeOrNull : "PLATONIC",
-			plateCode : "PLATE-1"
-		}];
-		var materialTypeIdentifierOrNull = {
-			"@type" : "MaterialTypeIdentifierScreening",
-			materialTypeCode : "GENE"
-		};
+		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
+		var materialTypeIdentifierOrNull = createMaterialTypeIdentifier("GENE");
 		
 		facade.listPlateMaterialMapping(plateIdentifiers, materialTypeIdentifierOrNull, function(response){
 			assertObjectsCount(response.result, 1);
@@ -272,14 +258,9 @@ test("listPlateMaterialMapping()", function(){
 
 test("getExperimentImageMetadata()", function(){
 	createFacadeAndLogin(function(facade){
-		var experimentIdentifer = {
-			"@type" : "ExperimentIdentifier",
-			spaceCode : "TEST",
-			projectCode : "TEST-PROJECT",
-			experimentCode : "E1"
-		};
+		var experimentIdentifier = createExperimentIdentfier("/TEST/TEST-PROJECT/E1");
 		
-		facade.getExperimentImageMetadata(experimentIdentifer, function(response){
+		facade.getExperimentImageMetadata(experimentIdentifier, function(response){
 			equal(response.result.identifier.experimentCode, "E1", "Experiment code is correct");
 			equal(response.result.plateGeometry.width, 24, "Plate width is correct");
 			equal(response.result.plateGeometry.height, 16, "Plate height is correct");
@@ -290,12 +271,7 @@ test("getExperimentImageMetadata()", function(){
 
 test("listAvailableFeatureCodes()", function(){
 	createFacadeAndLogin(function(facade){
-		var plateIdentifiers = 
-		[{
-			"@type" : "PlateIdentifier",
-			spaceCodeOrNull : "PLATONIC",
-			plateCode : "PLATE-1"
-		}]; 
+		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
 		
 		facade.listFeatureVectorDatasets(plateIdentifiers, function(response){
 			var featureDatasets = response.result;
@@ -311,12 +287,7 @@ test("listAvailableFeatureCodes()", function(){
 
 test("listAvailableFeatures()", function(){
 	createFacadeAndLogin(function(facade){
-		var plateIdentifiers = 
-		[{
-			"@type" : "PlateIdentifier",
-			spaceCodeOrNull : "PLATONIC",
-			plateCode : "PLATE-1"
-		}]; 
+		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
 		
 		facade.listFeatureVectorDatasets(plateIdentifiers, function(response){
 			var featureDatasets = response.result;
@@ -332,12 +303,7 @@ test("listAvailableFeatures()", function(){
 
 test("loadFeatures()", function(){
 	createFacadeAndLogin(function(facade){
-		var plateIdentifiers = 
-		[{
-			"@type" : "PlateIdentifier",
-			spaceCodeOrNull : "PLATONIC",
-			plateCode : "PLATE-1"
-		}]; 
+		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
 		
 		facade.listFeatureVectorDatasets(plateIdentifiers, function(response){
 			var featureDatasets = response.result;
@@ -355,12 +321,7 @@ test("loadFeatures()", function(){
 
 test("loadFeaturesForDatasetWellReferences()", function(){
 	createFacadeAndLogin(function(facade){
-		var plateIdentifiers = 
-		[{
-			"@type" : "PlateIdentifier",
-			spaceCodeOrNull : "PLATONIC",
-			plateCode : "PLATE-1"
-		}]; 
+		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
 		
 		facade.listFeatureVectorDatasets(plateIdentifiers, function(response){
 			
@@ -368,11 +329,7 @@ test("loadFeaturesForDatasetWellReferences()", function(){
 			// object by hand as it is pretty complex to do
 			var featureVectorDataset = response.result[0];
 			featureVectorDataset["@type"] = "FeatureVectorDatasetWellReference";
-			featureVectorDataset["wellPosition"] = {
-				"@type" : "WellPosition",
-				wellRow : 1,
-				wellColumn : 2
-			};
+			featureVectorDataset["wellPosition"] = createWellPosition(1, 2);
 
 			var datasetWellReferences = [ featureVectorDataset ];
 			var featureCodes = ["ROW_NUMBER", "STATE"];
@@ -390,21 +347,11 @@ test("loadFeaturesForDatasetWellReferences()", function(){
 
 test("loadImagesBase64ForImageReferencesAndImageConversion()", function(){
 	createFacadeAndLogin(function(facade){
-		var plateIdentifiers = 
-			[{
-				"@type" : "PlateIdentifier",
-				spaceCodeOrNull : "PLATONIC",
-				plateCode : "PLATE-1"
-			}]; 
+		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
 		
 		facade.listImageDatasets(plateIdentifiers, function(response){
 			var dataSetIdentifier = response.result[0];
-			var wellPositions = 
-			[{
-				"@type" : "WellPosition",
-				wellRow : 1,
-				wellColumn : 1
-			}];
+			var wellPositions = [ createWellPosition(1, 1) ];
 			var channel = "DAPI";
 			
 			facade.listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel(dataSetIdentifier, wellPositions, channel, function(response){
@@ -412,6 +359,27 @@ test("loadImagesBase64ForImageReferencesAndImageConversion()", function(){
 				var convertToPng = false;
 				
 				facade.loadImagesBase64ForImageReferencesAndImageConversion(imageReferences, convertToPng, function(response){
+					assertObjectsCount(response.result, 9);
+					facade.close();
+				});
+			});
+		});
+	});
+});
+
+test("loadThumbnailImagesBase64ForImageReferences()", function(){
+	createFacadeAndLogin(function(facade){
+		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ]; 
+		
+		facade.listImageDatasets(plateIdentifiers, function(response){
+			var dataSetIdentifier = response.result[0];
+			var wellPositions = [ createWellPosition(1, 1) ];
+			var channel = "DAPI";
+			
+			facade.listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel(dataSetIdentifier, wellPositions, channel, function(response){
+				var imageReferences = response.result;
+				
+				facade.loadThumbnailImagesBase64ForImageReferences(imageReferences, function(response){
 					assertObjectsCount(response.result, 9);
 					facade.close();
 				});
