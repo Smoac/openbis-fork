@@ -1,19 +1,43 @@
-var createFacade = function(){
-	return new openbis('http://127.0.0.1:8888/openbis/openbis');
+var createFacade = function(action, timeoutOrNull){
+	stop();
+	
+	var facade = new openbis('http://127.0.0.1:8888/openbis/openbis');
+	
+	facade.close = function(){
+		facade.logout(function(){
+			facade.closed = true;	
+		});
+	};
+
+	action(facade);
+
+	var timeout = timeoutOrNull ? timeoutOrNull : 10000;
+	var checkInterval = 100;
+	var intervalTotal = 0;
+	
+	var startWhenClosed = function(){
+		if(facade.closed){
+			start();
+		}else{
+			intervalTotal += checkInterval;
+			
+			if(intervalTotal < timeout){
+				setTimeout(startWhenClosed, checkInterval);
+			}else{
+				start();
+			}
+		}
+	};
+
+	startWhenClosed();
 }
 
 var createFacadeAndLogin = function(action, timeoutOrNull){
-	stop();
-	
-	var facade = createFacade();
-
-	facade.login('admin','password', function(){
-		action(facade);
-	});
-	
-	setTimeout(function(){
-		start();
-	}, (timeoutOrNull ? timeoutOrNull : 1000));
+	createFacade(function(facade){
+		facade.login('admin','password', function(){
+			action(facade);
+		});
+	}, timeoutOrNull);
 }
 
 var createSearchCriteriaForCodes = function(codes){

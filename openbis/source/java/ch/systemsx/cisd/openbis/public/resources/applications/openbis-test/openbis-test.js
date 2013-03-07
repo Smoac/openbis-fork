@@ -4,68 +4,55 @@
  */
 
 test("logout", function(){
-
-	stop();
-
-	var facade = createFacade();
-	
-	facade.logout(function(){
-		equal(facade.getSession(), null, 'Session is empty after logout');
-		
-		facade.restoreSession();
-		equal(facade.getSession(), null, 'Restored session is empty after logout');
-		
-		facade.isSessionActive(function(response){
-			equal(response.result, false, 'Session is inactive after logout');
+	createFacade(function(facade){
+		facade.logout(function(){
+			equal(facade.getSession(), null, 'Session is empty after logout');
+			
+			facade.restoreSession();
+			equal(facade.getSession(), null, 'Restored session is empty after logout');
+			
+			facade.isSessionActive(function(response){
+				equal(response.result, false, 'Session is inactive after logout');
+				facade.close();
+			});
 		});
 	});
-	
-	setTimeout(function(){
-		start();
-	}, 1000);
-
 });
 
 test("login", function() {
-	
-	stop();
+	createFacade(function(facade){
+		facade.login('admin','password', function(response){
+			ok(response.result,'Session from server is not empty after login');
+			ok(facade.getSession(), 'Session from facade is not empty after login');
 
-	var facade = createFacade();
-	
-	facade.login('admin','password', function(response){
-		ok(response.result,'Session from server is not empty after login');
-		ok(facade.getSession(), 'Session from facade is not empty after login');
-
-		facade.isSessionActive(function(response){
-			equal(response.result, true,'Session is active after login');
+			facade.isSessionActive(function(response){
+				equal(response.result, true,'Session is active after login');
+				facade.close();
+			});
 		});
 	});
-	
-	setTimeout(function(){
-		start();
-	}, 1000);
 });
 
 test("cookies", function() {
-	
-	var facade = createFacade();
-
-	facade.useSession('session-1');
-	facade.rememberSession();
-	equal(facade.getSession(), 'session-1', 'Session 1 used')
-	
-	facade.useSession('session-2');
-	equal(facade.getSession(), 'session-2', 'Session 2 used')
-	
-	facade.restoreSession();
-	equal(facade.getSession(), 'session-1', 'Session 1 restored')
-	
+	createFacade(function(facade){
+		facade.useSession('session-1');
+		facade.rememberSession();
+		equal(facade.getSession(), 'session-1', 'Session 1 used')
+		
+		facade.useSession('session-2');
+		equal(facade.getSession(), 'session-2', 'Session 2 used')
+		
+		facade.restoreSession();
+		equal(facade.getSession(), 'session-1', 'Session 1 restored')
+		facade.close();
+	});
 });
 
 test("listNamedRoleSets()", function(){
 	createFacadeAndLogin(function(facade){
 		facade.listNamedRoleSets(function(response){
 			ok(response.result, 'Got results');
+			facade.close();
 		});
 	});
 });
@@ -74,6 +61,7 @@ test("listSpacesWithProjectsAndRoleAssignments()", function(){
 	createFacadeAndLogin(function(facade){
 		facade.listSpacesWithProjectsAndRoleAssignments(null, function(response){
 			assertObjectsCount(response.result, 4);
+			facade.close();
 		});
 	});
 });
@@ -88,6 +76,7 @@ test("searchForSamples()", function(){
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithCodes(response.result, sampleCodes);
 			assertObjectsWithProperties(response.result);
+			facade.close();
 		});
 	});
 });
@@ -103,6 +92,7 @@ test("searchForSamplesWithFetchOptions()", function(){
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithCodes(response.result, sampleCodes);
 			assertObjectsWithoutProperties(response.result);
+			facade.close();
 		});
 	});
 });
@@ -119,6 +109,7 @@ test("searchForSamplesOnBehalfOfUser()", function(){
 			assertObjectsCount(response.result, 1);
 			assertObjectsWithCodes(response.result, [ 'PLATE-1-A' ]);
 			assertObjectsWithoutProperties(response.result);
+			facade.close();
 		});
 	});
 });
@@ -137,6 +128,7 @@ test("filterSamplesVisibleToUser()", function(){
 				assertObjectsCount(response.result, 1);
 				assertObjectsWithCodes(response.result, [ 'PLATE-1-A' ]);
 				assertObjectsWithProperties(response.result);
+				facade.close();
 			});
 		});
 	});
@@ -149,6 +141,7 @@ test("listSamplesForExperiment()", function(){
 		facade.listSamplesForExperiment(experimentIdentifier, function(response){
 			assertObjectsCount(response.result, 1);
 			assertObjectsWithCodes(response.result, [ 'TEST-SAMPLE' ]);
+			facade.close();
 		});
 	});
 });
@@ -162,6 +155,7 @@ test("listDataSetsForSamples()", function(){
 			
 			facade.listDataSetsForSamples(samples, function(response){
 				assertObjectsCount(response.result, 19);
+				facade.close();
 			});
 		});
 	});
@@ -178,6 +172,7 @@ test("listExperiments()", function(){
 			facade.listExperiments(projects, experimentType, function(response){
 				assertObjectsCount(response.result, 1);
 				assertObjectsWithCodes(response.result, [ 'TEST' ]);
+				facade.close();
 			});
 		});
 	});
@@ -194,6 +189,7 @@ test("listExperimentsHavingSamples()", function(){
 			facade.listExperimentsHavingSamples(projects, experimentType, function(response){
 				assertObjectsCount(response.result, 1);
 				assertObjectsWithCodes(response.result, [ 'TEST' ]);
+				facade.close();
 			});
 		});
 	});
@@ -210,6 +206,7 @@ test("listExperimentsHavingDataSets()", function(){
 			facade.listExperimentsHavingDataSets(projects, experimentType, function(response){
 				assertObjectsCount(response.result, 1);
 				assertObjectsWithCodes(response.result, [ 'TEST' ]);
+				facade.close();
 			});
 		});
 	});
@@ -226,6 +223,7 @@ test("filterExperimentsVisibleToUser()", function(){
 			facade.filterExperimentsVisibleToUser(experiments, userId, function(response){
 				assertObjectsCount(response.result, 1);
 				assertObjectsWithCodes(response.result, [ 'E1' ]);
+				facade.close();
 			});
 		});
 	});
@@ -241,6 +239,7 @@ test("listDataSetsForSample()", function(){
 			
 			facade.listDataSetsForSample(sample, restrictToDirectlyConnected, function(response){
 				assertObjectsCount(response.result, 6);
+				facade.close();
 			});
 		});
 	});
@@ -251,6 +250,7 @@ test("listDataStores()", function(){
 		facade.listDataStores(function(response){
 			assertObjectsCount(response.result, 1);
 			assertObjectsWithCodes(response.result, [ 'DSS-SCREENING' ]);
+			facade.close();
 		});
 	});
 });
@@ -259,6 +259,7 @@ test("getDefaultPutDataStoreBaseURL()", function(){
 	createFacadeAndLogin(function(facade){
 		facade.getDefaultPutDataStoreBaseURL(function(response){
 			equal(response.result, 'https://sprint-openbis.ethz.ch:8444', 'URL is correct')
+			facade.close();
 		});
 	});
 });
@@ -269,6 +270,7 @@ test("tryGetDataStoreBaseURL()", function(){
 		
 		facade.tryGetDataStoreBaseURL(dataSetCode, function(response){
 			equal(response.result, 'https://sprint-openbis.ethz.ch:8444', 'URL is correct')
+			facade.close();
 		});
 	});
 });
@@ -283,6 +285,7 @@ test("getDataStoreBaseURLs()", function(){
 			var urlForDataSets = response.result[0];
 			equal(urlForDataSets.dataStoreURL, 'https://sprint-openbis.ethz.ch:8444', 'URL is correct');
 			deepEqual(urlForDataSets.dataSetCodes.sort(), dataSetCodes.sort());
+			facade.close();
 		});
 	});
 });
@@ -291,6 +294,7 @@ test("listDataSetTypes()", function(){
 	createFacadeAndLogin(function(facade){
 		facade.listDataSetTypes(function(response){
 			assertObjectsCount(response.result, 25);
+			facade.close();
 		});
 	});
 });
@@ -299,6 +303,7 @@ test("listVocabularies()", function(){
 	createFacadeAndLogin(function(facade){
 		facade.listVocabularies(function(response){
 			assertObjectsCount(response.result, 4);
+			facade.close();
 		});
 	});
 });
@@ -314,6 +319,7 @@ test("listDataSetsForSamplesWithConnections()", function(){
 			facade.listDataSetsForSamplesWithConnections(samples, connectionsToGet, function(response){
 				assertObjectsCount(response.result, 6);
 				assertObjectsWithParentCodes(response.result);
+				facade.close();
 			});
 		});
 	});
@@ -331,6 +337,7 @@ test("listDataSetsForSamplesOnBehalfOfUser()", function(){
 			facade.listDataSetsForSamplesOnBehalfOfUser(samples, connectionsToGet, userId, function(response){
 				assertObjectsCount(response.result, 5);
 				assertObjectsWithParentCodes(response.result);
+				facade.close();
 			});
 		});
 	});
@@ -347,6 +354,7 @@ test("listDataSetsForExperiments()", function(){
 			facade.listDataSetsForExperiments(experiments, connectionsToGet, function(response){
 				assertObjectsCount(response.result, 19);
 				assertObjectsWithParentCodes(response.result);
+				facade.close();
 			});
 		});
 	});
@@ -364,6 +372,7 @@ test("listDataSetsForExperimentsOnBehalfOfUser()", function(){
 			facade.listDataSetsForExperimentsOnBehalfOfUser(experiments, connectionsToGet, userId, function(response){
 				assertObjectsCount(response.result, 428);
 				assertObjectsWithParentCodes(response.result);
+				facade.close();
 			});
 		});
 	});
@@ -377,6 +386,7 @@ test("getDataSetMetaData()", function(){
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithCodes(response.result, dataSetCodes);
 			assertObjectsWithProperties(response.result);
+			facade.close();
 		});
 	});
 });
@@ -390,6 +400,7 @@ test("getDataSetMetaDataWithFetchOptions()", function(){
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithCodes(response.result, dataSetCodes);
 			assertObjectsWithoutProperties(response.result);
+			facade.close();
 		});
 	});
 });
@@ -404,6 +415,7 @@ test("searchForDataSets()", function(){
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithCodes(response.result, dataSetCodes);
 			assertObjectsWithProperties(response.result);
+			facade.close();
 		});
 	});
 });
@@ -419,6 +431,7 @@ test("searchForDataSetsOnBehalfOfUser()", function(){
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithCodes(response.result, [ '20110817134524954-81697', '20110817134715385-81703' ]);
 			assertObjectsWithProperties(response.result);
+			facade.close();
 		});
 	});
 });

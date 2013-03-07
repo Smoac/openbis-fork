@@ -8,6 +8,7 @@ test("listPlates()", function(){
 		
 		facade.listPlates(function(response){
 			assertObjectsCount(response.result, 215);
+			facade.close();
 		});
 	});
 });
@@ -24,6 +25,7 @@ test("listPlatesForExperiment()", function(){
 		facade.listPlatesForExperiment(experimentIdentifier, function(response){
 			assertObjectsCount(response.result, 4);
 			assertObjectsWithValues(response.result, "plateCode", ["PLATE-1","PLATE-2", "PLATE-16-BIT", "SANOFI-EXAMPLE"]);
+			facade.close();
 		});
 	});
 });
@@ -45,6 +47,7 @@ test("getPlateMetadataList()", function(){
 		facade.getPlateMetadataList(plateIdentifiers, function(response){
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithValues(response.result, "plateCode", ["PLATE-1","PLATE-2"]);
+			facade.close();
 		});
 	});
 });
@@ -54,6 +57,7 @@ test("listAllExperiments()", function(){
 		facade.listAllExperiments(function(response){
 			assertObjectsCount(response.result, 4);
 			assertObjectsWithValues(response.result, "experimentCode", ["E1","EXP-1","EXP-1","TEST"]);
+			facade.close();
 		});
 	});
 });
@@ -65,6 +69,7 @@ test("listExperimentsVisibleToUser()", function(){
 		facade.listExperimentsVisibleToUser(userId, function(response){
 			assertObjectsCount(response.result, 1);
 			assertObjectsWithValues(response.result, "experimentCode", ["E1"]);
+			facade.close();
 		});
 	});
 });
@@ -81,6 +86,7 @@ test("listFeatureVectorDatasets()", function(){
 		facade.listFeatureVectorDatasets(plateIdentifiers, function(response){
 			assertObjectsCount(response.result, 1);
 			assertObjectsWithValues(response.result, "datasetCode", ["20110913112215416-82999"]);
+			facade.close();
 		});
 	});
 });
@@ -97,6 +103,7 @@ test("listImageDatasets()", function(){
 		facade.listImageDatasets(plateIdentifiers, function(response){
 			assertObjectsCount(response.result, 3);
 			assertObjectsWithValues(response.result, "datasetCode", [ "20110913111517610-82996", "20110913112525450-83000", "20110913113026096-83001"]);
+			facade.close();
 		});
 	});
 });
@@ -113,6 +120,7 @@ test("listRawImageDatasets()", function(){
 		facade.listRawImageDatasets(plateIdentifiers, function(response){
 			assertObjectsCount(response.result, 3);
 			assertObjectsWithValues(response.result, "datasetCode", [ "20110913111517610-82996", "20110913112525450-83000", "20110913113026096-83001"]);
+			facade.close();
 		});
 	});
 });
@@ -129,6 +137,7 @@ test("listSegmentationImageDatasets()", function(){
 		facade.listSegmentationImageDatasets(plateIdentifiers, function(response){
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithValues(response.result, "datasetCode", [ "20110913111925577-82997", "20110913111955463-82998" ]);
+			facade.close();
 		});
 	});
 });
@@ -140,6 +149,7 @@ test("getDatasetIdentifiers()", function(){
 		facade.getDatasetIdentifiers(datasetCodes, function(response){
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithValues(response.result, "datasetCode", datasetCodes);
+			facade.close();
 		});
 	});
 });
@@ -166,7 +176,8 @@ test("listPlateWellsForExperimentAndMaterial()", function(){
 			assertObjectsCount(response.result, 3);
 			assertObjectsWithValuesFunction(response.result, "plateCode", function(result){
 				return result.experimentPlateIdentifier.plateCode;
-			}, ["PLATE-1-A", "PLATE-141-A", "PLATE-71-A"])
+			}, ["PLATE-1-A", "PLATE-141-A", "PLATE-71-A"]);
+			facade.close();
 		});
 	});
 });
@@ -187,7 +198,8 @@ test("listPlateWellsForMaterial()", function(){
 			assertObjectsCount(response.result, 3);
 			assertObjectsWithValuesFunction(response.result, "plateCode", function(result){
 				return result.experimentPlateIdentifier.plateCode;
-			}, ["PLATE-1-A", "PLATE-141-A", "PLATE-71-A"])
+			}, ["PLATE-1-A", "PLATE-141-A", "PLATE-71-A"]);
+			facade.close();
 		});
 	});
 });
@@ -202,6 +214,7 @@ test("listPlateWells()", function(){
 		
 		facade.listPlateWells(plateIdentifier, function(response){
 			assertObjectsCount(response.result, 79);
+			facade.close();
 		});
 	});
 });
@@ -215,6 +228,7 @@ test("getWellSample()", function(){
 		
 		facade.getWellSample(wellIdentifier, function(response){
 			equal(response.result.code, "PLATE-1-A:A3", "Well code is correct");
+			facade.close();
 		});
 	});
 });
@@ -229,6 +243,7 @@ test("getPlateSample()", function(){
 		
 		facade.getPlateSample(plateIdentifier, function(response){
 			equal(response.result.code, "PLATE-1", "Plate code is correct");
+			facade.close();
 		});
 	});
 });
@@ -249,7 +264,8 @@ test("listPlateMaterialMapping()", function(){
 			assertObjectsCount(response.result, 1);
 			assertObjectsWithValuesFunction(response.result, "plateCode", function(result){
 				return result.plateIdentifier.plateCode;
-			}, ["PLATE-1"])
+			}, ["PLATE-1"]);
+			facade.close();
 		});
 	});
 });
@@ -267,6 +283,7 @@ test("getExperimentImageMetadata()", function(){
 			equal(response.result.identifier.experimentCode, "E1", "Experiment code is correct");
 			equal(response.result.plateGeometry.width, 24, "Plate width is correct");
 			equal(response.result.plateGeometry.height, 16, "Plate height is correct");
+			facade.close();
 		});
 	});
 });
@@ -286,6 +303,7 @@ test("listAvailableFeatureCodes()", function(){
 			facade.listAvailableFeatureCodes(featureDatasets, function(response){
 				assertObjectsCount(response.result, 4);
 				assertArrays(response.result, ["ROW_NUMBER", "COLUMN_NUMBER", "TPU", "STATE"], "Feature codes are correct");
+				facade.close();
 			});
 		});
 	});
@@ -306,6 +324,7 @@ test("listAvailableFeatures()", function(){
 			facade.listAvailableFeatures(featureDatasets, function(response){
 				assertObjectsCount(response.result, 4);
 				assertObjectsWithValues(response.result, 'code', ["ROW_NUMBER", "COLUMN_NUMBER", "TPU", "STATE"]);
+				facade.close();
 			});
 		});
 	});
@@ -327,7 +346,8 @@ test("loadFeatures()", function(){
 			facade.loadFeatures(featureDatasets, featureCodes, function(response){
 				assertObjectsCount(response.result, 1);
 				assertArrays(response.result[0].featureCodes, featureCodes, 'Feature codes are correct');
-				equal(response.result[0].featureVectors.length, 96, 'Feature vectors count is correct')
+				equal(response.result[0].featureVectors.length, 96, 'Feature vectors count is correct');
+				facade.close();
 			});
 		});
 	});
@@ -360,8 +380,9 @@ test("loadFeaturesForDatasetWellReferences()", function(){
 			facade.loadFeaturesForDatasetWellReferences(datasetWellReferences, featureCodes, function(response){
 				assertObjectsCount(response.result, 1);
 				assertArrays(response.result[0].featureCodes, featureCodes, 'Feature codes are correct');
-				equal(response.result[0].wellPosition.wellRow, 1, 'Well row is correct')
-				equal(response.result[0].wellPosition.wellColumn, 2, 'Well column is correct')
+				equal(response.result[0].wellPosition.wellRow, 1, 'Well row is correct');
+				equal(response.result[0].wellPosition.wellColumn, 2, 'Well column is correct');
+				facade.close();
 			});
 		});
 	});
@@ -391,7 +412,8 @@ test("loadImagesBase64ForImageReferencesAndImageConversion()", function(){
 				var convertToPng = false;
 				
 				facade.loadImagesBase64ForImageReferencesAndImageConversion(imageReferences, convertToPng, function(response){
-					alert(response.result.length);
+					assertObjectsCount(response.result, 9);
+					facade.close();
 				});
 			});
 		});
