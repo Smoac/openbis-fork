@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.ConsoleAppender;
@@ -993,5 +994,10 @@ public abstract class SeleniumTest
     {
         openbis.execute(new GeneralBatchImportGui(file));
         return null;
+    }
+
+    protected static String randomValue()
+    {
+        return UUID.randomUUID().toString();
     }
 }

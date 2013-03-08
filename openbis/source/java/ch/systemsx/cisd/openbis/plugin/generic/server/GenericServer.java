@@ -69,15 +69,14 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialBatchUpdateResultMessage;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
@@ -353,48 +352,49 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         @Override
         public void execute(List<NewSample> newSamples)
         {
-            fillHomeSpace(newSamples, session.tryGetHomeGroupCode());
-            List<Sample> existingSamples = fetchExistingSamples(newSamples);
+            String homeSpace = session.tryGetHomeGroupCode();
 
-            List<NewSample> samplesToUpdate =
-                    SampleRegisterOrUpdateUtil.getSamplesToUpdate(newSamples, existingSamples);
-            List<NewSample> samplesToRegister = new ArrayList<NewSample>(newSamples);
-            samplesToRegister.removeAll(samplesToUpdate);
+            // Normalize identifiers of incoming data
+            // Collect all sample codes
+            List<String> allSampleCodes = new ArrayList<String>();
+            for (NewSample sample : newSamples)
+            {
+                NormalizedSampleIdentifier id =
+                        new NormalizedSampleIdentifier(sample, homeSpace);
+                sample.setIdentifier(id.getSampleIdentifier());
+                sample.setCurrentContainerIdentifier(id.getContainerIdentifier());
+
+                allSampleCodes.add(id.getCode());
+            }
+
+            // Get codes of samples already present in database
+            Set<NormalizedSampleIdentifier> existingSampleCodes =
+                    new HashSet<NormalizedSampleIdentifier>();
+            for (Sample sample : sampleLister.list(new ListOrSearchSampleCriteria(allSampleCodes
+                    .toArray(new String[0]), false)))
+            {
+                existingSampleCodes.add(new NormalizedSampleIdentifier(sample));
+            }
+
+            // Decide which samples to register and which samples to update
+            List<NewSample> samplesToRegister = new ArrayList<NewSample>();
+            List<NewSample> samplesToUpdate = new ArrayList<NewSample>();
+            for (NewSample sample : newSamples)
+            {
+                NormalizedSampleIdentifier id = new NormalizedSampleIdentifier(sample, homeSpace);
+
+                if (existingSampleCodes.contains(id))
+                {
+                    samplesToUpdate.add(sample);
+                } else
+                {
+                    samplesToRegister.add(sample);
+                }
+            }
+
             registerSamples(session, new NewSamplesWithTypes(sampleType, samplesToRegister),
                     session.tryGetPerson());
             updateSamples(session, new NewSamplesWithTypes(sampleType, samplesToUpdate));
-        }
-
-        // TODO 2011-08-31, Tomasz Pylak: remove existing hacks
-        // 1. replaces contained samples with their containers if the container is
-        // specified in the contained sample identifier. This should be replaced by a flag not to
-        // update contained samples when the siRNA library is uploaded.
-        // 2. matches samples only by the code, so it can return match more samples if the sample
-        // with the same code exists in a different space. It does not hurt later on (matching is
-        // done by the identifier and additional samples are ignored), but is inefficient.
-        private List<Sample> fetchExistingSamples(List<NewSample> newSamples)
-        {
-            List<Sample> existingSamples = new ArrayList<Sample>();
-
-            // add non-contained samples codes
-            List<String> codes = SampleRegisterOrUpdateUtil.extractNonContainedCodes(newSamples);
-            // NOTE 2011-08-17, Tomasz Pylak: this code never updates contained samples!
-            List<Sample> list =
-                    sampleLister.list(SampleRegisterOrUpdateUtil
-                            .createListSamplesByCodeCriteria(codes));
-            existingSamples.addAll(list);
-
-            // for contained samples add container samples codes
-            codes = SampleRegisterOrUpdateUtil.extractContainerCodes(newSamples);
-            ListOrSearchSampleCriteria criteria =
-                    SampleRegisterOrUpdateUtil.createListContainerSamplesByCodeCriteria(codes);
-            List<Sample> existingContainers = sampleLister.list(criteria);
-            for (Sample s : existingContainers)
-            {
-                existingSamples.addAll(sampleLister.list(new ListOrSearchSampleCriteria(
-                        ListSampleCriteria.createForContainer(new TechId(s.getId())))));
-            }
-            return existingSamples;
         }
 
         @Override
@@ -414,7 +414,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         {
             return "update/register preprocessing";
         }
-
     }
 
     @Override

@@ -37,7 +37,11 @@ public class Header
 
         this.labels = new ArrayList<String>();
 
-        labels.add("Identifier");
+        if (type.isGenerateCodes() == false)
+        {
+            labels.add("Identifier");
+        }
+
         if (type.isShowContainer() && hasContainerColumn)
         {
             labels.add("CURRENT_CONTAINER");
@@ -104,6 +108,17 @@ public class Header
 
     private String getIdentifier(Sample sample, Map<Sample, IdentifiedBy> identifierTypes)
     {
+
+        if (sample.getCode() == null || sample.getCode().isEmpty())
+        {
+            if (sample.getType().isGenerateCodes())
+            {
+                return "";
+            } else
+            {
+                throw new IllegalArgumentException("Sample code cannot be empty");
+            }
+        }
 
         IdentifiedBy idType = identifierTypes.get(sample);
         if (idType == null)

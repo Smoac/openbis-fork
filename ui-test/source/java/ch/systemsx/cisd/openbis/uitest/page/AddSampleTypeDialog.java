@@ -103,6 +103,11 @@ public class AddSampleTypeDialog
         uniqueSubcodes.set(checked);
     }
 
+    public void setGenerateCodes(boolean checked)
+    {
+        generateCodesAutomatically.set(checked);
+    }
+
     public void fillWith(SampleType sampleType)
     {
         setCode(sampleType.getCode());
@@ -110,6 +115,7 @@ public class AddSampleTypeDialog
         setShowContainer(sampleType.isShowContainer());
         setShowParents(sampleType.isShowParents());
         setUniqueSubcodes(sampleType.isUniqueSubcodes());
+        setGenerateCodes(sampleType.isGenerateCodes());
         if (sampleType.getValidationScript() != null)
         {
             setScriptName(sampleType.getValidationScript().getName());

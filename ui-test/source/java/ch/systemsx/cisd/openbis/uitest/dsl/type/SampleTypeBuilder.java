@@ -126,6 +126,12 @@ public class SampleTypeBuilder implements Builder<SampleType>
         return this;
     }
 
+    public SampleTypeBuilder thatGeneratesCodes()
+    {
+        this.generatesCodes = true;
+        return this;
+    }
+
     @Override
     public SampleType build(Application openbis, Ui ui)
     {

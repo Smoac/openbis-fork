@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.uitest.suite.main;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import java.util.UUID;
-
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.IdentifiedBy;
@@ -36,34 +34,14 @@ import ch.systemsx.cisd.openbis.uitest.type.User;
 public class GeneralBatchImportUpdateTest extends MainSuite
 {
 
-    // TODO
-    // The test framework thinks it can uniquely identify a sample with it's subcode.
-    // This is why we get IllegalStateException here, as there are multiple rows found
-    // with same subcode.
-    @Test(expectedExceptions = IllegalStateException.class)
-    public void containerOfSampleCannotBeChangedButNewSampleIsCreated() throws Exception
-    {
-        Sample newContainer =
-                create(aSample().ofType(basic).withCodePrefix("NEW_CONTAINER"));
-
-        GeneralBatchImportFile file = create(aGeneralBatchImportFile().withSampleContainerColumn());
-
-        create(in(file), anUpdateOf(component).settingContainerTo(newContainer),
-                IdentifiedBy.SPACE_AND_CODE);
-
-        generalBatchImport(file);
-
-        assertThat(browserEntryOf(component), hasContainer(newContainer));
-    }
-
     @Test
-    public void updateOfSampleIdentifiedWithSpaceAndCodeWorks() throws Exception
+    public void propertiesOfSampleIdentifiedWithSpaceAndCodeCanBeUpdated() throws Exception
     {
-        String newValue = UUID.randomUUID().toString();
-
+        Sample sample = create(aSample().ofType(basic).withProperty(propertyType, randomValue()));
         GeneralBatchImportFile file =
                 create(aGeneralBatchImportFile().withDefaultSpace(defaultSpace));
 
+        String newValue = randomValue();
         create(in(file), anUpdateOf(sample).settingProperty(propertyType, newValue),
                 IdentifiedBy.SPACE_AND_CODE);
 
@@ -73,9 +51,14 @@ public class GeneralBatchImportUpdateTest extends MainSuite
     }
 
     @Test
-    public void updateOfSampleIdentifiedWithCodeAndDefaultSpaceWorks() throws Exception
+    public void propertiesOfSampleSampleIdentifiedWithCodeAndDefaultSpaceCanBeUpdated()
+            throws Exception
     {
-        String newValue = UUID.randomUUID().toString();
+        Sample sample =
+                create(aSample().ofType(basic).in(sampleSpace).withProperty(propertyType,
+                        randomValue()));
+
+        String newValue = randomValue();
 
         GeneralBatchImportFile file =
                 create(aGeneralBatchImportFile().withDefaultSpace(sampleSpace));
@@ -86,6 +69,74 @@ public class GeneralBatchImportUpdateTest extends MainSuite
         generalBatchImport(file);
 
         assertThat(browserEntryOf(sample), containsValue(propertyType.getLabel(), newValue));
+    }
+
+    @Test
+    public void propertiesOfSampleIdentifiedWithCodeAndHomeSpaceCanBeUpdated() throws Exception
+    {
+        Sample sampleInHomeSpace = create(aSample().ofType(basic).in(homeSpace)
+                .withProperty(propertyType, randomValue()));
+
+        String newValue = randomValue();
+
+        GeneralBatchImportFile file =
+                create(aGeneralBatchImportFile());
+
+        create(in(file), anUpdateOf(sampleInHomeSpace).settingProperty(propertyType, newValue),
+                IdentifiedBy.CODE);
+
+        as(user(withHomeSpace), generalBatchImport(file));
+
+        assertThat(browserEntryOf(sampleInHomeSpace), containsValue(propertyType.getLabel(),
+                newValue));
+    }
+
+    @Test
+    public void propertiesOfComponentSampleIdentifiedWithSpaceAndCodeSubcodeCanBeUpdated()
+            throws Exception
+    {
+        Sample container = create(aSample().ofType(basic).in(sampleSpace));
+        Sample component =
+                create(aSample().ofType(componentType).containedBy(container).in(sampleSpace)
+                        .withProperty(propertyType, randomValue()));
+
+        String newValue = randomValue();
+
+        GeneralBatchImportFile file =
+                create(aGeneralBatchImportFile().withDefaultSpace(defaultSpace)
+                        .withoutSampleContainerColumn());
+
+        create(in(file), anUpdateOf(component).settingProperty(propertyType, newValue),
+                IdentifiedBy.SPACE_AND_CODE_AND_SUBCODE);
+
+        generalBatchImport(file);
+
+        assertThat(browserEntryOf(component), containsValue(propertyType.getLabel(), newValue));
+        assertThat(browserEntryOf(component), hasContainer(container));
+    }
+
+    @Test
+    public void propertiesOfComponentSampleIdentifiedWithSpaceAndCodeAndContainerColumnCanBeUpdated()
+            throws Exception
+    {
+        Sample container = create(aSample().ofType(basic));
+        Sample component =
+                create(aSample().ofType(componentType).containedBy(container).withProperty(
+                        propertyType, randomValue()));
+
+        String newValue = randomValue();
+
+        GeneralBatchImportFile file =
+                create(aGeneralBatchImportFile().withDefaultSpace(defaultSpace)
+                        .withSampleContainerColumn());
+
+        create(in(file), anUpdateOf(component).settingProperty(propertyType, newValue),
+                IdentifiedBy.SPACE_AND_CODE);
+
+        generalBatchImport(file);
+
+        assertThat(browserEntryOf(component), containsValue(propertyType.getLabel(), newValue));
+        assertThat(browserEntryOf(component), hasContainer(container));
     }
 
     @Override
@@ -112,14 +163,6 @@ public class GeneralBatchImportUpdateTest extends MainSuite
                 .with(componentType)
                 .with(propertyType));
 
-        container = create(aSample().ofType(basic).in(sampleSpace)
-                .withProperty(propertyType, UUID.randomUUID().toString()));
-        component =
-                create(aSample().ofType(componentType).in(componentSpace).containedBy(container)
-                        .withProperty(propertyType, UUID.randomUUID().toString()));
-        sample = create(aSample().ofType(basic).in(sampleSpace)
-                .withProperty(propertyType, UUID.randomUUID().toString()));
-
     }
 
     SampleType basic;
@@ -140,9 +183,4 @@ public class GeneralBatchImportUpdateTest extends MainSuite
 
     PropertyType propertyType;
 
-    Sample container;
-
-    Sample component;
-
-    Sample sample;
 }

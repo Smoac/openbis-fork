@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.uitest.suite.main;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import java.util.UUID;
-
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.CommandNotSuccessful;
@@ -46,8 +44,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
                 create(aGeneralBatchImportFile().withDefaultSpace(defaultSpace));
 
         Sample sample =
-                create(in(file),
-                        aSample().in(sampleSpace).ofType(basic),
+                create(in(file), aSample().in(sampleSpace).ofType(basic),
                         IdentifiedBy.SPACE_AND_CODE);
 
         as(user(withHomeSpace), generalBatchImport(file));
@@ -87,6 +84,8 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         GeneralBatchImportFile file = create(aGeneralBatchImportFile());
         create(in(file), aSample().ofType(basic), IdentifiedBy.CODE);
 
+        // TODO
+        // This is really makes the test hard to read. We need a way to handle this transparently.
         try
         {
             as(user(withoutHomeSpace), generalBatchImport(file));
@@ -100,7 +99,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
     }
 
     @Test
-    public void spaceOfComponentSampleIdentifiedWithSpaceAndCodeIsDefinedByIdentifier()
+    public void spaceOfComponentSampleIdentifiedWithSpaceAndCodeAndContainerColumnIsDefinedByComponentIdentifier()
             throws Exception
     {
         GeneralBatchImportFile file =
@@ -149,43 +148,40 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
                 create(in(file),
                         aSample()
                                 .ofType(componentType)
-                                .containedBy(container),
+                                .containedBy(container)
+                                .in(sampleSpace),
                         IdentifiedBy.SPACE_AND_CODE_AND_SUBCODE);
 
         as(user(withHomeSpace), generalBatchImport(file));
 
         assertThat(browserEntryOf(component), hasSpace(sampleSpace));
+        assertThat(browserEntryOf(component), hasContainer(container));
     }
 
-    @Test
-    public void componentSampleIdentifiedWithSpaceAndCodeAndSubcodeIsCreatedAsSampleWithoutContainer()
+    @Test(expectedExceptions = CommandNotSuccessful.class)
+    public void importFailsIfComponentIsDefinedBySpaceAndCodeAndSubcodeAndContainerColumnExists()
             throws Exception
     {
         GeneralBatchImportFile file =
                 create(aGeneralBatchImportFile()
+                        .withSampleContainerColumn()
                         .withDefaultSpace(defaultSpace));
 
         Sample container =
                 create(in(file),
-                        aSample()
-                                .in(sampleSpace)
-                                .ofType(basic),
+                        aSample().in(sampleSpace).ofType(basic),
                         IdentifiedBy.SPACE_AND_CODE);
 
-        Sample component =
-                create(in(file),
-                        aSample()
-                                .ofType(componentType)
-                                .containedBy(container),
-                        IdentifiedBy.SPACE_AND_CODE_AND_SUBCODE);
+        create(in(file),
+                aSample().ofType(componentType).in(sampleSpace).containedBy(container).in(
+                        sampleSpace),
+                IdentifiedBy.SPACE_AND_CODE_AND_SUBCODE);
 
-        as(user(withHomeSpace), generalBatchImport(file));
-
-        assertThat(browserEntryOf(component), hasNoContainer());
+        generalBatchImport(file);
     }
 
     @Test
-    public void spaceOfComponentSampleIdentifiedWithSubcodeIsSetToDefaultSpaceOfImportFile()
+    public void spaceOfComponentSampleIdentifiedWithSubcodeAndContainerColumnIsSetToDefaultSpaceOfImportFile()
             throws Exception
     {
         GeneralBatchImportFile file =
@@ -211,12 +207,10 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
     }
 
     @Test(expectedExceptions = CommandNotSuccessful.class)
-    public void importFailsIfComponentIsDefinedByCodeAndSubcodeAndContainerColumnExistsWithNonConflictingData()
-            throws Exception
+    public void importFailsIfSampleIsIdentifiedWithCodeAndSubcode() throws Exception
     {
         GeneralBatchImportFile file =
                 create(aGeneralBatchImportFile()
-                        .withSampleContainerColumn()
                         .withDefaultSpace(defaultSpace));
 
         Sample container =
@@ -229,73 +223,6 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
                 IdentifiedBy.CODE_AND_SUBCODE);
 
         generalBatchImport(file);
-    }
-
-    @Test(expectedExceptions = CommandNotSuccessful.class)
-    public void importFailsIfComponentIsDefinedBySpaceAndCodeAndSubcodeAndContainerColumnExistsWithNonConflictingData()
-            throws Exception
-    {
-        GeneralBatchImportFile file =
-                create(aGeneralBatchImportFile()
-                        .withSampleContainerColumn()
-                        .withDefaultSpace(defaultSpace));
-
-        Sample container =
-                create(in(file),
-                        aSample().in(sampleSpace).ofType(basic),
-                        IdentifiedBy.SPACE_AND_CODE);
-
-        create(in(file),
-                aSample().ofType(componentType).in(sampleSpace).containedBy(container),
-                IdentifiedBy.SPACE_AND_CODE_AND_SUBCODE);
-
-        generalBatchImport(file);
-    }
-
-    @Test
-    public void spaceOfComponentSampleIdentifiedWithCodeAndSubcodeIsSetToImportFileDefaultSpace()
-            throws Exception
-    {
-        GeneralBatchImportFile file =
-                create(aGeneralBatchImportFile()
-                        .withDefaultSpace(defaultSpace));
-
-        Sample container =
-                create(in(file),
-                        aSample().in(sampleSpace).ofType(basic),
-                        IdentifiedBy.SPACE_AND_CODE);
-
-        Sample component =
-                create(in(file),
-                        aSample().ofType(componentType).containedBy(container),
-                        IdentifiedBy.CODE_AND_SUBCODE);
-
-        generalBatchImport(file);
-
-        assertThat(browserEntryOf(component), hasSpace(defaultSpace));
-    }
-
-    @Test
-    public void componentSampleIdentifiedWithCodeAndSubcodeIsCreatedAsSampleWithoutContainer()
-            throws Exception
-    {
-        GeneralBatchImportFile file =
-                create(aGeneralBatchImportFile()
-                        .withDefaultSpace(defaultSpace));
-
-        Sample container =
-                create(in(file),
-                        aSample().in(sampleSpace).ofType(basic),
-                        IdentifiedBy.SPACE_AND_CODE);
-
-        Sample component =
-                create(in(file),
-                        aSample().ofType(componentType).containedBy(container),
-                        IdentifiedBy.CODE_AND_SUBCODE);
-
-        generalBatchImport(file);
-
-        assertThat(browserEntryOf(component), hasNoContainer());
     }
 
     @Test(expectedExceptions = CommandNotSuccessful.class)
@@ -321,11 +248,9 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
     {
         SampleType sampleType = create(aSampleType());
         PropertyType propertyType = create(aVarcharPropertyType());
-        create(aSamplePropertyTypeAssignment()
-                .with(sampleType)
-                .with(propertyType));
+        create(aSamplePropertyTypeAssignment().with(sampleType).with(propertyType));
 
-        String propertyValue = UUID.randomUUID().toString();
+        String propertyValue = randomValue();
 
         GeneralBatchImportFile file = create(aGeneralBatchImportFile());
         Sample sample =
@@ -336,30 +261,22 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         assertThat(browserEntryOf(sample), containsValue(propertyType.getLabel(), propertyValue));
     }
 
-    @Test
-    public void registrationOfMultipleSamplesPerTypeIsPossible() throws Exception
+    @Test(enabled = false)
+    public void IdentifierColumnCanBeEmptyForSamplesWhoseTypeDefinesTheirCodesToBeCreatedAutomatically()
+            throws Exception
     {
+        SampleType sampleType = create(aSampleType().thatGeneratesCodes());
+        PropertyType propertyType = create(aVarcharPropertyType());
+        create(aSamplePropertyTypeAssignment().with(sampleType).with(propertyType));
+
         GeneralBatchImportFile file =
-                create(aGeneralBatchImportFile()
-                        .withoutSampleContainerColumn());
-
-        Sample container = create(in(file), aSample().ofType(basic).in(sampleSpace));
-        Sample container2 = create(in(file), aSample().ofType(basic).in(sampleSpace));
-
-        Sample contained =
-                create(in(file), aSample().containedBy(container).ofType(componentType).in(
-                        sampleSpace));
-        Sample contained2 =
-                create(in(file), aSample().containedBy(container2).ofType(componentType).in(
-                        sampleSpace));
+                create(aGeneralBatchImportFile().withDefaultSpace(defaultSpace));
+        create(in(file), aSample().ofType(sampleType).withProperty(propertyType,
+                randomValue()).in(sampleSpace));
 
         generalBatchImport(file);
 
-        assertThat(browserEntryOf(container), exists());
-        assertThat(browserEntryOf(contained), exists());
-        assertThat(browserEntryOf(container2), exists());
-        assertThat(browserEntryOf(contained2), exists());
-
+        Thread.sleep(10000000);
     }
 
     @Override
