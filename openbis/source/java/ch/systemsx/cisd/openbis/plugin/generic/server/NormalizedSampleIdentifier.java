@@ -102,9 +102,17 @@ public class NormalizedSampleIdentifier
                     + " and " + sample.getContainerIdentifier());
         } else if (sample.getCurrentContainerIdentifier() != null)
         {
-            String[] split = sample.getCurrentContainerIdentifier().split("/");
-            this.containerSpace = split[1];
-            this.containerCode = split[2];
+            String containerIdentifier = sample.getCurrentContainerIdentifier();
+            if (containerIdentifier.contains("/"))
+            {
+                String[] split = sample.getCurrentContainerIdentifier().split("/");
+                this.containerSpace = split[1];
+                this.containerCode = split[2];
+            } else
+            {
+                this.containerSpace = space;
+                this.containerCode = containerIdentifier;
+            }
         }
     }
 

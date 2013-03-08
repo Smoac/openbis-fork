@@ -278,7 +278,6 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
         Criteria criteria = createSpaceCriteria(space);
         addSampleCodesCriterion(criteria, sampleCodes, containerCodeOrNull);
-        criteria.setFetchMode("contained", FetchMode.JOIN);
         List<SamplePE> result = cast(criteria.list());
         if (operationLog.isDebugEnabled())
         {

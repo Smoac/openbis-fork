@@ -203,7 +203,31 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
 
         assertThat(browserEntryOf(component), hasSpace(defaultSpace));
         assertThat(browserEntryOf(component), hasContainer(container));
+    }
 
+    @Test
+    public void containerColumnCanContainOnlyCodeOfContainerIfDefaultSpaceOfImportFileIsSet()
+            throws Exception
+    {
+        GeneralBatchImportFile file =
+                create(aGeneralBatchImportFile()
+                        .withSampleContainerColumn()
+                        .withDefaultSpace(defaultSpace));
+
+        Sample container =
+                create(in(file),
+                        aSample().ofType(basic).in(defaultSpace),
+                        IdentifiedBy.CODE);
+
+        Sample component =
+                create(in(file),
+                        aSample().ofType(componentType).containedBy(container),
+                        IdentifiedBy.SUBCODE);
+
+        generalBatchImport(file);
+
+        assertThat(browserEntryOf(component), hasSpace(defaultSpace));
+        assertThat(browserEntryOf(component), hasContainer(container));
     }
 
     @Test(expectedExceptions = CommandNotSuccessful.class)
@@ -259,24 +283,6 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         generalBatchImport(file);
 
         assertThat(browserEntryOf(sample), containsValue(propertyType.getLabel(), propertyValue));
-    }
-
-    @Test(enabled = false)
-    public void IdentifierColumnCanBeEmptyForSamplesWhoseTypeDefinesTheirCodesToBeCreatedAutomatically()
-            throws Exception
-    {
-        SampleType sampleType = create(aSampleType().thatGeneratesCodes());
-        PropertyType propertyType = create(aVarcharPropertyType());
-        create(aSamplePropertyTypeAssignment().with(sampleType).with(propertyType));
-
-        GeneralBatchImportFile file =
-                create(aGeneralBatchImportFile().withDefaultSpace(defaultSpace));
-        create(in(file), aSample().ofType(sampleType).withProperty(propertyType,
-                randomValue()).in(sampleSpace));
-
-        generalBatchImport(file);
-
-        Thread.sleep(10000000);
     }
 
     @Override
