@@ -836,42 +836,42 @@ openbis.prototype.getMetaproject = function(metaprojectId, action) {
 }
 
 /**
- * @see IGeneralInformationService.listAttachmentsForProject(String, Project, boolean)
+ * @see IGeneralInformationService.listAttachmentsForProject(String, IProjectId, boolean)
  * @method
  */
-openbis.prototype.listAttachmentsForProject = function(project, allVersions, action) {
+openbis.prototype.listAttachmentsForProject = function(projectId, allVersions, action) {
 	this._internal.ajaxRequest({
 		url: this._internal.generalInfoServiceUrl,
 		data: { "method" : "listAttachmentsForProject",
-				"params" : [ this.getSession(), project, allVersions ] 
+				"params" : [ this.getSession(), projectId, allVersions ] 
 			  },
 		success: action
 	});
 }
 
 /**
- * @see IGeneralInformationService.listAttachmentsForExperiment(String, Experiment, boolean)
+ * @see IGeneralInformationService.listAttachmentsForExperiment(String, IExperimentId, boolean)
  * @method
  */
-openbis.prototype.listAttachmentsForExperiment = function(experiment, allVersions, action) {
+openbis.prototype.listAttachmentsForExperiment = function(experimentId, allVersions, action) {
 	this._internal.ajaxRequest({
 		url: this._internal.generalInfoServiceUrl,
 		data: { "method" : "listAttachmentsForExperiment",
-				"params" : [ this.getSession(), experiment, allVersions ] 
+				"params" : [ this.getSession(), experimentId, allVersions ] 
 			  },
 		success: action
 	});
 }
 
 /**
- * @see IGeneralInformationService.listAttachmentsForSample(String, Sample, boolean)
+ * @see IGeneralInformationService.listAttachmentsForSample(String, ISampleId, boolean)
  * @method
  */
-openbis.prototype.listAttachmentsForSample = function(sample, allVersions, action) {
+openbis.prototype.listAttachmentsForSample = function(sampleId, allVersions, action) {
 	this._internal.ajaxRequest({
 		url: this._internal.generalInfoServiceUrl,
 		data: { "method" : "listAttachmentsForSample",
-				"params" : [ this.getSession(), sample, allVersions ] 
+				"params" : [ this.getSession(), sampleId, allVersions ] 
 			  },
 		success: action
 	});

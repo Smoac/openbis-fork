@@ -297,7 +297,7 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     public List<DataSet> filterDataSetsVisibleToUser(String sessionToken,
             List<DataSet> allDataSets, String userId)
     {
-        logAccess(sessionToken, "filter-data-sets-visible-to-user", "DATASETS(%s)", "USER(%S)",
+        logAccess(sessionToken, "filter-data-sets-visible-to-user", "DATASETS(%s) USER(%s)",
                 abbreviate(allDataSets), userId);
         return null;
     }
