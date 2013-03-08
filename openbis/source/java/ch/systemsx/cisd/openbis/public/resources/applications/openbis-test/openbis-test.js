@@ -52,30 +52,55 @@ var createNewVocabularyTerm = function(code, previousTermOrdinal){
 	};
 }
 
+var createWebAppSettings = function(webAppId, settings){
+	return {
+		"@type" : "WebAppSettings",
+		"webAppId" : webAppId,
+		"settings" : settings
+	};
+}
+
+var createDataSetFileDTO = function(dataSetCode, path, isRecursive){
+	return {
+		"@type" : "DataSetFileDTO",
+		"dataSetCode" : dataSetCode,
+		"path" : path,
+		"isRecursive" : isRecursive 
+	};
+}
+
 var createNewMetaproject = function(facade, identifierString, action){
 	var parts = identifierString.split("/");
 	var ownerId = parts[1];
 	var name = parts[2];
 
 	facade.listMetaprojects(function(response){
-		var exists = response.result.some(function(metaproject){
-			return metaproject.ownerId == ownerId && metaproject.name == name;
-		});
+		var metaproject = findMetaproject(response.result, identifierString);
 		
-		if(exists){
+		if(metaproject){
 			var id = createMetaprojectIdentifierId(identifierString);
 			
 			facade.deleteMetaproject(id, function(response){
 				facade.createMetaproject(name, null, function(response){
-					action();
+					action(response);
 				});
 			});
 		}else{
 			facade.createMetaproject(name, null, function(response){
-				action();
+				action(response);
 			});
 		}
 	});
+}
+
+var findMetaproject = function(metaprojects, identifierString){
+	var parts = identifierString.split("/");
+	var ownerId = parts[1];
+	var name = parts[2];
+	
+	return metaprojects.filter(function(metaproject){
+		return metaproject.ownerId == ownerId && metaproject.name == name;
+	})[0];
 }
 
 var findVocabulary = function(vocabularies, code){
@@ -97,6 +122,17 @@ var findVocabularyMaxOrdinal = function(vocabulary){
 	});
 	return max;
 };
+
+var downloadFile = function(url, action){
+	$.ajax({
+		url: url,
+		cache: false
+	}).done(function(data) {
+		action(data);
+	}).fail(function(){
+		action(null);
+	});
+}
 
 test("logout", function(){
 	createFacade(function(facade){
@@ -623,7 +659,7 @@ test("searchForMaterials()", function(){
 	});
 });
 
-test("listMetaprojects()", function(){
+test("createMetaproject(), listMetaprojects()", function(){
 	createFacadeAndLogin(function(facade){
 		createNewMetaproject(facade, "/admin/JS_TEST_METAPROJECT", function(response){
 			facade.listMetaprojects(function(response){
@@ -635,7 +671,7 @@ test("listMetaprojects()", function(){
 	});
 });
 
-test("getMetaproject()", function(){
+test("createMetaproject(), getMetaproject()", function(){
 	createFacadeAndLogin(function(facade){
 		var metaprojectIdentifier = "/admin/JS_TEST_METAPROJECT";
 		
@@ -649,6 +685,82 @@ test("getMetaproject()", function(){
 		});
 	});
 });
+
+test("createMetaproject(), updateMetaproject()", function(){
+	createFacadeAndLogin(function(facade){
+		var metaprojectIdentifier = "/admin/JS_TEST_METAPROJECT";
+		
+		createNewMetaproject(facade, metaprojectIdentifier, function(response){
+			var metaproject = response.result;
+			var metaprojectId = createMetaprojectIdentifierId(metaprojectIdentifier);
+			var description = new Date().getTime().toString();
+			
+			ok(!metaproject.description, "Metaproject description was empty");
+			
+			facade.updateMetaproject(metaprojectId, metaproject.name, description, function(response){
+				facade.getMetaproject(metaprojectId, function(response){
+					equal(response.result.metaproject.description, description, "Metaproject description properly updated");
+					facade.close();
+				});
+			})
+		});
+	});
+});
+
+test("createMetaproject(), deleteMetaproject()", function(){
+	createFacadeAndLogin(function(facade){
+		var metaprojectIdentifier = "/admin/JS_TEST_METAPROJECT";
+		
+		createNewMetaproject(facade, metaprojectIdentifier, function(response){
+			var metaprojectId = createMetaprojectIdentifierId(metaprojectIdentifier);
+			
+			facade.deleteMetaproject(metaprojectId, function(response){
+				facade.listMetaprojects(function(response){
+					ok(!findMetaproject(response.result, metaprojectIdentifier), "Metaproject has been deleted");
+					facade.close();
+				});
+			})
+		});
+	});
+});
+
+test("createMetaproject(), addToMetaproject(), removeFromMetaproject()", function(){
+	createFacadeAndLogin(function(facade){
+		var metaprojectIdentifier = "/admin/JS_TEST_METAPROJECT";
+		
+		createNewMetaproject(facade, metaprojectIdentifier, function(response){
+			var metaprojectId = createMetaprojectIdentifierId(metaprojectIdentifier);
+			
+			facade.getMetaproject(metaprojectId, function(response){
+				var assignments = response.result;
+				assertObjectsCount(response.result.samples, 0);
+				
+				var assignmentsIds = {
+					"@type" : "MetaprojectAssignmentsIds",
+					"samples" : [ createSampleIdentifierId("/PLATONIC/PLATE-1") ]
+				};
+				
+				facade.addToMetaproject(metaprojectId, assignmentsIds, function(response){
+					facade.getMetaproject(metaprojectId, function(response){
+						var assignments = response.result;
+						assertObjectsCount(assignments.samples, 1);
+						assertObjectsWithCodes(assignments.samples, ['PLATE-1']);
+						
+						facade.removeFromMetaproject(metaprojectId, assignmentsIds, function(response){
+							facade.getMetaproject(metaprojectId, function(response){
+								var assignments = response.result;
+								assertObjectsCount(assignments.samples, 0);
+								facade.close();
+							});
+						});
+					});
+				});
+			});
+		});
+	});
+});
+
+
 
 test("listAttachmentsForProject()", function(){
 	createFacadeAndLogin(function(facade){
@@ -696,7 +808,7 @@ test("listAttachmentsForSample()", function(){
 
 */
 
-test("updateSampleProperties()", function(){
+test("updateSampleProperties(), searchForSamples()", function(){
 	createFacadeAndLogin(function(facade){
 		var sampleCodes = ['PLATE-1'];
 		var searchCriteria = createSearchCriteriaForCodes(sampleCodes);
@@ -719,7 +831,7 @@ test("updateSampleProperties()", function(){
 	});
 });
 
-test("addUnofficialVocabularyTerm()", function(){
+test("addUnofficialVocabularyTerm(), listVocabularies()", function(){
 	createFacadeAndLogin(function(facade){
 		var vocabularyCode = "MICROSCOPE";
 		var termCode = new Date().getTime().toString();
@@ -741,6 +853,212 @@ test("addUnofficialVocabularyTerm()", function(){
 					equal(updatedTerm.code, termCode, 'Term has correct code');
 					
 					facade.close();
+				});
+			});
+		});
+	});
+});
+
+test("setWebAppSettings(), getWebAppSettings()", function(){
+	createFacadeAndLogin(function(facade){
+		var webAppId = new Date().getTime().toString();
+		
+		facade.getWebAppSettings(webAppId, function(response){
+			deepEqual(response.result.settings, {}, 'Web app settings are empty');
+			
+			var settings = {
+				"param1" : "value1",
+				"param2" : "value2"
+			};
+			var webAppSettings = createWebAppSettings(webAppId, settings);
+			
+			facade.setWebAppSettings(webAppSettings, function(response){
+				facade.getWebAppSettings(webAppId, function(response){
+					deepEqual(response.result.settings, settings, "Web app settings properly updated");
+					facade.close();
+				});
+			});
+		});
+	});
+});
+
+
+/*
+
+TODO add queries
+
+test("listQueries()", function(){
+	createFacadeAndLogin(function(facade){
+		facade.listQueries(function(response){
+		});
+	});
+});
+
+*/
+
+/*
+
+TODO add queries
+
+test("executeQuery()", function(){
+	createFacadeAndLogin(function(facade){
+		facade.executeQuery(queryId, parameterBindings, function(response){
+		});
+	});
+});
+
+*/
+
+test("listTableReportDescriptions()", function(){
+	createFacadeAndLogin(function(facade){
+		facade.listTableReportDescriptions(function(response){
+			assertObjectsCount(response.result, 3);
+			facade.close();
+		});
+	});
+});
+
+test("createReportFromDataSets()", function(){
+	createFacadeAndLogin(function(facade){
+		var dataStoreCode = "DSS-SCREENING";
+		var serviceKey = "default-plate-image-analysis";
+		var dataSetCodes = [ "20110913112215416-82999" ];
+		
+		facade.createReportFromDataSets(dataStoreCode, serviceKey, dataSetCodes, function(response){
+			ok(response.result, "Report has been created");
+			facade.close();
+		});
+	});
+});
+
+test("listAggregationServices()", function(){
+	createFacadeAndLogin(function(facade){
+		facade.listAggregationServices(function(response){
+			assertObjectsCount(response.result, 2);
+			facade.close();
+		});
+	});
+});
+
+/*
+
+TODO add aggregation service that can be called via JSON (FeatureListsAggregationServicePlugin 
+cannot be called because the required DatasetDescription parameter cannot be created in javascript)
+
+test("createReportFromAggregationService()", function(){
+	createFacadeAndLogin(function(facade){
+		facade.createReportFromAggregationService(dataStoreCode, serviceKey, parameters, function(response){
+		});
+	});
+});
+
+*/
+
+/*
+
+TODO this only works when an HTTP session exists (it is only created during login via WEB UI)
+
+test("getSessionTokenFromServer()", function(){
+	createFacadeAndLogin(function(facade){
+		facade.getSessionTokenFromServer(function(response){
+			ok(response.result, "Got session token");
+			facade.close();
+		});
+	});
+});
+
+*/
+
+test("listFilesForDataSetFile()", function(){
+	createFacadeAndLogin(function(facade){
+		var fileOrFolder = createDataSetFileDTO("20110913114645299-83009", "/original", true);
+		
+		facade.listFilesForDataSetFile(fileOrFolder, function(response){
+			assertObjectsCount(response.result, 151);
+			facade.close();
+		});
+	});
+});
+
+test("getDownloadUrlForFileForDataSetFile()", function(){
+	createFacadeAndLogin(function(facade){
+		var fileOrFolder = createDataSetFileDTO("20110913114645299-83009", "/original/SERIES-1/bPLATE_w_s1_z0_t0_cRGB.png", false);
+		
+		facade.getDownloadUrlForFileForDataSetFile(fileOrFolder, function(response){
+			ok(response.result, "Got download url");
+			
+			downloadFile(response.result, function(data){
+				ok(data, "Download url works");
+				facade.close();
+			});
+		});
+	});
+});
+
+test("getDownloadUrlForFileForDataSetFileWithTimeout()", function(){
+	createFacadeAndLogin(function(facade){
+		var fileOrFolder = createDataSetFileDTO("20110913114645299-83009", "/original/SERIES-1/bPLATE_w_s1_z0_t0_cRGB.png", false);
+		var validityDurationInSeconds = 10;
+		
+		facade.getDownloadUrlForFileForDataSetFileWithTimeout(fileOrFolder, validityDurationInSeconds, function(response){
+			ok(response.result, "Got download url");
+
+			downloadFile(response.result, function(data){
+				ok(data, "Download url works once");
+				
+				downloadFile(response.result, function(data){
+					ok(!data, "Download url does not work anymore");
+					facade.close();	
+				});
+			});
+		});
+	});
+});
+
+test("listFilesForDataSet()", function(){
+	createFacadeAndLogin(function(facade){
+		var dataSetCode = "20110913114645299-83009";
+		var path = "/original";
+		var recursive = true;
+		
+		facade.listFilesForDataSet(dataSetCode, path, recursive, function(response){
+			assertObjectsCount(response.result, 151);
+			facade.close();
+		});
+	});
+});
+
+test("getDownloadUrlForFileForDataSet()", function(){
+	createFacadeAndLogin(function(facade){
+		var dataSetCode = "20110913114645299-83009";
+		var path = "/original/SERIES-1/bPLATE_w_s1_z0_t0_cRGB.png";
+		
+		facade.getDownloadUrlForFileForDataSet(dataSetCode, path, function(response){
+			ok(response.result, "Got download url");
+			
+			downloadFile(response.result, function(data){
+				ok(data, "Download url works");
+				facade.close();
+			});
+		});
+	});
+});
+
+test("getDownloadUrlForFileForDataSetWithTimeout()", function(){
+	createFacadeAndLogin(function(facade){
+		var dataSetCode = "20110913114645299-83009";
+		var path = "/original/SERIES-1/bPLATE_w_s1_z0_t0_cRGB.png";
+		var validityDurationInSeconds = 10;
+		
+		facade.getDownloadUrlForFileForDataSetWithTimeout(dataSetCode, path, validityDurationInSeconds, function(response){
+			ok(response.result, "Got download url");
+
+			downloadFile(response.result, function(data){
+				ok(data, "Download url works once");
+				
+				downloadFile(response.result, function(data){
+					ok(!data, "Download url does not work anymore");
+					facade.close();	
 				});
 			});
 		});
