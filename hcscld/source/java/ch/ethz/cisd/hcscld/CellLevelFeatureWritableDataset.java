@@ -22,11 +22,14 @@ import java.util.List;
 
 import ch.ethz.cisd.hcscld.CellLevelBaseWritableDataset.IObjectNamespaceBasedFlushable;
 import ch.ethz.cisd.hcscld.CellLevelBaseWritableDataset.ObjectNamespaceContainer;
+import ch.systemsx.cisd.base.mdarray.MDFloatArray;
+import ch.systemsx.cisd.base.mdarray.MDIntArray;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
-import ch.systemsx.cisd.hdf5.HDF5CompoundMemberMapping;
 import ch.systemsx.cisd.hdf5.HDF5CompoundType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationValue;
+import ch.systemsx.cisd.hdf5.HDF5FloatStorageFeatures;
+import ch.systemsx.cisd.hdf5.HDF5IntStorageFeatures;
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
 
@@ -64,12 +67,10 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                         return;
                     }
                     final HDF5CompoundType<FeatureGroupDescriptor> featureGroupCompoundType =
-                            base.writer.compound().getType(
+                            base.writer.compound().getInferredType(
                                     getObjectPath(DATASET_TYPE_DIR, "FeatureGroupDescriptor"),
                                     FeatureGroupDescriptor.class,
-                                    HDF5CompoundMemberMapping.mapping("id").dimensions(new int[]
-                                        { 100 }),
-                                    HDF5CompoundMemberMapping.mapping("namespaceId").enumType(
+                                    new HDF5CompoundMappingHints().enumTypeMapping("namespaceId",
                                             namespaceTypeContainer.objectNamespacesType));
                     final FeatureGroupDescriptor[] descriptors =
                             new FeatureGroupDescriptor[featureGroups.size()];
@@ -79,7 +80,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                         descriptors[idx++] =
                                 new FeatureGroupDescriptor(fg.getId(), new HDF5EnumerationValue(
                                         namespaceTypeContainer.objectNamespacesType, fg
-                                                .getNamespace().getId()));
+                                                .getNamespace().getId()), fg.getDataType());
                     }
                     Arrays.sort(descriptors);
                     base.writer.compound().writeArray(getFeatureGroupsFilename(),
@@ -220,12 +221,70 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         final FeatureGroup fg = (FeatureGroup) featureGroup;
         fg.getNamespace().checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
                 featureValues.length);
-        base.writer.compound().writeArray(
-                fg.getObjectPath(id),
-                fg.getType(),
-                featureValues,
-                CellLevelBaseWritableDataset.getStorageFeatures(featureValues.length
-                        * fg.getType().getRecordSize()));
+        switch (featureGroup.getDataType())
+        {
+            case FLOAT32:
+                base.writer.float32().writeMDArray(
+                        fg.getObjectPath(id),
+                        toFloatArray(featureValues),
+                        HDF5FloatStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
+                                .getStorageFeatures(featureValues.length
+                                        * fg.getType().getRecordSize())));
+                break;
+            case INT32:
+                base.writer.int32().writeMDArray(
+                        fg.getObjectPath(id),
+                        toIntArray(featureValues),
+                        HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
+                                .getStorageFeatures(featureValues.length
+                                        * fg.getType().getRecordSize())));
+                break;
+            default:
+                base.writer.compound().writeArray(
+                        fg.getObjectPath(id),
+                        fg.getType(),
+                        featureValues,
+                        CellLevelBaseWritableDataset.getStorageFeatures(featureValues.length
+                                * fg.getType().getRecordSize()));
+                break;
+
+        }
+    }
+
+    private MDFloatArray toFloatArray(Object[][] featureValues)
+    {
+        final MDFloatArray result = new MDFloatArray(new int[]
+            { featureValues.length, (featureValues.length > 0) ? featureValues[0].length : 0 });
+        int idxObj = 0;
+        for (Object[] vector : featureValues)
+        {
+            int idxFeature = 0;
+            for (Object value : vector)
+            {
+                result.set(((Number) value).floatValue(), idxObj, idxFeature);
+                ++idxFeature;
+            }
+            ++idxObj;
+        }
+        return result;
+    }
+
+    private MDIntArray toIntArray(Object[][] featureValues)
+    {
+        final MDIntArray result = new MDIntArray(new int[]
+            { featureValues.length, (featureValues.length > 0) ? featureValues[0].length : 0 });
+        int idxObj = 0;
+        for (Object[] vector : featureValues)
+        {
+            int idxFeature = 0;
+            for (Object value : vector)
+            {
+                result.set(((Number) value).intValue(), idxObj, idxFeature);
+                ++idxFeature;
+            }
+            ++idxObj;
+        }
+        return result;
     }
 
     @Override

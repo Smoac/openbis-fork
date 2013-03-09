@@ -105,6 +105,54 @@ public class FeatureDatasetRoundtripTest
         writer.close();
     }
 
+    private void createMainFloat32FeatureGroupDataset(File file, String dsCode, ImageId idOrNull)
+    {
+        ICellLevelDataWriter writer = CellLevelDataFactory.open(file);
+        ICellLevelFeatureWritableDataset wds =
+                writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
+        ObjectNamespace namespace = wds.addObjectNamespace("main");
+        IFeatureGroup fg =
+                wds.createFeaturesDefinition(namespace).addFloat32Feature("a")
+                        .addFloat32Feature("b")
+                        .addFloat32Feature("c")
+                        .createFeatureGroup("main");
+        if (idOrNull != null)
+        {
+            wds.writeFeatures(idOrNull, fg, createStandardFloat32Value(idOrNull));
+        } else
+        {
+            for (ImageId id : wds.getImageQuantityStructure())
+            {
+                wds.writeFeatures(id, fg, createStandardFloat32Value(id));
+            }
+        }
+        writer.close();
+    }
+
+    private void createMainInt32FeatureGroupDataset(File file, String dsCode, ImageId idOrNull)
+    {
+        ICellLevelDataWriter writer = CellLevelDataFactory.open(file);
+        ICellLevelFeatureWritableDataset wds =
+                writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
+        ObjectNamespace namespace = wds.addObjectNamespace("main");
+        IFeatureGroup fg =
+                wds.createFeaturesDefinition(namespace).addInt32Feature("a")
+                        .addInt32Feature("b")
+                        .addInt32Feature("c")
+                        .createFeatureGroup("main");
+        if (idOrNull != null)
+        {
+            wds.writeFeatures(idOrNull, fg, createStandardInt32Value(idOrNull));
+        } else
+        {
+            for (ImageId id : wds.getImageQuantityStructure())
+            {
+                wds.writeFeatures(id, fg, createStandardInt32Value(id));
+            }
+        }
+        writer.close();
+    }
+
     private void createEmptyFeatureGroupDataset(File file, String dsCode, ImageId idOrNull)
     {
         ICellLevelDataWriter writer = CellLevelDataFactory.open(file);
@@ -171,6 +219,38 @@ public class FeatureDatasetRoundtripTest
                 { id.getRow() + 7, 7 + id.getColumn() / 10f, "B" },
                 { id.getRow() + 8, 8 + id.getColumn() / 10f, State.C },
                 { id.getRow() + 9, 9 + id.getColumn() / 10f, "A" } };
+    }
+
+    private Object[][] createStandardFloat32Value(ImageId id)
+    {
+        return new Object[][]
+            {
+                { id.getRow(), 0 + id.getColumn() / 10f, 1e0f },
+                { id.getRow() + 1, 1 + id.getColumn() / 10f, 1e1f },
+                { id.getRow() + 2, 2 + id.getColumn() / 10f, 1e2f },
+                { id.getRow() + 3, 3 + id.getColumn() / 10f, 1e3f },
+                { id.getRow() + 4, 4 + id.getColumn() / 10f, 1e4f },
+                { id.getRow() + 5, 5 + id.getColumn() / 10f, 1e5f },
+                { id.getRow() + 6, 6 + id.getColumn() / 10f, 1e6f },
+                { id.getRow() + 7, 7 + id.getColumn() / 10f, 1e7f },
+                { id.getRow() + 8, 8 + id.getColumn() / 10f, 1e8f },
+                { id.getRow() + 9, 9 + id.getColumn() / 10f, 1e9f} };
+    }
+
+    private Object[][] createStandardInt32Value(ImageId id)
+    {
+        return new Object[][]
+            {
+                { id.getRow(), 0 + id.getColumn(), -5 },
+                { id.getRow() + 1, 1 + id.getColumn(), -4 },
+                { id.getRow() + 2, 2 + id.getColumn(), -3 },
+                { id.getRow() + 3, 3 + id.getColumn(), -2 },
+                { id.getRow() + 4, 4 + id.getColumn(), -1 },
+                { id.getRow() + 5, 5 + id.getColumn(), 0 },
+                { id.getRow() + 6, 6 + id.getColumn(), 1 },
+                { id.getRow() + 7, 7 + id.getColumn(), 2 },
+                { id.getRow() + 8, 8 + id.getColumn(), 3 },
+                { id.getRow() + 9, 9 + id.getColumn(), 4 } };
     }
 
     private Object[][] createNonStandardValue(ImageId id)
@@ -352,6 +432,62 @@ public class FeatureDatasetRoundtripTest
                 assertEquals(clf.getImageId().getRow() + i, clf.getValues()[i][0]);
                 assertEquals(i + clf.getImageId().getColumn() / 10f, clf.getValues()[i][1]);
                 assertEquals(State.values()[i % 3].toString(), clf.getValues()[i][2]);
+            }
+        }
+        reader.close();
+    }
+
+    @Test
+    public void testFloat32FeatureGroup()
+    {
+        final String dsCode = "123";
+        final File f = new File(workingDirectory, "float32FeatureGroup.cld");
+        f.delete();
+        f.deleteOnExit();
+        createMainFloat32FeatureGroupDataset(f, dsCode, null);
+        final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
+        final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
+        assertTrue(System.currentTimeMillis() - ds.getCreationDate().getTime() < 100);
+        for (CellLevelFeatures clf : ds.getValues())
+        {
+            assertEquals("All", clf.getFeatureGroup().getId());
+            assertEquals(Arrays.asList("a", "b", "c"), clf.getFeatureGroup()
+                    .getFeatureNames());
+            assertEquals(10, clf.getValues().length);
+            for (int i = 0; i < clf.getValues().length; ++i)
+            {
+                assertEquals(3, clf.getValues()[i].length);
+                assertEquals((float) (clf.getImageId().getRow() + i), clf.getValues()[i][0]);
+                assertEquals(i + clf.getImageId().getColumn() / 10f, clf.getValues()[i][1]);
+                assertEquals((float) Math.pow(10.0, i), clf.getValues()[i][2]);
+            }
+        }
+        reader.close();
+    }
+
+    @Test
+    public void testInt32FeatureGroup()
+    {
+        final String dsCode = "123";
+        final File f = new File(workingDirectory, "int32FeatureGroup.cld");
+        f.delete();
+        f.deleteOnExit();
+        createMainInt32FeatureGroupDataset(f, dsCode, null);
+        final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
+        final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
+        assertTrue(System.currentTimeMillis() - ds.getCreationDate().getTime() < 100);
+        for (CellLevelFeatures clf : ds.getValues())
+        {
+            assertEquals("All", clf.getFeatureGroup().getId());
+            assertEquals(Arrays.asList("a", "b", "c"), clf.getFeatureGroup()
+                    .getFeatureNames());
+            assertEquals(10, clf.getValues().length);
+            for (int i = 0; i < clf.getValues().length; ++i)
+            {
+                assertEquals(3, clf.getValues()[i].length);
+                assertEquals(clf.getImageId().getRow() + i, clf.getValues()[i][0]);
+                assertEquals(i + clf.getImageId().getColumn(), clf.getValues()[i][1]);
+                assertEquals(-5+i, clf.getValues()[i][2]);
             }
         }
         reader.close();

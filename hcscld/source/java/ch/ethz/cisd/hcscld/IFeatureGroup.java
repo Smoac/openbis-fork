@@ -25,6 +25,8 @@ import java.util.List;
  */
 public interface IFeatureGroup extends Iterable<ImageId>
 {
+    public enum FeatureGroupDataType { COMPOUND, FLOAT32, INT32 }
+    
     /**
      * Returns the identifier of this feature group.
      */
@@ -46,9 +48,13 @@ public interface IFeatureGroup extends Iterable<ImageId>
     public List<Feature> getFeatures();
 
     /**
-     * Returns the namespace that has been used to compute the features of this feature
-     * group.
+     * Returns the namespace that has been used to compute the features of this feature group.
      */
     public ObjectNamespace getNamespace();
+
+    /**
+     * Returns the (optimal) data type for this feature group.
+     */
+    public FeatureGroupDataType getDataType();
 
 }

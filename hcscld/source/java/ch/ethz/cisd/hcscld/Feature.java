@@ -18,6 +18,8 @@ package ch.ethz.cisd.hcscld;
 
 import java.util.Arrays;
 
+import ch.ethz.cisd.hcscld.IFeatureGroup.FeatureGroupDataType;
+
 /**
  * The description of a cell-level feature.
  * 
@@ -30,7 +32,28 @@ public class Feature
      */
     public enum FeatureDataType
     {
-        BOOL, INT8, INT16, INT32, INT64, FLOAT32, FLOAT64, STRING, ENUM, OTHER
+        BOOL(FeatureGroupDataType.COMPOUND), 
+        INT8(FeatureGroupDataType.INT32), 
+        INT16(FeatureGroupDataType.INT32), 
+        INT32(FeatureGroupDataType.INT32), 
+        INT64(FeatureGroupDataType.COMPOUND), 
+        FLOAT32(FeatureGroupDataType.FLOAT32), 
+        FLOAT64(FeatureGroupDataType.COMPOUND), 
+        STRING(FeatureGroupDataType.COMPOUND), 
+        ENUM(FeatureGroupDataType.COMPOUND), 
+        OTHER(FeatureGroupDataType.COMPOUND);
+        
+        private final FeatureGroupDataType optimalGroupType;
+        
+        private FeatureDataType(FeatureGroupDataType optimalGroupType)
+        {
+            this.optimalGroupType = optimalGroupType;
+        }
+
+        public FeatureGroupDataType getOptimalGroupType()
+        {
+            return optimalGroupType;
+        }
     }
 
     private final String name;
