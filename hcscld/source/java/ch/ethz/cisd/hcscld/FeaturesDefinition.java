@@ -38,23 +38,25 @@ class FeaturesDefinition implements IFeaturesDefinition
 {
     private final CellLevelFeatureWritableDataset datasetOrNull;
 
-    private ObjectNamespace namespace;
+    private final ObjectNamespace namespace;
 
     private final List<HDF5CompoundMemberMapping> members;
 
     private final List<Feature> memberDefinitions;
 
-    FeaturesDefinition(CellLevelFeatureWritableDataset dataset)
+    FeaturesDefinition(CellLevelFeatureWritableDataset dataset, ObjectNamespace namespace)
     {
         this.datasetOrNull = dataset;
+        this.namespace = namespace;
         this.members = new ArrayList<HDF5CompoundMemberMapping>();
         this.memberDefinitions = new ArrayList<Feature>();
     }
 
-    FeaturesDefinition(CellLevelFeatureDataset dataset,
+    FeaturesDefinition(CellLevelFeatureDataset dataset, ObjectNamespace namespace,
             List<HDF5CompoundMemberInformation> memberInfos)
     {
         this.datasetOrNull = null;
+        this.namespace = namespace;
         this.members = null;
         this.memberDefinitions = new ArrayList<Feature>(memberInfos.size());
         for (HDF5CompoundMemberInformation memberInfo : memberInfos)
@@ -109,13 +111,6 @@ class FeaturesDefinition implements IFeaturesDefinition
                 members.toArray(new HDF5CompoundMemberMapping[members.size()]), hintsOrNull);
     }
 
-    @Override
-    public IFeaturesDefinition objectNamespace(@SuppressWarnings("hiding") ObjectNamespace namespace)
-    {
-        this.namespace = namespace;
-        return this;
-    }
-    
     @Override
     public FeaturesDefinition addInt8Feature(String name)
     {

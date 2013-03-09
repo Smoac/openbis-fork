@@ -19,7 +19,6 @@ import ch.ethz.cisd.hcscld.ImageId;
  */
 public class CellLevelFeaturesDemo
 {
-
     public static void main(String[] args)
     {
         File f = new File("features.cld");
@@ -27,7 +26,7 @@ public class CellLevelFeaturesDemo
         ICellLevelDataWriter writer = CellLevelDataFactory.open(f);
         ICellLevelFeatureWritableDataset wds =
                 writer.addFeatureDataset("123", new ImageQuantityStructure(16, 24, 9));
-        wds.createFeaturesDefinition().addInt32Feature("a").addFloat32Feature("b")
+        wds.createFeaturesDefinition(wds.addObjectNamespace("cell")).addInt32Feature("a").addFloat32Feature("b")
                 .addEnumFeature("c", "CellState", Arrays.asList("INFECTED", "HEALTHY", "UNCLEAR"))
                 .create();
         long start = System.currentTimeMillis();

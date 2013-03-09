@@ -30,11 +30,6 @@ import java.util.List;
 public interface IFeaturesDefinition
 {
     /**
-     * Sets the object namespace that the features of this group have been computed from.
-     */
-    public IFeaturesDefinition objectNamespace(ObjectNamespace namespace);
-
-    /**
      * Adds a 8-bit integer feature (corresponding to the Java type <code>byte</code>).
      * 
      * @param name The name of the feature.

@@ -25,9 +25,10 @@ public interface ICellLevelFeatureWritableDataset extends ICellLevelWritableData
         ICellLevelFeatureDataset
 {
     /**
-     * Creates an (empty) object to define the features of a feature group.
+     * Creates an (empty) feature definition object with given <var>namespace</var> to define the
+     * features of a feature group.
      */
-    public IFeaturesDefinition createFeaturesDefinition();
+    public IFeaturesDefinition createFeaturesDefinition(ObjectNamespace namespace);
 
     /**
      * Writes the values of the feature group to the dataset.

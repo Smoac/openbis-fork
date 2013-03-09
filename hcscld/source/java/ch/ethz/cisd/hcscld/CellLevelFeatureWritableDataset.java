@@ -178,9 +178,9 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     }
 
     @Override
-    public IFeaturesDefinition createFeaturesDefinition()
+    public IFeaturesDefinition createFeaturesDefinition(ObjectNamespace namespace)
     {
-        return new FeaturesDefinition(this);
+        return new FeaturesDefinition(this, namespace);
     }
 
     IFeatureGroup addFeatureGroup(final String id, final IFeaturesDefinition features)

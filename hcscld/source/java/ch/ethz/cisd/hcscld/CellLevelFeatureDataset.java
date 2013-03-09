@@ -175,7 +175,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             final List<HDF5CompoundMemberInformation> members =
                     Arrays.asList(type.getCompoundMemberInformation());
             final FeaturesDefinition fdef =
-                    new FeaturesDefinition(CellLevelFeatureDataset.this, members);
+                    new FeaturesDefinition(CellLevelFeatureDataset.this, namespace, members);
             this.features = fdef.getFeatures();
             final String[] memberNameArray = new String[members.size()];
             for (int i = 0; i < memberNameArray.length; ++i)

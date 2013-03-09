@@ -72,8 +72,7 @@ public class FeatureDatasetRoundtripTest
     {
         ICellLevelFeatureWritableDataset wds = writer.addFeatureDataset(dsCode, structure);
         ObjectNamespace namespace = wds.addObjectNamespace(objectNamespaceId);
-        wds.createFeaturesDefinition().objectNamespace(namespace).addInt32Feature("one")
-                .addFloat32Feature("two")
+        wds.createFeaturesDefinition(namespace).addInt32Feature("one").addFloat32Feature("two")
                 .addEnumFeature("three", "State", Arrays.asList("A", "B", "C")).create();
         for (ImageId id : wds.getImageQuantityStructure())
         {
@@ -89,7 +88,7 @@ public class FeatureDatasetRoundtripTest
                 writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
         ObjectNamespace namespace = wds.addObjectNamespace("main");
         IFeatureGroup fg =
-                wds.createFeaturesDefinition().objectNamespace(namespace).addInt32Feature("one")
+                wds.createFeaturesDefinition(namespace).addInt32Feature("one")
                         .addFloat32Feature("two")
                         .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
                         .createFeatureGroup("main");
@@ -120,12 +119,12 @@ public class FeatureDatasetRoundtripTest
                 writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
         ObjectNamespace namespace = wds.addObjectNamespace("cell");
         IFeatureGroup fg1 =
-                wds.createFeaturesDefinition().objectNamespace(namespace).addInt32Feature("one")
+                wds.createFeaturesDefinition(namespace).addInt32Feature("one")
                         .addFloat32Feature("two")
                         .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
                         .createFeatureGroup("Main");
         IFeatureGroup fg2 =
-                wds.createFeaturesDefinition().objectNamespace(namespace).addBooleanFeature("ok")
+                wds.createFeaturesDefinition(namespace).addBooleanFeature("ok")
                         .addStringFeature("comment", 10).createFeatureGroup("Quality");
         for (ImageId id : wds.getImageQuantityStructure())
         {
@@ -143,12 +142,12 @@ public class FeatureDatasetRoundtripTest
         ObjectNamespace namespaceA = wds.addObjectNamespace("cell_a");
         ObjectNamespace namespaceB = wds.addObjectNamespace("cell_b");
         IFeatureGroup fg1 =
-                wds.createFeaturesDefinition().objectNamespace(namespaceA).addInt32Feature("one")
+                wds.createFeaturesDefinition(namespaceA).addInt32Feature("one")
                         .addFloat32Feature("two")
                         .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
                         .createFeatureGroup("Main");
         IFeatureGroup fg2 =
-                wds.createFeaturesDefinition().objectNamespace(namespaceB).addBooleanFeature("ok")
+                wds.createFeaturesDefinition(namespaceB).addBooleanFeature("ok")
                         .addStringFeature("comment", 10).createFeatureGroup("Quality");
         for (ImageId id : wds.getImageQuantityStructure())
         {
@@ -589,14 +588,13 @@ public class FeatureDatasetRoundtripTest
                     writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
             ObjectNamespace namespace = wds.addObjectNamespace("main");
             IFeatureGroup fg1 =
-                    wds.createFeaturesDefinition().objectNamespace(namespace)
-                            .addInt32Feature("one").addFloat32Feature("two")
+                    wds.createFeaturesDefinition(namespace).addInt32Feature("one")
+                            .addFloat32Feature("two")
                             .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
                             .createFeatureGroup("main");
             IFeatureGroup fg2 =
-                    wds.createFeaturesDefinition().objectNamespace(namespace)
-                            .addBooleanFeature("ok").addStringFeature("comment", 10)
-                            .createFeatureGroup("quality");
+                    wds.createFeaturesDefinition(namespace).addBooleanFeature("ok")
+                            .addStringFeature("comment", 10).createFeatureGroup("quality");
             for (ImageId id : wds.getImageQuantityStructure())
             {
                 wds.writeFeatures(id, fg1, createStandardValue(id));
@@ -623,8 +621,8 @@ public class FeatureDatasetRoundtripTest
                     writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
             ObjectNamespace namespace = wds.addObjectNamespace("main");
             IFeatureGroup fg1 =
-                    wds.createFeaturesDefinition().objectNamespace(namespace)
-                            .addInt32Feature("one").addFloat32Feature("two")
+                    wds.createFeaturesDefinition(namespace).addInt32Feature("one")
+                            .addFloat32Feature("two")
                             .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
                             .createFeatureGroup("main");
             wds.writeFeatures(new ImageId(1, 1, 1), fg1, createStandardValue(new ImageId(1, 1, 1)));
@@ -651,14 +649,12 @@ public class FeatureDatasetRoundtripTest
             ICellLevelFeatureWritableDataset wds =
                     writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
             ObjectNamespace namespace = wds.addObjectNamespace("main");
-            wds.createFeaturesDefinition().objectNamespace(namespace).addInt32Feature("one")
-                    .addFloat32Feature("two")
+            wds.createFeaturesDefinition(namespace).addInt32Feature("one").addFloat32Feature("two")
                     .addEnumFeature("three", "State", Arrays.asList("A", "B", "C"))
                     .createFeatureGroup("M");
-            wds.createFeaturesDefinition().objectNamespace(namespace)
-                    .addStringFeature("comment", 10).addBooleanFeature("valid")
-                    .createFeatureGroup("a");
-            wds.createFeaturesDefinition().objectNamespace(namespace).addInt16Feature("someval")
+            wds.createFeaturesDefinition(namespace).addStringFeature("comment", 10)
+                    .addBooleanFeature("valid").createFeatureGroup("a");
+            wds.createFeaturesDefinition(namespace).addInt16Feature("someval")
                     .createFeatureGroup("Zz");
         } finally
         {
