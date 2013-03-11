@@ -115,6 +115,12 @@ var findVocabularyTerm = function(vocabulary, code){
 	})[0];
 };
 
+var findQuery = function(queries, name){
+	return queries.filter(function(query){
+		return query.name == name;
+	})[0];
+}
+
 var findVocabularyMaxOrdinal = function(vocabulary){
 	var max = 0;
 	vocabulary.terms.forEach(function(term){
@@ -798,26 +804,17 @@ test("listAttachmentsForProject()", function(){
 	});
 });
 
-/*
-
-TODO add attachments
-
 test("listAttachmentsForExperiment()", function(){
 	createFacadeAndLogin(function(facade){
 		var experimentId = createExperimentIdentifierId("/TEST/TEST-PROJECT/E1");
 		
 		facade.listAttachmentsForExperiment(experimentId, false, function(response){
 			assertObjectsCount(response.result, 1);
+			assertObjectsWithValues(response.result, "fileName", ["experiment_attachment.txt"]);
 			facade.close();
 		});
 	});
 });
-
-*/
-
-/*
-
-TODO add attachments
 
 test("listAttachmentsForSample()", function(){
 	createFacadeAndLogin(function(facade){
@@ -825,12 +822,11 @@ test("listAttachmentsForSample()", function(){
 		
 		facade.listAttachmentsForSample(sampleId, false, function(response){
 			assertObjectsCount(response.result, 1);
+			assertObjectsWithValues(response.result, "fileName", ["sample_attachment.txt"]);
 			facade.close();
 		});
 	});
 });
-
-*/
 
 test("updateSampleProperties(), searchForSamples()", function(){
 	createFacadeAndLogin(function(facade){
@@ -906,32 +902,31 @@ test("setWebAppSettings(), getWebAppSettings()", function(){
 	});
 });
 
-
-/*
-
-TODO add queries
-
 test("listQueries()", function(){
 	createFacadeAndLogin(function(facade){
 		facade.listQueries(function(response){
+			assertObjectsCount(response.result, 1);
+			assertObjectsWithValues(response.result, "name", ["Test Query"]);
+			facade.close();
 		});
 	});
 });
-
-*/
-
-/*
-
-TODO add queries
 
 test("executeQuery()", function(){
 	createFacadeAndLogin(function(facade){
-		facade.executeQuery(queryId, parameterBindings, function(response){
+		facade.listQueries(function(response){
+			var queryId = findQuery(response.result, "Test Query").id;
+			var parameterBindings = {};
+			
+			facade.executeQuery(queryId, parameterBindings, function(response){
+				ok(response.result, "Query has been executed");
+				equal(response.result.columns[0].title , "test_column", "Returned column has correct title");
+				equal(response.result.rows[0][0].value , "test_value", "Returned row has correct value");
+				facade.close();
+			});
 		});
 	});
 });
-
-*/
 
 test("listTableReportDescriptions()", function(){
 	createFacadeAndLogin(function(facade){
@@ -1275,10 +1270,6 @@ test("shuffleDataSet()", function(){
 	});
 });
 
-/*
-
-TODO add validation scripts
-
 test("getValidationScript()", function(){
 	createFacadeAndLogin(function(facade){
 		var dataSetTypeOrNull = "HCS_IMAGE_RAW";
@@ -1302,4 +1293,3 @@ test("getValidationScriptForDataStore()", function(){
 	});
 });
 
-*/
