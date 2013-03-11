@@ -11,7 +11,7 @@ var createFacade = function(action, timeoutOrNull){
 
 	action(facade);
 
-	var timeout = timeoutOrNull ? timeoutOrNull : 10000;
+	var timeout = timeoutOrNull ? timeoutOrNull : 30000;
 	var checkInterval = 100;
 	var intervalTotal = 0;
 	

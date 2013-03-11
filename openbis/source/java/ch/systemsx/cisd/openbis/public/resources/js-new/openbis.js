@@ -37,23 +37,30 @@ _openbisInternal.prototype.ajaxRequest = function(settings) {
 	settings.processData = false;
 	settings.dataType = "json";
 	settings.data = this.jsonRequestData(settings.data);
-	
+	settings.success = this.ajaxRequestSuccess(settings.success);
+	// we call the same method on error for backward compatibility
+	settings.error = this.ajaxRequestSuccess(settings.success);
+	$.ajax(settings)
+}
+
+_openbisInternal.prototype.ajaxRequestSuccess = function(action){
 	var openbisObj = this;
-	var originalOnSuccess = settings.success;
-	
-	settings.success = function(response){
+	return function(response){
 		if(response.error){
 			openbisObj.log("Request failed: " + JSON.stringify(response.error));
-		}else{
-			originalOnSuccess(response);
 		}
+		action(response);
 	};
-	
-	settings.error = function(xhr, status, error){
+}
+
+_openbisInternal.prototype.ajaxRequestError = function(action){
+	var openbisObj = this;
+	return function(xhr, status, error){
 		openbisObj.log("Request failed: " + error);
+		action({
+			"error" : error
+		});
 	};
-	
-	$.ajax(settings)
 }
 
 // Functions for working with cookies (see http://www.quirksmode.org/js/cookies.html)
@@ -85,15 +92,20 @@ _openbisInternal.prototype.eraseCookie = function(name) {
 
 _openbisInternal.prototype.getDataStoreUrlForDataStoreCode = function(dataStoreCodeOrNull) {
 	if(this.dataStores.length == 0){
-		throw "Couldn't get a data store url as there are no data stores configured."
+		throw "Couldn't get a data store url as there are no data stores configured.";
 	}else{
 		if(dataStoreCodeOrNull){
+			var dataStoreUrl = null;
 			$.each(this.dataStores, function(index, dataStore){
 				if(dataStore.code == dataStoreCodeOrNull){
-					return dataStore.downloadUrl;
+					dataStoreUrl = dataStore.downloadUrl;
 				}
 			});
-			return null;
+			if(dataStoreUrl){
+				return dataStoreUrl;
+			}else{
+				throw "Couldn't get a data store url because data store with " + dataStoreCodeOrNull + " code does not exist.";
+			}
 		}else{
 			if(this.dataStores.length == 1){
 				return this.dataStores[0].downloadUrl;
@@ -106,7 +118,7 @@ _openbisInternal.prototype.getDataStoreUrlForDataStoreCode = function(dataStoreC
 
 _openbisInternal.prototype.getDataStoreUrlForDataSetCode = function(dataSetCode, action) {
 	if(this.dataStores.length == 0){
-		throw "Couldn't get a data store url as there are no data stores configured."
+		throw "Couldn't get a data store url as there are no data stores configured.";
 	}else if(this.dataStores.length == 1){
 		action(this.dataStores[0].downloadUrl);
 	}else{
@@ -128,7 +140,7 @@ _openbisInternal.prototype.getDataStoreUrlForDataSetCode = function(dataSetCode,
 	}
 }
 
-_openbisInternal.prototype.getDataStoreApiUrlForDataStoreCode = function(dataStoreCodeOrNull, action) {
+_openbisInternal.prototype.getDataStoreApiUrlForDataStoreCode = function(dataStoreCodeOrNull) {
 	var dataStoreUrl = this.getDataStoreUrlForDataStoreCode(dataStoreCodeOrNull);
 	if(dataStoreUrl){
 		return dataStoreUrl + "/rmi-dss-api-v1.json";
@@ -189,16 +201,17 @@ openbis.prototype.login = function(userId, userPassword, action) {
 				},
 		success: 
 			function(loginResponse) {
-				openbisObj._internal.sessionToken = loginResponse.result;
-				openbisObj.rememberSession();
-				openbisObj.listDataStores(function(storesResponse){
-					openbisObj._internal.dataStores = storesResponse.result;
-					action(loginResponse)
-				});
-			},
-		error: function() {
-			alert("Login failed")
-		}
+				if(loginResponse.error){
+					alert("Login failed")
+				}else{
+					openbisObj._internal.sessionToken = loginResponse.result;
+					openbisObj.rememberSession();
+					openbisObj.listDataStores(function(storesResponse){
+						openbisObj._internal.dataStores = storesResponse.result;
+						action(loginResponse)
+					});
+				}
+			}
 	 });
 }
 
@@ -1300,7 +1313,8 @@ openbis.prototype.downloadSessionWorkspaceFileForDataStore = function(filePath, 
 	$.ajax({
 		type: "GET",
 		url: this.createSessionWorkspaceDownloadUrlForDataStore(filePath, dataStoreCodeOrNull),
-		success: action
+		success: this._internal.ajaxRequestSuccess(action),
+		error: this._internal.ajaxRequestError(action)
 	});
 }
 
@@ -1317,15 +1331,13 @@ openbis.prototype.deleteSessionWorkspaceFile = function(filePath, action) {
  * @method
  */
 openbis.prototype.deleteSessionWorkspaceFileForDataStore = function(filePath, dataStoreCodeOrNull, action) {
-	var openbisObj = this;
-	this._internal.getDataStoreApiUrlForDataStoreCode(dataStoreCodeOrNull, function(dataStoreApiUrl){
-		openbisObj._internal.ajaxRequest({
-			url: dataStoreApiUrl,
-			data: { "method" : "deleteSessionWorkspaceFile",
-							"params" : [ openbisObj.getSession(), filePath ]
-						 },
-			success: action
-		});
+	this._internal.ajaxRequest({
+		url: this._internal.getDataStoreApiUrlForDataStoreCode(dataStoreCodeOrNull),
+		data: {
+			"method" : "deleteSessionWorkspaceFile",
+			"params" : [ this.getSession(), filePath ]
+		},
+		success: action
 	});
 }
 
@@ -1352,7 +1364,7 @@ openbis.prototype.getPathToDataSet = function(dataSetCode, overrideStoreRootPath
  * @method
  */
 openbis.prototype.listAllShares = function(action) {
-	this.listAllShares(null, action);
+	this.listAllSharesForDataStore(null, action);
 }
 
 /**
@@ -1362,15 +1374,13 @@ openbis.prototype.listAllShares = function(action) {
  * @method
  */
 openbis.prototype.listAllSharesForDataStore = function(dataStoreCodeOrNull, action) {
-	var openbisObj = this;
-	this._internal.getDataStoreApiUrlForDataStoreCode(dataStoreCodeOrNull, function(dataStoreApiUrl){
-		openbisObj._internal.ajaxRequest({
-			url: dataStoreApiUrl,
-			data: { "method" : "listAllShares",
-							"params" : [ openbisObj.getSession() ]
-						 },
-			success: action
-		});
+	this._internal.ajaxRequest({
+		url: this._internal.getDataStoreApiUrlForDataStoreCode(dataStoreCodeOrNull),
+		data: {
+			"method" : "listAllShares",
+			"params" : [ this.getSession() ]
+		},
+		success: action
 	});
 }
 
@@ -1407,15 +1417,13 @@ openbis.prototype.getValidationScript = function(dataSetTypeOrNull, action) {
  * @method
  */
 openbis.prototype.getValidationScriptForDataStore = function(dataSetTypeOrNull, dataStoreCodeOrNull, action) {
-	var openbisObj = this;
-	this._internal.getDataStoreApiUrlForDataStoreCode(dataStoreCodeOrNull, function(dataStoreApiUrl){
-		openbisObj._internal.ajaxRequest({
-			url: dataStoreApiUrl,
-			data: { "method" : "getValidationScript",
-							"params" : [ openbisObj.getSession(), dataSetTypeOrNull ]
-						 },
-			success: action
-		});
+	this._internal.ajaxRequest({
+		url: this._internal.getDataStoreApiUrlForDataStoreCode(dataStoreCodeOrNull),
+		data: {
+			"method" : "getValidationScript",
+			"params" : [ this.getSession(), dataSetTypeOrNull ]
+		},
+		success: action
 	});
 }
 

@@ -134,6 +134,30 @@ var downloadFile = function(url, action){
 	});
 }
 
+var uploadFileToSessionWorkspace = function(facade, fileName, fileContent, dataStoreCode, action){
+	var dataStoreUrl = facade._internal.getDataStoreUrlForDataStoreCode(dataStoreCode); 
+	var uploadUrl = dataStoreUrl + "/session_workspace_file_upload" +
+		"?filename=" + fileName +
+		"&id=0" +
+		"&startByte=0" +
+		"&endByte=0" + 
+		"&sessionID=" + facade.getSession();
+	
+	$.ajax({
+		url : uploadUrl,
+		type : "POST",
+		data : fileContent,
+		contentType : "multipart/form-data"
+	}).done(function(response){
+		action(response);
+	});
+}
+
+var generateRandomString = function(){
+	return Math.random().toString();
+}
+
+
 test("logout", function(){
 	createFacade(function(facade){
 		facade.logout(function(){
@@ -693,7 +717,7 @@ test("createMetaproject(), updateMetaproject()", function(){
 		createNewMetaproject(facade, metaprojectIdentifier, function(response){
 			var metaproject = response.result;
 			var metaprojectId = createMetaprojectIdentifierId(metaprojectIdentifier);
-			var description = new Date().getTime().toString();
+			var description = generateRandomString();
 			
 			ok(!metaproject.description, "Metaproject description was empty");
 			
@@ -815,7 +839,7 @@ test("updateSampleProperties(), searchForSamples()", function(){
 
 		facade.searchForSamples(searchCriteria, function(response){
 			var sample = response.result[0];
-			var description = new Date().getTime().toString();
+			var description = generateRandomString();
 			var properties = {
 				"DESCRIPTION" : description
 			};
@@ -834,7 +858,7 @@ test("updateSampleProperties(), searchForSamples()", function(){
 test("addUnofficialVocabularyTerm(), listVocabularies()", function(){
 	createFacadeAndLogin(function(facade){
 		var vocabularyCode = "MICROSCOPE";
-		var termCode = new Date().getTime().toString();
+		var termCode = generateRandomString();
 
 		facade.listVocabularies(function(response){
 			var originalVocabulary = findVocabulary(response.result, vocabularyCode);
@@ -861,7 +885,7 @@ test("addUnofficialVocabularyTerm(), listVocabularies()", function(){
 
 test("setWebAppSettings(), getWebAppSettings()", function(){
 	createFacadeAndLogin(function(facade){
-		var webAppId = new Date().getTime().toString();
+		var webAppId = generateRandomString();
 		
 		facade.getWebAppSettings(webAppId, function(response){
 			deepEqual(response.result.settings, {}, 'Web app settings are empty');
@@ -1064,3 +1088,218 @@ test("getDownloadUrlForFileForDataSetWithTimeout()", function(){
 		});
 	});
 });
+
+test("createSessionWorkspaceDownloadUrl()", function(){
+	createFacadeAndLogin(function(facade){
+		var fileName = generateRandomString();
+		var fileContent = generateRandomString();
+		var dataStoreCode = null;
+		
+		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function(){
+			var downloadUrl = facade.createSessionWorkspaceDownloadUrl(fileName);
+			downloadFile(downloadUrl, function(response){
+				equal(response, fileContent, "Download url is correct");
+				facade.close();
+			});
+		});
+	});
+});
+
+test("createSessionWorkspaceDownloadUrlForDataStore()", function(){
+	createFacadeAndLogin(function(facade){
+		var fileName = generateRandomString();
+		var fileContent = generateRandomString();
+		var dataStoreCode = "DSS-SCREENING";
+		
+		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function(){
+			var downloadUrl = facade.createSessionWorkspaceDownloadUrlForDataStore(fileName, dataStoreCode);
+			downloadFile(downloadUrl, function(response){
+				equal(response, fileContent, "Download url is correct");
+				facade.close();
+			});
+		});
+	});
+});
+
+test("createSessionWorkspaceDownloadLink()", function(){
+	createFacadeAndLogin(function(facade){
+		var fileName = generateRandomString();
+		var linkText = generateRandomString();
+		
+		var link = facade.createSessionWorkspaceDownloadLink(fileName, linkText);
+		
+		equal($(link).attr("href"), facade.createSessionWorkspaceDownloadUrl(fileName), "Link has correct url");
+		equal($(link).text(), linkText, "Link has correct text");
+		facade.close();
+	});
+});
+
+test("createSessionWorkspaceDownloadLinkForDataStore()", function(){
+	createFacadeAndLogin(function(facade){
+		var fileName = generateRandomString();
+		var linkText = generateRandomString();
+		var dataStoreCode = "DSS-SCREENING";
+		
+		var link = facade.createSessionWorkspaceDownloadLinkForDataStore(fileName, linkText, dataStoreCode);
+		
+		equal($(link).attr("href"), facade.createSessionWorkspaceDownloadUrlForDataStore(fileName, dataStoreCode), "Link has correct url");
+		equal($(link).text(), linkText, "Link has correct text");
+		facade.close();
+	});
+});
+
+test("downloadSessionWorkspaceFile()", function(){
+	createFacadeAndLogin(function(facade){
+		var fileName = generateRandomString();
+		var fileContent = generateRandomString();
+		var dataStoreCode = null;
+		
+		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function(){
+			facade.downloadSessionWorkspaceFile(fileName, function(response){
+				equal(response, fileContent, "File has been downloaded");
+				facade.close();
+			});
+		});
+	});
+});
+
+test("downloadSessionWorkspaceFileForDataStore()", function(){
+	createFacadeAndLogin(function(facade){
+		var fileName = generateRandomString();
+		var fileContent = generateRandomString();
+		var dataStoreCode = "DSS-SCREENING";
+		
+		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function(){
+			facade.downloadSessionWorkspaceFileForDataStore(fileName, dataStoreCode, function(response){
+				equal(response, fileContent, "File has been downloaded");
+				facade.close();
+			});
+		});
+	});
+});
+
+test("deleteSessionWorkspaceFile()", function(){
+	createFacadeAndLogin(function(facade){
+		var fileName = generateRandomString();
+		var fileContent = generateRandomString();
+		var dataStoreCode = null;
+		
+		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function(){
+			facade.deleteSessionWorkspaceFile(fileName, function(){
+				facade.downloadSessionWorkspaceFile(fileName, function(response){
+					ok(response.error.indexOf("No such file or directory"), "File has been deleted");
+					facade.close();
+				});
+			});
+		});
+	});
+});
+
+test("deleteSessionWorkspaceFileForDataStore()", function(){
+	createFacadeAndLogin(function(facade){
+		var fileName = generateRandomString();
+		var fileContent = generateRandomString();
+		var dataStoreCode = "DSS-SCREENING";
+		
+		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function(){
+			facade.deleteSessionWorkspaceFileForDataStore(fileName, dataStoreCode, function(){
+				facade.downloadSessionWorkspaceFileForDataStore(fileName, dataStoreCode, function(response){
+					ok(response.error.indexOf("No such file or directory"), "File has been deleted");
+					facade.close();
+				});
+			});
+		});
+	});
+});
+
+test("getPathToDataSet()", function(){
+	createFacadeAndLogin(function(facade){
+		var dataSetCode = "20110913114645299-83009";
+		var overrideStoreRootPathOrNull = "";
+		
+		facade.getPathToDataSet(dataSetCode, overrideStoreRootPathOrNull, function(response){
+			equal(response.result, "/1/678243C3-BD97-42E4-B04B-34DA0C43564D/04/b7/53/20110913114645299-83009", "Data set path is correct");
+			facade.close();
+		});
+	});
+});
+
+test("listAllShares()", function(){
+	createFacadeAndLogin(function(facade){
+		facade.listAllShares(function(response){
+			assertObjectsCount(response.result, 2);
+			assertObjectsWithValues(response.result, "shareId", ["1", "2"]);
+			facade.close();
+		});
+	});
+});
+
+test("listAllSharesForDataStore()", function(){
+	createFacadeAndLogin(function(facade){
+		var dataStoreCode = "DSS-SCREENING";
+		
+		facade.listAllSharesForDataStore(dataStoreCode, function(response){
+			assertObjectsCount(response.result, 2);
+			assertObjectsWithValues(response.result, "shareId", ["1", "2"]);
+			facade.close();
+		});
+	});
+});
+
+test("shuffleDataSet()", function(){
+	createFacadeAndLogin(function(facade){
+		var dataSetCode = "20110817134351959-81695";
+		var share1Id = "1";
+		var share2Id = "2";
+		var overrideStoreRootPathOrNull = "";
+		var isInShare = function(dataSetPath, shareId){
+			return dataSetPath.indexOf("/" + shareId + "/") == 0
+		}
+		
+		facade.getPathToDataSet(dataSetCode, overrideStoreRootPathOrNull, function(response){
+			var toShareId = null;
+			
+			if(isInShare(response.result, share1Id)){
+				toShareId = share2Id;
+			}else{
+				toShareId = share1Id;
+			}
+			
+			facade.shuffleDataSet(dataSetCode, toShareId, function(response){
+				facade.getPathToDataSet(dataSetCode, overrideStoreRootPathOrNull, function(response){
+					ok(isInShare(response.result, toShareId), "Data set has been moved to a different share");
+					facade.close();
+				});
+			});
+		});
+	});
+});
+
+/*
+
+TODO add validation scripts
+
+test("getValidationScript()", function(){
+	createFacadeAndLogin(function(facade){
+		var dataSetTypeOrNull = "HCS_IMAGE_RAW";
+		
+		facade.getValidationScript(dataSetTypeOrNull, function(response){
+			ok(response.result, "Got a validation script");
+			facade.close();
+		});
+	});
+});
+
+test("getValidationScriptForDataStore()", function(){
+	createFacadeAndLogin(function(facade){
+		var dataSetTypeOrNull = "HCS_IMAGE_RAW";
+		var dataStoreCode = "DSS-SCREENING";
+		
+		facade.getValidationScriptForDataStore(dataSetTypeOrNull, dataStoreCode, function(response){
+			ok(response.result, "Got a validation script");
+			facade.close();
+		});
+	});
+});
+
+*/
