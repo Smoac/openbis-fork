@@ -357,15 +357,21 @@ class EntityExistenceChecker
             {
                 String value = property.getValue();
                 MaterialTypePE materialType = propertyTypePE.getMaterialType();
-                MaterialIdentifier materialIdentifier =
-                        MaterialIdentifier.tryCreate(value, materialType);
-                if (materialIdentifier == null)
+                try
                 {
-                    errors.add("Material identifier not in the form '<material code> (<material type code>)': "
-                            + value);
-                } else
+                    MaterialIdentifier materialIdentifier =
+                            MaterialIdentifier.tryCreate(value, materialType);
+                    if (materialIdentifier == null)
+                    {
+                        errors.add("Material identifier not in the form '<material code> (<material type code>)': "
+                                + value);
+                    } else
+                    {
+                        materialExistenceManager.exists(materialIdentifier);
+                    }
+                } catch (Exception ex)
                 {
-                    materialExistenceManager.exists(materialIdentifier);
+                    errors.add(ex.getMessage());
                 }
             }
         }

@@ -93,29 +93,35 @@ public final class MaterialIdentifier implements Serializable
      * full identifier is specified.
      * 
      * @return <code>null</code> if no full identifier specified and material type is unknown.
+     * @throw {@link IllegalArgumentException} if material type of full identifier doesn't match
+     *        specified material type.
      */
     public static MaterialIdentifier tryCreate(String codeOrIdentifierOrNull,
             ICodeHolder materialTypeCodeHolderOrNull)
     {
         MaterialIdentifier materialIdentifier =
                 MaterialIdentifier.tryParseIdentifier(codeOrIdentifierOrNull);
-        if (materialIdentifier == null)
+        if (materialIdentifier != null)
         {
-            // if the material type of the property is fixed, then we accept when only material
-            // code is specified and its type is skipped (we know what the type should be)
             if (materialTypeCodeHolderOrNull != null
-                    && StringUtils.isBlank(codeOrIdentifierOrNull) == false)
+                    && materialIdentifier.getTypeCode().equals(
+                            materialTypeCodeHolderOrNull.getCode()) == false)
             {
-                materialIdentifier =
-                        new MaterialIdentifier(codeOrIdentifierOrNull,
-                                materialTypeCodeHolderOrNull.getCode());
-            } else
-            {
-                // identifier is invalid or null
-                return null;
+                throw new IllegalArgumentException("Material identified by '" + materialIdentifier
+                        + "' has to be of type " + materialTypeCodeHolderOrNull.getCode() + ".");
             }
+            return materialIdentifier;
         }
-        return materialIdentifier;
+        // if the material type of the property is fixed, then we accept when only material
+        // code is specified and its type is skipped (we know what the type should be)
+        if (materialTypeCodeHolderOrNull != null
+                && StringUtils.isBlank(codeOrIdentifierOrNull) == false)
+        {
+            return new MaterialIdentifier(codeOrIdentifierOrNull,
+                    materialTypeCodeHolderOrNull.getCode());
+        }
+        // identifier is invalid or null
+        return null;
     }
 
     /**

@@ -53,9 +53,24 @@ public class MaterialIdentifierTest extends AssertJUnit
     @Test
     public void testTryCreateWithFullIdentifierAndType()
     {
-        MaterialType materialType = new MaterialTypeBuilder().code("MY_M").getMaterialType();
+        MaterialType materialType = new MaterialTypeBuilder().code("MY_MATERIAL").getMaterialType();
         assertEquals("ABC (MY_MATERIAL)",
                 MaterialIdentifier.tryCreate("ABC (MY_MATERIAL)", materialType).toString());
+    }
+
+    @Test
+    public void testTryCreateWithFullIdentifierAndInconsistentType()
+    {
+        MaterialType materialType = new MaterialTypeBuilder().code("MY_M").getMaterialType();
+        try
+        {
+            MaterialIdentifier.tryCreate("ABC (MY_MATERIAL)", materialType);
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Material identified by 'ABC (MY_MATERIAL)' has to be of type MY_M.",
+                    ex.getMessage());
+        }
     }
 
     @Test
