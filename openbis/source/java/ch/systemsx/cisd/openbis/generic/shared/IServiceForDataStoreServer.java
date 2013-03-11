@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -128,6 +129,15 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
     @Transactional(readOnly = true)
     public SampleIdentifier tryGetSampleIdentifier(String sessionToken, String samplePermID)
             throws UserFailureException;
+
+    /**
+     * Gets the list of identifiers of samples with given perm ids.
+     * 
+     * @return <code>null</code> if nothing found.
+     */
+    @Transactional(readOnly = true)
+    public Map<String, SampleIdentifier> listSamplesByPermId(final String sessionToken,
+            List<String> samplePermIds);
 
     /**
      * Returns the ExperimentType together with assigned property types for specified experiment

@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Level;
 
@@ -218,6 +219,14 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
             throws UserFailureException
     {
         logAccess(sessionToken, "tryToGetSampleIdentifier", "SAMPLE(%s)", samplePermID);
+        return null;
+    }
+
+    @Override
+    public Map<String, SampleIdentifier> listSamplesByPermId(String sessionToken,
+            List<String> samplePermIds)
+    {
+        logAccess(sessionToken, "listSamplesByPermId", "SAMPLES(%s)", samplePermIds);
         return null;
     }
 

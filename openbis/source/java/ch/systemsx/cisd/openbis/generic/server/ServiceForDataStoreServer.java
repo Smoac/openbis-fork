@@ -605,6 +605,24 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         return (sample == null) ? null : sample.getSampleIdentifier();
     }
 
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public Map<String, SampleIdentifier> listSamplesByPermId(final String sessionToken,
+            List<String> samplePermIds)
+    {
+        List<SamplePE> samples =
+                daoFactory.getSampleDAO().listByPermID(new HashSet<String>(samplePermIds));
+
+        Map<String, SampleIdentifier> map = new HashMap<String, SampleIdentifier>();
+
+        for (SamplePE sample : samples)
+        {
+            map.put(sample.getPermId(), sample.getSampleIdentifier());
+        }
+
+        return map;
+    }
+
     private ExperimentPE tryLoadExperimentByIdentifier(final Session session,
             ExperimentIdentifier experimentIdentifier)
     {
