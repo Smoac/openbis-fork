@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.MaterialTypeBuilder;
+
 /**
  * @author Kaloyan Enimanev
  */
@@ -39,6 +41,41 @@ public class MaterialIdentifierTest extends AssertJUnit
         assertCorrectlyParsed(":123(ABC).PQ//", "TYPE", ":123(ABC).PQ// (TYPE)");
         assertCorrectlyParsed("/.()$%", "CONTROL_WELL", "/.()$% (CONTROL_WELL)");
 
+    }
+
+    @Test
+    public void testTryCreateWithFullIdentifier()
+    {
+        assertEquals("ABC (MY_MATERIAL)", MaterialIdentifier.tryCreate("ABC (MY_MATERIAL)", null)
+                .toString());
+    }
+
+    @Test
+    public void testTryCreateWithFullIdentifierAndType()
+    {
+        MaterialType materialType = new MaterialTypeBuilder().code("MY_M").getMaterialType();
+        assertEquals("ABC (MY_MATERIAL)",
+                MaterialIdentifier.tryCreate("ABC (MY_MATERIAL)", materialType).toString());
+    }
+
+    @Test
+    public void testTryCreateWithCodeAndType()
+    {
+        MaterialType materialType = new MaterialTypeBuilder().code("MY_M").getMaterialType();
+        assertEquals("ABC (MY_M)", MaterialIdentifier.tryCreate("ABC", materialType).toString());
+    }
+
+    @Test
+    public void testTryCreateWithTypeAndMissingCode()
+    {
+        MaterialType materialType = new MaterialTypeBuilder().code("MY_M").getMaterialType();
+        assertEquals(null, MaterialIdentifier.tryCreate("", materialType));
+    }
+
+    @Test
+    public void testTryCreateWithCodeAndMissingType()
+    {
+        assertEquals(null, MaterialIdentifier.tryCreate("ABC", null));
     }
 
     void assertCorrectlyParsed(String materialCode, String materialTypeCode, String identifierString)
