@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.io.Serializable;
 
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 
 /**
@@ -87,6 +88,35 @@ public final class MaterialIdentifier implements Serializable
     }
 
     // -----------
+    /**
+     * Creates material identifier from specified identifier or code and material type code if no
+     * full identifier is specified.
+     * 
+     * @return <code>null</code> if no full identifier specified and material type is unknown.
+     */
+    public static MaterialIdentifier tryCreate(String codeOrIdentifierOrNull,
+            ICodeHolder materialTypeCodeHolderOrNull)
+    {
+        MaterialIdentifier materialIdentifier =
+                MaterialIdentifier.tryParseIdentifier(codeOrIdentifierOrNull);
+        if (materialIdentifier == null)
+        {
+            // if the material type of the property is fixed, then we accept when only material
+            // code is specified and its type is skipped (we know what the type should be)
+            if (materialTypeCodeHolderOrNull != null
+                    && StringUtils.isBlank(codeOrIdentifierOrNull) == false)
+            {
+                materialIdentifier =
+                        new MaterialIdentifier(codeOrIdentifierOrNull,
+                                materialTypeCodeHolderOrNull.getCode());
+            } else
+            {
+                // identifier is invalid or null
+                return null;
+            }
+        }
+        return materialIdentifier;
+    }
 
     /**
      * Parses the material code and type. Assumes the syntax: "code (type)". Returns the chosen

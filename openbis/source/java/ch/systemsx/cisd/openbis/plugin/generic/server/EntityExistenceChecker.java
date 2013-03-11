@@ -357,14 +357,8 @@ class EntityExistenceChecker
             {
                 String value = property.getValue();
                 MaterialTypePE materialType = propertyTypePE.getMaterialType();
-                MaterialIdentifier materialIdentifier;
-                if (materialType != null)
-                {
-                    materialIdentifier = new MaterialIdentifier(value, materialType.getCode());
-                } else
-                {
-                    materialIdentifier = MaterialIdentifier.tryParseIdentifier(value);
-                }
+                MaterialIdentifier materialIdentifier =
+                        MaterialIdentifier.tryCreate(value, materialType);
                 if (materialIdentifier == null)
                 {
                     errors.add("Material identifier not in the form '<material code> (<material type code>)': "

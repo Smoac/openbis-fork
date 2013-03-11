@@ -37,7 +37,6 @@ import ch.systemsx.cisd.common.collection.IKeyExtractor;
 import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.common.collection.TableMap.UniqueKeyViolationStrategy;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -51,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -663,20 +661,11 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             {
                 return null; // this is not a property of MATERIAL type
             }
-            MaterialIdentifier materialIdentifier = MaterialIdentifier.tryParseIdentifier(value);
+            MaterialIdentifier materialIdentifier =
+                    MaterialIdentifier.tryCreate(value, propertyType.getMaterialType());
             if (materialIdentifier == null)
             {
-                MaterialTypePE fixedMaterialType = propertyType.getMaterialType();
-                // if the material type of the property is fixed, then we accept when only material
-                // code is specified and its type is skipped (we know what the type should be)
-                if (fixedMaterialType != null && StringUtils.isBlank(value) == false)
-                {
-                    materialIdentifier = new MaterialIdentifier(value, fixedMaterialType.getCode());
-                } else
-                {
-                    // identifier is invalid or null
-                    return null;
-                }
+                return null;
             }
 
             final MaterialPE material;
