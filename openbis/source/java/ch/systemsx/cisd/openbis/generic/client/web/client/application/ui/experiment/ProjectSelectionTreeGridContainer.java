@@ -206,6 +206,18 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
         columnConfig.setRenderer(new WidgetTreeGridCellRenderer<ModelData>()
             {
+                // Messages that are used repeatedly
+                final String projectSelectorDetailsLinkLabel = viewContext
+                        .getMessage(Dict.PROJECT_SELECTOR_DETAILS_LINK_LABEL);
+
+                final String projectSelectorDetailsLinkTooltip = viewContext
+                        .getMessage(Dict.PROJECT_SELECTOR_DETAILS_LINK_TOOLTIP);
+
+                final String projectSelectorDescriptionNotAvailable = viewContext
+                        .getMessage(Dict.PROJECT_SELECTOR_DESCRIPTION_NOT_AVAILABLE);
+
+                final String spaceMessage = viewContext.getMessage(Dict.SPACE);
+
                 @Override
                 public Widget getWidget(ModelData model, String property, ColumnData config,
                         int rowIndex, int colIndex, ListStore<ModelData> store, Grid<ModelData> grid)
@@ -226,8 +238,8 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                 {
                     final Space space = (Space) model.get(ModelDataPropertyNames.OBJECT);
                     final Widget result = new InlineHTML(space.getCode());
-                    result.setTitle(createTooltipText(viewContext.getMessage(Dict.SPACE),
-                            space.getCode(), space.getDescription()));
+                    result.setTitle(createTooltipText(spaceMessage, space.getCode(),
+                            space.getDescription()));
                     return result;
                 }
 
@@ -247,11 +259,9 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                             }
                         };
                     final Widget detailsLink =
-                            LinkRenderer.getLinkWidget(viewContext
-                                    .getMessage(Dict.PROJECT_SELECTOR_DETAILS_LINK_LABEL),
-                                    listener, href);
-                    detailsLink.setTitle(viewContext
-                            .getMessage(Dict.PROJECT_SELECTOR_DETAILS_LINK_TOOLTIP));
+                            LinkRenderer.getLinkWidget(projectSelectorDetailsLinkLabel, listener,
+                                    href);
+                    detailsLink.setTitle(projectSelectorDetailsLinkTooltip);
                     projectLinks.put(project, detailsLink);
 
                     final FlowPanel panel =
@@ -267,8 +277,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                         String descriptionOrNull)
                 {
                     String description =
-                            descriptionOrNull == null ? viewContext
-                                    .getMessage(Dict.PROJECT_SELECTOR_DESCRIPTION_NOT_AVAILABLE)
+                            descriptionOrNull == null ? projectSelectorDescriptionNotAvailable
                                     : StringEscapeUtils.unescapeHtml(descriptionOrNull);
                     return entity + " code: " + code + "\nDescription: " + description;
                 }
@@ -382,22 +391,24 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     /** adds items for given <var>projects</var> to the tree */
     private void addToStore(List<Project> projects)
     {
-        for (Space space : getSortedSpaces(projects))
+        Set<Space> spaces = getSortedSpaces(projects);
+        HashMap<Space, ModelData> spaceToModelMap = new HashMap<Space, ModelData>();
+        List<ModelData> spaceModels = new ArrayList<ModelData>(spaces.size());
+        for (Space space : spaces)
         {
             SpaceItemModel spaceModel = new SpaceItemModel(space);
-            tree.getTreeStore().add(spaceModel, true);
-            tree.setLeaf(spaceModel, false);
-            for (Project project : projects)
-            {
-                if (project.getSpace().equals(space))
-                {
-                    ProjectItemModel projectModel = new ProjectItemModel(project);
-                    tree.getTreeStore().add(spaceModel, projectModel, false);
-                    tree.setLeaf(projectModel, true);
-                }
-            }
+            spaceModels.add(spaceModel);
+            spaceToModelMap.put(space, spaceModel);
         }
-
+        tree.getTreeStore().add(spaceModels, true);
+        for (Project project : projects)
+        {
+            ModelData spaceModel = spaceToModelMap.get(project.getSpace());
+            tree.setLeaf(spaceModel, false);
+            ProjectItemModel projectModel = new ProjectItemModel(project);
+            tree.getTreeStore().add(spaceModel, projectModel, false);
+            tree.setLeaf(projectModel, true);
+        }
     }
 
     /** @return a sorted set of spaces of given <var>projects</var> */
