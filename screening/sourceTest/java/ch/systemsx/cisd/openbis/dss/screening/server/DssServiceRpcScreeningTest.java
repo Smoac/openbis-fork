@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInterceptor;
@@ -72,9 +73,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.authorization.Ds
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtilTest;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -339,10 +340,14 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     @Test
     public void testLoadFeatures()
     {
+        prepareFeatureVectorContainedDatasets(new long[]
+            { 1, 2 });
+
         prepareAssetDataSetsAreAccessible();
         prepareLockDataSet("ds1", DATASET_CODE2);
         FeatureVectorDatasetReference r1 = createFeatureVectorDatasetReference(DATASET_CODE);
         FeatureVectorDatasetReference r2 = createFeatureVectorDatasetReference(DATASET_CODE2);
+
         String[][] featureCodesPerDataset = new String[][]
             {
                 { "F1", "F2" } };
@@ -378,7 +383,6 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private void prepareLoadFeatures(long[] dataSetIDs, String[][] featureCodesPerDataset)
     {
-        prepareFeatureVectorContainedDatasets(dataSetIDs);
         prepareListAnalysisDatasets(dataSetIDs);
         prepareListContainers(dataSetIDs);
         prepareGetFeatureDefinitions(dataSetIDs, featureCodesPerDataset);
@@ -928,16 +932,20 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                 {
                     String[] permIDs = new String[dataSetIDs.length];
 
+                    List<AbstractExternalData> result = new LinkedList<AbstractExternalData>();
                     for (int i = 0; i < dataSetIDs.length; i++)
                     {
                         long id = dataSetIDs[i];
                         permIDs[i] = "ds" + id;
 
-                        AbstractExternalData d = new PhysicalDataSet(); // this dataset is only asked if it is a
-                                                        // container
-                        one(service).tryGetDataSet(permIDs[i]);
-                        will(returnValue(d));
+                        PhysicalDataSet dataSet = new PhysicalDataSet();
+                        dataSet.setCode(permIDs[i]);
+
+                        result.add(dataSet);
+
                     }
+                    one(service).listDataSetsByCode(with(equal(Arrays.asList(permIDs))));
+                    will(returnValue(result));
                 }
             });
     }

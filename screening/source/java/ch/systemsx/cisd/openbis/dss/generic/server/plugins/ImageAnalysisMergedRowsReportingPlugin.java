@@ -18,27 +18,22 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.screening.server.util.FeatureVectorLoaderMetadataProviderFactory;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
@@ -94,7 +89,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
         ArrayList<String> featureCodes = new ArrayList<String>(); // fetch all
         WellFeatureCollection<FeatureTableRow> featuresCollection =
                 FeatureVectorLoader.fetchDatasetFeatures(datasetCodes, featureCodes, getDAO(),
-                        getMetadataProvider());
+                        getMetadataProvider(datasetCodes));
 
         List<CodeAndLabel> codeAndLabels = featuresCollection.getFeatureCodesAndLabels();
         List<FeatureTableRow> rows = featuresCollection.getFeatures();
@@ -177,47 +172,17 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
         return dao;
     }
 
-    private IMetadataProvider getMetadataProvider()
+    private IMetadataProvider getMetadataProvider(final List<String> datasetCodes)
     {
         synchronized (this)
         {
             if (metadataProvider == null)
             {
-                metadataProvider = createFeatureVectorsMetadataProvider();
+                metadataProvider =
+                        FeatureVectorLoaderMetadataProviderFactory.createMetadataProvider(
+                                ServiceProvider.getOpenBISService(), datasetCodes);
             }
         }
         return metadataProvider;
-    }
-
-    private static IMetadataProvider createFeatureVectorsMetadataProvider()
-    {
-        final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
-        return new IMetadataProvider()
-            {
-                @Override
-                public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
-                {
-                    return openBISService.tryGetSampleIdentifier(samplePermId);
-                }
-
-                @Override
-                public List<String> tryGetContainedDatasets(String datasetCode)
-                {
-                    AbstractExternalData ds = openBISService.tryGetDataSet(datasetCode);
-                    ContainerDataSet container = ds.tryGetAsContainerDataSet();
-                    if (container != null)
-                    {
-                        List<String> list = new LinkedList<String>();
-                        for (AbstractExternalData contained : container.getContainedDataSets())
-                        {
-                            list.add(contained.getCode());
-                        }
-                        return list;
-                    } else
-                    {
-                        return Collections.emptyList();
-                    }
-                }
-            };
     }
 }

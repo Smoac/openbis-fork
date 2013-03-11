@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -66,12 +65,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.screening.server.logic.ImageRepresentationFormatFinder;
+import ch.systemsx.cisd.openbis.dss.screening.server.util.FeatureVectorLoaderMetadataProviderFactory;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.AbstractFormatSelectionCriterion;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
@@ -482,19 +480,26 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     {
         List<String> codes = normalize(featureNames);
         List<FeatureVectorDataset> result = new ArrayList<FeatureVectorDataset>();
+
+        IMetadataProvider metadataProvider =
+                FeatureVectorLoaderMetadataProviderFactory
+                        .createMetadataProviderFromFeatureVectors(getOpenBISService(),
+                                featureDatasets);
+
         for (FeatureVectorDatasetReference dataset : featureDatasets)
         {
-            result.add(createFeatureVectorDataset(sessionToken, dataset, codes));
+            result.add(createFeatureVectorDataset(sessionToken, dataset, codes, metadataProvider));
         }
         return result;
     }
 
     private FeatureVectorDataset createFeatureVectorDataset(String sessionToken,
-            FeatureVectorDatasetReference dataset, List<String> featureCodes)
+            FeatureVectorDatasetReference dataset, List<String> featureCodes,
+            IMetadataProvider metadataProvider)
     {
         WellFeatureCollection<FeatureTableRow> datasetFeatures =
                 FeatureVectorLoader.fetchDatasetFeatures(Arrays.asList(dataset.getDatasetCode()),
-                        featureCodes, getDAO(), createMetadataProvider());
+                        featureCodes, getDAO(), metadataProvider);
         List<FeatureVector> featureVectors = new ArrayList<FeatureVector>();
         for (FeatureTableRow featureTableRow : datasetFeatures.getFeatures())
         {
@@ -548,40 +553,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     {
         WellFeatureCollection<FeatureTableRow> features =
                 FeatureVectorLoader.fetchWellFeatures(datasetWellReferences, featureNames, dao,
-                        createMetadataProvider());
+                        FeatureVectorLoaderMetadataProviderFactory
+                                .createMetadataProviderFromFeatureVectors(getOpenBISService(),
+                                        datasetWellReferences));
         return createFeatureVectorList(features);
-    }
-
-    private IMetadataProvider createMetadataProvider()
-    {
-        final IEncapsulatedOpenBISService openBISService = getOpenBISService();
-        return new IMetadataProvider()
-            {
-                @Override
-                public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
-                {
-                    return openBISService.tryGetSampleIdentifier(samplePermId);
-                }
-
-                @Override
-                public List<String> tryGetContainedDatasets(String datasetCode)
-                {
-                    AbstractExternalData ds = openBISService.tryGetDataSet(datasetCode);
-                    ContainerDataSet container = ds.tryGetAsContainerDataSet();
-                    if (container != null)
-                    {
-                        List<String> list = new LinkedList<String>();
-                        for (AbstractExternalData contained : container.getContainedDataSets())
-                        {
-                            list.add(contained.getCode());
-                        }
-                        return list;
-                    } else
-                    {
-                        return Collections.emptyList();
-                    }
-                }
-            };
     }
 
     private List<FeatureVectorWithDescription> createFeatureVectorList(

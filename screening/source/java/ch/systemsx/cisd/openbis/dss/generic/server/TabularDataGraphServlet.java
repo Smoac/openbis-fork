@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,12 +26,10 @@ import javax.servlet.http.HttpServletRequest;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ITabularData;
+import ch.systemsx.cisd.openbis.dss.screening.server.util.FeatureVectorLoaderMetadataProviderFactory;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -209,34 +205,7 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
     private static IMetadataProvider createFeatureVectorsMetadataProvider()
     {
         final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
-        return new IMetadataProvider()
-            {
-                @Override
-                public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
-                {
-                    return openBISService.tryGetSampleIdentifier(samplePermId);
-                }
-
-                @Override
-                public List<String> tryGetContainedDatasets(String datasetCode)
-                {
-                    AbstractExternalData ds = openBISService.tryGetDataSet(datasetCode);
-                    ContainerDataSet container = ds.tryGetAsContainerDataSet();
-                    if (container != null)
-                    {
-                        List<String> list = new LinkedList<String>();
-                        for (AbstractExternalData contained : container.getContainedDataSets())
-                        {
-                            list.add(contained.getCode());
-                        }
-                        return list;
-                    } else
-                    {
-                        return Collections.emptyList();
-                    }
-                }
-
-            };
+        return FeatureVectorLoaderMetadataProviderFactory.createMetadataProvider(openBISService);
     }
 
 }
