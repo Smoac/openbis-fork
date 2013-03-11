@@ -58,6 +58,12 @@
     <bean id="data-store-rpc-service-screening-json" class="com.googlecode.jsonrpc4j.spring.JsonServiceExporter">
         <property name="service">
             <ref bean="data-store-rpc-service-screening-json-logic" />
+            <property name="interceptorNames">
+                <list>
+                    <value>screening-rpc-authorization-advisor</value>
+                    <value>screening-rpc-log-advisor</value>
+                </list>
+            </property>
         </property>
         <property name="serviceInterface" >
             <value>ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening</value>
