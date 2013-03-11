@@ -111,6 +111,7 @@ abstract class AbstractCommand
 
     IDssServiceRpcGeneric createDssService(String downloadUrl)
     {
+        SslCertificateHelper.trustAnyCertificate(downloadUrl);
         return new DssServiceRpcGenericFactory().getService(downloadUrl);
     }
 
