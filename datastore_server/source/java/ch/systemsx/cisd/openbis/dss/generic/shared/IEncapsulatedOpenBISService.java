@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -132,6 +133,15 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      */
     @ManagedAuthentication
     public SampleIdentifier tryGetSampleIdentifier(String samplePermID) throws UserFailureException;
+
+    /**
+     * Tries to get the sample identifier for the sample with specified permanent ID.
+     * 
+     * @return <code>null</code> if nothing found.
+     */
+    @ManagedAuthentication
+    public Map<String, SampleIdentifier> listSampleIdentifiers(List<String> samplePermID)
+            throws UserFailureException;
 
     /**
      * For given (@code name} and {@code ownerId} returns the corresponding {@link Metaproject}

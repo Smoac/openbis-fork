@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
@@ -254,6 +255,13 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public SampleIdentifier tryGetSampleIdentifier(String samplePermID) throws UserFailureException
     {
         return service.tryGetSampleIdentifier(session.getSessionToken(), samplePermID);
+    }
+
+    @Override
+    public Map<String, SampleIdentifier> listSampleIdentifiers(List<String> samplePermID)
+            throws UserFailureException
+    {
+        return service.listSamplesByPermId(session.getSessionToken(), samplePermID);
     }
 
     @Override
