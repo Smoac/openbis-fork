@@ -150,6 +150,16 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
                 PropertyUtils.getInt(properties, MAX_NUMBER_OF_CHUNKS_KEY,
                         DEFAULT_MAX_NUMBER_OF_DATA_SETS);
         timeLimit = DateTimeUtils.getDurationInMillis(properties, TIME_LIMIT_KEY, 0);
+        StringBuilder builder = new StringBuilder(pluginName);
+        builder.append(" intialized with chunk size = ").append(chunkSize).append(".");
+        if (timeLimit > 0)
+        {
+            builder.append(" Time limit: ").append(DateTimeUtils.renderDuration(timeLimit));
+        } else if (maxNumerOfChunks > 0)
+        {
+            builder.append(" Maximum number of chunks: ").append(maxNumerOfChunks);
+        }
+        operationLog.info(builder.toString());
     }
 
     private static boolean getComputeChecksumFlag(Properties properties)

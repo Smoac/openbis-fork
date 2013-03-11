@@ -23,7 +23,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Properties;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
