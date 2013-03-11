@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 import java.util.List;
 import java.util.Map;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -120,6 +118,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * Asynchronous version of {@link ICommonClientService}.
@@ -377,6 +377,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listProjects(
             DefaultResultSetConfig<String, TableModelRowWithObject<Project>> criteria,
             final AsyncCallback<TypedTableResultSet<Project>> asyncCallback);
+
+    /** @see ICommonClientService#listProjectsForTree() */
+    public void listProjectsForTree(final AsyncCallback<List<Project>> asyncCallback);
 
     /** @see ICommonClientService#prepareExportProjects(TableExportCriteria) */
     public void prepareExportProjects(

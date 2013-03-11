@@ -24,6 +24,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SimplifiedBaseModelData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -49,30 +69,6 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Widget;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SimplifiedBaseModelData;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * {@link LayoutContainer} containing a {@link TreeGrid} with projects loaded from the server. Main
@@ -106,6 +102,8 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
     private String resultSetKey;
 
+    private ContentPanel contentPanel;
+
     public ProjectSelectionTreeGridContainer(final IViewContext<?> viewContext,
             String initialSpaceCodeOrNull, String initialProjectIdentifierOrNull)
     {
@@ -118,12 +116,12 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         ColumnModel columnModel = new ColumnModel(Arrays.asList(codeColumn));
         tree = createTreeGrid(columnModel);
 
-        ContentPanel cp = new ContentPanel();
-        cp.setBodyBorder(false);
-        cp.setHeading(viewContext.getMessage(Dict.PROJECT_SELECTOR_TITLE));
-        cp.setLayout(new FitLayout());
-        cp.add(tree);
-        add(cp);
+        contentPanel = new ContentPanel();
+        contentPanel.setBodyBorder(false);
+        contentPanel.setHeading(viewContext.getMessage(Dict.PROJECT_SELECTOR_TITLE));
+        contentPanel.setLayout(new FitLayout());
+        contentPanel.add(tree);
+        add(contentPanel);
 
         refreshTree();
     }
@@ -433,9 +431,11 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
     private void loadData()
     {
-        DefaultResultSetConfig<String, TableModelRowWithObject<Project>> config =
-                DefaultResultSetConfig.createFetchAll();
-        viewContext.getCommonService().listProjects(config, new ListProjectsCallback(viewContext));
+        // DefaultResultSetConfig<String, TableModelRowWithObject<Project>> config =
+        // DefaultResultSetConfig.createFetchAll();
+        // viewContext.getCommonService().listProjectsForTree(config,
+        // new ListProjectsCallback(viewContext));
+        viewContext.getCommonService().listProjectsForTree(new ListProjectsCallback(viewContext));
     }
 
     private void selectByProjectIdentifierIfPossible(String projectIdentifier)
@@ -479,8 +479,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     //
     // Helper classes
     //
-    private final class ListProjectsCallback extends
-            AbstractAsyncCallback<TypedTableResultSet<Project>>
+    private final class ListProjectsCallback extends AbstractAsyncCallback<List<Project>>
     {
 
         ListProjectsCallback(final IViewContext<?> viewContext)
@@ -489,17 +488,8 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         }
 
         @Override
-        protected void process(final TypedTableResultSet<Project> result)
+        protected void process(final List<Project> projects)
         {
-            ResultSet<TableModelRowWithObject<Project>> resultSet = result.getResultSet();
-            resultSetKey = resultSet.getResultSetKey();
-            List<TableModelRowWithObject<Project>> rows =
-                    resultSet.getList().extractOriginalObjects();
-            List<Project> projects = new ArrayList<Project>();
-            for (TableModelRowWithObject<Project> row : rows)
-            {
-                projects.add(row.getObjectOrNull());
-            }
             rebuildTree(projects);
 
             String projectIdentifierOrNull = tryGetProjectIdentifierToSelect();

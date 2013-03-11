@@ -453,6 +453,11 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Returns a list of all projects for use in the tree view of projects.
+     */
+    public List<Project> listProjectsForTree() throws UserFailureException;
+
+    /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for projects.
      */
     public String prepareExportProjects(

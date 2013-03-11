@@ -834,6 +834,13 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
+    public List<Project> listProjectsForTree()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return commonServer.listProjects(getSessionToken());
+    }
+
+    @Override
     public TypedTableResultSet<Vocabulary> listVocabularies(boolean withTerms,
             boolean excludeInternal,
             DefaultResultSetConfig<String, TableModelRowWithObject<Vocabulary>> criteria)
