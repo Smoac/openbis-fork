@@ -38,6 +38,8 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedH
  */
 public class DatabaseBasedDataSetPathsInfoFeederTest extends AbstractFileSystemTestCase
 {
+    private static final Date TIME_STAMP = new Date(4711);
+
     private static final String ROOT_PATH = DatabaseBasedDataSetPathsInfoFeederTest.class.getName();
 
     private Mockery context;

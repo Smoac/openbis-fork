@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -58,6 +58,7 @@ public class SimpleDataSetHelper
         SimpleDataSetInformationDTO result = new SimpleDataSetInformationDTO();
         result.setDataStoreCode(data.getDataStore().getCode());
         result.setDataSetCode(data.getCode());
+        result.setRegistrationTimestamp(data.getRegistrationDate());
         result.setSpeedHint(data.getSpeedHint());
         result.setDataSetShareId(data.getShareId());
         result.setDataSetLocation(data.getLocation());
@@ -78,6 +79,7 @@ public class SimpleDataSetHelper
         SimpleDataSetInformationDTO result = new SimpleDataSetInformationDTO();
         result.setDatabaseInstanceCode(datasetDescription.getDatabaseInstanceCode());
         result.setDataSetCode(datasetDescription.getDataSetCode());
+        result.setRegistrationTimestamp(datasetDescription.getRegistrationTimestamp());
         result.setSpeedHint(datasetDescription.getSpeedHint());
         result.setDataSetLocation(datasetDescription.getDataSetLocation());
         result.setDataSetSize(datasetDescription.getDataSetSize());

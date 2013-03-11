@@ -276,16 +276,15 @@ public class HierarchicalContentProviderTest extends AssertJUnit
                 @Override
                 public String getDataStoreUrl()
                 {
-                    // TODO Auto-generated method stub
                     return null;
                 }
 
                 @Override
                 public String getDataStoreCode()
                 {
-                    // TODO Auto-generated method stub
                     return null;
                 }
+
             };
 
         final File dataRootFile = new File("DS_FILE");

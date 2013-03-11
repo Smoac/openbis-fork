@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -38,6 +39,8 @@ public class DatasetDescription implements Serializable, IDatasetLocation
     private String datasetCode;
 
     private String dataSetLocation;
+
+    private Date registrationTimestamp;
 
     private Long dataSetSize;
 
@@ -111,6 +114,16 @@ public class DatasetDescription implements Serializable, IDatasetLocation
     public void setDataSetLocation(String dataSetLocation)
     {
         this.dataSetLocation = dataSetLocation;
+    }
+
+    public Date getRegistrationTimestamp()
+    {
+        return registrationTimestamp;
+    }
+
+    public void setRegistrationTimestamp(Date registrationTimestamp)
+    {
+        this.registrationTimestamp = registrationTimestamp;
     }
 
     public String getInstanceCode()

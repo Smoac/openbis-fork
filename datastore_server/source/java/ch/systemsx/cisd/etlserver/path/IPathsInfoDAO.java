@@ -42,6 +42,15 @@ public interface IPathsInfoDAO extends TransactionQuery
             + "size_in_bytes, is_directory, last_modified) values (?{1}, ?{2}, ?{3}, ?{4}, ?{5}, ?{6}, ?{7}) returning id")
     public long createDataSetFile(long dataSetId, Long parentId, String relativePath,
             String fileName, long sizeInBytes, boolean directory, Date lastModifiedDate);
+    
+    @Select("select registration_timestamp from last_feeding_event")
+    public Date getRegistrationTimestampOfLastFeedingEvent();
+    
+    @Update("delete from last_feeding_event")
+    public void deleteLastFeedingEvent();
+    
+    @Update("insert into last_feeding_event (registration_timestamp) values (?{1})")
+    public void createLastFeedingEvent(Date registrationTimestamp);
 
     @Update(sql = "insert into data_set_files (dase_id, parent_id, relative_path, file_name, "
             + "size_in_bytes, checksum_crc32, is_directory, last_modified) values "

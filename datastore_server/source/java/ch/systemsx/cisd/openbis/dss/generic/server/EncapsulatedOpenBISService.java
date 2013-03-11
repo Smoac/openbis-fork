@@ -562,14 +562,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         List<SimpleDataSetInformationDTO> dataSets =
                 service.listPhysicalDataSets(session.getSessionToken(), session.getDataStoreCode());
-        for (SimpleDataSetInformationDTO dataSet : dataSets)
-        {
-            if (dataSet.getDataSetShareId() == null)
-            {
-                dataSet.setDataSetShareId(ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID);
-            }
-        }
-        return dataSets;
+        return injectDefaultShareIdIfMissing(dataSets);
     }
 
     @Override
@@ -579,14 +572,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         List<SimpleDataSetInformationDTO> dataSets =
                 service.listOldestPhysicalDataSets(session.getSessionToken(), session.getDataStoreCode(),
                         chunkSize);
-        for (SimpleDataSetInformationDTO dataSet : dataSets)
-        {
-            if (dataSet.getDataSetShareId() == null)
-            {
-                dataSet.setDataSetShareId(ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID);
-            }
-        }
-        return dataSets;
+        return injectDefaultShareIdIfMissing(dataSets);
     }
 
     @Override
@@ -596,6 +582,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         List<SimpleDataSetInformationDTO> dataSets =
                 service.listOldestPhysicalDataSets(session.getSessionToken(), session.getDataStoreCode(),
                         youngerThan, chunkSize);
+        return injectDefaultShareIdIfMissing(dataSets);
+    }
+
+    private List<SimpleDataSetInformationDTO> injectDefaultShareIdIfMissing(
+            List<SimpleDataSetInformationDTO> dataSets)
+    {
         for (SimpleDataSetInformationDTO dataSet : dataSets)
         {
             if (dataSet.getDataSetShareId() == null)

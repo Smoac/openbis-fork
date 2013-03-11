@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Properties;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -39,8 +40,8 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -91,7 +92,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         contentFactory = context.mock(IHierarchicalContentFactory.class);
         content = context.mock(IHierarchicalContent.class);
         node = context.mock(IHierarchicalContentNode.class);
-        task = new PathInfoDatabaseFeedingTask(service, directoryProvider, dao, contentFactory, true);
+        task = createTask(0, 0, 0);
         dataSetFolder = new File(workingDirectory, "ds1");
         dataSetFolder.mkdirs();
     }
@@ -115,20 +116,30 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         final SimpleDataSetInformationDTO ds1 = new SimpleDataSetInformationDTO();
         ds1.setDataSetCode("ds1");
         ds1.setDataSetLocation("abc1");
+        ds1.setRegistrationTimestamp(new Date(78000));
         final SimpleDataSetInformationDTO ds2 = new SimpleDataSetInformationDTO();
         ds2.setDataSetCode("ds2");
         ds2.setDataSetLocation("abc2");
+        ds2.setRegistrationTimestamp(new Date(79000));
         context.checking(new Expectations()
             {
                 {
-                    one(service).listPhysicalDataSets();
+                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
+                    will(returnValue(null));
+                    
+                    one(service).listOldestPhysicalDataSets(12);
                     will(returnValue(Arrays.asList(ds1, ds2)));
+                    
+                    exactly(2).of(dao).deleteLastFeedingEvent();
+                    one(dao).createLastFeedingEvent(ds1.getRegistrationTimestamp());
+                    one(dao).createLastFeedingEvent(ds2.getRegistrationTimestamp());
+                    exactly(2).of(dao).commit();
                 }
             });
         prepareHappyCase(ds1);
         prepareFailing(ds2);
 
-        task.execute();
+        createTask(12, 3, 0).execute();
     }
 
     @Test
@@ -289,4 +300,12 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                 }
             });
     }
+    
+    private PathInfoDatabaseFeedingTask createTask(int chunkSize, int maxNumberOfChunks,
+            long timeLimite)
+    {
+        return new PathInfoDatabaseFeedingTask(service, directoryProvider, dao, contentFactory,
+                true, chunkSize, maxNumberOfChunks, timeLimite);
+    }
+
 }

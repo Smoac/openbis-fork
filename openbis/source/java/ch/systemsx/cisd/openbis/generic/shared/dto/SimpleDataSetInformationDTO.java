@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
@@ -37,6 +38,8 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     private String dataSetShareId;
 
     private String dataSetLocation;
+
+    private Date registrationTimestamp;
 
     private Long dataSetSize;
 
@@ -117,6 +120,16 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     public void setDataSetLocation(String dataSetLocation)
     {
         this.dataSetLocation = dataSetLocation;
+    }
+
+    public Date getRegistrationTimestamp()
+    {
+        return registrationTimestamp;
+    }
+
+    public void setRegistrationTimestamp(Date registrationTimestamp)
+    {
+        this.registrationTimestamp = registrationTimestamp;
     }
 
     public int getSpeedHint()

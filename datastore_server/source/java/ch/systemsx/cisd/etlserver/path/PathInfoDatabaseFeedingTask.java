@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.path;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -29,6 +30,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.time.DateTimeUtils;
 import ch.systemsx.cisd.etlserver.postregistration.ICleanupTask;
 import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTask;
 import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTaskExecutor;
@@ -51,11 +53,27 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  */
 public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegistrationTask
 {
+    private static interface IStopCondition
+    {
+        void handle(SimpleDataSetInformationDTO dataSet);
+        boolean fulfilled();
+    }
+    
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             PathInfoDatabaseFeedingTask.class);
 
     static final String COMPUTE_CHECKSUM_KEY = "compute-checksum";
+    
+    static final String CHUNK_SIZE_KEY = "data-set-chunk-size";
+    
+    static final int DEFAULT_CHUNK_SIZE = 1000;
 
+    static final String MAX_NUMBER_OF_CHUNKS_KEY = "max-number-of-chunks";
+    
+    static final int DEFAULT_MAX_NUMBER_OF_DATA_SETS = -1;
+    
+    static final String TIME_LIMIT_KEY = "time-limit";
+    
     private static IPathsInfoDAO createDAO()
     {
         return QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
@@ -81,6 +99,12 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
 
     private boolean computeChecksum;
 
+    private int chunkSize;
+
+    private int maxNumerOfChunks;
+
+    private long timeLimit;
+
     public PathInfoDatabaseFeedingTask()
     {
     }
@@ -88,19 +112,23 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
     public PathInfoDatabaseFeedingTask(Properties properties, IEncapsulatedOpenBISService service)
     {
         this(service, getDirectoryProvider(), createDAO(), createContentFactory(),
-                getComputeChecksumFlag(properties));
+                getComputeChecksumFlag(properties), 0, 0, 0);
     }
 
     @Private
     PathInfoDatabaseFeedingTask(IEncapsulatedOpenBISService service,
             IDataSetDirectoryProvider directoryProvider, IPathsInfoDAO dao,
-            IHierarchicalContentFactory hierarchicalContentFactory, boolean computeChecksum)
+            IHierarchicalContentFactory hierarchicalContentFactory, boolean computeChecksum,
+            int chunkSize, int maxNumberOfChunks, long timeLimit)
     {
         this.service = service;
         this.directoryProvider = directoryProvider;
         this.dao = dao;
         this.hierarchicalContentFactory = hierarchicalContentFactory;
         this.computeChecksum = computeChecksum;
+        this.chunkSize = chunkSize;
+        maxNumerOfChunks = maxNumberOfChunks;
+        this.timeLimit = timeLimit;
     }
 
     @Override
@@ -117,21 +145,49 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         dao = createDAO();
         hierarchicalContentFactory = createContentFactory();
         computeChecksum = getComputeChecksumFlag(properties);
+        chunkSize = PropertyUtils.getInt(properties, CHUNK_SIZE_KEY, DEFAULT_CHUNK_SIZE);
+        maxNumerOfChunks =
+                PropertyUtils.getInt(properties, MAX_NUMBER_OF_CHUNKS_KEY,
+                        DEFAULT_MAX_NUMBER_OF_DATA_SETS);
+        timeLimit = DateTimeUtils.getDurationInMillis(properties, TIME_LIMIT_KEY, 0);
     }
 
     private static boolean getComputeChecksumFlag(Properties properties)
     {
         return PropertyUtils.getBoolean(properties, COMPUTE_CHECKSUM_KEY, false);
     }
-
+    
     @Override
     public void execute()
     {
-        List<SimpleDataSetInformationDTO> dataSets = service.listPhysicalDataSets();
-        for (SimpleDataSetInformationDTO dataSet : dataSets)
+        IStopCondition stopCondition = createStopCondition();
+        List<SimpleDataSetInformationDTO> dataSets;
+        int chunkCount = 0;
+        operationLog.info("Start feeding.");
+        do
         {
-            feedPathInfoDatabase(dataSet);
+            dataSets = getNextChunk();
+            operationLog.info("Feeding " + ++chunkCount + ". chunk.");
+            for (SimpleDataSetInformationDTO dataSet : dataSets)
+            {
+                feedPathInfoDatabase(dataSet);
+                dao.deleteLastFeedingEvent();
+                dao.createLastFeedingEvent(dataSet.getRegistrationTimestamp());
+                dao.commit();
+                stopCondition.handle(dataSet);
+            }
+        } while (dataSets.size() >= chunkSize && stopCondition.fulfilled() == false);
+        operationLog.info("Feeding finished.");
+    }
+    
+    private List<SimpleDataSetInformationDTO> getNextChunk()
+    {
+        Date timestamp = dao.getRegistrationTimestampOfLastFeedingEvent();
+        if (timestamp == null)
+        {
+            return service.listOldestPhysicalDataSets(chunkSize);
         }
+        return service.listOldestPhysicalDataSets(timestamp, chunkSize);
     }
 
     @Override
@@ -203,6 +259,75 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
     {
         operationLog.error("Couldn't feed database with path infos of data set " + dataSet, ex);
         dao.rollback();
+    }
+
+    private IStopCondition createStopCondition()
+    {
+        if (timeLimit > 0)
+        {
+            return createStopConditionForTimeLimit();
+        }
+        if (maxNumerOfChunks > 0)
+        {
+            return createStopConditionForMaxNumber();
+        }
+        return new IStopCondition()
+            {
+
+                @Override
+                public void handle(SimpleDataSetInformationDTO dataSet)
+                {
+                }
+
+                @Override
+                public boolean fulfilled()
+                {
+                    return false;
+                }
+            };
+    }
+
+    private IStopCondition createStopConditionForMaxNumber()
+    {
+        return new IStopCondition()
+            {
+                private int count;
+
+                @Override
+                public void handle(SimpleDataSetInformationDTO dataSet)
+                {
+                }
+
+                @Override
+                public boolean fulfilled()
+                {
+                    return ++count >= maxNumerOfChunks;
+                }
+            };
+    }
+
+    private IStopCondition createStopConditionForTimeLimit()
+    {
+        return new IStopCondition()
+            {
+                private long minimum = Long.MAX_VALUE;
+
+                private long maximum = Long.MIN_VALUE;
+
+                @Override
+                public void handle(SimpleDataSetInformationDTO dataSet)
+                {
+                    long time = dataSet.getRegistrationTimestamp().getTime();
+                    minimum = Math.min(minimum, time);
+                    maximum = Math.max(maximum, time);
+                }
+
+                @Override
+                public boolean fulfilled()
+                {
+                    return maximum - minimum > timeLimit;
+                }
+            };
     }
 
 }

@@ -27,17 +27,17 @@ import java.util.Set;
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PlaceholderDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -73,6 +73,7 @@ public class DataSetTranslator
         description.setDataSetCode(data.getCode());
 
         description.setDataStoreCode(data.getDataStore().getCode());
+        description.setRegistrationTimestamp(data.getRegistrationDate());
 
         PhysicalDataSet dataSet = data.tryGetAsDataSet();
         if (dataSet != null)
@@ -200,8 +201,8 @@ public class DataSetTranslator
                 withExperimentFields);
     }
 
-    public static AbstractExternalData translate(DataPE dataPE, String baseIndexURL, boolean withDetails,
-            Collection<Metaproject> metaprojects,
+    public static AbstractExternalData translate(DataPE dataPE, String baseIndexURL,
+            boolean withDetails, Collection<Metaproject> metaprojects,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
             final LoadableFields... withExperimentFields)
     {
@@ -421,6 +422,7 @@ public class DataSetTranslator
 
         DatasetDescription description = new DatasetDescription();
         description.setDataSetCode(dataSet.getCode());
+        description.setRegistrationTimestamp(dataSet.getRegistrationDate());
         if (dataSet.isExternalData())
         {
             ExternalDataPE externalData = dataSet.tryAsExternalData();
