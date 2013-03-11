@@ -23,8 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -348,6 +350,9 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         FeatureVectorDatasetReference r1 = createFeatureVectorDatasetReference(DATASET_CODE);
         FeatureVectorDatasetReference r2 = createFeatureVectorDatasetReference(DATASET_CODE2);
 
+        prepareListAnalysisDatasets(1, 2);
+        prepareListContainers(true, 1, 2);
+
         String[][] featureCodesPerDataset = new String[][]
             {
                 { "F1", "F2" } };
@@ -384,7 +389,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     private void prepareLoadFeatures(long[] dataSetIDs, String[][] featureCodesPerDataset)
     {
         prepareListAnalysisDatasets(dataSetIDs);
-        prepareListContainers(dataSetIDs);
+        prepareListContainers(false, dataSetIDs);
         prepareGetFeatureDefinitions(dataSetIDs, featureCodesPerDataset);
         prepareGetFeatureVocabularyTerms(dataSetIDs);
         prepareCreateFeatureVectorDataSet(dataSetIDs, featureCodesPerDataset);
@@ -899,12 +904,14 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             });
     }
 
-    private void prepareListContainers(final long[] dataSetIDs)
+    private void prepareListContainers(final boolean callService, final long... dataSetIDs)
     {
         context.checking(new Expectations()
             {
                 {
                     long[] containerIds = new long[dataSetIDs.length];
+                    String[] sampleIdentifiers = new String[dataSetIDs.length];
+
                     List<ImgContainerDTO> containers = new ArrayList<ImgContainerDTO>();
 
                     for (int i = 0; i < dataSetIDs.length; i++)
@@ -914,11 +921,16 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                         ImgContainerDTO container = new ImgContainerDTO("12-34", 1, 2, 0);
                         container.setId(containerIds[i]);
                         containers.add(container);
-
-                        one(service).tryGetSampleIdentifier("12-34");
-                        will(returnValue(new SampleIdentifier(new SpaceIdentifier("1", "S"), "P1")));
+                        sampleIdentifiers[i] = "12-34";
                     }
 
+                    if (callService)
+                    {
+                        one(service).listSampleIdentifiers(Arrays.asList(sampleIdentifiers));
+                        Map<String, SampleIdentifier> map = new HashMap<String, SampleIdentifier>();
+                        map.put("12-34", new SampleIdentifier(new SpaceIdentifier("1", "S"), "P1"));
+                        will(returnValue(map));
+                    }
                     one(dao).listContainersByIds(containerIds);
                     will(returnValue(containers));
                 }
@@ -950,7 +962,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             });
     }
 
-    private void prepareListAnalysisDatasets(final long[] dataSetIDs)
+    private void prepareListAnalysisDatasets(final long... dataSetIDs)
     {
         context.checking(new Expectations()
             {

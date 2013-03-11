@@ -84,6 +84,13 @@ public class FeatureVectorLoader
 
     public static interface IMetadataProvider
     {
+        /**
+         * Prefetches in a single call all sample identifiers for given perm ids. Calling this
+         * method before doing calls to <code>getSampleIdentifiers</code> will greatly improve
+         * performance.
+         */
+        void getSampleIdentifiers(List<String> samplePermIds);
+
         /** fetches sample identifier from openBIS */
         SampleIdentifier tryGetSampleIdentifier(String samplePermId);
 

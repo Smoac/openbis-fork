@@ -117,6 +117,12 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
                 private IDatasetLister lister;
 
                 @Override
+                public void getSampleIdentifiers(List<String> samplePermIds)
+                {
+
+                }
+
+                @Override
                 public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
                 {
                     return null;
@@ -125,11 +131,10 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
                 @Override
                 public List<String> tryGetContainedDatasets(String datasetCode)
                 {
-                    List<String> result =
-                            getLister().listContainedCodes(datasetCode);
+                    List<String> result = getLister().listContainedCodes(datasetCode);
                     return result;
                 }
-                
+
                 private IDatasetLister getLister()
                 {
                     if (lister == null)

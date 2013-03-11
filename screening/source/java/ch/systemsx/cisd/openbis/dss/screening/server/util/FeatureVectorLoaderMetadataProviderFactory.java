@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -103,22 +104,75 @@ public class FeatureVectorLoaderMetadataProviderFactory
     public static IMetadataProvider createMetadataProvider(
             final IEncapsulatedOpenBISService openBISService)
     {
-        return new IMetadataProvider()
+        return new BasicMetadataProvider(openBISService);
+    }
+
+    private static class BasicMetadataProvider implements IMetadataProvider
+    {
+        private final IEncapsulatedOpenBISService openBISService;
+
+        private final HashMap<String, SampleIdentifier> sampleCache;
+
+        public BasicMetadataProvider(IEncapsulatedOpenBISService openBISService)
+        {
+            this.sampleCache = new HashMap<String, SampleIdentifier>();
+            this.openBISService = openBISService;
+        }
+
+        @Override
+        public void getSampleIdentifiers(List<String> samplePermIds)
+        {
+            Map<String, SampleIdentifier> result =
+                    openBISService.listSampleIdentifiers(samplePermIds);
+            sampleCache.putAll(result);
+        }
+
+        @Override
+        public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
+        {
+            SampleIdentifier result;
+            if (false == sampleCache.containsKey(samplePermId))
             {
+                result = openBISService.tryGetSampleIdentifier(samplePermId);
+                sampleCache.put(samplePermId, result);
+            } else
+            {
+                result = sampleCache.get(samplePermId);
+            }
+            return result;
+        }
 
-                @Override
-                public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
-                {
-                    return openBISService.tryGetSampleIdentifier(samplePermId);
-                }
+        @Override
+        public List<String> tryGetContainedDatasets(String datasetCode)
+        {
+            AbstractExternalData dataSet = openBISService.tryGetDataSet(datasetCode);
+            return getContainedDatasets(dataSet);
+        }
+    }
 
-                @Override
-                public List<String> tryGetContainedDatasets(String datasetCode)
-                {
-                    AbstractExternalData dataSet = openBISService.tryGetDataSet(datasetCode);
-                    return getContainedDatasets(dataSet);
-                }
-            };
+    private static class CachedDatasetsMetadataProvider extends BasicMetadataProvider
+    {
+        private final HashMap<String, List<String>> containedDataSetsMap;
+
+        public CachedDatasetsMetadataProvider(IEncapsulatedOpenBISService openBISService,
+                HashMap<String, List<String>> containedDataSetsMap)
+        {
+            super(openBISService);
+            this.containedDataSetsMap = containedDataSetsMap;
+        }
+
+        @Override
+        public List<String> tryGetContainedDatasets(String datasetCode)
+        {
+            if (containedDataSetsMap.containsKey(datasetCode))
+            {
+                return containedDataSetsMap.get(datasetCode);
+            } else
+            {
+                throw new IllegalArgumentException("Data set code unknown to the provider. "
+                        + datasetCode);
+            }
+        }
     }
 
     /**
@@ -135,30 +189,9 @@ public class FeatureVectorLoaderMetadataProviderFactory
     }
 
     private static IMetadataProvider createMetadataProvider(
-            final IEncapsulatedOpenBISService openBISService,
-            final HashMap<String, List<String>> containedDataSetsMap)
+            IEncapsulatedOpenBISService openBISService,
+            HashMap<String, List<String>> containedDataSetsMap)
     {
-
-        return new IMetadataProvider()
-            {
-                @Override
-                public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
-                {
-                    return openBISService.tryGetSampleIdentifier(samplePermId);
-                }
-
-                @Override
-                public List<String> tryGetContainedDatasets(String datasetCode)
-                {
-                    if (containedDataSetsMap.containsKey(datasetCode))
-                    {
-                        return containedDataSetsMap.get(datasetCode);
-                    } else
-                    {
-                        throw new IllegalArgumentException(
-                                "Data set code unknown to the provider. " + datasetCode);
-                    }
-                }
-            };
+        return new CachedDatasetsMetadataProvider(openBISService, containedDataSetsMap);
     }
 }

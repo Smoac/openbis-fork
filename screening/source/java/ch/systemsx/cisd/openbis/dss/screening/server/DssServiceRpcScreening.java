@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -486,11 +487,45 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                         .createMetadataProviderFromFeatureVectors(getOpenBISService(),
                                 featureDatasets);
 
+        prefetchSampleIdentifiers(featureDatasets, metadataProvider);
+
         for (FeatureVectorDatasetReference dataset : featureDatasets)
         {
             result.add(createFeatureVectorDataset(sessionToken, dataset, codes, metadataProvider));
         }
         return result;
+    }
+
+    private void prefetchSampleIdentifiers(List<FeatureVectorDatasetReference> featureDatasets,
+            IMetadataProvider metadataProvider)
+    {
+        List<String> dataSetIds = new LinkedList<String>();
+        for (FeatureVectorDatasetReference featureVectorDatasetReference : featureDatasets)
+        {
+            dataSetIds.add(featureVectorDatasetReference.getDatasetCode());
+            dataSetIds.addAll(metadataProvider
+                    .tryGetContainedDatasets(featureVectorDatasetReference.getDatasetCode()));
+        }
+
+        List<ImgAnalysisDatasetDTO> dataSets =
+                getDAO().listAnalysisDatasetsByPermId(dataSetIds.toArray(new String[0]));
+        long[] containerIds = new long[dataSets.size()];
+        int i = 0;
+        for (ImgAnalysisDatasetDTO adto : dataSets)
+        {
+            containerIds[i++] = adto.getContainerId();
+        }
+
+        List<ImgContainerDTO> containers = getDAO().listContainersByIds(containerIds);
+
+        List<String> samplePermIds = new LinkedList<String>();
+
+        for (ImgContainerDTO container : containers)
+        {
+            samplePermIds.add(container.getPermId());
+        }
+
+        metadataProvider.getSampleIdentifiers(samplePermIds);
     }
 
     private FeatureVectorDataset createFeatureVectorDataset(String sessionToken,
