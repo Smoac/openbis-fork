@@ -94,7 +94,9 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @param sessionToken The session token
      * @param fileOrFolder The file or folder to retrieve
      * @param validityDurationInSeconds The number of seconds for which the download URL should be
-     *            valid.
+     *            valid. The validity is clipped to the durations defined in the properties
+     *            <i>data-stream-timeout</i> and <i>data-stream-max-timeout</i>, which default
+     *            to 5 seconds and 4 hours, respectively.
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      * @since 1.7
