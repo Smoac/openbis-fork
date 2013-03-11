@@ -200,6 +200,12 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         this.displaySettingsProvider = displaySettingsProvider;
     }
 
+    // For unit tests - in production Spring will inject this object.
+    public void setDssFactory(IDataStoreServiceFactory dssFactory)
+    {
+        this.dssFactory = dssFactory;
+    }
+
     protected IPropertiesBatchManager getPropertiesBatchManager()
     {
         return propertiesBatchManager;

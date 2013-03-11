@@ -35,6 +35,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculatorFactory;
@@ -45,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
@@ -149,13 +150,21 @@ public final class CommonServerTest extends AbstractServerTestCase
 
     private IHotDeploymentController hotDeploymentController;
 
-    private final ICommonServer createServer()
+    private IDataStoreServiceFactory dssFactory;
+
+    private IDataStoreService dataStoreService;
+
+    private final CommonServer createServer()
     {
-        return createServer(new EntityValidatorFactory(null), new DynamicPropertyCalculatorFactory(
-                null), new ManagedPropertyEvaluatorFactory(null));
+        CommonServer server =
+                createServer(new EntityValidatorFactory(null),
+                        new DynamicPropertyCalculatorFactory(null),
+                        new ManagedPropertyEvaluatorFactory(null));
+        server.setDssFactory(dssFactory);
+        return server;
     }
 
-    public ICommonServer createServer(IEntityValidatorFactory entityValidatorFactory2,
+    public CommonServer createServer(IEntityValidatorFactory entityValidatorFactory2,
             IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory2,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory2)
     {
@@ -181,6 +190,8 @@ public final class CommonServerTest extends AbstractServerTestCase
     public final void setUp()
     {
         super.setUp();
+        dssFactory = context.mock(IDataStoreServiceFactory.class);
+        dataStoreService = context.mock(IDataStoreService.class);
         commonBusinessObjectFactory = context.mock(ICommonBusinessObjectFactory.class);
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
@@ -239,8 +250,19 @@ public final class CommonServerTest extends AbstractServerTestCase
                     allowing(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(mySession));
                     one(sessionManager).closeSession(SESSION_TOKEN);
+
+                    one(dataStoreDAO).listDataStores();
+                    DataStorePE dataStore = new DataStorePE();
+                    dataStore.setRemoteUrl("remote-url");
+                    will(returnValue(Arrays.asList(dataStore)));
+
+                    one(dssFactory).createMonitored(dataStore.getRemoteUrl());
+                    will(returnValue(dataStoreService));
+
+                    one(dataStoreService).cleanupSession(SESSION_TOKEN);
                 }
             });
+
         createServer().logout(SESSION_TOKEN);
 
         context.assertIsSatisfied();
