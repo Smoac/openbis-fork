@@ -267,7 +267,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
 
         void log(String action)
         {
-            if (logConnection && machineLog.isInfoEnabled())
+            if (logConnection && machineLog.isDebugEnabled())
             {
                 final int numActive = _pool.getNumActive();
                 final StackTraceElement[] stackTrace = getStackTrace();
@@ -276,24 +276,23 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                 {
                     if (logStackTrace)
                     {
-                        machineLog.info(action + ", id=" + hashCode() + ", active=" + numActive
+                        machineLog.debug(action + ", id=" + hashCode() + ", active=" + numActive
                                 + ".\n" + traceToString(stackTrace));
                     } else
                     {
-                        machineLog
-                                .info(action + ", id=" + hashCode() + ", active=" + numActive + ".");
+                        machineLog.debug(action + ", id=" + hashCode() + ", active=" + numActive
+                                + ".");
                     }
                 } else
                 {
                     if (logStackTrace)
                     {
-                        machineLog.info(action + ", id=" + hashCode() + ", active=" + numActive
-                                + ", service method: "
-                                + serviceMethod + ".\n"
+                        machineLog.debug(action + ", id=" + hashCode() + ", active=" + numActive
+                                + ", service method: " + serviceMethod + ".\n"
                                 + traceToString(stackTrace));
                     } else
                     {
-                        machineLog.info(action + ", id=" + hashCode() + ", active=" + numActive
+                        machineLog.debug(action + ", id=" + hashCode() + ", active=" + numActive
                                 + ", service method: " + serviceMethod + ".");
                     }
                 }
