@@ -27,6 +27,7 @@ import java.util.Properties;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.Sequence;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -129,19 +130,135 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
                     
                     one(service).listOldestPhysicalDataSets(12);
                     will(returnValue(Arrays.asList(ds1, ds2)));
-                    
-                    exactly(2).of(dao).deleteLastFeedingEvent();
-                    one(dao).createLastFeedingEvent(ds1.getRegistrationTimestamp());
-                    one(dao).createLastFeedingEvent(ds2.getRegistrationTimestamp());
-                    exactly(2).of(dao).commit();
                 }
             });
         prepareHappyCase(ds1);
         prepareFailing(ds2);
+        prepareCreateLastFeedingEvent(ds1, ds2);
 
         createTask(12, 3, 0).execute();
     }
+    
+    @Test
+    public void testAsMaintenanceTaskWithFinitNumberOfChunks()
+    {
+        final SimpleDataSetInformationDTO ds1 = dataSet(1000);
+        final SimpleDataSetInformationDTO ds2 = dataSet(2000);
+        final SimpleDataSetInformationDTO ds3 = dataSet(3000);
+        final SimpleDataSetInformationDTO ds4 = dataSet(4000);
+        final SimpleDataSetInformationDTO ds5 = dataSet(5000);
+        final SimpleDataSetInformationDTO ds6 = dataSet(6000);
+        final Sequence chunkReadingSequence = context.sequence("chunkReadingSequence");
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
+                    will(returnValue(null));
+                    inSequence(chunkReadingSequence);
 
+                    one(service).listOldestPhysicalDataSets(2);
+                    will(returnValue(Arrays.asList(ds1, ds2)));
+                    inSequence(chunkReadingSequence);
+
+                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
+                    Date timeStamp = new Date(2000);
+                    will(returnValue(timeStamp));
+                    inSequence(chunkReadingSequence);
+
+                    one(service).listOldestPhysicalDataSets(timeStamp, 2);
+                    will(returnValue(Arrays.asList(ds3, ds4)));
+                    inSequence(chunkReadingSequence);
+                    
+                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
+                    Date timeStamp2 = new Date(4000);
+                    will(returnValue(timeStamp2));
+                    inSequence(chunkReadingSequence);
+                    
+                    one(service).listOldestPhysicalDataSets(timeStamp2, 2);
+                    will(returnValue(Arrays.asList(ds5, ds6)));
+                    inSequence(chunkReadingSequence);
+                }
+            });
+        prepareHappyCase(ds1, ds4, ds5);
+        prepareFailing(ds2, ds3, ds6);
+        prepareCreateLastFeedingEvent(ds1, ds2, ds3, ds4, ds5, ds6);
+        
+        createTask(2, 3, 0).execute();
+    }
+    
+    @Test
+    public void testAsMaintenanceTaskWithFinitTimeLimit()
+    {
+        final SimpleDataSetInformationDTO ds1 = dataSet(1000);
+        final SimpleDataSetInformationDTO ds2 = dataSet(2000);
+        final SimpleDataSetInformationDTO ds3 = dataSet(3000);
+        final SimpleDataSetInformationDTO ds4 = dataSet(4000);
+        final Sequence chunkReadingSequence = context.sequence("chunkReadingSequence");
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
+                    will(returnValue(null));
+                    inSequence(chunkReadingSequence);
+
+                    one(service).listOldestPhysicalDataSets(2);
+                    will(returnValue(Arrays.asList(ds1, ds2)));
+                    inSequence(chunkReadingSequence);
+
+                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
+                    Date timeStamp = new Date(2000);
+                    will(returnValue(timeStamp));
+                    inSequence(chunkReadingSequence);
+
+                    one(service).listOldestPhysicalDataSets(timeStamp, 2);
+                    will(returnValue(Arrays.asList(ds3, ds4)));
+                    inSequence(chunkReadingSequence);
+
+                }
+            });
+        prepareHappyCase(ds1, ds4);
+        prepareFailing(ds2, ds3);
+        prepareCreateLastFeedingEvent(ds1, ds2, ds3, ds4);
+
+        createTask(2, 0, 2000).execute();
+    }
+
+    @Test
+    public void testAsMaintenanceTaskUnlimited()
+    {
+        final SimpleDataSetInformationDTO ds1 = dataSet(1000);
+        final SimpleDataSetInformationDTO ds2 = dataSet(2000);
+        final SimpleDataSetInformationDTO ds3 = dataSet(3000);
+        final Sequence chunkReadingSequence = context.sequence("chunkReadingSequence");
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
+                    will(returnValue(null));
+                    inSequence(chunkReadingSequence);
+
+                    one(service).listOldestPhysicalDataSets(2);
+                    will(returnValue(Arrays.asList(ds1, ds2)));
+                    inSequence(chunkReadingSequence);
+
+                    one(dao).getRegistrationTimestampOfLastFeedingEvent();
+                    Date timeStamp = new Date(2000);
+                    will(returnValue(timeStamp));
+                    inSequence(chunkReadingSequence);
+
+                    one(service).listOldestPhysicalDataSets(timeStamp, 2);
+                    will(returnValue(Arrays.asList(ds3)));
+                    inSequence(chunkReadingSequence);
+                    
+                }
+            });
+        prepareHappyCase(ds1, ds3);
+        prepareFailing(ds2);
+        prepareCreateLastFeedingEvent(ds1, ds2, ds3);
+        
+        createTask(2, 0, 0).execute();
+    }
+    
     @Test
     public void testPostRegistrationHappyCase()
     {
@@ -226,79 +343,110 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         task.createExecutor(DATA_SET_CODE, false).execute();
     }
 
-    private void prepareHappyCase(final IDatasetLocation dataSet)
+    private void prepareHappyCase(final IDatasetLocation... dataSets)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(shareIdManager).lock(dataSet.getDataSetCode());
+                    for (IDatasetLocation dataSet : dataSets)
+                    {
+                        one(shareIdManager).lock(dataSet.getDataSetCode());
 
-                    one(directoryProvider).getDataSetDirectory(dataSet);
-                    will(returnValue(dataSetFolder));
+                        one(directoryProvider).getDataSetDirectory(dataSet);
+                        will(returnValue(dataSetFolder));
 
-                    one(dao).tryGetDataSetId(dataSet.getDataSetCode());
-                    will(returnValue(null));
+                        one(dao).tryGetDataSetId(dataSet.getDataSetCode());
+                        will(returnValue(null));
 
-                    one(dao).createDataSet(dataSet.getDataSetCode(), dataSet.getDataSetLocation());
-                    will(returnValue(101L));
+                        one(dao).createDataSet(dataSet.getDataSetCode(),
+                                dataSet.getDataSetLocation());
+                        will(returnValue(101L));
 
-                    one(contentFactory).asHierarchicalContent(dataSetFolder, DO_NOTHING);
-                    will(returnValue(content));
+                        one(contentFactory).asHierarchicalContent(dataSetFolder, DO_NOTHING);
+                        will(returnValue(content));
 
-                    one(contentFactory).asHierarchicalContentNode(content, dataSetFolder);
-                    will(returnValue(node));
+                        one(contentFactory).asHierarchicalContentNode(content, dataSetFolder);
+                        will(returnValue(node));
 
-                    one(node).exists();
-                    will(returnValue(true));
+                        one(node).exists();
+                        will(returnValue(true));
 
-                    one(node).getName();
-                    will(returnValue("ds1-root"));
+                        one(node).getName();
+                        will(returnValue("ds1-root"));
 
-                    one(node).getFileLength();
-                    will(returnValue(12345L));
+                        one(node).getFileLength();
+                        will(returnValue(12345L));
 
-                    one(node).getChecksumCRC32();
-                    will(returnValue(789));
-                    
-                    one(node).isDirectory();
-                    will(returnValue(false));
+                        one(node).getChecksumCRC32();
+                        will(returnValue(789));
 
-                    one(node).getLastModified();
-                    will(returnValue(42L));
+                        one(node).isDirectory();
+                        will(returnValue(false));
 
-                    one(dao).createDataSetFiles(
-                            with(equal(Collections.singletonList(new PathEntryDTO(101L, null,
-                                    "", "ds1-root", 12345L, 789, false, new Date(42))))));
+                        one(node).getLastModified();
+                        will(returnValue(42L));
 
-                    one(dao).commit();
-                    one(shareIdManager).releaseLocks();
+                        one(dao).createDataSetFiles(
+                                with(equal(Collections.singletonList(new PathEntryDTO(101L, null,
+                                        "", "ds1-root", 12345L, 789, false, new Date(42))))));
+
+                        one(dao).commit();
+                        one(shareIdManager).releaseLocks();
+                    }
                 }
             });
     }
 
-    private void prepareFailing(final IDatasetLocation dataSet)
+    private void prepareFailing(final IDatasetLocation... dataSets)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(shareIdManager).lock(dataSet.getDataSetCode());
-
-                    one(directoryProvider).getDataSetDirectory(dataSet);
-                    will(returnValue(dataSetFolder));
-
-                    one(dao).tryGetDataSetId(dataSet.getDataSetCode());
-                    will(returnValue(null));
-
-                    one(dao).createDataSet(dataSet.getDataSetCode(), dataSet.getDataSetLocation());
-                    will(returnValue(101L));
-
-                    one(contentFactory).asHierarchicalContent(dataSetFolder, DO_NOTHING);
-                    will(throwException(new RuntimeException("Oophs!")));
-
-                    one(dao).rollback();
-                    one(shareIdManager).releaseLocks();
+                    for (IDatasetLocation dataSet : dataSets)
+                    {
+                        one(shareIdManager).lock(dataSet.getDataSetCode());
+                        
+                        one(directoryProvider).getDataSetDirectory(dataSet);
+                        will(returnValue(dataSetFolder));
+                        
+                        one(dao).tryGetDataSetId(dataSet.getDataSetCode());
+                        will(returnValue(null));
+                        
+                        one(dao).createDataSet(dataSet.getDataSetCode(), dataSet.getDataSetLocation());
+                        will(returnValue(101L));
+                        
+                        one(contentFactory).asHierarchicalContent(dataSetFolder, DO_NOTHING);
+                        will(throwException(new RuntimeException("Oophs!")));
+                        
+                        one(dao).rollback();
+                        one(shareIdManager).releaseLocks();
+                    }
                 }
             });
+    }
+    
+    private void prepareCreateLastFeedingEvent(final SimpleDataSetInformationDTO... dataSets)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    for (SimpleDataSetInformationDTO dataSet : dataSets)
+                    {
+                        one(dao).deleteLastFeedingEvent();
+                        one(dao).createLastFeedingEvent(dataSet.getRegistrationTimestamp());
+                        one(dao).commit();
+                    }
+                }
+            });
+    }
+
+    private SimpleDataSetInformationDTO dataSet(long timeStamp)
+    {
+        SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
+        dataSet.setDataSetCode("DS-" + timeStamp);
+        dataSet.setRegistrationTimestamp(new Date(timeStamp));
+        dataSet.setDataSetLocation("abc" + timeStamp);
+        return dataSet;
     }
     
     private PathInfoDatabaseFeedingTask createTask(int chunkSize, int maxNumberOfChunks,
