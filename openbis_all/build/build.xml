@@ -73,7 +73,7 @@
         <include name="dss_upload_gui-S*"/>
         <include name="dss_upload_gui-screening-S*"/>
         <include name="openBIS-*-API*"/>
-        <include name="*knime-12.04*"/>
+        <include name="*knime-*"/>
       </fileset>
       <fileset dir="dist">
         <include name="readme.txt"/>
