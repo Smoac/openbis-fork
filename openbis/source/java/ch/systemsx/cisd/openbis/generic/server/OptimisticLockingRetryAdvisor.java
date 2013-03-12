@@ -25,13 +25,13 @@ import org.springframework.aop.Pointcut;
 import org.springframework.aop.framework.ReflectiveMethodInvocation;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.RootClassFilter;
-import org.springframework.core.Ordered;
 import org.springframework.dao.DeadlockLoserDataAccessException;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 
 import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.common.spring.LogAdvisor;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
@@ -48,7 +48,7 @@ public class OptimisticLockingRetryAdvisor extends DefaultPointcutAdvisor
     public OptimisticLockingRetryAdvisor()
     {
         super(new AllServerMethodsPointcut(), new RetryInterceptor());
-        setOrder(Ordered.HIGHEST_PRECEDENCE);
+        setOrder(LogAdvisor.ORDER + 1);
     }
 
     private static class AllServerMethodsPointcut implements Pointcut

@@ -32,11 +32,12 @@ public class LogAdvisor extends DefaultPointcutAdvisor
 {
 
     private static final long serialVersionUID = 1L;
+    public static final int ORDER = Ordered.HIGHEST_PRECEDENCE;
 
     LogAdvisor()
     {
         super(createPointcut(), createAdvice());
-        setOrder(Ordered.HIGHEST_PRECEDENCE);
+        setOrder(ORDER);
     }
 
     private final static Advice createAdvice()
