@@ -178,13 +178,22 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         {
             dataSets = getNextChunk();
             operationLog.info("Feeding " + ++chunkCount + ". chunk.");
+            Date maxRegistrationTimestamp = null;
             for (SimpleDataSetInformationDTO dataSet : dataSets)
             {
                 feedPathInfoDatabase(dataSet);
-                dao.deleteLastFeedingEvent();
-                dao.createLastFeedingEvent(dataSet.getRegistrationTimestamp());
-                dao.commit();
+                Date registrationTimestamp = dataSet.getRegistrationTimestamp();
+                if (maxRegistrationTimestamp == null || maxRegistrationTimestamp.getTime() < registrationTimestamp.getTime())
+                {
+                    maxRegistrationTimestamp = registrationTimestamp;
+                }
                 stopCondition.handle(dataSet);
+            }
+            if (maxRegistrationTimestamp != null)
+            {
+                dao.deleteLastFeedingEvent();
+                dao.createLastFeedingEvent(maxRegistrationTimestamp);
+                dao.commit();
             }
         } while (dataSets.size() >= chunkSize && stopCondition.fulfilled() == false);
         operationLog.info("Feeding finished.");

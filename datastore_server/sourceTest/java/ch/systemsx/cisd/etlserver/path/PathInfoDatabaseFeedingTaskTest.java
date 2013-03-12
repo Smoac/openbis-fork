@@ -133,7 +133,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
             });
         prepareHappyCase(ds1);
         prepareFailing(ds2);
-        prepareCreateLastFeedingEvent(ds1, ds2);
+        prepareCreateLastFeedingEvent(ds2.getRegistrationTimestamp());
 
         createTask(12, 3, 0).execute();
     }
@@ -180,7 +180,9 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
             });
         prepareHappyCase(ds1, ds4, ds5);
         prepareFailing(ds2, ds3, ds6);
-        prepareCreateLastFeedingEvent(ds1, ds2, ds3, ds4, ds5, ds6);
+        prepareCreateLastFeedingEvent(ds2.getRegistrationTimestamp());
+        prepareCreateLastFeedingEvent(ds4.getRegistrationTimestamp());
+        prepareCreateLastFeedingEvent(ds6.getRegistrationTimestamp());
         
         createTask(2, 3, 0).execute();
     }
@@ -217,7 +219,8 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
             });
         prepareHappyCase(ds1, ds4);
         prepareFailing(ds2, ds3);
-        prepareCreateLastFeedingEvent(ds1, ds2, ds3, ds4);
+        prepareCreateLastFeedingEvent(ds2.getRegistrationTimestamp());
+        prepareCreateLastFeedingEvent(ds4.getRegistrationTimestamp());
 
         createTask(2, 0, 2000).execute();
     }
@@ -253,7 +256,8 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
             });
         prepareHappyCase(ds1, ds3);
         prepareFailing(ds2);
-        prepareCreateLastFeedingEvent(ds1, ds2, ds3);
+        prepareCreateLastFeedingEvent(ds2.getRegistrationTimestamp());
+        prepareCreateLastFeedingEvent(ds3.getRegistrationTimestamp());
         
         createTask(2, 0, 0).execute();
     }
@@ -424,17 +428,14 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
             });
     }
     
-    private void prepareCreateLastFeedingEvent(final SimpleDataSetInformationDTO... dataSets)
+    private void prepareCreateLastFeedingEvent(final Date timestamp)
     {
         context.checking(new Expectations()
             {
                 {
-                    for (SimpleDataSetInformationDTO dataSet : dataSets)
-                    {
-                        one(dao).deleteLastFeedingEvent();
-                        one(dao).createLastFeedingEvent(dataSet.getRegistrationTimestamp());
-                        one(dao).commit();
-                    }
+                    one(dao).deleteLastFeedingEvent();
+                    one(dao).createLastFeedingEvent(timestamp);
+                    one(dao).commit();
                 }
             });
     }
