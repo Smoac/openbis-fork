@@ -74,7 +74,6 @@ public class ServiceConversationServerManager extends BaseServiceConversationSer
     public void setEtlService(IServiceForDataStoreServer etlService)
     {
         ProxyFactory factory = new ProxyFactory(etlService);
-        factory.addAdvisor(new OptimisticLockingRetryAdvisor());
         this.etlService = (IServiceForDataStoreServer) factory.getProxy();
     }
 

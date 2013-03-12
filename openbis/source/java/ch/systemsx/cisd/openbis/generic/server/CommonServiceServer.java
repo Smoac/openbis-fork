@@ -41,8 +41,6 @@ public class CommonServiceServer extends HttpInvokerServiceExporter
     {
         setServiceInterface(ICommonServer.class);
         setService(common);
-        setInterceptors(new Object[]
-            { new OptimisticLockingRetryAdvisor() });
         super.afterPropertiesSet();
     }
 
