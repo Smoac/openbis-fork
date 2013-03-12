@@ -24,10 +24,9 @@ import java.util.Arrays;
 
 import javax.activation.MimetypesFileTypeMap;
 
-import org.knime.core.data.url.MIMEType;
-import org.knime.core.data.url.URIContent;
-import org.knime.core.data.url.port.MIMEURIPortObject;
-import org.knime.core.data.url.port.MIMEURIPortObjectSpec;
+import org.knime.core.data.uri.URIContent;
+import org.knime.core.data.uri.URIPortObject;
+import org.knime.core.data.uri.URIPortObjectSpec;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -67,7 +66,7 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
     public DataSetFileImportNodeModel(IDataSetProvider dataSetProvider)
     {
         super(new PortType[] {}, new PortType[]
-            { new PortType(MIMEURIPortObject.class) });
+            { new PortType(URIPortObject.class) });
         this.dataSetProvider = dataSetProvider;
     }
 
@@ -93,9 +92,9 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
     @Override
     protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException
     {
-        MIMEType type = createType();
+        String type = createType();
         return new PortObjectSpec[]
-            { new MIMEURIPortObjectSpec(type) };
+            { new URIPortObjectSpec(type) };
     }
 
     @Override
@@ -106,10 +105,10 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
         {
             downloadTo(file);
         }
-        MIMEType type = createType();
+        String type = createType();
         logger.info("Content MIME type: " + type);
         return new PortObject[]
-            { new MIMEURIPortObject(Arrays.asList(new URIContent(file.toURI())), type) };
+            { new URIPortObject(new URIPortObjectSpec(type), Arrays.asList(new URIContent(file.toURI(), type))) };
     }
 
     private void downloadTo(File file) throws Exception
@@ -141,10 +140,10 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
         }
     }
 
-    private MIMEType createType()
+    private String createType()
     {
         String contentType = MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(filePath);
-        return MIMEType.getType(contentType);
+        return contentType;
     }
 
 }

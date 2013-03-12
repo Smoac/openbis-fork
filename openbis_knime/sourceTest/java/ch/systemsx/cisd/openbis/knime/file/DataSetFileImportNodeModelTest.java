@@ -24,9 +24,9 @@ import java.util.Random;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.knime.core.data.url.URIContent;
-import org.knime.core.data.url.port.MIMEURIPortObject;
-import org.knime.core.data.url.port.MIMEURIPortObjectSpec;
+import org.knime.core.data.uri.URIContent;
+import org.knime.core.data.uri.URIPortObject;
+import org.knime.core.data.uri.URIPortObjectSpec;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettings;
 import org.knime.core.node.NodeSettingsRO;
@@ -147,8 +147,8 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         
         PortObjectSpec[] portSpecs = model.configure(null);
         
-        assertEquals("[MIMEType ext:text/plain]", ((MIMEURIPortObjectSpec) portSpecs[0])
-                .getMIMEType().toString());
+        assertEquals("[text/plain]", ((URIPortObjectSpec) portSpecs[0])
+                .getFileExtensions().toString());
         assertEquals(1, portSpecs.length);
         context.assertIsSatisfied();
     }
@@ -165,8 +165,8 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         
         PortObject[] portObjects = model.execute(null, null);
         
-        MIMEURIPortObject uriPortObject = (MIMEURIPortObject) portObjects[0];
-        assertEquals("[MIMEType ext:text/plain]", uriPortObject.getSpec().getMIMEType().toString());
+        URIPortObject uriPortObject = (URIPortObject) portObjects[0];
+        assertEquals("[text/plain]", uriPortObject.getSpec().getFileExtensions().toString());
         List<URIContent> uriContents = uriPortObject.getURIContents();
         assertEquals(file.toURI().toString(), uriContents.get(0).getURI().toString());
         assertEquals(1, uriContents.size());
@@ -186,8 +186,8 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         PortObject[] portObjects = model.execute(null, null);
         
         assertEquals("hello world", FileUtilities.loadToString(file).trim());
-        MIMEURIPortObject uriPortObject = (MIMEURIPortObject) portObjects[0];
-        assertEquals("[MIMEType ext:text/plain]", uriPortObject.getSpec().getMIMEType().toString());
+        URIPortObject uriPortObject = (URIPortObject) portObjects[0];
+        assertEquals("[text/plain]", uriPortObject.getSpec().getFileExtensions().toString());
         List<URIContent> uriContents = uriPortObject.getURIContents();
         assertEquals(file.toURI().toString(), uriContents.get(0).getURI().toString());
         assertEquals(1, uriContents.size());
@@ -216,8 +216,8 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         PortObject[] portObjects = model.execute(null, null);
         
         assertEquals(exampleContent, FileUtilities.loadToString(file).trim());
-        MIMEURIPortObject uriPortObject = (MIMEURIPortObject) portObjects[0];
-        assertEquals("[MIMEType ext:text/plain]", uriPortObject.getSpec().getMIMEType().toString());
+        URIPortObject uriPortObject = (URIPortObject) portObjects[0];
+        assertEquals("[text/plain]", uriPortObject.getSpec().getFileExtensions().toString());
         List<URIContent> uriContents = uriPortObject.getURIContents();
         assertEquals(file.toURI().toString(), uriContents.get(0).getURI().toString());
         assertEquals(1, uriContents.size());
