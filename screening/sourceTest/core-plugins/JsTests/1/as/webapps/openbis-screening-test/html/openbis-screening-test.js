@@ -3,6 +3,10 @@
  * with screening sprint server database version
  */
 
+var createFacadeAndLogin = function(action, timeoutOrNull){
+	createFacadeAndLoginForUserAndPassword('openbis_screening_test_js', 'password', action, timeoutOrNull);
+}
+
 var createExperimentIdentfier = function(identifierString){
 	var parts = identifierString.split("/");
 	

@@ -38,8 +38,8 @@ _openbisInternal.prototype.ajaxRequest = function(settings) {
 	settings.dataType = "json";
 	settings.data = this.jsonRequestData(settings.data);
 	settings.success = this.ajaxRequestSuccess(settings.success);
-	// we call the same method on error for backward compatibility
-	settings.error = this.ajaxRequestSuccess(settings.success);
+	// we call the same settings.success function for backward compatibility
+	settings.error = this.ajaxRequestError(settings.success);
 	$.ajax(settings)
 }
 
@@ -202,7 +202,8 @@ openbis.prototype.login = function(userId, userPassword, action) {
 		success: 
 			function(loginResponse) {
 				if(loginResponse.error){
-					alert("Login failed")
+					alert("Login failed");
+					action(loginResponse);
 				}else{
 					openbisObj._internal.sessionToken = loginResponse.result;
 					openbisObj.rememberSession();
@@ -1312,6 +1313,7 @@ openbis.prototype.downloadSessionWorkspaceFile = function(filePath, action) {
 openbis.prototype.downloadSessionWorkspaceFileForDataStore = function(filePath, dataStoreCodeOrNull, action) {
 	$.ajax({
 		type: "GET",
+		dataType: "text",
 		url: this.createSessionWorkspaceDownloadUrlForDataStore(filePath, dataStoreCodeOrNull),
 		success: this._internal.ajaxRequestSuccess(action),
 		error: this._internal.ajaxRequestError(action)

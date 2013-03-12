@@ -3,6 +3,13 @@
  * with screening sprint server database version
  */
 
+var testUserId = "openbis_test_js";
+var testUserPassword = "password";
+
+var createFacadeAndLogin = function(action, timeoutOrNull){
+	createFacadeAndLoginForUserAndPassword(testUserId, testUserPassword, action, timeoutOrNull);
+}
+
 var createMaterialIdentifier = function(identifierString){
 	var parts = identifierString.split("/");
 	
@@ -132,11 +139,14 @@ var findVocabularyMaxOrdinal = function(vocabulary){
 var downloadFile = function(url, action){
 	$.ajax({
 		url: url,
-		cache: false
-	}).done(function(data) {
-		action(data);
-	}).fail(function(){
-		action(null);
+		cache: false,
+		dataType: "text",
+		success: function(data) {
+			action(data);
+		},
+		error: function(){
+			action(null);
+		}
 	});
 }
 
@@ -182,7 +192,7 @@ test("logout", function(){
 
 test("login", function() {
 	createFacade(function(facade){
-		facade.login('admin','password', function(response){
+		facade.login(testUserId, testUserPassword, function(response){
 			ok(response.result,'Session from server is not empty after login');
 			ok(facade.getSession(), 'Session from facade is not empty after login');
 
@@ -419,7 +429,7 @@ test("listDataStores()", function(){
 test("getDefaultPutDataStoreBaseURL()", function(){
 	createFacadeAndLogin(function(facade){
 		facade.getDefaultPutDataStoreBaseURL(function(response){
-			equal(response.result, 'https://sprint-openbis.ethz.ch:8444', 'URL is correct')
+			equal(response.result, "http://localhost:8889", 'URL is correct')
 			facade.close();
 		});
 	});
@@ -430,7 +440,7 @@ test("tryGetDataStoreBaseURL()", function(){
 		var dataSetCode = '20110913111517610-82996';
 		
 		facade.tryGetDataStoreBaseURL(dataSetCode, function(response){
-			equal(response.result, 'https://sprint-openbis.ethz.ch:8444', 'URL is correct')
+			equal(response.result, "http://localhost:8889", 'URL is correct')
 			facade.close();
 		});
 	});
@@ -444,7 +454,7 @@ test("getDataStoreBaseURLs()", function(){
 			assertObjectsCount(response.result, 1);
 			
 			var urlForDataSets = response.result[0];
-			equal(urlForDataSets.dataStoreURL, 'https://sprint-openbis.ethz.ch:8444', 'URL is correct');
+			equal(urlForDataSets.dataStoreURL, "http://localhost:8889", 'URL is correct');
 			deepEqual(urlForDataSets.dataSetCodes.sort(), dataSetCodes.sort());
 			facade.close();
 		});
@@ -691,7 +701,7 @@ test("searchForMaterials()", function(){
 
 test("createMetaproject(), listMetaprojects()", function(){
 	createFacadeAndLogin(function(facade){
-		createNewMetaproject(facade, "/admin/JS_TEST_METAPROJECT", function(response){
+		createNewMetaproject(facade, "/" + testUserId + "/JS_TEST_METAPROJECT", function(response){
 			facade.listMetaprojects(function(response){
 				assertObjectsCount(response.result, 1);
 				assertObjectsWithValues(response.result, 'name', ['JS_TEST_METAPROJECT']);
@@ -703,7 +713,7 @@ test("createMetaproject(), listMetaprojects()", function(){
 
 test("createMetaproject(), getMetaproject()", function(){
 	createFacadeAndLogin(function(facade){
-		var metaprojectIdentifier = "/admin/JS_TEST_METAPROJECT";
+		var metaprojectIdentifier = "/" + testUserId + "/JS_TEST_METAPROJECT";
 		
 		createNewMetaproject(facade, metaprojectIdentifier, function(response){
 			var metaprojectId = createMetaprojectIdentifierId(metaprojectIdentifier);
@@ -718,7 +728,7 @@ test("createMetaproject(), getMetaproject()", function(){
 
 test("createMetaproject(), updateMetaproject()", function(){
 	createFacadeAndLogin(function(facade){
-		var metaprojectIdentifier = "/admin/JS_TEST_METAPROJECT";
+		var metaprojectIdentifier = "/" + testUserId + "/JS_TEST_METAPROJECT";
 		
 		createNewMetaproject(facade, metaprojectIdentifier, function(response){
 			var metaproject = response.result;
@@ -739,7 +749,7 @@ test("createMetaproject(), updateMetaproject()", function(){
 
 test("createMetaproject(), deleteMetaproject()", function(){
 	createFacadeAndLogin(function(facade){
-		var metaprojectIdentifier = "/admin/JS_TEST_METAPROJECT";
+		var metaprojectIdentifier = "/" + testUserId + "/JS_TEST_METAPROJECT";
 		
 		createNewMetaproject(facade, metaprojectIdentifier, function(response){
 			var metaprojectId = createMetaprojectIdentifierId(metaprojectIdentifier);
@@ -756,7 +766,7 @@ test("createMetaproject(), deleteMetaproject()", function(){
 
 test("createMetaproject(), addToMetaproject(), removeFromMetaproject()", function(){
 	createFacadeAndLogin(function(facade){
-		var metaprojectIdentifier = "/admin/JS_TEST_METAPROJECT";
+		var metaprojectIdentifier = "/" + testUserId + "/JS_TEST_METAPROJECT";
 		
 		createNewMetaproject(facade, metaprojectIdentifier, function(response){
 			var metaprojectId = createMetaprojectIdentifierId(metaprojectIdentifier);
@@ -953,29 +963,24 @@ test("createReportFromDataSets()", function(){
 test("listAggregationServices()", function(){
 	createFacadeAndLogin(function(facade){
 		facade.listAggregationServices(function(response){
-			assertObjectsCount(response.result, 2);
+			assertObjectsCount(response.result, 3);
 			facade.close();
 		});
 	});
 });
 
-/*
-
-TODO add aggregation service that can be called via JSON (FeatureListsAggregationServicePlugin 
-cannot be called because the required DatasetDescription parameter cannot be created in javascript)
-
 test("createReportFromAggregationService()", function(){
 	createFacadeAndLogin(function(facade){
+		var dataStoreCode = "DSS-SCREENING";
+		var serviceKey = "test-aggregation-service";
+		var parameters = {};
+		
 		facade.createReportFromAggregationService(dataStoreCode, serviceKey, parameters, function(response){
+			ok(response.result, "Report has been created");
+			facade.close();
 		});
 	});
 });
-
-*/
-
-/*
-
-TODO this only works when an HTTP session exists (it is only created during login via WEB UI)
 
 test("getSessionTokenFromServer()", function(){
 	createFacadeAndLogin(function(facade){
@@ -985,8 +990,6 @@ test("getSessionTokenFromServer()", function(){
 		});
 	});
 });
-
-*/
 
 test("listFilesForDataSetFile()", function(){
 	createFacadeAndLogin(function(facade){
@@ -1293,3 +1296,18 @@ test("getValidationScriptForDataStore()", function(){
 	});
 });
 
+test("openbisWebAppContext()", function(){
+	createFacadeAndLogin(function(facade){
+		var context = new openbisWebAppContext();
+		equal(context.getWebappCode(), "openbis-test", "Webapp code is correct");
+		ok(!context.getEntityKind(), "Entity kind is correct");
+		ok(!context.getEntityType(), "Entity type is correct");
+		ok(!context.getEntityIdentifier(), "Entity identifier is correct");
+		ok(!context.getEntityPermId(), "Entity perm id is correct");
+		
+		facade.getSessionTokenFromServer(function(response){
+			equal(context.getSessionId(), response.result, "Session token is correct");
+			facade.close();
+		});
+	});
+});
