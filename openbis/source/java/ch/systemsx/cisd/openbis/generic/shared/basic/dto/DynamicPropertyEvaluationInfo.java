@@ -37,6 +37,7 @@ public class DynamicPropertyEvaluationInfo extends BasicEntityDescription
             PluginType pluginType, String scriptName, String script)
     {
         super(entityKind, entityIdentifier);
+        this.pluginType = pluginType;
         this.sciptName = scriptName;
         this.script = script;
     }

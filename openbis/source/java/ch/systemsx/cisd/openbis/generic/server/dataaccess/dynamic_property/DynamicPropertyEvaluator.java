@@ -61,8 +61,6 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
 
     private final IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory;
 
-    private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
-
     /** path of evaluation - used to generate meaningful error message for cyclic dependencies */
     private final List<EntityTypePropertyTypePE> evaluationPath =
             new ArrayList<EntityTypePropertyTypePE>();
@@ -79,7 +77,6 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                 new EntityPropertiesConverterDelegatorFacade(daoFactory,
                         customSessionProviderOrNull, managedPropertyEvaluatorFactory);
         this.dynamicPropertyCalculatorFactory = dynamicPropertyCalculatorFactory;
-        this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
 
     @Override

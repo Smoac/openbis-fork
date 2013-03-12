@@ -138,8 +138,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDyna
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityAdaptorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.INonAbstractEntityAdapter;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonDynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonEntityValidationCalculator.IValidationRequestDelegate;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.IEntityValidatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
@@ -3349,8 +3349,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         IEntityInformationWithPropertiesHolder entity = getEntity(info, session);
         try
         {
-            JythonDynamicPropertyCalculator calculator =
-                    JythonDynamicPropertyCalculator.create(info.getScript());
+            IDynamicPropertyCalculator calculator =
+                    dynamicPropertyCalculatorFactory.getCalculator(info.getPluginType(),
+                            info.getSciptName(), info.getScript());
             IDynamicPropertyEvaluator evaluator =
                     new DynamicPropertyEvaluator(getDAOFactory(), null,
                             dynamicPropertyCalculatorFactory, managedPropertyEvaluatorFactory);
