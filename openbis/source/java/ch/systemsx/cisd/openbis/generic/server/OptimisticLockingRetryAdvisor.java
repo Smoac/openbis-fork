@@ -94,12 +94,11 @@ public class OptimisticLockingRetryAdvisor extends DefaultPointcutAdvisor
                     {
                         throw ex;
                     }
-                    boolean giveUp = i < NUMBER_OF_TRIES - 1;
-                    operationLog.warn((giveUp ? "" : "Giving up after the ") + (i + 1)
-                            + ". failed invocation of " + invocation.getMethod() + ". Reason: "
-                            + ex);
-                    if (giveUp == false)
+                    boolean retry = i < NUMBER_OF_TRIES - 1;
+                    if (retry)
                     {
+                        operationLog.warn("Retry after the " + (i + 1) + ". failed invocation of "
+                                + invocation.getMethod() + ". Reason: " + ex, ex);
                         try
                         {
                             Thread.sleep((int) (Math.random() * MAX_WAITING_TIME_FOR_RETRY));
@@ -107,6 +106,10 @@ public class OptimisticLockingRetryAdvisor extends DefaultPointcutAdvisor
                         {
                             // Ignored
                         }
+                    } else
+                    {
+                        operationLog.error("Giving up after " + (i + 1) + ". failed invocation of "
+                                + invocation.getMethod() + ". Reason: " + ex);
                     }
                 }
             }
