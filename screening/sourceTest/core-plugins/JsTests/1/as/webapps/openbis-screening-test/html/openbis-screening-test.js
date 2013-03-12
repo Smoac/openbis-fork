@@ -432,13 +432,9 @@ test("loadImagesBase64ForImageReferencesAndImageConversion()", function(){
 	});
 });
 
-/*
-
-TODO generate thumbnails
-
 test("loadThumbnailImagesBase64ForImageReferences()", function(){
 	createFacadeAndLogin(function(facade){
-		listImageReferencesForPlateIdentifierAndWellPositionAndChannel(facade, "/PLATONIC/PLATE-1", 1, 1, "DAPI", function(imageReferences){
+		listImageReferencesForPlateIdentifierAndWellPositionAndChannel(facade, "/PLATONIC/PLATE-2", 1, 10, "DAPI", function(imageReferences){
 			facade.loadThumbnailImagesBase64ForImageReferences(imageReferences, function(response){
 				assertObjectsCount(response.result, 9);
 				facade.close();
@@ -446,8 +442,6 @@ test("loadThumbnailImagesBase64ForImageReferences()", function(){
 		});
 	});
 });
-
-*/
 
 test("loadImagesBase64ForImageReferencesAndImageSize()", function(){
 	createFacadeAndLogin(function(facade){
@@ -538,13 +532,9 @@ test("listAvailableImageRepresentationFormats()", function(){
 	});
 });
 
-/*
-
-TODO generate thumbnails
-
 test("loadPhysicalThumbnailsBase64ForImageReferencesAndImageRepresentationFormat()", function(){
 	createFacadeAndLogin(function(facade){
-		listImageReferencesAndFormatForPlateIdentifierAndWellPositionAndChannel(facade, "/PLATONIC/PLATE-1", 1, 1, "DAPI", function(results){
+		listImageReferencesAndFormatForPlateIdentifierAndWellPositionAndChannel(facade, "/PLATONIC/PLATE-2", 1, 10, "DAPI", function(results){
 			facade.loadPhysicalThumbnailsBase64ForImageReferencesAndImageRepresentationFormat(results.imageReferences, results.format, function(response){
 				assertObjectsCount(response.result, 9);
 				facade.close();
@@ -552,8 +542,6 @@ test("loadPhysicalThumbnailsBase64ForImageReferencesAndImageRepresentationFormat
 		});
 	});
 });
-
-*/
 
 test("loadImagesBase64ForDataSetIdentifierAndWellPositionsAndChannelAndImageSize()", function(){
 	createFacadeAndLogin(function(facade){
@@ -588,13 +576,9 @@ test("loadImagesBase64ForDataSetIdentifierAndChannelAndImageSize()", function(){
 	});
 });
 
-/*
-
-TODO generate thumbnails
-
 test("loadThumbnailImagesBase64ForDataSetIdentifierAndChannels()", function(){
 	createFacadeAndLogin(function(facade){
-		var datasetCodes = ["20110913114645299-83009"];
+		var datasetCodes = ["20130312170956594-83080"];
 		
 		facade.getDatasetIdentifiers(datasetCodes, function(response){
 			var datasetIdentifier = response.result[0];
@@ -607,8 +591,6 @@ test("loadThumbnailImagesBase64ForDataSetIdentifierAndChannels()", function(){
 		});
 	});
 });
-
-*/
 
 test("listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel()", function(){
 	createFacadeAndLogin(function(facade){
