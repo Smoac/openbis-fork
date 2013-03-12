@@ -150,6 +150,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         if (script == null)
         {
             define(newScript);
+            save();
         } else
         {
             if (newScript.getPluginType() == script.getPluginType()
@@ -160,6 +161,11 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
                 script.setScript(newScript.getScript());
                 script.setEntityKind(newScript.getEntityKind() == null ? null : newScript
                         .getEntityKind().length == 1 ? newScript.getEntityKind()[0] : null);
+                save();
+                if (script.isDynamic())
+                {
+                    scheduleDynamicPropertiesEvaluation();
+                }
             } else
             {
                 StringBuilder sb = new StringBuilder("Cannot register ");
@@ -222,11 +228,16 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         script.getScript();
         if (scriptChanged && script.isDynamic())
         {
-            for (EntityTypePropertyTypePE assignment : script.getPropertyAssignments())
-            {
-                getEntityPropertyTypeDAO(assignment.getEntityType().getEntityKind())
-                        .scheduleDynamicPropertiesEvaluation(assignment);
-            }
+            scheduleDynamicPropertiesEvaluation();
+        }
+    }
+
+    private void scheduleDynamicPropertiesEvaluation()
+    {
+        for (EntityTypePropertyTypePE assignment : script.getPropertyAssignments())
+        {
+            getEntityPropertyTypeDAO(assignment.getEntityType().getEntityKind())
+                    .scheduleDynamicPropertiesEvaluation(assignment);
         }
     }
 

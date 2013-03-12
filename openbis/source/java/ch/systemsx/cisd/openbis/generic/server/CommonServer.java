@@ -3005,7 +3005,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             IScriptBO bo = businessObjectFactory.createScriptBO(session);
             bo.tryDefineOrUpdateIfPossible(script);
-            bo.save();
         } catch (IllegalArgumentException e)
         {
             operationLog.warn(e.getMessage());
