@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.dss.etl.IImagingLoaderStrategy;
 import ch.systemsx.cisd.openbis.dss.etl.ImagingLoaderStrategyFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorRGB;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.AutoRescaleIntensityImageTransformerFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.ResponseContentStream;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
@@ -633,6 +634,7 @@ public class ImageChannelsUtils
                 imageReference.getImageTransfomationFactories();
         // image level transformation is applied always, as it cannot be applied or changed in
         // external image viewer
+
         resultImage = applyImageTransformation(resultImage, transfomations.tryGetForImage());
 
         if (transformationInfo.isApplyNonImageLevelTransformation() == false)
@@ -647,8 +649,9 @@ public class ImageChannelsUtils
         {
             String channelTransformationCode =
                     transformationInfo.tryGetSingleChannelTransformationCode() == null ? transfomations
-                            .tryGetDefaultTransformationCode() : transformationInfo
-                            .tryGetSingleChannelTransformationCode();
+                            .tryGetDefaultTransformationCode()
+                            : transformationInfo
+                                    .tryGetSingleChannelTransformationCode();
 
             if (channelTransformationCode != null
                     && (false == channelTransformationCode.equals(imageReference
@@ -657,6 +660,13 @@ public class ImageChannelsUtils
                 channelLevelTransformationOrNull =
                         transfomations.tryGetForChannel(transformationInfo
                                 .tryGetSingleChannelTransformationCode());
+            }
+
+            if (channelLevelTransformationOrNull == null)
+            {
+                channelLevelTransformationOrNull =
+                        new AutoRescaleIntensityImageTransformerFactory(
+                                ImageUtil.DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR);
             }
         }
 

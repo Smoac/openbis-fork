@@ -17,12 +17,14 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
+import java.util.EnumSet;
 
-
+import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
-import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
 
 /**
@@ -58,7 +60,19 @@ public class AutoRescaleIntensityImageTransformerFactory implements IImageTransf
                 {
                     if (IntensityRescaling.isNotGrayscale(image))
                     {
-                        return image;
+                        EnumSet<Channel> channels = IntensityRescaling.getUsedRgbChannels(image);
+                        if (channels.size() != 1)
+                        {
+                            return image;
+                        } else
+                        {
+                            Channel channel = channels.iterator().next();
+                            Levels levels =
+                                    IntensityRescaling.computeLevels(toGrayScale(image, channel),
+                                            threshold);
+                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels,
+                                    channel);
+                        }
                     }
                     Levels levels = IntensityRescaling.computeLevels(image, threshold);
                     return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
@@ -66,4 +80,21 @@ public class AutoRescaleIntensityImageTransformerFactory implements IImageTransf
             };
     }
 
+    private BufferedImage toGrayScale(BufferedImage image, Channel channel)
+    {
+        BufferedImage gray =
+                new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        WritableRaster raster = gray.getRaster();
+
+        for (int y = 0; y < image.getHeight(); y++)
+        {
+            for (int x = 0; x < image.getWidth(); x++)
+            {
+                int value = (image.getRGB(x, y) >> channel.getShift()) & 0xff;
+                raster.setPixel(x, y, new int[]
+                    { value });
+            }
+        }
+        return gray;
+    }
 }
