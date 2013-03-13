@@ -177,7 +177,7 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
         do
         {
             dataSets = getNextChunk();
-            operationLog.info("Feeding " + ++chunkCount + ". chunk.");
+            operationLog.info("Feeding " + ++chunkCount + ". chunk. " + dataSets.size() + " data sets.");
             Date maxRegistrationTimestamp = null;
             for (SimpleDataSetInformationDTO dataSet : dataSets)
             {
