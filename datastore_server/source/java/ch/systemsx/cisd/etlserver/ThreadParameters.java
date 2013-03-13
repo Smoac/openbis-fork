@@ -295,7 +295,7 @@ public final class ThreadParameters
     {
         if (createIncomingDirectories && incomingDataDirectory.exists() == false)
         {
-            incomingDataDirectory.mkdir();
+            incomingDataDirectory.mkdirs();
             operationLog.info("Created incoming directory '" + incomingDataDirectory + "'.");
         }
         if (incomingDataDirectory.isDirectory() == false)
