@@ -1227,15 +1227,15 @@ openbis.prototype.getDownloadUrlForFileForDataSetWithTimeout = function(dataSetC
  * Creates a session workspace file uploader inside the specified uploaderContainer element and for the default data store.
  * @method
  */
-openbis.prototype.createSessionWorkspaceUploader = function(uploaderContainer){
-	this.createSessionWorkspaceUploaderForDataStore(uploaderContainer, null);
+openbis.prototype.createSessionWorkspaceUploader = function(uploaderContainer, oncomplete){
+	this.createSessionWorkspaceUploaderForDataStore(uploaderContainer, null, oncomplete);
 }
 
 /**
  * Creates a session workspace file uploader inside the specified uploaderContainer element and for the specified data store.
  * @method
  */
-openbis.prototype.createSessionWorkspaceUploaderForDataStore = function(uploaderContainer, dataStoreCodeOrNull){
+openbis.prototype.createSessionWorkspaceUploaderForDataStore = function(uploaderContainer, dataStoreCodeOrNull, oncomplete){
 	var uploaderSupported = window.File && window.FileReader && window.XMLHttpRequest;
 
 	if(!uploaderSupported){
@@ -1260,6 +1260,7 @@ openbis.prototype.createSessionWorkspaceUploaderForDataStore = function(uploader
 		       file_upload_url: dataStoreUrl + "/session_workspace_file_upload",
 		       form_upload_url: dataStoreUrl + "/session_workspace_form_upload",
 		       file_download_url: dataStoreUrl + "/session_workspace_file_download",
+		       oncomplete: oncomplete,
 		       sessionID: $this.getSession()
 		});
 	});

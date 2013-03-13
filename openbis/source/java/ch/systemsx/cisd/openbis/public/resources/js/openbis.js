@@ -380,7 +380,7 @@ openbis.prototype.setWebAppSettings = function(webappSettings, action) {
  * 
  * @method
  */
-openbis.prototype.createSessionWorkspaceUploader = function(uploaderContainer){
+openbis.prototype.createSessionWorkspaceUploader = function(uploaderContainer, oncomplete){
 	var uploaderSupported = window.File && window.FileReader && window.XMLHttpRequest;
 
 	if(!uploaderSupported){
@@ -404,9 +404,10 @@ openbis.prototype.createSessionWorkspaceUploader = function(uploaderContainer){
 		       file_upload_url: $this.dssUrl + "/session_workspace_file_upload",
 		       form_upload_url: $this.dssUrl + "/session_workspace_form_upload",
 		       file_download_url: $this.dssUrl + "/session_workspace_file_download",
+		       oncomplete: oncomplete,
 		       sessionID: $this.sessionToken
 		});
-	});	
+	});
 }
 
 /**
