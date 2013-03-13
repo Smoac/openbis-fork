@@ -27,6 +27,7 @@ var Uploader = (function() {
         upload_form: "#upload-form",
         file_input_button: "#fileinput-button",
         file_list_clear_button: "#filelist-clear-button",
+        oncomplete: function(file) { },
         chunk_size: 100*1024,
         smart_mode: window.File && window.FileReader && window.XMLHttpRequest
     };
@@ -197,6 +198,7 @@ var Uploader = (function() {
                                                                d.filename + "\">" + d.filename + "</a>"); 
                             $("#action-bar-" + d.id).remove();
                             delete progress[d.id];
+                            settings.oncomplete(file);
                         }
                     }
                     else {
