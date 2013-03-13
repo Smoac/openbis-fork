@@ -52,9 +52,8 @@ public class DataStoreServiceFactory implements IDataStoreServiceFactory
     private final static Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
             IDataStoreService.class);
 
-    private final static ExecutorService executorService =
-            new NamingThreadPoolExecutor("Monitoring Proxy").corePoolSize(NUMBER_OF_CORE_THREADS)
-                    .daemonize();
+    private final static ExecutorService executorService = new NamingThreadPoolExecutor(
+            "Monitoring Proxy").corePoolSize(NUMBER_OF_CORE_THREADS).daemonize();
 
     @Override
     public IDataStoreService create(String serverURL)
@@ -63,8 +62,7 @@ public class DataStoreServiceFactory implements IDataStoreServiceFactory
         if (service == null)
         {
             service =
-                    HttpInvokerUtils.createServiceStub(IDataStoreService.class, serverURL
-                            + "/"
+                    HttpInvokerUtils.createServiceStub(IDataStoreService.class, serverURL + "/"
                             + DATA_STORE_SERVER_SERVICE_NAME, 5 * DateUtils.MILLIS_PER_MINUTE);
             services.put(serverURL, service);
         }
@@ -72,21 +70,21 @@ public class DataStoreServiceFactory implements IDataStoreServiceFactory
     }
 
     @Override
-    public IDataStoreService createMonitored(String serverURL)
+    public IDataStoreService createMonitored(String serverURL, LogLevel logLevelForNotSuccessfulCalls)
     {
         try
         {
             return MonitoringProxy
                     .create(IDataStoreService.class, create(serverURL))
                     .errorLog(new Log4jSimpleLogger(machineLog))
-                    .logLevelForSuccessfulCalls(LogLevel.INFO)
+                    .logLevelForSuccessfulCalls(logLevelForNotSuccessfulCalls)
+                    .logLevelForNotSuccessfulCalls(LogLevel.WARN)
                     .timing(TimingParameters.create(-1L, 5, DateUtils.MILLIS_PER_MINUTE))
                     .exceptionClassSuitableForRetrying(RemoteAccessException.class)
                     .executorService(executorService)
                     .callAsynchronously(
                             IDataStoreService.class.getMethod("cleanupSession", new Class<?>[]
-                                { String.class }))
-                    .get();
+                                { String.class })).get();
         } catch (SecurityException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

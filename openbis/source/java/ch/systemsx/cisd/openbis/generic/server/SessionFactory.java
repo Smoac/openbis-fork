@@ -22,6 +22,7 @@ import ch.systemsx.cisd.authentication.ISessionFactory;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -89,7 +90,7 @@ public final class SessionFactory implements ISessionFactory<Session>
             final String remoteUrl = datastore.getRemoteUrl();
             if (StringUtils.isBlank(remoteUrl) == false)
             {
-                dssFactory.createMonitored(remoteUrl).cleanupSession(sessionToken);
+                dssFactory.createMonitored(remoteUrl, LogLevel.WARN).cleanupSession(sessionToken);
             } else
             {
                 operationLog.warn("datastore remoteUrl of datastore " + datastore.getCode()

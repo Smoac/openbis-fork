@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business;
 
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 
 /**
@@ -29,5 +30,5 @@ public interface IDataStoreServiceFactory
      * Creates a monitored version of the service where
      * {@link IDataStoreService#cleanupSession(String)} is run asynchronously.
      */
-    public IDataStoreService createMonitored(String serverURL);
+    public IDataStoreService createMonitored(String serverURL, LogLevel logLevelForNotSuccessfulCalls);
 }

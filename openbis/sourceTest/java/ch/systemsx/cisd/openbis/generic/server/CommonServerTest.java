@@ -35,6 +35,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyCalculatorFactory;
@@ -256,7 +257,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     dataStore.setRemoteUrl("remote-url");
                     will(returnValue(Arrays.asList(dataStore)));
 
-                    one(dssFactory).createMonitored(dataStore.getRemoteUrl());
+                    one(dssFactory).createMonitored(dataStore.getRemoteUrl(), LogLevel.WARN);
                     will(returnValue(dataStoreService));
 
                     one(dataStoreService).cleanupSession(SESSION_TOKEN);

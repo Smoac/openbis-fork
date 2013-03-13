@@ -131,6 +131,8 @@ public class MonitoringProxy<T>
     private ISimpleLogger loggerOrNull;
 
     private LogLevel logLevelForSuccessfulCalls;
+    
+    private LogLevel logLevelForNotSuccessfulCalls;
 
     private IMonitoringProxyLogger invocationLoggerOrNull;
 
@@ -385,7 +387,7 @@ public class MonitoringProxy<T>
                                 @Override
                                 public LogLevel getLogLevelForError()
                                 {
-                                    return LogLevel.ERROR;
+                                    return logLevelForNotSuccessfulCalls;
                                 }
 
                                 @Override
@@ -453,6 +455,7 @@ public class MonitoringProxy<T>
         this.errorMethodValueMap = new HashMap<Method, Object>();
         this.asyncOkMethodValueMap = new HashMap<Method, Object>();
         this.asyncMethodSet = new HashSet<Method>();
+        this.logLevelForNotSuccessfulCalls = LogLevel.ERROR;
         this.logLevelForSuccessfulCalls = LogLevel.OFF;
         this.exceptionClassesSuitableForRetrying = new HashSet<Class<? extends Exception>>();
         this.timingParameters = TimingParameters.getNoTimeoutNoRetriesParameters();
@@ -790,6 +793,17 @@ public class MonitoringProxy<T>
     public MonitoringProxy<T> logLevelForSuccessfulCalls(LogLevel newLogLevelForSuccessfulCalls)
     {
         this.logLevelForSuccessfulCalls = newLogLevelForSuccessfulCalls;
+        return this;
+    }
+    
+    /**
+     * Sets a log level for not successful calls to the proxy.
+     * <p>
+     * Default: {@link LogLevel#ERROR}.
+     */
+    public MonitoringProxy<T> logLevelForNotSuccessfulCalls(LogLevel newLogLevelForNotSuccessfulCalls)
+    {
+        this.logLevelForNotSuccessfulCalls = newLogLevelForNotSuccessfulCalls;
         return this;
     }
 
