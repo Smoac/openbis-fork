@@ -54,10 +54,14 @@ import javax.swing.text.JTextComponent;
 
 import org.apache.log4j.PropertyConfigurator;
 
+import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
@@ -190,6 +194,16 @@ public class ScreeningClientApiTester
                     listPlates();
                 }
             });
+            JMenuItem listFeatureVectorsMenuItem = new JMenuItem("Counts Feature Vectors");
+            callApiMenu.add(listFeatureVectorsMenuItem);
+            listFeatureVectorsMenuItem.addActionListener(new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    loadFeatureVectors();
+                }
+            });
         }
         
         void setUp(String[] args)
@@ -197,9 +211,11 @@ public class ScreeningClientApiTester
             setVisible(true);
             if (args.length == 3)
             {
+                String serverUrl = args[2];
+                SslCertificateHelper.trustAnyCertificate(serverUrl);
                 facade =
                         ScreeningOpenbisServiceFacadeFactory.INSTANCE.tryToCreate(args[0], args[1],
-                                args[2]);
+                                serverUrl);
             } else
             {
                 Form form = new Form(this, "Connection to openBIS");
@@ -318,6 +334,26 @@ public class ScreeningClientApiTester
             List<Plate> plates = facade.listPlates((ExperimentIdentifier) experimentComboBox
                             .getSelectedItem(), analysisProcedureField.getText());
             JOptionPane.showMessageDialog(this, "Plates: " + plates);
+        }
+        
+        private void loadFeatureVectors()
+        {
+            List<Plate> plates = facade.listPlates();
+            List<FeatureVectorDatasetReference> featureDatasets = facade.listFeatureVectorDatasets(plates);
+            long t0 = System.currentTimeMillis();
+            List<FeatureVectorDataset> features = facade.loadFeatures(featureDatasets, null);
+            long duration = System.currentTimeMillis() - t0;
+            int featureVectors = 0;
+            int featureColumns = 0;
+            for (FeatureVectorDataset featureVectorDataSet : features)
+            {
+                List<FeatureVector> featureVector = featureVectorDataSet.getFeatureVectors();
+                featureColumns += featureVectorDataSet.getFeatureCodes().size();
+                featureVectors += featureVector.size();
+            }
+            JOptionPane.showMessageDialog(this, plates.size() + " Plates\n" + features.size()
+                    + " Feature Data Sets\n" + featureVectors + " Feature Vectors\n"
+                    + featureColumns + " Features\ntook " + duration + " msec");
         }
         
         private void loadImagesByDataSetCode()
