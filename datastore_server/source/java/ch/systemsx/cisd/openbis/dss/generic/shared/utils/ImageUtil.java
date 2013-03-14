@@ -78,7 +78,7 @@ public class ImageUtil
      * When a grayscale image with color depth > 8 bits has to be displayed and user has not decided
      * how it should be converted, then this threshold will be used.
      */
-    public static final float DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR = 0.001f;
+    public static final float DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR = 0.01f;
 
     final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ImageUtil.class);
 
