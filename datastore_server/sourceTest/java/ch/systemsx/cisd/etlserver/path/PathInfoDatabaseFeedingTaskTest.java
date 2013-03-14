@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
@@ -139,7 +140,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
     }
     
     @Test
-    public void testAsMaintenanceTaskWithFinitNumberOfChunks()
+    public void testAsMaintenanceTaskWithFiniteNumberOfChunks()
     {
         final SimpleDataSetInformationDTO ds1 = dataSet(1000);
         final SimpleDataSetInformationDTO ds2 = dataSet(2000);
@@ -188,7 +189,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
     }
     
     @Test
-    public void testAsMaintenanceTaskWithFinitTimeLimit()
+    public void testAsMaintenanceTaskWithFiniteTimeLimit()
     {
         final SimpleDataSetInformationDTO ds1 = dataSet(1000);
         final SimpleDataSetInformationDTO ds2 = dataSet(2000);
@@ -222,7 +223,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
         prepareCreateLastFeedingEvent(ds2.getRegistrationTimestamp());
         prepareCreateLastFeedingEvent(ds4.getRegistrationTimestamp());
 
-        createTask(2, 0, 2000).execute();
+        createTask(2, 0, 1500).execute();
     }
 
     @Test
@@ -453,7 +454,7 @@ public class PathInfoDatabaseFeedingTaskTest extends AbstractFileSystemTestCase
             long timeLimite)
     {
         return new PathInfoDatabaseFeedingTask(service, directoryProvider, dao, contentFactory,
-                true, chunkSize, maxNumberOfChunks, timeLimite);
+                new MockTimeProvider(0, 1000), true, chunkSize, maxNumberOfChunks, timeLimite);
     }
 
 }

@@ -31,6 +31,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.time.DateTimeUtils;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.etlserver.postregistration.ICleanupTask;
 import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTask;
 import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTaskExecutor;
@@ -93,6 +95,8 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
 
     private IDataSetDirectoryProvider directoryProvider;
 
+    private ITimeProvider timeProvider;
+    
     private IPathsInfoDAO dao;
 
     private IHierarchicalContentFactory hierarchicalContentFactory; // filesystem based
@@ -112,19 +116,20 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
     public PathInfoDatabaseFeedingTask(Properties properties, IEncapsulatedOpenBISService service)
     {
         this(service, getDirectoryProvider(), createDAO(), createContentFactory(),
-                getComputeChecksumFlag(properties), 0, 0, 0);
+                SystemTimeProvider.SYSTEM_TIME_PROVIDER, getComputeChecksumFlag(properties), 0, 0, 0);
     }
 
     @Private
     PathInfoDatabaseFeedingTask(IEncapsulatedOpenBISService service,
             IDataSetDirectoryProvider directoryProvider, IPathsInfoDAO dao,
-            IHierarchicalContentFactory hierarchicalContentFactory, boolean computeChecksum,
+            IHierarchicalContentFactory hierarchicalContentFactory, ITimeProvider timeProvider, boolean computeChecksum,
             int chunkSize, int maxNumberOfChunks, long timeLimit)
     {
         this.service = service;
         this.directoryProvider = directoryProvider;
         this.dao = dao;
         this.hierarchicalContentFactory = hierarchicalContentFactory;
+        this.timeProvider = timeProvider;
         this.computeChecksum = computeChecksum;
         this.chunkSize = chunkSize;
         maxNumerOfChunks = maxNumberOfChunks;
@@ -142,6 +147,7 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
     {
         service = ServiceProvider.getOpenBISService();
         directoryProvider = getDirectoryProvider();
+        timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
         dao = createDAO();
         hierarchicalContentFactory = createContentFactory();
         computeChecksum = getComputeChecksumFlag(properties);
@@ -329,22 +335,18 @@ public class PathInfoDatabaseFeedingTask implements IMaintenanceTask, IPostRegis
     {
         return new IStopCondition()
             {
-                private long minimum = Long.MAX_VALUE;
+                private long startTime = timeProvider.getTimeInMilliseconds();
 
-                private long maximum = Long.MIN_VALUE;
 
                 @Override
                 public void handle(SimpleDataSetInformationDTO dataSet)
                 {
-                    long time = dataSet.getRegistrationTimestamp().getTime();
-                    minimum = Math.min(minimum, time);
-                    maximum = Math.max(maximum, time);
                 }
 
                 @Override
                 public boolean fulfilled()
                 {
-                    return maximum - minimum > timeLimit;
+                    return timeProvider.getTimeInMilliseconds() - startTime > timeLimit;
                 }
             };
     }
