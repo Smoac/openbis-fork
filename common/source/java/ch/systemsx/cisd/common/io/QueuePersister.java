@@ -440,10 +440,13 @@ public class QueuePersister<E> implements IQueuePersister<E>
         {
             try
             {
-                if (randomAccessFile.getFD().valid() == false
-                        || false == randomAccessFile.getChannel().isOpen())
+                if (randomAccessFile.getFD().valid() == false)
+
                 {
-                    throw new IllegalStateException("Cannot persist: file is closed.");
+                    this.randomAccessFile = new RandomAccessFile(queueFile, "rw");
+                } else if (false == randomAccessFile.getChannel().isOpen())
+                {
+                    this.randomAccessFile = new RandomAccessFile(queueFile, "rw");
                 }
             } catch (IOException ex)
             {

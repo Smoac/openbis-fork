@@ -113,6 +113,21 @@ public class PersistentExtendedBlockingQueueDecoratorTest
     }
 
     @Test
+    public void testAddClose()
+    {
+        final List<String> items = Arrays.asList("one", "two");
+        PersistentExtendedBlockingQueueDecorator<String> persistentQueue = createQueue();
+        for (String item : items)
+        {
+            persistentQueue.add(item);
+        }
+        persistentQueue.close();
+        persistentQueue.add("three");
+
+        assertEquals(items.size() + 1, asList(createQueue()).size());
+    }
+
+    @Test
     public void testAddLongItem()
     {
         final List<String> items = Arrays.asList("one", "two", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
