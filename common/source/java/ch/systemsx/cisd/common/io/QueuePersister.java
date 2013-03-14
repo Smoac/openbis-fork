@@ -440,11 +440,8 @@ public class QueuePersister<E> implements IQueuePersister<E>
         {
             try
             {
-                if (randomAccessFile.getFD().valid() == false)
-
-                {
-                    this.randomAccessFile = new RandomAccessFile(queueFile, "rw");
-                } else if (false == randomAccessFile.getChannel().isOpen())
+                if (randomAccessFile.getFD().valid() == false
+                        || false == randomAccessFile.getChannel().isOpen())
                 {
                     this.randomAccessFile = new RandomAccessFile(queueFile, "rw");
                 }
