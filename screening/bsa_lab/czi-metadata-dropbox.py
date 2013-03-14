@@ -155,37 +155,38 @@ def process(transaction):
 	directoryName = os.path.basename(incoming.getPath())
 	names = re.split(r"[-]",directoryName)
 	projectName = names[0] + "-IMG"
-	experimentName = names[1]
+	experimentName = "-".join(names[1:])
 	experiment = "/PANTAZIS_GROUP/" + projectName + "/" + experimentName  
 	exp = transaction.getExperiment(experiment)
 	if not exp:
 		exp = transaction.createNewExperiment(experiment, 'IMAGING')
+
 	
 	for name in cziInfo.keys():
 		sampleIdentifier = "/PANTAZIS_GROUP/" + name
-		print "sample is", sampleIdentifier
 		sample = transaction.createNewSample(sampleIdentifier, "MICROSCOPY_IMG")
+
 		sample.setExperiment(exp)
 		sample.setPropertyValue("OBJECTIVE", cziInfo[name]["objective"])
 		sample.setPropertyValue("SCALING", cziInfo[name]["scaling"])
-# 		sample.setPropertyValue("Z_STEP_SIZE", cziInfo[name]["z_step_size"])
-# 		sample.setPropertyValue("PIXEL_DWELL_TIME", cziInfo[name]["pixel_dwell_time"])
-# 		sample.setPropertyValue("CHANNEL_NAME_0", cziInfo[name]["channel_name_0"])
-# 		sample.setPropertyValue("CHANNEL_NAME_1", cziInfo[name]["channel_name_1"])
-# 		sample.setPropertyValue("CHANNEL_NAME_2", cziInfo[name]["channel_name_2"])
-# 		sample.setPropertyValue("CHANNEL_NAME_3", cziInfo[name]["channel_name_3"])
-# 		sample.setPropertyValue("CHANNEL_NAME_4", cziInfo[name]["channel_name_4"])
-# 		sample.setPropertyValue("CHANNEL_NAME_5", cziInfo[name]["channel_name_5"])
-# 		sample.setPropertyValue("CHANNEL_NAME_6", cziInfo[name]["channel_name_6"])
-# 		sample.setPropertyValue("CHANNEL_NAME_7", cziInfo[name]["channel_name_7"])
-# 		sample.setPropertyValue("DETECTOR_GAIN_0", cziInfo[name]["detector_gain_0"])
-# 		sample.setPropertyValue("DETECTOR_GAIN_1", cziInfo[name]["detector_gain_1"])
-# 		sample.setPropertyValue("DETECTOR_GAIN_2", cziInfo[name]["detector_gain_2"])
-# 		sample.setPropertyValue("DETECTOR_GAIN_3", cziInfo[name]["detector_gain_3"])
-# 		sample.setPropertyValue("DETECTOR_GAIN_4", cziInfo[name]["detector_gain_4"])
-# 		sample.setPropertyValue("DETECTOR_GAIN_5", cziInfo[name]["detector_gain_5"])
-# 		sample.setPropertyValue("DETECTOR_GAIN_6", cziInfo[name]["detector_gain_6"])
-# 		sample.setPropertyValue("DETECTOR_GAIN_7", cziInfo[name]["detector_gain_7"])
+		sample.setPropertyValue("Z_STEP_SIZE", cziInfo[name]["z_step_size"])
+		sample.setPropertyValue("PIXEL_DWELL_TIME", cziInfo[name]["pixel_dwell_time"])
+		sample.setPropertyValue("CHANNEL_NAME_0", cziInfo[name]["channel_name_0"])
+		sample.setPropertyValue("CHANNEL_NAME_1", cziInfo[name]["channel_name_1"])
+		sample.setPropertyValue("CHANNEL_NAME_2", cziInfo[name]["channel_name_2"])
+		sample.setPropertyValue("CHANNEL_NAME_3", cziInfo[name]["channel_name_3"])
+		sample.setPropertyValue("CHANNEL_NAME_4", cziInfo[name]["channel_name_4"])
+		sample.setPropertyValue("CHANNEL_NAME_5", cziInfo[name]["channel_name_5"])
+		sample.setPropertyValue("CHANNEL_NAME_6", cziInfo[name]["channel_name_6"])
+		sample.setPropertyValue("CHANNEL_NAME_7", cziInfo[name]["channel_name_7"])
+		sample.setPropertyValue("DETECTOR_GAIN_0", cziInfo[name]["detector_gain_0"])
+		sample.setPropertyValue("DETECTOR_GAIN_1", cziInfo[name]["detector_gain_1"])
+		sample.setPropertyValue("DETECTOR_GAIN_2", cziInfo[name]["detector_gain_2"])
+		sample.setPropertyValue("DETECTOR_GAIN_3", cziInfo[name]["detector_gain_3"])
+		sample.setPropertyValue("DETECTOR_GAIN_4", cziInfo[name]["detector_gain_4"])
+		sample.setPropertyValue("DETECTOR_GAIN_5", cziInfo[name]["detector_gain_5"])
+		sample.setPropertyValue("DETECTOR_GAIN_6", cziInfo[name]["detector_gain_6"])
+		sample.setPropertyValue("DETECTOR_GAIN_7", cziInfo[name]["detector_gain_7"])
 
 		imageDataset = SimpleImageContainerDataConfig()
 		imageDataset.setPlate("PANTAZIS_GROUP", name)
@@ -197,11 +198,10 @@ def process(transaction):
 		
 		sampleNamePath = incoming.getPath() + '/' + name  + '.czi'
 		metadataPath = incoming.getPath() + '/' + name  + '-metadata.txt'
-		dataSet = transaction.createNewImageDataSet(imageDataset, File(sampleNamePath))
+ 		dataSet = transaction.createNewImageDataSet(imageDataset, File(sampleNamePath))
 		
-		transaction.moveFile(sampleNamePath, dataSet)
 		transaction.moveFile(metadataPath, dataSet)
-
+		transaction.moveFile(sampleNamePath, dataSet)
 
  
 
