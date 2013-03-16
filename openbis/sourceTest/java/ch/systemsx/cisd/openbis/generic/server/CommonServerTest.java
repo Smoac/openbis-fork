@@ -437,23 +437,27 @@ public final class CommonServerTest extends AbstractServerTestCase
     }
 
     @Test
-    public void testRegisterGroup()
+    public void testRegisterSpace()
     {
         prepareGetSession();
-        final String groupCode = "group";
+        final String spaceCode = "group";
         final String description = "description";
+        final PersonPE person = createPersonWithRoleAssignmentsFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
             {
                 {
                     one(commonBusinessObjectFactory).createSpaceBO(session);
                     will(returnValue(groupBO));
 
-                    one(groupBO).define(groupCode, description);
+                    one(groupBO).define(spaceCode, description);
                     one(groupBO).save();
+
+                    one(personDAO).tryFindPersonByUserId(CommonTestUtils.USER_ID);
+                    will(returnValue(person));
                 }
             });
 
-        createServer().registerSpace(SESSION_TOKEN, groupCode, description);
+        createServer().registerSpace(SESSION_TOKEN, spaceCode, description);
 
         context.assertIsSatisfied();
     }
