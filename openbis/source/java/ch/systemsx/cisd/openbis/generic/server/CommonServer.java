@@ -450,12 +450,21 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("REGISTER_SPACE")
     public void registerSpace(String sessionToken, String spaceCode, String descriptionOrNull)
     {
         final Session session = getSession(sessionToken);
-        final ISpaceBO groupBO = businessObjectFactory.createSpaceBO(session);
-        groupBO.define(spaceCode, descriptionOrNull);
-        groupBO.save();
+        final ISpaceBO spaceBO = businessObjectFactory.createSpaceBO(session);
+        spaceBO.define(spaceCode, descriptionOrNull);
+        spaceBO.save();
+        // If the user who registers this space is _not_ instance admin, make him space admin for
+        // the freshly created space.
+        if (new AuthorizationServiceUtils(getDAOFactory(), session.getUserName()).doesUserHaveRole(
+                RoleCode.ADMIN.toString(), null) == false)
+        {
+            registerSpaceRole(sessionToken, RoleCode.ADMIN, new SpaceIdentifier(spaceCode),
+                    Grantee.createPerson(session.getUserName()));
+        }
     }
 
     @Override
@@ -515,7 +524,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final IRoleAssignmentTable table = businessObjectFactory.createRoleAssignmentTable(session);
         table.add(newRoleAssignment);
         table.save();
-
     }
 
     @Override
