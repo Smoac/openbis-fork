@@ -57,7 +57,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
 
     private List<RoleWithIdentifier> createAllowedRoles()
     {
-        return Collections.singletonList(createGroupRole(RoleCode.USER, new SpaceIdentifier("DB1",
+        return Collections.singletonList(createSpaceRole(RoleCode.USER, new SpaceIdentifier("DB1",
                 "3V")));
     }
 

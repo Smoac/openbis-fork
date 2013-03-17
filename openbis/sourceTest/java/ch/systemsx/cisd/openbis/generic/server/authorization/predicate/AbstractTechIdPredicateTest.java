@@ -122,7 +122,7 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
         final AbstractTechIdPredicate predicate = createPredicate();
         final DatabaseInstancePE homeDatabaseInstance = createDatabaseInstance();
         final List<SpacePE> groups = createSpaces();
-        final SpacePE anotherGroup = createSpace(ANOTHER_GROUP_CODE, homeDatabaseInstance);
+        final SpacePE anotherGroup = createSpace(ANOTHER_SPACE_CODE, homeDatabaseInstance);
         groups.add(anotherGroup);
         prepareProvider(groups, anotherGroup, ENTITY_KIND, TECH_ID);
         predicate.init(provider);

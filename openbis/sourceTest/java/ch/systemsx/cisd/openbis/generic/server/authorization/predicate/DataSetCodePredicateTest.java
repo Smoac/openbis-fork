@@ -57,7 +57,7 @@ public class DataSetCodePredicateTest extends AuthorizationTestCase
     public void testWithOneInvalidGroup()
     {
         final DataSetAccessPE accessData =
-                DataSetAccessPE.createDataSetAccessPEForTest("1", "d1", ANOTHER_GROUP_CODE,
+                DataSetAccessPE.createDataSetAccessPEForTest("1", "d1", ANOTHER_SPACE_CODE,
                         "global_" + ANOTHER_INSTANCE_CODE, ANOTHER_INSTANCE_CODE);
         context.checking(new Expectations()
             {

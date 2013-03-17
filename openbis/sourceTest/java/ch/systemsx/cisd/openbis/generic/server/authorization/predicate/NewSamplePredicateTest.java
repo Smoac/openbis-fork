@@ -99,7 +99,7 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
     {
         NewSamplePredicate predicate = new NewSamplePredicate();
         SampleType sampleType = new SampleType();
-        SpaceIdentifier groupIdentifier = new SpaceIdentifier(INSTANCE_CODE, ANOTHER_GROUP_CODE);
+        SpaceIdentifier groupIdentifier = new SpaceIdentifier(INSTANCE_CODE, ANOTHER_SPACE_CODE);
         SampleIdentifier sampleIdentifier = new SampleIdentifier(groupIdentifier, "s1");
         NewSample sample =
                 NewSample.createWithParent(sampleIdentifier.toString(), sampleType, "container",

@@ -96,7 +96,7 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
         DataSetUpdatesDTO ds1 = new DataSetUpdatesDTO();
         ds1.setDatasetId(new TechId(42L));
         ds1.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse("/"
-                + ANOTHER_GROUP_CODE + "/P/E"));
+                + ANOTHER_SPACE_CODE + "/P/E"));
         ds1.setSampleIdentifierOrNull(SampleIdentifierFactory.parse("/" + SPACE_CODE + "/S"));
         prepareProvider(createDatabaseInstance(), createSpaces());
         DataSetUpdatesCollectionPredicate predicate = new DataSetUpdatesCollectionPredicate();
@@ -117,7 +117,7 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
         ds1.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse("/" + SPACE_CODE
                 + "/P/E"));
         ds1.setSampleIdentifierOrNull(SampleIdentifierFactory
-                .parse("/" + ANOTHER_GROUP_CODE + "/S"));
+                .parse("/" + ANOTHER_SPACE_CODE + "/S"));
         prepareProvider(createDatabaseInstance(), createSpaces());
         DataSetUpdatesCollectionPredicate predicate = new DataSetUpdatesCollectionPredicate();
         predicate.init(provider);

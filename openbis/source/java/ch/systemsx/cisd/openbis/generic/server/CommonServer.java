@@ -75,6 +75,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTec
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.DeletionValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExpressionValidator;
@@ -481,14 +482,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
-    public void updateSpace(final String sessionToken, final ISpaceUpdates updates)
+    @Capability("UPDATE_SPACE")
+    public void updateSpace(final String sessionToken,
+            @AuthorizationGuard(guardClass = SpaceUpdatesPredicate.class)
+            final ISpaceUpdates updates)
     {
         assert sessionToken != null : "Unspecified session token";
         assert updates != null : "Unspecified updates";
 
         final Session session = getSession(sessionToken);
-        final ISpaceBO groupBO = businessObjectFactory.createSpaceBO(session);
-        groupBO.update(updates);
+        final ISpaceBO spaceBO = businessObjectFactory.createSpaceBO(session);
+        spaceBO.update(updates);
     }
 
     @Override
@@ -2074,15 +2078,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @Capability("DELETE_SPACE")
     public void deleteSpaces(String sessionToken,
             @AuthorizationGuard(guardClass = SpaceTechIdCollectionPredicate.class)
             List<TechId> spaceIds, String reason)
     {
         Session session = getSession(sessionToken);
-        ISpaceBO groupBO = businessObjectFactory.createSpaceBO(session);
+        ISpaceBO spaceBO = businessObjectFactory.createSpaceBO(session);
         for (TechId id : spaceIds)
         {
-            groupBO.deleteByTechId(id, reason);
+            spaceBO.deleteByTechId(id, reason);
         }
     }
 
@@ -2642,7 +2647,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         if ((entityKind.equals(EntityKind.SAMPLE) || entityKind.equals(EntityKind.DATA_SET) || entityKind
-                .equals(EntityKind.MATERIAL)) && EntityType.isDefinedInFileEntityTypeCode(type))
+                .equals(EntityKind.MATERIAL))
+                && EntityType.isDefinedInFileEntityTypeCode(type))
         {
             types.addAll(getDAOFactory().getEntityTypeDAO(
                     DtoConverters.convertEntityKind(entityKind)).listEntityTypes());

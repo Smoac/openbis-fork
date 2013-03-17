@@ -66,7 +66,7 @@ public class AuthorizationTestCase extends AssertJUnit
 
     protected static final String SPACE_CODE = "G1";
 
-    protected static final String ANOTHER_GROUP_CODE = "G2";
+    protected static final String ANOTHER_SPACE_CODE = "G2";
 
     protected Mockery context;
 
@@ -76,7 +76,7 @@ public class AuthorizationTestCase extends AssertJUnit
      * Creates a role with level {@link RoleLevel#SPACE} with specified role code for specified
      * space.
      */
-    protected RoleWithIdentifier createGroupRole(RoleCode roleCode, SpaceIdentifier spaceIdentifier)
+    protected RoleWithIdentifier createSpaceRole(RoleCode roleCode, SpaceIdentifier spaceIdentifier)
     {
         SpacePE groupPE = new SpacePE();
         groupPE.setCode(spaceIdentifier.getSpaceCode());
@@ -175,12 +175,12 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a space with code {@link #ANOTHER_GROUP_CODE} and database instance with code
+     * Creates a space with code {@link #ANOTHER_SPACE_CODE} and database instance with code
      * {@link #ANOTHER_INSTANCE_CODE}.
      */
     protected SpacePE createAnotherSpace()
     {
-        return createSpace(ANOTHER_GROUP_CODE, createAnotherDatabaseInstance());
+        return createSpace(ANOTHER_SPACE_CODE, createAnotherDatabaseInstance());
     }
 
     /**
@@ -196,13 +196,13 @@ public class AuthorizationTestCase extends AssertJUnit
     /**
      * Creates a space with specified group code and database instance.
      */
-    protected SpacePE createSpace(final String groupCode,
+    protected SpacePE createSpace(final String spaceCode,
             final DatabaseInstancePE databaseInstancePE)
     {
-        final SpacePE group = new SpacePE();
-        group.setCode(groupCode);
-        group.setDatabaseInstance(databaseInstancePE);
-        return group;
+        final SpacePE space = new SpacePE();
+        space.setCode(spaceCode);
+        space.setDatabaseInstance(databaseInstancePE);
+        return space;
     }
 
     /**
@@ -323,7 +323,35 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a list of roles which contains a group role for a USER and group defined by code
+     * Creates a list of roles which contains an instance admin role for database instance
+     * {@link AuthorizationTestCase#ANOTHER_INSTANCE_CODE}.
+     */
+    protected List<RoleWithIdentifier> createAnotherInstanceAdminRole()
+    {
+        final List<RoleWithIdentifier> list = new ArrayList<RoleWithIdentifier>();
+        final RoleWithIdentifier databaseInstanceRole =
+                createInstanceRole(RoleCode.ADMIN, new DatabaseInstanceIdentifier(
+                        ANOTHER_INSTANCE_CODE));
+        list.add(databaseInstanceRole);
+        return list;
+    }
+
+    /**
+     * Creates a list of roles which contains a space admin role for space
+     * {@link AuthorizationTestCase#ANOTHER_SPACE_CODE}.
+     */
+    protected List<RoleWithIdentifier> createAnotherSpaceAdminRole()
+    {
+        final List<RoleWithIdentifier> list = new ArrayList<RoleWithIdentifier>();
+        final RoleWithIdentifier spaceRole =
+                createSpaceRole(RoleCode.USER, new SpaceIdentifier(ANOTHER_INSTANCE_CODE,
+                        ANOTHER_SPACE_CODE));
+        list.add(spaceRole);
+        return list;
+    }
+
+    /**
+     * Creates a list of roles which contains a space role for a USER and group defined by code
      * {@link #SPACE_CODE} and database instance {@link AuthorizationTestCase#INSTANCE_CODE}. If
      * <code>withInstanceRole == true</code> the list contains in addition an instance role for a
      * ADMIN and database instance defined by {@link #ANOTHER_INSTANCE_CODE}.
@@ -331,9 +359,9 @@ public class AuthorizationTestCase extends AssertJUnit
     protected List<RoleWithIdentifier> createRoles(final boolean withInstanceRole)
     {
         final List<RoleWithIdentifier> list = new ArrayList<RoleWithIdentifier>();
-        final RoleWithIdentifier groupRole =
-                createGroupRole(RoleCode.USER, new SpaceIdentifier(INSTANCE_CODE, SPACE_CODE));
-        list.add(groupRole);
+        final RoleWithIdentifier spaceRole =
+                createSpaceRole(RoleCode.USER, new SpaceIdentifier(INSTANCE_CODE, SPACE_CODE));
+        list.add(spaceRole);
         if (withInstanceRole)
         {
             final RoleWithIdentifier databaseInstanceRole =

@@ -60,6 +60,50 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
     }
 
     @Test
+    public void testSpaceTechIdCollectionPredicateSucceedsForInstanceAdmin()
+    {
+        SpaceTechIdCollectionPredicate predicate = new SpaceTechIdCollectionPredicate();
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        final List<TechId> techIds = TechId.createList(1L, 2L);
+        context.checking(new Expectations()
+            {
+                {
+                    one(provider).getDistinctSpacesByEntityIds(SpaceOwnerKind.SPACE, techIds);
+                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createAnotherSpace()))));
+                }
+            });
+        predicate.init(provider);
+
+        Status result =
+                predicate.evaluate(createPerson(), createAnotherInstanceAdminRole(), techIds);
+
+        assertTrue(result.toString(), result.isOK());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testSpaceTechIdCollectionPredicateSucceedsForSpaceAdmin()
+    {
+        SpaceTechIdCollectionPredicate predicate = new SpaceTechIdCollectionPredicate();
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        final List<TechId> techIds = TechId.createList(1L, 2L);
+        context.checking(new Expectations()
+            {
+                {
+                    one(provider).getDistinctSpacesByEntityIds(SpaceOwnerKind.SPACE, techIds);
+                    will(returnValue(new HashSet<SpacePE>(Arrays.asList(createAnotherSpace()))));
+                }
+            });
+        predicate.init(provider);
+
+        Status result =
+                predicate.evaluate(createPerson(), createAnotherSpaceAdminRole(), techIds);
+
+        assertTrue(result.toString(), result.isOK());
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testSpaceTechIdCollectionPredicateFails()
     {
         SpaceTechIdCollectionPredicate predicate = new SpaceTechIdCollectionPredicate();

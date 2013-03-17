@@ -61,7 +61,7 @@ public class ProjectPredicateTest extends AuthorizationTestCase
     public void testHaveNoAccessToProject()
     {
         ProjectPredicate predicate = new ProjectPredicate();
-        Project project = new Project(ANOTHER_GROUP_CODE, "XXX");
+        Project project = new Project(ANOTHER_SPACE_CODE, "XXX");
 
         context.checking(new Expectations()
             {

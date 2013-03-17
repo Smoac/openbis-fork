@@ -87,7 +87,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         prepareProvider(createAnotherDatabaseInstance(), createSpaces());
         predicate.init(provider);
         final ListSampleCriteria criteria = new ListSampleCriteria();
-        criteria.setSpaceCode(ANOTHER_GROUP_CODE);
+        criteria.setSpaceCode(ANOTHER_SPACE_CODE);
         criteria.setIncludeSpace(true);
         assertTrue(predicate.doEvaluation(createPerson(), createRoles(false), criteria).isError());
         context.assertIsSatisfied();

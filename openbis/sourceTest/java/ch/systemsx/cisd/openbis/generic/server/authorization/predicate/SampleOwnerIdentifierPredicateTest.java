@@ -123,7 +123,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         List<RoleWithIdentifier> roles = createRoles(false);
         SampleOwnerIdentifier identifier =
                 new SampleOwnerIdentifier(new SpaceIdentifier(ANOTHER_INSTANCE_CODE,
-                        ANOTHER_GROUP_CODE));
+                        ANOTHER_SPACE_CODE));
         prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createSpaces());
         predicate.init(provider);
 
