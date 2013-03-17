@@ -94,7 +94,7 @@ class CapabilityMap
                         filePath));
                 continue;
             }
-            final String methodName = splitted[0];
+            final String capabilityName = splitted[0];
             final String roleNames = splitted[1];
             final String[] roleNameArray = StringUtils.split(roleNames, ",");
             for (String roleName : roleNameArray)
@@ -102,18 +102,18 @@ class CapabilityMap
                 try
                 {
                     final RoleWithHierarchy role = RoleWithHierarchy.valueOf(roleName);
-                    Collection<RoleWithHierarchy> roles = capMap.get(methodName);
+                    Collection<RoleWithHierarchy> roles = capMap.get(capabilityName);
                     if (roles == null)
                     {
                         roles = new HashSet<RoleWithHierarchy>();
-                        capMap.put(methodName, roles);
+                        capMap.put(capabilityName, roles);
                     }
                     roles.add(role);
 
                     if (operationLog.isDebugEnabled())
                     {
                         operationLog.debug(String
-                                .format("Add to map: '%s' -> %s", methodName, role));
+                                .format("Add to map: '%s' -> %s", capabilityName, role));
                     }
                 } catch (IllegalArgumentException ex)
                 {
