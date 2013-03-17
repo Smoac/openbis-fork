@@ -157,8 +157,6 @@ public final class DefaultAccessController implements IAccessController
             final Set<RoleWithHierarchy> methodRoles = getMethodRoles(method);
             if (methodRoles.size() == 0)
             {
-                // TODO 2008-08-07, Tomasz Pylak: why this is not a programming error? What a user
-                // can do if a programmer does not put an authorization annotation for a method?
                 final String msg =
                         String.format(METHOD_ROLES_NOT_FOUND_TEMPLATE,
                                 MethodUtils.describeMethod(method));
