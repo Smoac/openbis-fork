@@ -34,10 +34,6 @@ var createFacade = function(action, timeoutOrNull){
 
 var createFacadeAndLoginForUserAndPassword = function(user, password, action, timeoutOrNull){
 	createFacade(function(facade){
-		// IDEA we need separate users for:
-		// - entering web UI
-		// - running generic tests
-		// - running screening tests
 		facade.login(user, password, function(){
 			action(facade);
 		});

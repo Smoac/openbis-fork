@@ -23,8 +23,12 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 
 /**
  * @since {@link IGeneralInformationService} version 1.13
@@ -66,6 +70,7 @@ public class VocabularyTerm implements Serializable
         return label;
     }
 
+    @JsonIgnore
     public Long getOrdinal()
     {
         return ordinal;
@@ -143,9 +148,21 @@ public class VocabularyTerm implements Serializable
         this.label = label;
     }
 
+    @JsonIgnore
     private void setOrdinal(Long ordinal)
     {
         this.ordinal = ordinal;
+    }
+    
+    @JsonProperty("ordinal")
+    private String getOrdinalAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(ordinal);
+    }
+
+    private void setOrdinalAsString(String ordinal)
+    {
+        this.ordinal = JsonPropertyUtil.toLongOrNull(ordinal);
     }
 
     private void setRegistrationDetails(EntityRegistrationDetails registrationDetails)

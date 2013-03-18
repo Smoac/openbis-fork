@@ -19,14 +19,19 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.reflection.CollectionMapping;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.common.reflection.CollectionMapping;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 
 /**
  * Controlled vocabulary.
  * 
  * @author Izabela Adamczyk
  */
+@SuppressWarnings("unused")
 @JsonObject("VocabularyBasic")
 public class Vocabulary extends CodeWithRegistration<Vocabulary> implements IVocabularyUpdates
 {
@@ -51,11 +56,13 @@ public class Vocabulary extends CodeWithRegistration<Vocabulary> implements IVoc
     }
 
     @Override
+    @JsonIgnore
     public Long getId()
     {
         return id;
     }
 
+    @JsonIgnore
     public void setId(Long id)
     {
         this.id = id;
@@ -172,6 +179,21 @@ public class Vocabulary extends CodeWithRegistration<Vocabulary> implements IVoc
             return false;
         }
         return true;
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    @JsonProperty("id")
+    private String getIdAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(id);
+    }
+
+    private void setIdAsString(String id)
+    {
+        this.id = JsonPropertyUtil.toLongOrNull(id);
     }
 
 }

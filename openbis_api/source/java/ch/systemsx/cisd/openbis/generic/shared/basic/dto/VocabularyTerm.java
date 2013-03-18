@@ -17,15 +17,18 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.parser.BeanProperty;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 
 /**
  * A vocabulary term.
  * 
  * @author Izabela Adamczyk
  */
+@SuppressWarnings("unused")
 @JsonObject("VocabularyTermBasic")
 public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
         IVocabularyTermUpdates
@@ -55,11 +58,13 @@ public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
     }
 
     @Override
+    @JsonIgnore
     public Long getId()
     {
         return id;
     }
 
+    @JsonIgnore
     public void setId(Long id)
     {
         this.id = id;
@@ -121,11 +126,13 @@ public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
     }
 
     @Override
+    @JsonIgnore
     public Long getOrdinal()
     {
         return ordinal;
     }
 
+    @JsonIgnore
     public void setOrdinal(Long ordinal)
     {
         this.ordinal = ordinal;
@@ -140,4 +147,31 @@ public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
     {
         this.isOfficial = isOfficial;
     }
+
+    //
+    // JSON-RPC
+    //
+
+    @JsonProperty("id")
+    private String getIdAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(id);
+    }
+
+    private void setIdAsString(String id)
+    {
+        this.id = JsonPropertyUtil.toLongOrNull(id);
+    }
+
+    @JsonProperty("ordinal")
+    private String getOrdinalAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(ordinal);
+    }
+
+    private void setOrdinalAsString(String ordinal)
+    {
+        this.ordinal = JsonPropertyUtil.toLongOrNull(ordinal);
+    }
+
 }

@@ -21,7 +21,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -29,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Piotr Buczek
  */
+@SuppressWarnings("unused")
 @JsonObject("TechId")
 public class TechId implements IIdHolder, Serializable
 {
@@ -131,6 +136,7 @@ public class TechId implements IIdHolder, Serializable
     }
 
     @Override
+    @JsonIgnore
     public Long getId()
     {
         return id;
@@ -192,6 +198,21 @@ public class TechId implements IIdHolder, Serializable
         {
             return ".*";
         }
+    }
+
+    //
+    // JSON=RPC
+    //
+    
+    @JsonProperty("id")
+    private String getIdAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(id);
+    }
+
+    private void setIdAsString(String id)
+    {
+        this.id = JsonPropertyUtil.toLongOrNull(id);
     }
 
 }

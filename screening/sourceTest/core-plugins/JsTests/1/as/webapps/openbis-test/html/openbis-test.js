@@ -151,22 +151,23 @@ var downloadFile = function(url, action){
 }
 
 var uploadFileToSessionWorkspace = function(facade, fileName, fileContent, dataStoreCode, action){
-	var dataStoreUrl = facade._internal.getDataStoreUrlForDataStoreCode(dataStoreCode); 
-	var uploadUrl = dataStoreUrl + "/session_workspace_file_upload" +
+	facade._internal.getDataStoreUrlForDataStoreCode(dataStoreCode, function(dataStoreUrl){
+		var uploadUrl = dataStoreUrl + "/session_workspace_file_upload" +
 		"?filename=" + fileName +
 		"&id=0" +
 		"&startByte=0" +
 		"&endByte=0" + 
 		"&sessionID=" + facade.getSession();
 	
-	$.ajax({
-		url : uploadUrl,
-		type : "POST",
-		data : fileContent,
-		contentType : "multipart/form-data"
-	}).done(function(response){
-		action(response);
-	});
+		$.ajax({
+			url : uploadUrl,
+			type : "POST",
+			data : fileContent,
+			contentType : "multipart/form-data"
+		}).done(function(response){
+			action(response);
+		});
+	}); 
 }
 
 var generateRandomString = function(){
@@ -963,7 +964,7 @@ test("createReportFromDataSets()", function(){
 test("listAggregationServices()", function(){
 	createFacadeAndLogin(function(facade){
 		facade.listAggregationServices(function(response){
-			assertObjectsCount(response.result, 3);
+			assertObjectsCount(response.result, 4);
 			facade.close();
 		});
 	});
@@ -1094,10 +1095,11 @@ test("createSessionWorkspaceDownloadUrl()", function(){
 		var dataStoreCode = null;
 		
 		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function(){
-			var downloadUrl = facade.createSessionWorkspaceDownloadUrl(fileName);
-			downloadFile(downloadUrl, function(response){
-				equal(response, fileContent, "Download url is correct");
-				facade.close();
+			facade.createSessionWorkspaceDownloadUrl(fileName, function(downloadUrl){
+				downloadFile(downloadUrl, function(response){
+					equal(response, fileContent, "Download url is correct");
+					facade.close();
+				});
 			});
 		});
 	});
@@ -1110,10 +1112,11 @@ test("createSessionWorkspaceDownloadUrlForDataStore()", function(){
 		var dataStoreCode = "DSS-SCREENING";
 		
 		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function(){
-			var downloadUrl = facade.createSessionWorkspaceDownloadUrlForDataStore(fileName, dataStoreCode);
-			downloadFile(downloadUrl, function(response){
-				equal(response, fileContent, "Download url is correct");
-				facade.close();
+			facade.createSessionWorkspaceDownloadUrlForDataStore(fileName, dataStoreCode, function(downloadUrl){
+				downloadFile(downloadUrl, function(response){
+					equal(response, fileContent, "Download url is correct");
+					facade.close();
+				});
 			});
 		});
 	});
@@ -1124,11 +1127,13 @@ test("createSessionWorkspaceDownloadLink()", function(){
 		var fileName = generateRandomString();
 		var linkText = generateRandomString();
 		
-		var link = facade.createSessionWorkspaceDownloadLink(fileName, linkText);
-		
-		equal($(link).attr("href"), facade.createSessionWorkspaceDownloadUrl(fileName), "Link has correct url");
-		equal($(link).text(), linkText, "Link has correct text");
-		facade.close();
+		facade.createSessionWorkspaceDownloadUrl(fileName, function(downloadUrl){
+			facade.createSessionWorkspaceDownloadLink(fileName, linkText, function(link){
+				equal($(link).attr("href"), downloadUrl, "Link has correct url");
+				equal($(link).text(), linkText, "Link has correct text");
+				facade.close();
+			});
+		});
 	});
 });
 
@@ -1138,11 +1143,13 @@ test("createSessionWorkspaceDownloadLinkForDataStore()", function(){
 		var linkText = generateRandomString();
 		var dataStoreCode = "DSS-SCREENING";
 		
-		var link = facade.createSessionWorkspaceDownloadLinkForDataStore(fileName, linkText, dataStoreCode);
-		
-		equal($(link).attr("href"), facade.createSessionWorkspaceDownloadUrlForDataStore(fileName, dataStoreCode), "Link has correct url");
-		equal($(link).text(), linkText, "Link has correct text");
-		facade.close();
+		facade.createSessionWorkspaceDownloadUrlForDataStore(fileName, dataStoreCode, function(downloadUrl){
+			facade.createSessionWorkspaceDownloadLinkForDataStore(fileName, linkText, dataStoreCode, function(link){
+				equal($(link).attr("href"), downloadUrl, "Link has correct url");
+				equal($(link).text(), linkText, "Link has correct text");
+				facade.close();
+			});
+		});
 	});
 });
 

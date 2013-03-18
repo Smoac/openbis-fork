@@ -18,11 +18,16 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 
 /**
  * @author Pawel Glyzewski
  */
+@SuppressWarnings("unused")
 @JsonObject("ExternalDataManagementSystem")
 public class ExternalDataManagementSystem extends Code<ExternalDataManagementSystem> implements
         Serializable
@@ -39,11 +44,13 @@ public class ExternalDataManagementSystem extends Code<ExternalDataManagementSys
 
     private boolean openBIS;
 
+    @JsonIgnore
     public Long getId()
     {
         return id;
     }
 
+    @JsonIgnore
     public void setId(Long id)
     {
         this.id = id;
@@ -88,4 +95,16 @@ public class ExternalDataManagementSystem extends Code<ExternalDataManagementSys
     {
         this.openBIS = openBIS;
     }
+
+    @JsonProperty("id")
+    private String getIdAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(id);
+    }
+
+    private void setIdAsString(String id)
+    {
+        this.id = JsonPropertyUtil.toLongOrNull(id);
+    }
+
 }

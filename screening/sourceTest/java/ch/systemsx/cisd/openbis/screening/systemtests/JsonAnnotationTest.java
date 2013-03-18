@@ -24,20 +24,28 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.type.SimpleType;
 import com.google.common.base.Predicate;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.openbis.common.api.server.json.util.ClassReferences;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
+import ch.systemsx.cisd.openbis.generic.shared.api.json.GenericObjectMapper;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IWebInformationService;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.json.ScreeningObjectMapper;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 
 /**
@@ -61,10 +69,10 @@ public class JsonAnnotationTest
     private void findAllClassesUsedByJsonRpcApi()
     {
         Class<?>[] jsonRpcInterfaces =
-            { IDssServiceRpcGeneric.class, IScreeningApiServer.class,
-                    IGeneralInformationChangingService.class,
-                    IGeneralInformationService.class, IWebInformationService.class,
-                    IQueryApiServer.class, IDssServiceRpcScreening.class };
+                    { IDssServiceRpcGeneric.class, IScreeningApiServer.class,
+                            IGeneralInformationChangingService.class,
+                            IGeneralInformationService.class, IWebInformationService.class,
+                            IQueryApiServer.class, IDssServiceRpcScreening.class };
 
         for (Class<?> jsonClass : jsonRpcInterfaces)
         {
@@ -73,8 +81,8 @@ public class JsonAnnotationTest
                     @Override
                     public boolean apply(Class<?> clazz)
                     {
-                        return (clazz.getPackage().getName().startsWith(
-                                "ch.systemsx.sybit.imageviewer") == false);
+                        return (clazz.getPackage().getName()
+                                .startsWith("ch.systemsx.sybit.imageviewer") == false);
                     }
                 }));
         }
@@ -108,6 +116,111 @@ public class JsonAnnotationTest
         }
 
         assertThat(duplicatedValuesIn(names), is(emptyMap));
+    }
+
+    @Test
+    public void jsonClassesDoNotContainLongProperties()
+    {
+        IPropertyFilter longFilter = new IPropertyFilter()
+            {
+                @Override
+                public boolean accept(BeanDescription bean, BeanPropertyDefinition property)
+                {
+                    if (property.getField() != null
+                            && isLongClass(property.getField().getRawType()))
+                    {
+                        return true;
+                    }
+                    if (property.getGetter() != null
+                            && isLongClass(property.getGetter().getRawType()))
+                    {
+                        return true;
+                    }
+                    if (property.getSetter() != null
+                            && property.getSetter().getParameterCount() == 1
+                            && isLongClass(property.getSetter().getParameter(0).getRawType()))
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                private boolean isLongClass(Class<?> clazz)
+                {
+                    return long.class.equals(clazz) || Long.class.equals(clazz);
+                }
+
+            };
+
+        Set<String> longProperties = getProperties(longFilter);
+        Set<String> emptySet = new TreeSet<String>();
+        assertThat(longProperties, is(emptySet));
+    }
+
+    @Test
+    public void jsonClassesDoNotContainAsStringProperties()
+    {
+        IPropertyFilter asStringFilter = new IPropertyFilter()
+            {
+                @Override
+                public boolean accept(BeanDescription bean, BeanPropertyDefinition property)
+                {
+                    return property.getName().endsWith("AsString");
+                }
+            };
+
+        Set<String> asStringProperties = getProperties(asStringFilter);
+        Set<String> emptySet = new TreeSet<String>();
+        assertThat(asStringProperties, is(emptySet));
+    }
+
+    private static interface IPropertyFilter
+    {
+
+        boolean accept(BeanDescription bean, BeanPropertyDefinition property);
+
+    }
+
+    private Set<String> getProperties(IPropertyFilter filter)
+    {
+        GenericObjectMapper genericMapper = new GenericObjectMapper();
+        ScreeningObjectMapper screeningMapper = new ScreeningObjectMapper();
+
+        Set<String> properties = new TreeSet<String>();
+
+        for (Class<?> jsonClass : allJsonClasses)
+        {
+            JavaType jsonJavaType = SimpleType.construct(jsonClass);
+
+            BeanDescription genericSerializationBean =
+                    genericMapper.getSerializationConfig().introspect(jsonJavaType);
+            BeanDescription genericDeserializationBean =
+                    genericMapper.getDeserializationConfig().introspect(jsonJavaType);
+            BeanDescription screeningSerializationBean =
+                    screeningMapper.getSerializationConfig().introspect(jsonJavaType);
+            BeanDescription screeningDeserializationBean =
+                    screeningMapper.getDeserializationConfig().introspect(jsonJavaType);
+
+            addProperties(genericSerializationBean, filter, properties);
+            addProperties(genericDeserializationBean, filter, properties);
+            addProperties(screeningSerializationBean, filter, properties);
+            addProperties(screeningDeserializationBean, filter, properties);
+        }
+
+        return properties;
+    }
+
+    private static void addProperties(BeanDescription bean, IPropertyFilter propertyFilter,
+            Set<String> acceptedProperties)
+    {
+        for (BeanPropertyDefinition property : bean.findProperties())
+        {
+            if (propertyFilter.accept(bean, property))
+            {
+                acceptedProperties.add(bean.getBeanClass().getName() + "#" + property.getName());
+            }
+        }
     }
 
     private static class PrettyPrintingCollectionMap<K, V extends Collection<?>> extends
@@ -169,4 +282,5 @@ public class JsonAnnotationTest
         }
         return map;
     }
+
 }

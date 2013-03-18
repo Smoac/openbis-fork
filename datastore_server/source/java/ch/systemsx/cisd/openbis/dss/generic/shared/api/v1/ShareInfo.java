@@ -18,7 +18,11 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 
 /**
  * Information about a share.
@@ -44,6 +48,7 @@ public class ShareInfo implements Serializable
         return shareId;
     }
 
+    @JsonIgnore
     public long getFreeSpace()
     {
         return freeSpace;
@@ -62,9 +67,21 @@ public class ShareInfo implements Serializable
         this.shareId = shareId;
     }
 
+    @JsonIgnore
     private void setFreeSpace(long freeSpace)
     {
         this.freeSpace = freeSpace;
+    }
+    
+    @JsonProperty("freeSpace")
+    private String getFreeSpaceAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(freeSpace);
+    }
+
+    private void setFreeSpaceAsString(String freeSpace)
+    {
+        this.freeSpace = JsonPropertyUtil.toLongOrNull(freeSpace);
     }
     
 }

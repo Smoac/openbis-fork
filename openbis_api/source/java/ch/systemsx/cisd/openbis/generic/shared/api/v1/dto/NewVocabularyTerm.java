@@ -18,13 +18,18 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 
 /**
  * A value object representing a new vocabulary term to be created by the openBIS backend.
  * 
  * @author Kaloyan Enimanev
  */
+@SuppressWarnings("unused")
 @JsonObject("NewVocabularyTerm")
 public class NewVocabularyTerm implements Serializable
 {
@@ -89,6 +94,7 @@ public class NewVocabularyTerm implements Serializable
     /**
      * Return the position of predecessor term in the vocabulary.
      */
+    @JsonIgnore
     public Long getPreviousTermOrdinal()
     {
         return previousTermOrdinal;
@@ -97,6 +103,7 @@ public class NewVocabularyTerm implements Serializable
     /**
      * Set the position of predecessor term in the vocabulary.
      */
+    @JsonIgnore
     public void setPreviousTermOrdinal(Long previousTermOrdinal)
     {
         this.previousTermOrdinal = previousTermOrdinal;
@@ -107,6 +114,21 @@ public class NewVocabularyTerm implements Serializable
     {
         return "NewVocabularyTerm [code=" + code + ", label=" + label + ", description="
                 + description + ", previousTermOrdinal=" + previousTermOrdinal + "]";
+    }
+
+    //
+    // JSON-RPC
+    //
+
+    @JsonProperty("previousTermOrdinal")
+    private String getPreviousTermOrdinalAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(previousTermOrdinal);
+    }
+
+    private void setPreviousTermOrdinalAsString(String previousTermOrdinal)
+    {
+        this.previousTermOrdinal = JsonPropertyUtil.toLongOrNull(previousTermOrdinal);
     }
 
 }

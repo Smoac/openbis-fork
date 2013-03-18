@@ -33,6 +33,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
@@ -380,6 +381,7 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
      * Returns the sample id.
      */
     @Override
+    @JsonIgnore
     public Long getId()
     {
         return id;
@@ -426,6 +428,7 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
     /**
      * Returns the sample type id.
      */
+    @JsonIgnore
     public Long getSampleTypeId()
     {
         return sampleTypeId;
@@ -616,9 +619,21 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
     {
     }
 
+    @JsonIgnore
     private void setId(Long id)
     {
         this.id = id;
+    }
+
+    @JsonProperty("id")
+    private String getIdAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(id);
+    }
+
+    private void setIdAsString(String id)
+    {
+        this.id = JsonPropertyUtil.toLongOrNull(id);
     }
 
     private void setSpaceCode(String spaceCode)
@@ -646,11 +661,23 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
     }
 
+    @JsonIgnore
     private void setSampleTypeId(Long sampleTypeId)
     {
         this.sampleTypeId = sampleTypeId;
     }
 
+    @JsonProperty("sampleTypeId")
+    private String getSampleTypeIdAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(sampleTypeId);
+    }
+
+    private void setSampleTypeIdAsString(String sampleTypeId)
+    {
+        this.sampleTypeId = JsonPropertyUtil.toLongOrNull(sampleTypeId);
+    }
+    
     private void setSampleTypeCode(String sampleTypeCode)
     {
         this.sampleTypeCode = sampleTypeCode;

@@ -25,9 +25,11 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
-
-
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 
 /**
  * An image representation format is made up of its dimensions, bit depth, and file format.
@@ -58,6 +60,7 @@ public class ImageRepresentationFormat implements Serializable
             this.channelCode = channelCode;
         }
 
+        @JsonIgnore
         public long getTransformationId()
         {
             return transformationId;
@@ -112,9 +115,21 @@ public class ImageRepresentationFormat implements Serializable
         {
         }
 
+        @JsonIgnore
         private void setTransformationId(long transformationId)
         {
             this.transformationId = transformationId;
+        }
+
+        @JsonProperty("transformationId")
+        private String getTransformationIdAsString()
+        {
+            return JsonPropertyUtil.toStringOrNull(transformationId);
+        }
+
+        private void setTransformationIdAsString(String transformationId)
+        {
+            this.transformationId = JsonPropertyUtil.toLongOrNull(transformationId);
         }
 
         private void setTransformationCode(String transformationCode)
@@ -189,6 +204,7 @@ public class ImageRepresentationFormat implements Serializable
     /**
      * Return the ID of this image representation format.
      */
+    @JsonIgnore
     public long getId()
     {
         return id;
@@ -305,9 +321,21 @@ public class ImageRepresentationFormat implements Serializable
         this.dataSetCode = dataSetCode;
     }
 
+    @JsonIgnore
     private void setId(long id)
     {
         this.id = id;
+    }
+
+    @JsonProperty("id")
+    private String getIdAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(id);
+    }
+
+    private void setIdAsString(String id)
+    {
+        this.id = JsonPropertyUtil.toLongOrNull(id);
     }
 
     private void setOriginal(boolean original)

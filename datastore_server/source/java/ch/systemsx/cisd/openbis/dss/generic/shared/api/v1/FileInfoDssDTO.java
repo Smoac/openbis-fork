@@ -21,10 +21,12 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.io.IOUtilities;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 
 /**
  * Represents information about a file stored in DSS.
@@ -92,6 +94,7 @@ public class FileInfoDssDTO implements Serializable
      * Return the file size if this FileInfo represents a file. If this FileInfo represents a
      * folder, the return value is negative.
      */
+    @JsonIgnore
     public long getFileSize()
     {
         return fileSize;
@@ -147,10 +150,23 @@ public class FileInfoDssDTO implements Serializable
         this.isDirectory = isDirectory;
     }
 
+    @JsonIgnore
     private void setFileSize(long fileSize)
     {
         this.fileSize = fileSize;
     }
+    
+    @JsonProperty("fileSize")
+    private String getFileSizeAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(fileSize);
+    }
+
+    private void setFileSizeAsString(String fileSize)
+    {
+        this.fileSize = JsonPropertyUtil.toLongOrNull(fileSize);
+    }
+
 
     private void setCrc32Checksum(int crc32Checksum)
     {

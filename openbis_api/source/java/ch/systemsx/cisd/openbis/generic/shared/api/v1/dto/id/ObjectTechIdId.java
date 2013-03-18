@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -24,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author pkupczyk
  */
+@SuppressWarnings("unused")
 @JsonObject("ObjectTechIdId")
 public abstract class ObjectTechIdId implements IObjectId
 {
@@ -37,6 +42,7 @@ public abstract class ObjectTechIdId implements IObjectId
         setTechId(techId);
     }
 
+    @JsonIgnore
     public Long getTechId()
     {
         return techId;
@@ -50,6 +56,7 @@ public abstract class ObjectTechIdId implements IObjectId
     {
     }
 
+    @JsonIgnore
     private void setTechId(Long techId)
     {
         if (techId == null)
@@ -57,6 +64,17 @@ public abstract class ObjectTechIdId implements IObjectId
             throw new IllegalArgumentException("TechId cannot be null");
         }
         this.techId = techId;
+    }
+
+    @JsonProperty("techId")
+    private String getTechIdAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(getTechId());
+    }
+
+    private void setTechIdAsString(String techId)
+    {
+        setTechId(JsonPropertyUtil.toLongOrNull(techId));
     }
 
     @Override
@@ -68,7 +86,7 @@ public abstract class ObjectTechIdId implements IObjectId
     @Override
     public int hashCode()
     {
-        return  ((techId == null) ? 0 : techId.hashCode());
+        return ((techId == null) ? 0 : techId.hashCode());
     }
 
     @Override

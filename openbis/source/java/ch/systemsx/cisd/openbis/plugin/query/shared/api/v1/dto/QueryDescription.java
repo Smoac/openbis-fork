@@ -19,7 +19,11 @@ package ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto;
 import java.io.Serializable;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 
 /**
  * Description of a query. Contains everything needed on client side to show to the user what
@@ -27,6 +31,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * 
  * @author Franz-Josef Elmer
  */
+@SuppressWarnings("unused")
 @JsonObject("QueryDescription")
 public class QueryDescription implements Serializable
 {
@@ -43,11 +48,13 @@ public class QueryDescription implements Serializable
     /**
      * Returns the ID of the query. Will be used to identify the query to be executed.
      */
+    @JsonIgnore
     public long getId()
     {
         return id;
     }
 
+    @JsonIgnore
     public void setId(long id)
     {
         this.id = id;
@@ -130,4 +137,20 @@ public class QueryDescription implements Serializable
     {
         return name;
     }
+
+    //
+    // JSON-RPC
+    //
+
+    @JsonProperty("id")
+    private String getIdAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(id);
+    }
+
+    private void setIdAsString(String id)
+    {
+        this.id = JsonPropertyUtil.toLongOrNull(id);
+    }
+
 }

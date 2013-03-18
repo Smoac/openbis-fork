@@ -16,11 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 
 /**
  * @author Franz-Josef Elmer
  */
+@SuppressWarnings("unused")
 @JsonObject("DatabaseInstance")
 public class DatabaseInstance extends Code<DatabaseInstance>
 {
@@ -54,11 +59,13 @@ public class DatabaseInstance extends Code<DatabaseInstance>
         this.identifier = identifier;
     }
 
+    @JsonIgnore
     public Long getId()
     {
         return id;
     }
 
+    @JsonIgnore
     public void setId(Long id)
     {
         this.id = id;
@@ -73,4 +80,20 @@ public class DatabaseInstance extends Code<DatabaseInstance>
     {
         this.isHomeDatabase = isHomeDatabase;
     }
+
+    //
+    // JSON-RPC
+    //
+
+    @JsonProperty("id")
+    private String getIdAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(id);
+    }
+
+    private void setIdAsString(String id)
+    {
+        this.id = JsonPropertyUtil.toLongOrNull(id);
+    }
+
 }

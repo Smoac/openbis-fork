@@ -90,63 +90,99 @@ _openbisInternal.prototype.eraseCookie = function(name) {
 	this.createCookie(name,"",-1);
 }
 
-_openbisInternal.prototype.getDataStoreUrlForDataStoreCode = function(dataStoreCodeOrNull) {
-	if(this.dataStores.length == 0){
-		throw "Couldn't get a data store url as there are no data stores configured.";
-	}else{
-		if(dataStoreCodeOrNull){
-			var dataStoreUrl = null;
-			$.each(this.dataStores, function(index, dataStore){
-				if(dataStore.code == dataStoreCodeOrNull){
-					dataStoreUrl = dataStore.downloadUrl;
-				}
-			});
-			if(dataStoreUrl){
-				return dataStoreUrl;
+_openbisInternal.prototype.listDataStores = function(action){
+	this.ajaxRequest({
+		url: this.generalInfoServiceUrl,
+		data: { "method" : "listDataStores",
+				"params" : [ this.sessionToken ] 
+		},
+		success: action
+	});
+}
+
+_openbisInternal.prototype.initDataStores = function(action){
+	var openbisInternal = this;
+	
+	if(typeof this.dataStores === "undefined"){
+		this.listDataStores(function(response){
+			if(response.result){
+				openbisInternal.dataStores = response.result;
 			}else{
-				throw "Couldn't get a data store url because data store with " + dataStoreCodeOrNull + " code does not exist.";
+				openbisInternal.dataStores = [];
 			}
+			action();
+		});
+	}else{
+		action();
+	}
+}
+
+_openbisInternal.prototype.getDataStoreUrlForDataStoreCode = function(dataStoreCodeOrNull, action) {
+	var openbisInternal = this;
+	
+	this.initDataStores(function(){
+		if(openbisInternal.dataStores.length == 0){
+			throw "Couldn't get a data store url as there are no data stores configured.";
 		}else{
-			if(this.dataStores.length == 1){
-				return this.dataStores[0].downloadUrl;
+			if(dataStoreCodeOrNull){
+				var dataStoreUrl = null;
+				$.each(openbisInternal.dataStores, function(index, dataStore){
+					if(dataStore.code == dataStoreCodeOrNull){
+						dataStoreUrl = dataStore.downloadUrl;
+					}
+				});
+				if(dataStoreUrl){
+					action(dataStoreUrl);
+				}else{
+					throw "Couldn't get a data store url because data store with " + dataStoreCodeOrNull + " code does not exist.";
+				}
 			}else{
-				throw "There is more than one data store configured. Please specify a data store code to get a data store url.";
+				if(openbisInternal.dataStores.length == 1){
+					action(openbisInternal.dataStores[0].downloadUrl);
+				}else{
+					throw "There is more than one data store configured. Please specify a data store code to get a data store url.";
+				}
 			}
 		}
-	}
+	});
 }
 
 _openbisInternal.prototype.getDataStoreUrlForDataSetCode = function(dataSetCode, action) {
-	if(this.dataStores.length == 0){
-		throw "Couldn't get a data store url as there are no data stores configured.";
-	}else if(this.dataStores.length == 1){
-		action(this.dataStores[0].downloadUrl);
-	}else{
-		this.ajaxRequest({
-			url: this.generalInfoServiceUrl,
-			data: { "method" : "tryGetDataStoreBaseURL",
-					"params" : [ this.sessionToken, dataSetCode ] 
-					},
-			success: function(response){
-				var hostUrl = response.result;
-				
-				if(hostUrl){
-					action(hostUrl + "/datastore_server");
-				}else{
-					action(null);
+	var openbisInternal = this;
+	
+	this.initDataStores(function(){
+		if(openbisInternal.dataStores.length == 0){
+			throw "Couldn't get a data store url as there are no data stores configured.";
+		}else if(openbisInternal.dataStores.length == 1){
+			action(openbisInternal.dataStores[0].downloadUrl);
+		}else{
+			openbisInternal.ajaxRequest({
+				url: openbisInternal.generalInfoServiceUrl,
+				data: { "method" : "tryGetDataStoreBaseURL",
+						"params" : [ openbisInternal.sessionToken, dataSetCode ] 
+						},
+				success: function(response){
+					var hostUrl = response.result;
+					
+					if(hostUrl){
+						action(hostUrl + "/datastore_server");
+					}else{
+						action(null);
+					}
 				}
-			}
-		 });
-	}
+			 });
+		}
+	});
 }
 
-_openbisInternal.prototype.getDataStoreApiUrlForDataStoreCode = function(dataStoreCodeOrNull) {
-	var dataStoreUrl = this.getDataStoreUrlForDataStoreCode(dataStoreCodeOrNull);
-	if(dataStoreUrl){
-		return dataStoreUrl + "/rmi-dss-api-v1.json";
-	}else{
-		return null;
-	}
+_openbisInternal.prototype.getDataStoreApiUrlForDataStoreCode = function(dataStoreCodeOrNull, action) {
+	this.getDataStoreUrlForDataStoreCode(dataStoreCodeOrNull, function(dataStoreUrl){
+		if(dataStoreUrl){
+			action(dataStoreUrl + "/rmi-dss-api-v1.json");
+		}else{
+			action(null);
+		}
+	});
 }
 
 _openbisInternal.prototype.getDataStoreApiUrlForDataSetCode = function(dataSetCode, action) {
@@ -203,15 +239,11 @@ openbis.prototype.login = function(userId, userPassword, action) {
 			function(loginResponse) {
 				if(loginResponse.error){
 					alert("Login failed");
-					action(loginResponse);
 				}else{
 					openbisObj._internal.sessionToken = loginResponse.result;
 					openbisObj.rememberSession();
-					openbisObj.listDataStores(function(storesResponse){
-						openbisObj._internal.dataStores = storesResponse.result;
-						action(loginResponse)
-					});
 				}
+				action(loginResponse);
 			}
 	 });
 }
@@ -530,13 +562,7 @@ openbis.prototype.listDataSetsForSample = function(sample, restrictToDirectlyCon
  * @method
  */
 openbis.prototype.listDataStores = function(action) {
-	this._internal.ajaxRequest({
-		url: this._internal.generalInfoServiceUrl,
-		data: { "method" : "listDataStores",
-				"params" : [ this.getSession() ] 
-		},
-		success: action
-	});
+	this._internal.listDataStores(action);
 }
 
 /**
@@ -1244,24 +1270,24 @@ openbis.prototype.createSessionWorkspaceUploaderForDataStore = function(uploader
 	}
 	
 	var $this = this;
-	var dataStoreUrl = this._internal.getDataStoreUrlForDataStoreCode(dataStoreCodeOrNull);
+	this._internal.getDataStoreUrlForDataStoreCode(dataStoreCodeOrNull, function(dataStoreUrl){
+		// figure out what is the location of the openbis.js script and assume that uploader resources are served by the same server
+		var openbisScriptLocation = $('script[src*=openbis\\.js]').attr('src');
+		var uploaderDirectoryLocation = jsFileLocation = openbisScriptLocation.replace(/js\/openbis\.js/g, 'uploader');
 		
-	// figure out what is the location of the openbis.js script and assume that uploader resources are served by the same server
-	var openbisScriptLocation = $('script[src*=openbis\\.js]').attr('src');
-	var uploaderDirectoryLocation = jsFileLocation = openbisScriptLocation.replace(/js\/openbis\.js/g, 'uploader');
-	
-	$('head').append('<link rel="stylesheet" media="screen" type="text/css" href="' + uploaderDirectoryLocation + '/css/src/upload.css" />');
-	$('head').append('<script charset="utf-8" type="text/javascript" src="' + uploaderDirectoryLocation + '/js/src/upload.js" />');
-	
-	$(uploaderContainer).load(uploaderDirectoryLocation + "/index.html", function(){
-		Uploader.init({
-		       smart_mode: true,
-		       chunk_size: 1000*1024,
-		       file_upload_url: dataStoreUrl + "/session_workspace_file_upload",
-		       form_upload_url: dataStoreUrl + "/session_workspace_form_upload",
-		       file_download_url: dataStoreUrl + "/session_workspace_file_download",
-		       oncomplete: oncomplete,
-		       sessionID: $this.getSession()
+		$('head').append('<link rel="stylesheet" media="screen" type="text/css" href="' + uploaderDirectoryLocation + '/css/src/upload.css" />');
+		$('head').append('<script charset="utf-8" type="text/javascript" src="' + uploaderDirectoryLocation + '/js/src/upload.js" />');
+		
+		$(uploaderContainer).load(uploaderDirectoryLocation + "/index.html", function(){
+			Uploader.init({
+			       smart_mode: true,
+			       chunk_size: 1000*1024,
+			       file_upload_url: dataStoreUrl + "/session_workspace_file_upload",
+			       form_upload_url: dataStoreUrl + "/session_workspace_form_upload",
+			       file_download_url: dataStoreUrl + "/session_workspace_file_download",
+			       oncomplete: oncomplete,
+			       sessionID: $this.getSession()
+			});
 		});
 	});
 }
@@ -1270,33 +1296,40 @@ openbis.prototype.createSessionWorkspaceUploaderForDataStore = function(uploader
  * Creates a session workspace download url for a file with the specified filePath and for the default data store.
  * @method
  */
-openbis.prototype.createSessionWorkspaceDownloadUrl = function(filePath){
-	return this.createSessionWorkspaceDownloadUrlForDataStore(filePath, null);
+openbis.prototype.createSessionWorkspaceDownloadUrl = function(filePath, action){
+	return this.createSessionWorkspaceDownloadUrlForDataStore(filePath, null, action);
 }
 
 /**
  * Creates a session workspace download url for a file with the specified filePath and for the specified data store.
  * @method
  */
-openbis.prototype.createSessionWorkspaceDownloadUrlForDataStore = function(filePath, dataStoreCodeOrNull){
-	var dataStoreUrl = this._internal.getDataStoreUrlForDataStoreCode(dataStoreCodeOrNull);
-	return dataStoreUrl + "/session_workspace_file_download?sessionID=" + this.getSession() + "&filePath=" + filePath; 
+openbis.prototype.createSessionWorkspaceDownloadUrlForDataStore = function(filePath, dataStoreCodeOrNull, action){
+	var openbisObj = this;
+	
+	this._internal.getDataStoreUrlForDataStoreCode(dataStoreCodeOrNull, function(dataStoreUrl){
+		var downloadUrl = dataStoreUrl + "/session_workspace_file_download?sessionID=" + openbisObj.getSession() + "&filePath=" + filePath;
+		action(downloadUrl);
+	});
 }
 
 /**
  * Create a session workspace download link for a file with the specified filePath at the default data store.
  * @method
  */
-openbis.prototype.createSessionWorkspaceDownloadLink = function(filePath, linkText){
-	return this.createSessionWorkspaceDownloadLinkForDataStore(filePath, linkText, null);
+openbis.prototype.createSessionWorkspaceDownloadLink = function(filePath, linkText, action){
+	return this.createSessionWorkspaceDownloadLinkForDataStore(filePath, linkText, null, action);
 }
 
 /**
  * Create a session workspace download link for a file with the specified filePath at the specified data store.
  * @method
  */
-openbis.prototype.createSessionWorkspaceDownloadLinkForDataStore = function(filePath, linkText, dataStoreCodeOrNull){
-	return $("<a href='" + this.createSessionWorkspaceDownloadUrlForDataStore(filePath, dataStoreCodeOrNull) + "'>" + (linkText ? linkText : filePath) + "</a>"); 
+openbis.prototype.createSessionWorkspaceDownloadLinkForDataStore = function(filePath, linkText, dataStoreCodeOrNull, action){
+	this.createSessionWorkspaceDownloadUrlForDataStore(filePath, dataStoreCodeOrNull, function(downloadUrl){
+		var link = $("<a href='" + downloadUrl + "'>" + (linkText ? linkText : filePath) + "</a>");
+		action(link);
+	});
 }
 
 /**
@@ -1312,12 +1345,16 @@ openbis.prototype.downloadSessionWorkspaceFile = function(filePath, action) {
  * @method
  */
 openbis.prototype.downloadSessionWorkspaceFileForDataStore = function(filePath, dataStoreCodeOrNull, action) {
-	$.ajax({
-		type: "GET",
-		dataType: "text",
-		url: this.createSessionWorkspaceDownloadUrlForDataStore(filePath, dataStoreCodeOrNull),
-		success: this._internal.ajaxRequestSuccess(action),
-		error: this._internal.ajaxRequestError(action)
+	var openbisObj = this;
+	
+	this.createSessionWorkspaceDownloadUrlForDataStore(filePath, dataStoreCodeOrNull, function(downloadUrl){
+		$.ajax({
+			type: "GET",
+			dataType: "text",
+			url: downloadUrl,
+			success: openbisObj._internal.ajaxRequestSuccess(action),
+			error: openbisObj._internal.ajaxRequestError(action)
+		});
 	});
 }
 
@@ -1334,13 +1371,17 @@ openbis.prototype.deleteSessionWorkspaceFile = function(filePath, action) {
  * @method
  */
 openbis.prototype.deleteSessionWorkspaceFileForDataStore = function(filePath, dataStoreCodeOrNull, action) {
-	this._internal.ajaxRequest({
-		url: this._internal.getDataStoreApiUrlForDataStoreCode(dataStoreCodeOrNull),
-		data: {
-			"method" : "deleteSessionWorkspaceFile",
-			"params" : [ this.getSession(), filePath ]
-		},
-		success: action
+	var openbisObj = this;
+	
+	this._internal.getDataStoreApiUrlForDataStoreCode(dataStoreCodeOrNull, function(dataStoreApiUrl){
+		openbisObj._internal.ajaxRequest({
+			url: dataStoreApiUrl,
+			data: {
+				"method" : "deleteSessionWorkspaceFile",
+				"params" : [ openbisObj.getSession(), filePath ]
+			},
+			success: action
+		});
 	});
 }
 
@@ -1377,13 +1418,17 @@ openbis.prototype.listAllShares = function(action) {
  * @method
  */
 openbis.prototype.listAllSharesForDataStore = function(dataStoreCodeOrNull, action) {
-	this._internal.ajaxRequest({
-		url: this._internal.getDataStoreApiUrlForDataStoreCode(dataStoreCodeOrNull),
-		data: {
-			"method" : "listAllShares",
-			"params" : [ this.getSession() ]
-		},
-		success: action
+	var openbisObj = this;
+	
+	this._internal.getDataStoreApiUrlForDataStoreCode(dataStoreCodeOrNull, function(dataStoreApiUrl){
+		openbisObj._internal.ajaxRequest({
+			url: dataStoreApiUrl,
+			data: {
+				"method" : "listAllShares",
+				"params" : [ openbisObj.getSession() ]
+			},
+			success: action
+		});
 	});
 }
 
@@ -1420,13 +1465,17 @@ openbis.prototype.getValidationScript = function(dataSetTypeOrNull, action) {
  * @method
  */
 openbis.prototype.getValidationScriptForDataStore = function(dataSetTypeOrNull, dataStoreCodeOrNull, action) {
-	this._internal.ajaxRequest({
-		url: this._internal.getDataStoreApiUrlForDataStoreCode(dataStoreCodeOrNull),
-		data: {
-			"method" : "getValidationScript",
-			"params" : [ this.getSession(), dataSetTypeOrNull ]
-		},
-		success: action
+	var openbisObj = this;
+	
+	this._internal.getDataStoreApiUrlForDataStoreCode(dataStoreCodeOrNull, function(dataStoreApiUrl){
+		openbisObj._internal.ajaxRequest({
+			url: dataStoreApiUrl,
+			data: {
+				"method" : "getValidationScript",
+				"params" : [ openbisObj.getSession(), dataSetTypeOrNull ]
+			},
+			success: action
+		});
 	});
 }
 

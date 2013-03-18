@@ -19,8 +19,10 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 
 /**
@@ -78,14 +80,15 @@ public final class Project implements Serializable, IIdentifierHolder
         checkAndSetCodes(spaceCode, code);
         this.registrationDetails = registrationDetails;
     }
-    
+
     /**
      * Creates a new instance for the specified space code and project code.
      * 
      * @throws IllegalArgumentException if either the code or the space code is <code>null</code> or
      *             an empty string.
      */
-    public Project(Long id, String permId, String spaceCode, String code, EntityRegistrationDetails registrationDetails)
+    public Project(Long id, String permId, String spaceCode, String code,
+            EntityRegistrationDetails registrationDetails)
     {
         if (id == null || id == 0)
         {
@@ -121,6 +124,7 @@ public final class Project implements Serializable, IIdentifierHolder
      * 
      * @since 1.22
      */
+    @JsonIgnore
     public Long getId()
     {
         return id;
@@ -151,7 +155,7 @@ public final class Project implements Serializable, IIdentifierHolder
     {
         return code;
     }
-    
+
     @Override
     @JsonIgnore
     public String getIdentifier()
@@ -281,9 +285,21 @@ public final class Project implements Serializable, IIdentifierHolder
     {
     }
 
+    @JsonIgnore
     private void setId(Long id)
     {
         this.id = id;
+    }
+
+    @JsonProperty("id")
+    private String getIdAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(id);
+    }
+
+    private void setIdAsString(String id)
+    {
+        this.id = JsonPropertyUtil.toLongOrNull(id);
     }
 
     private void setPermId(String permId)

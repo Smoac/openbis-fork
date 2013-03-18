@@ -21,7 +21,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 
@@ -143,6 +147,7 @@ public class Material extends MaterialIdentifier implements IIdHolder
     }
 
     @Override
+    @JsonIgnore
     public Long getId()
     {
         return id;
@@ -182,6 +187,17 @@ public class Material extends MaterialIdentifier implements IIdHolder
     private Material()
     {
         super(null, null);
+    }
+    
+    @JsonProperty("id")
+    private String getIdAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(id);
+    }
+
+    private void setIdAsString(String id)
+    {
+        this.id = JsonPropertyUtil.toLongOrNull(id);
     }
 
     private void setProperties(Map<String, String> properties)

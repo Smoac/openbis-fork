@@ -25,7 +25,11 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 
 /**
  * Immutable value object representing an openBIS vocabulary.
@@ -144,6 +148,7 @@ public class Vocabulary implements Serializable
     /**
      * Returns the vocabulary id.
      */
+    @JsonIgnore
     public Long getId()
     {
         return id;
@@ -249,9 +254,21 @@ public class Vocabulary implements Serializable
 
     }
 
+    @JsonIgnore
     private void setId(Long id)
     {
         this.id = id;
+    }
+
+    @JsonProperty("id")
+    private String getIdAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(id);
+    }
+
+    private void setIdAsString(String id)
+    {
+        this.id = JsonPropertyUtil.toLongOrNull(id);
     }
 
     private void setCode(String code)

@@ -34,6 +34,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
@@ -74,7 +75,7 @@ public final class DataSet implements Serializable, IIdHolder
         private String dataSetTypeCode;
 
         private boolean containerDataSet;
-        
+
         private boolean linkDataSet;
 
         private String externalDataSetCode;
@@ -337,7 +338,7 @@ public final class DataSet implements Serializable, IIdHolder
     private List<String> childrenCodes = Collections.emptyList();
 
     private List<DataSet> containedDataSets = Collections.emptyList();
-    
+
     private DataSet containerOrNull;
 
     private EntityRegistrationDetails registrationDetails;
@@ -397,6 +398,7 @@ public final class DataSet implements Serializable, IIdHolder
      * Returns tech id of the data set.
      */
     @Override
+    @JsonIgnore
     public Long getId()
     {
         return id;
@@ -607,6 +609,17 @@ public final class DataSet implements Serializable, IIdHolder
 
     private DataSet()
     {
+    }
+
+    @JsonProperty("id")
+    private String getIdAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(id);
+    }
+
+    private void setIdAsString(String id)
+    {
+        this.id = JsonPropertyUtil.toLongOrNull(id);
     }
 
     private void setCode(String code)
