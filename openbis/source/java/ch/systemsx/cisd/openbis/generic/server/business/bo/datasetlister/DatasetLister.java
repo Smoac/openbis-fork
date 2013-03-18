@@ -60,10 +60,10 @@ import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -74,7 +74,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
@@ -82,6 +81,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
@@ -206,7 +206,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
-    public List<AbstractExternalData> listBySampleTechId(TechId sampleId, boolean showOnlyDirectlyConnected)
+    public List<AbstractExternalData> listBySampleTechId(TechId sampleId,
+            boolean showOnlyDirectlyConnected)
     {
         if (showOnlyDirectlyConnected)
         {
@@ -329,7 +330,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
                             return e.getId();
                         }
                     });
-        Map<Sample, List<AbstractExternalData>> result = new HashMap<Sample, List<AbstractExternalData>>();
+        Map<Sample, List<AbstractExternalData>> result =
+                new HashMap<Sample, List<AbstractExternalData>>();
         Set<Long> sampleIDs = new HashSet<Long>();
         for (Sample sample : samples)
         {
@@ -466,14 +468,31 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             EnumSet<DataSetFetchOption> datasetFetchOptions)
     {
         checkFetchOptions(datasetFetchOptions);
-        return orderByDate(enrichDatasets(
-                handleDegenerateRegistrationTimestamp(
-                        query.getDatasetsByDataStoreId(dataStoreID, limit),
-                        dataStoreID), datasetFetchOptions));
+        List<AbstractExternalData> data = null;
+        int multiplier = 1;
+        int lastSize = 0;
+
+        // Given limit is not respected, if registration timestamp of all the returned data sets
+        // would be the same. In this case we make sure we return (at least) all the data sets
+        // with the same registration timestamp, no matter how many of them there are.
+        while (data == null
+                || (data.get(0).getRegistrationDate().equals(data.get(data.size() - 1)
+                        .getRegistrationDate())) && lastSize != data.size())
+        {
+            lastSize = data != null ? data.size() : 0;
+            data = orderByDate(enrichDatasets(
+                    handleDegenerateRegistrationTimestamp(
+                            query.getDatasetsByDataStoreId(dataStoreID, limit * multiplier),
+                            dataStoreID), datasetFetchOptions));
+            multiplier = multiplier << 1;
+        }
+
+        return data;
     }
 
     @Override
-    public List<AbstractExternalData> listByDataStore(long dataStoreID, Date youngerThan, int limit,
+    public List<AbstractExternalData> listByDataStore(long dataStoreID, Date youngerThan,
+            int limit,
             EnumSet<DataSetFetchOption> datasetFetchOptions)
     {
         checkFetchOptions(datasetFetchOptions);
@@ -628,7 +647,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     {
         loadSmallConnectedTables();
         List<DatasetRecord> datasetRecords = asList(datasets);
-        final Long2ObjectMap<AbstractExternalData> datasetMap = createPrimaryDatasets(datasetRecords);
+        final Long2ObjectMap<AbstractExternalData> datasetMap =
+                createPrimaryDatasets(datasetRecords);
         if (fetchOptions.contains(DataSetFetchOption.EXPERIMENT))
         {
             enrichWithExperiments(datasetMap);
@@ -788,7 +808,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             });
     }
 
-    private void enrichWithParents(Long2ObjectMap<AbstractExternalData> datasetMap, boolean withProperties)
+    private void enrichWithParents(Long2ObjectMap<AbstractExternalData> datasetMap,
+            boolean withProperties)
     {
         Map<Long, Set<Long>> parentIdsMap = listParentIds(datasetMap.keySet());
         Set<Long> allParentIds = new HashSet<Long>();
@@ -837,7 +858,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
     }
 
-    private void enrichWithChildren(Long2ObjectMap<AbstractExternalData> datasetMap, boolean withProperties)
+    private void enrichWithChildren(Long2ObjectMap<AbstractExternalData> datasetMap,
+            boolean withProperties)
     {
         Map<Long, Set<Long>> childrenIdsMap = listChildrenIds(datasetMap.keySet());
         Set<Long> allChildrenIds = new HashSet<Long>();
@@ -854,7 +876,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         {
             Long2ObjectMap<AbstractExternalData> childrenDatasetMap = withProperties ?
                     new Long2ObjectOpenHashMap<AbstractExternalData>() : null;
-            Long2ObjectMap<AbstractExternalData> childrenMap = createPrimaryDatasets(childrenIterator);
+            Long2ObjectMap<AbstractExternalData> childrenMap =
+                    createPrimaryDatasets(childrenIterator);
 
             for (Entry<Long, Set<Long>> childrenIdsEntry : childrenIdsMap.entrySet())
             {
@@ -990,9 +1013,11 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return result;
     }
 
-    private Long2ObjectMap<AbstractExternalData> createPrimaryDatasets(Iterable<DatasetRecord> records)
+    private Long2ObjectMap<AbstractExternalData> createPrimaryDatasets(
+            Iterable<DatasetRecord> records)
     {
-        Long2ObjectMap<AbstractExternalData> datasets = new Long2ObjectOpenHashMap<AbstractExternalData>();
+        Long2ObjectMap<AbstractExternalData> datasets =
+                new Long2ObjectOpenHashMap<AbstractExternalData>();
         for (DatasetRecord record : records)
         {
             DataSetType dsType = dataSetTypes.get(record.dsty_id);
