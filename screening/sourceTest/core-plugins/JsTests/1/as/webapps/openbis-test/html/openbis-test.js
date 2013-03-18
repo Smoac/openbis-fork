@@ -480,7 +480,7 @@ test("listVocabularies()", function(){
 	});
 });
 
-test("listDataSetsForSamplesWithConnections()", function(){
+test("listDataSetsForSamplesWithConnections() with parents", function(){
 	createFacadeAndLogin(function(facade){
 		var searchCriteria = createSearchCriteriaForCodes(['PLATE-1']);
 		
@@ -491,6 +491,61 @@ test("listDataSetsForSamplesWithConnections()", function(){
 			facade.listDataSetsForSamplesWithConnections(samples, connectionsToGet, function(response){
 				assertObjectsCount(response.result, 6);
 				assertObjectsWithParentCodes(response.result);
+				assertObjectsWithoutChildrenCodes(response.result);
+				facade.close();
+			});
+		});
+	});
+});
+
+test("listDataSetsForSamplesWithConnections() with children", function(){
+	createFacadeAndLogin(function(facade){
+		var searchCriteria = createSearchCriteriaForCodes(['PLATE-1']);
+		
+		facade.searchForSamples(searchCriteria, function(response){
+			var samples = response.result;
+			var connectionsToGet = [ 'CHILDREN' ];
+			
+			facade.listDataSetsForSamplesWithConnections(samples, connectionsToGet, function(response){
+				assertObjectsCount(response.result, 6);
+				assertObjectsWithoutParentCodes(response.result);
+				assertObjectsWithChildrenCodes(response.result);
+				facade.close();
+			});
+		});
+	});
+});
+
+test("listDataSetsForSamplesWithConnections() with parents and children", function(){
+	createFacadeAndLogin(function(facade){
+		var searchCriteria = createSearchCriteriaForCodes(['PLATE-1']);
+		
+		facade.searchForSamples(searchCriteria, function(response){
+			var samples = response.result;
+			var connectionsToGet = [ 'PARENTS', 'CHILDREN' ];
+			
+			facade.listDataSetsForSamplesWithConnections(samples, connectionsToGet, function(response){
+				assertObjectsCount(response.result, 6);
+				assertObjectsWithParentCodes(response.result);
+				assertObjectsWithChildrenCodes(response.result);
+				facade.close();
+			});
+		});
+	});
+});
+
+test("listDataSetsForSamplesWithConnections() without parents and children", function(){
+	createFacadeAndLogin(function(facade){
+		var searchCriteria = createSearchCriteriaForCodes(['PLATE-1']);
+		
+		facade.searchForSamples(searchCriteria, function(response){
+			var samples = response.result;
+			var connectionsToGet = [ ];
+			
+			facade.listDataSetsForSamplesWithConnections(samples, connectionsToGet, function(response){
+				assertObjectsCount(response.result, 6);
+				assertObjectsWithoutParentCodes(response.result);
+				assertObjectsWithoutChildrenCodes(response.result);
 				facade.close();
 			});
 		});

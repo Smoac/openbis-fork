@@ -658,6 +658,25 @@ public final class DataSet implements Serializable, IIdHolder
         this.retrievedConnections = retrievedConnections;
     }
 
+    @JsonProperty("childrenCodes")
+    private List<String> getChildrenCodesJson()
+    {
+        return retrievedConnections.contains(Connections.CHILDREN) ? childrenCodes : null;
+    }
+
+    @JsonProperty("childrenCodes")
+    private void setChildrenCodes(List<String> childrenCodes)
+    {
+        this.childrenCodes = childrenCodes;
+    }
+
+    @JsonProperty("parentCodes")
+    private List<String> getParentCodesJson()
+    {
+        return retrievedConnections.contains(Connections.PARENTS) ? parentCodes : null;
+    }
+
+    @JsonProperty("parentCodes")
     private void setParentCodes(List<String> parentCodes)
     {
         this.parentCodes = parentCodes;

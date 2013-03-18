@@ -111,3 +111,11 @@ var assertObjectsWithParentCodes = function(objects){
 var assertObjectsWithoutParentCodes = function(objects){
 	assertObjectsWithoutCollections(objects, 'parentCodes');
 }
+
+var assertObjectsWithChildrenCodes = function(objects){
+	assertObjectsWithCollections(objects, 'childrenCodes');
+}
+
+var assertObjectsWithoutChildrenCodes = function(objects){
+	assertObjectsWithoutCollections(objects, 'childrenCodes');
+}
