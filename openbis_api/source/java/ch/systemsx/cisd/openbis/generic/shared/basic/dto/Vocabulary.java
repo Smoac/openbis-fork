@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.ArrayList;
+ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.common.reflection.CollectionMapping;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.util.JsonPropertyUtil;
 
 /**
  * Controlled vocabulary.
