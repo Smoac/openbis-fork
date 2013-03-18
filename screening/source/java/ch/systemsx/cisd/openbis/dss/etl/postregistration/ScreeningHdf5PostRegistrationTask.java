@@ -27,7 +27,6 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.etlserver.postregistration.DummyPostRegistrationTaskExecutor;
 import ch.systemsx.cisd.etlserver.postregistration.Hdf5CompressingPostRegistrationTask;
 import ch.systemsx.cisd.etlserver.postregistration.IPostRegistrationTaskExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -52,12 +51,8 @@ public class ScreeningHdf5PostRegistrationTask extends Hdf5CompressingPostRegist
     }
 
     @Override
-    public IPostRegistrationTaskExecutor createExecutor(String dataSetCode, boolean container)
+    public IPostRegistrationTaskExecutor createExecutor(String dataSetCode)
     {
-        if (container)
-        {
-            return DummyPostRegistrationTaskExecutor.INSTANCE;
-        }
         return new ScreeningExecutor(dataSetCode, properties);
     }
 

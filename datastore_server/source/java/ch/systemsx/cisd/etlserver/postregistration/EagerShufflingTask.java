@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  * 
  * @author Franz-Josef Elmer
  */
-public class EagerShufflingTask extends AbstractPostRegistrationTask
+public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalDataSets
 {
     @Private
     public static final String SHARE_FINDER_KEY = "share-finder";
@@ -165,12 +165,6 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
         verifyChecksum = PropertyUtils.getBoolean(properties, VERIFY_CHECKSUM_KEY, true);
     }
 
-    @Override
-    public boolean requiresDataStoreLock()
-    {
-        return true;
-    }
-
     private IChecksumProvider getChecksumProvider()
     {
         if (verifyChecksum)
@@ -183,12 +177,8 @@ public class EagerShufflingTask extends AbstractPostRegistrationTask
     }
 
     @Override
-    public IPostRegistrationTaskExecutor createExecutor(String dataSetCode, boolean container)
+    public IPostRegistrationTaskExecutor createExecutor(String dataSetCode)
     {
-        if (container)
-        {
-            return DummyPostRegistrationTaskExecutor.INSTANCE;
-        }
         return new Executor(dataSetCode);
     }
 

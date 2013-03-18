@@ -79,7 +79,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     @Private
     public static final String SHARE_FINDER_KEY = "share-finder";
 
-    @Private static final String SYNCHRONIZE_ARCHIVE = "synchronize-archive";
+    public static final String SYNCHRONIZE_ARCHIVE = "synchronize-archive";
 
     private final IStatusChecker archivePrerequisiteOrNull;
 
@@ -547,8 +547,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return service;
     }
 
-    @Private
-    void setStatusUpdater(IDataSetStatusUpdater statusUpdater)
+    public void setStatusUpdater(IDataSetStatusUpdater statusUpdater)
     {
         this.statusUpdater = statusUpdater;
     }

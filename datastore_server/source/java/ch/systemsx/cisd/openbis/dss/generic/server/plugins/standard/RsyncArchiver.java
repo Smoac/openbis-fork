@@ -61,6 +61,36 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
 
     private static final long serialVersionUID = 1L;
 
+    public enum ChecksumVerificationCondition
+    {
+        NO()
+        {
+            @Override
+            boolean verifyChecksum(IHierarchicalContentNode node)
+            {
+                return false;
+            }
+        },
+        YES()
+        {
+            @Override
+            boolean verifyChecksum(IHierarchicalContentNode node)
+            {
+                return true;
+            }
+        },
+        IF_AVAILABLE()
+        {
+            @Override
+            boolean verifyChecksum(IHierarchicalContentNode node)
+            {
+                return node.isChecksumCRC32Precalculated();
+            }
+        };
+
+        abstract boolean verifyChecksum(IHierarchicalContentNode node);
+    }
+
     private static final Comparator<IHierarchicalContentNode> NODE_COMPARATOR =
             new Comparator<IHierarchicalContentNode>()
                 {
@@ -71,7 +101,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                     }
                 };
 
-    private enum DeleteAction
+    public enum DeleteAction
     {
         DELETE(Operation.DELETE_FROM_ARCHIVE)
         {
@@ -109,7 +139,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
 
     private final DeleteAction deleteAction;
 
-    private final boolean verifyChecksums;
+    private final ChecksumVerificationCondition checksumVerificationCondition;
 
     public RsyncArchiver(Properties properties, File storeRoot)
     {
@@ -117,22 +147,25 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                 new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory()));
     }
 
-    @Private
-    RsyncArchiver(Properties properties, File storeRoot,
+    @Private RsyncArchiver(Properties properties, File storeRoot,
             IDataSetFileOperationsManager fileOperationsManager)
+    {
+        this(properties, storeRoot, fileOperationsManager, PropertyUtils.getBoolean(properties,
+                ONLY_MARK_AS_DELETED_KEY, true) ? DeleteAction.MARK_AS_DELETED
+                : DeleteAction.DELETE, PropertyUtils.getBoolean(properties, VERIFY_CHECKSUMS_KEY,
+                true) ? ChecksumVerificationCondition.YES : ChecksumVerificationCondition.NO);
+
+    }
+
+    public RsyncArchiver(Properties properties, File storeRoot,
+            IDataSetFileOperationsManager fileOperationsManager, DeleteAction deleteAction,
+            ChecksumVerificationCondition checksumVerificationCondition)
     {
         super(properties, storeRoot, null, null);
         this.fileOperationsManager = fileOperationsManager;
-        if (PropertyUtils.getBoolean(properties, ONLY_MARK_AS_DELETED_KEY, true))
-        {
-            deleteAction = DeleteAction.MARK_AS_DELETED;
-        } else
-        {
-            deleteAction = DeleteAction.DELETE;
-        }
-
-        verifyChecksums = PropertyUtils.getBoolean(properties, VERIFY_CHECKSUMS_KEY, true);
-
+        this.deleteAction = deleteAction;
+        this.checksumVerificationCondition = checksumVerificationCondition;
+        
     }
 
     @Override
@@ -178,7 +211,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                     IHierarchicalContentNode root = content.getRootNode();
                     IHierarchicalContentNode archivedRoot = archivedContent.getRootNode();
 
-                    status = checkHierarchySizeAndChecksums(root, archivedRoot, verifyChecksums);
+                    status = checkHierarchySizeAndChecksums(root, archivedRoot, checksumVerificationCondition);
                 } finally
                 {
                     FileUtils.deleteQuietly(temp);
@@ -192,7 +225,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
 
     @Private
     static Status checkHierarchySizeAndChecksums(IHierarchicalContentNode node,
-            IHierarchicalContentNode retrievedNode, boolean verifyChecksums)
+            IHierarchicalContentNode retrievedNode, ChecksumVerificationCondition checksumVerificationCondition)
     {
         String relativePath = node.getRelativePath();
         String relativePathOfRetrieved = retrievedNode.getRelativePath();
@@ -226,7 +259,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
             {
                 Status status =
                         checkHierarchySizeAndChecksums(childNodes.get(i),
-                                childNodesOfRetrieved.get(i), verifyChecksums);
+                                childNodesOfRetrieved.get(i), checksumVerificationCondition);
                 if (status.isError())
                 {
                     return status;
@@ -241,7 +274,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                 return Status.createError("The file '" + relativePath + "' has in the store "
                         + fileLength + " bytes but " + fileLengthOfRetrieved + " in the archive.");
             }
-            if (verifyChecksums)
+            if (checksumVerificationCondition.verifyChecksum(node))
             {
                 long checksum = node.getChecksumCRC32();
                 long checksumOfRetrieved = retrievedNode.getChecksumCRC32();
@@ -255,7 +288,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         }
         return Status.OK;
     }
-
+    
     private static List<IHierarchicalContentNode> getChildNodes(IHierarchicalContentNode node)
     {
         List<IHierarchicalContentNode> childNodes = node.getChildNodes();

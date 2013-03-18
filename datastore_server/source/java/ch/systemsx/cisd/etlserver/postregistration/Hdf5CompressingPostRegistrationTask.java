@@ -76,7 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  * 
  * @author Kaloyan Enimanev
  */
-public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistrationTask
+public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistrationTaskForPhysicalDataSets
 {
     public static final String DATA_SET_TYPES = "data-set-types";
 
@@ -97,22 +97,9 @@ public class Hdf5CompressingPostRegistrationTask extends AbstractPostRegistratio
                 new HashSet<String>(PropertyUtils.tryGetList(properties, DATA_SET_TYPES));
     }
 
-    /**
-     * do not allow concurrent maintenance tasks to run if they alter the data store contents.
-     */
     @Override
-    public boolean requiresDataStoreLock()
+    public IPostRegistrationTaskExecutor createExecutor(String dataSetCode)
     {
-        return true;
-    }
-
-    @Override
-    public IPostRegistrationTaskExecutor createExecutor(String dataSetCode, boolean container)
-    {
-        if (container)
-        {
-            return DummyPostRegistrationTaskExecutor.INSTANCE;
-        }
         return new Executor(dataSetCode);
     }
 
