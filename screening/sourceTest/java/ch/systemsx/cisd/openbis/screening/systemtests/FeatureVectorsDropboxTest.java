@@ -32,7 +32,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
-import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade;
@@ -126,7 +125,9 @@ public class FeatureVectorsDropboxTest extends AbstractScreeningSystemTestCase
             availableFeatureCodes.add(availableFeature.getCode());
         }
         Collections.sort(availableFeatureCodes);
-        assertEquals("[COLUMN_NUMBER, ROW_NUMBER, STATE, TPU]", availableFeatureCodes.toString());
+        assertEquals(
+                "[COLUMN_NUMBER, ROW_NUMBER, STATE, TPU, Z_VERY_LONG_FEATURE_LONGER_THAN_80_CHARS_123456789012345678901234567890123456789012345678901234567890]",
+                availableFeatureCodes.toString());
 
         List<FeatureVectorDataset> featureVectorDatasets =
                 screeningFacade.loadFeatures(features, Collections.singletonList("TPU"));

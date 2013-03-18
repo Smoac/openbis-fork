@@ -28,6 +28,6 @@ public class ImagingDatabaseVersionHolder implements IDatabaseVersionHolder
     @Override
     public String getDatabaseVersion()
     {
-        return "022"; // changed in S129
+        return "023"; // changed in S153
     }
 }
