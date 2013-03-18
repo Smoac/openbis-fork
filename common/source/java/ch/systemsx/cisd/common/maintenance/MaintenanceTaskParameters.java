@@ -24,9 +24,11 @@ import java.util.Date;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.time.DateTimeUtils;
 
 /**
  * @author Izabela Adamczyk
@@ -63,7 +65,7 @@ public class MaintenanceTaskParameters
     {
         this.properties = properties;
         this.pluginName = pluginName;
-        interval = PropertyUtils.getLong(properties, INTERVAL_KEY, ONE_DAY_IN_SEC);
+        interval = DateTimeUtils.getDurationInMillis(properties, INTERVAL_KEY, DateUtils.MILLIS_PER_DAY) / 1000;
         className = PropertyUtils.getMandatoryProperty(properties, CLASS_KEY);
         startDate = extractStartDate(PropertyUtils.getProperty(properties, START_KEY));
         executeOnlyOnce = PropertyUtils.getBoolean(properties, ONE_TIME_EXECUTION_KEY, false);
