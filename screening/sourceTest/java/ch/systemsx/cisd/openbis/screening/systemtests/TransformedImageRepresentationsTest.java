@@ -178,8 +178,23 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
                         expectedThumbnailBytes(dataSetCode, format.getWidth());
                 assertEquals(1, thumbnails.size());
                 assertEquals(expectedThumbnailImage, thumbnails.get(0));
-            }
+            } else
+            {
+                final List<byte[]> images = new ArrayList<byte[]>();
+                screeningFacade.loadImages(plateRefs, false, new IPlateImageHandler()
+                    {
 
+                        @Override
+                        public void handlePlateImage(PlateImageReference plateImageReference,
+                                byte[] imageFileBytes)
+                        {
+                            images.add(imageFileBytes);
+                        }
+                    });
+                assertEquals(1, images.size());
+
+                assertTrue(images.get(0).length > 0);
+            }
             if (format.getFileType() != null)
             {
                 // jpg thumbnails

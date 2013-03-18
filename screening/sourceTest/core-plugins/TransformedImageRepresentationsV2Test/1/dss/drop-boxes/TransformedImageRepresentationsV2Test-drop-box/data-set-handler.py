@@ -146,5 +146,14 @@ def process(transaction):
             channel.setAvailableTransformations(transforms)
         imageDataset.setChannels(channels, colorComponents)
     
-        dataSet = transaction.createNewImageDataSet(imageDataset, incoming)
-        transaction.moveFile(incoming.getPath(), dataSet)
+        dataSet = transaction.createNewImageDataSetAndMoveFile(imageDataset, incoming)
+        
+        os.makedirs(incoming.getPath())
+        path = incoming.getPath() + 'otherFile.txt'
+        
+        f = open(path, 'w')
+        f.write("test\n")
+        f.close()
+        
+        transaction.moveFile(path, dataSet)
+        

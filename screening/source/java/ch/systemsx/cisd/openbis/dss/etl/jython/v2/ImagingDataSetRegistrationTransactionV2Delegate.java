@@ -72,6 +72,16 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     }
 
     @Override
+    public IImageDataSet createNewImageDataSetAndMoveFile(SimpleImageDataConfig imageDataSet,
+            File incomingFolderWithImages)
+    {
+        IImageDataSet dataSet =
+                transaction.createNewImageDataSet(imageDataSet, incomingFolderWithImages);
+        transaction.moveFile(incomingFolderWithImages.getPath(), dataSet);
+        return dataSet;
+    }
+
+    @Override
     public IDataSet createNewOverviewImageDataSet(SimpleImageDataConfig imageDataSet,
             File incomingFolderWithImages)
     {

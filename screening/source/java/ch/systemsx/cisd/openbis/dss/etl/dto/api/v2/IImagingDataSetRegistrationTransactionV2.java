@@ -38,6 +38,13 @@ public interface IImagingDataSetRegistrationTransactionV2 extends IDataSetRegist
             File incomingFolderWithImages);
 
     /**
+     * Creates a new image data set. See {@link SimpleImageDataConfig} documentation for
+     * configuration details. Also moves the incoming directory to the data set.
+     */
+    IImageDataSet createNewImageDataSetAndMoveFile(SimpleImageDataConfig imageDataSet,
+            File incomingFolderWithImages);
+
+    /**
      * Creates a new overview image data set. See {@link SimpleImageDataConfig} documentation for
      * configuration details.
      */

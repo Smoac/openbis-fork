@@ -746,8 +746,14 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                 throw new UserFailureException(
                         "Cannot move the files because the original dataset is missing: " + src);
             }
-            originalDataset.getRegistrationDetails().getDataSetInformation()
-                    .setDatasetRelativeImagesFolderPath(new File(destination));
+
+            ImageDataSetInformation dataSetInformation =
+                    originalDataset.getRegistrationDetails().getDataSetInformation();
+
+            if (dataSetInformation.getDatasetRelativeImagesFolderPath() == null)
+            {
+                dataSetInformation.setDatasetRelativeImagesFolderPath(new File(destination));
+            }
 
             return super.moveFile(src, originalDataset, destination);
         }
