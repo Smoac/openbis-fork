@@ -45,8 +45,8 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**
  * Superclass for dataset download servlets. Provides functionality to deliver content of files and
@@ -210,6 +210,7 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
     protected final static void printErrorResponse(final HttpServletResponse response,
             String errorMessage) throws IOException
     {
+        response.setContentType("text/html");
         PrintWriter writer = response.getWriter();
         writer.write("<html><body>" + errorMessage + "</body></html>");
         writer.flush();
@@ -371,7 +372,8 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
         return map;
     }
 
-    protected final AbstractExternalData tryToGetCachedDataSet(HttpSession session, String dataSetCode)
+    protected final AbstractExternalData tryToGetCachedDataSet(HttpSession session,
+            String dataSetCode)
     {
         return getDataSets(session).get(dataSetCode);
     }
