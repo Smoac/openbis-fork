@@ -1,7 +1,7 @@
-var createFacade = function(action, timeoutOrNull){
+var createFacade = function(action, url, timeoutOrNull){
 	stop();
 	
-	var facade = new openbis('http://127.0.0.1:8888/openbis/openbis');
+	var facade = new openbis(url);
 	
 	facade.close = function(){
 		facade.logout(function(){
@@ -32,12 +32,14 @@ var createFacade = function(action, timeoutOrNull){
 	startWhenClosed();
 }
 
-var createFacadeAndLoginForUserAndPassword = function(user, password, action, timeoutOrNull){
+var createFacadeAndLoginForUserAndPassword = function(user, password, action, url, timeoutOrNull){
 	createFacade(function(facade){
-		facade.login(user, password, function(){
-			action(facade);
+		facade.login(user, password, function(response){
+			if(!response.error){
+				action(facade);
+			}
 		});
-	}, timeoutOrNull);
+	}, url, timeoutOrNull);
 }
 
 var createSearchCriteriaForCodes = function(codes){

@@ -3,11 +3,16 @@
  * with screening sprint server database version
  */
 
+var testProtocol = "http";
+var testHost = "127.0.0.1";
+var testPort = "8888";
+var testUrl = testProtocol + "://" + testHost + ":" + testPort;
+
 var testUserId = "openbis_test_js";
 var testUserPassword = "password";
 
-var createFacadeAndLogin = function(action, timeoutOrNull){
-	createFacadeAndLoginForUserAndPassword(testUserId, testUserPassword, action, timeoutOrNull);
+var createFacadeAndLogin = function(action, urlOrNull, timeoutOrNull){
+	createFacadeAndLoginForUserAndPassword(testUserId, testUserPassword, action, urlOrNull ? urlOrNull : testUrl, timeoutOrNull);
 }
 
 var createMaterialIdentifier = function(identifierString){
@@ -174,6 +179,60 @@ var generateRandomString = function(){
 	return Math.random().toString();
 }
 
+test("new openbis()", function(){
+	createFacadeAndLogin(function(facade){
+		ok(true, "Successfully connected to server without url");
+		facade.close();
+	});
+});
+
+test("new openbis(protocol, host, port)", function(){
+	var url = testProtocol + "://" + testHost + ":" + testPort;
+	createFacadeAndLogin(function(facade){
+		ok(true, "Successfully connected to server with url: " + url);
+		facade.close();
+	}, url);
+});
+
+test("new openbis(protocol, host, port, /openbis)", function(){
+	var url = testProtocol + "://" + testHost + ":" + testPort + "/openbis";
+	createFacadeAndLogin(function(facade){
+		ok(true, "Successfully connected to server with url: " + url);
+		facade.close();
+	}, url);
+});
+
+test("new openbis(protocol, host, port, /openbis/)", function(){
+	var url = testProtocol + "://" + testHost + ":" + testPort + "/openbis/";
+	createFacadeAndLogin(function(facade){
+		ok(true, "Successfully connected to server with url: " + url);
+		facade.close();
+	}, url);
+});
+
+test("new openbis(protocol, host, port, /openbis/openbis)", function(){
+	var url = testProtocol + "://" + testHost + ":" + testPort + "/openbis/openbis";
+	createFacadeAndLogin(function(facade){
+		ok(true, "Successfully connected to server with url: " + url);
+		facade.close();
+	}, url);
+});
+
+test("new openbis(protocol, host, port, /openbis/openbis/)", function(){
+	var url = testProtocol + "://" + testHost + ":" + testPort + "/openbis/openbis/";
+	createFacadeAndLogin(function(facade){
+		ok(true, "Successfully connected to server with url: " + url);
+		facade.close();
+	}, url);
+});
+
+test("new openbis(protocol, host, port, /someRandomPath/)", function(){
+	var url = testProtocol + "://" + testHost + ":" + testPort + "/someRandomPath/";
+	createFacadeAndLogin(function(facade){
+		ok(true, "Successfully connected to server with url: " + url);
+		facade.close();
+	}, url);
+});
 
 test("logout", function(){
 	createFacade(function(facade){
@@ -188,7 +247,7 @@ test("logout", function(){
 				facade.close();
 			});
 		});
-	});
+	}, testUrl);
 });
 
 test("login", function() {
@@ -202,7 +261,7 @@ test("login", function() {
 				facade.close();
 			});
 		});
-	});
+	}, testUrl);
 });
 
 test("cookies", function() {
@@ -217,7 +276,7 @@ test("cookies", function() {
 		facade.restoreSession();
 		equal(facade.getSession(), 'session-1', 'Session 1 restored')
 		facade.close();
-	});
+	}, testUrl);
 });
 
 test("listNamedRoleSets()", function(){

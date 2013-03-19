@@ -10,15 +10,15 @@ if(typeof openbis == 'undefined' || typeof _openbisInternal == 'undefined'){
 
 var _openbisInternalGeneric = _openbisInternal;
 
-var _openbisInternal = function(openbisUrl){
-    this.init(openbisUrl);
+var _openbisInternal = function(openbisUrlOrNull){
+    this.init(openbisUrlOrNull);
 }
 
 $.extend(_openbisInternal.prototype, _openbisInternalGeneric.prototype);
 
-_openbisInternal.prototype.init = function(openbisUrl){
-    _openbisInternalGeneric.prototype.init.call(this, openbisUrl);
-    this.screeningUrl = openbisUrl + "/rmi-screening-api-v1.json"
+_openbisInternal.prototype.init = function(openbisUrlOrNull){
+    _openbisInternalGeneric.prototype.init.call(this, openbisUrlOrNull);
+    this.screeningUrl = this.openbisUrl + "/rmi-screening-api-v1.json"
 }
 
 _openbisInternal.prototype.getScreeningDataStoreApiUrlForDataStoreUrl = function(dataStoreUrl){
@@ -40,8 +40,8 @@ var _openbisGeneric = openbis;
  * 
  */
 
-var openbis = function(openbisUrl){
-	this._internal = new _openbisInternal(openbisUrl);
+var openbis = function(openbisUrlOrNull){
+	this._internal = new _openbisInternal(openbisUrlOrNull);
 }
 
 $.extend(openbis.prototype, _openbisGeneric.prototype);

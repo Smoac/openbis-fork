@@ -8,22 +8,34 @@ if(typeof $ == 'undefined'){
 	alert('Loading of openbis.js failed - jquery.js is missing');
 }
 
-function _openbisInternal(openbisUrl){
-	this.init(openbisUrl);
+function _openbisInternal(openbisUrlOrNull){
+	this.init(openbisUrlOrNull);
 }
 
-_openbisInternal.prototype.init = function(openbisUrl){
-	this.openbisUrl = openbisUrl;
-	this.generalInfoServiceUrl = openbisUrl + "/rmi-general-information-v1.json";
-	this.generalInfoChangingServiceUrl = openbisUrl + "/rmi-general-information-changing-v1.json";
-	this.queryServiceUrl = openbisUrl + "/rmi-query-v1.json";
-	this.webInfoServiceUrl = openbisUrl + "/rmi-web-information-v1.json"
+_openbisInternal.prototype.init = function(openbisUrlOrNull){
+	this.openbisUrl = this.normalizeOpenbisUrl(openbisUrlOrNull);
+	this.generalInfoServiceUrl = this.openbisUrl + "/rmi-general-information-v1.json";
+	this.generalInfoChangingServiceUrl = this.openbisUrl + "/rmi-general-information-changing-v1.json";
+	this.queryServiceUrl = this.openbisUrl + "/rmi-query-v1.json";
+	this.webInfoServiceUrl = this.openbisUrl + "/rmi-web-information-v1.json"
 }
 
 _openbisInternal.prototype.log = function(msg){
 	if(console){
 		console.log(msg);
 	}
+}
+
+_openbisInternal.prototype.normalizeOpenbisUrl = function(openbisUrlOrNull){
+	var urlParts = null;
+	
+	if(openbisUrlOrNull){
+		parts = this.parseUri(openbisUrlOrNull);
+	}else{
+		parts = this.parseUri(window.location);
+	}
+	
+	return parts.protocol + "://" + parts.authority + "/openbis/openbis";
 }
 
 _openbisInternal.prototype.jsonRequestData = function(params) {
@@ -58,7 +70,7 @@ _openbisInternal.prototype.ajaxRequestError = function(action){
 	return function(xhr, status, error){
 		openbisObj.log("Request failed: " + error);
 		action({
-			"error" : error
+			"error" : "Request failed: " + error
 		});
 	};
 }
@@ -88,6 +100,37 @@ _openbisInternal.prototype.readCookie = function(name) {
 
 _openbisInternal.prototype.eraseCookie = function(name) {
 	this.createCookie(name,"",-1);
+}
+
+// parseUri 1.2.2 (c) Steven Levithan <stevenlevithan.com> MIT License (see http://blog.stevenlevithan.com/archives/parseuri)
+
+_openbisInternal.prototype.parseUri = function(str) {
+	var options = {
+		strictMode: false,
+		key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+		q:   {
+			name:   "queryKey",
+			parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+		},
+		parser: {
+			strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+			loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+		}
+	};
+	
+	var	o   = options,
+		m   = o.parser[o.strictMode ? "strict" : "loose"].exec(str),
+		uri = {},
+		i   = 14;
+
+	while (i--) uri[o.key[i]] = m[i] || "";
+
+	uri[o.q.name] = {};
+	uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
+		if ($1) uri[o.q.name][$1] = $2;
+	});
+
+	return uri;
 }
 
 _openbisInternal.prototype.listDataStores = function(action){
@@ -212,8 +255,8 @@ _openbisInternal.prototype.getDataStoreApiUrlForDataSetCode = function(dataSetCo
  * 
  */
 
-function openbis(openbisUrl) {
-	this._internal = new _openbisInternal(openbisUrl);
+function openbis(openbisUrlOrNull) {
+	this._internal = new _openbisInternal(openbisUrlOrNull);
 }
 
 /**
