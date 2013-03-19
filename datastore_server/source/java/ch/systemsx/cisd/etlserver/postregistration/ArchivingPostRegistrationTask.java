@@ -19,6 +19,10 @@ package ch.systemsx.cisd.etlserver.postregistration;
 
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.etlserver.plugins.AutoArchiverTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
@@ -35,6 +39,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
  */
 public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTaskForPhysicalDataSets
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ArchivingPostRegistrationTask.class);
+
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            ArchivingPostRegistrationTask.class);
+    
     public ArchivingPostRegistrationTask(Properties properties, IEncapsulatedOpenBISService service)
     {
         super(properties, service);
@@ -54,7 +64,7 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTaskF
                         + "If you wish to archive the dataset in the future, "
                         + "you can configure an '" + AutoArchiverTask.class.getSimpleName() + "'.");
         return new ArchivingExecutor(dataSetCode, true, notificationTemplate, service, archiver,
-                dataSetDirectoryProvider, hierarchicalContentProvider);
+                dataSetDirectoryProvider, hierarchicalContentProvider, operationLog, notificationLog);
     }
 
 }

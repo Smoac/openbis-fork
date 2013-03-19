@@ -20,7 +20,11 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetFileOperationsManager;
@@ -45,6 +49,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
  */
 public class SecondCopyPostRegistrationTask extends AbstractPostRegistrationTaskForPhysicalDataSets
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            SecondCopyPostRegistrationTask.class);
+
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            SecondCopyPostRegistrationTask.class);
 
     private final DataSetFileOperationsManager fileOperationManager;
     private final IHierarchicalContentProvider hierarchicalContentProvider;
@@ -85,8 +94,9 @@ public class SecondCopyPostRegistrationTask extends AbstractPostRegistrationTask
     @Override
     public IPostRegistrationTaskExecutor createExecutor(String dataSetCode)
     {
-        return new ArchivingExecutor(dataSetCode, false, notificationTemplate, service, archiver, dataSetDirectoryProvider,
-                hierarchicalContentProvider);
+        return new ArchivingExecutor(dataSetCode, false, notificationTemplate, service, archiver,
+                dataSetDirectoryProvider, hierarchicalContentProvider, operationLog,
+                notificationLog);
     }
     
     private static final class Archiver extends RsyncArchiver

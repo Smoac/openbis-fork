@@ -172,7 +172,10 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
     @Override
     public void close()
     {
-        onCloseAction.execute();
+        if (onCloseAction != null)
+        {
+            onCloseAction.execute();
+        }
     }
 
     //

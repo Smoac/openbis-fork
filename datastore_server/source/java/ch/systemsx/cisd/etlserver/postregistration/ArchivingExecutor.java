@@ -26,8 +26,6 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
@@ -49,12 +47,6 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
  */
 class ArchivingExecutor implements IPostRegistrationTaskExecutor
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            ArchivingExecutor.class);
-
-    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
-            ArchivingExecutor.class);
-
     private final String dataSetCode;
 
     private final IEncapsulatedOpenBISService service;
@@ -67,12 +59,16 @@ class ArchivingExecutor implements IPostRegistrationTaskExecutor
 
     private final boolean updateStatus;
 
-    private Template notificationTemplate;
+    private final Template notificationTemplate;
+
+    private final Logger operationLog;
+
+    private final Logger notificationLog;
 
     ArchivingExecutor(String dataSetCode, boolean updateStatus, Template notificationTemplate,
             IEncapsulatedOpenBISService service, IArchiverPlugin archiver,
             IDataSetDirectoryProvider dataSetDirectoryProvider,
-            IHierarchicalContentProvider hierarchicalContentProvider)
+            IHierarchicalContentProvider hierarchicalContentProvider, Logger operationLog, Logger notificationLog)
     {
         this.dataSetCode = dataSetCode;
         this.updateStatus = updateStatus;
@@ -81,6 +77,8 @@ class ArchivingExecutor implements IPostRegistrationTaskExecutor
         this.archiver = archiver;
         this.dataSetDirectoryProvider = dataSetDirectoryProvider;
         this.hierarchicalContentProvider = hierarchicalContentProvider;
+        this.operationLog = operationLog;
+        this.notificationLog = notificationLog;
 
     }
 
@@ -109,6 +107,11 @@ class ArchivingExecutor implements IPostRegistrationTaskExecutor
             return;
         }
 
+        if (updateStatus == false)
+        {
+            operationLog.info("Archiving data set '" + dataSetCode
+                    + "' without updating archiving status.");
+        }
         boolean statusUpdated = updateStatus ?
                 service.compareAndSetDataSetStatus(dataSetCode, AVAILABLE, BACKUP_PENDING,
                         false) : true;

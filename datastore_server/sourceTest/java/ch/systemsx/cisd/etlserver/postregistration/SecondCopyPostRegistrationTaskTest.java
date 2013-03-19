@@ -196,7 +196,9 @@ public class SecondCopyPostRegistrationTaskTest extends AbstractFileSystemTestCa
         executor.execute();
 
         assertEquals(
-                "INFO  OPERATION.AbstractDatastorePlugin - Archiving of the "
+                "INFO  OPERATION.SecondCopyPostRegistrationTask - "
+                        + "Archiving data set 'ds1' without updating archiving status.\n"
+                        + "INFO  OPERATION.AbstractDatastorePlugin - Archiving of the "
                         + "following datasets has been requested: [Dataset 'ds1']\n"
                         + "INFO  OPERATION.DataSetFileOperationsManager - "
                         + "Copy dataset 'ds1' from '" + store.getPath() + "/1/a/b/c/ds1' to '"
@@ -250,7 +252,9 @@ public class SecondCopyPostRegistrationTaskTest extends AbstractFileSystemTestCa
         IPostRegistrationTaskExecutor executor = task.createExecutor(DATA_SET1, false);
         executor.execute();
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - Archiving of the "
+        assertEquals("INFO  OPERATION.SecondCopyPostRegistrationTask - "
+                + "Archiving data set 'ds1' without updating archiving status.\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - Archiving of the "
                 + "following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DataSetFileOperationsManager - Copy dataset 'ds1' from '"
                 + store.getPath() + "/1/a/b/c/ds1' to '" + destination.getAbsolutePath()
@@ -260,7 +264,7 @@ public class SecondCopyPostRegistrationTaskTest extends AbstractFileSystemTestCa
                 + "/a/b/c' does not exist\n" + "ERROR OPERATION.AbstractDatastorePlugin - "
                 + "Archiving for dataset ds1 finished with the status: "
                 + "ERROR: \"Archiving failed :path '" + destination.getAbsolutePath()
-                + "/a/b/c' does not exist\".\n" + "ERROR NOTIFY.ArchivingExecutor - "
+                + "/a/b/c' does not exist\".\n" + "ERROR NOTIFY.SecondCopyPostRegistrationTask - "
                 + "Creating a second copy of dataset 'ds1' has failed.\n"
                 + "Error encountered : Archiving failed :path '" + destination.getAbsolutePath()
                 + "/a/b/c' does not exist",
