@@ -703,7 +703,7 @@ var common = {
  update_vocabulary_terms_message: "<b>Upload a TSV file</b> with all current terms of the vocabulary listed in columns:<br/><br/>{0}<br/><br/>With this file you can:<li>update label and description of current terms,<li>add new terms,<li>reorder terms (new order is taken from the order that terms are listed).<br/><br/>{1}",
  update_vocabulary_terms_message_2: "<b>To get a file for upload</b> with all current terms listed:<li>show only <i>Code</i>, <i>Label</i> and <i>Description</i> columns using table <i>Settings</i></li><li>use table <i>Export</i> functionality</li>",
  vocabulary_terms_validation_message: "Term '{0}' already exists.", 
- delete_vocabulary_terms_button: "Delete/Replace Terms",
+ delete_vocabulary_terms_button: "Delete Terms",
  delete_vocabulary_terms_invalid_title: "Invalid Deletion",
  delete_vocabulary_terms_invalid_message: "Can not delete all terms. A vocabulary should have at least one term.",
  delete_vocabulary_terms_confirmation_title: "Deletion of Vocabulary Terms",
