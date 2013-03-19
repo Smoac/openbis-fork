@@ -63,13 +63,13 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -279,7 +279,7 @@ public class DatasetDownloadServletTest
                 }
             });
     }
-    
+
     private void prepareCheckSession()
     {
         context.checking(new Expectations()
@@ -562,6 +562,8 @@ public class DatasetDownloadServletTest
 
                     one(response).getWriter();
                     will(returnValue(new PrintWriter(writer)));
+
+                    allowing(response).setContentType(with(any(String.class)));
                 }
             });
 
@@ -618,7 +620,8 @@ public class DatasetDownloadServletTest
 
                     one(httpSession).getAttribute(
                             AbstractDatasetDownloadServlet.DATA_SET_SESSION_KEY);
-                    Map<String, AbstractExternalData> map = new HashMap<String, AbstractExternalData>();
+                    Map<String, AbstractExternalData> map =
+                            new HashMap<String, AbstractExternalData>();
                     map.put(externalData.getCode(), externalData);
                     will(Expectations.returnValue(map));
 
