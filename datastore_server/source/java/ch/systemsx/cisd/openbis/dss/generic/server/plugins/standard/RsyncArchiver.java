@@ -186,9 +186,9 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                         new File(context.getDirectoryProvider().getStoreRoot(), STAGING_FOLDER
                                 + "/" + dataSetCode);
                 temp.mkdirs();
+                IHierarchicalContent archivedContent = null;
                 try
                 {
-                    IHierarchicalContent archivedContent;
                     // We want to perform the check if the archived content is correct
                     // (filesizes/checksums)
                     // For this we want to have the archived content locally. If it is not available
@@ -214,6 +214,11 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                     status = checkHierarchySizeAndChecksums(root, archivedRoot, checksumVerificationCondition);
                 } finally
                 {
+                    content.close();
+                    if (archivedContent != null)
+                    {
+                        archivedContent.close();
+                    }
                     FileUtils.deleteQuietly(temp);
                 }
             }

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetFileOperationsManager;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IDataSetFileOperationsManager;
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetStatusUpdater;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 
@@ -48,6 +50,7 @@ public class SecondCopyPostRegistrationTask extends AbstractPostRegistrationTask
     private final IHierarchicalContentProvider hierarchicalContentProvider;
     private final IDataSetDirectoryProvider dataSetDirectoryProvider;
     private final IArchiverPlugin archiver;
+    private final Template notificationTemplate;
 
     public SecondCopyPostRegistrationTask(Properties properties, IEncapsulatedOpenBISService service)
     {
@@ -71,13 +74,18 @@ public class SecondCopyPostRegistrationTask extends AbstractPostRegistrationTask
         dataSetDirectoryProvider = dataStoreService.getDataSetDirectoryProvider();
         File storeRoot = dataSetDirectoryProvider.getStoreRoot();
         properties.setProperty(AbstractArchiverProcessingPlugin.SYNCHRONIZE_ARCHIVE, "false");
-        archiver = new Archiver(properties, storeRoot, fileOperationManager);
+        notificationTemplate =
+                new Template(
+                        "Creating a second copy of dataset '${dataSet}' has failed.\n${errors}");
+        archiver =
+                new Archiver(properties, storeRoot, service, fileOperationManager, dataStoreService
+                        .getDataSetDirectoryProvider().getShareIdManager());
     }
 
     @Override
     public IPostRegistrationTaskExecutor createExecutor(String dataSetCode)
     {
-        return new ArchivingExecutor(dataSetCode, false, service, archiver, dataSetDirectoryProvider,
+        return new ArchivingExecutor(dataSetCode, false, notificationTemplate, service, archiver, dataSetDirectoryProvider,
                 hierarchicalContentProvider);
     }
     
@@ -86,11 +94,12 @@ public class SecondCopyPostRegistrationTask extends AbstractPostRegistrationTask
 
         private static final long serialVersionUID = 1L;
 
-        Archiver(Properties properties, File storeRoot,
-                IDataSetFileOperationsManager fileOperationsManager)
+        Archiver(Properties properties, File storeRoot, IEncapsulatedOpenBISService service,
+                IDataSetFileOperationsManager fileOperationsManager, IShareIdManager shareIdManager)
         {
             super(properties, storeRoot, fileOperationsManager, RsyncArchiver.DeleteAction.DELETE,
                     ChecksumVerificationCondition.IF_AVAILABLE);
+            setService(service);
             setStatusUpdater(new IDataSetStatusUpdater()
                 {
                     @Override
@@ -99,6 +108,7 @@ public class SecondCopyPostRegistrationTask extends AbstractPostRegistrationTask
                     {
                     }
                 });
+            setShareIdManager(shareIdManager);
         }
 
     }

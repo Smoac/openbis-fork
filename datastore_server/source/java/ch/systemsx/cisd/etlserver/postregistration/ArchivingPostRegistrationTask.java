@@ -19,6 +19,8 @@ package ch.systemsx.cisd.etlserver.postregistration;
 
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.string.Template;
+import ch.systemsx.cisd.etlserver.plugins.AutoArchiverTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
@@ -47,8 +49,12 @@ public class ArchivingPostRegistrationTask extends AbstractPostRegistrationTaskF
                 dataStoreService.getDataSetDirectoryProvider();
         IHierarchicalContentProvider hierarchicalContentProvider =
                 ServiceProvider.getHierarchicalContentProvider();
-        return new ArchivingExecutor(dataSetCode, true, service, archiver, dataSetDirectoryProvider,
-                hierarchicalContentProvider);
+        Template notificationTemplate =
+                new Template("Eager archiving of dataset '${dataSet}' has failed.\n${errors}\n"
+                        + "If you wish to archive the dataset in the future, "
+                        + "you can configure an '" + AutoArchiverTask.class.getSimpleName() + "'.");
+        return new ArchivingExecutor(dataSetCode, true, notificationTemplate, service, archiver,
+                dataSetDirectoryProvider, hierarchicalContentProvider);
     }
 
 }

@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
-import ch.systemsx.cisd.etlserver.plugins.AutoArchiverTask;
+import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
@@ -67,12 +67,16 @@ class ArchivingExecutor implements IPostRegistrationTaskExecutor
 
     private final boolean updateStatus;
 
-    ArchivingExecutor(String dataSetCode, boolean updateStatus, IEncapsulatedOpenBISService service,
-            IArchiverPlugin archiver, IDataSetDirectoryProvider dataSetDirectoryProvider,
+    private Template notificationTemplate;
+
+    ArchivingExecutor(String dataSetCode, boolean updateStatus, Template notificationTemplate,
+            IEncapsulatedOpenBISService service, IArchiverPlugin archiver,
+            IDataSetDirectoryProvider dataSetDirectoryProvider,
             IHierarchicalContentProvider hierarchicalContentProvider)
     {
         this.dataSetCode = dataSetCode;
         this.updateStatus = updateStatus;
+        this.notificationTemplate = notificationTemplate;
         this.service = service;
         this.archiver = archiver;
         this.dataSetDirectoryProvider = dataSetDirectoryProvider;
@@ -120,32 +124,30 @@ class ArchivingExecutor implements IPostRegistrationTaskExecutor
             ProcessingStatus processingStatus = archiver.archive(dataSetAsList, context, false);
             if (false == processingStatus.getErrorStatuses().isEmpty())
             {
-                notifyAdministrator(processingStatus);
+                notifyAdministrator(processingStatus, notificationTemplate.createFreshCopy());
             }
-            service.compareAndSetDataSetStatus(dataSetCode, BACKUP_PENDING, AVAILABLE, true);
+            if (updateStatus)
+            {
+                service.compareAndSetDataSetStatus(dataSetCode, BACKUP_PENDING, AVAILABLE, true);
+            }
         }
     }
 
-    private void notifyAdministrator(ProcessingStatus processingStatus)
+    private void notifyAdministrator(ProcessingStatus processingStatus, Template template)
     {
-        StringBuilder message = new StringBuilder();
-        String failedMessage =
-                String.format("Eager archiving of dataset '%s' has failed. \n", dataSetCode);
-        message.append(failedMessage);
+        template.bind("dataSet", dataSetCode);
+        StringBuilder builder = new StringBuilder();
         for (Status status : processingStatus.getErrorStatuses())
         {
             if (status.tryGetErrorMessage() != null)
             {
-                message.append("Error encountered : " + status.tryGetErrorMessage());
-                message.append("\n");
+                builder.append("Error encountered : " + status.tryGetErrorMessage());
+                builder.append("\n");
             }
         }
-        String footer =
-                String.format("If you wish to archive the dataset in the future, "
-                        + "you can configure an '%s'.", AutoArchiverTask.class.getSimpleName());
-        message.append(footer);
+        template.bind("errors", builder.toString());
 
-        notificationLog.error(message);
+        notificationLog.error(template.createText());
     }
 
     @Override

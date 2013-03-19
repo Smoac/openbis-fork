@@ -547,9 +547,19 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return service;
     }
 
-    public void setStatusUpdater(IDataSetStatusUpdater statusUpdater)
+    protected void setStatusUpdater(IDataSetStatusUpdater statusUpdater)
     {
         this.statusUpdater = statusUpdater;
+    }
+    
+    protected void setShareIdManager(IShareIdManager shareIdManager)
+    {
+        this.shareIdManager = shareIdManager;
+    }
+    
+    protected void setService(IEncapsulatedOpenBISService service)
+    {
+        this.service = service;
     }
 
     /**
