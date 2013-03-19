@@ -34,6 +34,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
 
 /**
@@ -317,6 +319,13 @@ public class ShareIdManager implements IShareIdManager
         GuardedShareID shareId = getDataSetCodeToShareIdMap().get(dataSetCode);
         if (shareId == null)
         {
+            updateValueForDataSet(dataSetCode);
+            shareId = getDataSetCodeToShareIdMap().get(dataSetCode);
+        }
+
+        if (shareId == null)
+        {
+
             throw new IllegalArgumentException("Unknown data set: " + dataSetCode);
         }
         return shareId;
@@ -343,4 +352,17 @@ public class ShareIdManager implements IShareIdManager
         }
     }
 
+    private void updateValueForDataSet(String dataSetCode)
+    {
+        // We assume that the dataSetCodeToShareIdMap is already initialized -- otherwise we
+        // wouldn't be here.
+        AbstractExternalData abstractDataSet = service.tryGetDataSet(dataSetCode);
+        if (null == abstractDataSet || false == abstractDataSet instanceof PhysicalDataSet)
+        {
+            return;
+        }
+        PhysicalDataSet dataSet = (PhysicalDataSet) abstractDataSet;
+        String shareId = dataSet.getShareId();
+        addShareId(dataSetCodeToShareIdMap, dataSetCode, shareId);
+    }
 }
