@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Properties;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -152,8 +151,8 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
         pathInfoChildNode = context.mock(IHierarchicalContentNode.class, "pathInfoChildNode");
 
         plugin =
-                new DataSetAndPathInfoDBConsistencyCheckProcessingPlugin(new Properties(),
-                        workingDirectory, fileProvider, pathInfoProvider);
+                new DataSetAndPathInfoDBConsistencyCheckProcessingPlugin(fileProvider,
+                        pathInfoProvider);
         processingContext =
                 new DataSetProcessingContext(null, new MockDataSetDirectoryProvider(
                         workingDirectory, SHARE_ID), null, mailClient, USER_ID, USER_EMAIL);

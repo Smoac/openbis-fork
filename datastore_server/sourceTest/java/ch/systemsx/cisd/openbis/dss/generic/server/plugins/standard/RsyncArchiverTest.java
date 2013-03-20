@@ -19,13 +19,9 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin.SHARE_FINDER_KEY;
 
 import java.io.File;
-import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Level;
@@ -39,15 +35,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
@@ -555,201 +548,5 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
                 "OK",
                 RsyncArchiver.checkHierarchySizeAndChecksums(root1, root2,
                         RsyncArchiver.ChecksumVerificationCondition.NO).toString());
-    }
-
-    private static final class MockNode implements IHierarchicalContentNode
-    {
-        private final List<IHierarchicalContentNode> children =
-                new ArrayList<IHierarchicalContentNode>();
-
-        private String name;
-
-        private String relativePath;
-
-        private IHierarchicalContentNode parent;
-
-        private boolean directory;
-
-        private long size;
-
-        private int checksum;
-
-        void addNode(MockNode node)
-        {
-            node.parent = this;
-            children.add(node);
-        }
-
-        @Override
-        public String getName()
-        {
-            return name;
-        }
-
-        @Override
-        public String getRelativePath()
-        {
-            return relativePath;
-        }
-
-        @Override
-        public String getParentRelativePath()
-        {
-            return parent == null ? null : parent.getRelativePath();
-        }
-
-        @Override
-        public boolean exists()
-        {
-            return true;
-        }
-
-        @Override
-        public boolean isDirectory()
-        {
-            return directory;
-        }
-
-        @Override
-        public long getLastModified()
-        {
-            return 0;
-        }
-
-        @Override
-        public List<IHierarchicalContentNode> getChildNodes() throws UnsupportedOperationException
-        {
-            return children;
-        }
-
-        @Override
-        public File getFile() throws UnsupportedOperationException
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public File tryGetFile()
-        {
-            return null;
-        }
-
-        @Override
-        public long getFileLength() throws UnsupportedOperationException
-        {
-            return size;
-        }
-
-        @Override
-        public int getChecksumCRC32() throws UnsupportedOperationException
-        {
-            return checksum;
-        }
-
-        @Override
-        public boolean isChecksumCRC32Precalculated()
-        {
-            return true;
-        }
-
-        @Override
-        public IRandomAccessFile getFileContent() throws UnsupportedOperationException,
-                IOExceptionUnchecked
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public InputStream getInputStream() throws UnsupportedOperationException,
-                IOExceptionUnchecked
-        {
-            throw new UnsupportedOperationException();
-        }
-
-    }
-
-    private static final class MockContent implements IHierarchicalContent
-    {
-        private MockNode root;
-
-        private final Map<String, MockNode> nodes = new HashMap<String, MockNode>();
-
-        MockContent(String... contentDescriptions)
-        {
-            for (String contentDescription : contentDescriptions)
-            {
-                String[] splittedDescription = contentDescription.split(":");
-                MockNode node = new MockNode();
-                String path = splittedDescription[0];
-                if (path.length() == 0)
-                {
-                    root = node;
-                    node.directory = true;
-                    node.name = "";
-                    node.relativePath = "";
-                } else
-                {
-                    if (path.endsWith("/"))
-                    {
-                        path = path.substring(0, path.length() - 1);
-                        node.directory = true;
-                    } else
-                    {
-                        node.directory = false;
-                    }
-                    node.relativePath = path;
-                    int lastIndexOfDelim = path.lastIndexOf('/');
-                    MockNode parent = root;
-                    if (lastIndexOfDelim >= 0)
-                    {
-                        String parentPath = path.substring(0, lastIndexOfDelim);
-                        parent = nodes.get(parentPath);
-                    }
-                    parent.addNode(node);
-                    nodes.put(path, node);
-                    node.name = path.substring(lastIndexOfDelim + 1);
-                }
-                node.size = Long.parseLong(splittedDescription[1]);
-                node.checksum = (int) Long.parseLong(splittedDescription[2], 16);
-            }
-        }
-
-        @Override
-        public IHierarchicalContentNode getRootNode()
-        {
-            return root;
-        }
-
-        @Override
-        public IHierarchicalContentNode getNode(String relativePath)
-                throws IllegalArgumentException
-        {
-            return nodes.get(relativePath);
-        }
-
-        @Override
-        public IHierarchicalContentNode tryGetNode(String relativePath)
-        {
-            return nodes.get(relativePath);
-        }
-
-        @Override
-        public List<IHierarchicalContentNode> listMatchingNodes(String relativePathPattern)
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public List<IHierarchicalContentNode> listMatchingNodes(String startingPath,
-                String fileNamePattern)
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void close()
-        {
-        }
-
     }
 }
