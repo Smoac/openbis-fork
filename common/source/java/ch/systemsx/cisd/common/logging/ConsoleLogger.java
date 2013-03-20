@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.common.logging;
 
+import java.io.PrintStream;
+
 /**
  * A {@link ISimpleLogger} that logs to {@link System#out} (for debugging purposes).
  * 
@@ -24,10 +26,22 @@ package ch.systemsx.cisd.common.logging;
 public class ConsoleLogger implements ISimpleLogger
 {
 
+    private final PrintStream pstream;
+    
+    public ConsoleLogger()
+    {
+        this(System.out);
+    }
+    
+    public ConsoleLogger(PrintStream pstream)
+    {
+        this.pstream = pstream;
+    }
+    
     @Override
     public void log(LogLevel level, String message)
     {
-        System.out.println(level.toString() + ": " + message);
+        pstream.println(level.toString() + ": " + message);
     }
 
     @Override
@@ -36,7 +50,7 @@ public class ConsoleLogger implements ISimpleLogger
         log(level, message);
         if (throwableOrNull != null)
         {
-            throwableOrNull.printStackTrace();
+            throwableOrNull.printStackTrace(pstream);
         }
     }
 
