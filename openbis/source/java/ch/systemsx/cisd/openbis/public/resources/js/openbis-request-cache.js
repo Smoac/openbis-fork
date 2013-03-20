@@ -13,9 +13,9 @@
  * To clear the cache, you can call "localStorage.clear()" in a browser console. 
  */
 
-var original_ajax_request_func = ajaxRequest;
+var original_ajax_request_func = _openbisInternal.prototype.ajaxRequest;
 
-ajaxRequest = function(settings) {
+_openbisInternal.prototype.ajaxRequest = function(settings) {
 	
 	function getCacheId(settings) {
 		var methodName = settings.data['method']

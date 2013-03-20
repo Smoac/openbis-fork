@@ -175,6 +175,35 @@ var uploadFileToSessionWorkspace = function(facade, fileName, fileContent, dataS
 	}); 
 }
 
+var uploadGraphToSessionWorkspace = function(facade, dataStoreCodeOrNull, action) {
+	var fileName = generateRandomString();
+	var fileContent = "" +
+
+"row	col	col1	col2	col3\n\
+1	A	0	1	2\n\
+1	B	3	4	5\n\
+2	A	6	7	8\n\
+2	B	9	10	11\n\
+3	A	12	13	14\n\
+3	B	15	16	17\n\
+4	A	18	19	20\n\
+4	B	21	22	23\n\
+5	A	23	25	26\n\
+5	B	27	28	29"
+
+	uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCodeOrNull, function(){
+		var graphType = "HISTOGRAM";
+		var graphTitle = "Test graph";
+		
+		var graphConfig = new openbisGraphConfig(fileName, graphType, graphTitle);
+		graphConfig["col-z"] = "<col1>Bins";
+		graphConfig["bins"] = "13";
+		graphConfig["delimiter"] = "\t";
+		
+		action(graphConfig);
+	});
+}
+
 var generateRandomString = function(){
 	return Math.random().toString();
 }
@@ -1413,6 +1442,36 @@ test("getValidationScriptForDataStore()", function(){
 		facade.getValidationScriptForDataStore(dataSetTypeOrNull, dataStoreCode, function(response){
 			ok(response.result, "Got a validation script");
 			facade.close();
+		});
+	});
+});
+
+test("getGraphUrl()", function(){
+	createFacadeAndLogin(function(facade){
+		var dataStoreCodeOrNull = null;
+		
+		uploadGraphToSessionWorkspace(facade, dataStoreCodeOrNull, function(graphConfig){
+			facade.getGraphUrl(graphConfig, function(graphUrl){
+				downloadFile(graphUrl, function(data){
+					ok(data.indexOf("<html>") != 0, "Graph has been generated");
+					facade.close();
+				})
+			});
+		});
+	});
+});
+
+test("getGraphUrlForDataStore()", function(){
+	createFacadeAndLogin(function(facade){
+		var dataStoreCodeOrNull = "DSS-SCREENING";
+		
+		uploadGraphToSessionWorkspace(facade, dataStoreCodeOrNull, function(graphConfig){
+			facade.getGraphUrlForDataStore(graphConfig, dataStoreCodeOrNull, function(graphUrl){
+				downloadFile(graphUrl, function(data){
+					ok(data.indexOf("<html>") != 0, "Graph has been generated");
+					facade.close();
+				})
+			});
 		});
 	});
 });

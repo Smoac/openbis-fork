@@ -32,8 +32,14 @@
  * @param onLogin The function to be called when login succeeds.
  * @function
  */
-function configureLoginPage(openbis, onLogin)
+
+function openbisLoginPage(openbis, onLogin)
 {
+	this.openbis = openbis;
+	this.onLogin = onLogin;
+}
+
+function openbisLoginPage.prototype.configure = function(){
 	$('#main').hide();
 	
 	var username = $("#username").value;
@@ -56,7 +62,7 @@ function configureLoginPage(openbis, onLogin)
 	});
 	
 	openbis.ifRestoredSessionActive(function(data) { onLogin(data) });
-
+	
 		// Make the ENTER key the default button
 	$("login-form input").keypress(function (e) {
 		if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
