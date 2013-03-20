@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
@@ -46,12 +47,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * @author Kaloyan Enimanev
  */
 public class ArchivingPostRegistrationTaskTest extends AssertJUnit
 {
+    private BufferedAppender logRecorder;
+
     private String DATASET_CODE = "ds1";
 
     private String ARCHIVE_ERROR = "rsync: timeout in data send/receive (30)";
@@ -73,6 +77,7 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
     @BeforeMethod
     public void setUp()
     {
+        logRecorder = new BufferedAppender(null, Level.INFO);
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         dataStoreService = context.mock(IDataStoreServiceInternal.class);
@@ -81,34 +86,6 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
         contentProvider = context.mock(IHierarchicalContentProvider.class);
         applicationContext = context.mock(BeanFactory.class);
         ServiceProviderTestWrapper.setApplicationContext(applicationContext);
-    }
-
-    @AfterMethod
-    public void tearDown()
-    {
-        ServiceProviderTestWrapper.restoreApplicationContext();
-    }
-
-    @Test
-    public void testEmailSendOnArchiveError()
-    {
-        prepareExpectations();
-        ArchivingPostRegistrationTask task =
-                new ArchivingPostRegistrationTask(new Properties(), service);
-        BufferedAppender logRecorder = new BufferedAppender(null, Level.INFO, "NOTIFY");
-
-        task.createExecutor(DATASET_CODE, false).execute();
-
-        assertEquals("Eager archiving of dataset '" + DATASET_CODE + "' has failed.\n"
-                + "Error encountered : " + ARCHIVE_ERROR + "\n\n"
-                + "If you wish to archive the dataset in the future, "
-                + "you can configure an \'AutoArchiverTask\'.", logRecorder.getLogContent());
-        context.assertIsSatisfied();
-    }
-
-    @SuppressWarnings("unchecked")
-    private final void prepareExpectations()
-    {
         context.checking(new Expectations()
             {
                 {
@@ -123,32 +100,118 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
 
                     allowing(dataStoreService).getDataSetDirectoryProvider();
                     will(returnValue(directoryProvider));
+                }
+            });
+    }
 
+    @AfterMethod
+    public void tearDown()
+    {
+        ServiceProviderTestWrapper.restoreApplicationContext();
+    }
+
+    @Test
+    public void testEmailSendOnArchiveError()
+    {
+        prepareListDataSets();
+        prepareSetDataSetStatusToPending(true);
+        RecordingMatcher<List<DatasetDescription>> recordingMatcher =
+                prepareArchive(createFailedProcesingStatus());
+        prepareSetDataSetStatusBackToAvailable(true);
+        ArchivingPostRegistrationTask task =
+                new ArchivingPostRegistrationTask(new Properties(), service);
+
+        task.createExecutor(DATASET_CODE, false).execute();
+
+        assertEquals("Eager archiving of dataset '" + DATASET_CODE + "' has failed.\n"
+                + "Error encountered : " + ARCHIVE_ERROR + "\n\n"
+                + "If you wish to archive the dataset in the future, "
+                + "you can configure an \'AutoArchiverTask\'.", logRecorder.getLogContent());
+        assertEquals("[Dataset '" + DATASET_CODE + "']", recordingMatcher.recordedObject()
+                .toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testHappyCase()
+    {
+        prepareListDataSets();
+        prepareSetDataSetStatusToPending(true);
+        RecordingMatcher<List<DatasetDescription>> recordingMatcher =
+                prepareArchive(new ProcessingStatus());
+        prepareSetDataSetStatusBackToAvailable(true);
+        ArchivingPostRegistrationTask task =
+                new ArchivingPostRegistrationTask(new Properties(), service);
+
+        task.createExecutor(DATASET_CODE, false).execute();
+
+        assertEquals("", logRecorder.getLogContent());
+        assertEquals("[Dataset '" + DATASET_CODE + "']", recordingMatcher.recordedObject()
+                .toString());
+        context.assertIsSatisfied();
+    }
+
+    private RecordingMatcher<List<DatasetDescription>> prepareArchive(final ProcessingStatus status)
+    {
+        final RecordingMatcher<List<DatasetDescription>> matcher =
+                new RecordingMatcher<List<DatasetDescription>>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(archiver).archive(with(matcher), with(any(ArchiverTaskContext.class)),
+                            with(false));
+                    will(returnValue(status));
+                }
+            });
+        return matcher;
+    }
+
+    private final void prepareSetDataSetStatusToPending(final boolean updated)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).compareAndSetDataSetStatus(DATASET_CODE, AVAILABLE,
+                            BACKUP_PENDING, false);
+                    will(returnValue(updated));
+                }
+            });
+    }
+
+    private final void prepareSetDataSetStatusBackToAvailable(final boolean updated)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).compareAndSetDataSetStatus(DATASET_CODE, BACKUP_PENDING,
+                            AVAILABLE, true);
+                    will(returnValue(updated));
+                }
+            });
+    }
+
+    private final void prepareListDataSets()
+    {
+        context.checking(new Expectations()
+            {
+                {
                     one(service).listDataSetsByCode(Arrays.asList(DATASET_CODE));
                     List<AbstractExternalData> externalDatas = Arrays.asList(createDataSet());
                     will(returnValue(externalDatas));
-
-                    one(service).compareAndSetDataSetStatus(DATASET_CODE, AVAILABLE,
-                            BACKUP_PENDING, false);
-                    will(returnValue(true));
-
-                    one(archiver).archive(with(any(List.class)),
-                            with(any(ArchiverTaskContext.class)), with(any(boolean.class)));
-                    will(returnValue(createFailedProcesingStatus()));
-
-                    one(service).compareAndSetDataSetStatus(DATASET_CODE, BACKUP_PENDING,
-                            AVAILABLE, true);
-                    will(returnValue(true));
-
                 }
             });
     }
 
     private ProcessingStatus createFailedProcesingStatus()
     {
-        ProcessingStatus status = new ProcessingStatus();
-        status.addDatasetStatus(DATASET_CODE, Status.createError(true, ARCHIVE_ERROR));
-        return status;
+        return createProcessingStatus(Status.createError(true, ARCHIVE_ERROR));
+    }
+
+    private ProcessingStatus createProcessingStatus(Status status)
+    {
+        ProcessingStatus processingStatus = new ProcessingStatus();
+        processingStatus.addDatasetStatus(DATASET_CODE, status);
+        return processingStatus;
     }
 
     private AbstractExternalData createDataSet()
