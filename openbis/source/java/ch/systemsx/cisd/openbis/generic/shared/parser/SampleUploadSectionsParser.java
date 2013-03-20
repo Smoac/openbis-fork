@@ -298,7 +298,14 @@ public class SampleUploadSectionsParser
             List<String> codes = sampleCodeGenerator.generateCodes(newSamples.size());
             for (int i = 0; i < newSamples.size(); i++)
             {
-                newSamples.get(i).setIdentifier(defaultGroupIdentifier + "/" + codes.get(i));
+                if (newSamples.get(i).getDefaultSpaceIdentifier() == null || newSamples.get(i).getDefaultSpaceIdentifier().isEmpty())
+                {
+                    newSamples.get(i).setIdentifier(defaultGroupIdentifier + "/" + codes.get(i));
+                } else
+                {
+                    newSamples.get(i).setIdentifier(
+                            newSamples.get(i).getDefaultSpaceIdentifier() + "/" + codes.get(i));
+                }
             }
         }
     }
