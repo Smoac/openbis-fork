@@ -207,8 +207,8 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
     protected DataSetRegistrationService<T> createRegistrationService(Map<String, Object> parameters)
     {
         // Make sure the health monitor has been initialized
-        DssRegistrationHealthMonitor.getInstance(openBisService, getGlobalState()
-                .getRecoveryStateDir());
+        DssRegistrationHealthMonitor.getInstance(getGlobalState().getOpenBisService(),
+                getGlobalState().getRecoveryStateDir());
 
         // Create a file that represents the parameters
         try
