@@ -25,7 +25,10 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.FactoryBean;
 
+import ch.systemsx.cisd.common.api.retry.RetryCaller;
+import ch.systemsx.cisd.common.api.retry.config.RetryConfiguration;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
@@ -114,15 +117,55 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     private IServiceConversationClientManagerLocal conversationClient;
 
+    private static class RetryingOpenBisCreator extends
+            RetryCaller<IServiceForDataStoreServer, RuntimeException>
+    {
+        private final String openBISURL;
+
+        private String timeout;
+
+        RetryingOpenBisCreator(String openBISURL, String timeout)
+        {
+            super(new RetryConfiguration()
+                {
+                    @Override
+                    public float getWaitingTimeBetweenRetriesIncreasingFactor()
+                    {
+                        return 2;
+                    }
+
+                    @Override
+                    public int getWaitingTimeBetweenRetries()
+                    {
+                        return 5000;
+                    }
+
+                    @Override
+                    public int getMaximumNumberOfRetries()
+                    {
+                        return 5;
+                    }
+                }, new Log4jSimpleLogger(operationLog));
+            this.openBISURL = openBISURL;
+            this.timeout = timeout;
+        }
+
+        @Override
+        protected IServiceForDataStoreServer call() throws RuntimeException
+        {
+            OpenBisServiceFactory factory =
+                    new OpenBisServiceFactory(openBISURL, ResourceNames.ETL_SERVICE_URL);
+            if (timeout.startsWith("$"))
+            {
+                return factory.createService();
+            }
+            return factory.createService(normalizeTimeout(timeout));
+        }
+    }
+
     public static IServiceForDataStoreServer createOpenBisService(String openBISURL, String timeout)
     {
-        OpenBisServiceFactory factory =
-                new OpenBisServiceFactory(openBISURL, ResourceNames.ETL_SERVICE_URL);
-        if (timeout.startsWith("$"))
-        {
-            return factory.createService();
-        }
-        return factory.createService(normalizeTimeout(timeout));
+        return new RetryingOpenBisCreator(openBISURL, timeout).callWithRetry();
     }
 
     /**

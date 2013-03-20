@@ -56,10 +56,14 @@ import org.springframework.web.context.WebApplicationContext;
 import com.googlecode.jsonrpc4j.spring.JsonServiceExporter;
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.api.IRpcServiceNameServer;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
+import ch.systemsx.cisd.common.api.retry.RetryCaller;
+import ch.systemsx.cisd.common.api.retry.config.RetryConfiguration;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -171,6 +175,7 @@ public class DataStoreServer
         } catch (final Exception ex)
         {
             operationLog.error("Failed to start server.", ex);
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
@@ -426,21 +431,58 @@ public class DataStoreServer
             return configParams.isUseNIO() ? new SelectChannelConnector() : new SocketConnector();
         }
     }
+    
+    private static class RetryingSelfTest extends RetryCaller<Void, RuntimeException>
+    {
+        private final ApplicationContext applicationContext;
+        
+        RetryingSelfTest(ApplicationContext applicationContext)
+        {
+            super(new RetryConfiguration()
+                {
+                    @Override
+                    public float getWaitingTimeBetweenRetriesIncreasingFactor()
+                    {
+                        return 2;
+                    }
+                    
+                    @Override
+                    public int getWaitingTimeBetweenRetries()
+                    {
+                        return 5000;
+                    }
+                    
+                    @Override
+                    public int getMaximumNumberOfRetries()
+                    {
+                        return 5;
+                    }
+                }, new Log4jSimpleLogger(operationLog));
+            this.applicationContext = applicationContext;
+        }
+
+        @Override
+        protected Void call() throws RuntimeException
+        {
+            IEncapsulatedOpenBISService dataSetService = applicationContext.getDataSetService();
+            final int version = dataSetService.getVersion();
+            if (IServer.VERSION != version)
+            {
+                throw new ConfigurationFailureException(
+                        "This client has the wrong service version for the server (client: "
+                                + IServer.VERSION + ", server: " + version + ").");
+            }
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("openBIS service (interface version " + version + ") is reachable");
+            }
+            return null;
+        }
+    }
 
     private final static void selfTest(final ApplicationContext applicationContext)
     {
-        IEncapsulatedOpenBISService dataSetService = applicationContext.getDataSetService();
-        final int version = dataSetService.getVersion();
-        if (IServer.VERSION != version)
-        {
-            throw new ConfigurationFailureException(
-                    "This client has the wrong service version for the server (client: "
-                            + IServer.VERSION + ", server: " + version + ").");
-        }
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("openBIS service (interface version " + version + ") is reachable");
-        }
+        new RetryingSelfTest(applicationContext).callWithRetry();
     }
 
     public static ConfigParameters getConfigParameters()
