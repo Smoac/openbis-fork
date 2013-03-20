@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver.path;
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
