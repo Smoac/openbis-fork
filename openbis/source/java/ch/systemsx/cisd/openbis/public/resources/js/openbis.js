@@ -27,12 +27,18 @@ _openbisInternal.prototype.log = function(msg){
 }
 
 _openbisInternal.prototype.normalizeOpenbisUrl = function(openbisUrlOrNull){
-	var urlParts = null;
+	var parts = this.parseUri(window.location);
 	
 	if(openbisUrlOrNull){
-		parts = this.parseUri(openbisUrlOrNull);
-	}else{
-		parts = this.parseUri(window.location);
+		var openbisParts = this.parseUri(openbisUrlOrNull);
+		
+		for(openbisPartName in openbisParts){
+			var openbisPartValue = openbisParts[openbisPartName];
+			
+			if(openbisPartValue){
+				parts[openbisPartName] = openbisPartValue;
+			}
+		}
 	}
 	
 	return parts.protocol + "://" + parts.authority + "/openbis/openbis";

@@ -15,6 +15,7 @@
   <script type="text/javascript" src="d3.time.js"></script>
   <script type="text/javascript" src="/openbis/resources/js/jquery.js"></script>
   <script type="text/javascript" src="/openbis/resources/js/openbis.js"></script>
+  <script type="text/javascript" src="/openbis/resources/js/openbis-action-deferrer.js"></script>
   <script type="text/javascript" src="openbis-dsu.js"></script>
   <!-- To speed development, cache the requests -->
   <!-- <script type="text/javascript" src="/openbis/resources/js/openbis-request-cache.js"></script> -->
@@ -448,7 +449,7 @@ function openChildren(d){
 	    	  
 	    	    // Get datasets for each sequencing sample 
 		    	  var sampleDeferrer = 
-		    	    new actionDeferrer(
+		    	    new openbisActionDeferrer(
 		    	        function() {
 		    	        	log("Loaded HAS_FILES for all samples");
 		    	        	d.hasFilesLoaded = true; 
@@ -523,7 +524,7 @@ function loadFilesForSample(sample, callback){
                   
             // Get all the files from the sequencing sample's datasets 
             var datasetDeferrer = 
-              new actionDeferrer(
+              new openbisActionDeferrer(
                 function() {
                    log("Loaded ALL datasets' files for sample: " + sample.bis.code);
                    sortArray(sample.files, 'label', true);

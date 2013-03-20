@@ -39,7 +39,7 @@ function openbisLoginPage(openbis, onLogin)
 	this.onLogin = onLogin;
 }
 
-function openbisLoginPage.prototype.configure = function(){
+openbisLoginPage.prototype.configure = function(){
 	$('#main').hide();
 	
 	var username = $("#username").value;

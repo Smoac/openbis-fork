@@ -12,7 +12,8 @@ var testUserId = "openbis_screening_test_js";
 var testUserPassword = "password";
 
 var createFacadeAndLogin = function(action, urlOrNull, timeoutOrNull){
-	createFacadeAndLoginForUserAndPassword(testUserId, testUserPassword, action, urlOrNull ? urlOrNull : testUrl, timeoutOrNull);
+	var url = typeof urlOrNull == "undefined" ? testUrl : urlOrNull;
+	createFacadeAndLoginForUserAndPassword(testUserId, testUserPassword, action, url, timeoutOrNull);
 }
 
 var createExperimentIdentfier = function(identifierString){

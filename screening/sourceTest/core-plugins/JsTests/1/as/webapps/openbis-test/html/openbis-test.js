@@ -12,7 +12,8 @@ var testUserId = "openbis_test_js";
 var testUserPassword = "password";
 
 var createFacadeAndLogin = function(action, urlOrNull, timeoutOrNull){
-	createFacadeAndLoginForUserAndPassword(testUserId, testUserPassword, action, urlOrNull ? urlOrNull : testUrl, timeoutOrNull);
+	var url = typeof urlOrNull == "undefined" ? testUrl : urlOrNull;
+	createFacadeAndLoginForUserAndPassword(testUserId, testUserPassword, action, url, timeoutOrNull);
 }
 
 var createMaterialIdentifier = function(identifierString){
@@ -212,7 +213,23 @@ test("new openbis()", function(){
 	createFacadeAndLogin(function(facade){
 		ok(true, "Successfully connected to server without url");
 		facade.close();
-	});
+	}, null);
+});
+
+test("new openbis(/openbis)", function(){
+	var url = "/openbis";
+	createFacadeAndLogin(function(facade){
+		ok(true, "Successfully connected to server with url: " + url);
+		facade.close();
+	}, url);
+});
+
+test("new openbis(/openbis/openbis)", function(){
+	var url = "/openbis/openbis";
+	createFacadeAndLogin(function(facade){
+		ok(true, "Successfully connected to server with url: " + url);
+		facade.close();
+	}, url);
 });
 
 test("new openbis(protocol, host, port)", function(){
