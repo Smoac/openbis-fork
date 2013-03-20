@@ -24,18 +24,22 @@ import org.springframework.remoting.RemoteConnectFailureException;
 
 import ch.systemsx.cisd.common.api.retry.config.DefaultRetryConfiguration;
 import ch.systemsx.cisd.common.api.retry.config.RetryConfiguration;
+import ch.systemsx.cisd.common.logging.ConsoleLogger;
+import ch.systemsx.cisd.common.logging.ISimpleLogger;
+import ch.systemsx.cisd.common.logging.LogLevel;
 
 /**
  * @author pkupczyk
  */
 public abstract class RetryCaller<T, E extends Throwable>
 {
-
-    private RetryConfiguration configuration;
+    private final RetryConfiguration configuration;
 
     private int retryCounter;
 
     private int waitingTime;
+    
+    private final ISimpleLogger logger;
 
     public RetryCaller()
     {
@@ -43,6 +47,11 @@ public abstract class RetryCaller<T, E extends Throwable>
     }
 
     public RetryCaller(RetryConfiguration configuration)
+    {
+        this(configuration, new ConsoleLogger(System.err));
+    }
+    
+    public RetryCaller(RetryConfiguration configuration, ISimpleLogger logger)
     {
         if (configuration == null)
         {
@@ -64,6 +73,7 @@ public abstract class RetryCaller<T, E extends Throwable>
 
         this.configuration = configuration;
         this.waitingTime = configuration.getWaitingTimeBetweenRetries();
+        this.logger = logger;
     }
 
     protected abstract T call() throws E;
@@ -82,11 +92,11 @@ public abstract class RetryCaller<T, E extends Throwable>
                 {
                     if (shouldRetry())
                     {
-                        System.err.println("Communication failed - will retry");
+                        logger.log(LogLevel.WARN, "Communication failed - will retry");
                         waitForRetry();
                     } else
                     {
-                        System.err.println("Communication failed - will NOT retry");
+                        logger.log(LogLevel.WARN, "Communication failed - will NOT retry");
                         throw e;
                     }
                 } else
