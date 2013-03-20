@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.beans.factory.BeanFactory;
@@ -32,8 +33,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.test.LogMonitoringAppender;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
@@ -42,10 +42,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 
 /**
  * @author Kaloyan Enimanev
@@ -93,17 +93,16 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
     public void testEmailSendOnArchiveError()
     {
         prepareExpectations();
-
         ArchivingPostRegistrationTask task =
                 new ArchivingPostRegistrationTask(new Properties(), service);
-
-        LogMonitoringAppender appender =
-                LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
-                        createEmailMessage(DATASET_CODE));
+        BufferedAppender logRecorder = new BufferedAppender(null, Level.INFO, "NOTIFY");
 
         task.createExecutor(DATASET_CODE, false).execute();
 
-        appender.verifyLogHasHappened();
+        assertEquals("Eager archiving of dataset '" + DATASET_CODE + "' has failed.\n"
+                + "Error encountered : " + ARCHIVE_ERROR + "\n\n"
+                + "If you wish to archive the dataset in the future, "
+                + "you can configure an \'AutoArchiverTask\'.", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
 
@@ -150,14 +149,6 @@ public class ArchivingPostRegistrationTaskTest extends AssertJUnit
         ProcessingStatus status = new ProcessingStatus();
         status.addDatasetStatus(DATASET_CODE, Status.createError(true, ARCHIVE_ERROR));
         return status;
-    }
-
-    private String createEmailMessage(String dataSetCode2)
-    {
-        return "Eager archiving of dataset '" + DATASET_CODE + "' has failed. \n"
-                + "Error encountered : " + ARCHIVE_ERROR + "\n"
-                + "If you wish to archive the dataset in the future, "
-                + "you can configure an \'AutoArchiverTask\'.";
     }
 
     private AbstractExternalData createDataSet()
