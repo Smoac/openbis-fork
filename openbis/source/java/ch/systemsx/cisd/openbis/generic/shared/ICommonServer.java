@@ -1445,10 +1445,16 @@ public interface ICommonServer extends IServer
             ExternalDataManagementSystem edms);
 
     /**
-     * Lists all metaprojects registered for given user.
+     * Lists all metaprojects registered for session user.
      */
     @Transactional(readOnly = true)
     public List<Metaproject> listMetaprojects(String sessionToken);
+
+    /**
+     * Lists all metaprojects registered for given user.
+     */
+    @Transactional(readOnly = true)
+    public List<Metaproject> listMetaprojectsOnBehalfOfUser(String sessionToken, String userId);
 
     /**
      * Lists all metaproject assignments counts for given user.
@@ -1469,6 +1475,13 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     public MetaprojectAssignments getMetaprojectAssignments(String sessionToken,
             IMetaprojectId metaprojectId);
+
+    /**
+     * Returns object containing all entities assigned to given metaproject of specified user.
+     */
+    @Transactional(readOnly = true)
+    public MetaprojectAssignments getMetaprojectAssignmentsOnBehalfOfUser(String sessionToken,
+            IMetaprojectId metaprojectId, String userId);
 
     /**
      * Returns object containing chosen entities assigned to given metaproject.

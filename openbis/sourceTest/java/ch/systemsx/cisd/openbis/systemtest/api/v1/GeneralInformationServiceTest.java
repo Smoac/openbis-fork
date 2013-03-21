@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.Experime
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentPermIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectPermIdId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdentifierId;
@@ -77,7 +78,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SamplePermId
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -1659,6 +1662,44 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(1, metaprojectAssignments.getExperiments().size());
         assertTrue(metaprojectAssignments.getExperiments().get(0).isStub());
         assertTrue(metaprojectAssignments.getExperiments().get(0).toString().contains("STUB"));
+    }
+
+    @Test
+    public void testGetMetaprojectsOnBehalfOfUser()
+    {
+        String instanceObserverId = "instance-observer";
+        commonServer.registerPerson(systemSessionToken, instanceObserverId);
+        commonServer.registerInstanceRole(systemSessionToken, RoleCode.OBSERVER,
+                Grantee.createPerson(instanceObserverId));
+        sessionToken =
+                generalInformationService.tryToAuthenticateForAllServices(instanceObserverId, "a");
+
+        List<Metaproject> metaProjects =
+                generalInformationService.listMetaprojectsOnBehalfOfUser(sessionToken, "test");
+        Collections.sort(metaProjects, new Comparator<Metaproject>()
+            {
+                @Override
+                public int compare(Metaproject o1, Metaproject o2)
+                {
+                    return o1.getCode().compareTo(o2.getCode());
+                }
+            });
+
+        assertEquals("ANOTHER_TEST_METAPROJECTS", metaProjects.get(0).getCode());
+        assertEquals("TEST_METAPROJECTS", metaProjects.get(1).getCode());
+        assertEquals(2, metaProjects.size());
+        MetaprojectAssignments mas =
+                generalInformationService.getMetaprojectOnBehalfOfUser(sessionToken,
+                        new MetaprojectTechIdId(metaProjects.get(1).getId()), "test");
+        assertEquals("[MaterialIdentifier [materialCode=AD3, "
+                + "materialTypeIdentifier=MaterialTypeIdentifier [materialTypeCode=VIRUS]]]", mas
+                .getMaterials().toString());
+        assertEntities("[/CISD/NEMO/EXP11, /TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST]",
+                mas.getExperiments());
+        assertEquals("[Sample[/TEST-SPACE/EV-TEST,VALIDATE_CHILDREN,{},parents=?,children=?]]", mas
+                .getSamples().toString());
+        assertEquals("[DataSet[20120619092259000-22,/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST,"
+                + "<null>,HCS_IMAGE,{}]]", mas.getDataSets().toString());
     }
 
     @Test

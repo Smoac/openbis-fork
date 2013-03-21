@@ -137,7 +137,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class GeneralInformationService extends AbstractServer<IGeneralInformationService> implements
         IGeneralInformationService
 {
-    public static final int MINOR_VERSION = 23;
+    public static final int MINOR_VERSION = 24;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;
@@ -1085,7 +1085,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Metaproject> listMetaprojects(String sessionToken)
     {
         return commonServer.listMetaprojects(sessionToken);
@@ -1093,12 +1093,37 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public List<Metaproject> listMetaprojectsOnBehalfOfUser(String sessionToken, String userId)
+    {
+        return commonServer.listMetaprojectsOnBehalfOfUser(sessionToken, userId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public MetaprojectAssignments getMetaproject(String sessionToken, IMetaprojectId metaprojectId)
     {
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments assignments =
                 commonServer.getMetaprojectAssignments(sessionToken, metaprojectId);
+        return translate(assignments);
+    }
 
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public MetaprojectAssignments getMetaprojectOnBehalfOfUser(String sessionToken,
+            IMetaprojectId metaprojectId, String userId)
+    {
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments assignments =
+                commonServer.getMetaprojectAssignmentsOnBehalfOfUser(sessionToken, metaprojectId,
+                        userId);
+        return translate(assignments);
+    }
+
+    private MetaprojectAssignments translate(
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments assignments)
+    {
         MetaprojectAssignments result = new MetaprojectAssignments();
         result.setMetaproject(assignments.getMetaproject());
         result.setExperiments(Translator.translateExperiments(assignments.getExperiments()));

@@ -1582,6 +1582,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
+    public List<Metaproject> listMetaprojectsOnBehalfOfUser(String sessionToken, String userId)
+    {
+        logAccess(sessionToken, "listMetaprojectsOnBehalfOfUser", "USER(%s)", userId);
+        return null;
+    }
+
+    @Override
     public List<MetaprojectAssignmentsCount> listMetaprojectAssignmentsCounts(String sessionToken)
     {
         logAccess(sessionToken, "listMetaprojectAssignmentsCounts");
@@ -1618,6 +1625,15 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             IMetaprojectId metaprojectId)
     {
         logAccess(sessionToken, "getMetaprojectAssignments", "METAPROJECT_ID(%s)", metaprojectId);
+        return null;
+    }
+
+    @Override
+    public MetaprojectAssignments getMetaprojectAssignmentsOnBehalfOfUser(String sessionToken,
+            IMetaprojectId metaprojectId, String userId)
+    {
+        logAccess(sessionToken, "getMetaprojectAssignmentsOnBehalfOfUser",
+                "METAPROJECT_ID(%s) USER(%s)", metaprojectId, userId);
         return null;
     }
 

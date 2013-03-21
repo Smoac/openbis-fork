@@ -392,9 +392,25 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public List<Metaproject> listMetaprojectsOnBehalfOfUser(String sessionToken, String userId)
+    {
+        logAccess(sessionToken, "listMetaprojectsOnBehalfOfUser", "USER(%s)", userId);
+        return null;
+    }
+
+    @Override
     public MetaprojectAssignments getMetaproject(String sessionToken, IMetaprojectId metaprojectId)
     {
         logAccess(sessionToken, "getMetaproject", "METAPROJECT_ID(%s)", metaprojectId);
+        return null;
+    }
+
+    @Override
+    public MetaprojectAssignments getMetaprojectOnBehalfOfUser(String sessionToken,
+            IMetaprojectId metaprojectId, String userId)
+    {
+        logAccess(sessionToken, "getMetaprojectOnBehalfOfUser", "METAPROJECT_ID(%s) USER(%s)",
+                metaprojectId, userId);
         return null;
     }
 

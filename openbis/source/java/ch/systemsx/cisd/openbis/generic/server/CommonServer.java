@@ -749,6 +749,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
 
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+        if (person == null)
+        {
+            throw new UserFailureException("Unknown user: " + userId);
+        }
 
         final ISampleLister sampleLister =
                 businessObjectFactory.createSampleLister(session, person.getId());
@@ -1485,6 +1489,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         final Session session = getSession(sessionToken);
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+        if (person == null)
+        {
+            throw new UserFailureException("Unknown user: " + userId);
+        }
 
         SearchHelper searchHelper =
                 new SearchHelper(session, businessObjectFactory, getDAOFactory());
@@ -1592,6 +1600,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         IMetaprojectDAO mpd = this.getDAOFactory().getMetaprojectDAO();
 
         final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+        if (person == null)
+        {
+            throw new UserFailureException("Unknown user: " + userId);
+        }
 
         Collection<MetaprojectAssignmentPE> assignments =
                 mpd.listMetaprojectAssignmentsForEntities(person, resultSet,
@@ -2647,8 +2659,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         if ((entityKind.equals(EntityKind.SAMPLE) || entityKind.equals(EntityKind.DATA_SET) || entityKind
-                .equals(EntityKind.MATERIAL))
-                && EntityType.isDefinedInFileEntityTypeCode(type))
+                .equals(EntityKind.MATERIAL)) && EntityType.isDefinedInFileEntityTypeCode(type))
         {
             types.addAll(getDAOFactory().getEntityTypeDAO(
                     DtoConverters.convertEntityKind(entityKind)).listEntityTypes());
@@ -4033,14 +4044,31 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<Metaproject> listMetaprojects(String sessionToken)
     {
         Session session = getSession(sessionToken);
+        PersonPE owner = session.tryGetPerson();
+        return listMetaProjects(owner);
+    }
 
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public List<Metaproject> listMetaprojectsOnBehalfOfUser(String sessionToken, String userId)
+    {
+        checkSession(sessionToken);
+        PersonPE user = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+        if (user == null)
+        {
+            throw new UserFailureException("Unknown user: " + userId);
+        }
+        return listMetaProjects(user);
+    }
+
+    private List<Metaproject> listMetaProjects(PersonPE owner)
+    {
         IDAOFactory daoFactory = getDAOFactory();
         IMetaprojectDAO metaprojectDAO = daoFactory.getMetaprojectDAO();
-        PersonPE owner = session.tryGetPerson();
 
         List<MetaprojectPE> metaprojectPEs = metaprojectDAO.listMetaprojects(owner);
 
@@ -4048,7 +4076,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<MetaprojectAssignmentsCount> listMetaprojectAssignmentsCounts(String sessionToken)
     {
         List<Metaproject> metaprojects = listMetaprojects(sessionToken);
@@ -4064,7 +4092,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public MetaprojectAssignmentsCount getMetaprojectAssignmentsCount(String sessionToken,
             IMetaprojectId metaprojectId)
     {
@@ -4073,7 +4101,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public MetaprojectAssignments getMetaprojectAssignments(String sessionToken,
             IMetaprojectId metaprojectId)
     {
@@ -4082,9 +4110,33 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public MetaprojectAssignments getMetaprojectAssignmentsOnBehalfOfUser(String sessionToken,
+            IMetaprojectId metaprojectId, String userId)
+    {
+        Session session = getSession(sessionToken);
+        PersonPE user = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+        if (user == null)
+        {
+            throw new UserFailureException("Unknown user: " + userId);
+        }
+        return getMetaprojectAssignments(session, metaprojectId,
+                EnumSet.allOf(MetaprojectAssignmentsFetchOption.class), user);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public MetaprojectAssignments getMetaprojectAssignments(String sessionToken,
             IMetaprojectId metaprojectId, EnumSet<MetaprojectAssignmentsFetchOption> fetchOptions)
+    {
+        Session session = getSession(sessionToken);
+        return getMetaprojectAssignments(session, metaprojectId, fetchOptions,
+                session.tryGetPerson());
+    }
+
+    private MetaprojectAssignments getMetaprojectAssignments(Session session,
+            IMetaprojectId metaprojectId, EnumSet<MetaprojectAssignmentsFetchOption> fetchOptions,
+            PersonPE user)
     {
         if (metaprojectId == null)
         {
@@ -4095,9 +4147,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             throw new UserFailureException("Fetch options cannot be null");
         }
 
-        Metaproject metaproject = getMetaproject(sessionToken, metaprojectId);
-
-        Session session = getSession(sessionToken);
+        Metaproject metaproject = getMetaproject(session, metaprojectId, user);
 
         MetaprojectAssignmentsHelper helper =
                 new MetaprojectAssignmentsHelper(getDAOFactory(), managedPropertyEvaluatorFactory);
@@ -4107,7 +4157,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public void addToMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             MetaprojectAssignmentsIds assignmentsToAdd)
     {
@@ -4136,7 +4186,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public void removeFromMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             MetaprojectAssignmentsIds assignmentsToRemove)
     {
@@ -4165,7 +4215,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId, String reason)
     {
         if (metaprojectId == null)
@@ -4184,7 +4234,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public void deleteMetaprojects(String sessionToken, List<IMetaprojectId> metaprojectIds,
             String reason)
     {
@@ -4200,7 +4250,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Metaproject registerMetaproject(String sessionToken,
             IMetaprojectRegistration registration)
     {
@@ -4214,7 +4264,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Metaproject updateMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             IMetaprojectUpdates updates)
     {
@@ -4232,15 +4282,19 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public Metaproject getMetaproject(String sessionToken, IMetaprojectId metaprojectId)
+    {
+        Session session = getSession(sessionToken);
+        return getMetaproject(session, metaprojectId, session.tryGetPerson());
+    }
+
+    private Metaproject getMetaproject(Session session, IMetaprojectId metaprojectId, PersonPE user)
     {
         if (metaprojectId == null)
         {
             throw new UserFailureException("Metaproject id cannot be null");
         }
-
-        Session session = getSession(sessionToken);
 
         IMetaprojectBO metaprojectBO = getBusinessObjectFactory().createMetaprojectBO(session);
         MetaprojectPE metaprojectPE = metaprojectBO.tryFindByMetaprojectId(metaprojectId);
@@ -4251,7 +4305,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     + " doesn't exist");
         }
 
-        AuthorizationServiceUtils authorizationUtils = getAuthorizationService(session);
+        AuthorizationServiceUtils authorizationUtils =
+                new AuthorizationServiceUtils(getDAOFactory(), user);
         authorizationUtils.checkAccessMetaproject(metaprojectPE);
         return MetaprojectTranslator.translate(metaprojectPE);
     }

@@ -493,12 +493,28 @@ public interface IGeneralInformationService extends IRpcService
     public List<Metaproject> listMetaprojects(String sessionToken);
 
     /**
+     * Lists all metaprojects belonging to specified user.
+     * 
+     * @since 1.24
+     */
+    public List<Metaproject> listMetaprojectsOnBehalfOfUser(String sessionToken, String userId);
+    
+    /**
      * Returns all entities tagged with given metaproject.
      * 
      * @throws UserFailureException when a metaproject with the specified id doesn't exist.
      */
     public MetaprojectAssignments getMetaproject(String sessionToken, IMetaprojectId metaprojectId);
 
+    /**
+     * Returns all entities tagged with given metaproject for specified user.
+     * 
+     * @throws UserFailureException when a metaproject with the specified id doesn't exist.
+     * @since 1.24
+     */
+    public MetaprojectAssignments getMetaprojectOnBehalfOfUser(String sessionToken,
+            IMetaprojectId metaprojectId, String userId);
+    
     /**
      * Lists attachments of specified project.
      * 
