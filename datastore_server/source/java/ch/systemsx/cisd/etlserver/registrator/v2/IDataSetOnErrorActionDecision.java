@@ -29,7 +29,7 @@ public interface IDataSetOnErrorActionDecision
     {
         INVALID_DATA_SET, VALIDATION_SCRIPT_ERROR, REGISTRATION_SCRIPT_ERROR,
         PRE_REGISTRATION_ERROR, OPENBIS_REGISTRATION_FAILURE, STORAGE_PROCESSOR_ERROR,
-        POST_REGISTRATION_ERROR;
+        PREPARATION_ERROR, POST_REGISTRATION_ERROR;
     }
 
     UnstoreDataAction computeUndoAction(ErrorType errorType, Throwable failureOrNull);

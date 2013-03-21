@@ -180,7 +180,23 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     /**
      * Prepare registration of a data set.
      */
-    public final void prepare()
+    public final boolean safePrepare()
+    {
+        try
+        {
+            prepare();
+        } catch (final Throwable throwable)
+        {
+            rollbackDuringPreparation(throwable);
+            return false;
+        }
+
+        dssRegistrationLog.log("Preparation ready");
+
+        return true;
+    }
+
+    private final void prepare()
     {
         // Log information about the prepare
         StringBuilder registrationSummary = new StringBuilder();
@@ -300,7 +316,10 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
      */
     public boolean prepareAndRunStorageAlgorithms()
     {
-        prepare();
+        if (safePrepare() == false)
+        {
+            return false;
+        }
         // all algorithms are now in
         // PREPARED STATE
 
@@ -443,6 +462,13 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         rollbackStorageProcessors(ex);
         rollbackDelegate.didRollbackStorageAlgorithmRunner(this, ex,
                 ErrorType.STORAGE_PROCESSOR_ERROR);
+    }
+
+    private void rollbackDuringPreparation(Throwable ex)
+    {
+        operationLog.error("Failed to prepare");
+        rollbackStorageProcessors(ex);
+        rollbackDelegate.didRollbackStorageAlgorithmRunner(this, ex, ErrorType.PREPARATION_ERROR);
     }
 
     private void rollbackDuringPreRegistration(Throwable ex)

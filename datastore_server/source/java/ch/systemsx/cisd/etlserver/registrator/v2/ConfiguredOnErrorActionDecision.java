@@ -40,6 +40,8 @@ public class ConfiguredOnErrorActionDecision implements IDataSetOnErrorActionDec
 
     public static final String STORAGE_PROCESSOR_ERROR_KEY = "storage-processor-error";
 
+    public static final String PREPARATION_ERROR_KEY = "preparation-error";
+
     public static final String POST_REGISTRATION_ERROR_KEY = "post-registration-error";
 
     public static final String PRE_REGISTRATION_ERROR_KEY = "pre-registration-error";
@@ -58,6 +60,8 @@ public class ConfiguredOnErrorActionDecision implements IDataSetOnErrorActionDec
 
     private final UnstoreDataAction preRegistrationError;
 
+    private final UnstoreDataAction preparationError;
+
     public ConfiguredOnErrorActionDecision(Properties properties)
     {
         invalidDataSetAction = getAction(ErrorType.INVALID_DATA_SET, properties);
@@ -65,9 +69,10 @@ public class ConfiguredOnErrorActionDecision implements IDataSetOnErrorActionDec
         openbisRegistrationFailure = getAction(ErrorType.OPENBIS_REGISTRATION_FAILURE, properties);
         registrationScriptError = getAction(ErrorType.REGISTRATION_SCRIPT_ERROR, properties);
         storageProcessorError = getAction(ErrorType.STORAGE_PROCESSOR_ERROR, properties);
+        preparationError = getAction(ErrorType.PREPARATION_ERROR, properties);
         postRegistrationError = getAction(ErrorType.POST_REGISTRATION_ERROR, properties);
         preRegistrationError = getAction(ErrorType.PRE_REGISTRATION_ERROR, properties);
-           }
+    }
 
     @Override
     public UnstoreDataAction computeUndoAction(ErrorType errorType, Throwable failureOrNull)
@@ -86,6 +91,9 @@ public class ConfiguredOnErrorActionDecision implements IDataSetOnErrorActionDec
                 break;
             case STORAGE_PROCESSOR_ERROR:
                 action = storageProcessorError;
+                break;
+            case PREPARATION_ERROR:
+                action = preparationError;
                 break;
             case VALIDATION_SCRIPT_ERROR:
                 action = validationScriptError;
@@ -127,6 +135,9 @@ public class ConfiguredOnErrorActionDecision implements IDataSetOnErrorActionDec
             case PRE_REGISTRATION_ERROR:
                 actionStringKey = PRE_REGISTRATION_ERROR_KEY;
                 break;
+            case PREPARATION_ERROR:
+                actionStringKey = PREPARATION_ERROR_KEY;
+                break;
         }
 
         String actionString = PropertyUtils.getProperty(properties, actionStringKey);
@@ -159,7 +170,8 @@ public class ConfiguredOnErrorActionDecision implements IDataSetOnErrorActionDec
             case VALIDATION_SCRIPT_ERROR:
             case POST_REGISTRATION_ERROR:
             case PRE_REGISTRATION_ERROR:
-                    action = UnstoreDataAction.LEAVE_UNTOUCHED;
+            case PREPARATION_ERROR:
+                action = UnstoreDataAction.LEAVE_UNTOUCHED;
                 break;
         }
 

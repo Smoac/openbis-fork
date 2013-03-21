@@ -254,6 +254,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                             ConfiguredOnErrorActionDecision.POST_REGISTRATION_ERROR_KEY,
                             ConfiguredOnErrorActionDecision.REGISTRATION_SCRIPT_ERROR_KEY,
                             ConfiguredOnErrorActionDecision.STORAGE_PROCESSOR_ERROR_KEY,
+                            ConfiguredOnErrorActionDecision.PREPARATION_ERROR_KEY,
                             ConfiguredOnErrorActionDecision.VALIDATION_SCRIPT_ERROR_KEY, };
 
         // simple test failing registration testCase
