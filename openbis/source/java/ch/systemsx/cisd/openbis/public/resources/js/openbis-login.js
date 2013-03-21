@@ -40,6 +40,8 @@ function openbisLoginPage(openbis, onLogin)
 }
 
 openbisLoginPage.prototype.configure = function(){
+	var loginPage = this;
+	
 	$('#main').hide();
 	
 	var username = $("#username").value;
@@ -50,7 +52,7 @@ openbisLoginPage.prototype.configure = function(){
 	}
 	
 	$('#logout-button').click(function() { 
-		openbis.logout(function(data) { 
+		loginPage.openbis.logout(function(data) { 
 			$("#login-form-div").show();
 			$("#main").hide();
 			$("#username").focus();
@@ -58,10 +60,10 @@ openbisLoginPage.prototype.configure = function(){
 	});
 	
 	$('#login-form').submit(function() {
-		 openbis.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { onLogin(data) })
+		 loginPage.openbis.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { loginPage.onLogin(data) })
 	});
 	
-	openbis.ifRestoredSessionActive(function(data) { onLogin(data) });
+	loginPage.openbis.ifRestoredSessionActive(function(data) { loginPage.onLogin(data) });
 	
 		// Make the ENTER key the default button
 	$("login-form input").keypress(function (e) {
