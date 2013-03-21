@@ -304,6 +304,12 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
      */
     public void transitionToRolledbackState(Throwable throwable)
     {
+        // Rollback in initialized state means that preparation has failed.
+        if (state instanceof InitializedState)
+        {
+            return;
+        }
+
         // Rollback may be called on in the precommit state or in the prepared state.
         if (state instanceof PreparedState)
         {
@@ -328,8 +334,14 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
 
     public void transitionToUndoneState()
     {
-        // Rollback may be called on in the stored state or in the prepared state. In the prepared
-        // state, there is nothing to do.
+        // Rollback may be called on in the stored state or in the prepared/initialized state. In
+        // the prepared state, there is nothing to do.
+
+        if (state instanceof InitializedState)
+        {
+            state = new PreparedState<T>((InitializedState<T>) state);
+        }
+
         if (state instanceof PreparedState)
         {
             state = new UndoneState<T>((PreparedState<T>) state);
@@ -690,10 +702,13 @@ public class DataSetStorageAlgorithm<T extends DataSetInformation>
          */
         private void cleanUpMarkerFile()
         {
-            getFileOperations().delete(markerFile);
-            if (markerFile.exists())
+            if (markerFile != null && markerFile.exists())
             {
-                operationLog.error("Marker file '" + markerFile + "' could not be deleted.");
+                getFileOperations().delete(markerFile);
+                if (markerFile.exists())
+                {
+                    operationLog.error("Marker file '" + markerFile + "' could not be deleted.");
+                }
             }
         }
     }
