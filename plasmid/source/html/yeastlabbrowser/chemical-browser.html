@@ -10,6 +10,7 @@
 	<script type="text/javascript" src="/openbis/resources/js/jquery.js"></script>
 	<script type="text/javascript" src="/openbis/resources/js/openbis.js"></script>
 	<script type="text/javascript" src="infra.js"></script>
+	<script type="text/javascript" src="common.js"></script>
 	<script type="text/javascript" src="/openbis/resources/js/openbis-login.js"></script>
 	<!-- To speed development, cache the requests -->
 	<!-- <script type="text/javascript" src="/openbis/resources/js/openbis-request-cache.js"></script> -->
@@ -182,12 +183,6 @@ function closeInspector(chemical)
 	inspectedChemicals.splice(index, 1);
 	resizeChemicalTable();
 	updateInspectors(1000);
-}
-
-function dataset(chemical, data) {
-	for (var i in data.result) {
-		openbisServer.listFilesForDataSet(data.result[i].code, "/", true, filelist.curry(chemical, data.result[i]));
-	}
 }
 
 function filelist(chemical, dataset, files) {

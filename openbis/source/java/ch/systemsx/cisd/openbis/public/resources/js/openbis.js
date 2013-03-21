@@ -216,7 +216,7 @@ _openbisInternal.prototype.getDataStoreUrlForDataSetCode = function(dataSetCode,
 					if(hostUrl){
 						action(hostUrl + "/datastore_server");
 					}else{
-						action(null);
+						throw "Couldn't get a data store url for a data set with " + dataSetCode + " code because the data set does not exist.";
 					}
 				}
 			 });
@@ -226,21 +226,13 @@ _openbisInternal.prototype.getDataStoreUrlForDataSetCode = function(dataSetCode,
 
 _openbisInternal.prototype.getDataStoreApiUrlForDataStoreCode = function(dataStoreCodeOrNull, action) {
 	this.getDataStoreUrlForDataStoreCode(dataStoreCodeOrNull, function(dataStoreUrl){
-		if(dataStoreUrl){
-			action(dataStoreUrl + "/rmi-dss-api-v1.json");
-		}else{
-			action(null);
-		}
+		action(dataStoreUrl + "/rmi-dss-api-v1.json");
 	});
 }
 
 _openbisInternal.prototype.getDataStoreApiUrlForDataSetCode = function(dataSetCode, action) {
 	this.getDataStoreUrlForDataSetCode(dataSetCode, function(dataStoreUrl){
-		if(dataStoreUrl){
-			action(dataStoreUrl + "/rmi-dss-api-v1.json");
-		}else{
-			action(null);
-		}
+		action(dataStoreUrl + "/rmi-dss-api-v1.json");
 	});
 }
 
@@ -248,12 +240,8 @@ _openbisInternal.prototype.getDataStoreHostForDataStoreCode = function(dataStore
 	var openbisObj = this;
 	
 	this.getDataStoreUrlForDataStoreCode(dataStoreCodeOrNull, function(dataStoreUrl){
-		if(dataStoreUrl){
-			var parts = openbisObj.parseUri(dataStoreUrl);
-			action(parts.protocol + "://" + parts.authority);
-		}else{
-			action(null);
-		}
+		var parts = openbisObj.parseUri(dataStoreUrl);
+		action(parts.protocol + "://" + parts.authority);
 	});
 }
 
@@ -1651,5 +1639,9 @@ openbisWebAppContext.prototype.getEntityIdentifier = function(){
 
 openbisWebAppContext.prototype.getEntityPermId = function(){
 	return this._internal.entityPermId;
+}
+
+openbisWebAppContext.prototype.getParameter = function(parameterName){
+	return this._internal.getParameter(parameterName);
 }
 
