@@ -912,6 +912,20 @@ openbis.prototype.listMetaprojects = function(action) {
 }
 
 /**
+ * @see IGeneralInformationService.listMetaprojectsOnBehalfOfUser(String, String)
+ * @method
+ */
+openbis.prototype.listMetaprojectsOnBehalfOfUser = function(userId, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoServiceUrl,
+		data: { "method" : "listMetaprojectsOnBehalfOfUser",
+				"params" : [ this.getSession(), userId ] 
+			  },
+		success: action
+	});
+}
+
+/**
  * @see IGeneralInformationService.getMetaproject(String, IMetaprojectId)
  * @method
  */
@@ -920,6 +934,20 @@ openbis.prototype.getMetaproject = function(metaprojectId, action) {
 		url: this._internal.generalInfoServiceUrl,
 		data: { "method" : "getMetaproject",
 				"params" : [ this.getSession(), metaprojectId ] 
+			  },
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationService.getMetaprojectOnBehalfOfUser(String, IMetaprojectId, String)
+ * @method
+ */
+openbis.prototype.getMetaprojectOnBehalfOfUser = function(metaprojectId, userId, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoServiceUrl,
+		data: { "method" : "getMetaprojectOnBehalfOfUser",
+				"params" : [ this.getSession(), metaprojectId, userId ] 
 			  },
 		success: action
 	});

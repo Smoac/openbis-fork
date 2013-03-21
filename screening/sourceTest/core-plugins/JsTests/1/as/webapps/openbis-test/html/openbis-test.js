@@ -872,6 +872,30 @@ test("createMetaproject(), listMetaprojects()", function(){
 	});
 });
 
+test("createMetaproject(), listMetaprojectsOnBehalfOfUser()", function(){
+	var powerUserId = "power_user";
+	var powerUserPassword = "password";
+
+	createFacadeAndLoginForUserAndPassword(powerUserId, powerUserPassword, function(facadePowerUser){
+		var powerUserMetaprojectIdentifier = "/" + powerUserId + "/JS_TEST_METAPROJECT_POWER_USER"
+		createNewMetaproject(facadePowerUser, powerUserMetaprojectIdentifier, function(response){
+			
+			createFacadeAndLoginForUserAndPassword(testUserId, testUserPassword, function(facadeTestUser){
+				var testUserMetaprojectIdentifier = "/" + testUserId + "/JS_TEST_METAPROJECT";
+				createNewMetaproject(facadeTestUser, testUserMetaprojectIdentifier, function(response){
+					
+					facadeTestUser.listMetaprojectsOnBehalfOfUser(powerUserId, function(response){
+						assertObjectsCount(response.result, 1);
+						assertObjectsWithValues(response.result, 'name', ['JS_TEST_METAPROJECT_POWER_USER']);
+						facadePowerUser.close();
+						facadeTestUser.close();
+					});
+				});
+			}, testUrl);
+		})
+	}, testUrl);
+});
+
 test("createMetaproject(), getMetaproject()", function(){
 	createFacadeAndLogin(function(facade){
 		var metaprojectIdentifier = "/" + testUserId + "/JS_TEST_METAPROJECT";
@@ -885,6 +909,30 @@ test("createMetaproject(), getMetaproject()", function(){
 			});
 		});
 	});
+});
+
+test("createMetaproject(), getMetaprojectOnBehalfOfUser()", function(){
+	var powerUserId = "power_user";
+	var powerUserPassword = "password";
+
+	createFacadeAndLoginForUserAndPassword(powerUserId, powerUserPassword, function(facadePowerUser){
+		var powerUserMetaprojectIdentifier = "/" + powerUserId + "/JS_TEST_METAPROJECT_POWER_USER";
+		var powerUserMetaprojectId = createMetaprojectIdentifierId(powerUserMetaprojectIdentifier);
+		createNewMetaproject(facadePowerUser, powerUserMetaprojectIdentifier, function(response){
+			
+			createFacadeAndLoginForUserAndPassword(testUserId, testUserPassword, function(facadeTestUser){
+				var testUserMetaprojectIdentifier = "/" + testUserId + "/JS_TEST_METAPROJECT";
+				createNewMetaproject(facadeTestUser, testUserMetaprojectIdentifier, function(response){
+					
+					facadeTestUser.getMetaprojectOnBehalfOfUser(powerUserMetaprojectId, powerUserId, function(response){
+						equal(response.result.metaproject.identifier, powerUserMetaprojectIdentifier, 'Metaproject identifier is correct');
+						facadePowerUser.close();
+						facadeTestUser.close();
+					});
+				});
+			}, testUrl);
+		})
+	}, testUrl);
 });
 
 test("createMetaproject(), updateMetaproject()", function(){
