@@ -465,6 +465,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             registerSpaceRole(sessionToken, RoleCode.ADMIN, new SpaceIdentifier(spaceCode),
                     Grantee.createPerson(session.getUserName()));
+            PersonPE person = session.tryGetPerson();
+            session.setPerson(getDAOFactory().getPersonDAO().getPerson(person.getId()));
         }
     }
 
