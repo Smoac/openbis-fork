@@ -205,6 +205,38 @@ values
 );
 
 --------------------------------------------------------------------------
+--  Purpose:  Insert an initial data set into the table EXPERIMENT_TYPES
+--------------------------------------------------------------------------
+
+insert into experiment_types
+(id
+,code
+,description
+,dbin_id)
+values 
+(nextval('EXPERIMENT_TYPE_ID_SEQ')
+,'UNKNOWN'
+,'Unknown'
+,(select id from database_instances where code = 'SYSTEM_DEFAULT')
+);
+
+--------------------------------------------------------------------------
+--  Purpose:  Insert an initial data set into the table SAMPLE_TYPES
+--------------------------------------------------------------------------
+
+insert into sample_types
+(id
+,code
+,description
+,dbin_id)
+values 
+(nextval('SAMPLE_TYPE_ID_SEQ')
+,'UNKNOWN'
+,'Unknown'
+,(select id from database_instances where code = 'SYSTEM_DEFAULT')
+);
+
+--------------------------------------------------------------------------
 --  Purpose:  Insert an initial data set into the table DATA_SET_TYPES
 --------------------------------------------------------------------------
 
@@ -364,4 +396,86 @@ nextval('RELATIONSHIP_TYPE_ID_SEQ'),
 (select id from database_instances where code = 'SYSTEM_DEFAULT')
 );
 
+---------------------------------------------------------------------
+--  Purpose:  Create default space
+---------------------------------------------------------------------
+
+insert into spaces
+(id,
+code,
+dbin_id,
+pers_id_registerer)
+values
+(
+nextval('SPACE_ID_SEQ'),
+'DEFAULT',
+(select id from database_instances where code = 'SYSTEM_DEFAULT'),
+(select id from persons where user_id ='system')
+);
+
+---------------------------------------------------------------------
+--  Purpose:  Create default project
+---------------------------------------------------------------------
+
+select nextval('PROJECT_ID_SEQ');
+insert into projects
+(id,
+perm_id,
+code,
+space_id,
+pers_id_registerer)
+values
+(
+currval('PROJECT_ID_SEQ'),
+to_char(now(), 'YYYYMMDDHH24MISSMS')||'-'||currval('PROJECT_ID_SEQ'),
+'DEFAULT',
+(select id from spaces where code = 'DEFAULT'),
+(select id from persons where user_id ='system')
+);
+
+---------------------------------------------------------------------
+--  Purpose:  Create default experiment
+---------------------------------------------------------------------
+
+select nextval('EXPERIMENT_ID_SEQ');
+insert into experiments_all
+(id,
+perm_id,
+code,
+proj_id,
+exty_id,
+pers_id_registerer)
+values
+(
+currval('EXPERIMENT_ID_SEQ'),
+to_char(now(), 'YYYYMMDDHH24MISSMS')||'-'||currval('EXPERIMENT_ID_SEQ'),
+'DEFAULT',
+(select id from projects where code = 'DEFAULT'),
+(select id from experiment_types where code = 'UNKNOWN'),
+(select id from persons where user_id ='system')
+);
+
+---------------------------------------------------------------------
+--  Purpose:  Create default sample
+---------------------------------------------------------------------
+
+select nextval('SAMPLE_ID_SEQ');
+insert into samples_all
+(id,
+perm_id,
+code,
+expe_id,
+space_id,
+saty_id,
+pers_id_registerer)
+values
+(
+currval('SAMPLE_ID_SEQ'),
+to_char(now(), 'YYYYMMDDHH24MISSMS')||'-'||currval('SAMPLE_ID_SEQ'),
+'DEFAULT',
+(select id from experiments where code = 'DEFAULT'),
+(select id from spaces where code = 'DEFAULT'),
+(select id from sample_types where code = 'UNKNOWN'),
+(select id from persons where user_id ='system')
+);
 
