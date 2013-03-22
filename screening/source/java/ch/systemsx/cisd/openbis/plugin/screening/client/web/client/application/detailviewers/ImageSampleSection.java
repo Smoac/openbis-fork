@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -90,7 +91,8 @@ public class ImageSampleSection extends TabContent
     protected void showContent()
     {
         final ScreeningViewContext context = getViewContext();
-        add(new Text(context.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.LOAD_IN_PROGRESS)));
+        add(new Text(
+                context.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.LOAD_IN_PROGRESS)));
         context.getService().getImageDatasetInfosForSample(sampleId,
                 isWell ? wellLocationOrNull : null, createDisplayImagesCallback(context));
     }
@@ -137,14 +139,37 @@ public class ImageSampleSection extends TabContent
             final ScreeningViewContext context = getViewContext();
             final LogicalImageLayouter logicalImageLayouter =
                     new LogicalImageLayouter(context, wellLocationOrNull, images);
+
+            ImageDatasetEnrichedReference viewedImageDataSet =
+                    context.tryCurrentlyViewedPlateDataSet(sampleId.getId());
+            ImageDatasetEnrichedReference currentImageDataSet = images.get(0).getImageDataset();
+
+            List<ImageDatasetEnrichedReference> list =
+                    new ArrayList<ImageDatasetEnrichedReference>();
+
+            if (null != viewedImageDataSet)
+            {
+                for (LogicalImageInfo imageInfos : images)
+                {
+                    ImageDatasetEnrichedReference ref = imageInfos.getImageDataset();
+                    if (ref.getId() == viewedImageDataSet.getId())
+                    {
+                        currentImageDataSet = ref;
+                    } else
+                    {
+                        list.add(ref);
+                    }
+                }
+            }
+            list.add(0, currentImageDataSet);
+
             final Widget imageDatasetsDetails =
                     new ImagingDatasetGuiUtils(context)
                             .createImageDatasetDetailsRow(
-                                    logicalImageLayouter.getDatasetImagesReferences(),
+                                    list,
                                     logicalImageLayouter);
 
-            ImageDatasetEnrichedReference firstImageDataset = images.get(0).getImageDataset();
-            logicalImageLayouter.changeDisplayedImageDataset(firstImageDataset);
+            logicalImageLayouter.changeDisplayedImageDataset(currentImageDataSet);
 
             add(imageDatasetsDetails, margins);
             add(logicalImageLayouter, margins);

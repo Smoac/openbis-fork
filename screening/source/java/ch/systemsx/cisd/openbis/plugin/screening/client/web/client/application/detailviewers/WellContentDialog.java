@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.WellData;
@@ -548,8 +549,41 @@ public class WellContentDialog extends ImageDialog
 
     private Widget createEntityLink(IEntityInformationHolderWithPermId entity, String label)
     {
-        final ClickHandler listener = new OpenEntityDetailsTabClickListener(entity, viewContext);
+        final ClickHandler listener =
+                new WellContentOpenEntityDetailsTabClickLister(entity, viewContext,
+                        this.imageDatasetOrNull);
         return LinkRenderer.getLinkWidget(label, listener);
+    }
+
+    private static class WellContentOpenEntityDetailsTabClickLister extends
+            OpenEntityDetailsTabClickListener
+    {
+
+        private final ImageDatasetEnrichedReference currentDataSet;
+
+        private final ScreeningViewContext screeningViewContext;
+
+        /**
+         * @param entity
+         * @param viewContext
+         */
+        public WellContentOpenEntityDetailsTabClickLister(
+                IEntityInformationHolderWithPermId entity,
+                IViewContext<IScreeningClientServiceAsync> viewContext,
+                ImageDatasetEnrichedReference currentDataSet)
+        {
+            super(entity, viewContext);
+            this.currentDataSet = currentDataSet;
+            this.screeningViewContext = (ScreeningViewContext) viewContext;
+        }
+
+        @Override
+        public void onClick(ClickEvent event)
+        {
+            screeningViewContext.setCurrentlyViewedPlateDataSet(getEntity().getId(),
+                    currentDataSet);
+            super.onClick(event);
+        }
     }
 
 }

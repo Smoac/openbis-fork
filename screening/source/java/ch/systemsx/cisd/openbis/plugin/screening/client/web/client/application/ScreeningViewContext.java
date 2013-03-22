@@ -1,5 +1,8 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gwt.core.client.GWT;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -14,6 +17,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.l
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.ImagingMaterialLocatorResolver;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.PlateMetadataBrowserLocatorResolver;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.locator.WellSearchLocatorResolver;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 
 /**
  * The <i>screening</i> plugin specific {@link IViewContext} implementation.
@@ -24,6 +28,9 @@ public final class ScreeningViewContext extends
         AbstractPluginViewContext<IScreeningClientServiceAsync>
 {
     private static final String TECHNOLOGY_NAME = "screening";
+
+    private Map<Long /*Plate Id*/, ImageDatasetEnrichedReference> currentlyViewedPlateToDataSetMap =
+            new HashMap<Long, ImageDatasetEnrichedReference>();
 
     public ScreeningViewContext(final IViewContext<ICommonClientServiceAsync> commonViewContext)
     {
@@ -64,6 +71,17 @@ public final class ScreeningViewContext extends
             IViewContext<?> viewContext)
     {
         return new ScreeningDisplaySettingsManager(viewContext);
+    }
+
+    public ImageDatasetEnrichedReference tryCurrentlyViewedPlateDataSet(Long plateId)
+    {
+        return currentlyViewedPlateToDataSetMap.get(plateId);
+    }
+
+    public void setCurrentlyViewedPlateDataSet(Long plateId,
+            ImageDatasetEnrichedReference dataSet)
+    {
+        currentlyViewedPlateToDataSetMap.put(plateId, dataSet);
     }
 
 }
