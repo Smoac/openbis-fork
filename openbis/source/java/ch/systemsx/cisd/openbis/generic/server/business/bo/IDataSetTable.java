@@ -54,6 +54,12 @@ public interface IDataSetTable
     void loadBySampleTechId(final TechId sampleId);
 
     /**
+     * Loads data sets which are linked to the sample with given <var>sampleId</var>. Datasets
+     * doesn't include relationships or properties.
+     */
+    void loadBySampleTechIdWithoutRelationships(final TechId sampleId);
+
+    /**
      * Loads data sets which are linked to the experiment with given <var>experimentId</var>.
      */
     void loadByExperimentTechId(final TechId experimentId);

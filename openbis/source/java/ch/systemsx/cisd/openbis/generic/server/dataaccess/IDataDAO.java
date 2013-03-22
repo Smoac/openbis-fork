@@ -64,6 +64,15 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     public List<DataPE> listDataSets(final SamplePE sample) throws DataAccessException;
 
     /**
+     * List the {@link DataPE} for given <var>sample</var>. The datasets are fetched without the
+     * additional relationships or properties.
+     * 
+     * @returns list of {@link DataPE}s that are related to given {@link SamplePE}.
+     */
+    public List<DataPE> listDataSetsWithoutRelationships(final SamplePE sample)
+            throws DataAccessException;
+
+    /**
      * List the {@link DataPE} for given <var>experiment</var>.
      * 
      * @returns list of {@link DataPE}s that are related to given {@link ExperimentPE}.

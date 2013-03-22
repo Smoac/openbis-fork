@@ -182,6 +182,25 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     }
 
     @Override
+    public final List<DataPE> listDataSetsWithoutRelationships(final SamplePE sample)
+            throws DataAccessException
+    {
+        assert sample != null : "Unspecified sample.";
+
+        final String query = String.format("from %s e where e.sampleInternal = ?", TABLE_NAME);
+        final List<DataPE> list = cast(getHibernateTemplate().find(query, toArray(sample)));
+
+        // distinct does not work properly in HQL for left joins
+        distinct(list);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%d external data have been found for [sample=%s].",
+                    list.size(), sample));
+        }
+        return list;
+    }
+
+    @Override
     public final List<DataPE> listDataSets(final SamplePE sample) throws DataAccessException
     {
         assert sample != null : "Unspecified sample.";

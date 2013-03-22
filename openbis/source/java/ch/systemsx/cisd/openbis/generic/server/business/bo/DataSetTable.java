@@ -282,6 +282,15 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     }
 
     @Override
+    public final void loadBySampleTechIdWithoutRelationships(final TechId sampleId)
+    {
+        assert sampleId != null : "Unspecified sample id";
+        final SamplePE sample = getSampleDAO().getByTechId(sampleId);
+        dataSets = new ArrayList<DataPE>();
+        dataSets.addAll(getDataDAO().listDataSetsWithoutRelationships(sample));
+    }
+
+    @Override
     public void loadByExperimentTechId(final TechId experimentId)
     {
         assert experimentId != null : "Unspecified experiment id";
