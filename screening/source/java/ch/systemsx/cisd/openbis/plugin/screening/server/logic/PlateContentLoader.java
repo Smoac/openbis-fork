@@ -430,7 +430,7 @@ public class PlateContentLoader
 
     protected static List<DataPE> loadDatasets(TechId plateId, IDataSetTable dataSetTable)
     {
-        dataSetTable.loadBySampleTechId(plateId);
+        dataSetTable.loadBySampleTechIdWithoutRelationships(plateId);
         return dataSetTable.getDataSets();
     }
 
