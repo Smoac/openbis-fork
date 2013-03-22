@@ -67,7 +67,9 @@ _openbisInternal.prototype.ajaxRequestSuccess = function(action){
 		if(response.error){
 			openbisObj.log("Request failed: " + JSON.stringify(response.error));
 		}
-		action(response);
+		if(action){
+			action(response);
+		}
 	};
 }
 
@@ -75,9 +77,11 @@ _openbisInternal.prototype.ajaxRequestError = function(action){
 	var openbisObj = this;
 	return function(xhr, status, error){
 		openbisObj.log("Request failed: " + error);
-		action({
-			"error" : "Request failed: " + error
-		});
+		if(action){
+			action({
+				"error" : "Request failed: " + error
+			});
+		}
 	};
 }
 
@@ -393,7 +397,7 @@ openbis.prototype.logout = function(action) {
 				  },
 			success: action
 		});
-	}else{
+	}else if(action){
 		action({ result : null });
 	}
 }
