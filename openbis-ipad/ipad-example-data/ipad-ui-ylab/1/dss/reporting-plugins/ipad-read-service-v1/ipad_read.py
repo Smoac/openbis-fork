@@ -290,6 +290,8 @@ def json_encoded_children_from_link_props(entity, link_props):
 	children = []
 	converter = ManagedPropertyFunctions.xmlPropertyConverter()
 	for prop in link_props:
+		if entity.getPropertyValue(prop) is None: 
+			continue	  
 		elements = converter.convertStringToElements(entity.getPropertyValue(prop))
 		children.extend([element.getAttribute("permId") for element in elements])
 	return json_encoded_value(children)
