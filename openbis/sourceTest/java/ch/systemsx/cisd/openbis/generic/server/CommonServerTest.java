@@ -36,8 +36,10 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.EntityValidatorFactory;
@@ -94,6 +96,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -103,6 +106,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatabaseInstancePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.ExperimentTypePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.ScriptPEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -155,6 +159,8 @@ public final class CommonServerTest extends AbstractServerTestCase
 
     private IDataStoreService dataStoreService;
 
+    private IRoleAssignmentTable roleAssignmentTable;
+
     private final CommonServer createServer()
     {
         CommonServer server =
@@ -203,6 +209,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         entityValidatorFactory = context.mock(IEntityValidatorFactory.class);
         entityValidatorHotDeployPlugin = context.mock(IEntityValidatorHotDeployPlugin.class);
         hotDeploymentController = context.mock(IHotDeploymentController.class);
+        roleAssignmentTable = context.mock(IRoleAssignmentTable.class);
     }
 
     @Test
@@ -442,7 +449,15 @@ public final class CommonServerTest extends AbstractServerTestCase
         prepareGetSession();
         final String spaceCode = "group";
         final String description = "description";
-        final PersonPE person = createPersonWithRoleAssignmentsFromPrincipal(PRINCIPAL);
+        session.setPerson(createPersonWithRoleAssignmentsFromPrincipal(PRINCIPAL));
+        final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
+        RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
+        roleAssignment.setRole(RoleCode.OBSERVER);
+        roleAssignment.setDatabaseInstance(new DatabaseInstancePEBuilder().code("DB")
+                .getDatabaseInstance());
+        person.addRoleAssignment(roleAssignment);
+        final RecordingMatcher<NewRoleAssignment> assignmentMatcher =
+                new RecordingMatcher<NewRoleAssignment>();
         context.checking(new Expectations()
             {
                 {
@@ -454,11 +469,22 @@ public final class CommonServerTest extends AbstractServerTestCase
 
                     one(personDAO).tryFindPersonByUserId(CommonTestUtils.USER_ID);
                     will(returnValue(person));
+
+                    one(commonBusinessObjectFactory).createRoleAssignmentTable(session);
+                    will(returnValue(roleAssignmentTable));
+
+                    one(roleAssignmentTable).add(with(assignmentMatcher));
+                    one(roleAssignmentTable).save();
+
+                    one(personDAO).getPerson(4);
+                    will(returnValue(person));
                 }
             });
 
         createServer().registerSpace(SESSION_TOKEN, spaceCode, description);
 
+        assertSame(person, session.tryGetPerson());
+        assertEquals("PERSON:test=ADMIN@/group", assignmentMatcher.recordedObject().toString());
         context.assertIsSatisfied();
     }
 

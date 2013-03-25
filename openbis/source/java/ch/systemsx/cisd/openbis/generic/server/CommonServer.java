@@ -461,7 +461,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         // If the user who registers this space is _not_ instance admin, make him space admin for
         // the freshly created space.
         PersonPE person = session.tryGetPerson();
-        if (person.isSystemUser() == false
+        if (person != null
+                && person.isSystemUser() == false
                 && new AuthorizationServiceUtils(getDAOFactory(), session.getUserName())
                         .doesUserHaveRole(RoleCode.ADMIN.toString(), null) == false)
         {

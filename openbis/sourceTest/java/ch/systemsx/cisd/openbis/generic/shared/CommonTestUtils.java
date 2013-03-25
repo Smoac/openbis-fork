@@ -208,6 +208,7 @@ public class CommonTestUtils
     static public PersonPE createPersonFromPrincipal(final Principal principal)
     {
         final PersonPE person = new PersonPE();
+        person.setId((long) principal.getUserId().length());
         person.setUserId(principal.getUserId());
         person.setFirstName(principal.getFirstName());
         person.setLastName(principal.getLastName());
