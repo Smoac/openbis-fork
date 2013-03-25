@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.LayoutUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.PlateLayouter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
@@ -144,6 +145,14 @@ public class PlateLayoutSampleSection extends TabContent
                 public void changeDisplayedFeatureVectorDataset(FeatureVectorDataset dataset)
                 {
                     plateLayouter.changeDisplayedFeatureVectorDataset(dataset);
+                }
+
+                @Override
+                public void changeDisplayedFeatureVectorDataset(ScreeningViewContext context,
+                        DatasetReference dataset)
+                {
+
+                    plateLayouter.changeDisplayedFeatureVectorDataset(context, dataset);
                 }
             };
     }

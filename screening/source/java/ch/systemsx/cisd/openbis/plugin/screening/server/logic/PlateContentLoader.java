@@ -211,7 +211,9 @@ public class PlateContentLoader
 
         List<ImageDatasetEnrichedReference> imageDatasetReferences =
                 imageLoader.loadImageDatasets(datasets);
-        List<FeatureVectorDataset> featureVectorDatasets = filterAndFetchFeatureVectors(datasets);
+
+        List<DatasetReference> featureVectorDatasets = filterAndFetchFeatureVectors(datasets);
+
         List<DatasetReference> unknownDatasetReferences = extractUnknownDatasets(datasets);
 
         Geometry plateGeometry = PlateDimensionParser.getPlateGeometry(plate.getProperties());
@@ -229,12 +231,12 @@ public class PlateContentLoader
         return unknownDatasetReferences;
     }
 
-    private List<FeatureVectorDataset> filterAndFetchFeatureVectors(List<DataPE> datasets)
+    private List<DatasetReference> filterAndFetchFeatureVectors(List<DataPE> datasets)
     {
         List<DataPE> analysisDatasets = ScreeningUtils.filterImageAnalysisDatasetsPE(datasets);
         List<DatasetReference> featureVectorDatasetReferences =
                 createDatasetReferences(analysisDatasets);
-        return fetchFeatureVectors(featureVectorDatasetReferences);
+        return featureVectorDatasetReferences;
     }
 
     private FeatureVectorDataset fetchFeatureVector(DatasetReference datasetReference,
@@ -243,42 +245,28 @@ public class PlateContentLoader
         IHCSFeatureVectorLoader loader =
                 businessObjectFactory.createHCSFeatureVectorLoader(datasetReference
                         .getDatastoreCode());
-
-        FeatureVectorDataset result = loadFeatureVector(datasetReference, featureName, loader);
-        return result;
+        if (featureName == null)
+        {
+            return loadFeatureVector(datasetReference, loader);
+        } else
+        {
+            return loadFeatureVector(datasetReference, featureName, loader);
+        }
     }
 
-    private List<FeatureVectorDataset> fetchFeatureVectors(
-            List<DatasetReference> featureVectorDatasetReferences)
+    private FeatureVectorDataset loadFeatureVector(DatasetReference ref,
+            IHCSFeatureVectorLoader loader)
     {
-        List<FeatureVectorDataset> featureVectorDatasets = new ArrayList<FeatureVectorDataset>();
-
-        List<Long> ids = new ArrayList<Long>(featureVectorDatasetReferences.size());
-        for (DatasetReference featureVectorDatasetReference : featureVectorDatasetReferences)
-        {
-            ids.add(featureVectorDatasetReference.getId());
-        }
         Map<Long, GenericEntityPropertyRecord> analysisProcedures =
-                businessObjectFactory.createDatasetLister(session).fetchProperties(ids,
+                businessObjectFactory.createDatasetLister(session).fetchProperties(
+                        Collections.singletonList(ref.getId()),
                         ScreeningConstants.ANALYSIS_PROCEDURE_PROPERTY);
 
-        if (featureVectorDatasetReferences.isEmpty() == false)
-        {
-            for (DatasetReference datasetReference : featureVectorDatasetReferences)
-            {
-                IHCSFeatureVectorLoader loader =
-                        businessObjectFactory.createHCSFeatureVectorLoader(datasetReference
-                                .getDatastoreCode());
-
-                GenericEntityPropertyRecord analysisProcedure =
-                        analysisProcedures.get(datasetReference.getId());
-                FeatureVectorDataset featureVectorDataset =
-                        loadFeatureVector(datasetReference, loader,
-                                analysisProcedure == null ? null : analysisProcedure.value);
-                featureVectorDatasets.add(featureVectorDataset);
-            }
-        }
-        return featureVectorDatasets;
+        GenericEntityPropertyRecord analysisProcedure = analysisProcedures.get(ref.getId());
+        FeatureVectorDataset featureVectorDataset =
+                loadFeatureVector(ref, loader, analysisProcedure == null ? null
+                        : analysisProcedure.value);
+        return featureVectorDataset;
     }
 
     private FeatureVectorDataset loadFeatureVector(DatasetReference datasetReference,

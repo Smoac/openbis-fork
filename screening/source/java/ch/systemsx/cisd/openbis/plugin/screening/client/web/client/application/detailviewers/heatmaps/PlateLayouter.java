@@ -40,6 +40,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.extjs.gxt.ui.client.widget.tips.ToolTip;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -62,6 +63,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureList;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
@@ -117,6 +119,8 @@ public class PlateLayouter
 
     private SimpleModelComboBox<FeatureList> featureListsSelector;
 
+    private final HashMap<String, FeatureVectorDataset> featureVectorDatasetCache;
+
     public PlateLayouter(ScreeningViewContext viewContext, PlateMetadata plateMetadata)
     {
         this.model =
@@ -160,6 +164,8 @@ public class PlateLayouter
                             }
                         }
                     });
+
+        this.featureVectorDatasetCache = new HashMap<String, FeatureVectorDataset>();
 
         this.view =
                 renderView(renderedWells, heatmapKindChooser, featureListsSelector, legendContainer);
@@ -278,6 +284,39 @@ public class PlateLayouter
     public void changeDisplayedImageDataset(ImageDatasetEnrichedReference newImageDatasetOrNull)
     {
         this.model.setImageDataset(newImageDatasetOrNull);
+    }
+
+    /**
+     * changes the feature vector dataset presented on the plate layout. If necessary fetches the
+     * dataset from the screening server
+     */
+    public void changeDisplayedFeatureVectorDataset(ScreeningViewContext context,
+            DatasetReference reference)
+    {
+        String dataSetCode = reference.getCode();
+
+        if (featureVectorDatasetCache.containsKey(dataSetCode))
+        {
+            changeDisplayedFeatureVectorDataset(featureVectorDatasetCache.get(dataSetCode));
+        } else
+        {
+            context.getService().getFeatureVectorDataset(reference, null,
+                    createLoadFeatureCallback(context, dataSetCode));
+        }
+    }
+
+    private AsyncCallback<FeatureVectorDataset> createLoadFeatureCallback(
+            ScreeningViewContext context, final String code)
+    {
+        return new AbstractAsyncCallback<FeatureVectorDataset>(context)
+            {
+                @Override
+                protected void process(FeatureVectorDataset featureVector)
+                {
+                    featureVectorDatasetCache.put(code, featureVector);
+                    changeDisplayedFeatureVectorDataset(featureVector);
+                }
+            };
     }
 
     /** changes the feature vector dataset presented on the plate layout */

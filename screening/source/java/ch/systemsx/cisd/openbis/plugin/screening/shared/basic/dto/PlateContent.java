@@ -37,7 +37,7 @@ public class PlateContent implements Serializable
 
     private List<ImageDatasetEnrichedReference> imagesDatasets;
 
-    private List<FeatureVectorDataset> featureVectorDatasets;
+    private List<DatasetReference> featureVectorDatasets;
 
     private List<DatasetReference> unknownDatasets;
 
@@ -49,7 +49,7 @@ public class PlateContent implements Serializable
 
     public PlateContent(PlateMetadata plateMetadata,
             List<ImageDatasetEnrichedReference> imagesDatasets,
-            List<FeatureVectorDataset> featureVectorDatasets, List<DatasetReference> unknownDatasets)
+            List<DatasetReference> featureVectorDatasets, List<DatasetReference> unknownDatasets)
     {
         this.plateMetadata = plateMetadata;
         this.imagesDatasets = imagesDatasets;
@@ -67,7 +67,7 @@ public class PlateContent implements Serializable
         return imagesDatasets;
     }
 
-    public List<FeatureVectorDataset> getFeatureVectorDatasets()
+    public List<DatasetReference> getFeatureVectorDatasets()
     {
         return featureVectorDatasets;
     }

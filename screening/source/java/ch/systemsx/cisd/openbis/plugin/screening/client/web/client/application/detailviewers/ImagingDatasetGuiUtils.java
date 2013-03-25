@@ -29,9 +29,11 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
@@ -64,6 +66,10 @@ class ImagingDatasetGuiUtils
 
     protected static interface IFeatureVectorDatasetReferenceUpdater
     {
+        /** changes the feature vector dataset presented on the plate layout */
+        public void changeDisplayedFeatureVectorDataset(ScreeningViewContext context,
+                DatasetReference dataset);
+
         /** changes the feature vector dataset presented on the plate layout */
         public void changeDisplayedFeatureVectorDataset(FeatureVectorDataset dataset);
     }
@@ -112,7 +118,7 @@ class ImagingDatasetGuiUtils
     }
 
     public Widget createFeatureVectorDatasetDetailsRow(
-            List<FeatureVectorDataset> featureVectorDatasets,
+            List<DatasetReference> featureVectorDatasets,
             IFeatureVectorDatasetReferenceUpdater datasetUpdater)
     {
         return ImageAnalysisDatasetDetails.createFeatureVectorDatasetDetailsRow(
@@ -122,7 +128,7 @@ class ImagingDatasetGuiUtils
     private static final class ImageAnalysisDatasetDetails
     {
         public static Widget createFeatureVectorDatasetDetailsRow(
-                final List<FeatureVectorDataset> featureVectorDatasets,
+                final List<DatasetReference> featureVectorDatasets,
                 IFeatureVectorDatasetReferenceUpdater datasetUpdater, IViewContext<?> viewContext)
         {
             return new ImageAnalysisDatasetDetails(viewContext)
@@ -149,7 +155,7 @@ class ImagingDatasetGuiUtils
         }
 
         private Widget createFeatureVectorDatasetDetailsRow(
-                final List<FeatureVectorDataset> featureVectorDatasets,
+                final List<DatasetReference> featureVectorDatasets,
                 IFeatureVectorDatasetReferenceUpdater datasetUpdater)
         {
             if (featureVectorDatasets.size() == 0)
@@ -157,8 +163,7 @@ class ImagingDatasetGuiUtils
                 return new Text(NO_IMAGE_ANALYSIS_DATASET_LABEL);
             } else if (featureVectorDatasets.size() == 1)
             {
-                FeatureVectorDataset featureVectorDataset = featureVectorDatasets.get(0);
-                return createAndConnectFeatureVectorDatasetInfo(featureVectorDataset,
+                return createAndConnectFeatureVectorDatasetInfo(featureVectorDatasets.get(0),
                         datasetUpdater);
             } else
             {
@@ -168,12 +173,12 @@ class ImagingDatasetGuiUtils
         }
 
         private Widget createAndConnectFeatureVectorDatasetChooser(
-                List<FeatureVectorDataset> featureVectorDatasets,
+                final List<DatasetReference> featureVectorDatasets,
                 final IFeatureVectorDatasetReferenceUpdater datasetUpdater)
         {
             List<String> datasetLabels = getDatasetLabels(featureVectorDatasets);
             List<String> tooltips = getDatasetTooltips(featureVectorDatasets);
-            final SimpleModelComboBox<FeatureVectorDataset> datasetChooser =
+            final SimpleModelComboBox<DatasetReference> datasetChooser =
                     createDatasetChooserComboBox(viewContext, featureVectorDatasets, datasetLabels,
                             tooltips);
 
@@ -202,15 +207,16 @@ class ImagingDatasetGuiUtils
 
             final Anchor datasetDetailsButton = createImageAnalysisDetailsButton(datasetChooser);
             datasetChooser
-                    .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<LabeledItem<FeatureVectorDataset>>>()
+                    .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<LabeledItem<DatasetReference>>>()
                         {
                             @Override
                             public void selectionChanged(
-                                    SelectionChangedEvent<SimpleComboValue<LabeledItem<FeatureVectorDataset>>> se)
+                                    SelectionChangedEvent<SimpleComboValue<LabeledItem<DatasetReference>>> se)
                             {
-                                FeatureVectorDataset chosenDataset =
+                                DatasetReference chosenDataset =
                                         SimpleModelComboBox.getChosenItem(se);
-                                datasetUpdater.changeDisplayedFeatureVectorDataset(chosenDataset);
+                                datasetUpdater.changeDisplayedFeatureVectorDataset(
+                                        (ScreeningViewContext) viewContext, chosenDataset);
                                 updateFeatureVectorDatasetSimpleViewModeLink(datasetChooser,
                                         datasetDetailsButton);
 
@@ -223,21 +229,21 @@ class ImagingDatasetGuiUtils
                                 }
                             }
                         });
-            FeatureVectorDataset chosenDataset = datasetChooser.tryGetChosenItem();
-            datasetUpdater.changeDisplayedFeatureVectorDataset(chosenDataset);
+            DatasetReference chosenDataset = datasetChooser.tryGetChosenItem();
+            datasetUpdater.changeDisplayedFeatureVectorDataset((ScreeningViewContext) viewContext,
+                    chosenDataset);
 
             return GuiUtils.renderInRow(
                     withLabel(datasetChooser, IMAGE_ANALYSIS_DATASET_CHOOSER_LABEL),
                     datasetDetailsButton);
         }
 
-        private List<String> getDatasetTooltips(List<FeatureVectorDataset> featureVectorDatasets)
+        private List<String> getDatasetTooltips(List<DatasetReference> featureVectorDatasets)
         {
             List<String> tooltips = new ArrayList<String>(featureVectorDatasets.size());
 
-            for (FeatureVectorDataset featureVectorDataset : featureVectorDatasets)
+            for (DatasetReference reference : featureVectorDatasets)
             {
-                DatasetReference reference = featureVectorDataset.getDatasetReference();
                 StringBuilder sb = new StringBuilder();
                 sb.append("Dataset Code: ").append(reference.getCode()).append("<BR/>");
                 sb.append("Dataset Type: ").append(reference.getEntityType().getCode())
@@ -247,10 +253,10 @@ class ImagingDatasetGuiUtils
                 sb.append("File Type: ").append(fileTypeCode).append("<BR/>");
                 sb.append("Registration Date: ").append(reference.getRegistrationDate())
                         .append("<BR/>");
-                if (featureVectorDataset.getAnalysisProcedure() != null)
+                if (reference.getAnalysisProcedure() != null)
                 {
-                    sb.append("Analysis Procedure: ")
-                            .append(featureVectorDataset.getAnalysisProcedure()).append("<BR/>");
+                    sb.append("Analysis Procedure: ").append(reference.getAnalysisProcedure())
+                            .append("<BR/>");
                 }
                 tooltips.add(sb.toString());
             }
@@ -258,8 +264,9 @@ class ImagingDatasetGuiUtils
             return tooltips;
         }
 
-        private List<String> getDatasetLabels(List<FeatureVectorDataset> featureVectorDatasets)
+        private List<String> getDatasetLabels(List<DatasetReference> featureVectorDatasets)
         {
+
             List<String> datasetLabels =
                     EntityTypeLabelUtils.createDatasetLabelsForFeatureVectors(
                             featureVectorDatasets, false);
@@ -267,19 +274,36 @@ class ImagingDatasetGuiUtils
         }
 
         private Widget createAndConnectFeatureVectorDatasetInfo(
-                FeatureVectorDataset featureVectorDataset,
-                IFeatureVectorDatasetReferenceUpdater datasetUpdater)
+                DatasetReference featureVectorDataset,
+                final IFeatureVectorDatasetReferenceUpdater datasetUpdater)
         {
-            datasetUpdater.changeDisplayedFeatureVectorDataset(featureVectorDataset);
+            ScreeningViewContext screeningViewContext = (ScreeningViewContext) viewContext;
+
+            screeningViewContext.getService().getFeatureVectorDataset(featureVectorDataset, null,
+                    createLoadFeatureCallback(screeningViewContext, datasetUpdater));
 
             Widget datasetDetailsLink =
-                    createDatasetDetailsLink(featureVectorDataset.getDatasetReference(),
+                    createDatasetDetailsLink(featureVectorDataset,
                             SHOW_CHOSEN_ANALYSIS_DATASET_BUTTON, viewContext);
             return withLabel(datasetDetailsLink, IMAGE_ANALYSIS_DATASET_CHOOSER_LABEL);
         }
 
+        private AsyncCallback<FeatureVectorDataset> createLoadFeatureCallback(
+                final ScreeningViewContext context,
+                final IFeatureVectorDatasetReferenceUpdater datasetUpdater)
+        {
+            return new AbstractAsyncCallback<FeatureVectorDataset>(context)
+                {
+                    @Override
+                    protected void process(FeatureVectorDataset featureVector)
+                    {
+                        datasetUpdater.changeDisplayedFeatureVectorDataset(featureVector);
+                    }
+                };
+        }
+
         private Anchor createImageAnalysisDetailsButton(
-                final SimpleModelComboBox<FeatureVectorDataset> datasetChooser)
+                final SimpleModelComboBox<DatasetReference> datasetChooser)
         {
             return LinkRenderer.getLinkAnchor(SHOW_CHOSEN_ANALYSIS_DATASET_BUTTON,
                     new ClickHandler()
@@ -288,14 +312,14 @@ class ImagingDatasetGuiUtils
                             public void onClick(ClickEvent event)
                             {
                                 DatasetReference datasetReference =
-                                        datasetChooser.tryGetChosenItem().getDatasetReference();
+                                        datasetChooser.tryGetChosenItem();
                                 openDatasetDetails(datasetReference, viewContext);
                             }
                         }, createDatasetSimpleViewModeHref(datasetChooser));
         }
 
         private void updateFeatureVectorDatasetSimpleViewModeLink(
-                final SimpleModelComboBox<FeatureVectorDataset> datasetChooser, final Anchor anchor)
+                final SimpleModelComboBox<DatasetReference> datasetChooser, final Anchor anchor)
         {
             if (viewContext.isSimpleOrEmbeddedMode())
             {
@@ -304,10 +328,9 @@ class ImagingDatasetGuiUtils
         }
 
         private String createDatasetSimpleViewModeHref(
-                SimpleModelComboBox<FeatureVectorDataset> datasetChooser)
+                SimpleModelComboBox<DatasetReference> datasetChooser)
         {
-            return LinkExtractor
-                    .tryExtract(datasetChooser.tryGetChosenItem().getDatasetReference());
+            return LinkExtractor.tryExtract(datasetChooser.tryGetChosenItem());
         }
     }
 

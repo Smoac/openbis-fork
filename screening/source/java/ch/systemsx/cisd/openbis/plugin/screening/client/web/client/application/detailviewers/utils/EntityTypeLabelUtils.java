@@ -25,7 +25,6 @@ import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
@@ -47,15 +46,15 @@ public class EntityTypeLabelUtils
     }
 
     public final static List<String> createDatasetLabelsForFeatureVectors(
-            List<FeatureVectorDataset> featureVectors, boolean withFileType)
+            List<DatasetReference> featureVectors, boolean withFileType)
     {
         Map<String, Integer> labelsSet = new HashMap<String, Integer>(featureVectors.size());
         List<String> labels = new ArrayList<String>(featureVectors.size());
-        for (FeatureVectorDataset featureVector : featureVectors)
+        for (DatasetReference reference : featureVectors)
         {
             String label =
-                    createDatasetLabel(featureVector.getDatasetReference(), withFileType,
-                            featureVector.getAnalysisProcedure(), false);
+                    createDatasetLabel(reference, withFileType, reference.getAnalysisProcedure(),
+                            false);
 
             Integer count = 1;
             if (labelsSet.containsKey(label))
@@ -69,15 +68,15 @@ public class EntityTypeLabelUtils
 
         // detect duplicated labels
         int i = 0;
-        for (FeatureVectorDataset featureVector : featureVectors)
+        for (DatasetReference reference : featureVectors)
         {
             String label = labels.get(i);
             if (labelsSet.get(label) > 1)
             {
                 labels.set(
                         i,
-                        createDatasetLabel(featureVector.getDatasetReference(), withFileType,
-                                featureVector.getAnalysisProcedure(), true));
+                        createDatasetLabel(reference, withFileType,
+                                reference.getAnalysisProcedure(), true));
             }
             i++;
         }
