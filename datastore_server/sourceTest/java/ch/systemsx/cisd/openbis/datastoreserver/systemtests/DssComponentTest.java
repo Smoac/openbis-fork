@@ -493,7 +493,7 @@ public class DssComponentTest extends SystemTestCase
             // The default dss service.properties has a post-registration maintenance
             // task scheduled to run every 30 seconds, so wait until it has run and cleaned
             // up the queue.
-            Thread.sleep(31 * 1000);
+            Thread.sleep(40 * 1000);
         } catch (InterruptedException e)
         {
         }
