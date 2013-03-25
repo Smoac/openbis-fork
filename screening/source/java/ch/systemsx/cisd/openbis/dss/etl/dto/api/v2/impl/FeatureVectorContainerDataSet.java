@@ -53,6 +53,8 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
 
     private FeatureVectorDataSet originalDataset;
 
+    private IDataSet allFeaturesList;
+
     public IDataSet getOriginalDataset()
     {
         return originalDataset;
@@ -80,6 +82,11 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
             // calling this line assures, that the sample in the contained dataset will not be kept.
             originalDataset.getRegistrationDetails().getDataSetInformation().setLinkSample(false);
         }
+
+        if (allFeaturesList != null)
+        {
+            allFeaturesList.setSample(sampleOrNull);
+        }
     }
 
     @Override
@@ -89,6 +96,10 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
         if (originalDataset != null)
         {
             originalDataset.setExperiment(experimentOrNull);
+        }
+        if (allFeaturesList != null)
+        {
+            allFeaturesList.setExperiment(experimentOrNull);
         }
     }
 
@@ -145,5 +156,10 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
         originalDataset.setDataSetType(dataSetTypeCode);
 
         super.setDataSetType(getContainerAnalysisType(dataSetTypeCode));
+    }
+
+    public void setAllFeaturesList(IDataSet allFeaturesList)
+    {
+        this.allFeaturesList = allFeaturesList;
     }
 }

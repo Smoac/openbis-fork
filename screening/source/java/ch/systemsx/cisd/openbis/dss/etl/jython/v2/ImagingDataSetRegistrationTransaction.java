@@ -235,6 +235,19 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         registrationDetails.getDataSetInformation().setContainerDatasetPermId(
                 containerDataset.getDataSetCode());
 
+        FeatureListDataConfig config = new FeatureListDataConfig();
+        config.setName("All");
+        List<String> features = new ArrayList<String>();
+        for (FeatureDefinition feature : registrationDetails.getDataSetInformation().getFeatures())
+        {
+            features.add(feature.getFeatureLabel());
+        }
+        config.setFeatureList(features);
+        config.setContainerDataSet(containerDataset);
+
+        IDataSet allFeaturesList = createNewFeatureListDataSet(config);
+        containerDataset.setAllFeaturesList(allFeaturesList);
+
         return containerDataset;
     }
 

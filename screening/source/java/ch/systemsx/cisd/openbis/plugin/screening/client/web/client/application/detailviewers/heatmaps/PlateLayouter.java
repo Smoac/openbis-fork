@@ -20,10 +20,8 @@ import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.applic
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -150,17 +148,8 @@ public class PlateLayouter
                                         model.getAllFeatureNames());
                             } else
                             {
-                                Set<String> features =
-                                        new HashSet<String>(featureList.getFeatures());
-                                List<CodeAndLabel> result = new ArrayList<CodeAndLabel>();
-                                for (CodeAndLabel feature : model.getAllFeatureNames())
-                                {
-                                    if (features.contains(feature.getCode()))
-                                    {
-                                        result.add(feature);
-                                    }
-                                }
-                                updateHeatmapKindComboBox(heatmapKindChooser, result);
+                                updateHeatmapKindComboBox(heatmapKindChooser,
+                                        labelsOfFeatureList(featureList));
                             }
                         }
                     });
@@ -169,6 +158,7 @@ public class PlateLayouter
 
         this.view =
                 renderView(renderedWells, heatmapKindChooser, featureListsSelector, legendContainer);
+
     }
 
     private IRealNumberRenderer createRealNumberRenderer(ScreeningViewContext viewContext)
@@ -324,7 +314,27 @@ public class PlateLayouter
     {
         this.model.setFeatureVectorDataset(dataset);
         updateFeaturesListsComboBox(featureListsSelector, model.getFeatureLists());
-        updateHeatmapKindComboBox(heatmapKindChooser, model.getAllFeatureNames());
+
+        updateHeatmapKindComboBox(heatmapKindChooser, labelsOfFeatureList(featureListsSelector
+                .getValue().getValue().getItem()));
+    }
+
+    private List<CodeAndLabel> labelsOfFeatureList(FeatureList featureList)
+    {
+        Map<String, CodeAndLabel> map = new HashMap<String, CodeAndLabel>();
+        for (CodeAndLabel codeAndLabel : model.getAllFeatureNames())
+        {
+            map.put(codeAndLabel.getLabel(), codeAndLabel);
+        }
+        List<CodeAndLabel> result = new ArrayList<CodeAndLabel>();
+        for (String feature : featureList.getFeatures())
+        {
+            if (map.containsKey(feature))
+            {
+                result.add(map.get(feature));
+            }
+        }
+        return result;
     }
 
     /**
@@ -646,14 +656,25 @@ public class PlateLayouter
             List<FeatureList> featureListsOrNull)
     {
         List<LabeledItem<FeatureList>> items = new ArrayList<LabeledItem<FeatureList>>();
-        items.add(new LabeledItem<FeatureList>(null, "All"));
+        boolean hadAll = false;
         if (featureListsOrNull != null)
         {
             for (FeatureList featureList : featureListsOrNull)
             {
                 String label = featureList.getName();
-                items.add(new LabeledItem<FeatureList>(featureList, label));
+                if (label.equals("All"))
+                {
+                    hadAll = true;
+                    items.add(0, new LabeledItem<FeatureList>(featureList, label));
+                } else
+                {
+                    items.add(new LabeledItem<FeatureList>(featureList, label));
+                }
             }
+        }
+        if (hadAll == false)
+        {
+            items.add(0, new LabeledItem<FeatureList>(null, "All"));
         }
         return items;
     }

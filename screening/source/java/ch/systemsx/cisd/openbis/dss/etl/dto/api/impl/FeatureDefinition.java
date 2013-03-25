@@ -87,6 +87,11 @@ public class FeatureDefinition implements IFeatureDefinition, Serializable
         this.imgFeatureDefDTO.setLabel(label);
     }
 
+    public String getFeatureLabel()
+    {
+        return imgFeatureDefDTO.getLabel();
+    }
+
     /** Optional. Sets description of a feature. */
     @Override
     public void setFeatureDescription(String description)
