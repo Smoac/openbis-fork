@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetAndPathInfoDBConsistencyChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -46,10 +47,13 @@ public class DataSetAndPathInfoDBConsistencyCheckTask implements IMaintenanceTas
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
             BasicConstant.DATE_WITHOUT_TIMEZONE_PATTERN);
 
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DataSetAndPathInfoDBConsistencyCheckTask.class);
+    
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             DataSetAndPathInfoDBConsistencyCheckTask.class);
 
-    private final IEncapsulatedOpenBISService service;
+    private IEncapsulatedOpenBISService service;
 
     private IHierarchicalContentProvider fileProvider;
 
@@ -58,11 +62,9 @@ public class DataSetAndPathInfoDBConsistencyCheckTask implements IMaintenanceTas
     private long timeInterval;
 
     private ITimeProvider timeProvider;
-
-    public DataSetAndPathInfoDBConsistencyCheckTask(Properties properties,
-            IEncapsulatedOpenBISService service)
+    
+    public DataSetAndPathInfoDBConsistencyCheckTask()
     {
-        this.service = service;
     }
 
     DataSetAndPathInfoDBConsistencyCheckTask(IHierarchicalContentProvider fileProvider,
@@ -88,7 +90,9 @@ public class DataSetAndPathInfoDBConsistencyCheckTask implements IMaintenanceTas
     {
         Date youngerThanDate = new Date(getTimeProvider().getTimeInMilliseconds() - timeInterval);
         List<SimpleDataSetInformationDTO> dataSets =
-                service.listOldestPhysicalDataSets(youngerThanDate, Integer.MAX_VALUE);
+                getService().listOldestPhysicalDataSets(youngerThanDate, Integer.MAX_VALUE);
+        operationLog.info("Check " + dataSets.size() + " registered since "
+                + DATE_FORMAT.format(youngerThanDate));
         DataSetAndPathInfoDBConsistencyChecker checker =
                 new DataSetAndPathInfoDBConsistencyChecker(fileProvider, pathInfoProvider);
         checker.check(dataSets);
@@ -100,6 +104,15 @@ public class DataSetAndPathInfoDBConsistencyCheckTask implements IMaintenanceTas
             builder.append(checker.createReport());
             notificationLog.error(builder.toString());
         }
+    }
+
+    private IEncapsulatedOpenBISService getService()
+    {
+        if (service == null)
+        {
+            service = ServiceProvider.getOpenBISService();
+        }
+        return service;
     }
 
     private ITimeProvider getTimeProvider()

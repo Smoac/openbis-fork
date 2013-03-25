@@ -97,7 +97,8 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
 
         task.execute();
 
-        assertEquals("", logRecorder.getLogContent());
+        assertEquals("INFO  OPERATION.DataSetAndPathInfoDBConsistencyCheckTask - "
+                + "Check 1 registered since 1970-01-01 01:00:00", logRecorder.getLogContent());
         assertEquals(true, fileContent.isClosed());
         assertEquals(true, pathInfoContent.isClosed());
         context.assertIsSatisfied();
@@ -114,7 +115,9 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
 
         task.execute();
 
-        assertEquals("ERROR OPERATION.DataSetAndPathInfoDBConsistencyChecker - "
+        assertEquals("INFO  OPERATION.DataSetAndPathInfoDBConsistencyCheckTask - "
+                + "Check 1 registered since 1970-01-01 01:00:00\n"
+                + "ERROR OPERATION.DataSetAndPathInfoDBConsistencyChecker - "
                 + "Couldn't check consistency of the file system and "
                 + "the path info database for a data set: ds1\n"
                 + "java.lang.RuntimeException: Oohps!\n"
@@ -158,7 +161,9 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
         task.execute();
 
         assertEquals(
-                "ERROR NOTIFY.DataSetAndPathInfoDBConsistencyCheckTask - "
+                "INFO  OPERATION.DataSetAndPathInfoDBConsistencyCheckTask - "
+                        + "Check 4 registered since 1970-01-01 01:00:00\n"
+                        + "ERROR NOTIFY.DataSetAndPathInfoDBConsistencyCheckTask - "
                         + "File system and path info DB consistency check report "
                         + "for all data sets since 1970-01-01 01:00:00\n\n"
                         + "Data sets checked:\n\nds1, ds2, ds3, ds4\n\n"
