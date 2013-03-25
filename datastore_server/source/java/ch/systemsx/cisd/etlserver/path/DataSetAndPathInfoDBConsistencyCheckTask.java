@@ -91,7 +91,7 @@ public class DataSetAndPathInfoDBConsistencyCheckTask implements IMaintenanceTas
         Date youngerThanDate = new Date(getTimeProvider().getTimeInMilliseconds() - timeInterval);
         List<SimpleDataSetInformationDTO> dataSets =
                 getService().listOldestPhysicalDataSets(youngerThanDate, Integer.MAX_VALUE);
-        operationLog.info("Check " + dataSets.size() + " registered since "
+        operationLog.info("Check " + dataSets.size() + " data sets registered since "
                 + DATE_FORMAT.format(youngerThanDate));
         DataSetAndPathInfoDBConsistencyChecker checker =
                 new DataSetAndPathInfoDBConsistencyChecker(fileProvider, pathInfoProvider);
