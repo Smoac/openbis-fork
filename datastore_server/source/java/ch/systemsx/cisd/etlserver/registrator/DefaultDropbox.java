@@ -16,10 +16,9 @@
 
 package ch.systemsx.cisd.etlserver.registrator;
 
-import ch.systemsx.cisd.common.exceptions.NotImplementedException;
+import ch.systemsx.cisd.etlserver.registrator.api.v2.AbstractJavaDataSetRegistrationDropboxV2;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
-import ch.systemsx.cisd.etlserver.registrator.api.v2.IJavaDataSetRegistrationDropboxV2;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
 
 /**
@@ -27,7 +26,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmuta
  *
  * @author Franz-Josef Elmer
  */
-public class DefaultDropbox extends JavaAllHooks implements IJavaDataSetRegistrationDropboxV2
+public class DefaultDropbox extends AbstractJavaDataSetRegistrationDropboxV2
 {
 
     private static final String SAMPLE_IDENTIFIER = "/DEFAULT/DEFAULT";
@@ -51,18 +50,4 @@ public class DefaultDropbox extends JavaAllHooks implements IJavaDataSetRegistra
         }
         transaction.moveFile(transaction.getIncoming().getAbsolutePath(), dataSet);
     }
-
-    @Override
-    public boolean isRetryFunctionDefined()
-    {
-        return false;
-    }
-
-    @Override
-    public boolean shouldRetryProcessing(DataSetRegistrationContext context, Exception problem)
-            throws NotImplementedException
-    {
-        throw new NotImplementedException();
-    }
-
 }
