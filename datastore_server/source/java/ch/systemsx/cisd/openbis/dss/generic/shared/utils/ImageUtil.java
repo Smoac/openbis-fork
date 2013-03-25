@@ -20,6 +20,8 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +43,6 @@ import ar.com.hjg.pngj.ImageLine;
 import ar.com.hjg.pngj.ImageLineHelper;
 import ar.com.hjg.pngj.PngFilterType;
 import ar.com.hjg.pngj.PngWriter;
-
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
@@ -699,25 +700,16 @@ public class ImageUtil
     public static void writeImageToPng(BufferedImage image, OutputStream out,
             PngFilterType filterType, int compressionLevel)
     {
-        final int cols = image.getWidth();
-        final int rows = image.getHeight();
-        int bitDepth = image.getColorModel().getComponentSize(0);
-        boolean hasAlpha = false; // NOTE: it would be nice to support alpha channel
-        boolean isGrayscale = isGrayscale(image);
-        ImageInfo imgInfo = new ImageInfo(cols, rows, bitDepth, hasAlpha, isGrayscale, false);
+        PngWritingHelper helper = PngWritingHelper.createHelper(image);
+        ImageInfo imgInfo = helper.getImageInfo();
+        int rows = imgInfo.rows;
         PngWriter png = new PngWriter(out, imgInfo);
         png.setFilterType(filterType == null ? PngFilterType.FILTER_DEFAULT : filterType);
         png.setCompLevel(compressionLevel == -1 ? 6 : compressionLevel);
         ImageLine imageLine = new ImageLine(imgInfo);
         for (int row = 0; row < rows; ++row)
         {
-            if (isGrayscale)
-            {
-                fillGrayscaleLine(image, cols, isGrayscale, imageLine, row);
-            } else
-            {
-                fillRGBLine(image, cols, isGrayscale, imageLine, row);
-            }
+            helper.fillLine(imageLine, row);
             imageLine.setRown(row);
             png.writeRow(imageLine);
         }
@@ -733,25 +725,6 @@ public class ImageUtil
         } catch (IOException ex)
         {
             throw new IOExceptionUnchecked(ex);
-        }
-    }
-
-    private static void fillGrayscaleLine(BufferedImage image, final int cols, boolean isGrayscale,
-            ImageLine imageLine, int row)
-    {
-        for (int col = 0; col < cols; ++col)
-        {
-            imageLine.scanline[col] = image.getRaster().getSample(col, row, 0);
-        }
-    }
-
-    private static void fillRGBLine(BufferedImage image, final int cols, boolean isGrayscale,
-            ImageLine imageLine, int row)
-    {
-        for (int col = 0; col < cols; ++col)
-        {
-            int pixel = image.getRGB(col, row);
-            ImageLineHelper.setPixelRGB8(imageLine, col, pixel);
         }
     }
 
