@@ -24,12 +24,15 @@ import java.util.Properties;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
+import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
@@ -44,12 +47,16 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask exte
         AbstractDataSetDeletionPostProcessingMaintenanceTask
 {
 
-    private static final String LAST_SEEN_DATA_SET_FILE_PROPERTY = "last-seen-data-set-file";
+    static final String TIMING_PARAMETERS_KEY = "timing-parameters";
+
+    static final String LAST_SEEN_DATA_SET_FILE_PROPERTY = "last-seen-data-set-file";
 
     private static final String LAST_SEEN_DATA_SET_FILE_DEFAULT =
             "deleteDatasetsAlreadyDeletedFromApplicationServerTaskLastSeen";
 
     private File lastSeenDataSetFile;
+
+    private TimingParameters timingParameters;
 
     @Override
     public void setUp(String pluginName, Properties properties)
@@ -67,6 +74,9 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask exte
         {
             lastSeenDataSetFile = new File(lastSeenDataSetFileProperty);
         }
+        timingParameters =
+                TimingParameters.create(PropertyParametersUtil.extractSingleSectionProperties(
+                        properties, TIMING_PARAMETERS_KEY, false).getProperties());
     }
 
     @Override
@@ -127,28 +137,25 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask exte
 
         if (!locations.isEmpty())
         {
-            getService().getDataSetDeleter().scheduleDeletionOfDataSets(locations);
+            getService().getDataSetDeleter().scheduleDeletionOfDataSets(locations, timingParameters);
         }
     }
 
     private void deleteUnknownDatasets(List<DeletedDataSet> datasets)
     {
         ISimpleLogger logger = new Log4jSimpleLogger(operationLog);
-
+        IDataSetDirectoryProvider directoryProvider = getDirectoryProvider();
+        DataSetExistenceChecker dataSetExistenceChecker =
+                new DataSetExistenceChecker(directoryProvider, timingParameters);
         for (DeletedDataSet dataset : datasets)
         {
-            if (isUnknownDatasets(dataset))
+            if (isUnknownDatasets(dataset) && dataSetExistenceChecker.dataSetExists(dataset))
             {
                 File datasetDir =
-                        getDirectoryProvider().getDataSetDirectory(dataset.getShareIdOrNull(),
+                        directoryProvider.getDataSetDirectory(dataset.getShareIdOrNull(),
                                 dataset.getLocationOrNull());
-                if (datasetDir.exists())
-                {
-                    operationLog.info("Is going to delete an unknown data set: "
-                            + dataset.getCode());
-                    SegmentedStoreUtils.deleteDataSetInstantly(dataset.getCode(), datasetDir,
-                            logger);
-                }
+                operationLog.info("Is going to delete an unknown data set: " + dataset.getCode());
+                SegmentedStoreUtils.deleteDataSetInstantly(dataset.getCode(), datasetDir, logger);
             }
         }
     }

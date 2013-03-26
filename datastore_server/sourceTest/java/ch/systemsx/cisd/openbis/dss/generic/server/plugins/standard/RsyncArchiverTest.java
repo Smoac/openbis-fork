@@ -256,7 +256,7 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
                     one(dataStoreService).getDataSetDeleter();
                     will(returnValue(deleter));
 
-                    one(deleter).scheduleDeletionOfDataSets(Arrays.asList(ds1));
+                    one(deleter).scheduleDeletionOfDataSets(Arrays.asList(ds1), null);
 
                     one(statusUpdater).update(Arrays.asList("ds1"),
                             DataSetArchivingStatus.ARCHIVED, true);

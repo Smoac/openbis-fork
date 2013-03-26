@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
+import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
@@ -271,7 +272,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
         // the deletion will happen at a later point in time
         IDataSetDeleter dataSetDeleter = ServiceProvider.getDataStoreService().getDataSetDeleter();
-        dataSetDeleter.scheduleDeletionOfDataSets(datasets);
+        dataSetDeleter.scheduleDeletionOfDataSets(datasets, TimingParameters.create(new Properties()));
     }
 
     @Override

@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
+import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
@@ -133,9 +134,9 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
     }
 
     @Override
-    public void scheduleDeletionOfDataSets(List<? extends IDatasetLocation> dataSets)
+    public void scheduleDeletionOfDataSets(List<? extends IDatasetLocation> dataSets, TimingParameters timingParameters)
     {
-        scheduleCommand(new DeletionCommand(dataSets));
+        scheduleCommand(new DeletionCommand(dataSets, timingParameters));
     }
 
     @Override

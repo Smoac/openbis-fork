@@ -37,6 +37,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
  */
 public class ServiceProvider
 {
+    public static final String DATA_STORE_SERVICE_BEAN = "data-store-service";
+
+    public static final String SHARE_ID_MANAGER_BEAN = "share-id-manager";
+
+    public static final String CONFIG_PROVIDER_BEAN = "config-provider";
+
+    public static final String OPEN_BIS_SERVICE_BEAN = "openBIS-service";
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ServiceProvider.class);
 
@@ -98,7 +106,7 @@ public class ServiceProvider
      */
     public static IEncapsulatedOpenBISService getOpenBISService()
     {
-        return ((IEncapsulatedOpenBISService) getApplicationContext().getBean("openBIS-service"));
+        return ((IEncapsulatedOpenBISService) getApplicationContext().getBean(OPEN_BIS_SERVICE_BEAN));
     }
 
     public static IGeneralInformationService getGeneralInformationService()
@@ -127,7 +135,7 @@ public class ServiceProvider
 
     public static IShareIdManager getShareIdManager()
     {
-        return ((IShareIdManager) getApplicationContext().getBean("share-id-manager"));
+        return ((IShareIdManager) getApplicationContext().getBean(SHARE_ID_MANAGER_BEAN));
     }
 
     public static IHierarchicalContentProvider getHierarchicalContentProvider()
@@ -160,7 +168,7 @@ public class ServiceProvider
 
     public static IConfigProvider getConfigProvider()
     {
-        return ((IConfigProvider) getApplicationContext().getBean("config-provider"));
+        return ((IConfigProvider) getApplicationContext().getBean(CONFIG_PROVIDER_BEAN));
     }
 
     public static OpenBISSessionHolder getSessionHolder()
@@ -170,11 +178,11 @@ public class ServiceProvider
 
     public static IDataStoreServiceInternal getDataStoreService()
     {
-        Object bean = getApplicationContext().getBean("data-store-service");
+        Object bean = getApplicationContext().getBean(DATA_STORE_SERVICE_BEAN);
         IDataStoreServiceInternal result = null;
         if (bean instanceof Advised)
         {
-            Advised advised = (Advised) getApplicationContext().getBean("data-store-service");
+            Advised advised = (Advised) getApplicationContext().getBean(DATA_STORE_SERVICE_BEAN);
             try
             {
                 result = (IDataStoreServiceInternal) advised.getTargetSource().getTarget();

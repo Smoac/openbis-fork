@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -46,20 +47,23 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.security.TokenGenerator;
+import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 
 import de.schlichtherle.util.zip.ZipEntry;
 import de.schlichtherle.util.zip.ZipOutputStream;
@@ -288,6 +292,8 @@ class UploadingCommand implements IDataSetCommand
 
     private final TokenGenerator tokenGenerator;
 
+    private final TimingParameters timingParameters;
+    
     @Private
     boolean deleteAfterUploading = true;
 
@@ -311,6 +317,7 @@ class UploadingCommand implements IDataSetCommand
         userEMail = context.getUserEMail();
         this.comment = context.getComment();
         tokenGenerator = new TokenGenerator();
+        timingParameters = TimingParameters.create(new Properties());
     }
 
     @Override
@@ -423,6 +430,8 @@ class UploadingCommand implements IDataSetCommand
         {
             outputStream = new FileOutputStream(zipFile);
             zipOutputStream = new ZipOutputStream(outputStream);
+            DataSetExistenceChecker dataSetExistenceChecker =
+                    new DataSetExistenceChecker(dataSetDirectoryProvider, timingParameters);
             for (AbstractExternalData externalData : dataSets)
             {
                 String newRootPath = createRootPath(externalData) + "/";
@@ -438,15 +447,18 @@ class UploadingCommand implements IDataSetCommand
                                     + "' to zip file.", ex);
                     return false;
                 }
+                if (dataSetExistenceChecker.dataSetExists(DataSetTranslator
+                        .translateToDescription(externalData)) == false)
+                {
+                    return handleNonExistingDataSet(externalData, null);
+                }
                 IHierarchicalContent root = null;
                 try
                 {
                     root = getHierarchicalContentProvider().asContent(externalData.getCode());
                 } catch (Exception ex)
                 {
-                    notificationLog.error(
-                            "Data set " + externalData.getCode() + " does not exist.", ex);
-                    return false;
+                    return handleNonExistingDataSet(externalData, ex);
                 }
                 try
                 {
@@ -482,6 +494,13 @@ class UploadingCommand implements IDataSetCommand
                 }
             }
         }
+    }
+
+    private boolean handleNonExistingDataSet(AbstractExternalData externalData, Exception ex)
+    {
+        notificationLog.error(
+                "Data set " + externalData.getCode() + " does not exist.", ex);
+        return false;
     }
 
     private IHierarchicalContentProvider getHierarchicalContentProvider()

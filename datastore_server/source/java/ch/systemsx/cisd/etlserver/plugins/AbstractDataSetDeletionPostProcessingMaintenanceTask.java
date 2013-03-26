@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
@@ -49,6 +50,8 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
     protected final IEncapsulatedOpenBISService openBISService;
 
     protected long delayAfterDeletion;
+
+    ITimeProvider timeProvider;
 
     protected abstract Long getLastSeenEventId();
 
@@ -85,7 +88,7 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
             if (deletedDataSets.size() > 0)
             {
                 
-                long t0 = System.currentTimeMillis();
+                long t0 = getCurrentTime();
                 
                 execute(deletedDataSets);
                 updateLastSeenEventId(deletedDataSets, lastSeenEventId);
@@ -93,7 +96,7 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
                 if (operationLog.isInfoEnabled())
                 {
                     operationLog.info("Data set deletion post-processing task took "
-                            + ((System.currentTimeMillis() - t0 + 500) / 1000) + " seconds.");
+                            + ((getCurrentTime() - t0 + 500) / 1000) + " seconds.");
                 }
             }
         } catch (Throwable t)
@@ -104,9 +107,15 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
 
     private Date computeMaxDeletionDate()
     {
-        long now = System.currentTimeMillis();
+        long now = getCurrentTime();
         long maxDeletionTimestamp = now - delayAfterDeletion;
         return new Date(maxDeletionTimestamp);
+    }
+    
+    private long getCurrentTime()
+    {
+        return timeProvider == null ? System.currentTimeMillis() : timeProvider
+                .getTimeInMilliseconds();
     }
 
     private void updateLastSeenEventId(List<DeletedDataSet> deleted, Long lastSeenEventIdOrNull)
@@ -125,5 +134,5 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
             updateLastSeenEventId(maxEventId);
         }
     }
-
+    
 }

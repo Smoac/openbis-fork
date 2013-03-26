@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -29,8 +30,10 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.MockLogger;
+import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -53,7 +56,7 @@ public class DeletionCommandTest extends AbstractFileSystemTestCase
 
         DeletionCommandWithMockLogger(ISimpleLogger logger, List<DatasetDescription> dataSets)
         {
-            super(dataSets);
+            super(dataSets, TimingParameters.getNoTimeoutNoRetriesParameters());
             this.logger = logger;
         }
 
@@ -63,6 +66,8 @@ public class DeletionCommandTest extends AbstractFileSystemTestCase
             return logger;
         }
     }
+
+    private BufferedAppender logRecorder;
 
     private Mockery context;
 
@@ -81,6 +86,7 @@ public class DeletionCommandTest extends AbstractFileSystemTestCase
     @BeforeMethod
     public void beforeMethod()
     {
+        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
         context = new Mockery();
         shareIdManager = context.mock(IShareIdManager.class);
         contentProvider = context.mock(IHierarchicalContentProvider.class);
@@ -103,10 +109,13 @@ public class DeletionCommandTest extends AbstractFileSystemTestCase
     {
         DatasetDescription ds1 =
                 new DatasetDescriptionBuilder("ds-1").location("a").getDatasetDescription();
-
+        new File(share1, "a").mkdirs();
         context.checking(new Expectations()
             {
                 {
+                    one(shareIdManager).getShareId("ds-1");
+                    will(returnValue(SHARE_ID));
+
                     one(shareIdManager).await("ds-1");
                 }
             });
@@ -120,8 +129,11 @@ public class DeletionCommandTest extends AbstractFileSystemTestCase
         log.assertNextLogMessage("Couldn't delete Dataset 'ds-1', reason: unexpected invocation: "
                 + "iShareIdManager.getShareId(\"ds-1\")\n"
                 + "expectations:\n"
+                + "  expected once, already invoked 1 time: iShareIdManager.getShareId(\"ds-1\"); returns \"1\"\n"
                 + "  expected once, already invoked 1 time: iShareIdManager.await(\"ds-1\"); returns a default value\n"
-                + "what happened before this:\n" + "  iShareIdManager.await(\"ds-1\")\n");
+                + "what happened before this:\n" + "  iShareIdManager.getShareId(\"ds-1\")\n"
+                + "  iShareIdManager.await(\"ds-1\")\n");
+
         context.assertIsSatisfied();
     }
 
@@ -135,17 +147,16 @@ public class DeletionCommandTest extends AbstractFileSystemTestCase
         assertEquals(true, f1.exists());
         DatasetDescription ds2 =
                 new DatasetDescriptionBuilder("ds-2").location("b").getDatasetDescription();
-        File f2 = new File(share1, "b");
         context.checking(new Expectations()
             {
                 {
-                    one(shareIdManager).getShareId("ds-1");
+                    exactly(2).of(shareIdManager).getShareId("ds-1");
                     will(returnValue(SHARE_ID));
+
                     one(shareIdManager).await("ds-1");
 
                     one(shareIdManager).getShareId("ds-2");
                     will(returnValue(SHARE_ID));
-                    one(shareIdManager).await("ds-2");
                 }
             });
         IDataSetCommand command = new DeletionCommandWithMockLogger(log, Arrays.asList(ds1, ds2));
@@ -155,10 +166,9 @@ public class DeletionCommandTest extends AbstractFileSystemTestCase
         log.assertNextLogMessage("Await for data set ds-1 to be unlocked.");
         log.assertNextLogMessage("Start deleting data set ds-1 at " + f1);
         log.assertNextLogMessage("Data set ds-1 at " + f1 + " has been successfully deleted.");
-        log.assertNextLogMessage("Await for data set ds-2 to be unlocked.");
-        log.assertNextLogMessage("Start deleting data set ds-2 at " + f2);
-        log.assertNextLogMessage("Deletion of data set ds-2 at " + f2 + " failed.");
         log.assertNoMoreLogMessages();
+        assertEquals("WARN  OPERATION.DataSetExistenceChecker - "
+                + "Data set 'ds-2' no longer exists.", logRecorder.getLogContent());
         assertEquals(false, f1.exists());
 
         context.assertIsSatisfied();
