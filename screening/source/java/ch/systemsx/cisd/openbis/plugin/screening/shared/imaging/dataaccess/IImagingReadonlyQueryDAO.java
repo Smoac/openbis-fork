@@ -402,7 +402,7 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
 
     // ---------------- HCS - feature vectors ---------------------------------
 
-    @Select(sql = "select * from FEATURE_DEFS where DS_ID = any(?{1})", parameterBindings =
+    @Select(sql = "select * from FEATURE_DEFS where DS_ID = any(?{1}) ORDER BY ds_id ASC, id ASC", parameterBindings =
         { LongArrayMapper.class }, fetchSize = FETCH_SIZE)
     public List<ImgFeatureDefDTO> listFeatureDefsByDataSetIds(long... dataSetIds);
 

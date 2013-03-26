@@ -124,9 +124,8 @@ public class FeatureVectorsDropboxTest extends AbstractScreeningSystemTestCase
         {
             availableFeatureCodes.add(availableFeature.getCode());
         }
-        Collections.sort(availableFeatureCodes);
         assertEquals(
-                "[COLUMN_NUMBER, ROW_NUMBER, STATE, TPU, Z_VERY_LONG_FEATURE_LONGER_THAN_80_CHARS_123456789012345678901234567890123456789012345678901234567890]",
+                "[ROW_NUMBER, COLUMN_NUMBER, TPU, STATE, Z_VERY_LONG_FEATURE_LONGER_THAN_80_CHARS_123456789012345678901234567890123456789012345678901234567890]",
                 availableFeatureCodes.toString());
 
         List<FeatureVectorDataset> featureVectorDatasets =

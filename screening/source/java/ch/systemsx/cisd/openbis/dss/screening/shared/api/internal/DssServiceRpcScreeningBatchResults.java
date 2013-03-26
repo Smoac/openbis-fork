@@ -69,4 +69,25 @@ public class DssServiceRpcScreeningBatchResults<T> implements
         return new ArrayList<T>(results);
     }
 
+    @Override
+    public List<T> withoutDuplicatesPreservingOrder()
+    {
+        List<T> results = new ArrayList<T>();
+
+        for (List<T> dssResults : dssResultsMap.values())
+        {
+            if (dssResults != null)
+            {
+                for (T result : dssResults)
+                {
+                    if (results.contains(result) == false)
+                    {
+                        results.add(result);
+                    }
+                }
+            }
+        }
+        return results;
+    }
+
 }

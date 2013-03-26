@@ -948,7 +948,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
         return dssMultiplexer.process(
                 identifiersIncludingContained == null ? featureDatasets
-                        : identifiersIncludingContained, handler).withoutDuplicates();
+                        : identifiersIncludingContained, handler)
+                .withoutDuplicatesPreservingOrder();
     }
 
     private SearchSubCriteria getContainerSearchCriteria(String containerCode)

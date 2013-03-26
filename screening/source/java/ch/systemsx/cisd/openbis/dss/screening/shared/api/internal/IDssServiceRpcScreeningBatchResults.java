@@ -28,4 +28,5 @@ public interface IDssServiceRpcScreeningBatchResults<T>
 
     public List<T> withoutDuplicates();
 
+    public List<T> withoutDuplicatesPreservingOrder();
 }
