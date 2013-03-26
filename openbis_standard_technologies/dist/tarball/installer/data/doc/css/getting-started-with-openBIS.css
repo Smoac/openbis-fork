@@ -8,6 +8,13 @@ h4 {
 	font: 16px;
 	 }
 
+.generic {
+	background-color: #C7D38D;
+	padding-top: 5px;
+  padding-bottom: 5px;
+  margin: 15px 500px 15px 0px
+	}
+
 .proteomics {
 	background-color: #FB8072;
 	padding-top: 5px;
