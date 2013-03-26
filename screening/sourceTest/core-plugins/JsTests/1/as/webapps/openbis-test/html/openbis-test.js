@@ -156,6 +156,10 @@ var downloadFile = function(url, action){
 	});
 }
 
+var isHtml = function(page){
+	return page.indexOf("<html>") != -1;
+}
+
 var uploadFileToSessionWorkspace = function(facade, fileName, fileContent, dataStoreCode, action){
 	facade._internal.getDataStoreUrlForDataStoreCode(dataStoreCode, function(dataStoreUrl){
 		var uploadUrl = dataStoreUrl + "/session_workspace_file_upload" +
@@ -1246,6 +1250,31 @@ test("getDownloadUrlForFileForDataSetFileWithTimeout()", function(){
 	});
 });
 
+test("getDownloadUrlForFileForDataSetFileInSession()", function(){
+	createFacadeAndLogin(function(facade){
+		var fileOrFolder = createDataSetFileDTO("20110913114645299-83009", "/original/SERIES-1/bPLATE_w_s1_z0_t0_cRGB.png", false);
+		
+		facade.getDownloadUrlForFileForDataSetFileInSession(fileOrFolder, function(response){
+			ok(response, "Got download url");
+			
+			downloadFile(response, function(data){
+				ok(!isHtml(data), "Download url works");
+
+				downloadFile(response, function(data){
+					ok(!isHtml(data), "Download url works more than once");
+					
+					facade.logout(function(){
+						downloadFile(response, function(data){
+							ok(isHtml(data), "Download url does not work after logout");
+							facade.close();
+						});
+					});
+				});
+			});
+		});
+	});
+});
+
 test("listFilesForDataSet()", function(){
 	createFacadeAndLogin(function(facade){
 		var dataSetCode = "20110913114645299-83009";
@@ -1270,6 +1299,32 @@ test("getDownloadUrlForFileForDataSet()", function(){
 			downloadFile(response.result, function(data){
 				ok(data, "Download url works");
 				facade.close();
+			});
+		});
+	});
+});
+
+test("getDownloadUrlForFileForDataSetInSession()", function(){
+	createFacadeAndLogin(function(facade){
+		var dataSetCode = "20110913114645299-83009";
+		var path = "/original/SERIES-1/bPLATE_w_s1_z0_t0_cRGB.png";
+		
+		facade.getDownloadUrlForFileForDataSetInSession(dataSetCode, path, function(response){
+			ok(response, "Got download url");
+			
+			downloadFile(response, function(data){
+				ok(!isHtml(data), "Download url works");
+
+				downloadFile(response, function(data){
+					ok(!isHtml(data), "Download url works more than once");
+					
+					facade.logout(function(){
+						downloadFile(response, function(data){
+							ok(isHtml(data), "Download url does not work after logout");
+							facade.close();
+						});
+					});
+				});
 			});
 		});
 	});
@@ -1518,7 +1573,7 @@ test("getGraphUrl()", function(){
 		uploadGraphToSessionWorkspace(facade, dataStoreCodeOrNull, function(graphConfig){
 			facade.getGraphUrl(graphConfig, function(graphUrl){
 				downloadFile(graphUrl, function(data){
-					ok(data.indexOf("<html>") != 0, "Graph has been generated");
+					ok(!isHtml(data), "Graph has been generated");
 					facade.close();
 				})
 			});
@@ -1533,7 +1588,7 @@ test("getGraphUrlForDataStore()", function(){
 		uploadGraphToSessionWorkspace(facade, dataStoreCodeOrNull, function(graphConfig){
 			facade.getGraphUrlForDataStore(graphConfig, dataStoreCodeOrNull, function(graphUrl){
 				downloadFile(graphUrl, function(data){
-					ok(data.indexOf("<html>") != 0, "Graph has been generated");
+					ok(!isHtml(data), "Graph has been generated");
 					facade.close();
 				})
 			});

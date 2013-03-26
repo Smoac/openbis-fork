@@ -1268,6 +1268,14 @@ openbis.prototype.getDownloadUrlForFileForDataSetFile = function(fileOrFolder, a
 }
 
 /**
+ * Returns a download url that is valid as long as the user session is valid.
+ * @method
+ */
+openbis.prototype.getDownloadUrlForFileForDataSetFileInSession = function(fileOrFolder, action) {
+	this.getDownloadUrlForFileForDataSetInSession(fileOrFolder.dataSetCode, fileOrFolder.path, action);
+}
+
+/**
  * @see IDssServiceRpcGeneric.getDownloadUrlForFileForDataSetWithTimeout(String, DataSetFileDTO, long)
  * @method
  */
@@ -1312,6 +1320,18 @@ openbis.prototype.getDownloadUrlForFileForDataSet = function(dataSetCode, path, 
 					"params" : [ openbisObj.getSession(), dataSetCode, path ] },
 			success: action
 		});
+	});
+}
+
+/**
+ * Returns a download url that is valid as long as the user session is valid.
+ * @method
+ */
+openbis.prototype.getDownloadUrlForFileForDataSetInSession = function(dataSetCode, path, action) {
+	var openbisObj = this;
+	this._internal.getDataStoreUrlForDataSetCode(dataSetCode, function(dataStoreUrl){
+		var url = dataStoreUrl + "/" + dataSetCode + "/" + path + "?sessionID=" + openbisObj.getSession();
+		action(url);
 	});
 }
 
