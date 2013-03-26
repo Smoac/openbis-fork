@@ -11,10 +11,11 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
@@ -68,7 +69,7 @@ public abstract class AbstractBatchRegistrationForm extends AbstractRegistration
 
     protected final TextField<String> emailField;
 
-    protected final CheckBox asynchronous;
+    protected final RadioGroup asynchronous;
 
     protected final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -80,7 +81,7 @@ public abstract class AbstractBatchRegistrationForm extends AbstractRegistration
         this.sessionKey = sessionKey;
         this.viewContext = viewContext;
         setScrollMode(Scroll.AUTO);
-        asynchronous = createEmailCheckBox();
+        asynchronous = createAsyncRadio();
         emailField =
                 createEmailField(viewContext.getModel().getSessionContext().getUser()
                         .getUserEmail());
@@ -98,18 +99,61 @@ public abstract class AbstractBatchRegistrationForm extends AbstractRegistration
         addFormFields();
     }
 
-    private CheckBox createEmailCheckBox()
+    private static class RadioAsync extends Radio
     {
-        final CheckBox checkBox = new CheckBox();
-        checkBox.setFieldLabel("Send confirmation?");
-        checkBox.setBoxLabel("");
-        checkBox.setValue(true);
-        checkBox.addListener(Events.Change, new Listener<BaseEvent>()
+        private boolean async;
+
+        private RadioAsync(boolean async)
+        {
+            this.async = async;
+        }
+
+        public boolean isAsync()
+        {
+            return async;
+        }
+    }
+
+    protected boolean isAsync()
+    {
+        return isAsync(asynchronous);
+    }
+
+    private boolean isAsync(RadioGroup group)
+    {
+        Radio radio = group.getValue();
+        if (radio == null)
+        {
+            return false;
+        }
+        if (radio instanceof RadioAsync)
+        {
+            return ((RadioAsync) radio).isAsync();
+        }
+        return false;
+    }
+
+    private RadioGroup createAsyncRadio()
+    {
+        final Radio radioSync = new RadioAsync(false);
+        radioSync.setBoxLabel("Wait for result");
+        radioSync.setValue(true);
+
+        final Radio radioAsync = new RadioAsync(true);
+        radioAsync.setBoxLabel("Run in background (and confirm)");
+        radioAsync.setValue(false);
+
+        final RadioGroup radioGroup = new RadioGroup();
+        radioGroup.setFieldLabel("Wait for result");
+        radioGroup.add(radioSync);
+        radioGroup.add(radioAsync);
+
+        radioGroup.addListener(Events.Change, new Listener<BaseEvent>()
             {
                 @Override
                 public void handleEvent(BaseEvent be)
                 {
-                    if (checkBox.getValue())
+                    if (isAsync(radioGroup))
                     {
                         formPanel.remove(asynchronous);
                         for (FileUploadField attachmentField : fileFieldsManager.getFields())
@@ -124,14 +168,14 @@ public abstract class AbstractBatchRegistrationForm extends AbstractRegistration
                     formPanel.layout();
                 }
             });
-        return checkBox;
+        return radioGroup;
     }
 
     private TextField<String> createEmailField(String userEmail)
     {
         TextField<String> field = new TextField<String>();
         field.setAllowBlank(false);
-        field.setFieldLabel("Email");
+        field.setFieldLabel("Send confirmation email to");
         FieldUtil.markAsMandatory(field);
         field.setValue(userEmail);
         field.setValidateOnBlur(true);
@@ -186,7 +230,7 @@ public abstract class AbstractBatchRegistrationForm extends AbstractRegistration
     protected void addOnlyFormFields(boolean forceAddEmailField)
     {
         formPanel.add(asynchronous);
-        if (forceAddEmailField || asynchronous.getValue())
+        if (forceAddEmailField || isAsync())
         {
             formPanel.add(emailField);
         }

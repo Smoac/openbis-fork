@@ -27,9 +27,9 @@ public class GeneralImportForm extends AbstractBatchRegistrationForm
     @Override
     protected void save()
     {
-        genericViewContext.getService().registerOrUpdateSamplesAndMaterials(sessionKey, null, true,
-                asynchronous.getValue(), emailField.getValue(),
-                new BatchRegistrationCallback(genericViewContext));
+        genericViewContext.getService()
+                .registerOrUpdateSamplesAndMaterials(sessionKey, null, true, isAsync(),
+                        emailField.getValue(), new BatchRegistrationCallback(genericViewContext));
     }
 
 }

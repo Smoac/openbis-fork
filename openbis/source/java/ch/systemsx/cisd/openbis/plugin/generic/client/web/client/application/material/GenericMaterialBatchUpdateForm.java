@@ -55,7 +55,7 @@ public class GenericMaterialBatchUpdateForm extends AbstractMaterialBatchRegistr
     protected void save()
     {
         genericViewContext.getService().updateMaterials(materialType, SESSION_KEY,
-                ignoreUnregisteredMaterialsCheckBox.getValue(), asynchronous.getValue(),
-                emailField.getValue(), new BatchRegistrationCallback(genericViewContext));
+                ignoreUnregisteredMaterialsCheckBox.getValue(), isAsync(), emailField.getValue(),
+                new BatchRegistrationCallback(genericViewContext));
     }
 }

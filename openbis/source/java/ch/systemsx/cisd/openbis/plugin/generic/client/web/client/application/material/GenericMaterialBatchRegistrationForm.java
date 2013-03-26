@@ -64,7 +64,7 @@ public final class GenericMaterialBatchRegistrationForm extends
     {
         boolean updateExisting = updateExistingCheckbox.getValue();
         genericViewContext.getService().registerMaterials(materialType, updateExisting,
-                SESSION_KEY, asynchronous.getValue(), emailField.getValue(),
+                SESSION_KEY, isAsync(), emailField.getValue(),
                 new BatchRegistrationCallback(genericViewContext));
     }
 }
