@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.IScriptImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
 /**
@@ -37,6 +38,7 @@ public class ScriptImmutable implements IScriptImmutable
     ScriptImmutable()
     {
         this(new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script());
+        script.setPluginType(PluginType.JYTHON);
     }
 
     @Override
