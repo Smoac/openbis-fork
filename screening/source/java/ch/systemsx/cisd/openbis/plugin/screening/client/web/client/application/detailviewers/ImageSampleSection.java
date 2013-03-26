@@ -152,7 +152,7 @@ public class ImageSampleSection extends TabContent
                 for (LogicalImageInfo imageInfos : images)
                 {
                     ImageDatasetEnrichedReference ref = imageInfos.getImageDataset();
-                    if (ref.getId() == viewedImageDataSet.getId())
+                    if (ref.getId().equals(viewedImageDataSet.getId()))
                     {
                         currentImageDataSet = ref;
                     } else
