@@ -134,6 +134,7 @@ public class ShareIdManager implements IShareIdManager
     @Override
     public boolean isKnown(String dataSetCode)
     {
+        tryGetGuardedShareId(dataSetCode);
         return getDataSetCodeToShareIdMap().containsKey(dataSetCode);
     }
 
@@ -314,7 +315,7 @@ public class ShareIdManager implements IShareIdManager
         }
     }
 
-    private GuardedShareID getGuardedShareId(String dataSetCode)
+    private GuardedShareID tryGetGuardedShareId(String dataSetCode)
     {
         GuardedShareID shareId = getDataSetCodeToShareIdMap().get(dataSetCode);
         if (shareId == null)
@@ -322,10 +323,14 @@ public class ShareIdManager implements IShareIdManager
             updateValueForDataSet(dataSetCode);
             shareId = getDataSetCodeToShareIdMap().get(dataSetCode);
         }
+        return shareId;
+    }
 
+    private GuardedShareID getGuardedShareId(String dataSetCode)
+    {
+        GuardedShareID shareId = tryGetGuardedShareId(dataSetCode);
         if (shareId == null)
         {
-
             throw new IllegalArgumentException("Unknown data set: " + dataSetCode);
         }
         return shareId;
