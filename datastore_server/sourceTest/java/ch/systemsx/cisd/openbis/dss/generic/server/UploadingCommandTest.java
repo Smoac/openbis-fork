@@ -138,6 +138,13 @@ public class UploadingCommandTest extends AssertJUnit
 
     private static final class MockDataSetDirectoryProvider implements IDataSetDirectoryProvider
     {
+        private final IShareIdManager shareIdManager;
+
+        public MockDataSetDirectoryProvider(IShareIdManager shareIdManager)
+        {
+            this.shareIdManager = shareIdManager;
+        }
+
         @Override
         public File getStoreRoot()
         {
@@ -159,7 +166,7 @@ public class UploadingCommandTest extends AssertJUnit
         @Override
         public IShareIdManager getShareIdManager()
         {
-            return null;
+            return shareIdManager;
         }
     }
 
@@ -211,6 +218,8 @@ public class UploadingCommandTest extends AssertJUnit
 
     private IDataSetDirectoryProvider directoryProvider;
 
+    private IShareIdManager shareIdManager;
+
     @BeforeMethod
     public void setup()
     {
@@ -219,7 +228,8 @@ public class UploadingCommandTest extends AssertJUnit
         factory = context.mock(ICIFEXRPCServiceFactory.class);
         cifex = context.mock(ICIFEXComponent.class);
         uploader = context.mock(ICIFEXUploader.class);
-        directoryProvider = new MockDataSetDirectoryProvider();
+        shareIdManager = context.mock(IShareIdManager.class);
+        directoryProvider = new MockDataSetDirectoryProvider(shareIdManager);
         mailClientParameters = new MailClientParameters();
         mailClientParameters.setFrom("a@bc.de");
         mailClientParameters.setSmtpHost("file://" + EMAILS);
@@ -271,6 +281,16 @@ public class UploadingCommandTest extends AssertJUnit
         command.deleteAfterUploading = false;
         commandAdminSession.deleteAfterUploading = false;
         commandAdminSessionNotAuthenticated.deleteAfterUploading = false;
+        context.checking(new Expectations()
+            {
+                {
+                    one(shareIdManager).getShareId("1");
+                    will(returnValue(SHARE_ID));
+                    
+                    one(shareIdManager).getShareId("2");
+                    will(returnValue(SHARE_ID));
+                }
+            });
     }
 
     private ExternalDataPE createDataSet(String code)
@@ -480,29 +500,31 @@ public class UploadingCommandTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    @Test(expectedExceptions = AuthorizationFailureException.class)
+    @Test
     public void testExecuteAdminSessionNotAuthenticated() throws Exception
     {
+        context.checking(new Expectations()
+            {
+                {
+                    one(factory).createCIFEXComponent();
+                    will(returnValue(cifex));
+
+                    one(cifex).login(uploadContextNoPasswordNotAuthenticated.getUserID(),
+                            uploadContextNoPasswordNotAuthenticated.getPassword());
+                    will(throwException(new AuthorizationFailureException("forget it!")));
+                }
+            });
+        
         try
         {
-            context.checking(new Expectations()
-                {
-                    {
-                        one(factory).createCIFEXComponent();
-                        will(returnValue(cifex));
-
-                        one(cifex).login(uploadContextNoPasswordNotAuthenticated.getUserID(),
-                                uploadContextNoPasswordNotAuthenticated.getPassword());
-                        will(throwException(new AuthorizationFailureException("forget it!")));
-                    }
-                });
-
-            logRecorder.resetLogContent();
             commandAdminSessionNotAuthenticated.execute(null, directoryProvider);
-        } finally
+            fail("AuthorizationFailureException");
+        } catch (AuthorizationFailureException ex)
         {
-            context.assertIsSatisfied();
+            assertEquals("Authorization failure: forget it!.", ex.getMessage());
         }
+
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -513,9 +535,9 @@ public class UploadingCommandTest extends AssertJUnit
         command.execute(null, directoryProvider);
 
         checkEmail("Couldn't create zip file");
-        assertEquals("ERROR NOTIFY.UploadingCommand - Data set 2 does not exist."
-                + OSUtilities.LINE_SEPARATOR
-                + "java.lang.IllegalArgumentException:/store/share-id/ds2 doesn't exist"
+        assertEquals("WARN  OPERATION.DataSetExistenceChecker - Data set '2' no longer exists." 
+                + OSUtilities.LINE_SEPARATOR +
+        		"ERROR NOTIFY.UploadingCommand - Data set 2 does not exist."
                 + OSUtilities.LINE_SEPARATOR + INFO_MAIL_PREFIX
                 + "Sending message from 'a@bc.de' to recipients '[user@bc.de]'",
                 getNormalizedLogContent());
