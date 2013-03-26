@@ -1712,7 +1712,7 @@ data_set_type_ALIGNMENT.setDeletionDisallowed(False)
 data_set_type_BASECALL_STATS = tr.getOrCreateNewDataSetType('BASECALL_STATS')
 data_set_type_BASECALL_STATS.setDescription('Base Call Statistics from the Illumina Pipeline (configureBclToFastq.pl)')
 data_set_type_BASECALL_STATS.setDataSetKind('PHYSICAL')
-data_set_type_BASECALL_STATS.setMainDataSetPattern(original/.*/.*/Demultiplex_Stats.htm)
+data_set_type_BASECALL_STATS.setMainDataSetPattern('original/.*/.*/Demultiplex_Stats.htm')
 data_set_type_BASECALL_STATS.setMainDataSetPath(None)
 data_set_type_BASECALL_STATS.setDeletionDisallowed(False)
 
@@ -1792,7 +1792,7 @@ data_set_type_QUALITY_SVG.setDeletionDisallowed(False)
 data_set_type_RUNINFO = tr.getOrCreateNewDataSetType('RUNINFO')
 data_set_type_RUNINFO.setDescription('Run statstics: Status.html and Status_Files folder')
 data_set_type_RUNINFO.setDataSetKind('PHYSICAL')
-data_set_type_RUNINFO.setMainDataSetPattern(original/.*/Data/Status.htm)
+data_set_type_RUNINFO.setMainDataSetPattern('original/.*/Data/Status.htm')
 data_set_type_RUNINFO.setMainDataSetPath(None)
 data_set_type_RUNINFO.setDeletionDisallowed(False)
 
@@ -1887,7 +1887,7 @@ prop_type_CLUSTER_STATION.setInternalNamespace(False)
 prop_type_CLUSTER_STATION.setVocabulary(vocabulary_CLUSTER_STATION)
 
 prop_type_CONCENTRATION = tr.getOrCreateNewPropertyType('CONCENTRATION', DataType.REAL)
-prop_type_CONCENTRATION.setLabel(u'Conc. [ng/Âµl]')
+prop_type_CONCENTRATION.setLabel(u'Conc. [ng/\u03bcl]')
 prop_type_CONCENTRATION.setManagedInternally(False)
 prop_type_CONCENTRATION.setInternalNamespace(False)
 
@@ -1899,13 +1899,13 @@ prop_type_CONCENTRATION_FLOWLANE.setInternalNamespace(False)
 
 
 prop_type_CONCENTRATION_ORIGINAL_ILLUMINA = tr.getOrCreateNewPropertyType('CONCENTRATION_ORIGINAL_ILLUMINA', DataType.REAL)
-prop_type_CONCENTRATION_ORIGINAL_ILLUMINA.setLabel(u'Concentration (original) [ng/Î¼l]')
+prop_type_CONCENTRATION_ORIGINAL_ILLUMINA.setLabel(u'Concentration (original) [ng/\u03bcl]')
 prop_type_CONCENTRATION_ORIGINAL_ILLUMINA.setManagedInternally(False)
 prop_type_CONCENTRATION_ORIGINAL_ILLUMINA.setInternalNamespace(False)
 
 
 prop_type_CONCENTRATION_PREPARED_ILLUMINA = tr.getOrCreateNewPropertyType('CONCENTRATION_PREPARED_ILLUMINA', DataType.REAL)
-prop_type_CONCENTRATION_PREPARED_ILLUMINA.setLabel(u'Concentration (prepared) [ng/Î¼l]')
+prop_type_CONCENTRATION_PREPARED_ILLUMINA.setLabel(u'Concentration (prepared) [ng/\u03bcl]')
 prop_type_CONCENTRATION_PREPARED_ILLUMINA.setManagedInternally(False)
 prop_type_CONCENTRATION_PREPARED_ILLUMINA.setInternalNamespace(False)
 
