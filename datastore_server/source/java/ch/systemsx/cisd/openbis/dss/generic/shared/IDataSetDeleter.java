@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.util.List;
 
-import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
@@ -30,9 +29,11 @@ public interface IDataSetDeleter
     /**
      * Schedules deletion of all specified data sets.
      * 
-     * @param timingParameters Parameters used for retry deletion if file system is temporarily not
-     *            available.
+     * @param maxNumberOfRetries Maximum number of retries of deletion if file system is temporarily
+     *            not available.
+     * @param waitingTimeBetweenRetries Waiting time (in seconds) between retries.
      */
-    void scheduleDeletionOfDataSets(List<? extends IDatasetLocation> dataSets, TimingParameters timingParameters);
+    void scheduleDeletionOfDataSets(List<? extends IDatasetLocation> dataSets,
+            int maxNumberOfRetries, long waitingTimeBetweenRetries);
 
 }

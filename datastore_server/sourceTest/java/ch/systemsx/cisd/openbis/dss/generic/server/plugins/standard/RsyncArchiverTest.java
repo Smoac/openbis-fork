@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
@@ -256,7 +257,9 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
                     one(dataStoreService).getDataSetDeleter();
                     will(returnValue(deleter));
 
-                    one(deleter).scheduleDeletionOfDataSets(Arrays.asList(ds1), null);
+                    one(deleter).scheduleDeletionOfDataSets(Arrays.asList(ds1),
+                            TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT,
+                            TimingParameters.DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURE_SECONDS);
 
                     one(statusUpdater).update(Arrays.asList("ds1"),
                             DataSetArchivingStatus.ARCHIVED, true);

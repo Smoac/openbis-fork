@@ -292,8 +292,6 @@ class UploadingCommand implements IDataSetCommand
 
     private final TokenGenerator tokenGenerator;
 
-    private final TimingParameters timingParameters;
-    
     @Private
     boolean deleteAfterUploading = true;
 
@@ -317,7 +315,6 @@ class UploadingCommand implements IDataSetCommand
         userEMail = context.getUserEMail();
         this.comment = context.getComment();
         tokenGenerator = new TokenGenerator();
-        timingParameters = TimingParameters.create(new Properties());
     }
 
     @Override
@@ -431,7 +428,8 @@ class UploadingCommand implements IDataSetCommand
             outputStream = new FileOutputStream(zipFile);
             zipOutputStream = new ZipOutputStream(outputStream);
             DataSetExistenceChecker dataSetExistenceChecker =
-                    new DataSetExistenceChecker(dataSetDirectoryProvider, timingParameters);
+                    new DataSetExistenceChecker(dataSetDirectoryProvider,
+                            TimingParameters.create(new Properties()));
             for (AbstractExternalData externalData : dataSets)
             {
                 String newRootPath = createRootPath(externalData) + "/";

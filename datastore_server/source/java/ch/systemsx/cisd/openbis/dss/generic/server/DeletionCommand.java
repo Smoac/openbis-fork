@@ -29,7 +29,6 @@ import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogLevel;
-import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -49,12 +48,16 @@ class DeletionCommand extends AbstractDataSetLocationBasedCommand
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DeletionCommand.class);
 
-    private final TimingParameters timingParameters;
+    private final int maxNumberOfRetries;
 
-    DeletionCommand(List<? extends IDatasetLocation> dataSets, TimingParameters timingParameters)
+    private final long waitingTimeBetweenRetries;
+
+    DeletionCommand(List<? extends IDatasetLocation> dataSets, int maxNumberOfRetries,
+            long waitingTimeBetweenRetries)
     {
         super(dataSets);
-        this.timingParameters = timingParameters;
+        this.maxNumberOfRetries = maxNumberOfRetries;
+        this.waitingTimeBetweenRetries = waitingTimeBetweenRetries;
     }
 
     @Override
@@ -67,7 +70,8 @@ class DeletionCommand extends AbstractDataSetLocationBasedCommand
                 new ThreadPoolExecutor(1, 10, 360, TimeUnit.SECONDS,
                         new LinkedBlockingQueue<Runnable>());
         DataSetExistenceChecker dataSetExistenceChecker =
-                new DataSetExistenceChecker(dataSetDirectoryProvider, timingParameters);
+                new DataSetExistenceChecker(dataSetDirectoryProvider, waitingTimeBetweenRetries,
+                        maxNumberOfRetries);
         for (final IDatasetLocation dataSet : dataSets)
         {
             if (dataSetExistenceChecker.dataSetExists(dataSet) == false)

@@ -29,14 +29,13 @@ import ch.systemsx.cisd.common.io.PersistentExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
-import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -134,9 +133,10 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
     }
 
     @Override
-    public void scheduleDeletionOfDataSets(List<? extends IDatasetLocation> dataSets, TimingParameters timingParameters)
+    public void scheduleDeletionOfDataSets(List<? extends IDatasetLocation> dataSets,
+            int maxNumberOfRetries, long waitingTimeBetweenRetries)
     {
-        scheduleCommand(new DeletionCommand(dataSets, timingParameters));
+        scheduleCommand(new DeletionCommand(dataSets, maxNumberOfRetries, waitingTimeBetweenRetries));
     }
 
     @Override

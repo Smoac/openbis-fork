@@ -33,7 +33,6 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.MockLogger;
-import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -56,7 +55,7 @@ public class DeletionCommandTest extends AbstractFileSystemTestCase
 
         DeletionCommandWithMockLogger(ISimpleLogger logger, List<DatasetDescription> dataSets)
         {
-            super(dataSets, TimingParameters.getNoTimeoutNoRetriesParameters());
+            super(dataSets, 0, 0);
             this.logger = logger;
         }
 

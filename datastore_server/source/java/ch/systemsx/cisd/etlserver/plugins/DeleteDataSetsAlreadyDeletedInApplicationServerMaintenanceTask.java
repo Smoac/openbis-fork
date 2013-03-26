@@ -137,7 +137,9 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTask exte
 
         if (!locations.isEmpty())
         {
-            getService().getDataSetDeleter().scheduleDeletionOfDataSets(locations, timingParameters);
+            getService().getDataSetDeleter().scheduleDeletionOfDataSets(locations,
+                    timingParameters.getMaxRetriesOnFailure(),
+                    timingParameters.getIntervalToWaitAfterFailureMillis());
         }
     }
 

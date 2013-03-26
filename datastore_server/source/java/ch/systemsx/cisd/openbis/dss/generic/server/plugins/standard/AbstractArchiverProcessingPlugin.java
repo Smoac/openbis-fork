@@ -272,7 +272,9 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
         // the deletion will happen at a later point in time
         IDataSetDeleter dataSetDeleter = ServiceProvider.getDataStoreService().getDataSetDeleter();
-        dataSetDeleter.scheduleDeletionOfDataSets(datasets, TimingParameters.create(new Properties()));
+        dataSetDeleter.scheduleDeletionOfDataSets(datasets,
+                TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT,
+                TimingParameters.DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURE_SECONDS);
     }
 
     @Override

@@ -156,8 +156,6 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTaskTest 
     {
         final RecordingMatcher<List<? extends IDatasetLocation>> recordedLocations =
                 new RecordingMatcher<List<? extends IDatasetLocation>>();
-        final RecordingMatcher<TimingParameters> recordedTimingParameters =
-                new RecordingMatcher<TimingParameters>();
         context.checking(new Expectations()
             {
                 {
@@ -173,7 +171,7 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTaskTest 
                     will(returnValue(true));
 
                     one(deleter).scheduleDeletionOfDataSets(with(recordedLocations),
-                            with(recordedTimingParameters));
+                            with(2), with(1000L));
                 }
             });
 
@@ -185,8 +183,6 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTaskTest 
                 logRecorder.getLogContent());
         assertEquals("[Dataset[DS1], location[a/ds1]]", recordedLocations.recordedObject()
                 .toString());
-        assertEquals("Timing: timeout: 60 s, maximal retries: 2, sleep on failure: 1 s",
-                recordedTimingParameters.recordedObject().toString());
         context.assertIsSatisfied();
     }
 
