@@ -152,7 +152,6 @@ public class SecondCopyPostRegistrationTaskTest extends AbstractFileSystemTestCa
     @AfterMethod(alwaysRun = true)
     public void afterMethod()
     {
-        ServiceProviderTestWrapper.restoreApplicationContext();
         if (logRecorder != null)
         {
             logRecorder.reset();
