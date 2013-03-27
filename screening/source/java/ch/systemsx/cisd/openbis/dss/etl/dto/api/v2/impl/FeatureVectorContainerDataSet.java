@@ -72,6 +72,7 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
                 .add(new NewProperty(ANALYSIS_PROCEDURE, analysisProcedure));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void setSample(ISampleImmutable sampleOrNull)
     {
@@ -86,6 +87,8 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
         if (allFeaturesList != null)
         {
             allFeaturesList.setSample(sampleOrNull);
+            ((DataSet<DataSetInformation>) allFeaturesList).getRegistrationDetails()
+                    .getDataSetInformation().setLinkSample(false);
         }
     }
 

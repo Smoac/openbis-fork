@@ -65,8 +65,6 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
 
     private static final ISerializableComparable EMPTY_CELL = new StringTableCell("");
 
-    private IMetadataProvider metadataProvider;
-
     private IImagingReadonlyQueryDAO dao;
 
     public ImageAnalysisMergedRowsReportingPlugin(Properties properties, File storeRoot)
@@ -78,12 +76,12 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
             IMetadataProvider service, IImagingReadonlyQueryDAO dao)
     {
         super(properties, storeRoot);
-        this.metadataProvider = service;
         this.dao = dao;
     }
 
     @Override
-    public TableModel createReport(List<DatasetDescription> datasets, DataSetProcessingContext context)
+    public TableModel createReport(List<DatasetDescription> datasets,
+            DataSetProcessingContext context)
     {
         List<String> datasetCodes = extractDatasetCodes(datasets);
         ArrayList<String> featureCodes = new ArrayList<String>(); // fetch all
@@ -95,8 +93,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
         List<FeatureTableRow> rows = featuresCollection.getFeatures();
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
         builder.addHeader(DATA_SET_CODE_TITLE, CodeNormalizer.normalize(DATA_SET_CODE_TITLE));
-        builder.addHeader(PLATE_IDENTIFIER_TITLE,
-                CodeNormalizer.normalize(PLATE_IDENTIFIER_TITLE));
+        builder.addHeader(PLATE_IDENTIFIER_TITLE, CodeNormalizer.normalize(PLATE_IDENTIFIER_TITLE));
         builder.addHeader(ROW_TITLE, CodeNormalizer.normalize(ROW_TITLE));
         builder.addHeader(COLUMN_TITLE, CodeNormalizer.normalize(COLUMN_TITLE));
         for (CodeAndLabel codeAndLabel : codeAndLabels)
@@ -174,15 +171,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
 
     private IMetadataProvider getMetadataProvider(final List<String> datasetCodes)
     {
-        synchronized (this)
-        {
-            if (metadataProvider == null)
-            {
-                metadataProvider =
-                        FeatureVectorLoaderMetadataProviderFactory.createMetadataProvider(
-                                ServiceProvider.getOpenBISService(), datasetCodes);
-            }
-        }
-        return metadataProvider;
+        return FeatureVectorLoaderMetadataProviderFactory.createMetadataProvider(
+                ServiceProvider.getOpenBISService(), datasetCodes);
     }
 }

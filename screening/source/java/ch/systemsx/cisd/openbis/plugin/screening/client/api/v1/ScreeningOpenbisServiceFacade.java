@@ -862,6 +862,9 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public List<String> listAvailableFeatureCodes(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
+        List<? extends IFeatureVectorDatasetIdentifier> identifiersIncludingContained =
+                listFeatureDatasetsIncludingContained(featureDatasets);
+
         IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, String> handler =
                 new IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, String>()
                     {
@@ -878,7 +881,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     };
 
-        return dssMultiplexer.process(featureDatasets, handler).withoutDuplicates();
+        return dssMultiplexer.process(identifiersIncludingContained, handler).withoutDuplicates();
     }
 
     /**
@@ -891,25 +894,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public List<FeatureInformation> listAvailableFeatures(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
-        List<DataSet> containedDataSets = getContainedDataSets(featureDatasets);
-
-        List<IFeatureVectorDatasetIdentifier> identifiersIncludingContained = null;
-
-        if (containedDataSets.size() != 0)
-        {
-            String host = featureDatasets.get(0).getDatastoreServerUrl();
-
-            identifiersIncludingContained = new LinkedList<IFeatureVectorDatasetIdentifier>();
-            identifiersIncludingContained.addAll(featureDatasets);
-            for (DataSet contained : containedDataSets)
-            {
-                IFeatureVectorDatasetIdentifier containedIdentifier =
-                        new FeatureVectorDatasetReference(contained.getCode(),
-                                contained.getDataSetTypeCode(), host, null, null, null, null, null,
-                                null);
-                identifiersIncludingContained.add(containedIdentifier);
-            }
-        }
+        List<? extends IFeatureVectorDatasetIdentifier> identifiersIncludingContained =
+                listFeatureDatasetsIncludingContained(featureDatasets);
 
         IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, FeatureInformation> handler =
                 new IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, FeatureInformation>()
@@ -950,6 +936,34 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 identifiersIncludingContained == null ? featureDatasets
                         : identifiersIncludingContained, handler)
                 .withoutDuplicatesPreservingOrder();
+    }
+
+    protected List<? extends IFeatureVectorDatasetIdentifier> listFeatureDatasetsIncludingContained(
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
+    {
+        List<DataSet> containedDataSets = getContainedDataSets(featureDatasets);
+
+        List<IFeatureVectorDatasetIdentifier> identifiersIncludingContained = null;
+
+        if (containedDataSets.size() == 0)
+        {
+            return featureDatasets;
+        } else
+        {
+            String host = featureDatasets.get(0).getDatastoreServerUrl();
+
+            identifiersIncludingContained = new LinkedList<IFeatureVectorDatasetIdentifier>();
+            identifiersIncludingContained.addAll(featureDatasets);
+            for (DataSet contained : containedDataSets)
+            {
+                IFeatureVectorDatasetIdentifier containedIdentifier =
+                        new FeatureVectorDatasetReference(contained.getCode(),
+                                contained.getDataSetTypeCode(), host, null, null, null, null, null,
+                                null);
+                identifiersIncludingContained.add(containedIdentifier);
+            }
+            return identifiersIncludingContained;
+        }
     }
 
     private SearchSubCriteria getContainerSearchCriteria(String containerCode)
