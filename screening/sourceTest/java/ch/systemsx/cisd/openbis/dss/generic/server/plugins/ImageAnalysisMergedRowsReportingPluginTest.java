@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -32,6 +31,9 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.convert.NativeTaggedArray;
 import ch.systemsx.cisd.base.mdarray.MDFloatArray;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
@@ -39,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.IMetadataProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAnalysisDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
@@ -56,7 +57,7 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
 {
     private Mockery context;
 
-    private IMetadataProvider service;
+    private IEncapsulatedOpenBISService service;
 
     private IImagingReadonlyQueryDAO dao;
 
@@ -66,7 +67,7 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
     public void beforeMethod()
     {
         context = new Mockery();
-        service = context.mock(IMetadataProvider.class);
+        service = context.mock(IEncapsulatedOpenBISService.class);
         dao = context.mock(IImagingReadonlyQueryDAO.class);
         plugin =
                 new ImageAnalysisMergedRowsReportingPlugin(new Properties(), new File("."),
@@ -113,11 +114,10 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(service).tryGetContainedDatasets(ds1.getDataSetCode());
-                    will(returnValue(Collections.emptyList()));
-
-                    one(service).tryGetContainedDatasets(ds2.getDataSetCode());
-                    will(returnValue(Collections.emptyList()));
+                    one(service).listDataSetsByCode(
+                            Arrays.asList(ds1.getDataSetCode(), ds2.getDataSetCode()));
+                    will(returnValue(Arrays.asList(createPhysicalDataset(ds1),
+                            createPhysicalDataset(ds2))));
 
                     one(dao).listAnalysisDatasetsByPermId(ds1.getDataSetCode(),
                             ds2.getDataSetCode());
@@ -165,6 +165,13 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
         assertEquals(prefix + "B, 1, , 5.75, 44.125]", rows.get(7).getValues().toString());
         assertEquals(8, rows.size());
         context.assertIsSatisfied();
+    }
+
+    private AbstractExternalData createPhysicalDataset(DatasetDescription dataSetDescirption)
+    {
+        PhysicalDataSet dataSet = new PhysicalDataSet();
+        dataSet.setCode(dataSetDescirption.getDataSetCode());
+        return dataSet;
     }
 
     private ImgAnalysisDatasetDTO createDataSet(long id)

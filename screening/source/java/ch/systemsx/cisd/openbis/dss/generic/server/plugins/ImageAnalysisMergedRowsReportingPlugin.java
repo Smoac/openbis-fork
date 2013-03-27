@@ -23,6 +23,7 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.screening.server.util.FeatureVectorLoaderMetadataProviderFactory;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
@@ -65,6 +66,8 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
 
     private static final ISerializableComparable EMPTY_CELL = new StringTableCell("");
 
+    private IEncapsulatedOpenBISService service;
+
     private IImagingReadonlyQueryDAO dao;
 
     public ImageAnalysisMergedRowsReportingPlugin(Properties properties, File storeRoot)
@@ -73,9 +76,10 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
     }
 
     ImageAnalysisMergedRowsReportingPlugin(Properties properties, File storeRoot,
-            IMetadataProvider service, IImagingReadonlyQueryDAO dao)
+            IEncapsulatedOpenBISService service, IImagingReadonlyQueryDAO dao)
     {
         super(properties, storeRoot);
+        this.service = service;
         this.dao = dao;
     }
 
@@ -171,7 +175,11 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
 
     private IMetadataProvider getMetadataProvider(final List<String> datasetCodes)
     {
-        return FeatureVectorLoaderMetadataProviderFactory.createMetadataProvider(
-                ServiceProvider.getOpenBISService(), datasetCodes);
+        if (service == null)
+        {
+            service = ServiceProvider.getOpenBISService();
+        }
+        return FeatureVectorLoaderMetadataProviderFactory.createMetadataProvider(service,
+                datasetCodes);
     }
 }
