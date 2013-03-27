@@ -249,6 +249,14 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         context.checking(new Expectations()
             {
                 {
+                    one(f1id).getDatasetCode();
+                    will(returnValue("f1id"));
+                    one(f2id).getDatasetCode();
+                    will(returnValue("f2id"));
+
+                    one(generalInformationService).searchForDataSets(with(equal(SESSION_TOKEN)),
+                            with(any(SearchCriteria.class)));
+
                     one(dssService1).listAvailableFeatureNames(SESSION_TOKEN, Arrays.asList(f1id));
                     will(returnValue(Arrays.asList("f1", "f2")));
 
@@ -510,6 +518,9 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                             new WellPosition(1, 2), Arrays.<ImageDatasetReference> asList(), Arrays
                                     .asList(r1, r2)))));
 
+                    one(generalInformationService).searchForDataSets(with(equal(SESSION_TOKEN)),
+                            with(any(SearchCriteria.class)));
+
                     one(dssService1).listAvailableFeatureNames(SESSION_TOKEN, Arrays.asList(r1));
                     will(returnValue(featureNames));
 
@@ -571,6 +582,9 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
                     will(returnValue(Arrays.asList(new PlateWellReferenceWithDatasets(plate,
                             new WellPosition(1, 2), Arrays.<ImageDatasetReference> asList(), Arrays
                                     .asList(r1, r2)))));
+
+                    one(generalInformationService).searchForDataSets(with(equal(SESSION_TOKEN)),
+                            with(any(SearchCriteria.class)));
 
                     one(dssService1).listAvailableFeatureNames(SESSION_TOKEN, Arrays.asList(r1));
                     will(returnValue(featureNames));
