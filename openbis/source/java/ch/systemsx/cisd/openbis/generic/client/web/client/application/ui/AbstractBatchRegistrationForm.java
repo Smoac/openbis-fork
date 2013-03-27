@@ -137,11 +137,11 @@ public abstract class AbstractBatchRegistrationForm extends AbstractRegistration
     {
         final Radio radioSync = new RadioAsync(false);
         radioSync.setBoxLabel("Wait for result");
-        radioSync.setValue(true);
+        radioSync.setValue(false);
 
         final Radio radioAsync = new RadioAsync(true);
         radioAsync.setBoxLabel("Run in background (and confirm)");
-        radioAsync.setValue(false);
+        radioAsync.setValue(true);
 
         final RadioGroup radioGroup = new RadioGroup();
         radioGroup.setFieldLabel("Wait for result");
