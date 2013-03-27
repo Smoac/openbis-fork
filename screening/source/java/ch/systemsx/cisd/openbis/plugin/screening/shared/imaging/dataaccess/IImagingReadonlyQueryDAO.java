@@ -408,7 +408,7 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
 
     @Select(sql = "select t.*, fd.ds_id as DS_ID from FEATURE_VOCABULARY_TERMS t      "
             + "join FEATURE_DEFS fd on fd.id = t.fd_id                                "
-            + "where fd.DS_ID = any(?{1})                                             ", parameterBindings =
+            + "where fd.DS_ID = any(?{1}) ORDER BY fd.ds_id ASC, fd.id ASC            ", parameterBindings =
         { LongArrayMapper.class }, fetchSize = FETCH_SIZE)
     public List<ImgFeatureVocabularyTermDTO> listFeatureVocabularyTermsByDataSetId(
             long... dataSetIds);
