@@ -76,39 +76,36 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         operationLog.info(String.format("Indexing '%s'...", clazz.getSimpleName()));
         final FullTextSession fullTextSession = getFullTextSession(hibernateSession);
 
+        doFullTextIndex(fullTextSession, clazz);
+    }
+
+    <T> void doFullTextIndex(final FullTextSession fullTextSession, final Class<T> clazz)
+    {
         // we index entities in batches loading them in groups restricted by id:
         // [ ids[index], ids[min(index+batchSize, maxIndex))] )
         Transaction transaction = null;
         try
         {
             transaction = fullTextSession.beginTransaction();
-            int index = 0;
             final List<Long> ids = getAllIds(fullTextSession, clazz);
             final int idsSize = ids.size();
             operationLog.info(String.format("... got %d '%s' ids...", idsSize,
                     clazz.getSimpleName()));
-            final int maxIndex = idsSize - 1;
-            // need to increment last id because we use 'lt' condition
-            if (maxIndex > -1)
+            for (int index = 0; index < idsSize; index += batchSize)
             {
-                ids.set(maxIndex, ids.get(maxIndex) + 1);
-            }
-            while (index < maxIndex)
-            {
-                final int nextIndex = getNextIndex(index, maxIndex);
+                final int nextIndex = index + batchSize;
                 final long minId = ids.get(index);
-                final long maxId = ids.get(nextIndex);
+                final long maxId = nextIndex < idsSize ? ids.get(nextIndex) : Integer.MAX_VALUE;
                 final List<T> results =
                         listEntitiesWithRestrictedId(fullTextSession, clazz, minId, maxId);
                 indexEntities(fullTextSession, results);
-                index = nextIndex;
-                operationLog.info(String.format("%d/%d %ss have been indexed...", index + 1,
-                        maxIndex + 1, clazz.getSimpleName()));
+                operationLog.info(String.format("%d/%d %ss have been indexed...",
+                        Math.min(nextIndex, idsSize), idsSize, clazz.getSimpleName()));
             }
             fullTextSession.getSearchFactory().optimize(clazz);
             transaction.commit();
             operationLog.info(String.format("'%s' index complete. %d entities have been indexed.",
-                    clazz.getSimpleName(), index + 1));
+                    clazz.getSimpleName(), idsSize));
         } catch (Exception e)
         {
             operationLog.error(e.getMessage());
