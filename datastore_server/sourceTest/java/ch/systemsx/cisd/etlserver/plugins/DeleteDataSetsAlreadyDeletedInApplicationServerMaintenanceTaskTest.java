@@ -273,7 +273,7 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTaskTest 
         assertEquals(INFO_LOG_PREFIX + "Got 1 deletions to process\n"
                 + "ERROR NOTIFY.DataSetExistenceChecker - "
                 + "Data set 'DS1' couldn't retrieved because share '" + new File(store, "2")
-                + "' doesn't exists after 2 (waiting 1000 msec between retries).\n"
+                + "' doesn't exists after 2 retries (waiting 1000 msec between retries).\n"
                 + INFO_LOG_PREFIX + "Data set deletion post-processing task took 1 seconds.",
                 logRecorder.getLogContent());
         context.assertIsSatisfied();

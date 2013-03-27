@@ -101,8 +101,8 @@ public class DataSetExistenceChecker
             }
         }
         notificationLog.error("Data set '" + dataSetCode + "' couldn't retrieved because share '"
-                + share + "' doesn't exists after " + maxRetries + " (waiting " + waitingTime
-                + " msec between retries).");
+                + share + "' doesn't exists after " + maxRetries + " retries (waiting "
+                + waitingTime + " msec between retries).");
         return false;
     }
 
