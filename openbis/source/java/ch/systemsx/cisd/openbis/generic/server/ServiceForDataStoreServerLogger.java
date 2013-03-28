@@ -345,6 +345,15 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     }
 
     @Override
+    public AbstractExternalData tryGetLocalDataSet(String sessionToken, String dataSetCode,
+            String dataStore) throws UserFailureException
+    {
+        logAccess(sessionToken, "tryGetLocalDataSet", "DATA_SET(%s) DATA_STORE_CODE(%s)",
+                dataSetCode, dataStore);
+        return null;
+    }
+
+    @Override
     public List<Sample> listSamplesByCriteria(String sessionToken,
             ListSamplesByPropertyCriteria criteria) throws UserFailureException
     {

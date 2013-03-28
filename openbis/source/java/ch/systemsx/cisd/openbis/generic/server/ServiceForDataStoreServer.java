@@ -1081,6 +1081,20 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @Override
     @RolesAllowed(value =
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public AbstractExternalData tryGetLocalDataSet(String sessionToken, String dataSetCode,
+            String dataStore) throws UserFailureException
+    {
+        AbstractExternalData dataSet = tryGetDataSet(sessionToken, dataSetCode);
+        if (dataSet != null && dataSet.getDataStore().getCode().equals(dataStore))
+        {
+            return dataSet;
+        }
+        return null;
+    }
+
+    @Override
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public AbstractExternalData tryGetDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
             String dataSetCode) throws UserFailureException

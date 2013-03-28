@@ -373,6 +373,14 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
+     * Tries to return the data set specified by its code, but only if it belongs to the data store
+     * of the caller.
+     */
+    @Transactional(readOnly = true)
+    public AbstractExternalData tryGetLocalDataSet(String sessionToken, String dataSetCode,
+            String dataStore) throws UserFailureException;
+
+    /**
      * Create and return a new permanent id that can be used to identify samples, experiments and
      * datasets.
      */
