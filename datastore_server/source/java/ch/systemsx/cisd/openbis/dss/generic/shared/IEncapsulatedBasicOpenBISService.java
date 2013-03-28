@@ -77,6 +77,16 @@ public interface IEncapsulatedBasicOpenBISService
     public AbstractExternalData tryGetDataSet(final String dataSetCode) throws UserFailureException;
 
     /**
+     * Tries to get the data set for the specified data set code, using the ETL server's session
+     * token.
+     * 
+     * @return null if the data set is not local to the caller data store.
+     */
+    @ManagedAuthentication
+    public AbstractExternalData tryGetLocalDataSet(final String dataSetCode)
+            throws UserFailureException;
+
+    /**
      * {@link IServiceForDataStoreServer#searchForSamples(String, SearchCriteria)}
      */
     @ManagedAuthentication

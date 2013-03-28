@@ -547,6 +547,13 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
+    public AbstractExternalData tryGetLocalDataSet(String dataSetCode) throws UserFailureException
+    {
+        return service.tryGetLocalDataSet(session.getSessionToken(), dataSetCode,
+                session.getDataStoreCode());
+    }
+
+    @Override
     public AbstractExternalData tryGetDataSet(String sToken, String dataSetCode)
             throws UserFailureException
     {

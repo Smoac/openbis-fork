@@ -361,7 +361,7 @@ public class ShareIdManager implements IShareIdManager
     {
         // We assume that the dataSetCodeToShareIdMap is already initialized -- otherwise we
         // wouldn't be here.
-        AbstractExternalData abstractDataSet = service.tryGetDataSet(dataSetCode);
+        AbstractExternalData abstractDataSet = service.tryGetLocalDataSet(dataSetCode);
         if (null == abstractDataSet)
         {
             return;
