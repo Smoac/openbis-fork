@@ -450,7 +450,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @Capability("REGISTER_SPACE")
     public void registerSpace(String sessionToken, String spaceCode, String descriptionOrNull)
     {
@@ -485,7 +485,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @Capability("UPDATE_SPACE")
     public void updateSpace(final String sessionToken,
             @AuthorizationGuard(guardClass = SpaceUpdatesPredicate.class)
@@ -2093,7 +2093,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @Capability("DELETE_SPACE")
     public void deleteSpaces(String sessionToken,
             @AuthorizationGuard(guardClass = SpaceTechIdCollectionPredicate.class)
