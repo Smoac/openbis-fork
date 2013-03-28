@@ -362,12 +362,24 @@ public class ShareIdManager implements IShareIdManager
         // We assume that the dataSetCodeToShareIdMap is already initialized -- otherwise we
         // wouldn't be here.
         AbstractExternalData abstractDataSet = service.tryGetDataSet(dataSetCode);
-        if (null == abstractDataSet || false == abstractDataSet instanceof PhysicalDataSet)
+        if (null == abstractDataSet)
         {
             return;
         }
-        PhysicalDataSet dataSet = (PhysicalDataSet) abstractDataSet;
-        String shareId = dataSet.getShareId();
+        String shareId;
+        if (abstractDataSet instanceof PhysicalDataSet)
+        {
+            PhysicalDataSet dataSet = (PhysicalDataSet) abstractDataSet;
+            shareId = dataSet.getShareId();
+        } else
+        {
+            /*
+             * If dataset is not physical we assume it has default share id. see {@link
+             * ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService#
+             * listDataSetShareIds}
+             */
+            shareId = ch.systemsx.cisd.openbis.dss.generic.shared.Constants.DEFAULT_SHARE_ID;
+        }
         addShareId(dataSetCodeToShareIdMap, dataSetCode, shareId);
     }
 }
