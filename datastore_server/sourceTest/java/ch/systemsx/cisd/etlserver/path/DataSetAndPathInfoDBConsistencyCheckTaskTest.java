@@ -140,7 +140,8 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
         PhysicalDataSet ds2 = createDataSetBuilder().code("ds2").getDataSet();
         PhysicalDataSet ds3 = createDataSetBuilder().code("ds3").getDataSet();
         PhysicalDataSet ds4 = createDataSetBuilder().code("ds4").getDataSet();
-        prepareListDataSets(new Date(2010 - 1500), ds1, ds2, ds3, ds4);
+        PhysicalDataSet ds5 = createDataSetBuilder().code("ds5").getDataSet();
+        prepareListDataSets(new Date(2010 - 1500), ds1, ds2, ds3, ds4, ds5);
         MockContent fileContent1 =
                 prepareContentProvider(fileProvider, "ds1", ":0:0", "a/:0:0", "a/b:34:9",
                         "a/c:35:2", "b:33:3", "c/:0:0");
@@ -157,16 +158,18 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
                         "a/c:35:2", "b:33:3", "c/:0:0");
         MockContent fileContent4 = prepareContentProvider(fileProvider, "ds4", ":0:0");
         MockContent pathInfoContent4 = prepareContentProvider(pathInfoProvider, "ds4");
+        MockContent fileContent5 = prepareContentProvider(fileProvider, "ds5");
+        MockContent pathInfoContent5 = prepareContentProvider(pathInfoProvider, "ds5");
 
         task.execute();
 
         assertEquals(
                 "INFO  OPERATION.DataSetAndPathInfoDBConsistencyCheckTask - "
-                        + "Check 4 data sets registered since 1970-01-01 01:00:00\n"
+                        + "Check 5 data sets registered since 1970-01-01 01:00:00\n"
                         + "ERROR NOTIFY.DataSetAndPathInfoDBConsistencyCheckTask - "
                         + "File system and path info DB consistency check report "
                         + "for all data sets since 1970-01-01 01:00:00\n\n"
-                        + "Data sets checked:\n\nds1, ds2, ds3, ds4\n\n"
+                        + "Data sets checked:\n\nds1, ds2, ds3, ds4, ds5\n\n"
                         + "Differences found:\n\n"
                         + "Data set ds1:\n"
                         + "- 'a/b' CRC32 checksum in the file system = 00000009 but in the path info database = 00000007\n"
@@ -180,8 +183,8 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
                         + "- 'a/c' size in the file system = 42 bytes but in the path info database = 35 bytes.\n"
                         + "- 'b' is referenced in the path info database but does not exist on the file system\n"
                         + "- 'c' is a directory in the path info database but a file in the file system\n\n"
-                        + "Data set ds4:\n"
-                        + "- exists in the file system but does not exist in the path info database",
+                        + "Data set ds5:\n"
+                        + "- exists neither in the path info database nor in the file system",
                 logRecorder.getLogContent());
         assertEquals(true, fileContent1.isClosed());
         assertEquals(true, pathInfoContent1.isClosed());
@@ -191,6 +194,8 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
         assertEquals(true, pathInfoContent3.isClosed());
         assertEquals(true, fileContent4.isClosed());
         assertEquals(true, pathInfoContent4.isClosed());
+        assertEquals(true, fileContent5.isClosed());
+        assertEquals(true, pathInfoContent5.isClosed());
         context.assertIsSatisfied();
     }
 
