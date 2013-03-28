@@ -71,7 +71,7 @@ public class ShareIdManagerTest extends AssertJUnit
                     ds2.setDataSetCode(DS2);
                     ds2.setShareId("2");
                     will(returnValue(Arrays.asList(ds1, ds2)));
-                    allowing(service).tryGetDataSet("ds?");
+                    allowing(service).tryGetLocalDataSet("ds?");
                     will(returnValue(null));
                 }
             });
