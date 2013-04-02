@@ -59,13 +59,6 @@ public interface IImagingDataSetRegistrationTransactionV2 extends IDataSetRegist
             SimpleFeatureVectorDataConfig featureDataSetConfig, File featureVectorFileOrNull);
 
     /**
-     * Creates a new feature vector data set based on either the {@link FeaturesBuilder} provided by
-     * the specified {@link SimpleFeatureVectorDataConfig} or the specified file.
-     */
-    IFeatureVectorDataSet createNewFeatureVectorDataSetWithAllFeaturesList(
-            SimpleFeatureVectorDataConfig featureDataSetConfig, File featureVectorFileOrNull);
-
-    /**
      * Creates a new data set, containing the list of features based on the
      * {@link FeatureListDataConfig}
      */

@@ -209,18 +209,16 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
      * Creates new container dataset which contains one feature vector dataset.
      */
     public FeatureVectorContainerDataSet createNewFeatureVectorDataSet(
-            SimpleFeatureVectorDataConfig featureDataSetConfig, File featureVectorFileOrNull,
-            boolean createAllFeatureList)
+            SimpleFeatureVectorDataConfig featureDataSetConfig, File featureVectorFileOrNull)
     {
         DataSetRegistrationDetails<FeatureVectorDataSetInformation> registrationDetails =
                 createFeatureVectorDataSetRegistrationDetails(featureDataSetConfig,
                         featureVectorFileOrNull);
-        return createFeatureVectorDataSet(registrationDetails, createAllFeatureList);
+        return createFeatureVectorDataSet(registrationDetails);
     }
 
     private FeatureVectorContainerDataSet createFeatureVectorDataSet(
-            DataSetRegistrationDetails<FeatureVectorDataSetInformation> registrationDetails,
-            boolean createAllFeatureList)
+            DataSetRegistrationDetails<FeatureVectorDataSetInformation> registrationDetails)
     {
         @SuppressWarnings("unchecked")
         DataSet<FeatureVectorDataSetInformation> dataSet =
@@ -236,23 +234,6 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
 
         registrationDetails.getDataSetInformation().setContainerDatasetPermId(
                 containerDataset.getDataSetCode());
-
-        if (createAllFeatureList)
-        {
-            FeatureListDataConfig config = new FeatureListDataConfig();
-            config.setName("All");
-            List<String> features = new ArrayList<String>();
-            for (FeatureDefinition feature : registrationDetails.getDataSetInformation()
-                    .getFeatures())
-            {
-                features.add(feature.getFeatureLabel());
-            }
-            config.setFeatureList(features);
-            config.setContainerDataSet(containerDataset);
-
-            IDataSet allFeaturesList = createNewFeatureListDataSet(config);
-            containerDataset.setAllFeaturesList(allFeaturesList);
-        }
 
         return containerDataset;
     }
@@ -729,7 +710,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         {
             DataSetRegistrationDetails<FeatureVectorDataSetInformation> featureRegistrationDetails =
                     (DataSetRegistrationDetails<FeatureVectorDataSetInformation>) registrationDetails;
-            return createFeatureVectorDataSet(featureRegistrationDetails, false);
+            return createFeatureVectorDataSet(featureRegistrationDetails);
         } else
         {
             return super.createNewDataSet(registrationDetails);

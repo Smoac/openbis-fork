@@ -53,8 +53,6 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
 
     private FeatureVectorDataSet originalDataset;
 
-    private IDataSet allFeaturesList;
-
     public IDataSet getOriginalDataset()
     {
         return originalDataset;
@@ -72,7 +70,6 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
                 .add(new NewProperty(ANALYSIS_PROCEDURE, analysisProcedure));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void setSample(ISampleImmutable sampleOrNull)
     {
@@ -83,13 +80,6 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
             // calling this line assures, that the sample in the contained dataset will not be kept.
             originalDataset.getRegistrationDetails().getDataSetInformation().setLinkSample(false);
         }
-
-        if (allFeaturesList != null)
-        {
-            allFeaturesList.setSample(sampleOrNull);
-            ((DataSet<DataSetInformation>) allFeaturesList).getRegistrationDetails()
-                    .getDataSetInformation().setLinkSample(false);
-        }
     }
 
     @Override
@@ -99,10 +89,6 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
         if (originalDataset != null)
         {
             originalDataset.setExperiment(experimentOrNull);
-        }
-        if (allFeaturesList != null)
-        {
-            allFeaturesList.setExperiment(experimentOrNull);
         }
     }
 
@@ -161,8 +147,4 @@ public class FeatureVectorContainerDataSet extends DataSet<DataSetInformation> i
         super.setDataSetType(getContainerAnalysisType(dataSetTypeCode));
     }
 
-    public void setAllFeaturesList(IDataSet allFeaturesList)
-    {
-        this.allFeaturesList = allFeaturesList;
-    }
 }

@@ -93,15 +93,7 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
             SimpleFeatureVectorDataConfig featureDataSetConfig, File featureVectorFileOrNull)
     {
         return transaction.createNewFeatureVectorDataSet(featureDataSetConfig,
-                featureVectorFileOrNull, false);
-    }
-
-    @Override
-    public IFeatureVectorDataSet createNewFeatureVectorDataSetWithAllFeaturesList(
-            SimpleFeatureVectorDataConfig featureDataSetConfig, File featureVectorFileOrNull)
-    {
-        return transaction.createNewFeatureVectorDataSet(featureDataSetConfig,
-                featureVectorFileOrNull, true);
+                featureVectorFileOrNull);
     }
 
     @Override

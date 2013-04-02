@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -82,18 +81,14 @@ public class FeatureVectorDataset implements Serializable
 
     public List<CodeAndLabel> getFeatureNames()
     {
-        if (featureNames == null && datasetFeatures != null)
+        if (featureNames == null && datasetFeatures != null && datasetFeatures.isEmpty() == false)
         {
+            featureNames = new LinkedList<CodeAndLabel>();
 
-            HashMap<String, CodeAndLabel> map = new HashMap<String, CodeAndLabel>();
-            for (FeatureVectorValues fvv : datasetFeatures)
+            for (CodeAndLabel cal : datasetFeatures.get(0).getCodesAndLabels())
             {
-                for (CodeAndLabel c : fvv.getCodesAndLabels())
-                {
-                    map.put(c.getCode(), c);
-                }
+                featureNames.add(cal);
             }
-            featureNames = new LinkedList<CodeAndLabel>(map.values());
         }
         return featureNames;
     }
