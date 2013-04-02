@@ -177,6 +177,8 @@ public class SegmentedStoreUtils
      * and updates the size of all data sets if necessary.
      * 
      * @param dataStoreCode Code of the data store to which the root belongs.
+     * @param filterOutToBeIgnoredForShuffling If <code>true</code> no share will be returned which
+     *            has property <code>ignored-for-shuffling == true</code>
      * @param incomingShares Set of IDs of incoming shares. Will be used to mark {@link Share}
      *            object in the returned list.
      * @param freeSpaceProvider Provider of free space used for all shares.
@@ -185,13 +187,14 @@ public class SegmentedStoreUtils
      * @param log Logger for logging size calculations.
      */
     public static List<Share> getSharesWithDataSets(File storeRoot, String dataStoreCode,
-            Set<String> incomingShares, IFreeSpaceProvider freeSpaceProvider,
-            IEncapsulatedOpenBISService service, ISimpleLogger log)
+            boolean filterOutToBeIgnoredForShuffling, Set<String> incomingShares,
+            IFreeSpaceProvider freeSpaceProvider, IEncapsulatedOpenBISService service,
+            ISimpleLogger log)
     {
         final long start = System.currentTimeMillis();
         List<Share> shares =
-                getSharesWithDataSets(storeRoot, dataStoreCode, freeSpaceProvider, service, log,
-                        SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+                getSharesWithDataSets(storeRoot, dataStoreCode, filterOutToBeIgnoredForShuffling,
+                        freeSpaceProvider, service, log, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
         for (Share share : shares)
         {
             share.setIncoming(incomingShares.contains(share.getShareId()));
@@ -203,19 +206,20 @@ public class SegmentedStoreUtils
     }
 
     static List<Share> getSharesWithDataSets(File storeRoot, String dataStoreCode,
-            IFreeSpaceProvider freeSpaceProvider, IEncapsulatedOpenBISService service,
-            ISimpleLogger log, ITimeProvider timeProvider)
+            boolean filterOutToBeIgnoredForShuffling, IFreeSpaceProvider freeSpaceProvider,
+            IEncapsulatedOpenBISService service, ISimpleLogger log, ITimeProvider timeProvider)
     {
         final Map<String, Share> shares =
-                getShares(storeRoot, dataStoreCode, freeSpaceProvider, service, log, timeProvider);
+                getShares(storeRoot, dataStoreCode, filterOutToBeIgnoredForShuffling,
+                        freeSpaceProvider, service, log, timeProvider);
         final List<Share> list = new ArrayList<Share>(shares.values());
         Collections.sort(list, SHARE_COMPARATOR);
         return list;
     }
 
     private static Map<String, Share> getShares(File storeRoot, String dataStoreCode,
-            IFreeSpaceProvider freeSpaceProvider, IEncapsulatedOpenBISService service,
-            ISimpleLogger log, ITimeProvider timeProvider)
+            boolean filterOutToBeIgnoredForShuffling, IFreeSpaceProvider freeSpaceProvider,
+            IEncapsulatedOpenBISService service, ISimpleLogger log, ITimeProvider timeProvider)
     {
         final Map<String, Share> shares = new HashMap<String, Share>();
         final SharesHolder sharesHolder =
@@ -224,7 +228,7 @@ public class SegmentedStoreUtils
         {
             final Share share =
                     new ShareFactory().createShare(sharesHolder, file, freeSpaceProvider, log);
-            if (share.isIgnoredForShuffling() == false)
+            if (filterOutToBeIgnoredForShuffling == false || share.isIgnoredForShuffling() == false)
             {
                 shares.put(share.getShareId(), share);
             }

@@ -436,7 +436,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     {
         getOpenBISService().checkSession(sessionToken);
         List<Share> shares =
-                SegmentedStoreUtils.getSharesWithDataSets(getStoreDirectory(), dataStoreCode,
+                SegmentedStoreUtils.getSharesWithDataSets(getStoreDirectory(), dataStoreCode, false,
                         Collections.<String> emptySet(), freeSpaceProvider, getOpenBISService(),
                         new Log4jSimpleLogger(operationLog));
         List<ShareInfo> result = new ArrayList<ShareInfo>();

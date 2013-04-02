@@ -199,7 +199,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
         public ICleanupTask createCleanupTask()
         {
             List<Share> shares =
-                    SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode,
+                    SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, true,
                             incomingShares, freeSpaceProvider, service, logger);
             dataSet = findDataSet(shares, dataSetCode);
             shareWithMostFreeOrNull = finder.tryToFindShare(dataSet, shares);

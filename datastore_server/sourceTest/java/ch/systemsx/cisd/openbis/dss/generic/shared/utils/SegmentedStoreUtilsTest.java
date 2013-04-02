@@ -171,8 +171,8 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
             });
 
         List<Share> shares =
-                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, freeSpaceProvider,
-                        service, log, timeProvider);
+                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, true,
+                        freeSpaceProvider, service, log, timeProvider);
         Share share1 = shares.get(0);
         long freeSpace = share1.calculateFreeSpace();
 
@@ -488,7 +488,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
     }
     
     @Test
-    public void testGetShares()
+    public void testGetSharesFilterOutIgnoredForShuffling()
     {
         File share1 = new File(store, "1");
         share1.mkdirs();
@@ -498,11 +498,30 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         share2.mkdirs();
         
         List<Share> shares =
-                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE,
+                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, true,
                         freeSpaceProvider, service, log, timeProvider);
         
         assertEquals("2", shares.get(0).getShareId());
         assertEquals(1, shares.size());
+    }
+    
+    @Test
+    public void testGetAllShares()
+    {
+        File share1 = new File(store, "1");
+        share1.mkdirs();
+        FileUtilities.writeToFile(new File(share1, "share.properties"),
+                ShareFactory.IGNORED_FOR_SHUFFLING_PROP + " = true");
+        File share2 = new File(store, "2");
+        share2.mkdirs();
+        
+        List<Share> shares =
+                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, false,
+                        freeSpaceProvider, service, log, timeProvider);
+        
+        assertEquals("1", shares.get(0).getShareId());
+        assertEquals("2", shares.get(1).getShareId());
+        assertEquals(2, shares.size());
     }
 
     private File dataSetFile(String shareId, boolean empty)

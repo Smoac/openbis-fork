@@ -296,7 +296,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         Set<String> incomingShares = IncomingShareIdProvider.getIdsOfIncomingShares();
         IFreeSpaceProvider freeSpaceProvider = new SimpleFreeSpaceProvider();
         List<Share> shares =
-                SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, incomingShares,
+                SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, true, incomingShares,
                         freeSpaceProvider, getService(), new Log4jSimpleLogger(operationLog));
         context.setUnarchivingPreparation(new UnarchivingPreparation(getShareFinder(),
                 getShareIdManager(), getService(), shares));
