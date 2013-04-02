@@ -94,6 +94,13 @@ public class DssServiceRpcScreeningJson implements IDssServiceRpcScreening
     }
 
     @Override
+    public List<String> getFeatureList(String sessionToken,
+            IFeatureVectorDatasetIdentifier featureDataset, String featureListCode)
+    {
+        return service.getFeatureList(sessionToken, featureDataset, featureListCode);
+    }
+
+    @Override
     public List<FeatureVectorDataset> loadFeatures(String sessionToken,
             List<FeatureVectorDatasetReference> featureDatasets, List<String> featureCodes)
     {

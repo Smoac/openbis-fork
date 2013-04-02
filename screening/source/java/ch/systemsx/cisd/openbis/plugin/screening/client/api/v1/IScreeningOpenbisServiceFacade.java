@@ -438,6 +438,13 @@ public interface IScreeningOpenbisServiceFacade
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
 
     /**
+     * Return the feature codes from the specified feature list of a specified feature data set
+     */
+    @Retry
+    public List<String> getFeatureList(IFeatureVectorDatasetIdentifier featureDataset,
+            String featureListCode);
+
+    /**
      * For a given set of plates and a set of features (given by their code), provide all the
      * feature vectors.
      * 

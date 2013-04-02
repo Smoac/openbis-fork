@@ -149,6 +149,9 @@ public class FeatureVectorsDropboxTest extends AbstractScreeningSystemTestCase
                 "There are not enough values in the feature. Maybe the feature was not loaded correctly",
                 8 * 12, nonNanPositions);
 
+        List<String> featureList = screeningFacade.getFeatureList(feature, "shortListOfFeatures");
+        assertEquals("[feature1, feature2]", featureList.toString());
+
     }
 
     private List<Plate> filterPlates(List<Plate> plates)

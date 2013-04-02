@@ -884,6 +884,29 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return dssMultiplexer.process(identifiersIncludingContained, handler).withoutDuplicates();
     }
 
+    @Override
+    public List<String> getFeatureList(IFeatureVectorDatasetIdentifier featureDataset,
+            final String featureListCode)
+    {
+        IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, String> handler =
+                new IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, String>()
+                    {
+                        @Override
+                        public List<String> handle(DssServiceRpcScreeningHolder dssService,
+                                List<IFeatureVectorDatasetIdentifier> references)
+                        {
+                            checkDSSMinimalMinorVersion(dssService, "getFeatureList",
+                                    IFeatureVectorDatasetIdentifier.class, String.class);
+
+                            return dssService.getService().getFeatureList(sessionToken,
+                                    references.get(0), featureListCode);
+                        }
+                    };
+
+        return dssMultiplexer.process(Collections.singletonList(featureDataset), handler)
+                .withoutDuplicatesPreservingOrder();
+    }
+
     /**
      * For a given set of feature vector data sets provide the list of all available features. This
      * contains the code, label and description of the feature. If for different data sets different

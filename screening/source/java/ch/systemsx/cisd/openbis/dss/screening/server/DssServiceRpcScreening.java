@@ -33,10 +33,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 
 import com.googlecode.jsonrpc4j.Base64;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -126,7 +128,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 12;
+    public static final int MINOR_VERSION = 13;
 
     // this dao will hold one connection to the database
     private IImagingReadonlyQueryDAO dao;
@@ -227,6 +229,56 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             }
         }
         return result;
+    }
+
+    @Override
+    public List<String> getFeatureList(String sessionToken,
+            IFeatureVectorDatasetIdentifier featureDataset, String featureListCode)
+    {
+        try
+        {
+            String value = readFeatureListContent(featureDataset.getDatasetCode(), featureListCode);
+            String[] values = value.split("\n");
+            return Arrays.asList(values);
+        } catch (IOException ioe)
+        {
+            throw new IllegalStateException(
+                    "Cannot get the feature list of feature list doesn't exist", ioe);
+        }
+    }
+
+    protected String readFeatureListContent(String dataSetCode, String featureListCode)
+            throws IOException
+    {
+        IHierarchicalContent content =
+                ServiceProvider.getHierarchicalContentProvider().asContent(dataSetCode);
+        IHierarchicalContentNode node =
+                content.getNode(ScreeningConstants.ANALYSIS_FEATURE_LIST_TOP_LEVEL_DIRECTORY_NAME
+                        + "/" + featureListCode);
+
+        InputStream is = null;
+        String value = null;
+        try
+        {
+            is = node.getInputStream();
+            value = IOUtils.toString(is);
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            if (is != null)
+            {
+                try
+                {
+                    is.close();
+                } catch (IOException ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                }
+            }
+        }
+        return value;
     }
 
     @Override
