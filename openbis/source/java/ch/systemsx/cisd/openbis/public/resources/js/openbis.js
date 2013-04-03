@@ -676,6 +676,34 @@ openbis.prototype.listDataSetTypes = function(action) {
 }
 
 /**
+ * @see IGeneralInformationService.listSampleTypes(String)
+ * @method
+ */
+openbis.prototype.listSampleTypes = function(action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoServiceUrl,
+		data: { "method" : "listSampleTypes",
+				"params" : [ this.getSession() ] 
+		},
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationService.listExperimentTypes(String)
+ * @method
+ */
+openbis.prototype.listExperimentTypes = function(action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoServiceUrl,
+		data: { "method" : "listExperimentTypes",
+				"params" : [ this.getSession() ] 
+		},
+		success: action
+	});
+}
+
+/**
  * @see IGeneralInformationService.listVocabularies(String)
  * @method
  */

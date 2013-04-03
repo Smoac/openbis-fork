@@ -580,6 +580,24 @@ test("listDataSetTypes()", function(){
 	});
 });
 
+test("listSampleTypes()", function(){
+	createFacadeAndLogin(function(facade){
+		facade.listSampleTypes(function(response){
+			assertObjectsCount(response.result, 10);
+			facade.close();
+		});
+	});
+});
+
+test("listExperimentTypes()", function(){
+	createFacadeAndLogin(function(facade){
+		facade.listExperimentTypes(function(response){
+			assertObjectsCount(response.result, 5);
+			facade.close();
+		});
+	});
+});
+
 test("listVocabularies()", function(){
 	createFacadeAndLogin(function(facade){
 		facade.listVocabularies(function(response){
