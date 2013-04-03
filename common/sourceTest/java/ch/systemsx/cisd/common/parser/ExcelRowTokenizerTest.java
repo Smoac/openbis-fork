@@ -16,17 +16,11 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
@@ -35,7 +29,6 @@ import org.testng.annotations.Test;
  */
 public class ExcelRowTokenizerTest extends AssertJUnit
 {
-    private static final String TEST_FOLDER = "../common/sourceTest/java/";
 
     @Test
     public void testIntegerValuesParsedCorrectly() throws Exception
@@ -64,20 +57,8 @@ public class ExcelRowTokenizerTest extends AssertJUnit
 
     private List<Row> getRows() throws Exception
     {
-
-        File excelDir = new File(TEST_FOLDER + getClass().getPackage().getName().replace('.', '/'));
-        File excelFile = new File(excelDir, "excel-row-tokenizer-test.xls");
-        final InputStream stream = new FileInputStream(excelFile);
-        try
-        {
-            POIFSFileSystem poifsFileSystem = new POIFSFileSystem(stream);
-            HSSFWorkbook workbook = new HSSFWorkbook(poifsFileSystem);
-            final HSSFSheet sheet = workbook.getSheetAt(0);
-            return Arrays.<Row> asList(sheet.getRow(0), sheet.getRow(1), sheet.getRow(2));
-        } finally
-        {
-            IOUtils.closeQuietly(stream);
-        }
+        Sheet sheet = ExcelTestUtil.getSheet(getClass(), "excel-row-tokenizer-test.xls");
+        return Arrays.<Row> asList(sheet.getRow(0), sheet.getRow(1), sheet.getRow(2));
     }
 
 }
