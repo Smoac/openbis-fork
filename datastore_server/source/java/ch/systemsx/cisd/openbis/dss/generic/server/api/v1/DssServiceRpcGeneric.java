@@ -442,7 +442,11 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         List<ShareInfo> result = new ArrayList<ShareInfo>();
         for (Share share : shares)
         {
-            result.add(new ShareInfo(share.getShareId(), share.calculateFreeSpace()));
+            ShareInfo shareInfo = new ShareInfo(share.getShareId(), share.calculateFreeSpace());
+            shareInfo.setIgnoredForShuffling(shareInfo.isIgnoredForShuffling());
+            shareInfo.setIncoming(share.isIncoming());
+            shareInfo.setWithdrawShare(share.isWithdrawShare());
+            result.add(shareInfo);
         }
         return result;
     }

@@ -63,9 +63,23 @@ public class ListSharesCommand extends AbstractCommand
         System.out.println(shares.size() + " shares:");
         for (ShareInfo shareInfo : shares)
         {
-            System.out.println(shareInfo.getShareId() + ": "
-                    + DirectoryRendererUtil.renderFileSize(shareInfo.getFreeSpace())
-                    + " bytes free.");
+            StringBuilder builder = new StringBuilder();
+            builder.append(shareInfo.getShareId()).append(": ");
+            builder.append(DirectoryRendererUtil.renderFileSize(shareInfo.getFreeSpace()));
+            builder.append(" bytes free.");
+            if (shareInfo.isIncoming())
+            {
+                builder.append(" Incoming share.");
+            }
+            if (shareInfo.isWithdrawShare())
+            {
+                builder.append(" Data sets should be with drawn.");
+            }
+            if (shareInfo.isIgnoredForShuffling())
+            {
+                builder.append(" To be ignored in shuffling.");
+            }
+            System.out.println(builder.toString());
         }
     }
 }

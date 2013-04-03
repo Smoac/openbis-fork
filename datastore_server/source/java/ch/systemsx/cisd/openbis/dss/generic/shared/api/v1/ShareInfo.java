@@ -36,7 +36,10 @@ public class ShareInfo implements Serializable
     private static final long serialVersionUID = 1L;
     private String shareId;
     private long freeSpace;
-
+    private boolean incoming;
+    private boolean withdrawShare;
+    private boolean ignoredForShuffling;
+    
     public ShareInfo(String shareId, long freeSpace)
     {
         this.shareId = shareId;
@@ -54,6 +57,46 @@ public class ShareInfo implements Serializable
         return freeSpace;
     }
     
+    /**
+     * Returns <code>true</code> if the share is associated with one or more incoming directories.
+     */
+    public boolean isIncoming()
+    {
+        return incoming;
+    }
+
+    public void setIncoming(boolean incoming)
+    {
+        this.incoming = incoming;
+    }
+
+    /**
+     * Returns <code>true</code> if the share should be emptied by shuffling maintenance tasks.
+     */
+    public boolean isWithdrawShare()
+    {
+        return withdrawShare;
+    }
+
+    public void setWithdrawShare(boolean withdrawShare)
+    {
+        this.withdrawShare = withdrawShare;
+    }
+
+    /**
+     * Returns <code>true</code> if the share should not be used by shuffling maintenance or
+     * post-registration tasks.
+     */
+    public boolean isIgnoredForShuffling()
+    {
+        return ignoredForShuffling;
+    }
+
+    public void setIgnoredForShuffling(boolean ignoredForShuffling)
+    {
+        this.ignoredForShuffling = ignoredForShuffling;
+    }
+
     //
     // JSON-RPC
     //
