@@ -45,10 +45,12 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPr
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
@@ -410,6 +412,18 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     public List<DataSetType> listDataSetTypes()
     {
         return service.listDataSetTypes(sessionToken);
+    }
+
+    @Override
+    public List<SampleType> listSampleTypes()
+    {
+        return service.listSampleTypes(sessionToken);
+    }
+
+    @Override
+    public List<ExperimentType> listExperimentTypes()
+    {
+        return service.listExperimentTypes(sessionToken);
     }
 
     public IDataSetDss getDataSetDss(String code) throws EnvironmentFailureException

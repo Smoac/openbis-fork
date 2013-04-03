@@ -28,9 +28,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationError;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 
@@ -183,6 +185,18 @@ public interface ISimpleOpenbisServiceFacade
     @Retry
     List<DataSetType> listDataSetTypes();
 
+    /**
+     * Returns all sample types available in openBIS.
+     */
+    @Retry
+    List<SampleType> listSampleTypes();
+    
+    /**
+     * Returns all experiment types available in openBIS.
+     */
+    @Retry
+    List<ExperimentType> listExperimentTypes();
+    
     /**
      * Return all vocabularies available in openBIS together with the contained vocabulary terms.
      */
