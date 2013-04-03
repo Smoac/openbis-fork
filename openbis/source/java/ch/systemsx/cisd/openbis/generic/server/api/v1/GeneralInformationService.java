@@ -89,6 +89,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
@@ -137,7 +138,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class GeneralInformationService extends AbstractServer<IGeneralInformationService> implements
         IGeneralInformationService
 {
-    public static final int MINOR_VERSION = 24;
+    public static final int MINOR_VERSION = 25;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;
@@ -673,6 +674,41 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             dataSetTypes.add(Translator.translate(privateDataSetType, vocabTerms));
         }
         return dataSetTypes;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<SampleType> listSampleTypes(String sessionToken)
+    {
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType> sampleTypes =
+                commonServer.listSampleTypes(sessionToken);
+        HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> vocabTerms =
+                getVocabularyTermsMap(sessionToken);
+        List<SampleType> result = new ArrayList<SampleType>();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType sampleType : sampleTypes)
+        {
+            result.add(Translator.translate(sampleType, vocabTerms));
+        }
+        return result;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType> listExperimentTypes(
+            String sessionToken)
+    {
+        List<ExperimentType> experimentTypes = commonServer.listExperimentTypes(sessionToken);
+        HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> vocabTerms =
+                getVocabularyTermsMap(sessionToken);
+        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType> result =
+                new ArrayList<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType>();
+        for (ExperimentType experimentType : experimentTypes)
+        {
+            result.add(Translator.translate(experimentType, vocabTerms));
+        }
+        return result;
     }
 
     @Override

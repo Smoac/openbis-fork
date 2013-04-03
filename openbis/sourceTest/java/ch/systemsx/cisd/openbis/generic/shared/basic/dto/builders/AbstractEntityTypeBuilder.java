@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
 /**
  * Abstract super class of builder of subclasses of {@link EntityType}.
@@ -29,6 +30,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  */
 abstract class AbstractEntityTypeBuilder<E extends EntityType>
 {
+    protected void setValidationPlugin(E entityType, String name, String descriptionOrNull)
+    {
+        Script validationScript = new Script();
+        validationScript.setName(name);
+        validationScript.setDescription(descriptionOrNull);
+        entityType.setValidationScript(validationScript);
+
+    }
+
     protected void fillEntityTypePropertyType(E entityType,
             EntityTypePropertyType<E> entityTypePropertyType, String code, String label,
             DataTypeCode type)
@@ -38,6 +48,12 @@ abstract class AbstractEntityTypeBuilder<E extends EntityType>
         propertyType.setSimpleCode(code);
         propertyType.setLabel(label);
         propertyType.setDataType(new DataType(type));
+        fillEntityTypePropertyType(entityType, entityTypePropertyType, propertyType);
+    }
+
+    protected void fillEntityTypePropertyType(E entityType,
+            EntityTypePropertyType<E> entityTypePropertyType, PropertyType propertyType)
+    {
         entityTypePropertyType.setPropertyType(propertyType);
         entityTypePropertyType.setEntityType(entityType);
     }

@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments;
@@ -42,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
@@ -231,6 +233,20 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     public List<DataSetType> listDataSetTypes(String sessionToken)
     {
         logAccess(sessionToken, "list-data-set-types");
+        return null;
+    }
+
+    @Override
+    public List<SampleType> listSampleTypes(String sessionToken)
+    {
+        logAccess(sessionToken, "list-sample-types");
+        return null;
+    }
+
+    @Override
+    public List<ExperimentType> listExperimentTypes(String sessionToken)
+    {
+        logAccess(sessionToken, "list-experiment-types");
         return null;
     }
 

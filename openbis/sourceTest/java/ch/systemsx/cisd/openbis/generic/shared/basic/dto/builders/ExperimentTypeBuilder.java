@@ -22,6 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * @author Franz-Josef Elmer
@@ -53,5 +54,15 @@ public class ExperimentTypeBuilder extends AbstractEntityTypeBuilder<ExperimentT
         fillEntityTypePropertyType(experimentType, entityTypePropertyType, code, label, dataType);
         types.add(entityTypePropertyType);
         return this;
+    }
+
+    public EntityTypePropertyTypeBuilder propertyType(PropertyType propertyType)
+    {
+        ExperimentTypePropertyType entityTypePropertyType = new ExperimentTypePropertyType();
+        List<ExperimentTypePropertyType> types = experimentType.getAssignedPropertyTypes();
+        entityTypePropertyType.setOrdinal(new Long(types.size()));
+        fillEntityTypePropertyType(experimentType, entityTypePropertyType, propertyType);
+        types.add(entityTypePropertyType);
+        return new EntityTypePropertyTypeBuilder(entityTypePropertyType);
     }
 }

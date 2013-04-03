@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDeta
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment.ExperimentInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialTypeIdentifier;
@@ -59,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.CompareMode;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
@@ -1239,6 +1241,28 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testListExperimentTypes()
+    {
+        List<ExperimentType> experimentTypes =
+                generalInformationService.listExperimentTypes(sessionToken);
+        Collections.sort(experimentTypes, new Comparator<ExperimentType>()
+            {
+                @Override
+                public int compare(ExperimentType t1, ExperimentType t2)
+                {
+                    return t1.getCode().compareTo(t2.getCode());
+                }
+            });
+
+        assertEquals("ExperimentType[COMPOUND_HCS,Compound High Content Screening,"
+                + "[PropertyTypeGroup[<null>,["
+                + "PropertyType[VARCHAR,DESCRIPTION,Description,A Description,mandatory], "
+                + "PropertyType[VARCHAR,COMMENT,Comment,Any other comments,optional]]]]]",
+                experimentTypes.get(0).toString());
+        assertEquals(2, experimentTypes.size());
+    }
+
+    @Test
     public void testListDataSetTypes()
     {
         List<DataSetType> types = generalInformationService.listDataSetTypes(sessionToken);
@@ -1251,8 +1275,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 }
             });
         assertEquals("CONTAINER_TYPE", types.get(0).getCode());
-        assertEquals("[PropertyTypeGroup[<null>,[]]]", types.get(0).getPropertyTypeGroups()
-                .toString());
+        assertEquals("[]", types.get(0).getPropertyTypeGroups().toString());
         assertEquals("HCS_IMAGE", types.get(1).getCode());
         List<PropertyTypeGroup> groups = types.get(1).getPropertyTypeGroups();
         List<PropertyType> propertyTypes = groups.get(0).getPropertyTypes();
@@ -1274,15 +1297,43 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 propertyTypes.get(0).toString());
         assertEquals(1, groups.size());
         assertEquals("HCS_IMAGE_ANALYSIS_DATA", types.get(2).getCode());
-        assertEquals("[PropertyTypeGroup[<null>,[]]]", types.get(2).getPropertyTypeGroups()
-                .toString());
+        assertEquals("[]", types.get(2).getPropertyTypeGroups().toString());
         assertEquals("LINK_TYPE", types.get(3).getCode());
-        assertEquals("[PropertyTypeGroup[<null>,[]]]", types.get(0).getPropertyTypeGroups()
-                .toString());
+        assertEquals("[]", types.get(0).getPropertyTypeGroups().toString());
         assertEquals("UNKNOWN", types.get(4).getCode());
-        assertEquals("[PropertyTypeGroup[<null>,[]]]", types.get(4).getPropertyTypeGroups()
-                .toString());
+        assertEquals("[]", types.get(4).getPropertyTypeGroups().toString());
         assertEquals(8, types.size());
+    }
+
+    @Test
+    public void testListSampleTypes()
+    {
+        List<SampleType> types = generalInformationService.listSampleTypes(sessionToken);
+
+        assertEquals("SampleType[WELL,Plate Well,ValidationPluginInfo[validateOK,<null>],"
+                + "listable=false,showContainer=true,showParents=false,showParentMetaData=false,"
+                + "uniqueSubcodes=false,automaticCodeGeneration=false,codePrefix=S,[]]",
+                pick(types, "WELL").toString());
+        assertEquals("SampleType[DILUTION_PLATE,Dilution Plate,<null>,"
+                + "listable=true,showContainer=false,showParents=true,showParentMetaData=false,"
+                + "uniqueSubcodes=false,automaticCodeGeneration=false,codePrefix=S,"
+                + "[PropertyTypeGroup[<null>,[PropertyType[INTEGER,OFFSET,Offset,"
+                + "Offset from the start of the sequence,optional]]]]]",
+                pick(types, "DILUTION_PLATE").toString());
+        assertEquals(11, types.size());
+    }
+
+    private SampleType pick(List<SampleType> types, String code)
+    {
+        for (SampleType sampleType : types)
+        {
+            if (sampleType.getCode().equals(code))
+            {
+                return sampleType;
+            }
+        }
+        fail("No sample type '" + code + "' found: " + types);
+        return null;
     }
 
     @Test

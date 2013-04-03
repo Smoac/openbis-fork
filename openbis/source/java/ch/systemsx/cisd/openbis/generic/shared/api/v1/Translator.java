@@ -37,13 +37,17 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPr
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType.DataSetTypeInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityTypeInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment.ExperimentInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType.ExperimentTypeInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material.MaterialInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialTypeIdentifier;
@@ -56,6 +60,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType.SampleTypeInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ValidationPluginInfo;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary.VocabularyInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.VocabularyTerm;
@@ -70,6 +77,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetUrl;
@@ -77,6 +86,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
@@ -240,37 +250,83 @@ public class Translator
     }
 
     public static DataSetType translate(
-            ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType privateDataSetType,
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType dataSetType,
             HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> vocabTerms)
     {
         DataSetTypeInitializer initializer = new DataSetTypeInitializer();
-        initializer.setCode(privateDataSetType.getCode());
+        fillEntityTypeInitializerWithCommon(dataSetType, vocabTerms, initializer);
+        initializer.setDeletionDisallowed(dataSetType.isDeletionDisallow());
+        initializer.setDataSetKind(translate(dataSetType.getDataSetKind()));
+        initializer.setMainDataSetPattern(dataSetType.getMainDataSetPattern());
+        initializer.setMainDataSetPath(dataSetType.getMainDataSetPath());
+        return new DataSetType(initializer);
+    }
 
-        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType> dstpts =
-                privateDataSetType.getAssignedPropertyTypes();
-        Collections.sort(dstpts);
+    private static DataSetKind translate(
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind dataSetKind)
+    {
+        return dataSetKind == null ? null : DataSetKind.valueOf(dataSetKind.name());
+    }
+
+    public static SampleType translate(
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType sampleType,
+            HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> vocabTerms)
+    {
+        SampleTypeInitializer initializer = new SampleTypeInitializer();
+        fillEntityTypeInitializerWithCommon(sampleType, vocabTerms, initializer);
+        initializer.setListable(sampleType.isListable());
+        initializer.setShowContainer(sampleType.isShowContainer());
+        initializer.setShowParents(sampleType.isShowParents());
+        initializer.setShowParentMetaData(sampleType.isShowParentMetadata());
+        initializer.setUniqueSubcodes(sampleType.isSubcodeUnique());
+        initializer.setAutomaticCodeGeneration(sampleType.isAutoGeneratedCode());
+        initializer.setCodePrefix(sampleType.getGeneratedCodePrefix());
+        return new SampleType(initializer);
+    }
+
+    public static ExperimentType translate(
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType experimentType,
+            HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> vocabTerms)
+    {
+        ExperimentTypeInitializer initializer = new ExperimentTypeInitializer();
+        fillEntityTypeInitializerWithCommon(experimentType, vocabTerms, initializer);
+        return new ExperimentType(initializer);
+    }
+
+    private static void fillEntityTypeInitializerWithCommon(
+            EntityType entityType,
+            HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> vocabTerms,
+            EntityTypeInitializer initializer)
+    {
+        initializer.setCode(entityType.getCode());
+        initializer.setDescription(entityType.getDescription());
+        initializer.setValidationPluginInfo(translate(entityType.getValidationScript()));
+
+        List<? extends EntityTypePropertyType<?>> etpts = entityType.getAssignedPropertyTypes();
+        Collections.sort(etpts);
 
         String sectionName = null;
         PropertyTypeGroupInitializer groupInitializer = new PropertyTypeGroupInitializer();
-        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType dstpt : dstpts)
+        for (EntityTypePropertyType<?> etpt : etpts)
         {
             // Skip Dynamic and Managed properties
-            if (dstpt.isDynamic() || dstpt.isManaged())
+            if (etpt.isDynamic() || etpt.isManaged())
             {
                 continue;
             }
 
-            String thisSectionName = dstpt.getSection();
-            if (thisSectionName != null && false == thisSectionName.equals(sectionName))
+            String thisSectionName = etpt.getSection();
+            if (false == equals(sectionName, thisSectionName))
             {
                 // Start a new section
-                initializer.addPropertyTypeGroup(new PropertyTypeGroup(groupInitializer));
+                addGroup(initializer, groupInitializer);
                 groupInitializer = new PropertyTypeGroupInitializer();
                 sectionName = thisSectionName;
+                groupInitializer.setName(sectionName);
             }
             PropertyTypeInitializer ptInitializer;
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType propertyType =
-                    dstpt.getPropertyType();
+                    etpt.getPropertyType();
 
             boolean isControlledVocabulary =
                     propertyType.getDataType().getCode() == DataTypeCode.CONTROLLEDVOCABULARY;
@@ -291,7 +347,7 @@ public class Translator
             ptInitializer.setCode(propertyType.getCode());
             ptInitializer.setLabel(propertyType.getLabel());
             ptInitializer.setDescription(propertyType.getDescription());
-            ptInitializer.setMandatory(dstpt.isMandatory());
+            ptInitializer.setMandatory(etpt.isMandatory());
 
             if (isControlledVocabulary)
             {
@@ -303,9 +359,31 @@ public class Translator
             }
         }
         // Finally set the group
-        initializer.addPropertyTypeGroup(new PropertyTypeGroup(groupInitializer));
+        addGroup(initializer, groupInitializer);
+    }
 
-        return new DataSetType(initializer);
+    private static void addGroup(EntityTypeInitializer initializer,
+            PropertyTypeGroupInitializer groupInitializer)
+    {
+        if (groupInitializer.getPropertyTypes().isEmpty() == false)
+        {
+            initializer.addPropertyTypeGroup(new PropertyTypeGroup(groupInitializer));
+        }
+    }
+
+    private static boolean equals(String sectionName, String currentSectionName)
+    {
+        return sectionName == null ? sectionName == currentSectionName : sectionName
+                .equals(currentSectionName);
+    }
+
+    private static ValidationPluginInfo translate(Script script)
+    {
+        if (script == null)
+        {
+            return null;
+        }
+        return new ValidationPluginInfo(script.getName(), script.getDescription());
     }
 
     public static List<ControlledVocabularyPropertyType.VocabularyTerm> translatePropertyTypeTerms(

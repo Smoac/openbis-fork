@@ -48,11 +48,13 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
@@ -523,6 +525,28 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
     }
 
     @Test
+    public void testListExperimentTypes()
+    {
+        List<ExperimentType> experimentTypes =
+                generalInformationService.listExperimentTypes(sessionToken);
+        Collections.sort(experimentTypes, new Comparator<ExperimentType>()
+            {
+                @Override
+                public int compare(ExperimentType t1, ExperimentType t2)
+                {
+                    return t1.getCode().compareTo(t2.getCode());
+                }
+            });
+
+        assertEquals("ExperimentType[COMPOUND_HCS,Compound High Content Screening,"
+                + "[PropertyTypeGroup[<null>,["
+                + "PropertyType[VARCHAR,DESCRIPTION,Description,A Description,mandatory], "
+                + "PropertyType[VARCHAR,COMMENT,Comment,Any other comments,optional]]]]]",
+                experimentTypes.get(0).toString());
+        assertEquals(2, experimentTypes.size());
+    }
+
+    @Test
     public void testListDataSetTypes()
     {
         List<DataSetType> dataSetTypes = generalInformationService.listDataSetTypes(sessionToken);
@@ -551,6 +575,37 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
         assertEquals("ANY_MATERIAL", propertyType.getCode());
         assertEquals("any_material", propertyType.getLabel());
         assertEquals("any_material", propertyType.getDescription());
+    }
+
+    @Test
+    public void testListSampleTypes()
+    {
+        List<SampleType> types = generalInformationService.listSampleTypes(sessionToken);
+
+        assertEquals("SampleType[WELL,Plate Well,ValidationPluginInfo[validateOK,<null>],"
+                + "listable=false,showContainer=true,showParents=false,showParentMetaData=false,"
+                + "uniqueSubcodes=false,automaticCodeGeneration=false,codePrefix=S,[]]",
+                pick(types, "WELL").toString());
+        assertEquals("SampleType[DILUTION_PLATE,Dilution Plate,<null>,"
+                + "listable=true,showContainer=false,showParents=true,showParentMetaData=false,"
+                + "uniqueSubcodes=false,automaticCodeGeneration=false,codePrefix=S,"
+                + "[PropertyTypeGroup[<null>,[PropertyType[INTEGER,OFFSET,Offset,"
+                + "Offset from the start of the sequence,optional]]]]]",
+                pick(types, "DILUTION_PLATE").toString());
+        assertEquals(11, types.size());
+    }
+
+    private SampleType pick(List<SampleType> types, String code)
+    {
+        for (SampleType sampleType : types)
+        {
+            if (sampleType.getCode().equals(code))
+            {
+                return sampleType;
+            }
+        }
+        fail("No sample type '" + code + "' found: " + types);
+        return null;
     }
 
     @Test

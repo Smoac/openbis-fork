@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
@@ -315,12 +317,26 @@ public interface IGeneralInformationService extends IRpcService
             List<String> dataSetCodes);
 
     /**
-     * Returns the URL for the default data store server for this openBIS AS.
+     * Returns all data set types.
      * 
      * @since 1.5
      */
     public List<DataSetType> listDataSetTypes(String sessionToken);
+    
+    /**
+     * Returns all sample types.
+     * 
+     * @since 1.25
+     */
+    public List<SampleType> listSampleTypes(String sessionToken);
 
+    /**
+     * Returns all experiment types.
+     * 
+     * @since 1.25
+     */
+    public List<ExperimentType> listExperimentTypes(String sessionToken);
+    
     /**
      * Returns map of avaialable vocabulary terms.
      * <p>

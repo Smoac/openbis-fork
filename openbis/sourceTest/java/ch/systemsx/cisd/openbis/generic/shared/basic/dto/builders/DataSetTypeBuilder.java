@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * Builder class of {@link DataSetType} instances.
@@ -49,9 +50,39 @@ public class DataSetTypeBuilder extends AbstractEntityTypeBuilder<DataSetType>
         return this;
     }
 
+    public DataSetTypeBuilder description(String description)
+    {
+        dataSetType.setDescription(description);
+        return this;
+    }
+
     public DataSetTypeBuilder kind(DataSetKind dataSetKind)
     {
         dataSetType.setDataSetKind(dataSetKind);
+        return this;
+    }
+
+    public DataSetTypeBuilder validationPlugin(String name, String descriptionOrNull)
+    {
+        setValidationPlugin(dataSetType, name, descriptionOrNull);
+        return this;
+    }
+
+    public DataSetTypeBuilder mainDataSetPattern(String pattern)
+    {
+        dataSetType.setMainDataSetPattern(pattern);
+        return this;
+    }
+
+    public DataSetTypeBuilder mainDataSetPath(String path)
+    {
+        dataSetType.setMainDataSetPath(path);
+        return this;
+    }
+
+    public DataSetTypeBuilder deletionDisallowed()
+    {
+        dataSetType.setDeletionDisallow(true);
         return this;
     }
 
@@ -59,8 +90,19 @@ public class DataSetTypeBuilder extends AbstractEntityTypeBuilder<DataSetType>
     {
         DataSetTypePropertyType entityTypePropertyType = new DataSetTypePropertyType();
         List<DataSetTypePropertyType> types = dataSetType.getAssignedPropertyTypes();
+        entityTypePropertyType.setOrdinal(new Long(types.size()));
         fillEntityTypePropertyType(dataSetType, entityTypePropertyType, code, label, dataType);
         types.add(entityTypePropertyType);
         return this;
+    }
+
+    public EntityTypePropertyTypeBuilder propertyType(PropertyType propertyType)
+    {
+        DataSetTypePropertyType entityTypePropertyType = new DataSetTypePropertyType();
+        List<DataSetTypePropertyType> types = dataSetType.getAssignedPropertyTypes();
+        entityTypePropertyType.setOrdinal(new Long(types.size()));
+        fillEntityTypePropertyType(dataSetType, entityTypePropertyType, propertyType);
+        types.add(entityTypePropertyType);
+        return new EntityTypePropertyTypeBuilder(entityTypePropertyType);
     }
 }

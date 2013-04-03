@@ -27,18 +27,29 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentPermIdId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ContainerDataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetTypeBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentTypeBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.LinkDataSetBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyTypeBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleTypeBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -100,6 +111,141 @@ public class TranslatorTest extends AssertJUnit
                 new LinkDataSetBuilder().code("lds").type("L1").experiment(experiment)
                         .sample(sample).registrationDate(new Date(123456789L))
                         .modificationDate(new Date(123459999L)).externalCode("EX_CODE").edms(edms);
+    }
+
+    @Test
+    public void testTranslateExperimentType()
+    {
+        ExperimentTypeBuilder builder = new ExperimentTypeBuilder().code("MY-EXP");
+        builder.propertyType(new PropertyTypeBuilder("Name").getPropertyType()).mandatory();
+        HashMap<Vocabulary, List<VocabularyTerm>> vocabTerms =
+                new HashMap<Vocabulary, List<VocabularyTerm>>();
+
+        ExperimentType translatedExperimentType =
+                Translator.translate(builder.getExperimentType(), vocabTerms);
+
+        assertEquals("ExperimentType[MY-EXP,<null>,[PropertyTypeGroup[<null>,"
+                + "[PropertyType[VARCHAR,NAME,Name,<null>,mandatory]]]]]",
+                translatedExperimentType.toString());
+    }
+
+    @Test
+    public void testTranslateDataSetTypeWithoutDiscription()
+    {
+        DataSetTypeBuilder builder = new DataSetTypeBuilder().code("CODE");
+        builder.propertyType(new PropertyTypeBuilder("Name").getPropertyType());
+        builder.propertyType(new PropertyTypeBuilder("City").getPropertyType()).section("A");
+        PropertyType levelProperty =
+                new PropertyTypeBuilder("Level").vocabulary("Level", "High", "Low")
+                        .getPropertyType();
+        builder.propertyType(levelProperty).mandatory();
+        builder.propertyType(
+                new PropertyTypeBuilder("Age").dataType(DataTypeCode.REAL).getPropertyType())
+                .section("A");
+        DataSetType dataSetType = builder.getDataSetType();
+        HashMap<Vocabulary, List<VocabularyTerm>> vocabTerms =
+                new HashMap<Vocabulary, List<VocabularyTerm>>();
+        vocabTerms.put(levelProperty.getVocabulary(),
+                Arrays.asList(new VocabularyTerm("HIGH", "High", 1L, true, null)));
+
+        ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType translatedDataSetType =
+                Translator.translate(dataSetType, vocabTerms);
+
+        assertEquals("DataSetType[CODE,<null>,deletionDisallowed=false,dataSetKind=<null>,"
+                + "mainDataSetPattern=<null>,mainDataSetPath=<null>,"
+                + "[PropertyTypeGroup[<null>,[PropertyType[VARCHAR,NAME,Name,<null>,optional]]], "
+                + "PropertyTypeGroup[A,[PropertyType[VARCHAR,CITY,City,<null>,optional]]], "
+                + "PropertyTypeGroup[<null>,["
+                + "ControlledVocabularyPropertyType[CONTROLLEDVOCABULARY,LEVEL,"
+                + "Level,<null>,mandatory,"
+                + "[ControlledVocabularyPropertyType.VocabularyTerm[HIGH,High]]]]], "
+                + "PropertyTypeGroup[A,[PropertyType[REAL,AGE,Age,<null>,optional]]]]]",
+                translatedDataSetType.toString());
+    }
+
+    @Test
+    public void testTranslateDataSetTypeWithDescription()
+    {
+        DataSetTypeBuilder builder =
+                new DataSetTypeBuilder().code("CODE").description("hello").deletionDisallowed()
+                        .kind(DataSetKind.CONTAINER).mainDataSetPattern(".*")
+                        .mainDataSetPath("/here");
+        builder.propertyType(new PropertyTypeBuilder("Name").getPropertyType()).section("A");
+        HashMap<Vocabulary, List<VocabularyTerm>> vocabTerms =
+                new HashMap<Vocabulary, List<VocabularyTerm>>();
+
+        ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType translatedDataSetType =
+                Translator.translate(builder.getDataSetType(), vocabTerms);
+
+        assertEquals("DataSetType[CODE,hello,deletionDisallowed=true,dataSetKind=CONTAINER,"
+                + "mainDataSetPattern=.*,mainDataSetPath=/here,"
+                + "[PropertyTypeGroup[A,[PropertyType[VARCHAR,NAME,Name,<null>,optional]]]]]",
+                translatedDataSetType.toString());
+    }
+
+    @Test
+    public void testTranslateListableSampleType()
+    {
+        SampleTypeBuilder builder =
+                new SampleTypeBuilder().code("CODE").description("test type")
+                        .validationPlugin("test", "Testing").listable().automaticCodeGeneration()
+                        .codePrefix("S-").showContainer().showParents().showParentMetaData()
+                        .uniqueSubcodes();
+        builder.propertyType(new PropertyTypeBuilder("Name").getPropertyType()).section("A");
+        builder.propertyType(new PropertyTypeBuilder("City").getPropertyType()).section("A");
+        builder.propertyType(new PropertyTypeBuilder("Timestamp").dataType(DataTypeCode.TIMESTAMP)
+                .getPropertyType());
+        SampleType dataSetType = builder.getSampleType();
+        HashMap<Vocabulary, List<VocabularyTerm>> vocabTerms =
+                new HashMap<Vocabulary, List<VocabularyTerm>>();
+
+        ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType translatedSampleType =
+                Translator.translate(dataSetType, vocabTerms);
+
+        assertEquals(
+                "SampleType[CODE,test type,ValidationPluginInfo[test,Testing],"
+                        + "listable=true,showContainer=true,showParents=true,showParentMetaData=true,"
+                        + "uniqueSubcodes=true,automaticCodeGeneration=true,codePrefix=S-,"
+                        + "[PropertyTypeGroup[A,[PropertyType[VARCHAR,NAME,Name,<null>,optional],"
+                        + " PropertyType[VARCHAR,CITY,City,<null>,optional]]],"
+                        + " PropertyTypeGroup[<null>,[PropertyType[TIMESTAMP,TIMESTAMP,Timestamp,<null>,optional]]]]]",
+                translatedSampleType.toString());
+    }
+
+    @Test
+    public void testTranslateSampleTypeWithNoProperties()
+    {
+        SampleTypeBuilder builder = new SampleTypeBuilder().code("CODE");
+        SampleType dataSetType = builder.getSampleType();
+        HashMap<Vocabulary, List<VocabularyTerm>> vocabTerms =
+                new HashMap<Vocabulary, List<VocabularyTerm>>();
+
+        ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType translatedSampleType =
+                Translator.translate(dataSetType, vocabTerms);
+
+        assertEquals("SampleType[CODE,<null>,<null>,listable=false,showContainer=false,"
+                + "showParents=false,showParentMetaData=false,uniqueSubcodes=false,"
+                + "automaticCodeGeneration=false,codePrefix=<null>,[]]",
+                translatedSampleType.toString());
+    }
+
+    @Test
+    public void testTranslateUnlistableSampleType()
+    {
+        SampleTypeBuilder builder = new SampleTypeBuilder().code("CODE");
+        builder.propertyType(new PropertyTypeBuilder("Name").getPropertyType());
+        SampleType dataSetType = builder.getSampleType();
+        HashMap<Vocabulary, List<VocabularyTerm>> vocabTerms =
+                new HashMap<Vocabulary, List<VocabularyTerm>>();
+
+        ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType translatedSampleType =
+                Translator.translate(dataSetType, vocabTerms);
+
+        assertEquals("SampleType[CODE,<null>,<null>,"
+                + "listable=false,showContainer=false,showParents=false,showParentMetaData=false,"
+                + "uniqueSubcodes=false,automaticCodeGeneration=false,codePrefix=<null>,"
+                + "[PropertyTypeGroup[<null>,[PropertyType[VARCHAR,NAME,Name,<null>,optional]]]]]",
+                translatedSampleType.toString());
     }
 
     @Test

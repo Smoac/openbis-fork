@@ -34,47 +34,74 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  */
 @SuppressWarnings("unused")
 @JsonObject("DataSetType")
-public final class DataSetType implements Serializable
+public final class DataSetType extends EntityType
 {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Class used to initialize a new data set instance. Necessary since all the fields of a DataSet
-     * are final.
+     * Class used to initialize a new {@link DataSetType} instance. Necessary since all the fields
+     * of a {@link DataSetType} are final.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    public static final class DataSetTypeInitializer
+    public static final class DataSetTypeInitializer extends EntityTypeInitializer
     {
-        private String code;
-
-        private ArrayList<PropertyTypeGroup> propertyTypeGroups =
-                new ArrayList<PropertyTypeGroup>();
-
-        public String getCode()
+        private boolean deletionDisallowed;
+        private DataSetKind dataSetKind;
+        private String mainDataSetPattern;
+        private String mainDataSetPath;
+        
+        public DataSetTypeInitializer()
         {
-            return code;
+            super();
         }
 
-        public void setCode(String code)
+        public boolean isDeletionDisallowed()
         {
-            this.code = code;
+            return deletionDisallowed;
         }
 
-        public ArrayList<PropertyTypeGroup> getPropertyTypeGroups()
+        public void setDeletionDisallowed(boolean deletionDisallowed)
         {
-            return propertyTypeGroups;
+            this.deletionDisallowed = deletionDisallowed;
         }
 
-        public void addPropertyTypeGroup(PropertyTypeGroup propertyType)
+        public DataSetKind getDataSetKind()
         {
-            propertyTypeGroups.add(propertyType);
+            return dataSetKind;
         }
+
+        public void setDataSetKind(DataSetKind dataSetKind)
+        {
+            this.dataSetKind = dataSetKind;
+        }
+
+        public String getMainDataSetPattern()
+        {
+            return mainDataSetPattern;
+        }
+
+        public void setMainDataSetPattern(String mainDataSetPattern)
+        {
+            this.mainDataSetPattern = mainDataSetPattern;
+        }
+
+        public String getMainDataSetPath()
+        {
+            return mainDataSetPath;
+        }
+
+        public void setMainDataSetPath(String mainDataSetPath)
+        {
+            this.mainDataSetPath = mainDataSetPath;
+        }
+        
     }
-
-    private String code;
-
-    private ArrayList<PropertyTypeGroup> propertyTypeGroups;
+    
+    private boolean deletionDisallowed;
+    private DataSetKind dataSetKind;
+    private String mainDataSetPattern;
+    private String mainDataSetPath;
 
     /**
      * Creates a new instance with the provided initializer
@@ -83,53 +110,43 @@ public final class DataSetType implements Serializable
      */
     public DataSetType(DataSetTypeInitializer initializer)
     {
-        InitializingChecks.checkValidString(initializer.getCode(), "Unspecified code.");
-        this.code = initializer.getCode();
-
-        this.propertyTypeGroups = initializer.getPropertyTypeGroups();
+        super(initializer);
+        deletionDisallowed = initializer.isDeletionDisallowed();
+        dataSetKind = initializer.getDataSetKind();
+        mainDataSetPattern = initializer.getMainDataSetPattern();
+        mainDataSetPath = initializer.getMainDataSetPath();
+    }
+    
+    /**
+     * Returns <code>true</code> if deletion for data sets of this type are disallowed.
+     */
+    public boolean isDeletionDisallowed()
+    {
+        return deletionDisallowed;
     }
 
     /**
-     * Returns the data set code.
+     * Returns the kind of data sets of this type.
      */
-    public String getCode()
+    public DataSetKind getDataSetKind()
     {
-        return code;
+        return dataSetKind;
     }
 
     /**
-     * Return the grouped property types for this data set type. (Groups are referred to as sections
-     * elsewhere).
+     * Returns main data set pattern if defined.
      */
-    public List<PropertyTypeGroup> getPropertyTypeGroups()
+    public String getMainDataSetPattern()
     {
-        return propertyTypeGroups;
+        return mainDataSetPattern;
     }
 
-    @Override
-    public boolean equals(Object obj)
+    /**
+     * Returns main data set path if defined.
+     */
+    public String getMainDataSetPath()
     {
-        if (obj == this)
-        {
-            return true;
-        }
-        if (obj instanceof DataSetType == false)
-        {
-            return false;
-        }
-
-        EqualsBuilder builder = new EqualsBuilder();
-        DataSetType other = (DataSetType) obj;
-        builder.append(getCode(), other.getCode());
-        return builder.isEquals();
-    }
-
-    @Override
-    public int hashCode()
-    {
-        HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(getCode());
-        return builder.toHashCode();
+        return mainDataSetPath;
     }
 
     @Override
@@ -137,6 +154,11 @@ public final class DataSetType implements Serializable
     {
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
         builder.append(getCode());
+        builder.append(getDescription());
+        builder.append("deletionDisallowed", deletionDisallowed);
+        builder.append("dataSetKind", dataSetKind);
+        builder.append("mainDataSetPattern", mainDataSetPattern);
+        builder.append("mainDataSetPath", mainDataSetPath);
         builder.append(getPropertyTypeGroups());
         return builder.toString();
     }
@@ -149,13 +171,23 @@ public final class DataSetType implements Serializable
     {
     }
 
-    private void setCode(String code)
+    private void setDeletionDisallowed(boolean deletionDisallowed)
     {
-        this.code = code;
+        this.deletionDisallowed = deletionDisallowed;
     }
 
-    private void setPropertyTypeGroups(ArrayList<PropertyTypeGroup> propertyTypeGroups)
+    private void setDataSetKind(DataSetKind dataSetKind)
     {
-        this.propertyTypeGroups = propertyTypeGroups;
+        this.dataSetKind = dataSetKind;
+    }
+
+    private void setMainDataSetPattern(String mainDataSetPattern)
+    {
+        this.mainDataSetPattern = mainDataSetPattern;
+    }
+
+    private void setMainDataSetPath(String mainDataSetPath)
+    {
+        this.mainDataSetPath = mainDataSetPath;
     }
 }
