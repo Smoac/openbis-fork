@@ -90,7 +90,7 @@ public class ExcelFileLoaderTest
      *      value1   value2
      * </pre>
      */
-    @Test(enabled = false)
+    @Test
     public void testFormatWithColumnHeadersInALineAfterComments() throws Exception
     {
         List<TestBean> beans = loadBeans("excel-with-column-headers-in-a-line-after-comments.xls");
@@ -111,7 +111,7 @@ public class ExcelFileLoaderTest
      *      value1
      * </pre>
      */
-    @Test(enabled = false)
+    @Test
     public void testFormatWithColumnHeadersInALineAfterCommentsWithDefaultSection()
             throws Exception
     {
@@ -131,7 +131,7 @@ public class ExcelFileLoaderTest
      *      #column1  column2
      * </pre>
      */
-    @Test(enabled = false)
+    @Test
     public void testFormatWithColumnHeadersInTheLastCommentLine() throws Exception
     {
         List<TestBean> beans = loadBeans("excel-with-column-headers-in-the-last-comment-line.xls");
@@ -153,7 +153,7 @@ public class ExcelFileLoaderTest
      *      value1
      * </pre>
      */
-    @Test(enabled = false)
+    @Test
     public void testFormatWithColumnHeadersInTheLastCommentLineWithDefaultSection()
             throws Exception
     {

@@ -156,24 +156,38 @@ public class ExcelFileLoader<T>
     {
         ILine<Row> previousLine = null;
         ILine<Row> line = null;
-        boolean previousLineHasColumnHeaders = false;
+        ILine<Row> headerLine = null;
+        ILine<Row> firstContentLine = null;
 
         Map<String, String> defaults = new HashMap<String, String>(fileDefaults);
+
         while (lineIterator.hasNext())
         {
-            previousLineHasColumnHeaders = (previousLine != null) && isComment(previousLine);
+            if (previousLine != null && isEmptyComment(previousLine) && line != null
+                    && !isEmptyComment(line))
+            {
+                headerLine = line;
+            }
+
             previousLine = line;
             line = lineIterator.next();
+
             if (isComment(line))
             {
                 continue;
-            } else if (startsDefaultSection(line))
+            }
+            if (startsDefaultSection(line))
             {
                 parseDefaults(lineIterator, defaults);
-                line = previousLine = null;
-                previousLineHasColumnHeaders = false;
-            } else if (isComment(line) == false)
+            } else
             {
+                if (headerLine == null)
+                {
+                    headerLine = line;
+                } else
+                {
+                    firstContentLine = line;
+                }
                 break;
             }
         }
@@ -183,24 +197,16 @@ public class ExcelFileLoader<T>
             return new ArrayList<T>();
         }
 
-        Row headerRow = null;
-        if (previousLineHasColumnHeaders && (previousLine != null /* just for eclipse */))
-        {
-            headerRow = trimComment(previousLine);
-        } else
-        {
-            headerRow = line.getObject();
-        }
-
         final IParser<T, Row> parser = createParser();
-        final String[] tokens = ExcelRowTokenizer.tokenizeRow(headerRow);
+        final String[] tokens =
+                headerLine != null ? ExcelRowTokenizer.tokenizeRow(trimComment(headerLine))
+                        : new String[0];
         final int headerLength = tokens.length;
         notUnique(tokens);
 
         final IPropertyMapper propertyMapper = new DefaultPropertyMapper(tokens, defaults);
         parser.setObjectFactory(factory.createFactory(propertyMapper));
 
-        ILine<Row> firstContentLine = previousLineHasColumnHeaders ? line : null;
         Iterator<ILine<Row>> contentLineIterator =
                 createContentIterator(firstContentLine, lineIterator);
         final ILineFilter filter = AlwaysAcceptLineFilter.INSTANCE;
@@ -239,6 +245,19 @@ public class ExcelFileLoader<T>
     {
         Row row = line.getObject();
         return row.getCell(0) != null && row.getCell(0).toString().startsWith(COMMENT_PREFIX);
+    }
+
+    private static boolean isEmptyComment(ILine<Row> line)
+    {
+        if (isComment(line))
+        {
+            Row row = trimComment(line);
+            return row.getCell(0) == null || row.getCell(0).getStringCellValue() == null
+                    || row.getCell(0).getStringCellValue().trim().length() == 0;
+        } else
+        {
+            return false;
+        }
     }
 
     /**
@@ -307,7 +326,7 @@ public class ExcelFileLoader<T>
         {
             if (unique.add(token.toLowerCase()) == false)
             {
-                throw new IllegalArgumentException(String.format("Duplicated column name '%s': %s" ,
+                throw new IllegalArgumentException(String.format("Duplicated column name '%s': %s",
                         token, Arrays.asList(tokens)));
             }
         }
