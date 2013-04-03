@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.parser;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +46,13 @@ public class ExcelFileLoaderTest
     private static final TestBean ROW_2_WITH_COLUMN_2_DEFAULT = new TestBean("row2column1",
             "column2default", "column3default");
 
+    @Test
+    public void testEmptyFile() throws Exception
+    {
+        List<TestBean> beans = loadBeans("excel-empty.xls");
+        assertBeans(beans, new ArrayList<TestBean>());
+    }
+
     /**
      * Tested file format:
      * 
@@ -58,6 +66,14 @@ public class ExcelFileLoaderTest
     {
         List<TestBean> beans = loadBeans("excel-with-column-headers-in-the-first-line.xls");
         assertBeans(beans, Arrays.asList(ROW_1, ROW_2));
+    }
+
+    @Test
+    public void testFormatWithColumnHeadersInTheFirstLineWithNoData() throws Exception
+    {
+        List<TestBean> beans =
+                loadBeans("excel-with-column-headers-in-the-first-line-with-no-data.xls");
+        assertBeans(beans, new ArrayList<TestBean>());
     }
 
     /**
@@ -95,6 +111,14 @@ public class ExcelFileLoaderTest
     {
         List<TestBean> beans = loadBeans("excel-with-column-headers-in-a-line-after-comments.xls");
         assertBeans(beans, Arrays.asList(ROW_1, ROW_2));
+    }
+
+    @Test
+    public void testFormatWithColumnHeadersInALineAfterCommentsWithNoData() throws Exception
+    {
+        List<TestBean> beans =
+                loadBeans("excel-with-column-headers-in-a-line-after-comments-with-no-data.xls");
+        assertBeans(beans, new ArrayList<TestBean>());
     }
 
     /**
@@ -138,6 +162,14 @@ public class ExcelFileLoaderTest
         assertBeans(beans, Arrays.asList(ROW_1, ROW_2));
     }
 
+    @Test
+    public void testFormatWithColumnHeadersInTheLastCommentLineWithNoData() throws Exception
+    {
+        List<TestBean> beans =
+                loadBeans("excel-with-column-headers-in-the-last-comment-line-with-no-data.xls");
+        assertBeans(beans, new ArrayList<TestBean>());
+    }
+
     /**
      * Tested file format:
      * 
@@ -162,14 +194,36 @@ public class ExcelFileLoaderTest
         assertBeans(beans, Arrays.asList(ROW_1_WITH_COLLUMN_2_DEFAULT, ROW_2_WITH_COLUMN_2_DEFAULT));
     }
 
+    /**
+     * Tested file format:
+     * 
+     * <pre>
+     *      # 1. line of comment
+     *      # 2. line of comment
+     *      #...
+     *      [DEFAULT]
+     *      column2  value2
+     *      [DEFAULT]
+     *      #...
+     *      column1
+     *      value1
+     * </pre>
+     */
+    @Test
+    public void testFormatWithColumnHeadersAndDefaultSectionAndCommentsMixed() throws Exception
+    {
+        List<TestBean> beans =
+                loadBeans("excel-with-column-headers-and-default-section-and-comments-mixed.xls");
+        assertBeans(beans, Arrays.asList(ROW_1_WITH_COLLUMN_2_DEFAULT, ROW_2_WITH_COLUMN_2_DEFAULT));
+    }
+
     private List<TestBean> loadBeans(String fileName) throws Exception
     {
         Sheet sheet = ExcelTestUtil.getSheet(getClass(), fileName);
         ExcelFileLoader<TestBean> loader = new ExcelFileLoader<TestBean>(TestBean.class);
         Map<String, String> defaults = new HashMap<String, String>();
         defaults.put("column3", "column3default");
-        return loader.load(sheet, sheet.getFirstRowNum(), sheet.getLastRowNum(),
-                defaults);
+        return loader.load(sheet, sheet.getFirstRowNum(), sheet.getLastRowNum(), defaults);
     }
 
     private void assertBeans(List<TestBean> actualBeans, List<TestBean> expectedBeans)
