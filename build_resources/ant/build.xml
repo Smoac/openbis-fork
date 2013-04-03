@@ -146,7 +146,23 @@
     <branch-and-tag-project repositoryRoot="${repositoryRoot}" group="${group}" name="${name}" 
                             sprintTag="${tag}" branchIfNecessary="true" />
   </target>
- 
+
+	
+  <target name="tag-release">
+    <condition property="repositoryRoot" value="${repositoryRoot.default}">
+      <not>
+        <isset property="repositoryRoot" />   
+      </not>   
+    </condition>
+    <condition property="group" value="cisd">
+      <not>
+        <isset property="group" />
+      </not>
+    </condition>
+    <branch-and-tag-project repositoryRoot="${repositoryRoot}" group="${group}" name="${name}" 
+                            releaseTag="${tag}" branchIfNecessary="true" />
+  </target>
+	
   <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      Checks out a tagged version of a project and run the 'dist' target. 
      
