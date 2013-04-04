@@ -20,32 +20,36 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * A {@link ICallbackListener} which outputs the failure message to the
- * specified {@link IInfoHandler}.
+ * A {@link ICallbackListener} which outputs the failure message to the specified
+ * {@link IInfoHandler}.
  * 
  * @author Christian Ribeaud
  */
-public class InfoBoxCallbackListener<T> extends CallbackListenerAdapter<T> {
-	private final IInfoHandler infoHandler;
+public class InfoBoxCallbackListener<T> extends CallbackListenerAdapter<T>
+{
+    private final IInfoHandler infoHandler;
 
-	public InfoBoxCallbackListener(final IInfoHandler infoBox) {
-		this.infoHandler = infoBox;
-	}
+    public InfoBoxCallbackListener(final IInfoHandler infoBox)
+    {
+        this.infoHandler = infoBox;
+    }
 
-	//
-	// ICallbackListener
-	//
+    //
+    // ICallbackListener
+    //
 
-	@Override
-	public final void onFailureOf(final IMessageProvider messageProvider,
-			final AbstractAsyncCallback<T> callback,
-			final String failureMessage, final Throwable throwable) {
-		if (failureMessage.contains("502")
-				&& failureMessage.toLowerCase().contains("proxy")) {
-			infoHandler.displayError(callback.viewContext
-					.getMessage(Dict.INFO_BOX_PROXY_502_ERROR));
-		} else {
-			infoHandler.displayError(failureMessage.replace("\n", "<br>"));
-		}
-	}
+    @Override
+    public final void onFailureOf(final IMessageProvider messageProvider,
+            final AbstractAsyncCallback<T> callback, final String failureMessage,
+            final Throwable throwable)
+    {
+        if (failureMessage.contains("502") && failureMessage.toLowerCase().contains("proxy"))
+        {
+            infoHandler
+                    .displayError(callback.viewContext.getMessage(Dict.INFO_BOX_PROXY_502_ERROR));
+        } else
+        {
+            infoHandler.displayError(failureMessage.replace("\n", "<br>"));
+        }
+    }
 }
