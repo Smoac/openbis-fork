@@ -253,7 +253,8 @@ var common = {
   //
   
   info_box_show_full_message: "show details",
-  
+  info_box_proxy_502_error: "Client lost connectivity with the server:<br/>If you are uploading data it will be probably available in a few minutes.Check it before uploading again.",
+ 
   //
   // Info Type
   //

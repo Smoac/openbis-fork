@@ -41,10 +41,9 @@ public class InfoBoxCallbackListener<T> extends CallbackListenerAdapter<T> {
 			final AbstractAsyncCallback<T> callback,
 			final String failureMessage, final Throwable throwable) {
 		if (failureMessage.contains("502")
-				&& failureMessage.contains("Proxy Error")) {
-			infoHandler
-					.displayProgress("Client lost connectivity with the server:<br>"
-							+ "If you are uploading data it will be probably available in a few minutes.Check it before uploading again. ");
+				&& failureMessage.toLowerCase().contains("proxy")) {
+			infoHandler.displayError(callback.viewContext
+					.getMessage(Dict.INFO_BOX_PROXY_502_ERROR));
 		} else {
 			infoHandler.displayError(failureMessage.replace("\n", "<br>"));
 		}
