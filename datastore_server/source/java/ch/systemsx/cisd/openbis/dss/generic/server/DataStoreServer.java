@@ -175,6 +175,14 @@ public class DataStoreServer
         } catch (final Exception ex)
         {
             operationLog.error("Failed to start server.", ex);
+            try
+            {
+                server.stop();
+            } catch (Exception ex1)
+            {
+                operationLog.error("Failed to stop jetty server.", ex1);
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex1);
+            }
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
