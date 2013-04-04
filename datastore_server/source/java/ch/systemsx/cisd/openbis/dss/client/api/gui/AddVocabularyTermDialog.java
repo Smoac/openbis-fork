@@ -38,6 +38,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import ch.systemsx.cisd.openbis.dss.client.api.gui.VocabularyTermsComboBoxPanel.VocabularyTermAdaptor;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 

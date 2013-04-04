@@ -49,4 +49,6 @@ public class UiUtilities
             errorAreaOrNull.clear();
         }
     }
+
+    static final String WAITING_NODE_LABEL = "Loading data ...";
 }

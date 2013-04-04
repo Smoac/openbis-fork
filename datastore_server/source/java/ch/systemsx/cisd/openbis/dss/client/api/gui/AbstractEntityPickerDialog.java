@@ -32,6 +32,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel;
+
 /**
  * @author Chandrasekhar Ramakrishnan
  * @author Kaloyan Enimanev
@@ -113,7 +115,7 @@ public abstract class AbstractEntityPickerDialog extends JDialog
                 }
             }.start();
     }
-
+    
     protected static JPanel createFilterAndRefreshButtonPanel(JTextField textField,
             JButton refreshButton)
     {

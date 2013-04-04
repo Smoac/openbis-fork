@@ -20,6 +20,8 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.JFrame;
 
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel;
+
 /**
  * @author Pawel Glyzewski
  */
@@ -39,7 +41,7 @@ public class SamplePickerPanel extends AbstractEntityPickerPanel
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        String sampleId = dialog.pickSample();
+        String sampleId = dialog.pickEntity();
         if (sampleId != null)
         {
             textField.setText(sampleId);

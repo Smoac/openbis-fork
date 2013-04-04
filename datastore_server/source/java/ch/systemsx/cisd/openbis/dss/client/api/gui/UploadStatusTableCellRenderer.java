@@ -28,7 +28,8 @@ import javax.swing.JProgressBar;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
-import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadTableModel;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel.NewDataSetInfo;
 
 /**
  * Displays a button or download status, depending on whether the file has been downloaded or not.

@@ -30,17 +30,13 @@ import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
 import org.apache.commons.lang.WordUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DssCommunicationState;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
-import ch.systemsx.cisd.openbis.dss.client.api.v1.OpenbisServiceFacadeFactory;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -197,7 +193,7 @@ public abstract class AbstractSwingGUI
      * Notifies the user of the given <var>throwable</var>, if the error message is different from
      * <var>lastExceptionMessageOrNull</var>.
      */
-    static String notifyUserOfThrowable(final Frame parentFrame, final String fileName,
+    public static String notifyUserOfThrowable(final Frame parentFrame, final String fileName,
             final String operationName, final Throwable throwable,
             final String lastExceptionMessageOrNull)
     {
@@ -360,68 +356,5 @@ public abstract class AbstractSwingGUI
             message = "ERROR: " + throwable;
         }
         return message;
-    }
-}
-
-class DssCommunicationState
-{
-    private final IOpenbisServiceFacade openBISService;
-
-    private final boolean logoutOnClose;
-
-    private static final long CONNECTION_TIMEOUT_MILLIS = 15 * DateUtils.MILLIS_PER_SECOND;
-
-    /**
-     * Create a new instance of the DssCommunicationState based info in the arguments. Throws an
-     * exception if it could not be created.
-     */
-    protected DssCommunicationState(String[] args) throws UserFailureException,
-            EnvironmentFailureException
-    {
-        if (args.length < 2)
-            throw new ConfigurationFailureException(
-                    "The openBIS File Upload Client was improperly configured -- the arguments it requires were not supplied. Please talk to the openBIS administrator.");
-
-        String openBisUrl = args[0];
-
-        switch (args.length)
-        {
-            case 2:
-                String sessionToken = args[1];
-                openBISService =
-                        OpenbisServiceFacadeFactory.tryCreate(sessionToken, openBisUrl,
-                                CONNECTION_TIMEOUT_MILLIS);
-                if (null == openBISService)
-                {
-                    throw new ConfigurationFailureException(
-                            "The openBIS File Upload Client was improperly configured -- the session token is not valid. Please talk to the openBIS administrator.");
-                }
-                // Don't logout -- the user wants to keep his/her session token alive.
-                logoutOnClose = false;
-                break;
-            default:
-                String userName = args[1];
-                String passwd = args[2];
-                openBISService =
-                        OpenbisServiceFacadeFactory.tryCreate(userName, passwd, openBisUrl,
-                                CONNECTION_TIMEOUT_MILLIS);
-                if (null == openBISService)
-                {
-                    throw new ConfigurationFailureException(
-                            "The user name / password combination is incorrect.");
-                }
-                // Do logout on close
-                logoutOnClose = true;
-        }
-    }
-
-    IOpenbisServiceFacade getOpenBISService()
-    {
-        return openBISService;
-    }
-
-    public boolean isLogoutOnClose()
-    {
-        return logoutOnClose;
     }
 }

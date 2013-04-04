@@ -130,6 +130,22 @@ public interface ISimpleOpenbisServiceFacade
     @Retry
     List<Sample> listSamplesForExperiments(List<String> experimentIdentifiers,
             EnumSet<SampleFetchOption> fetchOptions);
+    
+    /**
+     * Returns all samples for specified experiment and of specified type.
+     * 
+     * @return an empty list if specified identifier and/or type do not exist.
+     */
+    @Retry
+    List<Sample> listSamplesForExperimentAndSampleType(String experimentPermId, String sampleType);
+    
+    /**
+     * Returns all samples which are components or children of the specified sample.
+     * 
+     * @return an empty list if the specified sample does not exist.
+     */
+    @Retry
+    List<Sample> listSamplesOfSample(String samplePermId);
 
     /**
      * Return all samples for a given list of project identifiers. If some of the specified project
@@ -171,6 +187,14 @@ public interface ISimpleOpenbisServiceFacade
      */
     @Retry
     List<DataSet> listDataSetsForExperiments(List<String> experimentIdentifiers);
+    
+    /**
+     * Returns all data sets of specified experiment.
+     * 
+     * @return an empty list if the experiment does not exists.
+     */
+    @Retry
+    List<DataSet> listDataSetsForExperiment(String experimentPermId);
 
     /**
      * Return all data sets for a given list of sample identifiers. If some of the specified sample
@@ -179,6 +203,14 @@ public interface ISimpleOpenbisServiceFacade
     @Retry
     List<DataSet> listDataSetsForSamples(List<String> sampleIdentifiers);
 
+    /**
+     * Returns all data sets of specified sample.
+     * 
+     * @return an empty list if the sample does not exists.
+     */
+    @Retry
+    List<DataSet> listDataSetsForSample(String samplePermId);
+    
     /**
      * Returns all data set types available in openBIS.
      */

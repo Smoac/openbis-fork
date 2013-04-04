@@ -314,6 +314,43 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     }
 
     @Override
+    public List<Sample> listSamplesForExperimentAndSampleType(final String experimentPermId,
+            String sampleType)
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.setOperator(SearchOperator.MATCH_ALL_CLAUSES);
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE,
+                sampleType));
+        SearchCriteria experimentCriteria = new SearchCriteria();
+        experimentCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.PERM_ID, experimentPermId));
+        searchCriteria.addSubCriteria(SearchSubCriteria
+                .createExperimentCriteria(experimentCriteria));
+        return service.searchForSamples(sessionToken, searchCriteria, null);
+    }
+    
+    @Override
+    public List<Sample> listSamplesOfSample(final String samplePermId)
+    {
+        List<Sample> samples = new ArrayList<Sample>();
+        SearchCriteria sampleCriteria = new SearchCriteria();
+        sampleCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.PERM_ID, samplePermId));
+        List<Sample> sampleWithChildren =
+                service.searchForSamples(sessionToken, sampleCriteria,
+                        EnumSet.of(SampleFetchOption.CHILDREN));
+        if (sampleWithChildren.isEmpty() == false)
+        {
+            samples.addAll(sampleWithChildren.get(0).getChildren());
+        }
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addSubCriteria(SearchSubCriteria
+                .createSampleContainerCriteria(sampleCriteria));
+        samples.addAll(service.searchForSamples(sessionToken, searchCriteria, null));
+        return samples;
+    }
+
+    @Override
     public List<Sample> listSamplesForProjects(List<String> projectIdentifiers)
     {
         return listSamplesForProjects(projectIdentifiers, null);
@@ -385,6 +422,18 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     }
 
     @Override
+    public List<DataSet> listDataSetsForExperiment(String experimentPermId)
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        SearchCriteria experimentCriteria = new SearchCriteria();
+        experimentCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.PERM_ID, experimentPermId));
+        searchCriteria.addSubCriteria(SearchSubCriteria
+                .createExperimentCriteria(experimentCriteria));
+        return convertDataSets(service.searchForDataSets(sessionToken, searchCriteria));
+    }
+
+    @Override
     public List<DataSet> listDataSetsForSamples(final List<String> sampleIdentifiers)
             throws EnvironmentFailureException
     {
@@ -406,6 +455,18 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
                                         }
                                     });
         return convertDataSets(filteredDataSets);
+    }
+
+    @Override
+    public List<DataSet> listDataSetsForSample(String samplePermId)
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        SearchCriteria sampleCriteria = new SearchCriteria();
+        sampleCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                MatchClauseAttribute.PERM_ID, samplePermId));
+        searchCriteria.addSubCriteria(SearchSubCriteria
+                .createSampleCriteria(sampleCriteria));
+        return convertDataSets(service.searchForDataSets(sessionToken, searchCriteria));
     }
 
     @Override

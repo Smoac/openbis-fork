@@ -25,6 +25,8 @@ import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
 
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadTableModel;
+
 /**
  * Creates a clickable button which allows the user to "edit" the status.
  * 

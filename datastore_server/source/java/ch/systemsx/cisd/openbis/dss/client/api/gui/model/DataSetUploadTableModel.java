@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.client.api.gui;
+package ch.systemsx.cisd.openbis.dss.client.api.gui.model;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import javax.swing.JFrame;
-import javax.swing.JTable;
-import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 
-import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel.NewDataSetInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 
@@ -47,27 +40,21 @@ public class DataSetUploadTableModel extends AbstractTableModel
     private static final long serialVersionUID = 1L;
 
     // Constants for column order
-    static final int DATA_SET_OWNER_COLUMN = 0;
+    public static final int DATA_SET_OWNER_COLUMN = 0;
 
-    static final int DATA_SET_TYPE_COLUMN = 1;
+    public static final int DATA_SET_TYPE_COLUMN = 1;
 
-    static final int DATA_SET_METADATA_COLUMN = 2;
+    public static final int DATA_SET_METADATA_COLUMN = 2;
 
-    static final int DATA_SET_PATH_COLUMN = 3;
+    public static final int DATA_SET_PATH_COLUMN = 3;
 
-    static final int UPLOAD_STATUS_COLUMN = 4;
-
-    private final JFrame mainWindow;
+    public static final int UPLOAD_STATUS_COLUMN = 4;
 
     private final DataSetUploadClientModel clientModel;
 
-    private final DataSetMetadataPanel metadataPanel;
-
     private final ArrayList<DataSetUploadClientModel.NewDataSetInfo> newDataSetInfos =
             new ArrayList<DataSetUploadClientModel.NewDataSetInfo>();
-
-    private JTable table;
-
+    
     private int sortColumnIndex = 0;
 
     private boolean sortAscending = true;
@@ -75,46 +62,17 @@ public class DataSetUploadTableModel extends AbstractTableModel
     // Initialize to no row selected
     private int selectedRow = -1;
 
-    /**
-     * Internal class for triggering the sorting of columns.
-     * 
-     * @author Chandrasekhar Ramakrishnan
-     */
-    private class ColumnSortingListener extends MouseAdapter
+    private ISynchronizer synchronizer;
+
+    public static interface ISynchronizer
     {
-        @Override
-        public void mouseClicked(MouseEvent e)
-        {
-            TableColumnModel colModel = table.getColumnModel();
-            int columnModelIndex = colModel.getColumnIndexAtX(e.getX());
-            int modelIndex = colModel.getColumn(columnModelIndex).getModelIndex();
 
-            if (modelIndex < 0)
-            {
-                return;
-            } else if (modelIndex == DATA_SET_METADATA_COLUMN)
-            {
-                // Don't offer sorting on metadata -- it doesn't make sense.
-                return;
-            } else if (sortColumnIndex == modelIndex)
-            {
-                sortAscending = (sortAscending == false);
-            } else
-            {
-                sortColumnIndex = modelIndex;
-                sortAscending = true;
-            }
+        public void selectRow(int rowIndex);
 
-            for (int i = 0; i < getColumnCount(); i++)
-            {
-                TableColumn column = colModel.getColumn(i);
-                column.setHeaderValue(getColumnName(column.getModelIndex()));
-            }
+        public void setNewDataSetInfo(NewDataSetInfo newDataSetInfo);
 
-            table.getTableHeader().repaint();
-
-            syncNewDataSetInfoListView();
-        }
+        public void tableChanged(DataSetUploadTableModel dataSetUploadTableModel);
+        
     }
 
     /**
@@ -159,19 +117,14 @@ public class DataSetUploadTableModel extends AbstractTableModel
         }
     }
 
-    DataSetUploadTableModel(DataSetUploadClient downloadClient,
-            DataSetUploadClientModel clientModel, DataSetMetadataPanel metadataPanel,
-            JFrame mainWindow)
+    public DataSetUploadTableModel(DataSetUploadClientModel clientModel)
     {
-        this.mainWindow = mainWindow;
         this.clientModel = clientModel;
-        this.metadataPanel = metadataPanel;
     }
 
-    public void setTable(JTable table)
+    public void setSynchronizer(ISynchronizer synchronizer)
     {
-        this.table = table;
-        table.getTableHeader().addMouseListener(new ColumnSortingListener());
+        this.synchronizer = synchronizer;
     }
 
     /**
@@ -186,7 +139,7 @@ public class DataSetUploadTableModel extends AbstractTableModel
         fireTableRowsUpdated(index, index);
     }
 
-    void setSelectedIndices(ArrayList<Integer> selectedIndices)
+    public void setSelectedIndices(ArrayList<Integer> selectedIndices)
     {
         if (selectedIndices.size() < 1)
         {
@@ -196,6 +149,26 @@ public class DataSetUploadTableModel extends AbstractTableModel
         selectedRow = selectedIndices.get(0);
         NewDataSetInfo selectedDataSet = getSelectedNewDataSetOrNull();
         selectNewDataSetInfo(selectedDataSet);
+    }
+
+    public int getSortColumnIndex()
+    {
+        return sortColumnIndex;
+    }
+
+    public void setSortColumnIndex(int sortColumnIndex)
+    {
+        this.sortColumnIndex = sortColumnIndex;
+    }
+
+    public boolean isSortAscending()
+    {
+        return sortAscending;
+    }
+
+    public void setSortAscending(boolean sortAscending)
+    {
+        this.sortAscending = sortAscending;
     }
 
     @Override
@@ -329,11 +302,6 @@ public class DataSetUploadTableModel extends AbstractTableModel
                 || (status == NewDataSetInfo.Status.COMPLETED_UPLOAD);
     }
 
-    public JFrame getMainWindow()
-    {
-        return mainWindow;
-    }
-
     public void selectedRowDataChanged()
     {
         if (selectedRow < 0)
@@ -351,8 +319,7 @@ public class DataSetUploadTableModel extends AbstractTableModel
         selectedIndices.add(clientModel.getNewDataSetInfos().size() - 1);
         setSelectedIndices(selectedIndices);
         selectNewDataSetInfo(newlyCreated);
-        table.getSelectionModel().setSelectionInterval(selectedIndices.get(0),
-                selectedIndices.get(0));
+        synchronizer.selectRow(selectedIndices.get(0));
     }
 
     public void removeSelectedDataSet()
@@ -386,17 +353,16 @@ public class DataSetUploadTableModel extends AbstractTableModel
         syncNewDataSetInfoListView();
     }
 
-    private void syncNewDataSetInfoListView()
+    public void syncNewDataSetInfoListView()
     {
         Collections.sort(newDataSetInfos, new NewDataSetInfoComparator());
 
-        table.tableChanged(new TableModelEvent(DataSetUploadTableModel.this));
-        table.repaint();
+        synchronizer.tableChanged(this);
     }
 
     private void selectNewDataSetInfo(NewDataSetInfo newDataSetInfo)
     {
-        metadataPanel.setNewDataSetInfo(newDataSetInfo);
+        synchronizer.setNewDataSetInfo(newDataSetInfo);
     }
 
     /**
@@ -412,4 +378,5 @@ public class DataSetUploadTableModel extends AbstractTableModel
     {
         return (selectedRow < 0) ? null : newDataSetInfos.get(selectedRow);
     }
+
 }

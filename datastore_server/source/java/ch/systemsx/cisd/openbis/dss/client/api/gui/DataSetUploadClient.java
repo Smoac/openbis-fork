@@ -42,6 +42,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.MatteBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
@@ -51,6 +52,12 @@ import org.python.core.PySystemState;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel.NewDataSetInfo;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadTableModel;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadTableModel.ISynchronizer;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DssCommunicationState;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.IUserNotifier;
 
 /**
  * The GUI for the WebStart data set upload application. This class assembles the GUI and creates
@@ -136,10 +143,18 @@ public class DataSetUploadClient extends AbstractSwingGUI
         // save and create local state
         super(commState);
 
-        clientModel = new DataSetUploadClientModel(commState, timeProvider);
+        clientModel = new DataSetUploadClientModel(commState, timeProvider, new IUserNotifier()
+            {
+                @Override
+                public String notifyUserOfThrowable(String fileName, String operationName,
+                        Throwable throwable, String lastExceptionMessageOrNull)
+                {
+                    return AbstractSwingGUI.notifyUserOfThrowable(getWindowFrame(), fileName,
+                            operationName, throwable, lastExceptionMessageOrNull);
+                }
+            });
         metadataPanel = new DataSetMetadataPanel(clientModel, getWindowFrame());
-        tableModel =
-                new DataSetUploadTableModel(this, clientModel, metadataPanel, getWindowFrame());
+        tableModel = new DataSetUploadTableModel(clientModel);
         clientModel.setTableModel(tableModel);
 
         createGui();
@@ -274,7 +289,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
                     // Notify the table model
                     ListSelectionModel selectionModel = (ListSelectionModel) e.getSource();
                     ArrayList<Integer> selectedIndices = new ArrayList<Integer>();
-                    if (!selectionModel.isSelectionEmpty())
+                    if (selectionModel.isSelectionEmpty() == false)
                     {
                         int minIndex = selectionModel.getMinSelectionIndex();
                         int maxIndex = selectionModel.getMaxSelectionIndex();
@@ -291,7 +306,28 @@ public class DataSetUploadClient extends AbstractSwingGUI
 
                 }
             });
-        tableModel.setTable(fileTable);
+        fileTable.getTableHeader().addMouseListener(new ColumnSortingListener(tableModel, fileTable));
+        tableModel.setSynchronizer(new ISynchronizer()
+            {
+                @Override
+                public void setNewDataSetInfo(NewDataSetInfo newDataSetInfo)
+                {
+                    metadataPanel.setNewDataSetInfo(newDataSetInfo);
+                }
+                
+                @Override
+                public void selectRow(int rowIndex)
+                {
+                    fileTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
+                }
+
+                @Override
+                public void tableChanged(DataSetUploadTableModel dataSetUploadTableModel)
+                {
+                    fileTable.tableChanged(new TableModelEvent(dataSetUploadTableModel));
+                    fileTable.repaint();
+                }
+            });
 
         // We have two lines of text to display
         fileTable.setRowHeight(fileTable.getRowHeight() * 2);

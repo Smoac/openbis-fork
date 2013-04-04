@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.client.api.gui.table;
+package ch.systemsx.cisd.openbis.dss.client.api.gui.model;
 
 import java.util.ArrayList;
 import java.util.Collections;

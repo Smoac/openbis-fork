@@ -90,14 +90,14 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         changingService = context.mock(IGeneralInformationChangingService.class);
         dssComponent = context.mock(IDssComponent.class);
         context.checking(new Expectations()
-        {
             {
-                allowing(service).getMinorVersion();
-                will(returnValue(GeneralInformationService.MINOR_VERSION));
-                allowing(changingService).getMinorVersion();
-                will(returnValue(GeneralInformationChangingService.MINOR_VERSION));
-            }
-        });
+                {
+                    allowing(service).getMinorVersion();
+                    will(returnValue(GeneralInformationService.MINOR_VERSION));
+                    allowing(changingService).getMinorVersion();
+                    will(returnValue(GeneralInformationChangingService.MINOR_VERSION));
+                }
+            });
 
         openbisFacade =
                 new OpenbisServiceFacade(SESSION_TOKEN, service, changingService, dssComponent);
@@ -514,6 +514,147 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         assertEquals(result.toString(), openbisFacade.listDataSets(samples, connections).toString());
     }
 
+    @Test
+    public void testListSamplesForExperimentAndSampleType()
+    {
+        final List<Object> result = Arrays.asList();
+        final RecordingMatcher<SearchCriteria> criteriaMatcher =
+                new RecordingMatcher<SearchCriteria>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).searchForSamples(with(SESSION_TOKEN), with(criteriaMatcher),
+                            with(new IsNull<EnumSet<SampleFetchOption>>()));
+                    will(returnValue(result));
+                }
+            });
+
+        List<Sample> samples =
+                openbisFacade.listSamplesForExperimentAndSampleType("123-1", "MY-TYPE");
+
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,"
+                + "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,MY-TYPE,EQUALS]],"
+                + "[SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
+                + "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,PERM_ID,123-1,EQUALS]],[]]]]]",
+                criteriaMatcher.recordedObject().toString());
+        assertSame(result, samples);
+    }
+
+    @Test
+    public void testListSamplesOfSample()
+    {
+        Sample s1 = createSample("S1", null);
+        final Sample s2 = createSampleWithChildren("S2", null, s1);
+        final Sample s3 = createSample("S3", null);
+        final RecordingMatcher<SearchCriteria> criteriaMatcher =
+                new RecordingMatcher<SearchCriteria>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).searchForSamples(with(SESSION_TOKEN), with(criteriaMatcher),
+                            with(EnumSet.of(SampleFetchOption.CHILDREN)));
+                    will(returnValue(Arrays.asList(s2)));
+
+                    one(service).searchForSamples(with(SESSION_TOKEN), with(criteriaMatcher),
+                            with(new IsNull<EnumSet<SampleFetchOption>>()));
+                    will(returnValue(Arrays.asList(s3)));
+                }
+            });
+
+        List<Sample> samples = openbisFacade.listSamplesOfSample("123-1");
+
+        List<SearchCriteria> recordedCriterias = criteriaMatcher.getRecordedObjects();
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,"
+                + "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,PERM_ID,123-1,EQUALS]],[]]",
+                recordedCriterias.get(0).toString());
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],[SearchSubCriteria[SAMPLE_CONTAINER,"
+                + "SearchCriteria[MATCH_ALL_CLAUSES,["
+                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,PERM_ID,123-1,EQUALS]],[]]]]]",
+                recordedCriterias.get(1).toString());
+        assertEquals(2, recordedCriterias.size());
+        assertEquals("[Sample[/DB/S1,sample-type-code,properties=?,parents=?,children=?], "
+                + "Sample[/DB/S3,sample-type-code,properties=?,parents=?,children=?]]",
+                samples.toString());
+    }
+
+    @Test
+    public void testListSamplesOfNonExistingSample()
+    {
+        final Sample s3 = createSample("S3", null);
+        final RecordingMatcher<SearchCriteria> criteriaMatcher =
+                new RecordingMatcher<SearchCriteria>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).searchForSamples(with(SESSION_TOKEN), with(criteriaMatcher),
+                            with(EnumSet.of(SampleFetchOption.CHILDREN)));
+                    will(returnValue(Arrays.asList()));
+
+                    one(service).searchForSamples(with(SESSION_TOKEN), with(criteriaMatcher),
+                            with(new IsNull<EnumSet<SampleFetchOption>>()));
+                    will(returnValue(Arrays.asList(s3)));
+                }
+            });
+
+        List<Sample> samples = openbisFacade.listSamplesOfSample("123-1");
+
+        List<SearchCriteria> recordedCriterias = criteriaMatcher.getRecordedObjects();
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,"
+                + "[SearchCriteria.AttributeMatchClause[ATTRIBUTE,PERM_ID,123-1,EQUALS]],[]]",
+                recordedCriterias.get(0).toString());
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],[SearchSubCriteria[SAMPLE_CONTAINER,"
+                + "SearchCriteria[MATCH_ALL_CLAUSES,["
+                + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,PERM_ID,123-1,EQUALS]],[]]]]]",
+                recordedCriterias.get(1).toString());
+        assertEquals(2, recordedCriterias.size());
+        assertEquals("[Sample[/DB/S3,sample-type-code,properties=?,parents=?,children=?]]",
+                samples.toString());
+    }
+
+    @Test
+    public void testListDataSetsForExperiment()
+    {
+        final RecordingMatcher<SearchCriteria> criteriaMatcher =
+                new RecordingMatcher<SearchCriteria>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).searchForDataSets(with(SESSION_TOKEN), with(criteriaMatcher));
+                    will(returnValue(Arrays.asList(createDataSet("ds1", "e1", null))));
+                }
+            });
+        
+        List<DataSet> dataSets = openbisFacade.listDataSetsForExperiment("abc-1");
+        
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],[SearchSubCriteria[EXPERIMENT," +
+        		"SearchCriteria[MATCH_ALL_CLAUSES,[SearchCriteria.AttributeMatchClause[" +
+        		"ATTRIBUTE,PERM_ID,abc-1,EQUALS]],[]]]]]",
+                criteriaMatcher.recordedObject().toString());
+        assertEquals("[DataSet[ds1,e1,<null>,data-set-type,{}]]", dataSets.toString());
+    }
+    
+    @Test
+    public void testListDataSetsForSample()
+    {
+        final RecordingMatcher<SearchCriteria> criteriaMatcher =
+                new RecordingMatcher<SearchCriteria>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).searchForDataSets(with(SESSION_TOKEN), with(criteriaMatcher));
+                    will(returnValue(Arrays.asList(createDataSet("ds1", "e1", null))));
+                }
+            });
+
+        List<DataSet> dataSets = openbisFacade.listDataSetsForSample("abc-1");
+
+        assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],[SearchSubCriteria[SAMPLE,"
+                + "SearchCriteria[MATCH_ALL_CLAUSES,[SearchCriteria.AttributeMatchClause["
+                + "ATTRIBUTE,PERM_ID,abc-1,EQUALS]],[]]]]]", criteriaMatcher.recordedObject()
+                .toString());
+        assertEquals("[DataSet[ds1,e1,<null>,data-set-type,{}]]", dataSets.toString());
+    }
+
     private String projectIdentifier(String code)
     {
         return "/DB/" + code;
@@ -548,7 +689,21 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         return new Experiment(init);
     }
 
+    private Sample createSampleWithChildren(String code, String experimentIdentifierOrNull,
+            Sample... children)
+    {
+        SampleInitializer init = createSampleInitializer(code, experimentIdentifierOrNull);
+        init.setRetrievedFetchOptions(EnumSet.of(SampleFetchOption.CHILDREN));
+        init.setChildren(Arrays.asList(children));
+        return new Sample(init);
+    }
+    
     private Sample createSample(String code, String experimentIdentifierOrNull)
+    {
+        return new Sample(createSampleInitializer(code, experimentIdentifierOrNull));
+    }
+
+    private SampleInitializer createSampleInitializer(String code, String experimentIdentifierOrNull)
     {
         EntityRegistrationDetailsInitializer initializer =
                 new EntityRegistrationDetailsInitializer();
@@ -563,7 +718,7 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         init.setSampleTypeId(1L);
         init.setExperimentIdentifierOrNull(experimentIdentifierOrNull);
         init.setRegistrationDetails(registrationDetails);
-        return new Sample(init);
+        return init;
     }
 
     private ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet createDataSet(String code,

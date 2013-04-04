@@ -68,3 +68,13 @@ check layeringOf etlApi dssApi
 check sets [dss.api.v1] [dss.api.v2]
 
 check [dss.api.v2] independentOf [dss.api.v1]
+
+######################################################################
+# Check that DataSetUploader model package is independent on GUI classes
+[dss.client.gui.model] = ${dss}.client.api.gui.model.*
+[dss.client.gui] = ${dss}.client.api.gui.* javax.swing.* excluding [dss.client.gui.model] javax.swing.table.*Model
+
+check sets [dss.client.gui.model] [dss.client.gui]
+check [dss.client.gui.model] independentOf [dss.client.gui]
+
+

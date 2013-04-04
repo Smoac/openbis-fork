@@ -29,6 +29,8 @@ import javax.swing.border.Border;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.SortableFilterableTableModel;
+
 /**
  * A table cell renderer for table headings - uses one of three JButton instances to indicate the
  * sort order for the table column.

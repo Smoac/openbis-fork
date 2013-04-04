@@ -37,8 +37,9 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.JTableHeader;
 
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.SortableFilterableTableModel;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.table.SortButtonRenderer;
-import ch.systemsx.cisd.openbis.dss.client.api.gui.table.SortableFilterableTableModel;
 import ch.systemsx.cisd.openbis.dss.client.api.gui.table.TableHeaderMouseListener;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;

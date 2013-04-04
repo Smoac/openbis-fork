@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.client.api.gui;
+package ch.systemsx.cisd.openbis.dss.client.api.gui.model;
 
 import java.io.File;
 

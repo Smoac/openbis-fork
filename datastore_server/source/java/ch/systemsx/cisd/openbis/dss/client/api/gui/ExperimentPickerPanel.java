@@ -20,6 +20,8 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.JFrame;
 
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel;
+
 /**
  * @author Pawel Glyzewski
  */

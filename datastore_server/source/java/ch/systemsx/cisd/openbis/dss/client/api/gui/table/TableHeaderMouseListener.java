@@ -24,6 +24,8 @@ import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.SortableFilterableTableModel;
+
 /**
  * @author Pawel Glyzewski
  */

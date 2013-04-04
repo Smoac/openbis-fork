@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.client.api.gui;
+package ch.systemsx.cisd.openbis.dss.client.api.gui.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo;
-import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo.Status;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel.NewDataSetInfo;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel.NewDataSetInfo.Status;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
@@ -49,12 +49,15 @@ final class DataSetUploadOperation implements Runnable
 
     private final NewDataSetInfo newDataSetInfo;
 
+    private final IUserNotifier userNotifier;
+
     DataSetUploadOperation(DataSetUploadTableModel model, DataSetUploadClientModel clientModel,
-            NewDataSetInfo newDataSetInfo)
+            NewDataSetInfo newDataSetInfo, IUserNotifier userNotifier)
     {
         this.tableModel = model;
         this.clientModel = clientModel;
         this.newDataSetInfo = newDataSetInfo;
+        this.userNotifier = userNotifier;
     }
 
     @Override
@@ -79,9 +82,9 @@ final class DataSetUploadOperation implements Runnable
         {
             newDataSetInfo.setStatus(Status.FAILED);
             tableModel.fireChanged(newDataSetInfo, Status.FAILED);
-            AbstractSwingGUI.notifyUserOfThrowable(tableModel.getMainWindow(),
-                    newDataSetInfo.getNewDataSetBuilder().getFile().getAbsolutePath(),
-                    "Uploading", CheckedExceptionTunnel.unwrapIfNecessary(th), null);
+            userNotifier.notifyUserOfThrowable(newDataSetInfo.getNewDataSetBuilder().getFile()
+                    .getAbsolutePath(), "Uploading", CheckedExceptionTunnel.unwrapIfNecessary(th),
+                    null);
         }
     }
 

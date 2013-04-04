@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.client.api.gui;
+package ch.systemsx.cisd.openbis.dss.client.api.gui.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +30,8 @@ import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.TransmissionSpeedCalculator;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
-import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.NewDataSetInfo.Status;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel.NewDataSetInfo.Status;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
@@ -45,6 +46,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -93,16 +96,22 @@ public class DataSetUploadClientModel
 
     private List<String> projectIdentifiers;
 
-    public DataSetUploadClientModel(DssCommunicationState commState, ITimeProvider timeProvider)
+    private List<SampleType> sampleTypes;
+
+    private IUserNotifier userNotifier;
+
+    public DataSetUploadClientModel(DssCommunicationState commState, ITimeProvider timeProvider, IUserNotifier userNotifier)
     {
         this.openBISService = commState.getOpenBISService();
         this.timeProvider = timeProvider;
+        this.userNotifier = userNotifier;
 
         reloadDataFromServer();
     }
 
     public void reloadDataFromServer()
     {
+        sampleTypes = openBISService.listSampleTypes();
         DataSetTypeFilter filter =
                 new DataSetTypeFilter(
                         System.getProperty(ResourceNames.CREATABLE_DATA_SET_TYPES_WHITELIST),
@@ -138,9 +147,9 @@ public class DataSetUploadClientModel
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    static class NewDataSetInfo
+    public static class NewDataSetInfo
     {
-        static enum Status
+        public static enum Status
         {
             TO_UPLOAD, QUEUED_FOR_UPLOAD, UPLOADING, COMPLETED_UPLOAD, FAILED, STALLED
         }
@@ -313,7 +322,102 @@ public class DataSetUploadClientModel
     {
         return openBISService;
     }
+    
+    public void listSamples(final Identifier identifier,
+            final IAsyncAction<List<Sample>> action)
+    {
+        execute(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        List<Sample> samples = new ArrayList<Sample>();
+                        String permId = identifier.getPermId();
+                        switch (identifier.getOwnerType())
+                        {
+                            case EXPERIMENT:
+                                loadListableSamples(samples, permId);
+                                break;
+                            case SAMPLE:
+                                loadSamplesLinkedToAnExperiment(samples, permId);
+                                break;
+                            default:
+                        }
+                        UploadClientSortingUtils.sortSamplesByIdentifier(samples);
+                        action.performAction(samples);
+                    } catch (Throwable throwable)
+                    {
+                        action.handleException(throwable);
+                    }
+                }
+            });
+    }
+    
+    public void listSamplesDataSets(final Identifier identifier, final IAsyncAction<SamplesDataSets> action)
+    {
+        execute(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        List<Sample> samples = new ArrayList<Sample>();
+                        List<DataSet> dataSets = new ArrayList<DataSet>();
+                        String permId = identifier.getPermId();
+                        switch (identifier.getOwnerType())
+                        {
+                            case EXPERIMENT:
+                                loadListableSamples(samples, permId);
+                                dataSets.addAll(openBISService.listDataSetsForExperiment(permId));
+                                break;
+                            case SAMPLE:
+                                loadSamplesLinkedToAnExperiment(samples, permId);
+                                dataSets.addAll(openBISService.listDataSetsForSample(permId));
+                                break;
+                            default:
+                        }
+                        UploadClientSortingUtils.sortSamplesByIdentifier(samples);
+                        UploadClientSortingUtils.sortDataSetsByCode(dataSets);
+                        action.performAction(new SamplesDataSets(samples, dataSets));
+                    } catch (Throwable throwable)
+                    {
+                        action.handleException(throwable);
+                    }
+                }
+            });
+    }
 
+    private void loadListableSamples(List<Sample> samples, String experimentPermId)
+    {
+        for (SampleType sampleType : sampleTypes)
+        {
+            if (sampleType.isListable())
+            {
+                samples.addAll(openBISService.listSamplesForExperimentAndSampleType(
+                        experimentPermId, sampleType.getCode()));
+            }
+        }
+    }
+
+    private void loadSamplesLinkedToAnExperiment(List<Sample> samples, String samplePermId)
+    {
+        for (Sample sample : openBISService.listSamplesOfSample(samplePermId))
+        {
+            if (sample.getExperimentIdentifierOrNull() != null)
+            {
+                samples.add(sample);
+            }
+        }
+    }
+    
+    private void execute(Runnable runnable)
+    {
+        new Thread(runnable).start();
+    }
+    
     /**
      * Get the data set types that are shown here.
      */
@@ -413,7 +517,7 @@ public class DataSetUploadClientModel
             return;
         }
         newDataSetInfo.setStatus(Status.QUEUED_FOR_UPLOAD);
-        DataSetUploadOperation op = new DataSetUploadOperation(tableModel, this, newDataSetInfo);
+        DataSetUploadOperation op = new DataSetUploadOperation(tableModel, this, newDataSetInfo, userNotifier);
         executor.submit(op);
     }
 
@@ -581,7 +685,7 @@ public class DataSetUploadClientModel
         observers.add(observer);
     }
 
-    public void notifyObservers(Vocabulary vocabulary, String code)
+    private void notifyObservers(Vocabulary vocabulary, String code)
     {
         for (Observer observer : observers)
         {
@@ -610,4 +714,5 @@ public class DataSetUploadClientModel
         }
         return null;
     }
+
 }

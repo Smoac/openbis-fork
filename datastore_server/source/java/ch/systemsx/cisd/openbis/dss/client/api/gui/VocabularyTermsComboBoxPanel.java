@@ -35,7 +35,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
-import ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClientModel.Observer;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel;
+import ch.systemsx.cisd.openbis.dss.client.api.gui.model.DataSetUploadClientModel.Observer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.VocabularyTerm;
