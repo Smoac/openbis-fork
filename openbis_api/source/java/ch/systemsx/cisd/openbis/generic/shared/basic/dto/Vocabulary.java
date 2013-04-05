@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
  import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -51,6 +52,8 @@ public class Vocabulary extends CodeWithRegistration<Vocabulary> implements IVoc
 
     private List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
 
+    private Date modificationDate;
+    
     public Vocabulary()
     {
     }
@@ -132,6 +135,15 @@ public class Vocabulary extends CodeWithRegistration<Vocabulary> implements IVoc
         this.terms = terms;
     }
 
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+    
+    public void setModificationDate(Date modificationDate) {
+        this.modificationDate = modificationDate;
+    }
+    
     @Override
     public int hashCode()
     {

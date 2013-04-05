@@ -57,6 +57,7 @@ public final class VocabularyTranslator
         result.setURLTemplate(vocabulary.getURLTemplate());
         result.setRegistrationDate(vocabulary.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(vocabulary.getRegistrator()));
+        result.setModificationDate(vocabulary.getModificationDate());
         if (withTerms)
         {
             Set<VocabularyTermPE> terms = vocabulary.getTerms();

@@ -312,6 +312,10 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     {
         loadDataByTechId(TechId.create(updates));
 
+        if (false == vocabularyPE.getModificationDate().equals(updates.getModificationDate()))
+        {
+            throwModifiedEntityException("Vocabulary");
+        }
         vocabularyPE.setCode(updates.getCode());
         vocabularyPE.setDescription(updates.getDescription());
         vocabularyPE.setURLTemplate(updates.getURLTemplate());
