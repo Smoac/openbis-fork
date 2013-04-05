@@ -143,7 +143,7 @@ function integration_tests_screening {
     sleep 60
     assertSpotSizes "24x16" 
     prepare_data_second_phase
-  	sleep 15
+  	sleep 30
 	  
 		assert_dir_empty  $DSS_INCOMING_PARENT_DIR/incoming-analysis
 		assert_dir_empty  $DSS_INCOMING_PARENT_DIR/incoming-images-merged-channels
