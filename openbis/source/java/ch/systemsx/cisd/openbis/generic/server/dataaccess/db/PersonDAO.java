@@ -97,6 +97,13 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         final HibernateTemplate template = getHibernateTemplate();
         template.save(person);
         template.flush();
+        if (person.getPersonDisplaySettings() != null)
+        {
+            person.getPersonDisplaySettings().setId(person.getId());
+            template.update(person.getPersonDisplaySettings());
+            template.flush();
+        }
+
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("ADD: person '%s'.", person));
@@ -110,6 +117,14 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         validatePE(person);
 
         final HibernateTemplate template = getHibernateTemplate();
+        if (person.getPersonDisplaySettings() != null)
+        {
+            if (person.getPersonDisplaySettings().getId() == null)
+            {
+                person.getPersonDisplaySettings().setId(person.getId());
+            }
+            template.update(person.getPersonDisplaySettings());
+        }
         template.merge(person); // WORKAROUND update cannot be used - see LMS-1603
         template.flush();
         if (operationLog.isInfoEnabled())

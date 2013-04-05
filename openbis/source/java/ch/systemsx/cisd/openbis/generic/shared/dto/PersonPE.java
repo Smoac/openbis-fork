@@ -31,6 +31,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -41,7 +42,6 @@ import javax.validation.constraints.Pattern;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
@@ -55,7 +55,6 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
-import ch.systemsx.cisd.openbis.generic.shared.util.DisplaySettingsSerializationUtils;
 
 /**
  * A <i>Persistence Entity</i> which represents a person.
@@ -100,11 +99,9 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
 
     private Set<AuthorizationGroupPE> authorizationGroups = new HashSet<AuthorizationGroupPE>();
 
-    private DisplaySettings displaySettings;
-
-    private byte[] serializedDisplaySettings;
-
     private boolean active;
+
+    private PersonDisplaySettingsPE personDisplaySettings;
 
     private final void setSystemUser(final boolean systemUser)
     {
@@ -188,6 +185,37 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     public final void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
     {
         this.databaseInstance = databaseInstance;
+    }
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = ColumnNames.ID_COLUMN, nullable = true)
+    public final PersonDisplaySettingsPE getPersonDisplaySettings()
+    {
+        return this.personDisplaySettings;
+    }
+
+    public final void setPersonDisplaySettings(PersonDisplaySettingsPE personDisplaySettings)
+    {
+        this.personDisplaySettings = personDisplaySettings;
+    }
+
+    @Transient
+    public DisplaySettings getDisplaySettings()
+    {
+        if (getPersonDisplaySettings() == null)
+        {
+            setPersonDisplaySettings(new PersonDisplaySettingsPE());
+        }
+        return getPersonDisplaySettings().getDisplaySettings();
+    }
+
+    public void setDisplaySettings(DisplaySettings displaySettings)
+    {
+        if (getPersonDisplaySettings() == null)
+        {
+            setPersonDisplaySettings(new PersonDisplaySettingsPE());
+        }
+        getPersonDisplaySettings().setDisplaySettings(displaySettings);
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -277,38 +305,6 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         return new UnmodifiableSetDecorator<AuthorizationGroupPE>(getAuthorizationGroupsInternal());
     }
 
-    @Transient
-    public DisplaySettings getDisplaySettings()
-    {
-        if (displaySettings == null)
-        {
-            byte[] serializedSettings = getSerializedDisplaySettings();
-            displaySettings =
-                    DisplaySettingsSerializationUtils
-                            .deserializeOrCreateDisplaySettings(serializedSettings);
-        }
-        return displaySettings;
-    }
-
-    public void setDisplaySettings(DisplaySettings displaySettings)
-    {
-        this.displaySettings = displaySettings;
-        setSerializedDisplaySettings(DisplaySettingsSerializationUtils
-                .serializeDisplaySettings(displaySettings));
-    }
-
-    @Column(name = ColumnNames.PERSON_DISPLAY_SETTINGS, updatable = true)
-    @Type(type = "org.springframework.orm.hibernate3.support.BlobByteArrayType")
-    private byte[] getSerializedDisplaySettings()
-    {
-        return serializedDisplaySettings;
-    }
-
-    private void setSerializedDisplaySettings(final byte[] value)
-    {
-        this.serializedDisplaySettings = value;
-    }
-
     @Column(name = ColumnNames.PERSON_IS_ACTIVE_COLUMN)
     public boolean isActive()
     {
@@ -374,9 +370,10 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         builder.append("lastName", lastName);
         builder.append("email", email);
         builder.append("systemUser", systemUser);
-        if (serializedDisplaySettings != null)
+        if (getPersonDisplaySettings() != null)
         {
-            builder.append("displaySettings", "<" + serializedDisplaySettings.length + " bytes>");
+            builder.append("displaySettings", "<"
+                    + getPersonDisplaySettings().getDisplaySettingsSize() + " bytes>");
         }
         builder.append(getDatabaseInstance());
         return builder.toString();

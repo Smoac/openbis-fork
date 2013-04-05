@@ -103,6 +103,8 @@
 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.PersonDisplaySettingsPE</value>
+                
             </list>
         </property>
         <!-- 
