@@ -68,10 +68,10 @@
     <build-info revision="revision.number" version="version.number" clean="clean.flag" />
     <zip destfile="${result.dir}/openBIS-clients-and-APIs-${version.number}-r${revision.number}.zip">
       <fileset dir="${result.dir}">
-        <include name="dss_client-S*"/>
-        <include name="dss_client-screening-S*"/>
-        <include name="dss_upload_gui-S*"/>
-        <include name="dss_upload_gui-screening-S*"/>
+        <include name="dss_client-${version.number}*"/>
+        <include name="dss_client-screening-${version.number}*"/>
+        <include name="dss_upload_gui-${version.number}*"/>
+        <include name="dss_upload_gui-screening-${version.number}*"/>
         <include name="openBIS-*-API*"/>
         <include name="*knime-*"/>
       </fileset>
