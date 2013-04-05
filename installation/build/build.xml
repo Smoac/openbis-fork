@@ -94,10 +94,10 @@
 		
   	<unzip dest="${installer.dist.dir}">
 		    <fileset dir="${openbis.server.zip.folder}">
-		        <include name="openBIS-server${variant}-S*.zip"/>
+		        <include name="openBIS-server${variant}-*.zip"/>
 		    </fileset>
 	      <fileset dir="${datastore.server.zip.folder}">
-          <include name="datastore_server${variant}-S*.zip"/>
+          <include name="datastore_server${variant}-*.zip"/>
 	      </fileset>
 		</unzip>
 		
