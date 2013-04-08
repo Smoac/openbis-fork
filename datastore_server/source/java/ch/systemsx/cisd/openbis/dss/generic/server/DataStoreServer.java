@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
@@ -46,6 +45,8 @@ import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.util.StringUtils;
@@ -177,6 +178,7 @@ public class DataStoreServer
             operationLog.error("Failed to start server.", ex);
             try
             {
+                ((ConfigurableApplicationContext) ServiceProvider.getApplicationContext()).close();
                 server.stop();
             } catch (Exception ex1)
             {
