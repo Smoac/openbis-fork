@@ -656,25 +656,14 @@ public class PlateLayouter
             List<FeatureList> featureListsOrNull)
     {
         List<LabeledItem<FeatureList>> items = new ArrayList<LabeledItem<FeatureList>>();
-        boolean hadAll = false;
+        items.add(new LabeledItem<FeatureList>(null, "All"));
         if (featureListsOrNull != null)
         {
             for (FeatureList featureList : featureListsOrNull)
             {
                 String label = featureList.getName();
-                if (label.equals("All"))
-                {
-                    hadAll = true;
-                    items.add(0, new LabeledItem<FeatureList>(featureList, label));
-                } else
-                {
-                    items.add(new LabeledItem<FeatureList>(featureList, label));
-                }
+                items.add(new LabeledItem<FeatureList>(featureList, label));
             }
-        }
-        if (hadAll == false)
-        {
-            items.add(0, new LabeledItem<FeatureList>(null, "All"));
         }
         return items;
     }
