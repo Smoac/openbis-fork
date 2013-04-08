@@ -42,7 +42,7 @@ public class DelayedPersistenceManager implements IPersistenceManager
     {
         this.persistenceManager = persistenceManager;
         this.delay = delay;
-        timer = new Timer("persitence manager timer");
+        timer = new Timer("persistence manager timer", true);
     }
 
     @Override

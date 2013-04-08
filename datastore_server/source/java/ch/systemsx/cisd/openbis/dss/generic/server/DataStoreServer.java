@@ -182,7 +182,8 @@ public class DataStoreServer
                 server.stop();
             } catch (Exception ex1)
             {
-                operationLog.error("Failed to stop jetty server.", ex1);
+                operationLog.error("Failed to close application context or to stop jetty server.",
+                        ex1);
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex1);
             }
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
