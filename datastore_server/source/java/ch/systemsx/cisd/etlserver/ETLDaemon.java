@@ -423,12 +423,19 @@ public final class ETLDaemon
                         new DynamicTransactionQueryFactory(), notifySuccessfulRegistration,
                         threadParameters, new DataSetStorageRecoveryManager());
 
-        ITopLevelDataSetRegistrator registrator =
-                ClassUtils.create(ITopLevelDataSetRegistrator.class, threadParameters
-                        .getTopLevelDataSetRegistratorClass(TransferredDataSetHandler.class),
-                        globalState);
+        try
+        {
+            ITopLevelDataSetRegistrator registrator =
+                    ClassUtils.create(ITopLevelDataSetRegistrator.class, threadParameters
+                            .getTopLevelDataSetRegistratorClass(TransferredDataSetHandler.class),
+                            globalState);
 
-        return registrator;
+            return registrator;
+        } catch (ConfigurationFailureException e)
+        {
+            throw new ConfigurationFailureException("Couldn't create a dropbox "
+                    + threadParameters.getThreadName(), e);
+        }
     }
 
     /**
