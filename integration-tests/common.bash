@@ -386,7 +386,7 @@ function wait_for_server {
     local openbis_server_dir=$1
     echo -n "Server starting"
     i=0; 
-    while [ "`check_server_port`" == "" -a $i -lt 40 ]; do 
+    while [ "`check_server_port`" == "" -a $i -lt 80 ]; do 
         sleep 2; 
         echo -n "."; 
         let i=$i+1; 
