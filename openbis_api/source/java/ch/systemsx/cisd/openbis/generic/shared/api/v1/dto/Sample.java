@@ -502,7 +502,11 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
                 children = new ArrayList<Sample>();
                 for (Reference reference : childReferences)
                 {
-                    children.add(reference.resolve());
+                    Sample child = reference.resolve();
+                    if (child != null)
+                    {
+                        children.add(child);
+                    }
                 }
                 childReferences = null;
             }
@@ -531,7 +535,11 @@ public final class Sample implements Serializable, IIdentifierHolder, IIdHolder
                 parents = new ArrayList<Sample>();
                 for (Reference reference : parentReferences)
                 {
-                    parents.add(reference.resolve());
+                    Sample parent = reference.resolve();
+                    if (parent != null)
+                    {
+                        parents.add(parent);
+                    }
                 }
                 parentReferences = null;
             }

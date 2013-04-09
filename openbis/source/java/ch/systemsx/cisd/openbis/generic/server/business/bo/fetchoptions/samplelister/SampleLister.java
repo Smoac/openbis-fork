@@ -34,6 +34,7 @@ import net.lemnik.eodsql.QueryTool;
 
 import ch.systemsx.cisd.common.collection.IKeyExtractor;
 import ch.systemsx.cisd.common.collection.TableMap;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.EntityMetaprojectRelationRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaprojectCreator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaprojectRecord;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -122,7 +124,7 @@ public class SampleLister implements ISampleLister
 
     @Override
     public List<Sample> getSamples(Collection<Long> sampleIDs,
-            EnumSet<SampleFetchOption> fetchOptions)
+            EnumSet<SampleFetchOption> fetchOptions, IValidator<IIdentifierHolder> filter)
     {
         if (sampleIDs.isEmpty())
         {
@@ -182,7 +184,11 @@ public class SampleLister implements ISampleLister
             SampleRecord sampleRecord = sampleRecords.tryGet(rootSampleID);
             if (sampleRecord != null)
             {
-                samples.add(createSample(sampleRecord, repository));
+                Sample sample = createSample(sampleRecord, repository, filter);
+                if (filter.isValid(person, sample))
+                {
+                    samples.add(sample);
+                }
             }
         }
         // "Tying the knot": Resolving all references between samples.
@@ -341,7 +347,8 @@ public class SampleLister implements ISampleLister
         }
     }
 
-    private Sample createSample(SampleRecord sampleRecord, Map<Long, Sample> repository)
+    private Sample createSample(SampleRecord sampleRecord, Map<Long, Sample> repository,
+            IValidator<IIdentifierHolder> filter)
     {
         Sample sample = repository.get(sampleRecord.s_id);
         if (sample != null)
@@ -412,12 +419,15 @@ public class SampleLister implements ISampleLister
             linkedSampleRecords.addAll(sampleRecord.parents);
         }
         sample = new Sample(initializer);
-        repository.put(sampleRecord.s_id, sample);
+        if (filter.isValid(person, sample))
+        {
+            repository.put(sampleRecord.s_id, sample);
+        }
         // Linked samples have to be created after the current sample has been added to the
         // repository, otherwise a stack overflow might occur because of a recursive endless loop.
         for (SampleRecord linkedSampleRecord : linkedSampleRecords)
         {
-            createSample(linkedSampleRecord, repository);
+            createSample(linkedSampleRecord, repository, filter);
         }
         return sample;
     }

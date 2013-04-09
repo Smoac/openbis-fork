@@ -35,6 +35,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
@@ -397,6 +398,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         return associatedCriteriaMatcher;
     }
 
+    @SuppressWarnings("unchecked")
     private void prepareSearchForSamples(
             final RecordingMatcher<DetailedSearchCriteria> criteriaMatcher,
             final int numberOfSearches)
@@ -416,8 +418,9 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                     one(hibernateSearchDAO).getResultSetSizeLimit();
                     will(returnValue(10));
 
-                    one(sampleLister2).getSamples(Arrays.asList(42L),
-                            EnumSet.of(SampleFetchOption.PROPERTIES));
+                    one(sampleLister2).getSamples(with(Arrays.asList(42L)),
+                            with(EnumSet.of(SampleFetchOption.PROPERTIES)),
+                            with(any(IValidator.class)));
                     ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleBuilder sample =
                             new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleBuilder(1L)
                                     .identifier("/space/code").permID("permId").code("code")

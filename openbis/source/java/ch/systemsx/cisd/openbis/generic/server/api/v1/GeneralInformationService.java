@@ -329,22 +329,12 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @ReturnValueFilter(validatorClass = SampleByIdentiferValidator.class)
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria,
             EnumSet<SampleFetchOption> fetchOptions)
     {
         Session session = getSession(sessionToken);
-        EnumSet<SampleFetchOption> sampleFetchOptions =
-                (fetchOptions != null) ? fetchOptions : EnumSet.noneOf(SampleFetchOption.class);
-        DetailedSearchCriteria detailedSearchCriteria =
-                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
-                        SearchableEntityKind.SAMPLE, searchCriteria);
-        ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister sampleLister =
-                boFactory.createSampleLister(session);
-        Collection<Long> sampleIDs =
-                new SampleSearchManager(getDAOFactory().getHibernateSearchDAO(), sampleLister)
-                        .searchForSampleIDs(session.getUserName(), detailedSearchCriteria);
-        return createSampleLister(session.tryGetPerson()).getSamples(sampleIDs, sampleFetchOptions);
+        PersonPE user = session.tryGetPerson();
+        return searchForSamples(session, session.getUserName(), user, searchCriteria, fetchOptions);
     }
 
     @Override
@@ -356,23 +346,26 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     {
         Session session = getSession(sessionToken);
 
+        final PersonPE user = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
+        return searchForSamples(session, userId, user, searchCriteria, fetchOptions);
+    }
+
+    private List<Sample> searchForSamples(Session session, String userId, final PersonPE user,
+            SearchCriteria searchCriteria, EnumSet<SampleFetchOption> fetchOptions)
+    {
         EnumSet<SampleFetchOption> sampleFetchOptions =
                 (fetchOptions != null) ? fetchOptions : EnumSet.noneOf(SampleFetchOption.class);
         DetailedSearchCriteria detailedSearchCriteria =
                 SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(),
                         SearchableEntityKind.SAMPLE, searchCriteria);
-
-        final PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userId);
-
         ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister sampleLister =
-                boFactory.createSampleLister(session, person.getId());
+                boFactory.createSampleLister(session, user.getId());
         Collection<Long> sampleIDs =
                 new SampleSearchManager(getDAOFactory().getHibernateSearchDAO(), sampleLister)
                         .searchForSampleIDs(userId, detailedSearchCriteria);
 
-        final List<Sample> unfilteredSamples =
-                createSampleLister(person).getSamples(sampleIDs, sampleFetchOptions);
-        return filterSamplesVisibleToUser(sessionToken, unfilteredSamples, userId);
+        SampleByIdentiferValidator filter = new SampleByIdentiferValidator();
+        return createSampleLister(user).getSamples(sampleIDs, sampleFetchOptions, filter);
     }
 
     @Override

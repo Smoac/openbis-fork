@@ -82,6 +82,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -94,6 +96,15 @@ import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 @Test(groups = "system test")
 public class GeneralInformationServiceTest extends SystemTestCase
 {
+
+    private static final Comparator<Sample> SAMPLE_COMPARATOR = new Comparator<Sample>()
+        {
+            @Override
+            public int compare(Sample s1, Sample s2)
+            {
+                return s1.getIdentifier().compareTo(s2.getIdentifier());
+            }
+        };
 
     @Autowired
     private IGeneralInformationService generalInformationService;
@@ -401,6 +412,76 @@ public class GeneralInformationServiceTest extends SystemTestCase
                         fetchOptions);
 
         assertEntities("[]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesWithAuthorizationFilteredDescendants()
+    {
+        NewSample newSample = new NewSample();
+        newSample.setIdentifier("/TEST-SPACE/S1");
+        newSample.setParents("/CISD/3V-126");
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType sampleType =
+                new ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType();
+        sampleType.setCode("NORMAL");
+        newSample.setSampleType(sampleType);
+        genericServer.registerSample(systemSessionToken, newSample,
+                Collections.<NewAttachment> emptySet());
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "*V-*"));
+        sessionToken = generalInformationService.tryToAuthenticateForAllServices("test", "a");
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria,
+                        EnumSet.of(SampleFetchOption.DESCENDANTS));
+        Collections.sort(samples, SAMPLE_COMPARATOR);
+        assertEquals("Sample[/CISD/3V-126,DILUTION_PLATE,properties=?,parents=?,"
+                + "children=[Sample[/TEST-SPACE/S1,NORMAL,properties=?,parents=?,"
+                + "children=[]]]]", samples.get(1).toString());
+        assertEquals(8, samples.size());
+        sessionToken = generalInformationService.tryToAuthenticateForAllServices("test_role", "a");
+
+        samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria,
+                        EnumSet.of(SampleFetchOption.DESCENDANTS));
+
+        Collections.sort(samples, SAMPLE_COMPARATOR);
+        assertEquals("Sample[/CISD/3V-126,DILUTION_PLATE,properties=?,parents=?,children=[]]",
+                samples.get(1).toString());
+        assertEquals(2, samples.size());
+    }
+
+    @Test
+    public void testSearchForSamplesOnBehalfWithAuthorizationFilteredDescendants()
+    {
+        NewSample newSample = new NewSample();
+        newSample.setIdentifier("/TEST-SPACE/S1");
+        newSample.setParents("/CISD/3V-126");
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType sampleType =
+                new ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType();
+        sampleType.setCode("NORMAL");
+        newSample.setSampleType(sampleType);
+        genericServer.registerSample(systemSessionToken, newSample,
+                Collections.<NewAttachment> emptySet());
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                "*V-*"));
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, searchCriteria,
+                        EnumSet.of(SampleFetchOption.DESCENDANTS));
+        Collections.sort(samples, SAMPLE_COMPARATOR);
+        assertEquals("Sample[/CISD/3V-126,DILUTION_PLATE,properties=?,parents=?,"
+                + "children=[Sample[/TEST-SPACE/S1,NORMAL,properties=?,parents=?,"
+                + "children=[]]]]", samples.get(1).toString());
+        assertEquals(8, samples.size());
+
+        samples =
+                generalInformationService.searchForSamplesOnBehalfOfUser(systemSessionToken,
+                        searchCriteria, EnumSet.of(SampleFetchOption.DESCENDANTS), "test_role");
+
+        Collections.sort(samples, SAMPLE_COMPARATOR);
+        assertEquals("Sample[/CISD/3V-126,DILUTION_PLATE,properties=?,parents=?,children=[]]",
+                samples.get(1).toString());
+        assertEquals(2, samples.size());
     }
 
     @Test
