@@ -91,6 +91,15 @@ public interface IDssServiceRpcScreening extends IRpcService
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
 
     /**
+     * Return the codes of available feature lists for a given feature vector data set.
+     */
+    @MinimalMinorVersion(14)
+    @DataSetAccessGuard
+    public List<String> listAvailableFeatureLists(String sessionToken,
+            @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class)
+            IFeatureVectorDatasetIdentifier featureDataset);
+
+    /**
      * Return the feature codes of a specified feature list for a specified feature vector data set
      */
     @MinimalMinorVersion(13)

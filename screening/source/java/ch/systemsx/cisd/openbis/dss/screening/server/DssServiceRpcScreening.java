@@ -128,7 +128,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 13;
+    public static final int MINOR_VERSION = 14;
 
     // this dao will hold one connection to the database
     private IImagingReadonlyQueryDAO dao;
@@ -232,6 +232,28 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     }
 
     @Override
+    public List<String> listAvailableFeatureLists(String sessionToken,
+            IFeatureVectorDatasetIdentifier featureDataset)
+    {
+        IHierarchicalContent content =
+                ServiceProvider.getHierarchicalContentProvider().asContent(
+                        featureDataset.getDatasetCode());
+        IHierarchicalContentNode node =
+                content.tryGetNode(ScreeningConstants.ANALYSIS_FEATURE_LIST_TOP_LEVEL_DIRECTORY_NAME);
+
+        List<String> result = new LinkedList<String>();
+        if (node != null && node.exists() && node.isDirectory())
+        {
+            List<IHierarchicalContentNode> children = node.getChildNodes();
+            for (IHierarchicalContentNode child : children)
+            {
+                result.add(child.getName());
+            }
+        }
+        return result;
+    }
+
+    @Override
     public List<String> getFeatureList(String sessionToken,
             IFeatureVectorDatasetIdentifier featureDataset, String featureListCode)
     {
@@ -253,8 +275,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         IHierarchicalContent content =
                 ServiceProvider.getHierarchicalContentProvider().asContent(dataSetCode);
         IHierarchicalContentNode node =
-                content.getNode(ScreeningConstants.ANALYSIS_FEATURE_LIST_TOP_LEVEL_DIRECTORY_NAME
+                content.tryGetNode(ScreeningConstants.ANALYSIS_FEATURE_LIST_TOP_LEVEL_DIRECTORY_NAME
                         + "/" + featureListCode);
+
+        if (node == null)
+        {
+            throw new UserFailureException("The specified feature list <" + featureListCode
+                    + "> is not defined for data set " + dataSetCode);
+        }
 
         InputStream is = null;
         String value = null;

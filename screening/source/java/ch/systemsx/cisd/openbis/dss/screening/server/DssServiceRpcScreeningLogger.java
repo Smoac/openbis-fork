@@ -93,6 +93,15 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
     }
 
     @Override
+    public List<String> listAvailableFeatureLists(String sessionToken,
+            IFeatureVectorDatasetIdentifier featureDataset)
+    {
+        logAccess(sessionToken, "list_available_feature_lists", "DATASET_REFERENCE(%s)",
+                featureDataset);
+        return null;
+    }
+
+    @Override
     public List<String> getFeatureList(String sessionToken,
             IFeatureVectorDatasetIdentifier featureDataset, String featureListCode)
     {

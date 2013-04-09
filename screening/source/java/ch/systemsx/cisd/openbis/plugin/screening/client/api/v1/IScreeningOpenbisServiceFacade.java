@@ -438,6 +438,11 @@ public interface IScreeningOpenbisServiceFacade
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
 
     /**
+     * For a given feature vector data set return a list of available feature lists.
+     */
+    public List<String> listAvailableFeatureLists(IFeatureVectorDatasetIdentifier featureDataset);
+
+    /**
      * Return the feature codes from the specified feature list of a specified feature data set
      */
     @Retry
