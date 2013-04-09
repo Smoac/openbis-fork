@@ -36,6 +36,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.IValidator;
+import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
@@ -115,6 +116,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                             return sampleLister2;
                         }
                     };
+        session.setPerson(ManagerTestTool.createPerson());
     }
 
     @Test
@@ -406,7 +408,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleLister(session);
+                    one(boFactory).createSampleLister(session, session.tryGetPerson().getId());
                     will(returnValue(sampleLister));
 
                     exactly(numberOfSearches).of(hibernateSearchDAO).searchForEntityIds(
