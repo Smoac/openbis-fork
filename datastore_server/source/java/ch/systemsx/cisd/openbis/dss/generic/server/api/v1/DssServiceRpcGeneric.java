@@ -66,8 +66,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.ShareInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -101,7 +101,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     private final File sessionWorkspaceRootDirectory;
 
     private final IFreeSpaceProvider freeSpaceProvider;
-    
+
     private IDataSetMover dataSetMover;
 
     private String dataStoreCode;
@@ -130,8 +130,8 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
             IQueryApiServer apiServer, IPluginTaskInfoProvider infoProvider,
             IStreamRepository streamRepository, IFreeSpaceProvider freeSpaceProvider,
-            IShareIdManager shareIdManager,
-            IHierarchicalContentProvider contentProvider, PutDataSetService service)
+            IShareIdManager shareIdManager, IHierarchicalContentProvider contentProvider,
+            PutDataSetService service)
     {
         super(openBISService, streamRepository, shareIdManager, contentProvider);
         queryApiServer = apiServer;
@@ -140,12 +140,12 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         this.sessionWorkspaceRootDirectory = infoProvider.getSessionWorkspaceRootDir();
         operationLog.info("[rpc] Started DSS API V1 service.");
     }
-    
+
     public void setDataStoreCode(String dataStoreCode)
     {
         this.dataStoreCode = dataStoreCode;
     }
-    
+
     void setDataSetMover(IDataSetMover dataSetMover)
     {
         this.dataSetMover = dataSetMover;
@@ -436,14 +436,14 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     {
         getOpenBISService().checkSession(sessionToken);
         List<Share> shares =
-                SegmentedStoreUtils.getSharesWithDataSets(getStoreDirectory(), dataStoreCode, false,
-                        Collections.<String> emptySet(), freeSpaceProvider, getOpenBISService(),
-                        new Log4jSimpleLogger(operationLog));
+                SegmentedStoreUtils.getSharesWithDataSets(getStoreDirectory(), dataStoreCode,
+                        false, Collections.<String> emptySet(), freeSpaceProvider,
+                        getOpenBISService(), new Log4jSimpleLogger(operationLog));
         List<ShareInfo> result = new ArrayList<ShareInfo>();
         for (Share share : shares)
         {
             ShareInfo shareInfo = new ShareInfo(share.getShareId(), share.calculateFreeSpace());
-            shareInfo.setIgnoredForShuffling(shareInfo.isIgnoredForShuffling());
+            shareInfo.setIgnoredForShuffling(share.isIgnoredForShuffling());
             shareInfo.setIncoming(share.isIncoming());
             shareInfo.setWithdrawShare(share.isWithdrawShare());
             result.add(shareInfo);
@@ -475,8 +475,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         File newShare = new File(getStoreDirectory(), shareId);
         if (newShare.exists() == false)
         {
-            throw new UserFailureException("Share does not exists: "
-                    + newShare.getAbsolutePath());
+            throw new UserFailureException("Share does not exists: " + newShare.getAbsolutePath());
         }
         if (newShare.isDirectory() == false)
         {
@@ -486,7 +485,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         getDataSetMover().moveDataSetToAnotherShare(new File(share, dataSetLocation), newShare,
                 null, new Log4jSimpleLogger(operationLog));
     }
-    
+
     private IDataSetMover getDataSetMover()
     {
         if (dataSetMover == null)
