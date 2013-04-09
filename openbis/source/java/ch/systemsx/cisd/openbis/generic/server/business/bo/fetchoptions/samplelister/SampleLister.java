@@ -209,8 +209,9 @@ public class SampleLister implements ISampleLister
         return samples;
     }
 
-    public TableMap<Long, SampleRecord> getAllSamples(LongSet sampleIdSet, LongSet rootSampleIdSet,
-            LongSet descendentIdSet, LongSet ancestorIdSet, EnumSet<SampleFetchOption> fetchOptions)
+    private TableMap<Long, SampleRecord> getAllSamples(LongSet sampleIdSet,
+            LongSet rootSampleIdSet, LongSet descendentIdSet, LongSet ancestorIdSet,
+            EnumSet<SampleFetchOption> fetchOptions)
     {
         List<SampleRecord> list = query.listSamplesByIds(sampleIdSet);
         TableMap<Long, SampleRecord> sampleRecords =
@@ -243,7 +244,7 @@ public class SampleLister implements ISampleLister
         return sampleRecords;
     }
 
-    public void enrichWithAncestors(List<SampleRelationshipRecord> ancestors,
+    private void enrichWithAncestors(List<SampleRelationshipRecord> ancestors,
             TableMap<Long, SampleRecord> sampleRecords, boolean allAncestors)
     {
         for (SampleRelationshipRecord ancestor : ancestors)
@@ -265,7 +266,7 @@ public class SampleLister implements ISampleLister
         }
     }
 
-    public void enrichWithDescendants(List<SampleRelationshipRecord> descendants,
+    private void enrichWithDescendants(List<SampleRelationshipRecord> descendants,
             TableMap<Long, SampleRecord> sampleRecords, boolean allDescendants)
     {
         for (SampleRelationshipRecord descendant : descendants)
