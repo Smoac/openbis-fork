@@ -149,17 +149,33 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             this.openBISURL = openBISURL;
             this.timeout = timeout;
         }
+        
+        @Override
+        protected boolean isRetryableException(RuntimeException e)
+        {
+            return true;
+        }
 
         @Override
         protected IServiceForDataStoreServer call() throws RuntimeException
         {
             OpenBisServiceFactory factory =
                     new OpenBisServiceFactory(openBISURL, ResourceNames.ETL_SERVICE_URL);
+            IServiceForDataStoreServer service = null;
+
             if (timeout.startsWith("$"))
             {
-                return factory.createService();
+                service = factory.createService();
+            } else
+            {
+                service = factory.createService(normalizeTimeout(timeout));
             }
-            return factory.createService(normalizeTimeout(timeout));
+
+            // The factory may return a service that actually doesn't work.
+            // We make an extra check to verify if everything is fine. 
+            // If it is not, then the service creation will be retried.
+            service.getVersion();
+            return service;
         }
     }
 
@@ -204,14 +220,14 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return Integer.parseInt(timeout) * DateUtils.MILLIS_PER_MINUTE;
     }
 
-    public EncapsulatedOpenBISService(IServiceForDataStoreServer service, OpenBISSessionHolder sessionHolder,
-            String downloadUrl)
+    public EncapsulatedOpenBISService(IServiceForDataStoreServer service,
+            OpenBISSessionHolder sessionHolder, String downloadUrl)
     {
         this(service, sessionHolder, downloadUrl, null);
     }
 
-    public EncapsulatedOpenBISService(IServiceForDataStoreServer service, OpenBISSessionHolder sessionHolder,
-            String downloadUrl, IShareIdManager shareIdManager)
+    public EncapsulatedOpenBISService(IServiceForDataStoreServer service,
+            OpenBISSessionHolder sessionHolder, String downloadUrl, IShareIdManager shareIdManager)
     {
         this.shareIdManager = shareIdManager;
         assert service != null : "Given IETLLIMSService implementation can not be null.";
@@ -620,8 +636,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             throws UserFailureException
     {
         List<SimpleDataSetInformationDTO> dataSets =
-                service.listOldestPhysicalDataSets(session.getSessionToken(), session.getDataStoreCode(),
-                        chunkSize);
+                service.listOldestPhysicalDataSets(session.getSessionToken(),
+                        session.getDataStoreCode(), chunkSize);
         return injectDefaultShareIdIfMissing(dataSets);
     }
 
@@ -630,8 +646,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             int chunkSize) throws UserFailureException
     {
         List<SimpleDataSetInformationDTO> dataSets =
-                service.listOldestPhysicalDataSets(session.getSessionToken(), session.getDataStoreCode(),
-                        youngerThan, chunkSize);
+                service.listOldestPhysicalDataSets(session.getSessionToken(),
+                        session.getDataStoreCode(), youngerThan, chunkSize);
         return injectDefaultShareIdIfMissing(dataSets);
     }
 
