@@ -142,6 +142,9 @@ fi
 
 command=$1
 
+# Create lib symlinks before building the classpath
+./autosymlink.sh
+
 # Build classpath from $LIB_FOLDER and $EXT_LIB_FOLDER content. First JAR is datastore_server.jar because it has to appear before cifex.jar
 CP=`echo $LIB_FOLDER/datastore_server.jar $LIB_FOLDER/*.jar $EXT_LIB_FOLDER/*.jar | sed 's/ /:/g'`
 
@@ -161,7 +164,6 @@ case "$command" in
 
     echo -n "Starting Data Store Server "
     rotateLogFiles $LOGFILE $MAXLOGS
-    ./autosymlink.sh
     shift 1
     ${CMD} "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
     if [ $? -eq 0 ]; then
