@@ -1358,7 +1358,8 @@ openbis.prototype.getDownloadUrlForFileForDataSet = function(dataSetCode, path, 
 openbis.prototype.getDownloadUrlForFileForDataSetInSession = function(dataSetCode, path, action) {
 	var openbisObj = this;
 	this._internal.getDataStoreUrlForDataSetCode(dataSetCode, function(dataStoreUrl){
-		var url = dataStoreUrl + "/" + dataSetCode + "/" + path + "?sessionID=" + openbisObj.getSession();
+		var pathWithoutSlash = path.charAt(0) == "/" ? path.substr(1) : path;
+		var url = dataStoreUrl + "/" + dataSetCode + "/" + pathWithoutSlash + "?sessionID=" + openbisObj.getSession();
 		action(url);
 	});
 }
