@@ -25,6 +25,7 @@ import org.springframework.remoting.RemoteAccessException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.api.IRpcService;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
 
@@ -128,6 +129,11 @@ public class ServiceFinder
     {
         ServiceWithUrl<S> serviceWithUrl =
                 createServiceWithUrl(serviceInterface, serverUrl, servicePinger, timeoutInMillis);
+        if (canConnectToService(serviceWithUrl.getService(), servicePinger) == false)
+        {
+            throw new EnvironmentFailureException("Can not connect service "
+                    + serviceInterface.getName() + " at " + serverUrl);
+        }
         return serviceWithUrl.getUrl();
     }
 
