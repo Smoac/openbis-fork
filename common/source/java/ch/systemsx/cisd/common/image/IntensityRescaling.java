@@ -370,25 +370,38 @@ public class IntensityRescaling
     public static Levels computeLevels(PixelHistogram histogram, float threshold)
     {
         final int intThreshold = Math.round(threshold * histogram.pixelCount);
+        int[] histogramArray = histogram.histogram;
+
+        return computeLevels(intThreshold, histogramArray);
+    }
+
+    public static Levels computeLevels(final int intThreshold, int[] histogramArray)
+    {
         int min = -1;
-        int sum = 0;
-        while (sum <= intThreshold)
+        int max = histogramArray.length;
+
+        int minSum = 0;
+        int maxSum = 0;
+
+        while (minSum <= intThreshold || maxSum <= intThreshold)
         {
-            sum += histogram.histogram[++min];
+            if (minSum <= intThreshold)
+            {
+                minSum += histogramArray[++min];
+            }
+            if (min >= max - 1)
+            {
+                break;
+            }
+            if (maxSum <= intThreshold)
+            {
+                maxSum += histogramArray[--max];
+            }
         }
-        if (min < 0)
+
+        if (max >= histogramArray.length)
         {
-            min = 0;
-        }
-        int max = MAX_USHORT + 1;
-        sum = 0;
-        while (sum <= intThreshold)
-        {
-            sum += histogram.histogram[--max];
-        }
-        if (max > MAX_USHORT)
-        {
-            max = MAX_USHORT;
+            max = histogramArray.length - 1;
         }
         return new Levels(min, max);
     }
@@ -452,8 +465,7 @@ public class IntensityRescaling
                 // normalize to [0, 1] and rescale to 8 bits
                 intensity = (int) (0.5 + (intensity * dynamicRange));
 
-                rescaledRaster
-                        .setSample(x, y, channel.getBand(), intensity);
+                rescaledRaster.setSample(x, y, channel.getBand(), intensity);
             }
         }
         return rescaledImage;
