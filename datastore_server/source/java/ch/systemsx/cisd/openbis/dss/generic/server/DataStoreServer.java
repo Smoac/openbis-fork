@@ -442,11 +442,11 @@ public class DataStoreServer
             return configParams.isUseNIO() ? new SelectChannelConnector() : new SocketConnector();
         }
     }
-
+    
     private static class RetryingSelfTest extends RetryCaller<Void, RuntimeException>
     {
         private final ApplicationContext applicationContext;
-
+        
         RetryingSelfTest(ApplicationContext applicationContext)
         {
             super(new RetryConfiguration()
@@ -456,13 +456,13 @@ public class DataStoreServer
                     {
                         return 2;
                     }
-
+                    
                     @Override
                     public int getWaitingTimeBetweenRetries()
                     {
                         return 5000;
                     }
-
+                    
                     @Override
                     public int getMaximumNumberOfRetries()
                     {
@@ -470,12 +470,6 @@ public class DataStoreServer
                     }
                 }, new Log4jSimpleLogger(operationLog));
             this.applicationContext = applicationContext;
-        }
-
-        @Override
-        protected boolean isRetryableException(RuntimeException e)
-        {
-            return true;
         }
 
         @Override
@@ -491,8 +485,7 @@ public class DataStoreServer
             }
             if (operationLog.isInfoEnabled())
             {
-                operationLog.info("openBIS service (interface version " + version
-                        + ") is reachable");
+                operationLog.info("openBIS service (interface version " + version + ") is reachable");
             }
             return null;
         }

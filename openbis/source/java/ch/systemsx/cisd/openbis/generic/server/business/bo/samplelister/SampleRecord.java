@@ -45,6 +45,4 @@ public class SampleRecord extends CodeRecord
     public Long del_id;
 
     public long saty_id;
-
-    public int version;
 }

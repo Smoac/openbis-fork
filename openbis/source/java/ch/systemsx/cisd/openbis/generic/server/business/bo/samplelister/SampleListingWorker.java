@@ -642,7 +642,6 @@ final class SampleListingWorker extends AbstractLister
         final Sample sample = new Sample();
         sample.setId(row.id);
         sample.setPermId(row.perm_id);
-        sample.setVersion(row.version);
         sample.setCode(IdentifierHelper.convertCode(row.code, null));
         sample.setSubCode(IdentifierHelper.convertSubCode(row.code));
         sample.setSampleType(sampleTypes.get(row.saty_id));

@@ -625,31 +625,3 @@ openbis.prototype.listImageReferencesForDataSetIdentifierAndChannels = function(
     });
 }
 
-/**
- * @see IDssServiceRpcScreening.listAvailableFeatureLists(String, IFeatureVectorDatasetIdentifier)
- * @method
- */
-openbis.prototype.listAvailableFeatureLists = function(featureVectorDataSet, action) {
-	this._internal.ajaxRequest({
-	        url: this._internal.getScreeningDataStoreApiUrlForDataStoreUrl(featureVectorDataSet.datastoreServerUrl),
-	        data: { "method" : "listAvailableFeatureLists",
- 	                params : [this.getSession(), featureVectorDataSet]
-	        },
-	        success: action
-	});
-};
-
-/**
- * @see IDssServiceRpcScreening.getFeatureList(String, IFeatureVectorDatasetIdentifier, String)
- * @method
- */
-openbis.prototype.getFeatureList = function(featureVectorDataSet, featureListCode, action) {
-	this._internal.ajaxRequest({
-	        url: this._internal.getScreeningDataStoreApiUrlForDataStoreUrl(featureVectorDataSet.datastoreServerUrl),
-	        data: { "method" : "getFeatureList",
- 	                params : [this.getSession(), featureVectorDataSet, featureListCode]
-	        },
-	        success: action
-	});
-};
-
