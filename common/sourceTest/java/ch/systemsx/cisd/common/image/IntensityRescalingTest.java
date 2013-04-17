@@ -29,6 +29,17 @@ import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
 public class IntensityRescalingTest
 {
 
+    public void testRegularCaseOfIntensityRescaling()
+    {
+        int[] histogramArray =
+                new int[]
+                    { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+        Levels result = IntensityRescaling.computeLevels(5, histogramArray);
+        assertEquals(5, result.minLevel);
+        assertEquals(histogramArray.length - 6, result.maxLevel);
+    }
+
     @Test
     public void testBorderCaseOfIntensityRescaling()
     {
