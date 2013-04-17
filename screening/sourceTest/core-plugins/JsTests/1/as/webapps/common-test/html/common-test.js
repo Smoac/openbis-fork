@@ -71,15 +71,29 @@ var assertObjectsCount = function(objects, count){
 }
 
 var assertObjectsWithValues = function(objects, propertyName, propertyValues){
-	deepEqual(objects.map(function(object){
-		return object[propertyName];
-	}).sort(), propertyValues.sort(), 'Objects have correct ' + propertyName + ' values')
+	var values = {};
+	
+	$.each(objects, function(index, object){
+		var value = object[propertyName];
+		if(value in values == false){
+			values[value] = true;
+		}
+	});
+	
+	deepEqual(Object.keys(values).sort(), propertyValues.sort(), 'Objects have correct ' + propertyName + ' values')
 }
 
 var assertObjectsWithValuesFunction = function(objects, propertyName, propertyFunction, propertyValues){
-	deepEqual(objects.map(function(object){
-		return propertyFunction(object);
-	}).sort(), propertyValues.sort(), 'Objects have correct ' + propertyName + ' values')
+	var values = {};
+	
+	$.each(objects, function(index, object){
+		var value = propertyFunction(object);
+		if(value in values == false){
+			values[value] = true;
+		}
+	});
+	
+	deepEqual(Object.keys(values).sort(), propertyValues.sort(), 'Objects have correct ' + propertyName + ' values')
 }
 
 var assertObjectsWithCollections = function(objects, propertyName){

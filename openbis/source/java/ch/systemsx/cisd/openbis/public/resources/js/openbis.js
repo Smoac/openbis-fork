@@ -297,7 +297,9 @@ openbis.prototype.login = function(userId, userPassword, action) {
 					openbisObj._internal.sessionToken = loginResponse.result;
 					openbisObj.rememberSession();
 				}
-				action(loginResponse);
+				openbisObj._internal.initDataStores(function(){
+					action(loginResponse);	
+				});
 			}
 	 });
 }
