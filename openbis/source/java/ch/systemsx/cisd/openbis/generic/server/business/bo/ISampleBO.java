@@ -63,6 +63,12 @@ public interface ISampleBO extends IEntityBusinessObject
     void tryToLoadBySampleIdentifier(SampleIdentifier identifier);
 
     /**
+     * Tries to load the sample with specified identifier. Use {@link #loadDataByTechId(TechId)}
+     * instead if possible. Loaded sample does not contain database instance information.
+     */
+    void tryToLoadBySampleIdentifierReduced(SampleIdentifier identifier);
+
+    /**
      * Enrich with property types.
      */
     public void enrichWithPropertyTypes();

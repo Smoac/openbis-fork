@@ -167,6 +167,18 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     }
 
     @Override
+    public final ExperimentPE tryFindByExperimentIdentifierReduced(
+            final ExperimentIdentifier identifier)
+    {
+        final ProjectPE project = tryGetProject(identifier);
+        if (project == null)
+        {
+            return null;
+        }
+        return tryGetExperimentReduced(identifier, project);
+    }
+
+    @Override
     public ExperimentPE tryFindByExperimentId(IExperimentId experimentId)
     {
         if (experimentId == null)
@@ -215,6 +227,13 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             final ProjectPE project)
     {
         return getExperimentDAO().tryFindByCodeAndProject(project, identifier.getExperimentCode());
+    }
+
+    private ExperimentPE tryGetExperimentReduced(final ExperimentIdentifier identifier,
+            final ProjectPE project)
+    {
+        return getExperimentDAO().tryFindByCodeAndProjectReduced(project,
+                identifier.getExperimentCode());
     }
 
     private ProjectPE tryGetProject(final ExperimentIdentifier identifier)

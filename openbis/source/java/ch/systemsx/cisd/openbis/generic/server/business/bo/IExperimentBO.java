@@ -46,6 +46,13 @@ public interface IExperimentBO extends IEntityBusinessObject
     ExperimentPE tryFindByExperimentIdentifier(final ExperimentIdentifier identifier);
 
     /**
+     * Returns an experiment found at the given identifier or null if it does not exist. Does not
+     * change the state of this object, especially the result of {@link #getExperiment()}. Returned
+     * ExperimentPE does not contain database instance information.
+     */
+    ExperimentPE tryFindByExperimentIdentifierReduced(final ExperimentIdentifier identifier);
+
+    /**
      * Returns an experiment found by the given id or null if it does not exist. Does not change the
      * state of this object, especially the result of {@link #getExperiment()}.
      */

@@ -118,6 +118,32 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
         }
     }
 
+    protected SamplePE tryToGetSampleByIdentifierReduced(final SampleIdentifier sampleIdentifier)
+    {
+        assert sampleIdentifier != null : "Sample identifier unspecified.";
+
+        final SampleOwner sampleOwner = sampleOwnerFinder.figureSampleOwner(sampleIdentifier);
+        final String sampleCode = sampleIdentifier.getSampleCode();
+        final ISampleDAO sampleDAO = getSampleDAO();
+        final SamplePE result;
+        if (sampleOwner.isDatabaseInstanceLevel())
+        {
+            result =
+                    sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode,
+                            sampleOwner.tryGetDatabaseInstance());
+        } else
+        {
+            assert sampleOwner.isSpaceLevel() : "Must be of space level.";
+            result = sampleDAO.tryFindByCodeAndSpaceReduced(sampleCode, sampleOwner.tryGetSpace());
+        }
+        if (result != null)
+        {
+            HibernateUtils.initialize(result.getExperiment());
+            sampleByIdentifierCache.put(sampleIdentifier, result);
+        }
+        return result;
+    }
+
     /**
      * Finds a sample with the given technical identifier.<br>
      * Note: this method will never return samples which are contained (part-of relation) in another

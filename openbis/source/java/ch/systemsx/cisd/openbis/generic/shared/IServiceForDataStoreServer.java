@@ -110,6 +110,17 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
             ExperimentIdentifier experimentIdentifier) throws UserFailureException;
 
     /**
+     * Returns the specified experiment or <code>null</code> if not found. Returned Experiment does
+     * not contain database instance information.
+     * 
+     * @param sessionToken the user authentication token. Must not be <code>null</code>.
+     * @param experimentIdentifier an identifier which uniquely identifies the experiment.
+     */
+    @Transactional(readOnly = true)
+    public Experiment tryGetExperimentReduced(String sessionToken,
+            ExperimentIdentifier experimentIdentifier) throws UserFailureException;
+
+    /**
      * For given {@link MaterialIdentifier} returns the corresponding {@link Material}.
      */
     @Transactional(readOnly = true)
@@ -158,6 +169,19 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     public Sample tryGetSampleWithExperiment(final String sessionToken,
+            final SampleIdentifier sampleIdentifier) throws UserFailureException;
+
+    /**
+     * Gets a sample with the specified identifier. Sample is enriched with properties and the
+     * experiment with properties. It does not contain database instance information.
+     * 
+     * @param sessionToken the user authentication token. Must not be <code>null</code>.
+     * @param sampleIdentifier an identifier which uniquely identifies the sample.
+     * @return <code>null</code> if no sample attached to an experiment could be found for given
+     *         <var>sampleIdentifier</var>.
+     */
+    @Transactional(readOnly = true)
+    public Sample tryGetSampleWithExperimentReduced(final String sessionToken,
             final SampleIdentifier sampleIdentifier) throws UserFailureException;
 
     /**
@@ -216,8 +240,7 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     public List<AbstractExternalData> listDataSetsByCode(String sessionToken,
-            List<String> dataSetCodes)
-            throws UserFailureException;
+            List<String> dataSetCodes) throws UserFailureException;
 
     /**
      * Lists samples using given configuration.
@@ -446,8 +469,7 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     public List<AbstractExternalData> listAvailableDataSets(String sessionToken,
-            String dataStoreCode,
-            ArchiverDataSetCriteria criteria);
+            String dataStoreCode, ArchiverDataSetCriteria criteria);
 
     /**
      * List data sets from specified store which are younger then the specified one.

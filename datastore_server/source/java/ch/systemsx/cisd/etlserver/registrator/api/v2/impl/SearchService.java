@@ -357,7 +357,7 @@ public class SearchService implements ISearchService
         ExperimentIdentifier experimentIdentifier =
                 new ExperimentIdentifierFactory(experimentIdentifierString).createIdentifier();
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experimentOrNull =
-                openBisService.tryGetExperiment(experimentIdentifier);
+                openBisService.tryGetExperimentReduced(experimentIdentifier);
         return (null == experimentOrNull) ? null : new ExperimentImmutable(experimentOrNull);
     }
 
@@ -367,7 +367,7 @@ public class SearchService implements ISearchService
         SampleIdentifier sampleIdentifier =
                 new SampleIdentifierFactory(sampleIdentifierString).createIdentifier();
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sampleOrNull =
-                openBisService.tryGetSampleWithExperiment(sampleIdentifier);
+                openBisService.tryGetSampleWithExperimentReduced(sampleIdentifier);
         return (null == sampleOrNull) ? null : new SampleImmutable(sampleOrNull);
     }
 

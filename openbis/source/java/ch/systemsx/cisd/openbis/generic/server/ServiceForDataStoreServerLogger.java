@@ -255,8 +255,7 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
 
     @Override
     public List<AbstractExternalData> listDataSetsByExperimentID(String sessionToken,
-            TechId experimentID)
-            throws UserFailureException
+            TechId experimentID) throws UserFailureException
     {
         logAccess(sessionToken, "listDataSetsByExperimentID", "EXPERIMENT_ID(%s)", experimentID);
         return null;
@@ -272,8 +271,7 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
 
     @Override
     public List<AbstractExternalData> listDataSetsByCode(String sessionToken,
-            List<String> dataSetCodes)
-            throws UserFailureException
+            List<String> dataSetCodes) throws UserFailureException
     {
         logAccess(sessionToken, "listDataSetsByCode", "DATA_SETS(%s)", dataSetCodes);
         return null;
@@ -371,8 +369,7 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
 
     @Override
     public List<SimpleDataSetInformationDTO> listPhysicalDataSets(String sessionToken,
-            String dataStore)
-            throws UserFailureException
+            String dataStore) throws UserFailureException
     {
         logAccess(Level.DEBUG, sessionToken, "listFileDataSets", "DATA_STORE(%s)", dataStore);
         return null;
@@ -398,8 +395,7 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
 
     @Override
     public List<AbstractExternalData> listAvailableDataSets(String sessionToken,
-            String dataStoreCode,
-            ArchiverDataSetCriteria criteria)
+            String dataStoreCode, ArchiverDataSetCriteria criteria)
     {
         logAccess(sessionToken, "listAvailableDataSets", "DATA_STORE(%s) CRITERIA(%s)",
                 dataStoreCode, criteria);
@@ -785,6 +781,22 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     {
         logAccess(Level.DEBUG, systemSessionToken, "listMetaprojects", "USER_ID(%s) ENTITY_ID(%s)",
                 userId, entityId.toString());
+        return null;
+    }
+
+    @Override
+    public Experiment tryGetExperimentReduced(String sessionToken,
+            ExperimentIdentifier experimentIdentifier) throws UserFailureException
+    {
+        logAccess(sessionToken, "tryToGetExperimentReduced", "EXPERIMENT(%s)", experimentIdentifier);
+        return null;
+    }
+
+    @Override
+    public Sample tryGetSampleWithExperimentReduced(String sessionToken,
+            SampleIdentifier sampleIdentifier) throws UserFailureException
+    {
+        logAccess(sessionToken, "tryGetSampleWithExperimentReduced", "SAMPLE(%s)", sampleIdentifier);
         return null;
     }
 

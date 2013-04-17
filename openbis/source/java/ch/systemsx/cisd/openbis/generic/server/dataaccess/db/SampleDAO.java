@@ -270,6 +270,91 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     }
 
     @Override
+    public final SamplePE tryFindByCodeAndSpaceReduced(final String sampleCode, final SpacePE space)
+    {
+        assert sampleCode != null : "Unspecified sample code.";
+        assert space != null : "Unspecified space.";
+
+        Criteria criteria = createSpaceCriteria(space);
+        addSampleCodeCriterion(criteria, sampleCode);
+
+        criteria.setFetchMode("databaseInstance", FetchMode.SELECT);
+        criteria.setFetchMode("space.databaseInstance", FetchMode.SELECT);
+        criteria.setFetchMode("sampleType.databaseInstance", FetchMode.SELECT);
+        criteria.setFetchMode("sampleType.validationScript.databaseInstance", FetchMode.SELECT);
+        criteria.setFetchMode("registrator", FetchMode.SELECT);
+        criteria.setFetchMode("modifier", FetchMode.SELECT);
+
+        criteria.setFetchMode("sampleProperties", FetchMode.JOIN);
+        criteria.setFetchMode("sampleProperties.author", FetchMode.SELECT);
+        criteria.setFetchMode("sampleProperties.materialValue.databaseInstance", FetchMode.SELECT);
+        criteria.setFetchMode("sampleProperties.materialValue.registrator", FetchMode.SELECT);
+
+        criteria.setFetchMode("experimentInternal", FetchMode.JOIN);
+        criteria.setFetchMode("experimentInternal.experimentProperties", FetchMode.JOIN);
+        criteria.setFetchMode("experimentInternal.modifier", FetchMode.SELECT);
+        criteria.setFetchMode("experimentInternal.registrator", FetchMode.SELECT);
+        criteria.setFetchMode("experimentInternal.projectInternal.registrator", FetchMode.SELECT);
+        criteria.setFetchMode("experimentInternal.projectInternal.modifier", FetchMode.SELECT);
+        criteria.setFetchMode("experimentInternal.projectInternal.projectLeader", FetchMode.SELECT);
+        criteria.setFetchMode("experimentInternal.projectInternal.space.databaseInstance",
+                FetchMode.SELECT);
+        criteria.setFetchMode("experimentInternal.experimentType.databaseInstance",
+                FetchMode.SELECT);
+        criteria.setFetchMode(
+                "experimentInternal.experimentType.validationScript.databaseInstance",
+                FetchMode.SELECT);
+
+        criteria.setFetchMode("container.databaseInstance", FetchMode.SELECT);
+        criteria.setFetchMode("container.space.databaseInstance", FetchMode.SELECT);
+        criteria.setFetchMode("container.sampleType.databaseInstance", FetchMode.SELECT);
+        criteria.setFetchMode("container.sampleType.validationScript.databaseInstance",
+                FetchMode.SELECT);
+        criteria.setFetchMode("container.registrator", FetchMode.SELECT);
+        criteria.setFetchMode("container.modifier", FetchMode.SELECT);
+
+        criteria.setFetchMode("container.sampleProperties", FetchMode.JOIN);
+        criteria.setFetchMode("container.sampleProperties.author", FetchMode.SELECT);
+        criteria.setFetchMode("container.sampleProperties.materialValue.databaseInstance",
+                FetchMode.SELECT);
+        criteria.setFetchMode("container.sampleProperties.materialValue.registrator",
+                FetchMode.SELECT);
+
+        criteria.setFetchMode("container.experimentInternal", FetchMode.JOIN);
+        criteria.setFetchMode("container.experimentInternal.experimentProperties", FetchMode.JOIN);
+        criteria.setFetchMode("container.experimentInternal.modifier", FetchMode.SELECT);
+        criteria.setFetchMode("container.experimentInternal.registrator", FetchMode.SELECT);
+        criteria.setFetchMode("container.experimentInternal.projectInternal.registrator",
+                FetchMode.SELECT);
+        criteria.setFetchMode("container.experimentInternal.projectInternal.modifier",
+                FetchMode.SELECT);
+        criteria.setFetchMode("container.experimentInternal.projectInternal.projectLeader",
+                FetchMode.SELECT);
+        criteria.setFetchMode(
+                "container.experimentInternal.projectInternal.space.databaseInstance",
+                FetchMode.SELECT);
+        criteria.setFetchMode("container.experimentInternal.experimentType.databaseInstance",
+                FetchMode.SELECT);
+        criteria.setFetchMode(
+                "container.experimentInternal.experimentType.validationScript.databaseInstance",
+                FetchMode.SELECT);
+
+        SamplePE sample = (SamplePE) criteria.uniqueResult();
+        if (sample == null && isFullCode(sampleCode) == false)
+        {
+            criteria = createSpaceCriteria(space);
+            sample = tryFindContainedSampleWithUniqueSubcode(criteria, sampleCode);
+        }
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "Following sample '%s' has been found for code '%s' and space '%s'.", sample,
+                    sampleCode, space));
+        }
+        return sample;
+    }
+
+    @Override
     public final List<SamplePE> listByCodesAndSpace(final List<String> sampleCodes,
             final String containerCodeOrNull, final SpacePE space)
     {
@@ -346,8 +431,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         if (containerCodeOrNull != null)
         {
             criteria.createAlias("container", "c");
-            criteria.add(Restrictions
-                    .eq("c.code", CodeConverter.tryToDatabase(containerCodeOrNull)));
+            criteria.add(Restrictions.eq("c.code", CodeConverter.tryToDatabase(containerCodeOrNull)));
         } else
         {
             criteria.add(Restrictions.isNull("container"));
@@ -356,8 +440,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
     @Override
     public final void createOrUpdateSamples(final List<SamplePE> samples, final PersonPE modifier,
-            boolean clearCache)
-            throws DataAccessException
+            boolean clearCache) throws DataAccessException
     {
         assert samples != null && samples.size() > 0 : "Unspecified or empty samples.";
 
@@ -491,8 +574,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                     String attachmentContents =
                             "DELETE FROM attachment_contents WHERE id IN (:ids)";
 
-                    String samples =
-                            "DELETE FROM samples_all WHERE del_id = :id";
+                    String samples = "DELETE FROM samples_all WHERE del_id = :id";
 
                     String event =
                             "INSERT INTO events (id, event_type, description, reason, pers_id_registerer, entity_type, identifiers) "

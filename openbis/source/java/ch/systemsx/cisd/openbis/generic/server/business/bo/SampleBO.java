@@ -129,6 +129,14 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         sample = tryToGetSampleByIdentifier(identifier);
     }
 
+    @Override
+    public void tryToLoadBySampleIdentifierReduced(SampleIdentifier identifier)
+    {
+        assert identifier != null : "Unspecified identifier.";
+
+        sample = tryToGetSampleByIdentifierReduced(identifier);
+    }
+
     public void tryToLoadBySamplePermId(String permId)
     {
         assert permId != null : "Unspecified perm id.";
