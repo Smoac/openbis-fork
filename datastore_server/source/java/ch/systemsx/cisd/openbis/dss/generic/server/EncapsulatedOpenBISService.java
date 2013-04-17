@@ -171,10 +171,6 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
                 service = factory.createService(normalizeTimeout(timeout));
             }
 
-            // The factory may return a service that actually doesn't work.
-            // We make an extra check to verify if everything is fine. 
-            // If it is not, then the service creation will be retried.
-            service.getVersion();
             return service;
         }
     }
