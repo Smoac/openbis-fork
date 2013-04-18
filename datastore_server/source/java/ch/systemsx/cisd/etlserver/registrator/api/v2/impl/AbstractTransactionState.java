@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
 
@@ -64,8 +65,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDeta
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -200,6 +201,10 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
 
         private final Map<String, DynamicTransactionQuery> queriesToCommit =
                 new HashMap<String, DynamicTransactionQuery>();
+
+        private final Map<String, SampleType> cachedSampleTypes = new HashMap<String, SampleType>();
+
+        private final PermIdCache permIdCache = new PermIdCache();
 
         private String userIdOrNull = null;
 
@@ -554,17 +559,30 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
 
         public ISample createNewSample(String sampleIdentifierString, String sampleTypeCode)
         {
-            String permId = openBisService.createPermId();
+            String permId = generatePermId();
             Sample sample = new Sample(sampleIdentifierString, permId);
             sample.setSampleType(sampleTypeCode);
             samplesToBeRegistered.add(sample);
             return sample;
         }
 
+        private SampleType getSampleType(String sampleTypeCode)
+        {
+            if (cachedSampleTypes.containsKey(sampleTypeCode))
+            {
+                return cachedSampleTypes.get(sampleTypeCode);
+            }
+
+            SampleType sampleType = openBisService.getSampleType(sampleTypeCode);
+            cachedSampleTypes.put(sampleTypeCode, sampleType);
+
+            return sampleType;
+        }
+
         public ISample createNewSampleWithGeneratedCode(String spaceCode, String sampleTypeCode)
         {
-            String permId = openBisService.createPermId();
-            SampleType sampleType = openBisService.getSampleType(sampleTypeCode);
+            String permId = generatePermId();
+            SampleType sampleType = getSampleType(sampleTypeCode);
 
             String sampleIdentifierString;
             if (spaceCode == null || spaceCode.length() == 0)
@@ -646,7 +664,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         public IExperiment createNewExperiment(String experimentIdentifierString,
                 String experimentTypeCode)
         {
-            String permId = openBisService.createPermId();
+            String permId = generatePermId();
             Experiment experiment = new Experiment(experimentIdentifierString, permId);
             experiment.setExperimentType(experimentTypeCode);
             experimentsToBeRegistered.add(experiment);
@@ -1057,7 +1075,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         private String generateDataSetCode(
                 DataSetRegistrationDetails<? extends T> registrationDetails)
         {
-            return openBisService.createPermId();
+            return generatePermId();
         }
 
         AtomicEntityOperationDetails<T> createEntityOperationDetails(TechId registrationId,
@@ -1269,6 +1287,44 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         {
             return false;
         }
+
+        protected String generatePermId()
+        {
+            return permIdCache.nextPermId();
+        }
+
+        private class PermIdCache
+        {
+            /**
+             * Cache for already fetched perm ids
+             */
+            Queue<String> permIds;
+
+            /**
+             * How big chunk of perm ids to fetch if we run out of them.
+             */
+            private int batchSize;
+
+            public PermIdCache()
+            {
+                batchSize = 1;
+                permIds = new LinkedList<String>();
+            }
+
+            /**
+             * get perm id - fetching new batch from openbis if necessary
+             */
+            private String nextPermId()
+            {
+                if (permIds.isEmpty())
+                {
+                    permIds.addAll(openBisService.createPermIds(batchSize));
+                    batchSize *= 2;
+                }
+                return permIds.remove();
+            }
+        }
+
     }
 
     /**
