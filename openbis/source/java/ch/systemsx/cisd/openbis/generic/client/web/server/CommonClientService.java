@@ -686,9 +686,10 @@ public final class CommonClientService extends AbstractClientService implements
 
     @Override
     public TypedTableResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
-            DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria)
+            DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria,
+            EntityType entity)
     {
-        return listEntities(new EntityTypePropertyTypeProvider(commonServer, getSessionToken()),
+        return listEntities(new EntityTypePropertyTypeProvider(commonServer, getSessionToken(), entity),
                 criteria);
     }
 

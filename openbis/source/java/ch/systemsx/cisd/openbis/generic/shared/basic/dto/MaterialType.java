@@ -59,4 +59,9 @@ public class MaterialType extends EntityType
         return kind == null || kind == EntityKind.MATERIAL;
     }
 
+    @Override
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.MATERIAL;
+    }
 }

@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
-import com.extjs.gxt.ui.client.widget.Component;
-import com.google.gwt.user.client.Window;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -69,7 +66,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.webapp.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.webapp.WebAppUrl;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.LoggingConsole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebApp;
+
+import com.extjs.gxt.ui.client.widget.Component;
+import com.google.gwt.user.client.Window;
 
 /**
  * Creates and provides GUI modules/components (such as sample browser).
@@ -1176,21 +1177,25 @@ public final class ComponentProvider
             };
     }
 
-    public AbstractTabItemFactory getPropertyTypeAssignmentBrowser()
+    public AbstractTabItemFactory getPropertyTypeAssignmentBrowser(final EntityType entity)
     {
         return new AbstractTabItemFactory()
             {
                 @Override
                 public ITabItem create()
                 {
-                    IDisposableComponent component = PropertyTypeAssignmentGrid.create(viewContext);
+                    IDisposableComponent component = PropertyTypeAssignmentGrid.create(viewContext, entity);
                     return createTab(getTabTitle(), component);
                 }
 
                 @Override
                 public String getId()
                 {
-                    return PropertyTypeAssignmentGrid.BROWSER_ID;
+                    if(entity != null) {
+                        return PropertyTypeAssignmentGrid.BROWSER_ID+" "+entity.getEntityKind().name()+" "+entity.getCode();
+                    } else {
+                        return PropertyTypeAssignmentGrid.BROWSER_ID;
+                    }
                 }
 
                 @Override
@@ -1202,7 +1207,11 @@ public final class ComponentProvider
                 @Override
                 public String getTabTitle()
                 {
-                    return getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS);
+                    if(entity != null) {
+                        return getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS)+" "+entity.getEntityKind().name()+" "+entity.getCode();
+                    } else {
+                        return getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS);
+                    }
                 }
 
                 @Override

@@ -422,7 +422,8 @@ public interface ICommonClientService extends IClientService
      * Returns a chunk of the property types assignment list.
      */
     public TypedTableResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
-            DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria)
+            DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria,
+            EntityType entity)
             throws UserFailureException;
 
     /**

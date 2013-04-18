@@ -42,7 +42,7 @@ public class PropertyTypesMenu extends MenuItem
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES,
                 messageProvider, componentProvider.getPropertyTypeBrowser()));
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS,
-                messageProvider, componentProvider.getPropertyTypeAssignmentBrowser()));
+                messageProvider, componentProvider.getPropertyTypeAssignmentBrowser(null)));
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.PROPERTY_TYPES_MENU_NEW_PROPERTY_TYPES,
                 messageProvider, componentProvider.getPropertyTypeRegistration()));
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_DATA_SET_TYPE,

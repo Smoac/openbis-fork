@@ -103,4 +103,9 @@ public class DataSetType extends EntityType
         return kind == null || kind == EntityKind.DATA_SET;
     }
 
+    @Override
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.DATA_SET;
+    }
 }
