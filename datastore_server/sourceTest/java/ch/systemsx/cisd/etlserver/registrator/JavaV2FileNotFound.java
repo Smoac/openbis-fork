@@ -32,7 +32,7 @@ public class JavaV2FileNotFound extends JavaAllHooks implements IJavaDataSetRegi
         IDataSet dataSet = transaction.createNewDataSet();
         transaction.moveFile("/non/existent/path", dataSet);
         dataSet.setDataSetType("O1");
-        dataSet.setExperiment(transaction.getExperiment("/SPACE/PROJECT/EXP"));
+        dataSet.setExperiment(transaction.getSearchService().getExperiment("/SPACE/PROJECT/EXP"));
     }
 
     @Override

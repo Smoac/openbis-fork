@@ -35,7 +35,7 @@ public class JavaV2SimpleTestcase extends JavaAllHooks implements IJavaDataSetRe
         File incoming = transaction.getIncoming();
         transaction.moveFile(incoming.getPath() + "/sub_data_set_1", dataSet);
         dataSet.setDataSetType("O1");
-        dataSet.setExperiment(transaction.getExperiment("/SPACE/PROJECT/EXP"));
+        dataSet.setExperiment(transaction.getSearchService().getExperiment("/SPACE/PROJECT/EXP"));
     }
 
     @Override

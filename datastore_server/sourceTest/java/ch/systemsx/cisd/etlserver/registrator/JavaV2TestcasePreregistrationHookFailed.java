@@ -48,7 +48,7 @@ public class JavaV2TestcasePreregistrationHookFailed extends JavaAllHooks implem
         IDataSet dataSet = transaction.createNewDataSet();
         transaction.moveFile(transaction.getIncoming().getPath() + "/sub_data_set_1", dataSet);
         dataSet.setDataSetType("O1");
-        dataSet.setExperiment(transaction.getExperiment("/SPACE/PROJECT/EXP"));
+        dataSet.setExperiment(transaction.getSearchService().getExperiment("/SPACE/PROJECT/EXP"));
     }
 
     @Override

@@ -32,7 +32,8 @@ public class ExampleJavaDataSetRegistrationDropboxV2 extends
     {
         String sampleId = "/CISD/JAVA-TEST";
         ISample sample = transaction.createNewSample(sampleId, "DYNAMIC_PLATE");
-        IExperimentImmutable exp = transaction.getExperiment("/CISD/NEMO/EXP-TEST-1");
+        IExperimentImmutable exp =
+                transaction.getSearchService().getExperiment("/CISD/NEMO/EXP-TEST-1");
         sample.setExperiment(exp);
         IDataSet dataSet = transaction.createNewDataSet();
         dataSet.setSample(sample);
