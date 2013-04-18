@@ -106,6 +106,13 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     }
 
     @Override
+    public List<String> createPermIds(String sessionToken, int n) throws UserFailureException
+    {
+        logTracking(sessionToken, "createPermIds", "NUMBER(%s)", n);
+        return null;
+    }
+
+    @Override
     public long drawANewUniqueID(String sessionToken) throws UserFailureException
     {
         logTracking(sessionToken, "drawANewUniqueID", "");

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -40,8 +41,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public class PermIdDAO extends AbstractDAO implements IPermIdDAO
 {
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, SampleDAO.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            PermIdDAO.class);
 
     private final static String PERM_ID_DATE_FORMAT_PATTERN = "yyyyMMddHHmmssSSS";
 
@@ -57,6 +58,17 @@ public class PermIdDAO extends AbstractDAO implements IPermIdDAO
         long id = getNextSequenceId(SequenceNames.PERM_ID_SEQUENCE);
         return DateFormatUtils.format(new Date(), PERM_ID_DATE_FORMAT_PATTERN) + "-"
                 + Long.toString(id);
+    }
+
+    @Override
+    public List<String> createPermIds(int n)
+    {
+        List<String> result = new ArrayList<String>(n);
+        for (int i = 0; i < n; i++)
+        {
+            result.add(createPermId());
+        }
+        return result;
     }
 
     @Override
