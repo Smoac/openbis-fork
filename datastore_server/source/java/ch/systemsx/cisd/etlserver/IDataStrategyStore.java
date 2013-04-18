@@ -42,9 +42,15 @@ public interface IDataStrategyStore
      */
     public IDataStoreStrategy getDataStoreStrategy(final DataSetInformation dataSetInfo,
             final File incomingDataSetPath);
-    
+
     /**
-     * For given <var>dataStoreStrategyKey</var> return corresponding <code>IDataStoreStrategy</code>
+     * For given <var>dataStoreStrategyKey</var> return corresponding
+     * <code>IDataStoreStrategy</code>
      */
     public IDataStoreStrategy getDataStoreStrategy(DataStoreStrategyKey dataStoreStrategyKey);
+
+    /**
+     * Get this data strategy store with the cache for openbis calls.
+     */
+    public IDataStrategyStore getCachedDataStrategyStore();
 }
