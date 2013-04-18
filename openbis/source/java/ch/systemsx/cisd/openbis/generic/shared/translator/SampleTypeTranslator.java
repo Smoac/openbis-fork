@@ -60,6 +60,7 @@ public class SampleTypeTranslator
 
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(sampleTypePE
                 .getDatabaseInstance()));
+        result.setModificationDate(sampleTypePE.getModificationDate());
         result.setValidationScript(ScriptTranslator.translate(sampleTypePE.getValidationScript()));
         return result;
 

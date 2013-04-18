@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.Date;
+
 /**
  * An <i>abstract</i> entity type.
  * 
@@ -28,6 +30,8 @@ public class BasicEntityType extends AbstractType
     public static final BasicEntityType UNSPECIFIED = null;
 
     private DatabaseInstance databaseInstance;
+
+    private Date modificationDate;
 
     private Script validationScript;
 
@@ -48,6 +52,16 @@ public class BasicEntityType extends AbstractType
     public final void setDatabaseInstance(final DatabaseInstance databaseInstance)
     {
         this.databaseInstance = databaseInstance;
+    }
+
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date modificationDate)
+    {
+        this.modificationDate = modificationDate;
     }
 
     public Script getValidationScript()

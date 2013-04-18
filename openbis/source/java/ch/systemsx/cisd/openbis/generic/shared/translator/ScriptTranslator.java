@@ -70,6 +70,7 @@ public final class ScriptTranslator
                 .getDatabaseInstance()));
         result.setRegistrationDate(script.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(script.getRegistrator()));
+        result.setModificationDate(script.getModificationDate());
         result.setAvailable(script.isAvailable());
         return result;
     }

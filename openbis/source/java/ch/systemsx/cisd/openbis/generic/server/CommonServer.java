@@ -1820,6 +1820,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         IEntityTypeDAO entityTypeDAO =
                 getDAOFactory().getEntityTypeDAO(DtoConverters.convertEntityKind(entityKind));
         EntityTypePE entityTypePE = entityTypeDAO.tryToFindEntityTypeByCode(entityType.getCode());
+        if (entityTypePE.getModificationDate().equals(entityType.getModificationDate()) == false)
+        {
+            throw new UserFailureException("Unfortunately " + entityType.getCode()
+                    + " has been modified in the meantime.\n\n"
+                    + "Please, refresh the data and try it again.");
+        }
 
         entityTypePE.setDescription(entityType.getDescription());
 

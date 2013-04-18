@@ -212,6 +212,10 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
     public void update(IScriptUpdates updates)
     {
         loadDataByTechId(TechId.create(updates));
+        if (script.getModificationDate().equals(updates.getModificationDate()) == false)
+        {
+            throwModifiedEntityException("Plugin");
+        }
         script.setName(updates.getName());
         script.setDescription(updates.getDescription());
         boolean scriptChanged = false;

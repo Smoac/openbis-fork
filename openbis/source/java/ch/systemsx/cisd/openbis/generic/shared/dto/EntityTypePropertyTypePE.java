@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.Date;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -24,6 +25,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -75,10 +77,24 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
 
     private boolean showRawValue;
 
+    private Date modificationDate;
+
     final public static <T extends EntityTypePropertyTypePE> T createEntityTypePropertyType(
             final EntityKind entityKind)
     {
         return ClassUtils.createInstance(entityKind.<T> getEntityTypePropertyTypeAssignmentClass());
+    }
+
+    @Version
+    @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false)
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date versionDate)
+    {
+        this.modificationDate = versionDate;
     }
 
     @NotNull(message = ValidationMessages.PROPERTY_TYPE_NOT_NULL_MESSAGE)

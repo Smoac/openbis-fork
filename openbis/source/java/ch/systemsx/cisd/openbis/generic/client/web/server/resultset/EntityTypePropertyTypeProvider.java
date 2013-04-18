@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs.MODIFICATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.ASSIGNED_TO;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.DATA_TYPE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.DESCRIPTION;
@@ -68,6 +69,7 @@ public class EntityTypePropertyTypeProvider extends
         builder.addColumn(PROPERTY_TYPE_CODE).withDefaultWidth(200);
         builder.addColumn(LABEL).hideByDefault();
         builder.addColumn(DESCRIPTION).hideByDefault();
+        builder.addColumn(MODIFICATION_DATE).withDefaultWidth(300).hideByDefault();
         builder.addColumn(ASSIGNED_TO).withDefaultWidth(200);
         builder.addColumn(TYPE_OF);
         builder.addColumn(IS_MANDATORY);
@@ -86,6 +88,7 @@ public class EntityTypePropertyTypeProvider extends
             builder.column(PROPERTY_TYPE_CODE).addString(propertyType.getCode());
             builder.column(LABEL).addString(propertyType.getLabel());
             builder.column(DESCRIPTION).addString(propertyType.getDescription());
+            builder.column(MODIFICATION_DATE).addDate(propertyType.getModificationDate());
             builder.column(ASSIGNED_TO).addString(etpt.getEntityType().getCode());
             builder.column(TYPE_OF).addString(etpt.getEntityKind().getDescription());
             builder.column(IS_MANDATORY).addString(SimpleYesNoRenderer.render(etpt.isMandatory()));

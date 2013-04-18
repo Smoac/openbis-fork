@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Stores data needed to create new entity type-property type assignment.
@@ -52,6 +53,8 @@ public class NewETPTAssignment implements Serializable
 
     private boolean showRawValue;
 
+    private Date modificationDate;
+
     public NewETPTAssignment()
     {
     }
@@ -59,6 +62,15 @@ public class NewETPTAssignment implements Serializable
     public NewETPTAssignment(EntityKind entityKind, String propertyTypeCode, String entityTypeCode,
             boolean mandatory, String defaultValue, String section, Long ordinal, boolean dynamic,
             boolean managed, String scriptOrNull, boolean shownInEditView, boolean showRawValue)
+    {
+        this(entityKind, propertyTypeCode, entityTypeCode, mandatory, defaultValue, section,
+                ordinal, dynamic, managed, null, scriptOrNull, shownInEditView, showRawValue);
+    }
+
+    public NewETPTAssignment(EntityKind entityKind, String propertyTypeCode, String entityTypeCode,
+            boolean mandatory, String defaultValue, String section, Long ordinal, boolean dynamic,
+            boolean managed, Date modificationDate, String scriptOrNull, boolean shownInEditView,
+            boolean showRawValue)
     {
         this.entityKind = entityKind;
         this.propertyTypeCode = propertyTypeCode;
@@ -69,9 +81,20 @@ public class NewETPTAssignment implements Serializable
         this.ordinal = ordinal;
         this.dynamic = dynamic;
         this.managed = managed;
+        this.modificationDate = modificationDate;
         this.scriptName = scriptOrNull;
         this.shownInEditView = shownInEditView;
         this.showRawValue = showRawValue;
+    }
+
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date modificationDate)
+    {
+        this.modificationDate = modificationDate;
     }
 
     public EntityKind getEntityKind()

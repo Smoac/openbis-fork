@@ -115,6 +115,10 @@ public class GridCustomColumnBO extends AbstractBusinessObject implements
     public void update(IExpressionUpdates updates)
     {
         loadDataByTechId(TechId.create(updates));
+        if (column.getModificationDate().equals(updates.getModificationDate()) == false)
+        {
+            throwModifiedEntityException("Custom column");
+        }
 
         column.setLabel(updates.getName());
         column.setDescription(updates.getDescription());

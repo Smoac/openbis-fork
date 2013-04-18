@@ -59,6 +59,7 @@ public final class SpaceTranslator
         result.setInstance(DatabaseInstanceTranslator.translate(space.getDatabaseInstance()));
         result.setRegistrationDate(space.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(space.getRegistrator()));
+        result.setModificationDate(space.getModificationDate());
         result.setIdentifier(IdentifierHelper.createGroupIdentifier(space).toString());
         return result;
     }

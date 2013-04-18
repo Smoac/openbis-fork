@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -34,6 +35,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -96,6 +98,8 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
     private List<DataSetTypePropertyTypePE> dataSetAssignments =
             new ArrayList<DataSetTypePropertyTypePE>();
 
+    private Date modificationDate;
+
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)
     @Length(max = GenericConstants.DESCRIPTION_2000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
     public String getDescription()
@@ -146,6 +150,18 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    @Version
+    @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false)
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date versionDate)
+    {
+        this.modificationDate = versionDate;
     }
 
     @Column(name = ColumnNames.SCRIPT_COLUMN)

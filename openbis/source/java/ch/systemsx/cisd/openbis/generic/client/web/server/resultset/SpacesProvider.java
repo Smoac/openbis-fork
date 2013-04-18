@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs.MODIFICATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SpaceGridColumnIDs.CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SpaceGridColumnIDs.DESCRIPTION;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SpaceGridColumnIDs.REGISTRATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SpaceGridColumnIDs.REGISTRATOR;
 
 import java.util.List;
@@ -30,8 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SpacesProvider extends AbstractCommonTableModelProvider<Space>
@@ -50,14 +48,14 @@ public class SpacesProvider extends AbstractCommonTableModelProvider<Space>
         builder.addColumn(CODE);
         builder.addColumn(DESCRIPTION).withDefaultWidth(200);
         builder.addColumn(REGISTRATOR).withDefaultWidth(200);
-        builder.addColumn(REGISTRATION_DATE).withDefaultWidth(300).hideByDefault();
+        builder.addColumn(MODIFICATION_DATE).withDefaultWidth(300).hideByDefault();
         for (Space space : spaces)
         {
             builder.addRow(space);
             builder.column(CODE).addString(space.getCode());
             builder.column(DESCRIPTION).addString(space.getDescription());
             builder.column(REGISTRATOR).addPerson(space.getRegistrator());
-            builder.column(REGISTRATION_DATE).addDate(space.getRegistrationDate());
+            builder.column(MODIFICATION_DATE).addDate(space.getRegistrationDate());
         }
         return builder.getModel();
     }

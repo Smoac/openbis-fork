@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.Date;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
@@ -34,6 +36,8 @@ public final class Space extends CodeWithRegistration<Space> implements IIdHolde
     private DatabaseInstance instance;
 
     private String identifier;
+
+    private Date modificationDate;
 
     @Override
     public final String getDescription()
@@ -75,6 +79,17 @@ public final class Space extends CodeWithRegistration<Space> implements IIdHolde
     public void setId(Long id)
     {
         this.id = id;
+    }
+
+    @Override
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date modificationDate)
+    {
+        this.modificationDate = modificationDate;
     }
 
     //

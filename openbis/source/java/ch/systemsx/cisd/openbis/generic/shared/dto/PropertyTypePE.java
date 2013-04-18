@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,6 +33,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -115,6 +117,8 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
      */
     private String transformation;
 
+    private Date modificationDate;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.CONTROLLED_VOCABULARY_COLUMN, updatable = false)
     public VocabularyPE getVocabulary()
@@ -196,6 +200,18 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
     public final void setType(final DataTypePE type)
     {
         this.type = type;
+    }
+
+    @Version
+    @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false)
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date versionDate)
+    {
+        this.modificationDate = versionDate;
     }
 
     @NotNull(message = ValidationMessages.DESCRIPTION_NOT_NULL_MESSAGE)

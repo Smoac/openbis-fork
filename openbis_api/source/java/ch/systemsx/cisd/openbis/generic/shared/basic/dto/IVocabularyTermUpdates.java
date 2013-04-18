@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.Date;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
@@ -31,4 +33,6 @@ public interface IVocabularyTermUpdates extends IIdHolder, ICodeHolder
     String getLabel();
 
     Long getOrdinal();
+    
+    Date getModificationDate();
 }

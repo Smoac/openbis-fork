@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs.MODIFICATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ScriptGridColumnIDs.DESCRIPTION;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ScriptGridColumnIDs.ENTITY_KIND;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ScriptGridColumnIDs.IS_AVAILABLE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ScriptGridColumnIDs.NAME;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ScriptGridColumnIDs.PLUGIN_TYPE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ScriptGridColumnIDs.REGISTRATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ScriptGridColumnIDs.REGISTRATOR;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ScriptGridColumnIDs.SCRIPT;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ScriptGridColumnIDs.SCRIPT_TYPE;
@@ -69,7 +69,7 @@ public class ScriptProvider extends AbstractCommonTableModelProvider<Script>
         builder.addColumn(SCRIPT_TYPE);
         builder.addColumn(PLUGIN_TYPE);
         builder.addColumn(REGISTRATOR);
-        builder.addColumn(REGISTRATION_DATE).withDefaultWidth(300);
+        builder.addColumn(MODIFICATION_DATE).withDefaultWidth(300).hideByDefault();
         builder.addColumn(IS_AVAILABLE);
         for (Script script : scripts)
         {
@@ -81,7 +81,7 @@ public class ScriptProvider extends AbstractCommonTableModelProvider<Script>
             builder.column(SCRIPT_TYPE).addString(script.getScriptType().getDescription());
             builder.column(PLUGIN_TYPE).addString(script.getPluginType().getDescription());
             builder.column(REGISTRATOR).addPerson(script.getRegistrator());
-            builder.column(REGISTRATION_DATE).addDate(script.getRegistrationDate());
+            builder.column(MODIFICATION_DATE).addDate(script.getModificationDate());
             builder.column(IS_AVAILABLE)
                     .addString(SimpleYesNoRenderer.render(script.isAvailable()));
         }

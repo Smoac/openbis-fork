@@ -52,6 +52,10 @@ public final class VocabularyTermBO extends AbstractBusinessObject implements IV
     public void update(IVocabularyTermUpdates updates)
     {
         loadDataByTechId(TechId.create(updates));
+        if (vocabularyTermPE.getModificationDate().equals(updates.getModificationDate()) == false)
+        {
+            throwModifiedEntityException("Vocabulary term");
+        }
 
         vocabularyTermPE.setDescription(updates.getDescription());
         vocabularyTermPE.setLabel(updates.getLabel());

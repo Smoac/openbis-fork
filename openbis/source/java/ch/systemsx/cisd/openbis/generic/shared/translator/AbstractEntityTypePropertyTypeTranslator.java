@@ -88,6 +88,7 @@ abstract public class AbstractEntityTypePropertyTypeTranslator<ET extends Entity
         {
             result.setEntityType(translate(etptPE.getEntityType(), cacheOrNull));
         }
+        result.setModificationDate(etptPE.getModificationDate());
         result.setManagedInternally(etptPE.isManagedInternally());
         result.setMandatory(etptPE.isMandatory());
         result.setOrdinal(etptPE.getOrdinal());
