@@ -172,8 +172,11 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
     @Override
     public void update(AuthorizationGroupUpdates updates)
     {
-        // TODO 2009-07-31,IA: add last update date check
         loadByTechId(updates.getId());
+        if (authorizationGroup.getModificationDate().equals(updates.getVersion()) == false)
+        {
+            throwModifiedEntityException("User group");
+        }
         authorizationGroup.setDescription(updates.getDescription());
         dataChanged = true;
     }

@@ -57,6 +57,7 @@ public final class AuthorizationGroupTranslator
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(group.getDatabaseInstance()));
         result.setRegistrationDate(group.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(group.getRegistrator()));
+        result.setModificationDate(group.getModificationDate());
         return result;
     }
 

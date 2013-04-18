@@ -324,6 +324,7 @@ public class AuthorizationGroupGrid extends TypedTableGrid<AuthorizationGroup>
                     AuthorizationGroupUpdates updates = new AuthorizationGroupUpdates();
                     updates.setDescription(descriptionField.getValue());
                     updates.setId(TechId.create(authGroup));
+                    updates.setVersion(authGroup.getModificationDate());
                     viewContext.getService()
                             .updateAuthorizationGroup(updates, registrationCallback);
                 }
