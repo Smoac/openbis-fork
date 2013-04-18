@@ -56,7 +56,7 @@ public class ScriptProviderTest extends AbstractProviderTest
         TypedTableModel<Script> tableModel = scriptProvider.createTableModel();
 
         assertEquals(
-                "[NAME, DESCRIPTION, SCRIPT, ENTITY_KIND, SCRIPT_TYPE, PLUGIN_TYPE, REGISTRATOR, REGISTRATION_DATE, IS_AVAILABLE]",
+                "[NAME, DESCRIPTION, SCRIPT, ENTITY_KIND, SCRIPT_TYPE, PLUGIN_TYPE, REGISTRATOR, MODIFICATION_DATE, IS_AVAILABLE]",
                 getHeaderIDs(tableModel).toString());
         assertEquals(
                 "[VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, VARCHAR]",
@@ -89,7 +89,7 @@ public class ScriptProviderTest extends AbstractProviderTest
         script.setScript("do something with " + kind);
         script.setScriptType(ScriptType.DYNAMIC_PROPERTY);
         script.setPluginType(PluginType.JYTHON);
-        script.setRegistrationDate(new Date(4711));
+        script.setModificationDate(new Date(4711));
         script.setRegistrator(new PersonBuilder().name("Albert", "Einstein").getPerson());
         return script;
     }

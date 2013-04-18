@@ -34,8 +34,6 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class QueryExpressionProviderTest extends AbstractProviderTest
@@ -53,6 +51,7 @@ public class QueryExpressionProviderTest extends AbstractProviderTest
         qe1.setQueryType(QueryType.EXPERIMENT);
         qe1.setRegistrationDate(new Date(4711));
         qe1.setRegistrator(new PersonBuilder().name("Albert", "Einstein").getPerson());
+        qe1.setModificationDate(new Date(5711));
         final IQueryServer queryServer = context.mock(IQueryServer.class);
         context.checking(new Expectations()
             {
@@ -67,16 +66,18 @@ public class QueryExpressionProviderTest extends AbstractProviderTest
         TypedTableModel<QueryExpression> model = provider.getTableModel(100);
 
         assertEquals("[NAME, DESCRIPTION, SQL_QUERY, IS_PUBLIC, QUERY_TYPE, ENTITY_TYPE, "
-                + "QUERY_DATABASE, REGISTRATOR, REGISTRATION_DATE]", getHeaderIDs(model).toString());
-        assertEquals("[null, null, null, null, null, null, null, null, null]",
+                + "QUERY_DATABASE, REGISTRATOR, REGISTRATION_DATE, MODIFICATION_DATE]",
+                getHeaderIDs(model).toString());
+        assertEquals("[null, null, null, null, null, null, null, null, null, null]",
                 getHeaderEntityKinds(model).toString());
         assertEquals("[VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, "
-                + "VARCHAR, VARCHAR, TIMESTAMP]", getHeaderDataTypes(model).toString());
+                + "VARCHAR, VARCHAR, TIMESTAMP, TIMESTAMP]", getHeaderDataTypes(model).toString());
         List<TableModelRowWithObject<QueryExpression>> rows = model.getRows();
         assertSame(qe1, rows.get(0).getObjectOrNull());
-        assertEquals("[MY-QUERY, my query, select * from something, yes, EXPERIMENT, MY_TYPE, "
-                + "My DB, Einstein, Albert, Thu Jan 01 01:00:04 CET 1970]", rows.get(0).getValues()
-                .toString());
+        assertEquals(
+                "[MY-QUERY, my query, select * from something, yes, EXPERIMENT, MY_TYPE, "
+                        + "My DB, Einstein, Albert, Thu Jan 01 01:00:04 CET 1970, Thu Jan 01 01:00:05 CET 1970]",
+                rows.get(0).getValues().toString());
         assertEquals(1, rows.size());
         context.assertIsSatisfied();
     }

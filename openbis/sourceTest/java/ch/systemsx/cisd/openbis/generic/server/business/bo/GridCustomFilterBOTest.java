@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
 
+import java.util.Date;
+
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
@@ -59,6 +61,7 @@ public class GridCustomFilterBOTest extends AbstractBOTest
                     filter.setDescription(updates.getDescription());
                     filter.setExpression(updates.getExpression());
                     filter.setPublic(updates.isPublic());
+                    filter.setModificationDate(updates.getModificationDate());
 
                     one(filterDAO).validateAndSaveUpdatedEntity(filter);
                 }
@@ -90,6 +93,7 @@ public class GridCustomFilterBOTest extends AbstractBOTest
         updates.setDescription(filter.getDescription() + " modified");
         updates.setExpression(filter.getExpression() + " modified");
         updates.setPublic(filter.isPublic() == false);
+        updates.setModificationDate(new Date(42));
         return updates;
     }
 

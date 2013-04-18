@@ -61,12 +61,12 @@ public class VocabulariesProviderTest extends AbstractProviderTest
     {
         VocabulariesProvider vocabulariesProvider =
                 new VocabulariesProvider(server, SESSION_TOKEN, true, false);
-        TypedTableModel<Vocabulary> tableModel = vocabulariesProvider.getTableModel(Integer.MAX_VALUE);
+        TypedTableModel<Vocabulary> tableModel =
+                vocabulariesProvider.getTableModel(Integer.MAX_VALUE);
 
-        assertEquals(
-                "[CODE, DESCRIPTION, IS_MANAGED_INTERNALLY, REGISTRATOR, REGISTRATION_DATE, URL_TEMPLATE, "
-                        + "VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS]", getHeaderIDs(tableModel)
-                        .toString());
+        assertEquals("[CODE, DESCRIPTION, IS_MANAGED_INTERNALLY, REGISTRATOR, REGISTRATION_DATE, "
+                + "MODIFICATION_DATE, URL_TEMPLATE, VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS]",
+                getHeaderIDs(tableModel).toString());
 
         List<TableModelRowWithObject<Vocabulary>> rows = tableModel.getRows();
         assertSame(animals, rows.get(0).getObjectOrNull());
@@ -74,7 +74,7 @@ public class VocabulariesProviderTest extends AbstractProviderTest
         List<String> expectedValues =
                 Arrays.asList(animals.getCode(), animals.getDescription(), "no", animals
                         .getRegistrator().getLastName(), animals.getRegistrator().getFirstName(),
-                        "", animals.getURLTemplate(), "yes");
+                        "", "", animals.getURLTemplate(), "yes");
 
         assertEquals(expectedValues.toString(), rows.get(0).getValues().toString());
         assertEquals(1, rows.size());

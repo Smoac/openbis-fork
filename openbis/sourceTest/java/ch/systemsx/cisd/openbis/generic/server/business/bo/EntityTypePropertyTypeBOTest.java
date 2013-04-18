@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_SESSION;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -163,6 +164,7 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
         script1.setScriptType(ScriptType.DYNAMIC_PROPERTY);
         final ScriptPE script2 = new ScriptPE();
         script2.setName("name2");
+        etpt.setModificationDate(new Date(42));
         etpt.setScript(script1);
         etpt.setOrdinal(1L);
 
@@ -188,7 +190,8 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
                 new NewETPTAssignment(
                         ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind.EXPERIMENT,
                         propertyType.getCode(), experimentType.getCode(), false, null, "s",
-                        etpt.getOrdinal() - 1, true, false, script2.getName(), false, false);
+                        etpt.getOrdinal() - 1, true, false, etpt.getModificationDate(),
+                        script2.getName(), false, false);
         bo.updateLoadedAssignment(updatedAssignment);
     }
 
