@@ -38,16 +38,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityHistory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -124,9 +124,11 @@ public class PropertiesHistoryTest extends SystemTestCase
         commonClientService.assignPropertyType(new NewETPTAssignment(EntityKind.EXPERIMENT,
                 "BACTERIUM", "SIRNA_HCS", false, "BACTERIUM-X", null, 1L, false, false, null, true,
                 false));
+        Date modificationDate =
+                getETPT(EntityKind.EXPERIMENT, "DESCRIPTION", "SIRNA_HCS").getModificationDate();
         commonClientService.updatePropertyTypeAssignment(new NewETPTAssignment(
                 EntityKind.EXPERIMENT, "DESCRIPTION", "SIRNA_HCS", false, null, null, 1L, false,
-                false, null, true, false));
+                false, modificationDate, null, true, false));
         Experiment experiment = commonClientService.getExperimentInfo(id);
         assertEquals(3, experiment.getProperties().size());
 
@@ -290,8 +292,11 @@ public class PropertiesHistoryTest extends SystemTestCase
     {
         TechId id = new TechId(5);
         logIntoCommonClientService();
+        Date modificationDate =
+                getETPT(EntityKind.DATA_SET, "COMMENT", "HCS_IMAGE").getModificationDate();
         commonClientService.updatePropertyTypeAssignment(new NewETPTAssignment(EntityKind.DATA_SET,
-                "COMMENT", "HCS_IMAGE", false, null, null, 1L, false, false, null, true, false));
+                "COMMENT", "HCS_IMAGE", false, null, null, 1L, false, false, modificationDate,
+                null, true, false));
         AbstractExternalData dataSet = genericClientService.getDataSetInfo(id);
         assertEquals(4, dataSet.getProperties().size());
 

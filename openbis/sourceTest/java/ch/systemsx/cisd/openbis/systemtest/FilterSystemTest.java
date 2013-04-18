@@ -125,7 +125,7 @@ public class FilterSystemTest extends SystemTestCase
                 new DefaultResultSetConfig<String, TableModelRowWithObject<GridCustomFilter>>();
         config.setAvailableColumns(createAvailableColumnsDefinition());
         config.setIDsOfPresentedColumns(new HashSet<String>(Arrays.asList("NAME", "DESCRIPTION",
-                "EXPRESSION", "IS_PUBLIC", "REGISTRATOR", "REGISTRATION_DATE")));
+                "EXPRESSION", "IS_PUBLIC", "REGISTRATOR", "REGISTRATION_DATE", "MODIFICATION_DATE")));
         CustomFilterInfo<TableModelRowWithObject<GridCustomFilter>> customFilterInfo =
                 new CustomFilterInfo<TableModelRowWithObject<GridCustomFilter>>();
         customFilterInfo.setExpression("${threshold} < 42");
@@ -144,7 +144,7 @@ public class FilterSystemTest extends SystemTestCase
 
         String[] headerIds =
                     { "NAME", "DESCRIPTION", "EXPRESSION", "IS_PUBLIC", "REGISTRATOR",
-                            "REGISTRATION_DATE" };
+                            "REGISTRATION_DATE", "MODIFICATION_DATE" };
 
         for (int i = 0; i < headerIds.length; i++)
         {

@@ -50,6 +50,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -454,6 +456,30 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
                     return o1.toString().compareTo(o2.toString());
                 }
             });
+    }
+
+    protected EntityTypePropertyType<?> getETPT(EntityKind entityKind, String propertyTypeCode,
+            String entityTypeCode)
+    {
+        List<EntityTypePropertyType<?>> etpts =
+                commonServer.listEntityTypePropertyTypes(systemSessionToken);
+        for (EntityTypePropertyType<?> etpt : etpts)
+        {
+            if (etpt.getEntityKind().equals(entityKind) == false)
+            {
+                continue;
+            }
+            if (etpt.getPropertyType().getCode().equals(propertyTypeCode) == false)
+            {
+                continue;
+            }
+            if (etpt.getEntityType().getCode().equals(entityTypeCode))
+            {
+                return etpt;
+            }
+        }
+        throw new IllegalArgumentException("No assignment for " + entityTypeCode + " with "
+                + propertyTypeCode + ".");
     }
 
 }
