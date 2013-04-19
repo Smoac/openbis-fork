@@ -56,7 +56,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
@@ -153,8 +152,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     public AddPropertyTypeDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback, EntityType entity)
     {
-        super(viewContext, viewContext.getMessage(Dict.PROPERTY_TYPE_REGISTRATION),
-                postRegistrationCallback);
+        super(viewContext, viewContext.getMessage(Dict.PROPERTY_TYPE_REGISTRATION),postRegistrationCallback);
         this.viewContext = viewContext;
         this.entity = entity;
 
@@ -179,13 +177,37 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     {
         if(false == isSelect()) {
             final PropertyType propertyType = createPropertyType();
-            viewContext.getService().registerPropertyType(propertyType, registrationCallback);
+            viewContext.getService().registerPropertyType(propertyType, new CreatePropertyTypeCallback(viewContext, registrationCallback));
+        } else {
+            final NewETPTAssignment assignment = createAssignment();
+            viewContext.getService().assignPropertyType(assignment, new AssignPropertyTypeCallback(viewContext, registrationCallback));
         }
-        
-        final NewETPTAssignment assignment = createAssignment();
-        viewContext.getService().assignPropertyType(assignment, new AssignPropertyTypeCallback(viewContext, registrationCallback));
     }
 
+    private final class CreatePropertyTypeCallback implements AsyncCallback<Void> {
+        final AsyncCallback<Void> registrationCallback;
+        final IViewContext<ICommonClientServiceAsync> viewContext;
+        
+        CreatePropertyTypeCallback(IViewContext<ICommonClientServiceAsync> viewContext, final AsyncCallback<Void> registrationCallback)
+        {
+            this.viewContext = viewContext;
+            this.registrationCallback = registrationCallback;
+        }
+        
+        @Override
+        public void onFailure(Throwable caught)
+        {
+            registrationCallback.onFailure(caught);
+        }
+
+        @Override
+        public void onSuccess(Void result)
+        {
+            final NewETPTAssignment assignment = createAssignment();
+            viewContext.getService().assignPropertyType(assignment, new AssignPropertyTypeCallback(viewContext, registrationCallback));
+        }
+    }
+    
     private final class AssignPropertyTypeCallback extends AbstractAsyncCallback<String>
     {
         final AsyncCallback<Void> registrationCallback;
@@ -212,27 +234,28 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     private final PropertyType createPropertyType()
     {
         final PropertyType propertyType = new PropertyType();
-        propertyType.setCode(getPropertyTypeCodeField().getValue().toUpperCase());
+        propertyType.setCode(getPropertyTypeCodeField().getValue());
         propertyType.setLabel(getPropertyTypeLabelField().getValue());
         propertyType.setDescription(getPropertyTypeDescriptionField().getValue());
-        final DataType selectedDataType = getDataTypeSelectionWidget().tryGetSelectedDataType();
-        propertyType.setDataType(selectedDataType);
-        switch (selectedDataType.getCode())
-        {
-            case MATERIAL:
-                propertyType.setMaterialType(getMaterialTypeSelectionWidget().tryGetSelected());
-                break;
-            case CONTROLLEDVOCABULARY:
-                propertyType.setVocabulary((Vocabulary) GWTUtils
-                        .tryGetSingleSelected(getVocabularySelectionWidget()));
-                break;
-            case XML:
-                propertyType.setSchema(getXmlSchemaField().getValue());
-                propertyType.setTransformation(getXslTransformationsField().getValue());
-                break;
-            default:
-                break;
+        propertyType.setDataType(getDataTypeSelectionWidget().tryGetSelectedDataType());
+        if(propertyType.getDataType() != null) {
+            switch (propertyType.getDataType().getCode())
+            {
+                case MATERIAL:
+                    propertyType.setMaterialType(getMaterialTypeSelectionWidget().tryGetSelected());
+                    break;
+                case CONTROLLEDVOCABULARY:
+                    propertyType.setVocabulary((Vocabulary) GWTUtils.tryGetSingleSelected(getVocabularySelectionWidget()));
+                    break;
+                case XML:
+                    propertyType.setSchema(getXmlSchemaField().getValue());
+                    propertyType.setTransformation(getXslTransformationsField().getValue());
+                    break;
+                default:
+                    break;
+            }
         }
+        
         return propertyType;
     }
 
@@ -288,8 +311,9 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                     {
                         setSelect(false == isSelect());
                         
+                        hidePropertyTypeRelatedFields();
+                        hideEntityTypePropertyTypeRelatedFields();
                         getFormPanel().removeAll();
-                        
                         if (isSelect())
                         {
                             initSelectPropertyForm();
@@ -311,10 +335,11 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         addField(getPropertyTypeSelectionWidget());
         getPropertyTypeSelectionWidget().clear();
         getPropertyTypeSelectionWidget().enable();
+        getPropertyTypeSelectionWidget().setVisible(true);
         
         addField(getEntityTypeSelectionWidget());
         getEntityTypeSelectionWidget().disable();
-        
+        getEntityTypeSelectionWidget().setVisible(false);
         
         addField(getScriptableCheckbox());
         getScriptableCheckbox().clear();
@@ -335,7 +360,6 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         addField(getShowRawValueCheckBox());
         getShowRawValueCheckBox().clear();
         getShowRawValueCheckBox().setVisible(false);
-        updatePropertyTypeRelatedFields();
     }
     
     private final void initNewPropertyForm() {
@@ -366,10 +390,11 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         getPropertyTypeSelectionWidget().clear();
         addField(getPropertyTypeSelectionWidget());
         getPropertyTypeSelectionWidget().disable();
+        getPropertyTypeSelectionWidget().setVisible(false);
         
         addField(getEntityTypeSelectionWidget());
         getEntityTypeSelectionWidget().disable();
-        
+        getEntityTypeSelectionWidget().setVisible(false);
         
         addField(getScriptableCheckbox());
         getScriptableCheckbox().clear();
@@ -390,7 +415,6 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         addField(getShowRawValueCheckBox());
         getShowRawValueCheckBox().clear();
         getShowRawValueCheckBox().setVisible(false);
-        updatePropertyTypeRelatedFields();
     }
 
     //
@@ -458,9 +482,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     {
         if (propertyTypeSelectionWidget == null)
         {
-            propertyTypeSelectionWidget =
-                    new PropertyTypeSelectionWidget(viewContext,
-                            createChildId(PROPERTY_TYPE_ID_SUFFIX));
+            propertyTypeSelectionWidget = new PropertyTypeSelectionWidget(viewContext, createChildId(PROPERTY_TYPE_ID_SUFFIX));
             FieldUtil.markAsMandatory(propertyTypeSelectionWidget);
             propertyTypeSelectionWidget.addListener(Events.SelectionChange,
                     new Listener<BaseEvent>()
@@ -561,8 +583,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     {
         if (null == shownInEditViewCheckBox)
         {
-            shownInEditViewCheckBox =
-                    new CheckBoxField(viewContext.getMessage(Dict.IS_SHOWN_IN_EDIT_VIEW), false);
+            shownInEditViewCheckBox = new CheckBoxField(viewContext.getMessage(Dict.IS_SHOWN_IN_EDIT_VIEW), false);
             shownInEditViewCheckBox.setValue(true);
             shownInEditViewCheckBox.setVisible(false);
             shownInEditViewCheckBox.addListener(Events.Change, new Listener<BaseEvent>()
@@ -610,8 +631,19 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     private void updatePropertyTypeRelatedFields()
     {
         hidePropertyTypeRelatedFields();
-        final PropertyType propertyType = getPropertyTypeSelectionWidget().tryGetSelectedPropertyType();
-        if (propertyType != null)
+        
+        PropertyType propertyType = null;
+        
+        if(isSelect()) {
+            propertyType = getPropertyTypeSelectionWidget().tryGetSelectedPropertyType();
+        } else {
+            propertyType = this.createPropertyType();
+        }
+        
+        //Is necessary to manage the case where the vocabulary is not set because there is no vocabularies on the system to avoid a null pointer
+        if (propertyType != null && propertyType.getDataType() != null && propertyType.getDataType().getCode() != DataTypeCode.CONTROLLEDVOCABULARY
+            ||
+            propertyType != null && propertyType.getDataType() != null && propertyType.getDataType().getCode() == DataTypeCode.CONTROLLEDVOCABULARY && propertyType.getVocabulary() != null)
         {
             String fieldId = createChildId(DEFAULT_VALUE_ID_PART);
             DatabaseModificationAwareField<?> fieldHolder = PropertyFieldFactory.createField(   propertyType,
@@ -637,9 +669,16 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     private void updateEntityTypePropertyTypeRelatedFields()
     {
         hideEntityTypePropertyTypeRelatedFields();
-        final PropertyType propertyType = propertyTypeSelectionWidget.tryGetSelectedPropertyType();
+        
+        PropertyType propertyType = null;
+        if(isSelect()) {
+            propertyType = getPropertyTypeSelectionWidget().tryGetSelectedPropertyType();
+        } else {
+            propertyType = this.createPropertyType();
+        }
+        
         final EntityType entityType = (EntityType) getEntityTypeSelectionWidget().tryGetSelected();
-        if (propertyType != null && entityType != null)
+        if (propertyType != null && entityType != null && propertyType.getDataType() != null)
         {
             final List<EntityTypePropertyType<?>> etpts = new ArrayList<EntityTypePropertyType<?>>(entityType.getAssignedPropertyTypes());
             sectionSelectionWidget = SectionSelectionWidget.create(viewContext, etpts);
@@ -748,14 +787,10 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     
     private EntityTypePropertyTypeSelectionWidget createETPTSelectionWidget(List<EntityTypePropertyType<?>> etpts)
     {
-        
         // by default - append
         etpts.add(0, null); // null will be transformed into '(top)'
-        final String lastCode =
-                (etpts.size() > 1) ? etpts.get(etpts.size() - 1).getPropertyType().getCode()
-                        : EntityTypePropertyTypeSelectionWidget.TOP_ITEM_CODE;
-        final EntityTypePropertyTypeSelectionWidget result =
-                new EntityTypePropertyTypeSelectionWidget(viewContext, getId(), etpts, lastCode);
+        final String lastCode = (etpts.size() > 1) ? etpts.get(etpts.size() - 1).getPropertyType().getCode():EntityTypePropertyTypeSelectionWidget.TOP_ITEM_CODE;
+        final EntityTypePropertyTypeSelectionWidget result = new EntityTypePropertyTypeSelectionWidget(viewContext, getId(), etpts, lastCode);
         FieldUtil.setMandatoryFlag(result, true);
         return result;
     }
@@ -907,8 +942,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                                 DataTypeModel selectedItem = se.getSelectedItem();
                                 if (selectedItem != null)
                                 {
-                                    DataTypeCode dataTypeCode =
-                                            selectedItem.getDataType().getCode();
+                                    DataTypeCode dataTypeCode = selectedItem.getDataType().getCode();
                                     switch (dataTypeCode)
                                     {
                                         case CONTROLLEDVOCABULARY:
@@ -923,6 +957,8 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                                         default:
                                             break;
                                     }
+                                    
+                                    updatePropertyTypeRelatedFields();
                                 }
 
                             }
@@ -934,9 +970,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
 
                             private void hideDataTypeRelatedFields()
                             {
-                                FieldUtil.setVisibility(false, vocabularySelectionWidget,
-                                        materialTypeSelectionWidget, xmlSchemaField,
-                                        xslTransformationsField);
+                                FieldUtil.setVisibility(false, vocabularySelectionWidget,materialTypeSelectionWidget, xmlSchemaField,xslTransformationsField);
                             }
                         };
 
@@ -984,8 +1018,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         {
             final String label = viewContext.getMessage(Dict.XSLT);
             final String description = viewContext.getMessage(Dict.XSLT_INFO);
-            final AbstractImagePrototype infoIcon =
-                    AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
+            final AbstractImagePrototype infoIcon = AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
             xslTransformationsField = new XmlField(label, false);
             FieldUtil.addInfoIcon(xslTransformationsField, description, infoIcon.createImage());
         }
