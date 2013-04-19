@@ -19,14 +19,37 @@ package ch.systemsx.cisd.openbis.jstest;
 /**
  * @author pkupczyk
  */
-public class JsTest
+public class JsTestApplicationServer extends TestApplicationServer
 {
 
-    public static void main(String[] args) throws Exception
+    @Override
+    protected int getPort()
     {
-        new JsTestApplicationServer().start();
-        new JsTestDataStoreServer("DSS1", "../datastore_server", 20011).start();
-        new JsTestDataStoreServer("DSS2", "../datastore_server2", 20012).start();
+        return 20000;
+    }
+
+    @Override
+    protected String getWebXmlPath()
+    {
+        return "targets/www/ch.systemsx.cisd.openbis.plugin.screening.OpenBIS/WEB-INF/web.xml";
+    }
+
+    @Override
+    protected String getRootPath()
+    {
+        return "targets/www/ch.systemsx.cisd.openbis.plugin.screening.OpenBIS";
+    }
+
+    @Override
+    protected String getContextPath()
+    {
+        return "/openbis";
+    }
+
+    @Override
+    protected String getDatabaseDumpFolderPathOrNull()
+    {
+        return "db";
     }
 
 }
