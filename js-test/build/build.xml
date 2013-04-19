@@ -23,8 +23,8 @@
 	
 	<target name="create-webapp" depends="prepare-gwt, compile-javascript">
 		
-		<delete includeemptydirs="yes" removeNotFollowedSymlinks="true" failonerror="true">
-		    <fileset dir="${js-test.webapp-targets}" followsymlinks="no"/>
+		<delete includeemptydirs="yes" removeNotFollowedSymlinks="true" failonerror="true" >
+		    <fileset dir="${js-test.webapp-targets}" followsymlinks="no" erroronmissingdir="false" />
 		</delete>		
 		
 		<mkdir dir="${js-test.webapp-www}/${js-test.webapp-name}/WEB-INF" />
