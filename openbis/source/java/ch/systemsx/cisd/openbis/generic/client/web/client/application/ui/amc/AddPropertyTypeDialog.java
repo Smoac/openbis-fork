@@ -55,8 +55,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -121,7 +123,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     //
     // Assign Property Type Form attributes
     //
-    private final EntityType entity;
+    private EntityType entity;
     private static final String PREFIX = "property-type-assignment_";
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
     public static final String PROPERTY_TYPE_ID_SUFFIX = "property_type";
@@ -154,8 +156,55 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     {
         super(viewContext, viewContext.getMessage(Dict.PROPERTY_TYPE_REGISTRATION),postRegistrationCallback);
         this.viewContext = viewContext;
-        this.entity = entity;
+        loadEntityDialog(entity.getEntityKind(), entity.getCode());
+    }
+    
+    private void loadEntityDialog(EntityKind kind, String code) {
+        switch(kind) {
+            case MATERIAL:
+                viewContext.getService().listMaterialTypes(new AsyncCallbackEntityTypeForDialog<List<MaterialType>>(code));
+                break;
+            case EXPERIMENT:
+                viewContext.getService().listExperimentTypes(new AsyncCallbackEntityTypeForDialog<List<ExperimentType>>(code));
+                break;
+            case SAMPLE:
+                viewContext.getService().listSampleTypes(new AsyncCallbackEntityTypeForDialog<List<SampleType>>(code));
+                break;
+            case DATA_SET:
+                viewContext.getService().listDataSetTypes(new AsyncCallbackEntityTypeForDialog<List<DataSetType>>(code));
+                break;
+        }
+    }
+    
+    private class AsyncCallbackEntityTypeForDialog<T extends List<? extends EntityType>> implements AsyncCallback<T> {
+        
+        private String code;
+        
+        AsyncCallbackEntityTypeForDialog(String code) {
+            this.code = code;
+        }
+        
+        @Override
+        public void onFailure(Throwable caught)
+        {
+            
+        }
 
+        @Override
+        public void onSuccess(T result)
+        {
+            EntityType finalType = null;
+            for(EntityType type:result) {
+                if(type.getCode().equals(code)) {
+                    finalType = type;
+                }
+            }
+            entityLoaded(finalType);
+        }
+    }
+    
+    private void entityLoaded(EntityType entity){
+        this.entity = entity;
         // Enable Layout Changes
         getFormPanel().setLayoutOnChange(true);
         setLayoutOnChange(true);
@@ -165,11 +214,13 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
 
         // Create Form widgets
         initSelectPropertyForm();
+        fixLayout();
     }
     
     private final void fixLayout() {
-        getFormPanel().layout();
-        layout();
+        this.getFormPanel().layout();
+        this.layout();
+        WindowUtils.resize(this, this.getFormPanel().getElement());
     }
     
     @Override
