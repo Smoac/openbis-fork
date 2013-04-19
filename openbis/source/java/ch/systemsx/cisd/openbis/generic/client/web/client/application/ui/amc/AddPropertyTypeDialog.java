@@ -152,11 +152,11 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     private boolean synchronizingGuiFields = false; // Track the state of the code
     
     public AddPropertyTypeDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final IDelegatedAction postRegistrationCallback, EntityType entity)
+            final IDelegatedAction postRegistrationCallback, EntityKind entityKind, String entityCode)
     {
         super(viewContext, viewContext.getMessage(Dict.PROPERTY_TYPE_REGISTRATION),postRegistrationCallback);
         this.viewContext = viewContext;
-        loadEntityDialog(entity.getEntityKind(), entity.getCode());
+        loadEntityDialog(entityKind, entityCode);
     }
     
     private void loadEntityDialog(EntityKind kind, String code) {
@@ -1021,7 +1021,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
 
                             private void hideDataTypeRelatedFields()
                             {
-                                FieldUtil.setVisibility(false, vocabularySelectionWidget,materialTypeSelectionWidget, xmlSchemaField,xslTransformationsField);
+                                FieldUtil.setVisibility(false, vocabularySelectionWidget, materialTypeSelectionWidget, xmlSchemaField, xslTransformationsField);
                             }
                         };
 
