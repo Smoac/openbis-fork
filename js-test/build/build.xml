@@ -56,6 +56,8 @@
 			</classpath>
 		</java>
 	</target>
+	
+	<target name="create-and-run-webapp" depends="create-webapp, run-webapp" />
 
 	<target name="run-tests" depends="compile-tests">
 		<delete dir="${output.test}" />
