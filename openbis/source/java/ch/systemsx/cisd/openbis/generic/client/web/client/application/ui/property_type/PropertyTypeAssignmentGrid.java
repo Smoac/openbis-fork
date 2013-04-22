@@ -205,34 +205,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
     {
         addEntityOperationsLabel();
 
-        if(entity == null) { //Generic View showing all assignments allow to edit
-            Button editButton =
-                    createSelectedItemButton(
-                            viewContext.getMessage(Dict.BUTTON_EDIT),
-                            new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>>>()
-                                {
-
-                                    @Override
-                                    public void invoke(
-                                            BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>> selectedItem,
-                                            boolean keyPressed)
-                                    {
-                                        final EntityTypePropertyType<?> etpt =
-                                                selectedItem.getBaseObject().getObjectOrNull();
-                                        if (etpt.isManagedInternally())
-                                        {
-                                            final String errorMsg =
-                                                    "Assignments of internally managed property types cannot be edited.";
-                                            MessageBox.alert("Error", errorMsg, null);
-                                        } else
-                                        {
-                                            createEditDialog(etpt).show();
-                                        }
-                                    }
-                                });
-            editButton.setId(GRID_ID + "-edit");
-            addButton(editButton);
-        } else { //View showing only property types for one type allow to add new properties  
+        if(entity != null) { //View showing only property types for one type allow to add new properties  
             final EntityType addEntity = this.entity;
             final Button addButton =
                     new Button(viewContext.getMessage(Dict.BUTTON_ADD, ""),
@@ -249,7 +222,33 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
             addButton(addButton);
         }
         
+        Button editButton =
+                createSelectedItemButton(
+                        viewContext.getMessage(Dict.BUTTON_EDIT),
+                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>>>()
+                            {
 
+                                @Override
+                                public void invoke(
+                                        BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>> selectedItem,
+                                        boolean keyPressed)
+                                {
+                                    final EntityTypePropertyType<?> etpt =
+                                            selectedItem.getBaseObject().getObjectOrNull();
+                                    if (etpt.isManagedInternally())
+                                    {
+                                        final String errorMsg =
+                                                "Assignments of internally managed property types cannot be edited.";
+                                        MessageBox.alert("Error", errorMsg, null);
+                                    } else
+                                    {
+                                        createEditDialog(etpt).show();
+                                    }
+                                }
+                            });
+        editButton.setId(GRID_ID + "-edit");
+        addButton(editButton);
+        
         Button releaseButton =
                 createSelectedItemButton(
                         viewContext.getMessage(Dict.UNASSIGN_BUTTON_LABEL),

@@ -75,6 +75,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -90,6 +91,11 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
  */
 public class AddPropertyTypeDialog extends AbstractRegistrationDialog
 {
+    //
+    // Loading Label
+    //
+    private Label loading;
+    
     //
     // Select/New Property Selector
     //
@@ -156,6 +162,11 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     {
         super(viewContext, viewContext.getMessage(Dict.PROPERTY_TYPE_REGISTRATION),postRegistrationCallback);
         this.viewContext = viewContext;
+        setWidth(700); 
+        getFormPanel().setFieldWidth(600);
+        getFormPanel().setLabelWidth(100);
+        loading = new Label(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
+        addField(loading);
         loadEntityDialog(entityKind, entityCode);
     }
     
@@ -205,6 +216,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     
     private void entityLoaded(EntityType entity){
         this.entity = entity;
+        removeField(loading);
         // Enable Layout Changes
         getFormPanel().setLayoutOnChange(true);
         setLayoutOnChange(true);
@@ -344,17 +356,20 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         if (selectAssignGroup == null)
         {
             final Radio selectProperty = new Radio();
-            selectProperty.setBoxLabel("Select Property");
+            selectProperty.setBoxLabel("Existing");
             selectProperty.setValue(true);
 
             final Radio newPropertie = new Radio();
-            newPropertie.setBoxLabel("New Property");
+            newPropertie.setBoxLabel("New");
             newPropertie.setValue(false);
 
             selectAssignGroup = new RadioGroup();
+            selectAssignGroup.setFieldLabel("Property");
             selectAssignGroup.add(selectProperty);
             selectAssignGroup.add(newPropertie);
-
+            
+            //TO-DO Property
+            
             selectAssignGroup.addListener(Events.Change, new Listener<BaseEvent>()
                 {
                     @Override
@@ -610,6 +625,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                         updateShownInEditView();
                         updateShowRawValue();
                         updateVisibilityOfScriptRelatedFields();
+                        fixLayout();
                     }
                 });
             scriptableCheckbox.setId(ID_PREFIX + "scriptable_checkbox");
