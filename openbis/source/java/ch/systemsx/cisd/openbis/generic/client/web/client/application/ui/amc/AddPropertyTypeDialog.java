@@ -92,9 +92,13 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 public class AddPropertyTypeDialog extends AbstractRegistrationDialog
 {
     //
-    // Loading Label
+    // Cosmetics
     //
+    private static final int FORM_WIDTH = 700;
+    private static final int LABEL_WIDTH = 100;
+    private static final int FIELD_WIDTH = 600;
     private Label loading;
+    
     
     //
     // Select/New Property Selector
@@ -157,14 +161,17 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     private boolean userDidChangeShowRawValueCheckBox = false; // Track if the user has set a value
     private boolean synchronizingGuiFields = false; // Track the state of the code
     
+    //
+    // Constructor and Init Methods
+    //
     public AddPropertyTypeDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback, EntityKind entityKind, String entityCode)
     {
         super(viewContext, viewContext.getMessage(Dict.PROPERTY_TYPE_REGISTRATION),postRegistrationCallback);
         this.viewContext = viewContext;
-        setWidth(700); 
-        getFormPanel().setFieldWidth(600);
-        getFormPanel().setLabelWidth(100);
+        setWidth(FORM_WIDTH);
+        getFormPanel().setFieldWidth(FIELD_WIDTH);
+        getFormPanel().setLabelWidth(LABEL_WIDTH);
         loading = new Label(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
         addField(loading);
         loadEntityDialog(entityKind, entityCode);
@@ -235,121 +242,8 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         WindowUtils.resize(this, this.getFormPanel().getElement());
     }
     
-    @Override
-    protected void register(final AsyncCallback<Void> registrationCallback)
-    {
-        if(false == isSelect()) {
-            final PropertyType propertyType = createPropertyType();
-            viewContext.getService().registerPropertyType(propertyType, new CreatePropertyTypeCallback(viewContext, registrationCallback));
-        } else {
-            final NewETPTAssignment assignment = createAssignment();
-            viewContext.getService().assignPropertyType(assignment, new AssignPropertyTypeCallback(viewContext, registrationCallback));
-        }
-    }
-
-    private final class CreatePropertyTypeCallback implements AsyncCallback<Void> {
-        final AsyncCallback<Void> registrationCallback;
-        final IViewContext<ICommonClientServiceAsync> viewContext;
-        
-        CreatePropertyTypeCallback(IViewContext<ICommonClientServiceAsync> viewContext, final AsyncCallback<Void> registrationCallback)
-        {
-            this.viewContext = viewContext;
-            this.registrationCallback = registrationCallback;
-        }
-        
-        @Override
-        public void onFailure(Throwable caught)
-        {
-            registrationCallback.onFailure(caught);
-        }
-
-        @Override
-        public void onSuccess(Void result)
-        {
-            final NewETPTAssignment assignment = createAssignment();
-            viewContext.getService().assignPropertyType(assignment, new AssignPropertyTypeCallback(viewContext, registrationCallback));
-        }
-    }
-    
-    private final class AssignPropertyTypeCallback extends AbstractAsyncCallback<String>
-    {
-        final AsyncCallback<Void> registrationCallback;
-        
-        AssignPropertyTypeCallback(final IViewContext<?> viewContext, final AsyncCallback<Void> registrationCallback)
-        {
-            super(viewContext, null);
-            this.registrationCallback = registrationCallback;
-        }
-
-        @Override
-        protected final void process(final String result)
-        {
-            registrationCallback.onSuccess(null);
-        }
-
-        @Override
-        public void finishOnFailure(Throwable caught)
-        {
-            registrationCallback.onFailure(caught);
-        }
-    }
-    
-    private final PropertyType createPropertyType()
-    {
-        final PropertyType propertyType = new PropertyType();
-        propertyType.setCode(getPropertyTypeCodeField().getValue());
-        propertyType.setLabel(getPropertyTypeLabelField().getValue());
-        propertyType.setDescription(getPropertyTypeDescriptionField().getValue());
-        propertyType.setDataType(getDataTypeSelectionWidget().tryGetSelectedDataType());
-        if(propertyType.getDataType() != null) {
-            switch (propertyType.getDataType().getCode())
-            {
-                case MATERIAL:
-                    propertyType.setMaterialType(getMaterialTypeSelectionWidget().tryGetSelected());
-                    break;
-                case CONTROLLEDVOCABULARY:
-                    propertyType.setVocabulary((Vocabulary) GWTUtils.tryGetSingleSelected(getVocabularySelectionWidget()));
-                    break;
-                case XML:
-                    propertyType.setSchema(getXmlSchemaField().getValue());
-                    propertyType.setTransformation(getXslTransformationsField().getValue());
-                    break;
-                default:
-                    break;
-            }
-        }
-        
-        return propertyType;
-    }
-
-    private final NewETPTAssignment createAssignment()
-    {
-        String code = null;
-        
-        if(isSelect()) { //The Code Field comes from a different component depending if the property is being created or just assigned.
-            code = propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode();
-        } else {
-            code = getPropertyTypeCodeField().getValue().toUpperCase();
-        }
-        
-        NewETPTAssignment newAssignment = new NewETPTAssignment (
-                            entity.getEntityKind(),
-                            code,
-                            ((EntityType) getEntityTypeSelectionWidget().tryGetSelected()).getCode(),
-                            getMandatoryCheckbox().getValue(),
-                            getDefaultValue(),
-                            getSectionValue(),
-                            getPreviousETPTOrdinal(),
-                            isDynamic(),
-                            isManaged(),
-                            tryGetScriptNameValue(),
-                            isShownInEditView(),
-                            getShowRawValue());
-        return newAssignment;
-    }
-    
     //
-    // Select/Create Property Selector and Forms Init methods
+    // Existing/New Property Selector and Forms layout methods
     //
     public RadioGroup getSelector()
     {
@@ -481,6 +375,122 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         addField(getShowRawValueCheckBox());
         getShowRawValueCheckBox().clear();
         getShowRawValueCheckBox().setVisible(false);
+    }
+    
+    //
+    // Register Change Methods
+    //
+    @Override
+    protected void register(final AsyncCallback<Void> registrationCallback)
+    {
+        if(false == isSelect()) {
+            final PropertyType propertyType = createPropertyType();
+            viewContext.getService().registerPropertyType(propertyType, new CreatePropertyTypeCallback(viewContext, registrationCallback));
+        } else {
+            final NewETPTAssignment assignment = createAssignment();
+            viewContext.getService().assignPropertyType(assignment, new AssignPropertyTypeCallback(viewContext, registrationCallback));
+        }
+    }
+
+    private final class CreatePropertyTypeCallback implements AsyncCallback<Void> {
+        final AsyncCallback<Void> registrationCallback;
+        final IViewContext<ICommonClientServiceAsync> viewContext;
+        
+        CreatePropertyTypeCallback(IViewContext<ICommonClientServiceAsync> viewContext, final AsyncCallback<Void> registrationCallback)
+        {
+            this.viewContext = viewContext;
+            this.registrationCallback = registrationCallback;
+        }
+        
+        @Override
+        public void onFailure(Throwable caught)
+        {
+            registrationCallback.onFailure(caught);
+        }
+
+        @Override
+        public void onSuccess(Void result)
+        {
+            final NewETPTAssignment assignment = createAssignment();
+            viewContext.getService().assignPropertyType(assignment, new AssignPropertyTypeCallback(viewContext, registrationCallback));
+        }
+    }
+    
+    private final class AssignPropertyTypeCallback extends AbstractAsyncCallback<String>
+    {
+        final AsyncCallback<Void> registrationCallback;
+        
+        AssignPropertyTypeCallback(final IViewContext<?> viewContext, final AsyncCallback<Void> registrationCallback)
+        {
+            super(viewContext, null);
+            this.registrationCallback = registrationCallback;
+        }
+
+        @Override
+        protected final void process(final String result)
+        {
+            registrationCallback.onSuccess(null);
+        }
+
+        @Override
+        public void finishOnFailure(Throwable caught)
+        {
+            registrationCallback.onFailure(caught);
+        }
+    }
+    
+    private final PropertyType createPropertyType()
+    {
+        final PropertyType propertyType = new PropertyType();
+        propertyType.setCode(getPropertyTypeCodeField().getValue());
+        propertyType.setLabel(getPropertyTypeLabelField().getValue());
+        propertyType.setDescription(getPropertyTypeDescriptionField().getValue());
+        propertyType.setDataType(getDataTypeSelectionWidget().tryGetSelectedDataType());
+        if(propertyType.getDataType() != null) {
+            switch (propertyType.getDataType().getCode())
+            {
+                case MATERIAL:
+                    propertyType.setMaterialType(getMaterialTypeSelectionWidget().tryGetSelected());
+                    break;
+                case CONTROLLEDVOCABULARY:
+                    propertyType.setVocabulary((Vocabulary) GWTUtils.tryGetSingleSelected(getVocabularySelectionWidget()));
+                    break;
+                case XML:
+                    propertyType.setSchema(getXmlSchemaField().getValue());
+                    propertyType.setTransformation(getXslTransformationsField().getValue());
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        return propertyType;
+    }
+
+    private final NewETPTAssignment createAssignment()
+    {
+        String code = null;
+        
+        if(isSelect()) { //The Code Field comes from a different component depending if the property is being created or just assigned.
+            code = propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode();
+        } else {
+            code = getPropertyTypeCodeField().getValue().toUpperCase();
+        }
+        
+        NewETPTAssignment newAssignment = new NewETPTAssignment (
+                            entity.getEntityKind(),
+                            code,
+                            ((EntityType) getEntityTypeSelectionWidget().tryGetSelected()).getCode(),
+                            getMandatoryCheckbox().getValue(),
+                            getDefaultValue(),
+                            getSectionValue(),
+                            getPreviousETPTOrdinal(),
+                            isDynamic(),
+                            isManaged(),
+                            tryGetScriptNameValue(),
+                            isShownInEditView(),
+                            getShowRawValue());
+        return newAssignment;
     }
 
     //
@@ -664,6 +674,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                             userDidChangeShownInEditViewCheckBox = true;
                         }
                         updateVisibilityOfShowRawValueField();
+                        fixLayout();
                     }
                 });
         }
