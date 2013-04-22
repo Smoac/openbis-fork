@@ -9,6 +9,13 @@ Before you can run the tests, you need to have
 Firefox in PATH in Eclipse
 ============================
 
+Make sure that you use a version of Firefox that is supported by our Selenium. Currently we
+use Firefox 10 at sprint server and Firefox 12 on our local machines. Older Firefox versions
+can be downloaded from here: https://ftp.mozilla.org/pub/mozilla.org/firefox/releases/.
+
+Also make sure that after installing an old version of Firefox you disable automatic updates,
+otherwise Firefox will upgrade itself to the newest version without asking (Firefox->Preferences->Advanced->Update).
+
 To have Firefox available in your PATH in Eclipse (when started from a launcher), you need to
 set the PATH variable value in file ~/.MacOSX/environment.plist
 
