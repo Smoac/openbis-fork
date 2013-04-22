@@ -34,31 +34,23 @@ import com.sun.jna.Platform;
 public abstract class TestDataStoreServer
 {
 
+    private String name;
+
+    private String dumpsPath;
+
+    private String rootPath;
+
     private boolean deamon;
 
-    protected abstract String getName();
-
-    protected abstract String getRootPath();
+    private Integer debugPort;
 
     protected abstract String getCommand();
 
     protected abstract String getLinuxCommand();
 
-    protected abstract String getDatabaseDumpFolderPathOrNull();
-
-    public void setDeamon(boolean deamon)
-    {
-        this.deamon = deamon;
-    }
-
-    public boolean isDeamon()
-    {
-        return deamon;
-    }
-
     public void start() throws Exception
     {
-        TestServerUtil.maybeRestoreDumps(getDatabaseDumpFolderPathOrNull());
+        TestDatabase.restoreDumps(getDumpsPath());
 
         System.out.println("STARTING DATA STORE " + getName());
 
@@ -71,7 +63,9 @@ public abstract class TestDataStoreServer
             command = getCommand();
         }
 
-        ProcessHandler p = new ProcessHandler(command, getRootPath());
+        System.out.println("DATA STORE " + getName() + " COMMAND " + command.toString());
+
+        ProcessHandler p = new ProcessHandler(command.toString(), getRootPath());
 
         p.addListener(new Listener()
             {
@@ -221,6 +215,56 @@ public abstract class TestDataStoreServer
                 e.printStackTrace();
             }
         }
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setDumpsPath(String dumpsPath)
+    {
+        this.dumpsPath = dumpsPath;
+    }
+
+    public String getDumpsPath()
+    {
+        return dumpsPath;
+    }
+
+    public void setRootPath(String rootPath)
+    {
+        this.rootPath = rootPath;
+    }
+
+    public String getRootPath()
+    {
+        return rootPath;
+    }
+
+    public void setDeamon(boolean deamon)
+    {
+        this.deamon = deamon;
+    }
+
+    public boolean isDeamon()
+    {
+        return deamon;
+    }
+
+    public void setDebugPort(Integer debugPort)
+    {
+        this.debugPort = debugPort;
+    }
+
+    public Integer getDebugPort()
+    {
+        return debugPort;
     }
 
 }

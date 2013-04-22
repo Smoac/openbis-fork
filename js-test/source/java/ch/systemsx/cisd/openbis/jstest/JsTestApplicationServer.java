@@ -22,34 +22,13 @@ package ch.systemsx.cisd.openbis.jstest;
 public class JsTestApplicationServer extends TestApplicationServer
 {
 
-    @Override
-    protected int getPort()
+    public JsTestApplicationServer()
     {
-        return 20000;
-    }
-
-    @Override
-    protected String getWebXmlPath()
-    {
-        return "targets/www/ch.systemsx.cisd.openbis.plugin.screening.OpenBIS/WEB-INF/web.xml";
-    }
-
-    @Override
-    protected String getRootPath()
-    {
-        return "targets/www/ch.systemsx.cisd.openbis.plugin.screening.OpenBIS";
-    }
-
-    @Override
-    protected String getContextPath()
-    {
-        return "/openbis";
-    }
-
-    @Override
-    protected String getDatabaseDumpFolderPathOrNull()
-    {
-        return "db";
+        setWebXmlPath("targets/www/ch.systemsx.cisd.openbis.plugin.screening.OpenBIS/WEB-INF/web.xml");
+        setRootPath("targets/www/ch.systemsx.cisd.openbis.plugin.screening.OpenBIS");
+        setContextPath("/openbis");
+        setDumpsPath("db");
+        setPort(20000);
     }
 
 }

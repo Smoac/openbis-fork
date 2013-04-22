@@ -28,34 +28,24 @@ import org.mortbay.jetty.webapp.WebAppContext;
 /**
  * @author anttil
  */
-public abstract class TestApplicationServer
+public class TestApplicationServer
 {
+
+    private int port;
+
+    private String webXmlPath;
+
+    private String rootPath;
+
+    private String contextPath;
+
+    private String dumpsPath;
 
     private boolean deamon;
 
-    protected abstract int getPort();
-
-    protected abstract String getWebXmlPath();
-
-    protected abstract String getRootPath();
-
-    protected abstract String getContextPath();
-
-    protected abstract String getDatabaseDumpFolderPathOrNull();
-
-    public void setDeamon(boolean deamon)
-    {
-        this.deamon = deamon;
-    }
-
-    public boolean isDeamon()
-    {
-        return deamon;
-    }
-
     public void start() throws Exception
     {
-        TestServerUtil.maybeRestoreDumps(getDatabaseDumpFolderPathOrNull());
+        TestDatabase.restoreDumps(getDumpsPath());
 
         Runnable r = new Runnable()
             {
@@ -111,6 +101,66 @@ public abstract class TestApplicationServer
         newOut.close();
 
         System.setOut(originalOut);
+    }
+
+    public void setPort(int port)
+    {
+        this.port = port;
+    }
+
+    public int getPort()
+    {
+        return port;
+    }
+
+    public void setWebXmlPath(String webXmlPath)
+    {
+        this.webXmlPath = webXmlPath;
+    }
+
+    public String getWebXmlPath()
+    {
+        return webXmlPath;
+    }
+
+    public void setRootPath(String rootPath)
+    {
+        this.rootPath = rootPath;
+    }
+
+    public String getRootPath()
+    {
+        return rootPath;
+    }
+
+    public void setContextPath(String contextPath)
+    {
+        this.contextPath = contextPath;
+    }
+
+    public String getContextPath()
+    {
+        return contextPath;
+    }
+
+    public void setDumpsPath(String dumpsPath)
+    {
+        this.dumpsPath = dumpsPath;
+    }
+
+    public String getDumpsPath()
+    {
+        return dumpsPath;
+    }
+
+    public void setDeamon(boolean deamon)
+    {
+        this.deamon = deamon;
+    }
+
+    public boolean isDeamon()
+    {
+        return deamon;
     }
 
 }

@@ -24,9 +24,28 @@ public class JsTest
 
     public static void main(String[] args) throws Exception
     {
-        new JsTestApplicationServer().start();
-        new JsTestDataStoreServer("DSS1", "../datastore_server", 20011).start();
-        new JsTestDataStoreServer("DSS2", "../datastore_server2", 20012).start();
+        boolean deamon = args.length > 0 && "true".equals(args[0]);
+
+        JsTestApplicationServer as = new JsTestApplicationServer();
+        as.setDeamon(deamon);
+
+        JsTestDataStoreServer dss1 = new JsTestDataStoreServer();
+        dss1.setName("DSS1");
+        dss1.setRootPath("../datastore_server");
+        dss1.setDumpsPath("../datastore_server/db");
+        dss1.setDeamon(deamon);
+        dss1.setDebugPort(20011);
+
+        JsTestDataStoreServer dss2 = new JsTestDataStoreServer();
+        dss2.setName("DSS2");
+        dss2.setRootPath("../datastore_server2");
+        dss2.setDumpsPath("../datastore_server2/db");
+        dss2.setDeamon(deamon);
+        dss2.setDebugPort(20012);
+
+        as.start();
+        dss1.start();
+        dss2.start();
     }
 
 }

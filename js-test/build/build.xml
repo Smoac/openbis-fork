@@ -1,47 +1,63 @@
 <project name="js-test" default="run-tests" basedir="..">
 	<import file="../../build_resources/ant/build-common.xml" />
-	
+
 	<property name="js-test.webapp-name" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
 	<property name="js-test.webapp-targets" value="servers/openBIS-server/targets" />
 	<property name="js-test.webapp-www" value="${js-test.webapp-targets}/www" />
 
-  <project-classpath name="ecp" classes="${classes}" />
-  <project-classpath name="eclipse.cp" classes="${targets}/classes" />
-  <project-classpath name="ecp.gwt" classes="${targets}/www/WEB-INF/classes" />
+	<project-classpath name="ecp" classes="${classes}" />
+	<project-classpath name="eclipse.cp" classes="${targets}/classes" />
+	<project-classpath name="ecp.gwt" classes="${targets}/www/WEB-INF/classes" />
 
 	<target name="prepare-gwt">
-	    <subant target="prepare-firefox-gwt">
-	      <fileset dir="../screening/build" includes="build.xml"/>
-	    </subant>
+		<subant target="prepare-firefox-gwt">
+			<fileset dir="../screening/build" includes="build.xml"/>
+		</subant>
 	</target>
 
 	<target name="compile-javascript">
-	    <subant target="compile-firefox-javascript">
-	      <fileset dir="../screening/build" includes="build.xml"/>
-	    </subant>
+		<subant target="compile-firefox-javascript">
+			<fileset dir="../screening/build" includes="build.xml"/>
+		</subant>
 	</target>
-	
+
 	<target name="create-webapp" depends="prepare-gwt, compile-javascript">
-		
+
 		<delete includeemptydirs="yes" removeNotFollowedSymlinks="true" failonerror="true" >
-		    <fileset dir="${js-test.webapp-targets}" followsymlinks="no" erroronmissingdir="false" />
-		</delete>		
-		
+			<fileset dir="${js-test.webapp-targets}" followsymlinks="no" erroronmissingdir="false" />
+		</delete>
+
 		<mkdir dir="${js-test.webapp-www}/${js-test.webapp-name}/WEB-INF" />
 
-    <copy todir="${js-test.webapp-www}/${js-test.webapp-name}">
-      <fileset dir="../screening/targets/dist/webapp">
-					<exclude name="${js-test.webapp-name}"/>
+		<copy todir="${js-test.webapp-www}/${js-test.webapp-name}">
+			<fileset dir="../screening/targets/dist/webapp">
+				<exclude name="${js-test.webapp-name}"/>
 			</fileset>
-    </copy>
-			
+		</copy>
+
 		<copy todir="${js-test.webapp-www}/${js-test.webapp-name}/WEB-INF">
-    	<fileset dir="../screening/targets/www/WEB-INF"/> 
-    </copy>
-      	
+			<fileset dir="../screening/targets/www/WEB-INF"/>
+		</copy>
+
 	</target>
-	
-	<target name="run-tests-ui" depends="compile-tests">
+
+	<target name="run-webapp">
+		<java classname="ch.systemsx.cisd.openbis.jstest.JsTest" dir="servers/openBIS-server" fork="true">
+			<jvmarg value="-ea" />
+			<jvmarg value="-Xmx2048M" />
+			<jvmarg value="-XX:MaxPermSize=512m" />
+			<jvmarg value="-Xdebug" />
+			<jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=20010" />
+			<jvmarg value="-Dorg.mortbay.util.FileResource.checkAliases=false" />
+			<classpath>
+				<pathelement path="servers/openBIS-server/etc"/>
+				<pathelement path="${eclipse.cp}"/>
+				<pathelement path="${ecp}"/>
+			</classpath>
+		</java>
+	</target>
+
+	<target name="run-tests" depends="compile-tests">
 		<delete dir="${output.test}" />
 		<testng classpath="resource:${ecp}"
 		        workingDir="."
@@ -52,17 +68,17 @@
 			<jvmarg value="-XX:MaxPermSize=512m" />
 		</testng>
 
-  	<junitreport todir="${output.test}">
-  		<fileset dir="${output.test}">
-  			<include name="*/*.xml" />
+		<junitreport todir="${output.test}">
+			<fileset dir="${output.test}">
+				<include name="*/*.xml" />
 				<exclude name="old/**/*.xml"/>
-  		</fileset>
-  		<report format="noframes" todir="${output.test}" />
-  	</junitreport>
-		
+			</fileset>
+			<report format="noframes" todir="${output.test}" />
+		</junitreport>
+
 		<fail if="${tests.failed}" />
 	</target>
-	
-	<target name="ci" depends="create-webapp, run-tests-ui"/>
+
+	<target name="ci" depends="create-webapp, run-tests"/>
 
 </project>

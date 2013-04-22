@@ -31,10 +31,10 @@ import ch.systemsx.cisd.dbmigration.postgresql.DumpPreparator;
 /**
  * @author pkupczyk
  */
-public class TestServerUtil
+public class TestDatabase
 {
 
-    private static final Logger logger = Logger.getLogger(TestServerUtil.class);
+    private static final Logger logger = Logger.getLogger(TestDatabase.class);
 
     private static final Template DROP_DATABASE_TEMPLATE = new Template(
             "drop database if exists ${database-name}");
@@ -42,7 +42,7 @@ public class TestServerUtil
     private static final Template CREATE_DATABASE_TEMPLATE = new Template(
             "create database ${database-name} with owner ${database-owner}");
 
-    public static void maybeRestoreDumps(String dumpFolderPathOrNull)
+    public static void restoreDumps(String dumpFolderPathOrNull)
     {
         if (dumpFolderPathOrNull == null)
         {
