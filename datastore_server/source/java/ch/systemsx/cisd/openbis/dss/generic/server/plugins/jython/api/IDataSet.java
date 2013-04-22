@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api;
 
+import java.util.Date;
+
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 
 /**
@@ -57,6 +59,14 @@ public interface IDataSet
     String getExperimentIdentifier();
 
     String getExperimentTypeCode();
+
+    String getFileFormatType();
+
+    Date getRegistrationTimestamp();
+
+    String getDataStoreCode();
+
+    String getDataStoreUrl();
 
     /**
      * NOTE: methods below may return null
