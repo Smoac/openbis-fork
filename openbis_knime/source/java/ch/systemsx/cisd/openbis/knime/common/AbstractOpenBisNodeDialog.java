@@ -65,8 +65,8 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
 
     protected AbstractOpenBisNodeDialog(String tabTitle)
     {
-        addTab(tabTitle, createTab());
         logger = NodeLogger.getLogger(getClass());
+        addTab(tabTitle, createTab());
     }
 
     private Component createTab()

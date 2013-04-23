@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?eclipse version="3.0"?>
+
+<plugin>
+   <extension point="org.knime.workbench.repository.nodes">
+      <node category-path="/community/openbis" factory-class="ch.systemsx.cisd.openbis.knime.query.QueryNodeFactory" 
+            id="ch.systemsx.cisd.openbis.knime.query.QueryNodeFactory"/>
+      <node category-path="/community/openbis" factory-class="ch.systemsx.cisd.openbis.knime.query.ReportNodeFactory" 
+            id="ch.systemsx.cisd.openbis.knime.query.ReportNodeFactory"/>
+      <node category-path="/community/openbis" factory-class="ch.systemsx.cisd.openbis.knime.file.DataSetFileImportNodeFactory"
+            id="ch.systemsx.cisd.openbis.knime.file.DataSetImportNodeFactory"/>
+      <node category-path="/community/openbis" factory-class="ch.systemsx.cisd.openbis.knime.file.DataSetRegistrationNodeFactory"
+            id="ch.systemsx.cisd.openbis.knime.file.DataSetRegistrationNodeFactory"/>
+   </extension>
+   
+   <extension point="org.knime.workbench.repository.categories">
+      <category
+            description="Nodes for accessing openBIS"
+            icon="icons/openbis.png"
+            level-id="openbis"
+            name="openBIS"
+            path="/community/"/>
+   </extension>
+   
+   <extension point="org.knime.product.splashExtension">
+      <splashExtension icon="icons/openBIS_logo.png" id="openBIS" tooltip="openBIS Nodes for KNIME"/>
+   </extension>
+</plugin>
+
+

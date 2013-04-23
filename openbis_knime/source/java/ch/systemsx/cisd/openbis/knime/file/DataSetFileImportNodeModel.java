@@ -36,7 +36,9 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeModel;
+import ch.systemsx.cisd.openbis.knime.common.Util;
 
 /**
  * Node model for importing a file/folder from Data Store Server.
@@ -118,6 +120,7 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
         try
         {
             DataSet dataSet = dataSetProvider.getDataSet(url, userID, password, dataSetCode);
+            pushDataSetMetaDataToVariables(dataSet);
             in = dataSet.getFile(filePath);
             file.getParentFile().mkdirs();
             out = new FileOutputStream(file);
@@ -139,11 +142,29 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
             }
         }
     }
+    
+    private void pushDataSetMetaDataToVariables(DataSet dataSet)
+    {
+        addFlowVariable(Util.VARIABLE_PREFIX + DataSetOwnerType.DATA_SET.name(),
+                dataSet.getCode());
+        addFlowVariable(Util.VARIABLE_PREFIX + DataSetOwnerType.EXPERIMENT.name(),
+                dataSet.getExperimentIdentifier());
+        String sampleIdentifierOrNull = dataSet.getSampleIdentifierOrNull();
+        if (sampleIdentifierOrNull != null)
+        {
+            addFlowVariable(Util.VARIABLE_PREFIX + DataSetOwnerType.SAMPLE.name(),
+                    sampleIdentifierOrNull);
+        }
+    }
+    
+    protected void addFlowVariable(String name, String value)
+    {
+        pushFlowVariableString(name, value);
+    }
 
     private String createType()
     {
-        String contentType = MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(filePath);
-        return contentType;
+        return MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(filePath);
     }
 
 }

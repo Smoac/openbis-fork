@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="../common/openbis.png" type="Source">
+    <name>openBIS Data Set Registration</name>
+    
+    <shortDescription>Register a bunch of files as a data set on an openBIS instance</shortDescription>
+    
+    <fullDescription>
+        <intro>The URI input port specifies the locations of the files to be registered. 
+        The owner of the freshly registered data set is specified by a variable.  
+        </intro>
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="Result Set">URI of the files to be registered.</inPort>
+    </ports>    
+</knimeNode>

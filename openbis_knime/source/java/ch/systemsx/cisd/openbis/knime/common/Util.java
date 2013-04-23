@@ -57,6 +57,8 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumnD
  */
 public class Util
 {
+    public static final String VARIABLE_PREFIX = "openbis.";
+    
     public static <D extends Serializable> byte[] serializeDescription(D descriptionOrNull)
     {
         if (descriptionOrNull == null)

@@ -50,38 +50,10 @@
    </recursive-jar>
  </target>
 	
-    <!-- 
-    // Makes a distribution file.
-    -->
-    <target name="dist" description="Makes a distribution file." depends="clean, jar">
-
-      <property name="dist.file.name" value="${dist}/ch.systemsx.cisd.openbis.knime-${version}.jar" />
-
-    	<jar destfile="${dist.file.name}" manifest="${original.dist}/META-INF/MANIFEST.MF">
-    		<fileset dir="${dist}">
-    			<include name="${jar.file.name}"/>
-    		</fileset>
-    		<fileset dir="${original.dist}">
-    			<include name="**/*"/>
-    		</fileset>
-    		<zipfileset prefix="lib" file="${lib}/openbis-apis/query/openbis-query-api.jar"/>
-    		<zipfileset prefix="lib" file="${lib}/openbis-apis/dss/dss_client.jar"/>
-    		<zipfileset prefix="lib" file="${lib}/cisd-base/cisd-base.jar"/>
-        <zipfileset prefix="lib" file="${lib}/commons-lang/commons-lang.jar"/>
-        <zipfileset prefix="lib" file="${lib}/commons-codec/commons-codec.jar"/>
-        <zipfileset prefix="lib" file="${lib}/commons-httpclient/commons-httpclient.jar"/>
-        <zipfileset prefix="lib" file="${lib}/commons-logging/commons-logging.jar"/>
-        <zipfileset prefix="lib" file="${lib}/log4j/log4j.jar"/>
-        <zipfileset prefix="lib" file="${lib}/spring/spring.jar"/>
-        <zipfileset prefix="lib" file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar"/>
-    	</jar>
-      <delete file="${jar.file}"/>
-   </target>
-
    <!--
    // Task for continuous integration server.
    -->
-   <target name="ci" depends="build-common.ci, check-dependencies, dist"
+   <target name="ci" depends="build-common.ci, check-dependencies"
            description="Task for continuous integration server." />
 	        
 </project>
