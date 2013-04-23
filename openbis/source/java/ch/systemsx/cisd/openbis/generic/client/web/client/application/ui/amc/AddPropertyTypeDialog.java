@@ -385,32 +385,9 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     {
         if(false == isSelect()) {
             final PropertyType propertyType = createPropertyType();
-            viewContext.getService().registerPropertyType(propertyType, new CreatePropertyTypeCallback(viewContext, registrationCallback));
-        } else {
             final NewETPTAssignment assignment = createAssignment();
-            viewContext.getService().assignPropertyType(assignment, new AssignPropertyTypeCallback(viewContext, registrationCallback));
-        }
-    }
-
-    private final class CreatePropertyTypeCallback implements AsyncCallback<Void> {
-        final AsyncCallback<Void> registrationCallback;
-        final IViewContext<ICommonClientServiceAsync> viewContext;
-        
-        CreatePropertyTypeCallback(IViewContext<ICommonClientServiceAsync> viewContext, final AsyncCallback<Void> registrationCallback)
-        {
-            this.viewContext = viewContext;
-            this.registrationCallback = registrationCallback;
-        }
-        
-        @Override
-        public void onFailure(Throwable caught)
-        {
-            registrationCallback.onFailure(caught);
-        }
-
-        @Override
-        public void onSuccess(Void result)
-        {
+            viewContext.getService().registerAndAssignPropertyType(propertyType, assignment, new AssignPropertyTypeCallback(viewContext, registrationCallback));
+        } else {
             final NewETPTAssignment assignment = createAssignment();
             viewContext.getService().assignPropertyType(assignment, new AssignPropertyTypeCallback(viewContext, registrationCallback));
         }
@@ -435,7 +412,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         @Override
         public void finishOnFailure(Throwable caught)
         {
-            registrationCallback.onFailure(caught);
+            //One Pop Up with the error is shown automatically
         }
     }
     

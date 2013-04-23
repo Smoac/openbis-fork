@@ -1045,6 +1045,14 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
+    public String registerAndAssignPropertyType(PropertyType propertyType, NewETPTAssignment assignment)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        return commonServer.registerAndAssignPropertyType(sessionToken, propertyType, assignment);
+    }
+    
+    @Override
     public String assignPropertyType(NewETPTAssignment assignment)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {

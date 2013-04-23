@@ -537,6 +537,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listDataTypes(final AsyncCallback<List<DataType>> asyncCallback);
 
     /**
+     * @see ICommonClientService#registerAndAssignPropertyType(PropertyType propertyType, NewETPTAssignment assignment)
+     */
+    public void  registerAndAssignPropertyType(PropertyType propertyType, NewETPTAssignment assignment, AsyncCallback<String> process);
+    
+    /**
      * @see ICommonClientService#assignPropertyType(NewETPTAssignment assignment)
      */
     public void assignPropertyType(NewETPTAssignment assignment, AsyncCallback<String> process);
