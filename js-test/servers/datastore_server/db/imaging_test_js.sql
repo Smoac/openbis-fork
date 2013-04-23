@@ -36,7 +36,7 @@ CREATE DOMAIN boolean_char AS boolean DEFAULT false;
 --
 
 CREATE DOMAIN channel_color AS character varying(20)
-	CONSTRAINT channel_color_check CHECK (((VALUE)::text = ANY ((ARRAY['BLUE'::character varying, 'GREEN'::character varying, 'RED'::character varying, 'RED_GREEN'::character varying, 'RED_BLUE'::character varying, 'GREEN_BLUE'::character varying])::text[])));
+	CONSTRAINT channel_color_check CHECK (((VALUE)::text = ANY (ARRAY[('BLUE'::character varying)::text, ('GREEN'::character varying)::text, ('RED'::character varying)::text, ('RED_GREEN'::character varying)::text, ('RED_BLUE'::character varying)::text, ('GREEN_BLUE'::character varying)::text])));
 
 
 --
@@ -51,7 +51,7 @@ CREATE DOMAIN code AS character varying(40);
 --
 
 CREATE DOMAIN color_component AS character varying(40)
-	CONSTRAINT color_component_check CHECK (((VALUE)::text = ANY ((ARRAY['RED'::character varying, 'GREEN'::character varying, 'BLUE'::character varying])::text[])));
+	CONSTRAINT color_component_check CHECK (((VALUE)::text = ANY (ARRAY[('RED'::character varying)::text, ('GREEN'::character varying)::text, ('BLUE'::character varying)::text])));
 
 
 --
