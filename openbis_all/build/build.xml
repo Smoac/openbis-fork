@@ -56,10 +56,6 @@
       <param name="project" value="installation"/>
       <param name="pattern" value="*"/>
     </antcall>
-    <antcall target="_dist">
-      <param name="project" value="openbis_knime"/>
-      <param name="pattern" value="*"/>
-    </antcall>
     <antcall target="javadoc"/>
     <antcall target="clients-and-apis-dist"/>
   </target>
@@ -73,7 +69,6 @@
         <include name="dss_upload_gui-${version.number}*"/>
         <include name="dss_upload_gui-screening-${version.number}*"/>
         <include name="openBIS-*-API*"/>
-        <include name="*knime-*"/>
       </fileset>
       <fileset dir="dist">
         <include name="readme.txt"/>
@@ -137,9 +132,6 @@
     </antcall>
     <antcall target="_clean">
       <param name="project" value="installation"/>
-    </antcall>
-    <antcall target="_clean">
-      <param name="project" value="openbis_knime"/>
     </antcall>
   </target>
 
