@@ -73,6 +73,7 @@
 			<jvmarg value="-Xdebug" />
 			<jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=20010" />
 			<jvmarg value="-Dorg.mortbay.util.FileResource.checkAliases=false" />
+			<jvmarg value="-Dui-test.start-page=http://localhost:20000/openbis" />
 			<classpath>
 				<pathelement path="servers/openBIS-server/etc" />
 				<pathelement path="${eclipse.cp}" />
