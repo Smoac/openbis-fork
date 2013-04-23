@@ -65,23 +65,23 @@ public class Application
         this.console = console;
         this.commonServer =
                 HttpInvokerUtils.createServiceStub(ICommonServer.class,
-                        asUrl + "/openbis/rmi-common", 600000);
+                        asUrl + "/openbis/openbis/rmi-common", 600000);
 
         this.genericServer =
                 HttpInvokerUtils.createServiceStub(IGenericServer.class,
-                        asUrl + "/openbis/rmi-plugin-generic", 600000);
+                        asUrl + "/openbis/openbis/rmi-plugin-generic", 600000);
 
         this.generalInformationService =
                 HttpInvokerUtils.createServiceStub(IGeneralInformationService.class,
-                        asUrl + "/openbis/rmi-general-information-v1", 600000);
+                        asUrl + "/openbis/openbis/rmi-general-information-v1", 600000);
 
         this.generalInformationChangingService =
                 HttpInvokerUtils.createServiceStub(IGeneralInformationChangingService.class,
-                        asUrl + "/openbis/rmi-general-information-changing-v1", 600000);
+                        asUrl + "/openbis/openbis/rmi-general-information-changing-v1", 600000);
 
         this.etlService =
                 HttpInvokerUtils.createServiceStub(IServiceForDataStoreServer.class,
-                        asUrl + "/openbis/rmi-etl", 600000);
+                        asUrl + "/openbis/openbis/rmi-etl", 600000);
 
         this.dss =
                 HttpInvokerUtils.createStreamSupportingServiceStub(IDssServiceRpcGeneric.class,
@@ -93,7 +93,7 @@ public class Application
 
         this.queryApiServer =
                 HttpInvokerUtils.createServiceStub(IQueryApiServer.class,
-                        asUrl + "/openbis/rmi-query-v1", 600000);
+                        asUrl + "/openbis/openbis/rmi-query-v1", 600000);
 
         this.session =
                 commonServer

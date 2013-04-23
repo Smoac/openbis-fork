@@ -37,7 +37,7 @@
 		        workingDir="."
 		        outputdir="${output.test}"
 		        failureproperty="tests.failed">
-			<xmlfileset dir="source/java" includes="tests.xml" />
+			<xmlfileset dir="source/java" includes="tests_headless.xml" />
 			<jvmarg value="-Xmx2048M" />
 			<jvmarg value="-XX:MaxPermSize=512m" />
 		</testng>

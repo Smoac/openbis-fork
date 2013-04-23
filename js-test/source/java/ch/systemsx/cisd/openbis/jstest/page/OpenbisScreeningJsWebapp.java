@@ -14,23 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.jstest;
+package ch.systemsx.cisd.openbis.jstest.page;
 
 /**
  * @author pkupczyk
  */
-public class JsTest
+public class OpenbisScreeningJsWebapp
 {
-
-    public static void main(String[] args) throws Exception
-    {
-        JsTestApplicationServer as = new JsTestApplicationServer();
-        JsTestDataStoreServer dss1 = new JsTestDataStoreServer1();
-        JsTestDataStoreServer dss2 = new JsTestDataStoreServer2();
-
-        as.start();
-        dss1.start();
-        dss2.start();
-    }
 
 }

@@ -11,19 +11,19 @@
 
 	<target name="prepare-gwt">
 		<subant target="prepare-firefox-gwt">
-			<fileset dir="../screening/build" includes="build.xml"/>
+			<fileset dir="../screening/build" includes="build.xml" />
 		</subant>
 	</target>
 
 	<target name="compile-javascript">
 		<subant target="compile-firefox-javascript">
-			<fileset dir="../screening/build" includes="build.xml"/>
+			<fileset dir="../screening/build" includes="build.xml" />
 		</subant>
 	</target>
 
 	<target name="create-webapp" depends="prepare-gwt, compile-javascript">
 
-		<delete includeemptydirs="yes" removeNotFollowedSymlinks="true" failonerror="true" >
+		<delete includeemptydirs="yes" removeNotFollowedSymlinks="true" failonerror="true">
 			<fileset dir="${js-test.webapp-targets}" followsymlinks="no" erroronmissingdir="false" />
 		</delete>
 
@@ -31,18 +31,20 @@
 
 		<copy todir="${js-test.webapp-www}/${js-test.webapp-name}">
 			<fileset dir="../screening/targets/dist/webapp">
-				<exclude name="${js-test.webapp-name}"/>
+				<exclude name="${js-test.webapp-name}" />
 			</fileset>
 		</copy>
 
 		<copy todir="${js-test.webapp-www}/${js-test.webapp-name}/WEB-INF">
-			<fileset dir="../screening/targets/www/WEB-INF"/>
+			<fileset dir="../screening/targets/www/WEB-INF" />
 		</copy>
 
 	</target>
 
 	<target name="run-webapp">
-		<java classname="ch.systemsx.cisd.openbis.jstest.JsTest" dir="servers/openBIS-server" fork="true">
+		<java classname="ch.systemsx.cisd.openbis.jstest.JsTest"
+		      dir="servers/openBIS-server"
+		      fork="true">
 			<jvmarg value="-ea" />
 			<jvmarg value="-Xmx2048M" />
 			<jvmarg value="-XX:MaxPermSize=512m" />
@@ -50,30 +52,68 @@
 			<jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=20010" />
 			<jvmarg value="-Dorg.mortbay.util.FileResource.checkAliases=false" />
 			<classpath>
-				<pathelement path="servers/openBIS-server/etc"/>
-				<pathelement path="${eclipse.cp}"/>
-				<pathelement path="${ecp}"/>
+				<pathelement path="servers/openBIS-server/etc" />
+				<pathelement path="${eclipse.cp}" />
+				<pathelement path="${ecp}" />
 			</classpath>
 		</java>
 	</target>
-	
+
 	<target name="create-and-run-webapp" depends="create-webapp, run-webapp" />
 
-	<target name="run-tests" depends="compile-tests">
+	<target name="run-tests-js-on-own-server" depends="compile-tests">
 		<delete dir="${output.test}" />
-		<testng classpath="resource:${ecp}"
-		        workingDir="."
+		<testng workingDir="servers/openBIS-server"
 		        outputdir="${output.test}"
 		        failureproperty="tests.failed">
 			<xmlfileset dir="source/java" includes="tests.xml" />
+			<jvmarg value="-ea" />
 			<jvmarg value="-Xmx2048M" />
 			<jvmarg value="-XX:MaxPermSize=512m" />
+			<jvmarg value="-Xdebug" />
+			<jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=20010" />
+			<jvmarg value="-Dorg.mortbay.util.FileResource.checkAliases=false" />
+			<classpath>
+				<pathelement path="servers/openBIS-server/etc" />
+				<pathelement path="${eclipse.cp}" />
+				<pathelement path="${ecp}" />
+			</classpath>
 		</testng>
 
 		<junitreport todir="${output.test}">
 			<fileset dir="${output.test}">
 				<include name="*/*.xml" />
-				<exclude name="old/**/*.xml"/>
+				<exclude name="old/**/*.xml" />
+			</fileset>
+			<report format="noframes" todir="${output.test}" />
+		</junitreport>
+
+		<fail if="${tests.failed}" />
+	</target>
+	
+	<target name="run-tests-js-on-existing-server" depends="compile-tests">
+		<delete dir="${output.test}" />
+		<testng workingDir="servers/openBIS-server"
+		        outputdir="${output.test}"
+		        failureproperty="tests.failed">
+			<xmlfileset dir="source/java" includes="tests.xml" />
+			<jvmarg value="-ea" />
+			<jvmarg value="-Xmx2048M" />
+			<jvmarg value="-XX:MaxPermSize=512m" />
+			<jvmarg value="-Dui-test.as-url=http://localhost:20000" />
+			<jvmarg value="-Dui-test.dss-url=http://localhost:20001" />
+			<jvmarg value="-Dui-test.dss-url2=http://localhost:20002" />
+			<jvmarg value="-Dui-test.start-page=http://localhost:20000/openbis" />
+			<classpath>
+				<pathelement path="${eclipse.cp}" />
+				<pathelement path="${ecp}" />
+			</classpath>
+		</testng>
+
+		<junitreport todir="${output.test}">
+			<fileset dir="${output.test}">
+				<include name="*/*.xml" />
+				<exclude name="old/**/*.xml" />
 			</fileset>
 			<report format="noframes" todir="${output.test}" />
 		</junitreport>
@@ -81,6 +121,6 @@
 		<fail if="${tests.failed}" />
 	</target>
 
-	<target name="ci" depends="create-webapp, run-tests"/>
+	<target name="ci" depends="create-webapp, run-tests-js-on-own-server" />
 
 </project>

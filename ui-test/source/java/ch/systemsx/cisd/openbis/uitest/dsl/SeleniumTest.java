@@ -168,6 +168,8 @@ public abstract class SeleniumTest
 
     private static String dssUrl;
 
+    private static String dssUrl2;
+
     private static String startPage;
 
     private static Console console = new Console();
@@ -181,34 +183,37 @@ public abstract class SeleniumTest
 
         asUrl = System.getProperty("ui-test.as-url");
         dssUrl = System.getProperty("ui-test.dss-url");
+        dssUrl2 = System.getProperty("ui-test.dss-url2");
         startPage = System.getProperty("ui-test.start-page");
 
         /* Run against sprint server */
         /*
-        asUrl = "https://sprint-openbis.ethz.ch/openbis";
-        dssUrl = "https://sprint-openbis.ethz.ch";
-        startPage = asUrl;        
-        */
+         * asUrl = "https://sprint-openbis.ethz.ch/openbis"; dssUrl =
+         * "https://sprint-openbis.ethz.ch"; startPage = asUrl;
+         */
 
         /* Run against local DSS and local AS in development mode */
         /* Firefox profile should be one with GWT dev mode plugin available */
         /*
-        asUrl = "http://127.0.0.1:8888";
-        dssUrl = "http://127.0.0.1:8889";
-        startPage =
-                asUrl + "/ch.systemsx.cisd.openbis.OpenBIS/index.html?gwt.codesvr=127.0.0.1:9997";
-        System.setProperty("webdriver.firefox.profile", "default");
-        */
+         * asUrl = "http://127.0.0.1:8888"; dssUrl = "http://127.0.0.1:8889"; startPage = asUrl +
+         * "/ch.systemsx.cisd.openbis.OpenBIS/index.html?gwt.codesvr=127.0.0.1:9997";
+         * System.setProperty("webdriver.firefox.profile", "default");
+         */
 
         if (asUrl == null || asUrl.length() == 0)
         {
-            asUrl = StartApplicationServer.go();
+            asUrl = startApplicationServer();
             startPage = asUrl;
         }
 
         if (dssUrl == null || dssUrl.length() == 0)
         {
-            dssUrl = StartDataStoreServer.go();
+            dssUrl = startDataStoreServer();
+        }
+
+        if (dssUrl2 == null || dssUrl2.length() == 0)
+        {
+            dssUrl2 = startDataStoreServer2();
         }
 
         System.out.println("asUrl: " + asUrl);
@@ -216,8 +221,24 @@ public abstract class SeleniumTest
         System.out.println("startPage: " + startPage);
 
         pages = new Pages();
-        openbis = new Application(asUrl, dssUrl, "http://localhost:10002", pages, console);
+        openbis = new Application(asUrl, dssUrl, dssUrl2, pages, console);
 
+    }
+
+    protected String startApplicationServer() throws Exception
+    {
+        return StartApplicationServer.go();
+    }
+
+    protected String startDataStoreServer() throws Exception
+    {
+        return StartDataStoreServer.go();
+    }
+
+    protected String startDataStoreServer2() throws Exception
+    {
+        // FIXME dss2 is started together with dss1 in StartDataStoreServer.go() 
+        return "http://localhost:10002";
     }
 
     private void startWebDriver()
@@ -254,13 +275,12 @@ public abstract class SeleniumTest
             throw new IllegalStateException("log4j has appenders!");
         }
         rootLogger.setLevel(Level.INFO);
-        rootLogger.addAppender(new ConsoleAppender(
-                new PatternLayout("%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%t]: %m%n")));
+        rootLogger.addAppender(new ConsoleAppender(new PatternLayout(
+                "%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%t]: %m%n")));
 
         WriterAppender appender =
                 new WriterAppender(
-                        new PatternLayout("%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%t]: %m%n"),
-                        console);
+                        new PatternLayout("%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%t]: %m%n"), console);
         rootLogger.addAppender(appender);
     }
 
@@ -537,8 +557,8 @@ public abstract class SeleniumTest
 
     public Matcher<BrowserRow> hasContainer(Sample sample)
     {
-        return containsValue("Container", "/" + sample.getSpace().getCode() + "/"
-                + sample.getCode());
+        return containsValue("Container",
+                "/" + sample.getSpace().getCode() + "/" + sample.getCode());
     }
 
     public Matcher<BrowserRow> hasNoContainer()
@@ -824,8 +844,7 @@ public abstract class SeleniumTest
 
     protected Void tagWith(MetaProject metaProject, Entity... entities) throws Exception
     {
-        openbis.execute(new AddEntitiesToMetaProjectRmi(metaProject, Arrays
-                .asList(entities)));
+        openbis.execute(new AddEntitiesToMetaProjectRmi(metaProject, Arrays.asList(entities)));
         return null;
     }
 
@@ -867,8 +886,7 @@ public abstract class SeleniumTest
         builder.moveToElement(element).build().perform();
     }
 
-    public static <U extends Widget> U initializeWidget(Class<U> widgetClass,
-            WebElement context)
+    public static <U extends Widget> U initializeWidget(Class<U> widgetClass, WebElement context)
     {
         return pages.initializeWidget(widgetClass, context, false);
     }

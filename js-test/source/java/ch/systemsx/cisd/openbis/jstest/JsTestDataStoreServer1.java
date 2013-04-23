@@ -19,18 +19,16 @@ package ch.systemsx.cisd.openbis.jstest;
 /**
  * @author pkupczyk
  */
-public class JsTest
+public class JsTestDataStoreServer1 extends JsTestDataStoreServer
 {
 
-    public static void main(String[] args) throws Exception
+    public JsTestDataStoreServer1()
     {
-        JsTestApplicationServer as = new JsTestApplicationServer();
-        JsTestDataStoreServer dss1 = new JsTestDataStoreServer1();
-        JsTestDataStoreServer dss2 = new JsTestDataStoreServer2();
-
-        as.start();
-        dss1.start();
-        dss2.start();
+        setName("DSS1");
+        setRootPath("../datastore_server");
+        setDumpsPath("../datastore_server/db");
+        setPort(20001);
+        setDebugPort(20011);
     }
 
 }

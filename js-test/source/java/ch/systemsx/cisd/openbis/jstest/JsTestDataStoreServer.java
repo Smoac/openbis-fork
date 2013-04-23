@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.jstest;
 
+import ch.systemsx.cisd.openbis.test.TestDataStoreServer;
+
 /**
  * @author pkupczyk
  */
-public class JsTestDataStoreServer extends TestDataStoreServer
+public abstract class JsTestDataStoreServer extends TestDataStoreServer
 {
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.jstest;
+package ch.systemsx.cisd.openbis.uitest.menu;
 
-/**
- * @author pkupczyk
- */
-public class JsTest
+import ch.systemsx.cisd.openbis.uitest.webdriver.Locate;
+import ch.systemsx.cisd.openbis.uitest.widget.Link;
+
+public class UtilitiesMenu
 {
 
-    public static void main(String[] args) throws Exception
-    {
-        JsTestApplicationServer as = new JsTestApplicationServer();
-        JsTestDataStoreServer dss1 = new JsTestDataStoreServer1();
-        JsTestDataStoreServer dss2 = new JsTestDataStoreServer2();
+    @Locate("openbis_top-menu_openbis-test")
+    private Link openbisJsWebapp;
 
-        as.start();
-        dss1.start();
-        dss2.start();
+    @Locate("openbis_top-menu_openbis-screening-test")
+    private Link openbisScreeningJsWebapp;
+
+    public void openbisJsWebapp()
+    {
+        openbisJsWebapp.click();
+    }
+
+    public void openbisScreeningJsWebapp()
+    {
+        openbisScreeningJsWebapp.click();
     }
 
 }

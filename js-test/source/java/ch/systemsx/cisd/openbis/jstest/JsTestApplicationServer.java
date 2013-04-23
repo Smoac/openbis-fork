@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.jstest;
 
+import ch.systemsx.cisd.openbis.test.TestApplicationServer;
+
 /**
  * @author pkupczyk
  */

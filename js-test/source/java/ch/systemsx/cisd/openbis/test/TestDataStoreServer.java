@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.jstest;
+package ch.systemsx.cisd.openbis.test;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,13 +42,15 @@ public abstract class TestDataStoreServer
 
     private boolean deamon;
 
+    private Integer port;
+
     private Integer debugPort;
 
     protected abstract String getCommand();
 
     protected abstract String getLinuxCommand();
 
-    public void start() throws Exception
+    public String start() throws Exception
     {
         TestDatabase.restoreDumps(getDumpsPath());
 
@@ -92,6 +94,8 @@ public abstract class TestDataStoreServer
             }
         }
         System.out.println("DATA STORE " + getName() + " STARTED");
+
+        return "http://localhost:" + getPort();
     }
 
     private static class LogLineReader implements Listener
@@ -255,6 +259,16 @@ public abstract class TestDataStoreServer
     public boolean isDeamon()
     {
         return deamon;
+    }
+
+    public void setPort(Integer port)
+    {
+        this.port = port;
+    }
+
+    public Integer getPort()
+    {
+        return port;
     }
 
     public void setDebugPort(Integer debugPort)

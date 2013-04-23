@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.jstest;
+package ch.systemsx.cisd.openbis.test;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -43,7 +43,7 @@ public class TestApplicationServer
 
     private boolean deamon;
 
-    public void start() throws Exception
+    public String start() throws Exception
     {
         TestDatabase.restoreDumps(getDumpsPath());
 
@@ -101,6 +101,8 @@ public class TestApplicationServer
         newOut.close();
 
         System.setOut(originalOut);
+
+        return "http://localhost:" + getPort();
     }
 
     public void setPort(int port)
