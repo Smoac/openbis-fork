@@ -38,7 +38,7 @@ import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
-import ch.systemsx.cisd.openbis.dss.client.api.v1.OpenbisServiceFacadeFactory;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.client.cli.Login;
@@ -212,6 +212,8 @@ public class OpenBISScreeningML
 
     private static IScreeningOpenbisServiceFacade openbis = null;
 
+    static IOpenbisServiceFacadeFactory genericFacadeFactory = null;
+
     private static IOpenbisServiceFacade genericOpenbis = null;
 
     private static List<ExperimentIdentifier> experiments = null;
@@ -288,7 +290,7 @@ public class OpenBISScreeningML
             throw new RuntimeException("Login failed.");
         }
         IOpenbisServiceFacade genericFacade =
-                OpenbisServiceFacadeFactory.tryCreate(facade.getSessionToken(), url, 0);
+                genericFacadeFactory.tryToCreate(facade.getSessionToken(), url, 0);
         init(facade, genericFacade);
     }
 
@@ -2405,7 +2407,7 @@ public class OpenBISScreeningML
                         throw new RuntimeException("Login failed.");
                     }
                     IOpenbisServiceFacade genericFacade =
-                            OpenbisServiceFacadeFactory.tryCreate(token, serverUrl, 0);
+                            genericFacadeFactory.tryToCreate(token, serverUrl, 0);
                     init(facade, genericFacade);
                 } catch (IOException ex)
                 {

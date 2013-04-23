@@ -45,6 +45,8 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.client.cli.Login;
@@ -108,6 +110,10 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
 
     private IScreeningOpenbisServiceFacadeFactory facadeFactory;
 
+    private IOpenbisServiceFacadeFactory genericFacadeFactory;
+
+    private IOpenbisServiceFacade genericOpenbis;
+
     private Plate p1;
 
     private Plate p2;
@@ -118,6 +124,9 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         context = new Mockery();
         openbis = context.mock(IScreeningOpenbisServiceFacade.class);
         facadeFactory = context.mock(IScreeningOpenbisServiceFacadeFactory.class);
+        genericOpenbis = context.mock(IOpenbisServiceFacade.class);
+        genericFacadeFactory = context.mock(IOpenbisServiceFacadeFactory.class);
+
         ds1 = context.mock(IDataSetDss.class, "ds1");
         ds2 = context.mock(IDataSetDss.class, "ds2");
         FileUtilities.deleteRecursively(workingDirectory);
@@ -133,6 +142,12 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                     one(facadeFactory).tryToCreate("user", "password", "url");
                     will(returnValue(openbis));
 
+                    one(openbis).getSessionToken();
+                    will(returnValue("SESSION"));
+
+                    one(genericFacadeFactory).tryToCreate("SESSION", "url", 0);
+                    will(returnValue(genericOpenbis));
+
                     one(openbis).listExperiments();
                     will(returnValue(Arrays.asList(eId1, eId2)));
 
@@ -141,6 +156,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                 }
             });
         OpenBISScreeningML.facadeFactory = facadeFactory;
+        OpenBISScreeningML.genericFacadeFactory = genericFacadeFactory;
         OpenBISScreeningML.login("user", "password", "url");
         tempDir = OpenBISScreeningML.tempDir.listFiles(FILTER_TEMP_DIR)[0];
     }
@@ -232,6 +248,9 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
 
                     one(facadeFactory).tryToCreate("session-token-1", "url");
                     will(returnValue(openbis));
+
+                    one(genericFacadeFactory).tryToCreate("session-token-1", "url", 0);
+                    will(returnValue(genericOpenbis));
 
                     one(openbis).listExperiments();
                     one(openbis).listPlates();
