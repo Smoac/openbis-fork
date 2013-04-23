@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/ch.systemsx.cisd.openbis.knime.feature_13.4.0.201304231022.jar" id="ch.systemsx.cisd.openbis.knime.feature" version="13.4.0.201304231022">
+      <category name="openBIS KNIME Nodes"/>
+   </feature>
+   <feature url="features/ch.systemsx.cisd.openbis.knime.feature_13.4.0.201304231042.jar" id="ch.systemsx.cisd.openbis.knime.feature" version="13.4.0.201304231042">
+      <category name="openBIS KNIME Nodes"/>
+   </feature>
+   <category-def name="openBIS KNIME Nodes" label="openBIS KNIME Nodes">
+      <description>
+         Nodes for integreting openBIS into a KNIME workflow.
+      </description>
+   </category-def>
+</site>
