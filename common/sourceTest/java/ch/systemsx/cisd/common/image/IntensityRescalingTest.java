@@ -58,4 +58,13 @@ public class IntensityRescalingTest
         assertEquals(12, result.maxLevel);
     }
 
+    @Test
+    public void testAnotherBorderCase()
+    {
+        Levels result = IntensityRescaling.computeLevels(14, new int[]
+            { 19876, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+        assertEquals(0, result.minLevel);
+        assertEquals(1, result.maxLevel);
+    }
+
 }
