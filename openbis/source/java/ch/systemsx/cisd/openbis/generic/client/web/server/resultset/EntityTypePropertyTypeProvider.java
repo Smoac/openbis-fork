@@ -56,8 +56,9 @@ public class EntityTypePropertyTypeProvider extends
 {
 
     private final EntityType entity;
-    
-    public EntityTypePropertyTypeProvider(ICommonServer commonServer, String sessionToken, EntityType entity)
+
+    public EntityTypePropertyTypeProvider(ICommonServer commonServer, String sessionToken,
+            EntityType entity)
     {
         super(commonServer, sessionToken);
         this.entity = entity;
@@ -74,8 +75,11 @@ public class EntityTypePropertyTypeProvider extends
         builder.addColumn(LABEL).hideByDefault();
         builder.addColumn(DESCRIPTION).hideByDefault();
         builder.addColumn(MODIFICATION_DATE).withDefaultWidth(300).hideByDefault();
-        builder.addColumn(ASSIGNED_TO).withDefaultWidth(200);
-        builder.addColumn(TYPE_OF);
+        if (entity == null)
+        {
+            builder.addColumn(ASSIGNED_TO).withDefaultWidth(200);
+            builder.addColumn(TYPE_OF);
+        }
         builder.addColumn(IS_MANDATORY);
         builder.addColumn(DATA_TYPE).withDefaultWidth(200);
         builder.addColumn(ORDINAL).withDefaultWidth(100).hideByDefault();
@@ -87,16 +91,21 @@ public class EntityTypePropertyTypeProvider extends
         builder.addColumn(SCRIPT);
         for (EntityTypePropertyType<?> etpt : entityTypePropertyTypes)
         {
-            if( entity == null || entity.equals(etpt.getEntityType())) {
+            if (entity == null || entity.equals(etpt.getEntityType()))
+            {
                 builder.addRow(etpt);
                 PropertyType propertyType = etpt.getPropertyType();
                 builder.column(PROPERTY_TYPE_CODE).addString(propertyType.getCode());
                 builder.column(LABEL).addString(propertyType.getLabel());
                 builder.column(DESCRIPTION).addString(propertyType.getDescription());
                 builder.column(MODIFICATION_DATE).addDate(propertyType.getModificationDate());
-                builder.column(ASSIGNED_TO).addString(etpt.getEntityType().getCode());
-                builder.column(TYPE_OF).addString(etpt.getEntityKind().getDescription());
-                builder.column(IS_MANDATORY).addString(SimpleYesNoRenderer.render(etpt.isMandatory()));
+                if (entity == null)
+                {
+                    builder.column(ASSIGNED_TO).addString(etpt.getEntityType().getCode());
+                    builder.column(TYPE_OF).addString(etpt.getEntityKind().getDescription());
+                }
+                builder.column(IS_MANDATORY).addString(
+                        SimpleYesNoRenderer.render(etpt.isMandatory()));
                 builder.column(DATA_TYPE).addString(renderDataType(propertyType));
                 builder.column(ORDINAL).addInteger(etpt.getOrdinal());
                 builder.column(SECTION).addString(etpt.getSection());
