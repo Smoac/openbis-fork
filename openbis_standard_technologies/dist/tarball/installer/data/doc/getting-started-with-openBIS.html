@@ -12,7 +12,9 @@
 	<DIV class="sourcecode">
  ${INSTALL_BIN_PATH}/allup.sh
 	</DIV>
-
+	
+	This command might take several minutes on the inital startup, depending on the performance of your server!
+	<BR>
 	After the completion of the above command openBIS will be available at
 	<A href="https://localhost:8443/openbis">https://localhost:8443/openbis</A>
 
@@ -77,13 +79,16 @@ You could import a minimalistic example by doing the following:
 A flow cell with flow lanes is created by executing the command:
 
 	<DIV class="sourcecode">
-	 mkdir -p ${DSS_ROOT_DIR}/incoming-create-flowcell/120420_SN792_0109_BC0P8LACXX/; cp -R ${DSS_ROOT_DIR}/examples/illumina-ngs/120420_SN792_0109_BC0P8LACXX/*.xml ${DSS_ROOT_DIR}/incoming-create-flowcell/120420_SN792_0109_BC0P8LACXX
+	 mkdir -p ${DSS_ROOT_DIR}/create-flowcell-hiseq/120420_SN792_0109_BC0P8LACXX/; 
+	 cp -R ${DSS_ROOT_DIR}/examples/illumina-ngs/120420_SN792_0109_BC0P8LACXX/*.xml ${DSS_ROOT_DIR}/create-flowcell-hiseq/120420_SN792_0109_BC0P8LACXX;
+	 touch ${DSS_ROOT_DIR}/create-flowcell-hiseq/.MARKER_is_finished_120420_SN792_0109_BC0P8LACXX
 	</DIV>
 
-A flow cell output from the HiSeq2000 is registered as a data set of the sample 120420_SN792_0109_BC0P8LACXX:
+A flow cell output from a HiSeq2000 is registered as a data set of the sample 120420_SN792_0109_BC0P8LACXX:
 
   <DIV class="sourcecode">
- cp -R ${DSS_ROOT_DIR}/examples/illumina-ngs/120420_SN792_0109_BC0P8LACXX ${DSS_ROOT_DIR}/incoming-register-flowcell
+   cp -R ${DSS_ROOT_DIR}/examples/illumina-ngs/120420_SN792_0109_BC0P8LACXX ${DSS_ROOT_DIR}/register-flowcell-hiseq;
+   touch ${DSS_ROOT_DIR}/register-flowcell-hiseq/.MARKER_is_finished_120420_SN792_0109_BC0P8LACXX
   </DIV>
    	
 <BR>
