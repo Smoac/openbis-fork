@@ -220,6 +220,8 @@ public abstract class Dict
 
     public static final String BUTTON_HOME_LABEL = "home_buttonLabel";
 
+    public static final String BUTTON_PROPERTIES_ASSIGNMENTS = "properties_assignments";
+
     //
     // Metaproject chooser
     //
@@ -1377,6 +1379,12 @@ public abstract class Dict
             "add_unofficial_vocabulary_term_dialog_title";
 
     public static final String CUSTOM_IMPORT = "custom_import";
+
+    public static final String ASSIGN_GROUP_EXISTING = "assign_group_existing";
+
+    public static final String ASSIGN_GROUP_NEW = "assign_group_new";
+
+    public static final String ASSIGN_GROUP_PROPERTY = "assign_group_property";
 
     // Material Viewer
 

@@ -19,6 +19,21 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -69,21 +84,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
-import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.widget.Label;
-import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.Radio;
-import com.extjs.gxt.ui.client.widget.form.RadioGroup;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
-
 /**
  * {@link Window} Property Type registration form.
  * 
@@ -95,17 +95,20 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     // Cosmetics
     //
     private static final int FORM_WIDTH = 700;
+
     private static final int LABEL_WIDTH = 100;
+
     private static final int FIELD_WIDTH = 600;
+
     private Label loading;
-    
-    
+
     //
     // Select/New Property Selector
     //
     private RadioGroup selectAssignGroup;
+
     private boolean isSelect = true;
-    
+
     public boolean isSelect()
     {
         return isSelect;
@@ -120,54 +123,92 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     // Create Property Type Form attributes
     //
     public static final String ID = GenericConstants.ID_PREFIX + "property-type-registration_form";
+
     private final IViewContext<ICommonClientServiceAsync> viewContext;
+
     private CodeField propertyTypeCodeField;
+
     private VarcharField propertyTypeLabelField;
+
     private MultilineVarcharField propertyTypeDescriptionField;
+
     private DataTypeSelectionWidget dataTypeSelectionWidget;
+
     private VocabularySelectionWidget vocabularySelectionWidget;
+
     private MaterialTypeSelectionWidget materialTypeSelectionWidget;
+
     private XmlField xmlSchemaField;
+
     private XmlField xslTransformationsField;
 
     //
     // Assign Property Type Form attributes
     //
     private EntityType entity;
+
     private static final String PREFIX = "property-type-assignment_";
+
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
+
     public static final String PROPERTY_TYPE_ID_SUFFIX = "property_type";
+
     public static final String SAMPLE_TYPE_ID_SUFFIX = ID_PREFIX + "sample_type";
+
     public static final String EXPERIMENT_TYPE_ID_SUFFIX = ID_PREFIX + "experiment_type";
+
     public static final String MATERIAL_TYPE_ID_SUFFIX = ID_PREFIX + "material_type";
+
     public static final String DATA_SET_TYPE_ID_SUFFIX = ID_PREFIX + "data_set_type";
+
     public static final String MANDATORY_CHECKBOX_ID_SUFFIX = "mandatory_checkbox";
+
     private static final String UNSUPPORTED_ENTITY_KIND = "Unsupported entity kind";
+
     protected static final String DEFAULT_VALUE_ID_PART = "default_value";
+
     private DropDownList<? extends SimplifiedBaseModelData, ? extends EntityType> entityTypeSelectionWidget;
+
     private PropertyTypeSelectionWidget propertyTypeSelectionWidget;
+
     private DatabaseModificationAwareField<?> defaultValueField;
+
     private CheckBox mandatoryCheckbox;
+
     private CheckBox scriptableCheckbox;
+
     private CheckBox shownInEditViewCheckBox;
+
     private CheckBox showRawValueCheckBox;
+
     private SectionSelectionWidget sectionSelectionWidget;
+
     private EntityTypePropertyTypeSelectionWidget etptSelectionWidget;
+
     private ScriptChooserField scriptChooser;
+
     private Radio scriptTypeManaged;
+
     private Radio scriptTypeDynamic;
+
     private RadioGroup scriptTypeRadioGroup;
-    private boolean userDidChangeShownInEditViewCheckBox = false; // Track if the user has set a value
+
+    private boolean userDidChangeShownInEditViewCheckBox = false; // Track if the user has set a
+                                                                  // value
+
     private boolean userDidChangeShowRawValueCheckBox = false; // Track if the user has set a value
+
     private boolean synchronizingGuiFields = false; // Track the state of the code
-    
+
     //
     // Constructor and Init Methods
     //
     public AddPropertyTypeDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final IDelegatedAction postRegistrationCallback, EntityKind entityKind, String entityCode)
+            final IDelegatedAction postRegistrationCallback, EntityKind entityKind,
+            String entityCode)
     {
-        super(viewContext, viewContext.getMessage(Dict.PROPERTY_TYPE_REGISTRATION),postRegistrationCallback);
+        super(viewContext, viewContext.getMessage(Dict.PROPERTY_TYPE_REGISTRATION),
+                postRegistrationCallback);
         this.viewContext = viewContext;
         setWidth(FORM_WIDTH);
         getFormPanel().setFieldWidth(FIELD_WIDTH);
@@ -176,58 +217,70 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         addField(loading);
         loadEntityDialog(entityKind, entityCode);
     }
-    
-    private void loadEntityDialog(EntityKind kind, String code) {
-        switch(kind) {
+
+    private void loadEntityDialog(EntityKind kind, String code)
+    {
+        switch (kind)
+        {
             case MATERIAL:
-                viewContext.getService().listMaterialTypes(new AsyncCallbackEntityTypeForDialog<List<MaterialType>>(code));
+                viewContext.getService().listMaterialTypes(
+                        new AsyncCallbackEntityTypeForDialog<List<MaterialType>>(code));
                 break;
             case EXPERIMENT:
-                viewContext.getService().listExperimentTypes(new AsyncCallbackEntityTypeForDialog<List<ExperimentType>>(code));
+                viewContext.getService().listExperimentTypes(
+                        new AsyncCallbackEntityTypeForDialog<List<ExperimentType>>(code));
                 break;
             case SAMPLE:
-                viewContext.getService().listSampleTypes(new AsyncCallbackEntityTypeForDialog<List<SampleType>>(code));
+                viewContext.getService().listSampleTypes(
+                        new AsyncCallbackEntityTypeForDialog<List<SampleType>>(code));
                 break;
             case DATA_SET:
-                viewContext.getService().listDataSetTypes(new AsyncCallbackEntityTypeForDialog<List<DataSetType>>(code));
+                viewContext.getService().listDataSetTypes(
+                        new AsyncCallbackEntityTypeForDialog<List<DataSetType>>(code));
                 break;
         }
     }
-    
-    private class AsyncCallbackEntityTypeForDialog<T extends List<? extends EntityType>> implements AsyncCallback<T> {
-        
+
+    private class AsyncCallbackEntityTypeForDialog<T extends List<? extends EntityType>> implements
+            AsyncCallback<T>
+    {
+
         private String code;
-        
-        AsyncCallbackEntityTypeForDialog(String code) {
+
+        AsyncCallbackEntityTypeForDialog(String code)
+        {
             this.code = code;
         }
-        
+
         @Override
         public void onFailure(Throwable caught)
         {
-            
+
         }
 
         @Override
         public void onSuccess(T result)
         {
             EntityType finalType = null;
-            for(EntityType type:result) {
-                if(type.getCode().equals(code)) {
+            for (EntityType type : result)
+            {
+                if (type.getCode().equals(code))
+                {
                     finalType = type;
                 }
             }
             entityLoaded(finalType);
         }
     }
-    
-    private void entityLoaded(EntityType entity){
+
+    private void entityLoaded(EntityType entity)
+    {
         this.entity = entity;
         removeField(loading);
         // Enable Layout Changes
         getFormPanel().setLayoutOnChange(true);
         setLayoutOnChange(true);
-        
+
         // Create Select/Create Property Selector
         addField(getSelector());
 
@@ -235,13 +288,14 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         initSelectPropertyForm();
         fixLayout();
     }
-    
-    private final void fixLayout() {
+
+    private final void fixLayout()
+    {
         this.getFormPanel().layout();
         this.layout();
         WindowUtils.resize(this, this.getFormPanel().getElement());
     }
-    
+
     //
     // Existing/New Property Selector and Forms layout methods
     //
@@ -250,27 +304,27 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         if (selectAssignGroup == null)
         {
             final Radio selectProperty = new Radio();
-            selectProperty.setBoxLabel("Existing");
+            selectProperty.setBoxLabel(viewContext.getMessage(Dict.ASSIGN_GROUP_EXISTING)); // "Existing"
             selectProperty.setValue(true);
 
             final Radio newPropertie = new Radio();
-            newPropertie.setBoxLabel("New");
+            newPropertie.setBoxLabel(viewContext.getMessage(Dict.ASSIGN_GROUP_NEW)); // "New"
             newPropertie.setValue(false);
 
             selectAssignGroup = new RadioGroup();
-            selectAssignGroup.setFieldLabel("Property");
+            selectAssignGroup.setFieldLabel(viewContext.getMessage(Dict.ASSIGN_GROUP_PROPERTY)); // "Property"
             selectAssignGroup.add(selectProperty);
             selectAssignGroup.add(newPropertie);
-            
-            //TO-DO Property
-            
+
+            // TO-DO Property
+
             selectAssignGroup.addListener(Events.Change, new Listener<BaseEvent>()
                 {
                     @Override
                     public void handleEvent(BaseEvent be)
                     {
                         setSelect(false == isSelect());
-                        
+
                         hidePropertyTypeRelatedFields();
                         hideEntityTypePropertyTypeRelatedFields();
                         getFormPanel().removeAll();
@@ -281,48 +335,50 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                         {
                             initNewPropertyForm();
                         }
-                        
+
                         fixLayout();
                     }
                 });
         }
         return selectAssignGroup;
     }
-    
-    private final void initSelectPropertyForm() {
+
+    private final void initSelectPropertyForm()
+    {
         addField(getSelector());
         // Add Assign Property Form
         addField(getPropertyTypeSelectionWidget());
         getPropertyTypeSelectionWidget().clear();
         getPropertyTypeSelectionWidget().enable();
         getPropertyTypeSelectionWidget().setVisible(true);
-        
+
         addField(getEntityTypeSelectionWidget());
         getEntityTypeSelectionWidget().disable();
         getEntityTypeSelectionWidget().setVisible(false);
-        
+
         addField(getScriptableCheckbox());
         getScriptableCheckbox().clear();
-        
+
         getScriptTypeRadioGroup().setVisible(false);
         addField(getScriptTypeRadioGroup());
-        
+
         addField(getScriptChooserField());
         getScriptChooserField().clear();
         getScriptChooserField().setVisible(false);
         addField(getMandatoryCheckbox());
         getMandatoryCheckbox().clear();
-        
+
         addField(getShownInEditViewCheckbox());
         getShownInEditViewCheckbox().clear();
         getShownInEditViewCheckbox().setVisible(false);
-        
+
         addField(getShowRawValueCheckBox());
         getShowRawValueCheckBox().clear();
         getShowRawValueCheckBox().setVisible(false);
     }
-    
-    private final void initNewPropertyForm() {
+
+    private final void initNewPropertyForm()
+    {
         addField(getSelector());
         // Add New Property Form
         addField(getPropertyTypeCodeField());
@@ -345,59 +401,64 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         addField(getXslTransformationsField());
         getXslTransformationsField().clear();
         getXslTransformationsField().setVisible(false);
-        
+
         // Add Assign Property Form
         getPropertyTypeSelectionWidget().clear();
         addField(getPropertyTypeSelectionWidget());
         getPropertyTypeSelectionWidget().disable();
         getPropertyTypeSelectionWidget().setVisible(false);
-        
+
         addField(getEntityTypeSelectionWidget());
         getEntityTypeSelectionWidget().disable();
         getEntityTypeSelectionWidget().setVisible(false);
-        
+
         addField(getScriptableCheckbox());
         getScriptableCheckbox().clear();
-        
+
         getScriptTypeRadioGroup().setVisible(false);
         addField(getScriptTypeRadioGroup());
-        
+
         addField(getScriptChooserField());
         getScriptChooserField().clear();
         getScriptChooserField().setVisible(false);
         addField(getMandatoryCheckbox());
         getMandatoryCheckbox().clear();
-        
+
         addField(getShownInEditViewCheckbox());
         getShownInEditViewCheckbox().clear();
         getShownInEditViewCheckbox().setVisible(false);
-        
+
         addField(getShowRawValueCheckBox());
         getShowRawValueCheckBox().clear();
         getShowRawValueCheckBox().setVisible(false);
     }
-    
+
     //
     // Register Change Methods
     //
     @Override
     protected void register(final AsyncCallback<Void> registrationCallback)
     {
-        if(false == isSelect()) {
+        if (false == isSelect())
+        {
             final PropertyType propertyType = createPropertyType();
             final NewETPTAssignment assignment = createAssignment();
-            viewContext.getService().registerAndAssignPropertyType(propertyType, assignment, new AssignPropertyTypeCallback(viewContext, registrationCallback));
-        } else {
+            viewContext.getService().registerAndAssignPropertyType(propertyType, assignment,
+                    new AssignPropertyTypeCallback(viewContext, registrationCallback));
+        } else
+        {
             final NewETPTAssignment assignment = createAssignment();
-            viewContext.getService().assignPropertyType(assignment, new AssignPropertyTypeCallback(viewContext, registrationCallback));
+            viewContext.getService().assignPropertyType(assignment,
+                    new AssignPropertyTypeCallback(viewContext, registrationCallback));
         }
     }
-    
+
     private final class AssignPropertyTypeCallback extends AbstractAsyncCallback<String>
     {
         final AsyncCallback<Void> registrationCallback;
-        
-        AssignPropertyTypeCallback(final IViewContext<?> viewContext, final AsyncCallback<Void> registrationCallback)
+
+        AssignPropertyTypeCallback(final IViewContext<?> viewContext,
+                final AsyncCallback<Void> registrationCallback)
         {
             super(viewContext, null);
             this.registrationCallback = registrationCallback;
@@ -412,10 +473,10 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         @Override
         public void finishOnFailure(Throwable caught)
         {
-            //One Pop Up with the error is shown automatically
+            // One Pop Up with the error is shown automatically
         }
     }
-    
+
     private final PropertyType createPropertyType()
     {
         final PropertyType propertyType = new PropertyType();
@@ -423,14 +484,16 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         propertyType.setLabel(getPropertyTypeLabelField().getValue());
         propertyType.setDescription(getPropertyTypeDescriptionField().getValue());
         propertyType.setDataType(getDataTypeSelectionWidget().tryGetSelectedDataType());
-        if(propertyType.getDataType() != null) {
+        if (propertyType.getDataType() != null)
+        {
             switch (propertyType.getDataType().getCode())
             {
                 case MATERIAL:
                     propertyType.setMaterialType(getMaterialTypeSelectionWidget().tryGetSelected());
                     break;
                 case CONTROLLEDVOCABULARY:
-                    propertyType.setVocabulary((Vocabulary) GWTUtils.tryGetSingleSelected(getVocabularySelectionWidget()));
+                    propertyType.setVocabulary((Vocabulary) GWTUtils
+                            .tryGetSingleSelected(getVocabularySelectionWidget()));
                     break;
                 case XML:
                     propertyType.setSchema(getXmlSchemaField().getValue());
@@ -440,33 +503,36 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                     break;
             }
         }
-        
+
         return propertyType;
     }
 
     private final NewETPTAssignment createAssignment()
     {
         String code = null;
-        
-        if(isSelect()) { //The Code Field comes from a different component depending if the property is being created or just assigned.
+
+        if (isSelect())
+        { // The Code Field comes from a different component depending if the property is being
+          // created or just assigned.
             code = propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode();
-        } else {
+        } else
+        {
             code = getPropertyTypeCodeField().getValue().toUpperCase();
         }
-        
-        NewETPTAssignment newAssignment = new NewETPTAssignment (
-                            entity.getEntityKind(),
-                            code,
-                            ((EntityType) getEntityTypeSelectionWidget().tryGetSelected()).getCode(),
-                            getMandatoryCheckbox().getValue(),
-                            getDefaultValue(),
-                            getSectionValue(),
-                            getPreviousETPTOrdinal(),
-                            isDynamic(),
-                            isManaged(),
-                            tryGetScriptNameValue(),
-                            isShownInEditView(),
-                            getShowRawValue());
+
+        NewETPTAssignment newAssignment = new NewETPTAssignment(
+                entity.getEntityKind(),
+                code,
+                ((EntityType) getEntityTypeSelectionWidget().tryGetSelected()).getCode(),
+                getMandatoryCheckbox().getValue(),
+                getDefaultValue(),
+                getSectionValue(),
+                getPreviousETPTOrdinal(),
+                isDynamic(),
+                isManaged(),
+                tryGetScriptNameValue(),
+                isShownInEditView(),
+                getShowRawValue());
         return newAssignment;
     }
 
@@ -475,18 +541,18 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     //
     private final RadioGroup getScriptTypeRadioGroup()
     {
-        if(scriptTypeRadioGroup == null)
+        if (scriptTypeRadioGroup == null)
         {
             scriptTypeRadioGroup = new RadioGroup();
             scriptTypeRadioGroup.setSelectionRequired(true);
             scriptTypeRadioGroup.setVisible(false);
             scriptTypeRadioGroup.setOrientation(Orientation.HORIZONTAL);
-            
+
             scriptTypeManaged = new Radio();
             scriptTypeManaged.setBoxLabel(ScriptType.MANAGED_PROPERTY.getDescription());
             scriptTypeManaged.setId(ID_PREFIX + "managed_radio");
             scriptTypeRadioGroup.add(scriptTypeManaged);
-            
+
             scriptTypeDynamic = new Radio();
             scriptTypeDynamic.setBoxLabel(ScriptType.DYNAMIC_PROPERTY.getDescription());
             scriptTypeDynamic.setId(ID_PREFIX + "dynamic_radio");
@@ -507,35 +573,37 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         return scriptTypeRadioGroup;
     }
 
-    
     private ScriptChooserField getScriptChooserField()
     {
-        if(scriptChooser == null)
+        if (scriptChooser == null)
         {
             IScriptTypeProvider scriptTypeProvider = new IScriptTypeProvider()
-            {
-                @Override
-                public ScriptType tryGetScriptType()
                 {
-                    return isManaged() ? ScriptType.MANAGED_PROPERTY : ScriptType.DYNAMIC_PROPERTY;
-                }
-            };
-            
+                    @Override
+                    public ScriptType tryGetScriptType()
+                    {
+                        return isManaged() ? ScriptType.MANAGED_PROPERTY
+                                : ScriptType.DYNAMIC_PROPERTY;
+                    }
+                };
+
             scriptChooser = ScriptChooserField.create(
-                                viewContext.getMessage(Dict.PLUGIN_PLUGIN),
-                                true, null,
-                                viewContext, scriptTypeProvider, entity.getEntityKind());
+                    viewContext.getMessage(Dict.PLUGIN_PLUGIN),
+                    true, null,
+                    viewContext, scriptTypeProvider, entity.getEntityKind());
             scriptChooser.setId(ID_PREFIX + "script_chooser");
             FieldUtil.setVisibility(false, scriptChooser);
         }
         return scriptChooser;
     }
-    
+
     public PropertyTypeSelectionWidget getPropertyTypeSelectionWidget()
     {
         if (propertyTypeSelectionWidget == null)
         {
-            propertyTypeSelectionWidget = new PropertyTypeSelectionWidget(viewContext, createChildId(PROPERTY_TYPE_ID_SUFFIX));
+            propertyTypeSelectionWidget =
+                    new PropertyTypeSelectionWidget(viewContext,
+                            createChildId(PROPERTY_TYPE_ID_SUFFIX));
             FieldUtil.markAsMandatory(propertyTypeSelectionWidget);
             propertyTypeSelectionWidget.addListener(Events.SelectionChange,
                     new Listener<BaseEvent>()
@@ -549,7 +617,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         }
         return propertyTypeSelectionWidget;
     }
-    
+
     private DropDownList<?, ?> getEntityTypeSelectionWidget()
     {
         if (entityTypeSelectionWidget == null)
@@ -557,47 +625,54 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
             switch (entity.getEntityKind())
             {
                 case EXPERIMENT:
-                        ExperimentTypeSelectionWidget ew = new ExperimentTypeSelectionWidget(viewContext, EXPERIMENT_TYPE_ID_SUFFIX, null);
-                        ew.setValue(new ExperimentTypeModel((ExperimentType) entity));
-                        entityTypeSelectionWidget = ew;
+                    ExperimentTypeSelectionWidget ew =
+                            new ExperimentTypeSelectionWidget(viewContext,
+                                    EXPERIMENT_TYPE_ID_SUFFIX, null);
+                    ew.setValue(new ExperimentTypeModel((ExperimentType) entity));
+                    entityTypeSelectionWidget = ew;
                     break;
                 case SAMPLE:
-                        SampleTypeSelectionWidget sw = new SampleTypeSelectionWidget(viewContext, SAMPLE_TYPE_ID_SUFFIX, false, SampleTypeDisplayID.PROPERTY_ASSIGNMENT, null);
-                        sw.setValue(new SampleTypeModel((SampleType) entity));
-                        entityTypeSelectionWidget = sw;
+                    SampleTypeSelectionWidget sw =
+                            new SampleTypeSelectionWidget(viewContext, SAMPLE_TYPE_ID_SUFFIX,
+                                    false, SampleTypeDisplayID.PROPERTY_ASSIGNMENT, null);
+                    sw.setValue(new SampleTypeModel((SampleType) entity));
+                    entityTypeSelectionWidget = sw;
                     break;
                 case MATERIAL:
-                        MaterialTypeSelectionWidget mw = new MaterialTypeSelectionWidget(viewContext, null, MATERIAL_TYPE_ID_SUFFIX, false);
-                        mw.setValue(new MaterialTypeModel((MaterialType) entity));
-                        entityTypeSelectionWidget = mw;
+                    MaterialTypeSelectionWidget mw =
+                            new MaterialTypeSelectionWidget(viewContext, null,
+                                    MATERIAL_TYPE_ID_SUFFIX, false);
+                    mw.setValue(new MaterialTypeModel((MaterialType) entity));
+                    entityTypeSelectionWidget = mw;
                     break;
                 case DATA_SET:
-                        DataSetTypeSelectionWidget dw = new DataSetTypeSelectionWidget(viewContext, DATA_SET_TYPE_ID_SUFFIX);
-                        dw.setValue(new DataSetTypeModel((DataSetType) entity));
-                        entityTypeSelectionWidget = dw;
+                    DataSetTypeSelectionWidget dw =
+                            new DataSetTypeSelectionWidget(viewContext, DATA_SET_TYPE_ID_SUFFIX);
+                    dw.setValue(new DataSetTypeModel((DataSetType) entity));
+                    entityTypeSelectionWidget = dw;
                     break;
             }
-            
+
             if (entityTypeSelectionWidget == null)
             {
                 throw new IllegalArgumentException(UNSUPPORTED_ENTITY_KIND);
             }
-            
+
             FieldUtil.markAsMandatory(entityTypeSelectionWidget);
             entityTypeSelectionWidget.addListener(Events.SelectionChange, new Listener<BaseEvent>()
+                {
+                    @Override
+                    public void handleEvent(BaseEvent be)
                     {
-                        @Override
-                        public void handleEvent(BaseEvent be)
-                        {
-                            updateEntityTypePropertyTypeRelatedFields();
-                        }
-                    });
+                        updateEntityTypePropertyTypeRelatedFields();
+                    }
+                });
             updateEntityTypePropertyTypeRelatedFields();
         }
-        
+
         return entityTypeSelectionWidget;
     }
-    
+
     private CheckBox getScriptableCheckbox()
     {
         if (scriptableCheckbox == null)
@@ -619,7 +694,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         }
         return scriptableCheckbox;
     }
-    
+
     private CheckBox getMandatoryCheckbox()
     {
         if (mandatoryCheckbox == null)
@@ -632,12 +707,13 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         }
         return mandatoryCheckbox;
     }
-    
+
     private CheckBox getShownInEditViewCheckbox()
     {
         if (null == shownInEditViewCheckBox)
         {
-            shownInEditViewCheckBox = new CheckBoxField(viewContext.getMessage(Dict.IS_SHOWN_IN_EDIT_VIEW), false);
+            shownInEditViewCheckBox =
+                    new CheckBoxField(viewContext.getMessage(Dict.IS_SHOWN_IN_EDIT_VIEW), false);
             shownInEditViewCheckBox.setValue(true);
             shownInEditViewCheckBox.setVisible(false);
             shownInEditViewCheckBox.addListener(Events.Change, new Listener<BaseEvent>()
@@ -658,12 +734,13 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
 
         return shownInEditViewCheckBox;
     }
-    
+
     private CheckBox getShowRawValueCheckBox()
     {
         if (null == showRawValueCheckBox)
         {
-            showRawValueCheckBox = new CheckBoxField(viewContext.getMessage(Dict.SHOW_RAW_VALUE_IN_FORMS), false);
+            showRawValueCheckBox =
+                    new CheckBoxField(viewContext.getMessage(Dict.SHOW_RAW_VALUE_IN_FORMS), false);
             showRawValueCheckBox.setValue(true);
             showRawValueCheckBox.setVisible(false);
             showRawValueCheckBox.addListener(Events.Change, new Listener<BaseEvent>()
@@ -682,32 +759,40 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
 
         return showRawValueCheckBox;
     }
-    
+
     private void updatePropertyTypeRelatedFields()
     {
         hidePropertyTypeRelatedFields();
-        
+
         PropertyType propertyType = null;
-        
-        if(isSelect()) {
+
+        if (isSelect())
+        {
             propertyType = getPropertyTypeSelectionWidget().tryGetSelectedPropertyType();
-        } else {
+        } else
+        {
             propertyType = this.createPropertyType();
         }
-        
-        //Is necessary to manage the case where the vocabulary is not set because there is no vocabularies on the system to avoid a null pointer
-        if (propertyType != null && propertyType.getDataType() != null && propertyType.getDataType().getCode() != DataTypeCode.CONTROLLEDVOCABULARY
-            ||
-            propertyType != null && propertyType.getDataType() != null && propertyType.getDataType().getCode() == DataTypeCode.CONTROLLEDVOCABULARY && propertyType.getVocabulary() != null)
+
+        // Is necessary to manage the case where the vocabulary is not set because there is no
+        // vocabularies on the system to avoid a null pointer
+        if (propertyType != null && propertyType.getDataType() != null
+                && propertyType.getDataType().getCode() != DataTypeCode.CONTROLLEDVOCABULARY
+                ||
+                propertyType != null && propertyType.getDataType() != null
+                && propertyType.getDataType().getCode() == DataTypeCode.CONTROLLEDVOCABULARY
+                && propertyType.getVocabulary() != null)
         {
             String fieldId = createChildId(DEFAULT_VALUE_ID_PART);
-            DatabaseModificationAwareField<?> fieldHolder = PropertyFieldFactory.createField(   propertyType,
-                                                                                                false,
-                                                                                                viewContext.getMessage(Dict.DEFAULT_VALUE),
-                                                                                                fieldId,
-                                                                                                null,
-                                                                                                viewContext);
-            GWTUtils.setToolTip(fieldHolder.get(), viewContext.getMessage(Dict.DEFAULT_VALUE_TOOLTIP));
+            DatabaseModificationAwareField<?> fieldHolder =
+                    PropertyFieldFactory.createField(propertyType,
+                            false,
+                            viewContext.getMessage(Dict.DEFAULT_VALUE),
+                            fieldId,
+                            null,
+                            viewContext);
+            GWTUtils.setToolTip(fieldHolder.get(), viewContext
+                    .getMessage(Dict.DEFAULT_VALUE_TOOLTIP));
             defaultValueField = fieldHolder;
             defaultValueField.get().show();
             FieldUtil.setVisibility(isScriptable() == false, defaultValueField.get());
@@ -715,27 +800,30 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         }
         updateEntityTypePropertyTypeRelatedFields();
     }
-    
+
     private String createChildId(String childSuffix)
     {
         return getId() + childSuffix;
     }
-    
+
     private void updateEntityTypePropertyTypeRelatedFields()
     {
         hideEntityTypePropertyTypeRelatedFields();
-        
+
         PropertyType propertyType = null;
-        if(isSelect()) {
+        if (isSelect())
+        {
             propertyType = getPropertyTypeSelectionWidget().tryGetSelectedPropertyType();
-        } else {
+        } else
+        {
             propertyType = this.createPropertyType();
         }
-        
+
         final EntityType entityType = (EntityType) getEntityTypeSelectionWidget().tryGetSelected();
         if (propertyType != null && entityType != null && propertyType.getDataType() != null)
         {
-            final List<EntityTypePropertyType<?>> etpts = new ArrayList<EntityTypePropertyType<?>>(entityType.getAssignedPropertyTypes());
+            final List<EntityTypePropertyType<?>> etpts =
+                    new ArrayList<EntityTypePropertyType<?>>(entityType.getAssignedPropertyTypes());
             sectionSelectionWidget = SectionSelectionWidget.create(viewContext, etpts);
             this.addField(sectionSelectionWidget);
             etptSelectionWidget = createETPTSelectionWidget(etpts);
@@ -743,22 +831,26 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         }
         fixLayout();
     }
-    
+
     private void hideEntityTypePropertyTypeRelatedFields()
     {
-            if(sectionSelectionWidget != null && this.getFormPanel().getFields().contains(sectionSelectionWidget)) {
-                sectionSelectionWidget.hide();
-                this.removeField(sectionSelectionWidget);
-                sectionSelectionWidget = null;
-            }
-            
-            if(etptSelectionWidget != null && this.getFormPanel().getFields().contains(etptSelectionWidget)) {
-                etptSelectionWidget.hide();
-                this.removeField(etptSelectionWidget);
-                etptSelectionWidget = null;
-            }
+        if (sectionSelectionWidget != null
+                && this.getFormPanel().getFields().contains(sectionSelectionWidget))
+        {
+            sectionSelectionWidget.hide();
+            this.removeField(sectionSelectionWidget);
+            sectionSelectionWidget = null;
+        }
+
+        if (etptSelectionWidget != null
+                && this.getFormPanel().getFields().contains(etptSelectionWidget))
+        {
+            etptSelectionWidget.hide();
+            this.removeField(etptSelectionWidget);
+            etptSelectionWidget = null;
+        }
     }
-    
+
     private void updateShownInEditView()
     {
         if (userDidChangeShownInEditViewCheckBox)
@@ -792,7 +884,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
             synchronizingGuiFields = false;
         }
     }
-    
+
     private void updateShowRawValue()
     {
         if (userDidChangeShowRawValueCheckBox)
@@ -810,7 +902,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
             synchronizingGuiFields = false;
         }
     }
-    
+
     private void updateVisibilityOfScriptRelatedFields()
     {
         boolean scriptable = isScriptable();
@@ -826,30 +918,35 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         updateVisibilityOfShownInEditViewField();
         updateVisibilityOfShowRawValueField();
     }
-    
+
     private void hidePropertyTypeRelatedFields()
     {
         if (defaultValueField != null)
         {
             Field<?> field = defaultValueField.get();
             field.hide();
-            if(this.getFormPanel().getFields().contains(field)) {
+            if (this.getFormPanel().getFields().contains(field))
+            {
                 this.removeField(field);
             }
             defaultValueField = null;
         }
     }
-    
-    private EntityTypePropertyTypeSelectionWidget createETPTSelectionWidget(List<EntityTypePropertyType<?>> etpts)
+
+    private EntityTypePropertyTypeSelectionWidget createETPTSelectionWidget(
+            List<EntityTypePropertyType<?>> etpts)
     {
         // by default - append
         etpts.add(0, null); // null will be transformed into '(top)'
-        final String lastCode = (etpts.size() > 1) ? etpts.get(etpts.size() - 1).getPropertyType().getCode():EntityTypePropertyTypeSelectionWidget.TOP_ITEM_CODE;
-        final EntityTypePropertyTypeSelectionWidget result = new EntityTypePropertyTypeSelectionWidget(viewContext, getId(), etpts, lastCode);
+        final String lastCode =
+                (etpts.size() > 1) ? etpts.get(etpts.size() - 1).getPropertyType().getCode()
+                        : EntityTypePropertyTypeSelectionWidget.TOP_ITEM_CODE;
+        final EntityTypePropertyTypeSelectionWidget result =
+                new EntityTypePropertyTypeSelectionWidget(viewContext, getId(), etpts, lastCode);
         FieldUtil.setMandatoryFlag(result, true);
         return result;
     }
-    
+
     private String getDefaultValue()
     {
         if (defaultValueField != null)
@@ -858,8 +955,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         }
         return null;
     }
-    
-    
+
     private boolean getShowRawValue()
     {
         if (false == (isManaged() && isShownInEditView()))
@@ -868,7 +964,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         }
         return showRawValueCheckBox.getValue();
     }
-    
+
     String tryGetScriptNameValue()
     {
         if (scriptChooser == null)
@@ -879,16 +975,17 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
             return scriptChooser.getValue();
         }
     }
-    
-   private Long getPreviousETPTOrdinal()
-   {
-       Long value = 0L;
-       if(etptSelectionWidget != null) {
-           value = etptSelectionWidget.getSelectedEntityTypePropertyTypeOrdinal();
-       }
-       return value;
-   }
-    
+
+    private Long getPreviousETPTOrdinal()
+    {
+        Long value = 0L;
+        if (etptSelectionWidget != null)
+        {
+            value = etptSelectionWidget.getSelectedEntityTypePropertyTypeOrdinal();
+        }
+        return value;
+    }
+
     private String getSectionValue()
     {
         if (sectionSelectionWidget != null)
@@ -897,8 +994,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         }
         return null;
     }
-    
-    
+
     private void updateVisibilityOfShownInEditViewField()
     {
         if (shownInEditViewCheckBox != null)
@@ -914,22 +1010,22 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
             FieldUtil.setVisibility(isManaged() && isShownInEditView(), showRawValueCheckBox);
         }
     }
-    
+
     private boolean isManaged()
     {
         return isScriptable() && scriptTypeManaged.getValue();
     }
-    
+
     private boolean isDynamic()
     {
         return isScriptable() && scriptTypeDynamic.getValue();
     }
-    
+
     private boolean isScriptable()
     {
         return scriptableCheckbox.getValue();
     }
-    
+
     private boolean isShownInEditView()
     {
         // The logic for defaulting the value of the shownInEditView check box is duplicated here to
@@ -945,7 +1041,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
 
         return shownInEditViewCheckBox.getValue();
     }
-    
+
     //
     // Create Property Type Form widgets
     //
@@ -997,7 +1093,8 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                                 DataTypeModel selectedItem = se.getSelectedItem();
                                 if (selectedItem != null)
                                 {
-                                    DataTypeCode dataTypeCode = selectedItem.getDataType().getCode();
+                                    DataTypeCode dataTypeCode =
+                                            selectedItem.getDataType().getCode();
                                     switch (dataTypeCode)
                                     {
                                         case CONTROLLEDVOCABULARY:
@@ -1012,7 +1109,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                                         default:
                                             break;
                                     }
-                                    
+
                                     updatePropertyTypeRelatedFields();
                                 }
 
@@ -1025,7 +1122,9 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
 
                             private void hideDataTypeRelatedFields()
                             {
-                                FieldUtil.setVisibility(false, vocabularySelectionWidget, materialTypeSelectionWidget, xmlSchemaField, xslTransformationsField);
+                                FieldUtil.setVisibility(false, vocabularySelectionWidget,
+                                        materialTypeSelectionWidget, xmlSchemaField,
+                                        xslTransformationsField);
                             }
                         };
 
@@ -1048,7 +1147,9 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     {
         if (materialTypeSelectionWidget == null)
         {
-            materialTypeSelectionWidget = MaterialTypeSelectionWidget.createWithAdditionalOption(viewContext, viewContext.getMessage(Dict.ALLOW_ANY_TYPE), null, ID);
+            materialTypeSelectionWidget =
+                    MaterialTypeSelectionWidget.createWithAdditionalOption(viewContext, viewContext
+                            .getMessage(Dict.ALLOW_ANY_TYPE), null, ID);
             FieldUtil.markAsMandatory(materialTypeSelectionWidget);
         }
         return materialTypeSelectionWidget;
@@ -1060,7 +1161,8 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         {
             final String label = viewContext.getMessage(Dict.XML_SCHEMA);
             final String description = viewContext.getMessage(Dict.XML_SCHEMA_INFO);
-            final AbstractImagePrototype infoIcon = AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
+            final AbstractImagePrototype infoIcon =
+                    AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
             xmlSchemaField = new XmlField(label, false);
             FieldUtil.addInfoIcon(xmlSchemaField, description, infoIcon.createImage());
         }
@@ -1073,7 +1175,8 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         {
             final String label = viewContext.getMessage(Dict.XSLT);
             final String description = viewContext.getMessage(Dict.XSLT_INFO);
-            final AbstractImagePrototype infoIcon = AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
+            final AbstractImagePrototype infoIcon =
+                    AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
             xslTransformationsField = new XmlField(label, false);
             FieldUtil.addInfoIcon(xslTransformationsField, description, infoIcon.createImage());
         }
