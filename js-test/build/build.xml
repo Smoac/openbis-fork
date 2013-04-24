@@ -61,7 +61,7 @@
 
 	<target name="create-and-run-webapp" depends="create-webapp, run-webapp" />
 
-	<target name="run-tests-js-on-own-server" depends="compile-tests">
+	<target name="run-tests-js-on-new-server" depends="compile-tests">
 		<delete dir="${output.test}" />
 		<testng workingDir="servers/openBIS-server"
 		        outputdir="${output.test}"
@@ -122,6 +122,6 @@
 		<fail if="${tests.failed}" />
 	</target>
 
-	<target name="ci" depends="create-webapp, run-tests-js-on-own-server" />
+	<target name="ci" depends="create-webapp, run-tests-js-on-new-server" />
 
 </project>

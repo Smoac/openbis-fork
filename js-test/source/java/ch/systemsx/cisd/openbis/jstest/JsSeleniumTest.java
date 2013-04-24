@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.jstest;
 
+import junit.framework.Assert;
+
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -71,13 +73,26 @@ public class JsSeleniumTest extends SeleniumTest
     @Test
     public void runOpenbisJsTests()
     {
-        browser().goTo(new OpenbisJsWebappLocation());
+        try
+        {
+            Assert.assertEquals(0, browser().goTo(new OpenbisJsWebappLocation()).getFailedCount());
+        } finally
+        {
+            SeleniumTest.driver.switchTo().defaultContent();
+        }
     }
 
     @Test
     public void runOpenbisScreeningJsTests()
     {
-        browser().goTo(new OpenbisScreeningJsWebappLocation());
+        try
+        {
+            Assert.assertEquals(0, browser().goTo(new OpenbisScreeningJsWebappLocation())
+                    .getFailedCount());
+        } finally
+        {
+            SeleniumTest.driver.switchTo().defaultContent();
+        }
     }
 
 }

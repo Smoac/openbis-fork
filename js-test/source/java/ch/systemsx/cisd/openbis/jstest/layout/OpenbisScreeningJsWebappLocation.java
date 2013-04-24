@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.openbis.jstest.layout;
 
-import ch.systemsx.cisd.openbis.jstest.page.OpenbisScreeningJsWebapp;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import ch.systemsx.cisd.openbis.jstest.page.OpenbisJsCommonWebapp;
+import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.layout.Location;
 import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.menu.UtilitiesMenu;
@@ -25,7 +29,7 @@ import ch.systemsx.cisd.openbis.uitest.webdriver.Pages;
 /**
  * @author pkupczyk
  */
-public class OpenbisScreeningJsWebappLocation implements Location<OpenbisScreeningJsWebapp>
+public class OpenbisScreeningJsWebappLocation implements Location<OpenbisJsCommonWebapp>
 {
 
     @Override
@@ -42,8 +46,11 @@ public class OpenbisScreeningJsWebappLocation implements Location<OpenbisScreeni
     }
 
     @Override
-    public Class<OpenbisScreeningJsWebapp> getPage()
+    public Class<OpenbisJsCommonWebapp> getPage()
     {
-        return OpenbisScreeningJsWebapp.class;
+        WebElement tabElement = SeleniumTest.driver.findElement(By.id("openbis_webapp_openbis-screening-test_tab"));
+        WebElement iframeElement = tabElement.findElement(By.tagName("iframe"));
+        SeleniumTest.driver.switchTo().frame(iframeElement);
+        return OpenbisJsCommonWebapp.class;
     }
 }

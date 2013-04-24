@@ -181,10 +181,10 @@ public abstract class SeleniumTest
         initializeLogging();
         uid = new DictionaryUidGenerator(new File("resource/corncob_lowercase.txt"));
 
-        asUrl = System.getProperty("ui-test.as-url");
-        dssUrl = System.getProperty("ui-test.dss-url");
-        dssUrl2 = System.getProperty("ui-test.dss-url2");
-        startPage = System.getProperty("ui-test.start-page");
+        asUrl = getSystemPropertyOrNull("ui-test.as-url");
+        dssUrl = getSystemPropertyOrNull("ui-test.dss-url");
+        dssUrl2 = getSystemPropertyOrNull("ui-test.dss-url2");
+        startPage = getSystemPropertyOrNull("ui-test.start-page");
 
         /* Run against sprint server */
         /*
@@ -200,29 +200,46 @@ public abstract class SeleniumTest
          * System.setProperty("webdriver.firefox.profile", "default");
          */
 
-        if (asUrl == null || asUrl.length() == 0)
+        if (asUrl == null)
         {
             asUrl = startApplicationServer();
-            startPage = asUrl;
+
+            if (startPage == null)
+            {
+                startPage = asUrl;
+            }
         }
 
-        if (dssUrl == null || dssUrl.length() == 0)
+        if (dssUrl == null)
         {
             dssUrl = startDataStoreServer();
         }
 
-        if (dssUrl2 == null || dssUrl2.length() == 0)
+        if (dssUrl2 == null)
         {
             dssUrl2 = startDataStoreServer2();
         }
 
         System.out.println("asUrl: " + asUrl);
         System.out.println("dssUrl: " + dssUrl);
+        System.out.println("dssUrl2: " + dssUrl2);
         System.out.println("startPage: " + startPage);
 
         pages = new Pages();
         openbis = new Application(asUrl, dssUrl, dssUrl2, pages, console);
 
+    }
+
+    private String getSystemPropertyOrNull(String propertyName)
+    {
+        String propertyValue = System.getProperty(propertyName);
+        if (propertyValue == null || propertyValue.trim().length() == 0)
+        {
+            return null;
+        } else
+        {
+            return propertyValue;
+        }
     }
 
     protected String startApplicationServer() throws Exception
@@ -237,7 +254,7 @@ public abstract class SeleniumTest
 
     protected String startDataStoreServer2() throws Exception
     {
-        // FIXME dss2 is started together with dss1 in StartDataStoreServer.go() 
+        // FIXME dss2 is started together with dss1 in StartDataStoreServer.go()
         return "http://localhost:10002";
     }
 
