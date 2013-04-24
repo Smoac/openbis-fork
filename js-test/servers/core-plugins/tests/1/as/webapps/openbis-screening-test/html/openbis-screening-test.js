@@ -689,3 +689,34 @@ test("listImageReferencesForDataSetIdentifierAndChannels()", function(){
 	});
 });
 
+test("listAvailableFeatureLists()", function(){
+	createFacadeAndLogin(function(facade){
+		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
+		
+		facade.listFeatureVectorDatasets(plateIdentifiers, function(response){
+			var featureDataset = response.result[0];
+			
+			facade.listAvailableFeatureLists(featureDataset, function(response){
+				assertObjectsCount(response.result, 2);
+				assertArrays(response.result, ["BARCODE_AND_STATE_FEATURE_LIST","NUMBER_FEATURE_LIST"], "Feature lists are correct");
+				facade.close();
+			});
+		});
+	});
+});
+
+test("getFeatureList()", function(){
+	createFacadeAndLogin(function(facade){
+		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
+		
+		facade.listFeatureVectorDatasets(plateIdentifiers, function(response){
+			var featureDataset = response.result[0];
+			
+			facade.getFeatureList(featureDataset, "BARCODE_AND_STATE_FEATURE_LIST", function(response){
+				assertObjectsCount(response.result, 2);
+				assertArrays(response.result, ["barcode","STATE"], "Feature list items are correct");
+				facade.close();
+			});
+		});
+	});
+});

@@ -716,7 +716,7 @@ test("listDataSetsForExperiments()", function(){
 			var connectionsToGet = [ 'PARENTS' ];
 			
 			facade.listDataSetsForExperiments(experiments, connectionsToGet, function(response){
-				assertObjectsCount(response.result, 13);
+				assertObjectsCount(response.result, 15);
 				assertObjectsWithParentCodes(response.result);
 				facade.close();
 			});

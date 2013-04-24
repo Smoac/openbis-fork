@@ -103,7 +103,7 @@ ALTER SEQUENCE data_set_files_id_seq OWNED BY data_set_files.id;
 -- Name: data_set_files_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('data_set_files_id_seq', 13016, true);
+SELECT pg_catalog.setval('data_set_files_id_seq', 13022, true);
 
 
 --
@@ -140,7 +140,7 @@ ALTER SEQUENCE data_sets_id_seq OWNED BY data_sets.id;
 -- Name: data_sets_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('data_sets_id_seq', 10, true);
+SELECT pg_catalog.setval('data_sets_id_seq', 12, true);
 
 
 --
@@ -13174,6 +13174,12 @@ COPY data_set_files (id, dase_id, parent_id, relative_path, file_name, size_in_b
 12981	9	\N		20130412153659945-390	3747	\N	t	2013-04-12 15:37:03+02
 12982	9	12981	original	original	3747	\N	t	2013-04-12 15:37:02+02
 12983	9	12982	original/PLATE-1.analysis1.csv	PLATE-1.analysis1.csv	3747	634055909	f	2013-04-12 10:56:16+02
+13017	11	\N		20130424111751432-431	14	\N	t	2013-04-24 11:17:54+02
+13018	11	13017	feature_lists	feature_lists	14	\N	t	2013-04-24 11:17:51+02
+13019	11	13018	feature_lists/BARCODE_AND_STATE_FEATURE_LIST	BARCODE_AND_STATE_FEATURE_LIST	14	293427254	f	2013-04-24 11:17:51+02
+13020	12	\N		20130424111751209-430	25	\N	t	2013-04-24 11:17:54+02
+13021	12	13020	feature_lists	feature_lists	25	\N	t	2013-04-24 11:17:51+02
+13022	12	13021	feature_lists/NUMBER_FEATURE_LIST	NUMBER_FEATURE_LIST	25	1253723016	f	2013-04-24 11:17:51+02
 \.
 
 
@@ -13190,6 +13196,8 @@ COPY data_sets (id, code, location) FROM stdin;
 7	20130412152036861-380	1FD3FF61-1576-4908-AE3D-296E60B4CE06/7e/71/80/20130412152036861-380
 8	20130412153118625-384	1FD3FF61-1576-4908-AE3D-296E60B4CE06/2e/ac/5a/20130412153118625-384
 9	20130412153659945-390	1FD3FF61-1576-4908-AE3D-296E60B4CE06/29/f1/0c/20130412153659945-390
+11	20130424111751432-431	1FD3FF61-1576-4908-AE3D-296E60B4CE06/fe/c5/45/20130424111751432-431
+12	20130424111751209-430	1FD3FF61-1576-4908-AE3D-296E60B4CE06/4f/5a/52/20130424111751209-430
 \.
 
 
