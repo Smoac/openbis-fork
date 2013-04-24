@@ -1662,3 +1662,215 @@ test("openbisWebAppContext()", function(){
 		});
 	});
 });
+
+test("SearchCriteriaMatchClause.createPropertyMatch()", function(){
+	createFacadeAndLogin(function(facade){
+		var clause = SearchCriteriaMatchClause.createPropertyMatch("$PLATE_GEOMETRY","96_WELLS_8X12");  
+		var criteria = new SearchCriteria();
+		criteria.addMatchClause(clause);
+		
+		facade.searchForSamples(criteria, function(response){
+			assertObjectsCount(response.result, 4);
+			assertObjectsWithCodes(response.result, ["PLATE-1", "PLATE-1A", "PLATE-2"]);
+			facade.close();
+		});
+	});
+});
+
+test("SearchCriteriaMatchClause.createPropertyMatch()", function(){
+	createFacadeAndLogin(function(facade){
+		var clause = SearchCriteriaMatchClause.createPropertyMatch("$PLATE_GEOMETRY","96_WELLS_8X12");  
+		var criteria = new SearchCriteria();
+		criteria.addMatchClause(clause);
+		
+		facade.searchForSamples(criteria, function(response){
+			assertObjectsCount(response.result, 4);
+			assertObjectsWithCodes(response.result, ["PLATE-1", "PLATE-1A", "PLATE-2"]);
+			facade.close();
+		});
+	});
+});
+
+test("SearchCriteriaMatchClause.createAttributeMatch()", function(){
+	createFacadeAndLogin(function(facade){
+		var clause = SearchCriteriaMatchClause.createAttributeMatch("CODE","PLATE-1");  
+		var criteria = new SearchCriteria();
+		criteria.addMatchClause(clause);
+		
+		facade.searchForSamples(criteria, function(response){
+			assertObjectsCount(response.result, 1);
+			assertObjectsWithCodes(response.result, ["PLATE-1"]);
+			facade.close();
+		});
+	});
+});
+
+test("SearchCriteriaMatchClause.createTimeAttributeMatch()", function(){
+	createFacadeAndLogin(function(facade){
+		var clause = SearchCriteriaMatchClause.createTimeAttributeMatch("REGISTRATION_DATE","EQUALS", "2013-04-17", "0");  
+		var criteria = new SearchCriteria();
+		criteria.addMatchClause(clause);
+		
+		facade.searchForSamples(criteria, function(response){
+			assertObjectsCount(response.result, 1);
+			assertObjectsWithCodes(response.result, ["SERIES-1"]);
+			facade.close();
+		});
+	});
+});
+
+test("SearchCriteriaMatchClause.createAnyPropertyMatch()", function(){
+	createFacadeAndLogin(function(facade){
+		var clause = SearchCriteriaMatchClause.createAnyPropertyMatch("96_WELLS_8X12");  
+		var criteria = new SearchCriteria();
+		criteria.addMatchClause(clause);
+		
+		facade.searchForSamples(criteria, function(response){
+			assertObjectsCount(response.result, 4);
+			assertObjectsWithCodes(response.result, ["PLATE-1", "PLATE-1A", "PLATE-2"]);
+			facade.close();
+		});
+	});
+});
+
+test("SearchCriteriaMatchClause.createAnyFieldMatch()", function(){
+	createFacadeAndLogin(function(facade){
+		var clause = SearchCriteriaMatchClause.createAnyFieldMatch("PLATE-1");  
+		var criteria = new SearchCriteria();
+		criteria.addMatchClause(clause);
+		
+		facade.searchForSamples(criteria, function(response){
+			assertObjectsCount(response.result, 1);
+			assertObjectsWithCodes(response.result, ["PLATE-1"]);
+			facade.close();
+		});
+	});
+});
+
+test("SearchSubCriteria.createSampleParentCriteria()", function(){
+	createFacadeAndLogin(function(facade){
+		var parentCriteria = new SearchCriteria();
+		parentCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE","TEST-SAMPLE-2"));
+		
+		var criteria = new SearchCriteria();
+		criteria.addSubCriteria(SearchSubCriteria.createSampleParentCriteria(parentCriteria));
+		
+		facade.searchForSamples(criteria, function(response){
+			assertObjectsCount(response.result, 2);
+			assertObjectsWithCodes(response.result, ["TEST-SAMPLE-2-CHILD-1", "TEST-SAMPLE-2-CHILD-2"]);
+			facade.close();
+		});
+	});
+});
+
+test("SearchSubCriteria.createSampleChildCriteria()", function(){
+	createFacadeAndLogin(function(facade){
+		var childCriteria = new SearchCriteria();
+		childCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE","TEST-SAMPLE-2-CHILD-1"));
+		
+		var criteria = new SearchCriteria();
+		criteria.addSubCriteria(SearchSubCriteria.createSampleChildCriteria(childCriteria));
+		
+		facade.searchForSamples(criteria, function(response){
+			assertObjectsCount(response.result, 1);
+			assertObjectsWithCodes(response.result, ["TEST-SAMPLE-2"]);
+			facade.close();
+		});
+	});
+});
+
+test("SearchSubCriteria.createSampleContainerCriteria()", function(){
+	createFacadeAndLogin(function(facade){
+		var containerCriteria = new SearchCriteria();
+		containerCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE","TEST-SAMPLE-1"));
+		
+		var criteria = new SearchCriteria();
+		criteria.addSubCriteria(SearchSubCriteria.createSampleContainerCriteria(containerCriteria));
+		
+		facade.searchForSamples(criteria, function(response){
+			assertObjectsCount(response.result, 2);
+			assertObjectsWithCodes(response.result, ["TEST-SAMPLE-1:TEST-SAMPLE-1-CONTAINED-1", "TEST-SAMPLE-1:TEST-SAMPLE-1-CONTAINED-2"]);
+			facade.close();
+		});
+	});
+});
+
+test("SearchSubCriteria.createSampleCriteria()", function(){
+	createFacadeAndLogin(function(facade){
+		var sampleCriteria = new SearchCriteria();
+		sampleCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE","PLATE-1"));
+		
+		var criteria = new SearchCriteria();
+		criteria.addSubCriteria(SearchSubCriteria.createSampleCriteria(sampleCriteria));
+		
+		facade.searchForDataSets(criteria, function(response){
+			assertObjectsCount(response.result, 8);
+			facade.close();
+		});
+	});
+});
+
+test("SearchSubCriteria.createExperimentCriteria()", function(){
+	createFacadeAndLogin(function(facade){
+		var sampleCriteria = new SearchCriteria();
+		sampleCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE","EXP-2"));
+		
+		var criteria = new SearchCriteria();
+		criteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(sampleCriteria));
+		
+		facade.searchForSamples(criteria, function(response){
+			assertObjectsCount(response.result, 1);
+			assertObjectsWithCodes(response.result, ["SERIES-1"]);
+			facade.close();
+		});
+	});
+});
+
+test("SearchSubCriteria.createDataSetContainerCriteria()", function(){
+	createFacadeAndLogin(function(facade){
+		var dataSetContainerCriteria = new SearchCriteria();
+		dataSetContainerCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE","20130412143121081-200"));
+		
+		var criteria = new SearchCriteria();
+		criteria.addSubCriteria(SearchSubCriteria.createDataSetContainerCriteria(dataSetContainerCriteria));
+		
+		facade.searchForDataSets(criteria, function(response){
+			assertObjectsCount(response.result, 4);
+			facade.close();
+		});
+	});
+});
+
+test("SearchSubCriteria.createDataSetParentCriteria()", function(){
+	createFacadeAndLogin(function(facade){
+		var dataSetParentCriteria = new SearchCriteria();
+		dataSetParentCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE","20130412143121081-200"));
+		
+		var criteria = new SearchCriteria();
+		criteria.addSubCriteria(SearchSubCriteria.createDataSetParentCriteria(dataSetParentCriteria));
+		
+		facade.searchForDataSets(criteria, function(response){
+			assertObjectsCount(response.result, 1);
+			assertObjectsWithCodes(response.result, ["20130412153119864-385"]);
+			facade.close();
+		});
+	});
+});
+
+test("SearchSubCriteria.createDataSetChildCriteria()", function(){
+	createFacadeAndLogin(function(facade){
+		var dataSetChildCriteria = new SearchCriteria();
+		dataSetChildCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE","20130412153119864-385"));
+		
+		var criteria = new SearchCriteria();
+		criteria.addSubCriteria(SearchSubCriteria.createDataSetChildCriteria(dataSetChildCriteria));
+		
+		facade.searchForDataSets(criteria, function(response){
+			assertObjectsCount(response.result, 1);
+			assertObjectsWithCodes(response.result, ["20130412143121081-200"]);
+			facade.close();
+		});
+	});
+});
+
+
