@@ -39,6 +39,8 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacadeFactory;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.OpenbisServiceFacadeFactory;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.OpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.client.cli.Login;
@@ -288,6 +290,11 @@ public class OpenBISScreeningML
         if (facade == null)
         {
             throw new RuntimeException("Login failed.");
+        }
+
+        if (null == genericFacadeFactory)
+        {
+            genericFacadeFactory = OpenbisServiceFacadeFactory.INSTANCE;
         }
         IOpenbisServiceFacade genericFacade =
                 genericFacadeFactory.tryToCreate(facade.getSessionToken(), url, 0);
