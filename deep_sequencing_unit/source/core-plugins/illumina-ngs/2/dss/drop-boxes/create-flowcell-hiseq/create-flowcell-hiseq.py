@@ -101,13 +101,14 @@ def create_openbis_timestamp ():
 
 # -----------------------------------------------------------------------------
 
-def registerFlowLane(transaction, a_lane, flowCellName, newFlowCell):
+def registerFlowLane(transaction, a_lane, flowCellName, newFlowCell, exp):
   '''
   Registers a new Flow lane 
   '''
   newFlowLane = transaction.createNewSample('/' + FLOWCELL_SPACE + '/' + flowCellName +
                                             ':' + str(a_lane), FLOW_LANE)
   newFlowLane.setContainer(newFlowCell)
+  newFlowLane.setExperiment(exp)
 
 # -----------------------------------------------------------------------------
 
@@ -151,7 +152,8 @@ def process(transaction):
     if space == None:
       space = transaction.createNewSpace(FLOWCELL_SPACE, None)
     project = transaction.createNewProject(FLOWCELL_PROJECT_ID)
-  expID = FLOWCELL_PROJECT_ID + '/' + datetime.now().strftime("%Y.%m")
+  #expID = FLOWCELL_PROJECT_ID + '/' + datetime.now().strftime("%Y.%m")
+  expID = FLOWCELL_PROJECT_ID + '/' + "Test-Experiment"
   exp = transaction.getExperiment(expID)
   if exp == None:
     exp = transaction.createNewExperiment(expID, EXPERIMENT_TYPE_CODE)
@@ -206,4 +208,4 @@ def process(transaction):
   except:
     maxLanes = len(runInfo.getAllchildren('Tiles')[0])
 
-  [registerFlowLane(transaction, lane, flowCellName, newFlowCell) for lane in range(1,int(maxLanes)+1)]
+  [registerFlowLane(transaction, lane, flowCellName, newFlowCell, exp) for lane in range(1,int(maxLanes)+1)]
