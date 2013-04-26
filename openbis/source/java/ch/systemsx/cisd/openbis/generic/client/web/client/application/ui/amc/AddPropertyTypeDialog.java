@@ -19,21 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.widget.Label;
-import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.Radio;
-import com.extjs.gxt.ui.client.widget.form.RadioGroup;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -70,7 +55,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -83,6 +67,21 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+
+import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 /**
  * {@link Window} Property Type registration form.
@@ -293,7 +292,9 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     {
         this.getFormPanel().layout();
         this.layout();
-        WindowUtils.resize(this, this.getFormPanel().getElement());
+
+        this.setSize(800, 550);
+        this.center();
     }
 
     //
@@ -492,8 +493,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                     propertyType.setMaterialType(getMaterialTypeSelectionWidget().tryGetSelected());
                     break;
                 case CONTROLLEDVOCABULARY:
-                    propertyType.setVocabulary((Vocabulary) GWTUtils
-                            .tryGetSingleSelected(getVocabularySelectionWidget()));
+                    propertyType.setVocabulary((Vocabulary) GWTUtils.tryGetSingleSelected(getVocabularySelectionWidget()));
                     break;
                 case XML:
                     propertyType.setSchema(getXmlSchemaField().getValue());
@@ -1138,6 +1138,15 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         if (vocabularySelectionWidget == null)
         {
             vocabularySelectionWidget = new VocabularySelectionWidget(viewContext);
+            Listener<BaseEvent> vocabularyListener = new Listener<BaseEvent>()
+            {
+                @Override
+                public void handleEvent(BaseEvent be)
+                {
+                    updatePropertyTypeRelatedFields();
+                }
+            };
+            vocabularySelectionWidget.addListener(Events.Change, vocabularyListener);
             FieldUtil.markAsMandatory(vocabularySelectionWidget);
         }
         return vocabularySelectionWidget;
@@ -1147,9 +1156,18 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     {
         if (materialTypeSelectionWidget == null)
         {
-            materialTypeSelectionWidget =
-                    MaterialTypeSelectionWidget.createWithAdditionalOption(viewContext, viewContext
-                            .getMessage(Dict.ALLOW_ANY_TYPE), null, ID);
+            materialTypeSelectionWidget = MaterialTypeSelectionWidget.createWithAdditionalOption(viewContext, viewContext.getMessage(Dict.ALLOW_ANY_TYPE), null, ID);
+            Listener<BaseEvent> materialListener = new Listener<BaseEvent>()
+                    {
+                        @Override
+                        public void handleEvent(BaseEvent be)
+                        {
+                            //TO-DO The material type selector widget don't supports to change the selected type after creation.
+                            //Because of that is necessary to force the reload of this fields.
+                            updatePropertyTypeRelatedFields();
+                        }
+                    };
+            materialTypeSelectionWidget.addListener(Events.Change, materialListener);
             FieldUtil.markAsMandatory(materialTypeSelectionWidget);
         }
         return materialTypeSelectionWidget;
