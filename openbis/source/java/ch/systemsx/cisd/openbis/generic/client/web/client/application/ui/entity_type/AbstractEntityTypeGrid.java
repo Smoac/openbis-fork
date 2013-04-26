@@ -31,6 +31,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
@@ -82,6 +84,26 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
         addEntityOperationsLabel();
 
         final EntityKind entityKind = getEntityKindOrNull();
+
+        Button buttonProperties =
+                createSelectedItemButton(
+                        viewContext.getMessage(Dict.BUTTON_PROPERTIES_ASSIGNMENTS), // "Properties"
+                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<T>>>()
+                            {
+                                @Override
+                                public void invoke(
+                                        BaseEntityModel<TableModelRowWithObject<T>> selectedItem,
+                                        boolean keyPressed)
+                                {
+                                    T entityType = selectedItem.getBaseObject().getObjectOrNull();
+                                    DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
+                                            viewContext)
+                                            .getPropertyTypeAssignmentBrowser(entityType));
+                                }
+
+                            });
+        buttonProperties.setId("property-types-" + getEntityKindOrNull());
+        addButton(buttonProperties);
 
         Button button = new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON),
                 new SelectionListener<ButtonEvent>()

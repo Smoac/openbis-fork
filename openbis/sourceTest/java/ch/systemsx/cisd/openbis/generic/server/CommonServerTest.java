@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1307,9 +1308,11 @@ public final class CommonServerTest extends AbstractServerTestCase
         final MaterialType type = new MaterialType();
         type.setCode("my-type");
         type.setDescription("my description");
+        type.setModificationDate(new Date(42));
         final MaterialTypePE typePE = new MaterialTypePE();
         typePE.setCode(type.getCode());
         typePE.setDatabaseInstance(new DatabaseInstancePE());
+        typePE.setModificationDate(type.getModificationDate());
         prepareGetSession();
         context.checking(new Expectations()
             {
@@ -1359,9 +1362,11 @@ public final class CommonServerTest extends AbstractServerTestCase
         final SampleType type = new SampleType();
         type.setCode("my-type");
         type.setDescription("my description");
+        type.setModificationDate(new Date(42));
         final SampleTypePE typePE = new SampleTypePE();
         typePE.setCode(type.getCode());
         typePE.setDatabaseInstance(new DatabaseInstancePE());
+        typePE.setModificationDate(type.getModificationDate());
         prepareGetSession();
         context.checking(new Expectations()
             {
@@ -1411,9 +1416,11 @@ public final class CommonServerTest extends AbstractServerTestCase
         final ExperimentType type = new ExperimentType();
         type.setCode("my-type");
         type.setDescription("my description");
+        type.setModificationDate(new Date(42));
         final ExperimentTypePE typePE = new ExperimentTypePE();
         typePE.setCode(type.getCode());
         typePE.setDatabaseInstance(new DatabaseInstancePE());
+        typePE.setModificationDate(type.getModificationDate());
         prepareGetSession();
         context.checking(new Expectations()
             {
@@ -1465,9 +1472,11 @@ public final class CommonServerTest extends AbstractServerTestCase
         final DataSetType type = new DataSetType();
         type.setCode("my-type");
         type.setDescription("my description");
+        type.setModificationDate(new Date(42));
         final DataSetTypePE typePE = new DataSetTypePE();
         typePE.setCode(type.getCode());
         typePE.setDatabaseInstance(new DatabaseInstancePE());
+        typePE.setModificationDate(type.getModificationDate());
         prepareGetSession();
         context.checking(new Expectations()
             {

@@ -64,6 +64,7 @@ public class MaterialTypeTranslator
         result.setMaterialTypePropertyTypes(EntityType
                 .sortedInternally(MaterialTypePropertyTypeTranslator.translate(
                         entityTypeOrNull.getMaterialTypePropertyTypes(), result, cacheOrNull)));
+        result.setModificationDate(entityTypeOrNull.getModificationDate());
         result.setValidationScript(ScriptTranslator.translate(entityTypeOrNull
                 .getValidationScript()));
         return result;

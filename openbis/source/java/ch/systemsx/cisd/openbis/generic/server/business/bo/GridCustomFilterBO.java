@@ -99,6 +99,10 @@ public class GridCustomFilterBO extends AbstractBusinessObject implements
     public void update(IExpressionUpdates updates)
     {
         loadDataByTechId(TechId.create(updates));
+        if (filter.getModificationDate().equals(updates.getModificationDate()) == false)
+        {
+            throwModifiedEntityException("Custom filter");
+        }
 
         filter.setName(updates.getName());
         filter.setDescription(updates.getDescription());

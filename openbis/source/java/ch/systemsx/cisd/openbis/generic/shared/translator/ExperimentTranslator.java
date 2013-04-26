@@ -185,6 +185,7 @@ public final class ExperimentTranslator
         result.setDescription(experimentType.getDescription());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
                 .getDatabaseInstance()));
+        result.setModificationDate(experimentType.getModificationDate());
         result.setValidationScript(ScriptTranslator.translate(experimentType.getValidationScript()));
 
         result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(

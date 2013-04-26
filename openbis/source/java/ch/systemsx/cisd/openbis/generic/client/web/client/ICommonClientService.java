@@ -422,7 +422,8 @@ public interface ICommonClientService extends IClientService
      * Returns a chunk of the property types assignment list.
      */
     public TypedTableResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
-            DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria)
+            DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria,
+            EntityType entity)
             throws UserFailureException;
 
     /**
@@ -635,6 +636,11 @@ public interface ICommonClientService extends IClientService
      */
     public List<DataType> listDataTypes() throws UserFailureException;
 
+    /**
+     * Creates and assigns a property type.
+     */
+    public String registerAndAssignPropertyType(PropertyType propertyType, NewETPTAssignment assignment) throws UserFailureException;
+    
     /**
      * Assigns property type to entity type.
      */
@@ -1279,4 +1285,5 @@ public interface ICommonClientService extends IClientService
      * Lists all the available predeployed plugin names for given script type.
      */
     public List<String> listPredeployedPlugins(ScriptType scriptType);
+
 }

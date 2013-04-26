@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.Date;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
@@ -30,5 +32,7 @@ public interface IScriptUpdates extends IIdHolder
     public String getName();
 
     public String getScript();
+
+    public Date getModificationDate();
 
 }

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
@@ -35,4 +36,6 @@ public interface IExpressionUpdates extends IIdHolder, Serializable
     String getName(); // filter name or column label
 
     boolean isPublic();
+
+    Date getModificationDate();
 }

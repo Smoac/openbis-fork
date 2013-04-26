@@ -266,4 +266,9 @@ public final class SampleType extends EntityType implements Serializable
         return kind == null || kind == EntityKind.SAMPLE;
     }
 
+    @Override
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.SAMPLE;
+    }
 }

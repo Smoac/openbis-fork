@@ -223,6 +223,12 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         {
             IQueryDAO queryDAO = getDAOFactory().getQueryDAO();
             QueryPE query = queryDAO.getByTechId(TechId.create(updates));
+            if (query.getModificationDate().equals(updates.getModificationDate()) == false)
+            {
+                throw new UserFailureException("Unfortunately this query definition "
+                        + "has been modified in the meantime.\n\n"
+                        + "Please, refresh the data and try it again.");
+            }
 
             query.setName(updates.getName());
             query.setDescription(updates.getDescription());

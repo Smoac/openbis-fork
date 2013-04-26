@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs.MODIFICATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomGridColumnGridColumnIDs.DESCRIPTION;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomGridColumnGridColumnIDs.EXPRESSION;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomGridColumnGridColumnIDs.IS_PUBLIC;
@@ -33,10 +34,11 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
  * Super class of common code for providers of subclasses of {@link AbstractExpression}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractExpressionProvider<T extends AbstractExpression> extends AbstractCommonTableModelProvider<T>
+public abstract class AbstractExpressionProvider<T extends AbstractExpression> extends
+        AbstractCommonTableModelProvider<T>
 {
     protected final String gridId;
 
@@ -58,6 +60,7 @@ public abstract class AbstractExpressionProvider<T extends AbstractExpression> e
         builder.addColumn(IS_PUBLIC).hideByDefault();
         builder.addColumn(REGISTRATOR).hideByDefault();
         builder.addColumn(REGISTRATION_DATE).hideByDefault();
+        builder.addColumn(MODIFICATION_DATE).withDefaultWidth(300).hideByDefault();
         for (T expression : expressions)
         {
             builder.addRow(expression);
@@ -68,18 +71,19 @@ public abstract class AbstractExpressionProvider<T extends AbstractExpression> e
             builder.column(IS_PUBLIC).addString(SimpleYesNoRenderer.render(expression.isPublic()));
             builder.column(REGISTRATOR).addPerson(expression.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(expression.getRegistrationDate());
+            builder.column(MODIFICATION_DATE).addDate(expression.getModificationDate());
         }
         return builder.getModel();
     }
-    
+
     protected void addAdditionalColumn(TypedTableModelBuilder<T> builder)
     {
     }
-    
+
     protected void addAdditionalColumnValue(TypedTableModelBuilder<T> builder, T expression)
     {
     }
 
     protected abstract List<T> listExpressions();
-    
+
 }

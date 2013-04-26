@@ -498,6 +498,13 @@ public interface ICommonServer extends IServer
     public void deletePropertyTypes(String sessionToken, List<TechId> propertyTypeIds, String reason);
 
     /**
+     * Creates and assigns property type to entity type.
+     */
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE)
+    public String registerAndAssignPropertyType(final String sessionToken, PropertyType propertyType, NewETPTAssignment assignment);
+    
+    /**
      * Assigns property type to entity type.
      */
     @Transactional

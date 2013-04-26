@@ -44,6 +44,7 @@ public class ExperimentTypeTranslator
 
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentTypePE
                 .getDatabaseInstance()));
+        result.setModificationDate(experimentTypePE.getModificationDate());
         result.setValidationScript(ScriptTranslator.translate(experimentTypePE
                 .getValidationScript()));
         return result;

@@ -217,6 +217,10 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
     @Override
     public void updateLoadedAssignment(NewETPTAssignment assignmentUpdates)
     {
+        if (assignment.getModificationDate().equals(assignmentUpdates.getModificationDate()) == false)
+        {
+            throwModifiedEntityException("Property type assignment");
+        }
         // if ordinal was changed some etpts need to be shifted by 1
         final Long currentOrdinal = assignmentUpdates.getOrdinal() + 1;
         if (assignment.getOrdinal().equals(currentOrdinal) == false)

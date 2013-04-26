@@ -81,6 +81,10 @@ public final class SpaceBO extends AbstractBusinessObject implements ISpaceBO
     public void update(ISpaceUpdates updates)
     {
         loadDataByTechId(TechId.create(updates));
+        if (space.getModificationDate().equals(updates.getModificationDate()) == false)
+        {
+            throwModifiedEntityException("Space");
+        }
 
         space.setDescription(updates.getDescription());
 

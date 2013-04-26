@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,6 +31,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -77,6 +79,8 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
 
     private VocabularyPE vocabulary;
 
+    private Date modificationDate;
+
     public VocabularyTermPE()
     {
     }
@@ -93,6 +97,18 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
     public void setCode(final String code)
     {
         this.code = CodeConverter.tryToDatabase(code);
+    }
+
+    @Version
+    @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false)
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date versionDate)
+    {
+        this.modificationDate = versionDate;
     }
 
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)

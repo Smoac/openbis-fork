@@ -215,6 +215,8 @@ var common = {
   button_export_all: "Export All",
   button_export_for_update: "Export For Update",
   
+  properties_assignments: "Properties Assignments",
+  
   //
   // LoginWidget
   //
@@ -974,6 +976,12 @@ clear: "Clear",
 progress_uploading: "Uploading",
 progress_processing: "Processing",
 
+//
+// Unclassified
+//
+assign_group_existing: "Existing",
+assign_group_new: "New",
+assign_group_property: "Property",
 
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

@@ -29,8 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PersonBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class AuthorizationGroupProviderTest extends AbstractProviderTest
@@ -43,6 +41,7 @@ public class AuthorizationGroupProviderTest extends AbstractProviderTest
         group.setDescription("my lovely group");
         group.setRegistrationDate(new Date(4711));
         group.setRegistrator(new PersonBuilder().name("Issac", "Newton").getPerson());
+        group.setModificationDate(new Date(5711));
         context.checking(new Expectations()
             {
                 {
@@ -52,14 +51,15 @@ public class AuthorizationGroupProviderTest extends AbstractProviderTest
             });
         AuthorizationGroupProvider provider = new AuthorizationGroupProvider(server, SESSION_TOKEN);
         TypedTableModel<AuthorizationGroup> tableModel = provider.getTableModel(10);
-        
-        assertEquals("[CODE, DESCRIPTION, REGISTRATOR, REGISTRATION_DATE]",
+
+        assertEquals("[CODE, DESCRIPTION, REGISTRATOR, REGISTRATION_DATE, MODIFICATION_DATE]",
                 getHeaderIDs(tableModel).toString());
-        assertEquals("[VARCHAR, VARCHAR, VARCHAR, TIMESTAMP]", getHeaderDataTypes(tableModel)
-                .toString());
+        assertEquals("[VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, TIMESTAMP]",
+                getHeaderDataTypes(tableModel).toString());
         List<TableModelRowWithObject<AuthorizationGroup>> rows = tableModel.getRows();
         assertSame(group, rows.get(0).getObjectOrNull());
-        assertEquals("[my-group, my lovely group, Newton, Issac, Thu Jan 01 01:00:04 CET 1970]",
+        assertEquals(
+                "[my-group, my lovely group, Newton, Issac, Thu Jan 01 01:00:04 CET 1970, Thu Jan 01 01:00:05 CET 1970]",
                 rows.get(0).getValues().toString());
         assertEquals(1, rows.size());
         context.assertIsSatisfied();

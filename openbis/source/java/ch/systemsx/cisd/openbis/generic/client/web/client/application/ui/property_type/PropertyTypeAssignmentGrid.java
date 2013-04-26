@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPropertyTypeDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptChooserField;
@@ -48,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
@@ -55,9 +57,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -181,18 +185,18 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
         }
     }
 
-    public static IDisposableComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+    public static IDisposableComponent create(final IViewContext<ICommonClientServiceAsync> viewContext, EntityType entity)
     {
-        return new PropertyTypeAssignmentGrid(viewContext).asDisposableWithoutToolbar();
+        return new PropertyTypeAssignmentGrid(viewContext, entity).asDisposableWithoutToolbar();
     }
 
     private final IDelegatedAction postRegistrationCallback;
-
-    private PropertyTypeAssignmentGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
+    private final EntityType entity;
+    
+    private PropertyTypeAssignmentGrid(final IViewContext<ICommonClientServiceAsync> viewContext, EntityType entity)
     {
-        super(viewContext, BROWSER_ID, true,
-                DisplayTypeIDGenerator.PROPERTY_TYPE_ASSIGNMENT_BROWSER_GRID);
+        super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.PROPERTY_TYPE_ASSIGNMENT_BROWSER_GRID);
+        this.entity = entity;
         extendBottomToolbar();
         postRegistrationCallback = createRefreshGridAction();
     }
@@ -201,6 +205,23 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
     {
         addEntityOperationsLabel();
 
+        if(entity != null) { //View showing only property types for one type allow to add new properties  
+            final EntityType addEntity = this.entity;
+            final Button addButton =
+                    new Button(viewContext.getMessage(Dict.BUTTON_ADD, ""),
+                            new SelectionListener<ButtonEvent>()
+                                {
+                                    @Override
+                                    public void componentSelected(ButtonEvent ce)
+                                    {
+                                        AddPropertyTypeDialog dialog = new AddPropertyTypeDialog(viewContext, createRefreshGridAction(), addEntity.getEntityKind(), addEntity.getCode());
+                                        dialog.show();
+                                    }
+                                });
+            addButton.setId(GRID_ID + "-add");
+            addButton(addButton);
+        }
+        
         Button editButton =
                 createSelectedItemButton(
                         viewContext.getMessage(Dict.BUTTON_EDIT),
@@ -227,7 +248,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                             });
         editButton.setId(GRID_ID + "-edit");
         addButton(editButton);
-
+        
         Button releaseButton =
                 createSelectedItemButton(
                         viewContext.getMessage(Dict.UNASSIGN_BUTTON_LABEL),
@@ -513,9 +534,9 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                                 new NewETPTAssignment(entityKind, propertyTypeCode, entityTypeCode,
                                         getMandatoryValue(), getDefaultValue(), getSectionValue(),
                                         getPreviousETPTOrdinal(), etpt.isDynamic(),
-                                        etpt.isManaged(), tryGetScriptNameValue(),
-                                        isShownInEditView(), getShowRawValue()),
-                                registrationCallback);
+                                        etpt.isManaged(), etpt.getModificationDate(),
+                                        tryGetScriptNameValue(), isShownInEditView(),
+                                        getShowRawValue()), registrationCallback);
                     }
                 }
 
@@ -585,7 +606,8 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                         }
 
                     };
-        viewContext.getService().listPropertyTypeAssignments(resultSetConfig, extendedCallback);
+                    
+        viewContext.getService().listPropertyTypeAssignments(resultSetConfig, entity, extendedCallback);
     }
 
     @Override

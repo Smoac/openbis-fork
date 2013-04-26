@@ -60,6 +60,7 @@ public class ScriptEditForm extends AbstractScriptEditRegisterForm
         Script script = new Script();
         script.setId(scriptId.getId());
         script.setDescription(descriptionField.getValue());
+        script.setModificationDate(originalScript.getModificationDate());
         if (originalScript.getPluginType() == PluginType.JYTHON)
         {
             script.setScript(scriptField.getValue());

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs.MODIFICATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyGridColumnIDs.CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyGridColumnIDs.DESCRIPTION;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyGridColumnIDs.IS_MANAGED_INTERNALLY;
@@ -62,6 +63,7 @@ public class VocabulariesProvider extends AbstractCommonTableModelProvider<Vocab
         builder.addColumn(IS_MANAGED_INTERNALLY).withDefaultWidth(150);
         builder.addColumn(REGISTRATOR).withDefaultWidth(150);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(300);
+        builder.addColumn(MODIFICATION_DATE).withDefaultWidth(300).hideByDefault();
         builder.addColumn(URL_TEMPLATE).withDefaultWidth(300).hideByDefault();
         builder.addColumn(SHOW_IN_CHOOSERS).withDefaultWidth(150).hideByDefault();
 
@@ -74,6 +76,7 @@ public class VocabulariesProvider extends AbstractCommonTableModelProvider<Vocab
                     SimpleYesNoRenderer.render(vocabulary.isManagedInternally()));
             builder.column(REGISTRATOR).addPerson(vocabulary.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(vocabulary.getRegistrationDate());
+            builder.column(MODIFICATION_DATE).addDate(vocabulary.getModificationDate());
             builder.column(URL_TEMPLATE).addString(vocabulary.getURLTemplate());
             builder.column(SHOW_IN_CHOOSERS).addString(
                     SimpleYesNoRenderer.render(vocabulary.isChosenFromList()));

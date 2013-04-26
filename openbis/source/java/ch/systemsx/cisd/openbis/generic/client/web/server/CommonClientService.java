@@ -686,9 +686,10 @@ public final class CommonClientService extends AbstractClientService implements
 
     @Override
     public TypedTableResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
-            DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria)
+            DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria,
+            EntityType entity)
     {
-        return listEntities(new EntityTypePropertyTypeProvider(commonServer, getSessionToken()),
+        return listEntities(new EntityTypePropertyTypeProvider(commonServer, getSessionToken(), entity),
                 criteria);
     }
 
@@ -1043,6 +1044,14 @@ public final class CommonClientService extends AbstractClientService implements
         return dataTypes;
     }
 
+    @Override
+    public String registerAndAssignPropertyType(PropertyType propertyType, NewETPTAssignment assignment)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        return commonServer.registerAndAssignPropertyType(sessionToken, propertyType, assignment);
+    }
+    
     @Override
     public String assignPropertyType(NewETPTAssignment assignment)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException

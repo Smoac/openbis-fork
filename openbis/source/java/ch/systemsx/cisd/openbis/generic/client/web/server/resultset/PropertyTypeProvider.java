@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs.MODIFICATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeGridColumnIDs.CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeGridColumnIDs.DATA_SET_TYPES;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeGridColumnIDs.DATA_TYPE;
@@ -42,8 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class PropertyTypeProvider extends AbstractCommonTableModelProvider<PropertyType>
@@ -68,6 +67,7 @@ public class PropertyTypeProvider extends AbstractCommonTableModelProvider<Prope
         builder.addColumn(XML_SCHEMA).hideByDefault();
         builder.addColumn(XSLT).hideByDefault();
         builder.addColumn(DESCRIPTION);
+        builder.addColumn(MODIFICATION_DATE).withDefaultWidth(300).hideByDefault();
         builder.addColumn(SAMPLE_TYPES);
         builder.addColumn(EXPERIMENT_TYPES);
         builder.addColumn(MATERIAL_TYPES);
@@ -82,18 +82,24 @@ public class PropertyTypeProvider extends AbstractCommonTableModelProvider<Prope
             Vocabulary vocabulary = propertyType.getVocabulary();
             builder.column(VOCABULARY).addString(vocabulary != null ? vocabulary.getCode() : null);
             MaterialType materialType = propertyType.getMaterialType();
-            builder.column(MATERIAL_TYPE).addString(materialType != null ? materialType.getCode() : null);
+            builder.column(MATERIAL_TYPE).addString(
+                    materialType != null ? materialType.getCode() : null);
             builder.column(XML_SCHEMA).addString(propertyType.getSchema());
             builder.column(XSLT).addString(propertyType.getTransformation());
             builder.column(DESCRIPTION).addString(propertyType.getDescription());
-            builder.column(SAMPLE_TYPES).addString(render(propertyType.getSampleTypePropertyTypes()));
-            builder.column(EXPERIMENT_TYPES).addString(render(propertyType.getExperimentTypePropertyTypes()));
-            builder.column(MATERIAL_TYPES).addString(render(propertyType.getMaterialTypePropertyTypes()));
-            builder.column(DATA_SET_TYPES).addString(render(propertyType.getDataSetTypePropertyTypes()));
+            builder.column(MODIFICATION_DATE).addDate(propertyType.getModificationDate());
+            builder.column(SAMPLE_TYPES).addString(
+                    render(propertyType.getSampleTypePropertyTypes()));
+            builder.column(EXPERIMENT_TYPES).addString(
+                    render(propertyType.getExperimentTypePropertyTypes()));
+            builder.column(MATERIAL_TYPES).addString(
+                    render(propertyType.getMaterialTypePropertyTypes()));
+            builder.column(DATA_SET_TYPES).addString(
+                    render(propertyType.getDataSetTypePropertyTypes()));
         }
         return builder.getModel();
     }
-    
+
     private static String render(List<? extends EntityTypePropertyType<?>> list)
     {
         StringBuilder sb = new StringBuilder();
@@ -160,7 +166,7 @@ public class PropertyTypeProvider extends AbstractCommonTableModelProvider<Prope
         Vocabulary vocabulary = entity.getVocabulary();
         return vocabulary != null ? vocabulary.getCode() : null;
     }
-    
+
     private static String tryGetMaterialTypeCode(PropertyType entity)
     {
         MaterialType materialType = entity.getMaterialType();

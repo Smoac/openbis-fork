@@ -281,6 +281,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#listPropertyTypeAssignments(DefaultResultSetConfig) */
     public void listPropertyTypeAssignments(
             DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria,
+            EntityType entity,
             final AsyncCallback<TypedTableResultSet<EntityTypePropertyType<?>>> asyncCallback);
 
     /** @see ICommonClientService#listPropertyTypeAssignments(EntityType) */
@@ -535,6 +536,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#listDataTypes() */
     public void listDataTypes(final AsyncCallback<List<DataType>> asyncCallback);
 
+    /**
+     * @see ICommonClientService#registerAndAssignPropertyType(PropertyType propertyType, NewETPTAssignment assignment)
+     */
+    public void  registerAndAssignPropertyType(PropertyType propertyType, NewETPTAssignment assignment, AsyncCallback<String> process);
+    
     /**
      * @see ICommonClientService#assignPropertyType(NewETPTAssignment assignment)
      */

@@ -189,6 +189,10 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
     public void update(IPropertyTypeUpdates updates)
     {
         loadDataByTechId(TechId.create(updates));
+        if (propertyTypePE.getModificationDate().equals(updates.getModificationDate()) == false)
+        {
+            throwModifiedEntityException("Property type");
+        }
 
         propertyTypePE.setDescription(updates.getDescription());
         propertyTypePE.setLabel(updates.getLabel());

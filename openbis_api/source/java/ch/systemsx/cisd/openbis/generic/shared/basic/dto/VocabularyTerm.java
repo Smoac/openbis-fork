@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -52,6 +54,8 @@ public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
     private Long ordinal;
 
     private Boolean isOfficial = true; // official by default
+
+    private Date modificationDate;
 
     public VocabularyTerm()
     {
@@ -99,6 +103,19 @@ public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
     public String getDescription()
     {
         return description;
+    }
+
+    @Override
+    @JsonIgnore
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    @JsonIgnore
+    public void setModificationDate(Date modificationDate)
+    {
+        this.modificationDate = modificationDate;
     }
 
     @Override

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.Date;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
@@ -35,6 +37,8 @@ public class AuthorizationGroup extends AbstractRegistrationHolder implements
     private DatabaseInstance databaseInstance;
 
     private Long id;
+
+    private Date modificationDate;
 
     public AuthorizationGroup()
     {
@@ -68,6 +72,16 @@ public class AuthorizationGroup extends AbstractRegistrationHolder implements
     public void setDatabaseInstance(DatabaseInstance databaseInstance)
     {
         this.databaseInstance = databaseInstance;
+    }
+
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date modificationDate)
+    {
+        this.modificationDate = modificationDate;
     }
 
     @Override

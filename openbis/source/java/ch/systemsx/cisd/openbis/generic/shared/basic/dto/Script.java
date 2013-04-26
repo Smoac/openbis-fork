@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.Date;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
@@ -46,6 +48,8 @@ public class Script extends AbstractRegistrationHolder implements Comparable<Scr
 
     private boolean available = true;
 
+    private Date modificationDate;
+
     public Script()
     {
     }
@@ -58,6 +62,17 @@ public class Script extends AbstractRegistrationHolder implements Comparable<Scr
     public void setEntityKind(EntityKind[] entityKind)
     {
         this.entityKind = entityKind;
+    }
+
+    @Override
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date modificationDate)
+    {
+        this.modificationDate = modificationDate;
     }
 
     @Override

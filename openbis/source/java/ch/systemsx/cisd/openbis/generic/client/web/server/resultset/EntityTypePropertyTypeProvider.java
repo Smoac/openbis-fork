@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs.MODIFICATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.ASSIGNED_TO;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.DATA_TYPE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTypeAssignmentGridColumnIDs.DESCRIPTION;
@@ -36,6 +37,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -53,9 +55,13 @@ public class EntityTypePropertyTypeProvider extends
         AbstractCommonTableModelProvider<EntityTypePropertyType<?>>
 {
 
-    public EntityTypePropertyTypeProvider(ICommonServer commonServer, String sessionToken)
+    private final EntityType entity;
+
+    public EntityTypePropertyTypeProvider(ICommonServer commonServer, String sessionToken,
+            EntityType entity)
     {
         super(commonServer, sessionToken);
+        this.entity = entity;
     }
 
     @Override
@@ -68,8 +74,12 @@ public class EntityTypePropertyTypeProvider extends
         builder.addColumn(PROPERTY_TYPE_CODE).withDefaultWidth(200);
         builder.addColumn(LABEL).hideByDefault();
         builder.addColumn(DESCRIPTION).hideByDefault();
-        builder.addColumn(ASSIGNED_TO).withDefaultWidth(200);
-        builder.addColumn(TYPE_OF);
+        builder.addColumn(MODIFICATION_DATE).withDefaultWidth(300).hideByDefault();
+        if (entity == null)
+        {
+            builder.addColumn(ASSIGNED_TO).withDefaultWidth(200);
+            builder.addColumn(TYPE_OF);
+        }
         builder.addColumn(IS_MANDATORY);
         builder.addColumn(DATA_TYPE).withDefaultWidth(200);
         builder.addColumn(ORDINAL).withDefaultWidth(100).hideByDefault();
@@ -81,27 +91,35 @@ public class EntityTypePropertyTypeProvider extends
         builder.addColumn(SCRIPT);
         for (EntityTypePropertyType<?> etpt : entityTypePropertyTypes)
         {
-            builder.addRow(etpt);
-            PropertyType propertyType = etpt.getPropertyType();
-            builder.column(PROPERTY_TYPE_CODE).addString(propertyType.getCode());
-            builder.column(LABEL).addString(propertyType.getLabel());
-            builder.column(DESCRIPTION).addString(propertyType.getDescription());
-            builder.column(ASSIGNED_TO).addString(etpt.getEntityType().getCode());
-            builder.column(TYPE_OF).addString(etpt.getEntityKind().getDescription());
-            builder.column(IS_MANDATORY).addString(SimpleYesNoRenderer.render(etpt.isMandatory()));
-            builder.column(DATA_TYPE).addString(renderDataType(propertyType));
-            builder.column(ORDINAL).addInteger(etpt.getOrdinal());
-            builder.column(SECTION).addString(etpt.getSection());
-            builder.column(IS_DYNAMIC).addString(SimpleYesNoRenderer.render(etpt.isDynamic()));
-            builder.column(IS_MANAGED).addString(SimpleYesNoRenderer.render(etpt.isManaged()));
-            builder.column(IS_SHOWN_IN_EDITOR_VIEW).addString(
-                    SimpleYesNoRenderer.render(etpt.isShownInEditView()));
-            builder.column(SHOW_RAW_VALUE).addString(
-                    SimpleYesNoRenderer.render(etpt.getShowRawValue()));
-            Script script = etpt.getScript();
-            if (script != null)
+            if (entity == null || entity.equals(etpt.getEntityType()))
             {
-                builder.column(SCRIPT).addString(script.getName());
+                builder.addRow(etpt);
+                PropertyType propertyType = etpt.getPropertyType();
+                builder.column(PROPERTY_TYPE_CODE).addString(propertyType.getCode());
+                builder.column(LABEL).addString(propertyType.getLabel());
+                builder.column(DESCRIPTION).addString(propertyType.getDescription());
+                builder.column(MODIFICATION_DATE).addDate(propertyType.getModificationDate());
+                if (entity == null)
+                {
+                    builder.column(ASSIGNED_TO).addString(etpt.getEntityType().getCode());
+                    builder.column(TYPE_OF).addString(etpt.getEntityKind().getDescription());
+                }
+                builder.column(IS_MANDATORY).addString(
+                        SimpleYesNoRenderer.render(etpt.isMandatory()));
+                builder.column(DATA_TYPE).addString(renderDataType(propertyType));
+                builder.column(ORDINAL).addInteger(etpt.getOrdinal());
+                builder.column(SECTION).addString(etpt.getSection());
+                builder.column(IS_DYNAMIC).addString(SimpleYesNoRenderer.render(etpt.isDynamic()));
+                builder.column(IS_MANAGED).addString(SimpleYesNoRenderer.render(etpt.isManaged()));
+                builder.column(IS_SHOWN_IN_EDITOR_VIEW).addString(
+                        SimpleYesNoRenderer.render(etpt.isShownInEditView()));
+                builder.column(SHOW_RAW_VALUE).addString(
+                        SimpleYesNoRenderer.render(etpt.getShowRawValue()));
+                Script script = etpt.getScript();
+                if (script != null)
+                {
+                    builder.column(SCRIPT).addString(script.getName());
+                }
             }
         }
         return builder.getModel();

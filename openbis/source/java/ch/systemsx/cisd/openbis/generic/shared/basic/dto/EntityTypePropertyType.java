@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * An <i>abstract</i> entity type property type.
@@ -51,6 +52,18 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Se
     private boolean showRawValue;
 
     private Script script;
+
+    private Date modificationDate;
+
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date modificationDate)
+    {
+        this.modificationDate = modificationDate;
+    }
 
     public Script getScript()
     {

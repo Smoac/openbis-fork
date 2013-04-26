@@ -1229,6 +1229,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    public String registerAndAssignPropertyType(final String sessionToken, final PropertyType propertyType, NewETPTAssignment assignment)
+    {
+        registerPropertyType(sessionToken, propertyType);
+        return assignPropertyType(sessionToken, assignment);
+    }
+    
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public String assignPropertyType(final String sessionToken, NewETPTAssignment assignment)
     {
         assert sessionToken != null : "Unspecified session token";
@@ -1820,6 +1828,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         IEntityTypeDAO entityTypeDAO =
                 getDAOFactory().getEntityTypeDAO(DtoConverters.convertEntityKind(entityKind));
         EntityTypePE entityTypePE = entityTypeDAO.tryToFindEntityTypeByCode(entityType.getCode());
+        if (entityTypePE.getModificationDate().equals(entityType.getModificationDate()) == false)
+        {
+            throw new UserFailureException("Unfortunately " + entityType.getCode()
+                    + " has been modified in the meantime.\n\n"
+                    + "Please, refresh the data and try it again.");
+        }
 
         entityTypePE.setDescription(entityType.getDescription());
 

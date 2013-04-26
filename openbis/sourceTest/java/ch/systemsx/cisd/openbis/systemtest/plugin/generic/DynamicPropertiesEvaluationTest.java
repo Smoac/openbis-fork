@@ -73,7 +73,8 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
     private TechId createdSampleId = null;
 
     private NewETPTAssignment createDynamicPropertyAssignment(final EntityKind entityKind,
-            final String propertyTypeCode, String entityTypeCode, String script)
+            final String propertyTypeCode, String entityTypeCode, String script,
+            Date modificationDate)
     {
         final boolean mandatory = false;
         final String defaultValue = null;
@@ -81,7 +82,8 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         final Long ordinal = 0L;
         final boolean dynamic = true;
         return new NewETPTAssignment(entityKind, propertyTypeCode, entityTypeCode, mandatory,
-                defaultValue, section, ordinal, dynamic, false, script, false, false);
+                defaultValue, section, ordinal, dynamic, false, modificationDate, script, false,
+                false);
     }
 
     @BeforeMethod
@@ -95,7 +97,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         final String script = "code_date";
         NewETPTAssignment assignment =
                 createDynamicPropertyAssignment(entityKind, propertyTypeCode, entityTypeCode,
-                        script);
+                        script, null);
         commonClientService.assignPropertyType(assignment);
     }
 
@@ -198,9 +200,11 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         final String propertyTypeCode = DESCRIPTION;
         final String entityTypeCode = CELL_PLATE;
         final String script = "date"; // different script
+        Date modificationDate =
+                getETPT(entityKind, propertyTypeCode, entityTypeCode).getModificationDate();
         NewETPTAssignment assignmentUpdates =
                 createDynamicPropertyAssignment(entityKind, propertyTypeCode, entityTypeCode,
-                        script);
+                        script, modificationDate);
 
         final Date dateBefore = new Date();
         commonClientService.updatePropertyTypeAssignment(assignmentUpdates);

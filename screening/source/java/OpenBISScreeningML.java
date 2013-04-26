@@ -37,6 +37,10 @@ import ch.systemsx.cisd.common.collection.IKeyExtractor;
 import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacadeFactory;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.OpenbisServiceFacadeFactory;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.OpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.client.cli.Login;
@@ -210,6 +214,10 @@ public class OpenBISScreeningML
 
     private static IScreeningOpenbisServiceFacade openbis = null;
 
+    static IOpenbisServiceFacadeFactory genericFacadeFactory = null;
+
+    private static IOpenbisServiceFacade genericOpenbis = null;
+
     private static List<ExperimentIdentifier> experiments = null;
 
     private static List<Plate> plates = null;
@@ -283,12 +291,21 @@ public class OpenBISScreeningML
         {
             throw new RuntimeException("Login failed.");
         }
-        init(facade);
+
+        if (null == genericFacadeFactory)
+        {
+            genericFacadeFactory = OpenbisServiceFacadeFactory.INSTANCE;
+        }
+        IOpenbisServiceFacade genericFacade =
+                genericFacadeFactory.tryToCreate(facade.getSessionToken(), url, 0);
+        init(facade, genericFacade);
     }
 
-    private static void init(IScreeningOpenbisServiceFacade openBisFacade)
+    private static void init(IScreeningOpenbisServiceFacade openBisFacade,
+            IOpenbisServiceFacade genericFacade)
     {
         openbis = openBisFacade;
+        genericOpenbis = genericFacade;
         dataSetsDir = new File(tempDir, DATASETS_FOLDER);
         if (dataSetsDir.isDirectory() == false && dataSetsDir.mkdirs() == false)
         {
@@ -2264,6 +2281,24 @@ public class OpenBISScreeningML
         return metadataList.toArray(new PlateMetadata[0]);
     }
 
+    public static String getContainerDataSetCode(String dataSetCode)
+    {
+        checkLoggedIn();
+
+        DataSet dataSet = genericOpenbis.getDataSet(dataSetCode);
+
+        if (dataSet != null)
+        {
+            DataSet container = dataSet.getContainerOrNull();
+
+            if (container != null)
+            {
+                return container.getCode();
+            }
+        }
+        return null;
+    }
+
     //
     // Helper methods
     //
@@ -2378,7 +2413,9 @@ public class OpenBISScreeningML
                     {
                         throw new RuntimeException("Login failed.");
                     }
-                    init(facade);
+                    IOpenbisServiceFacade genericFacade =
+                            genericFacadeFactory.tryToCreate(token, serverUrl, 0);
+                    init(facade, genericFacade);
                 } catch (IOException ex)
                 {
                     if (openbis == null)

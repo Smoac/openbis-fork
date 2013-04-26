@@ -66,6 +66,7 @@ public final class PropertyTypeTranslator
         result.setId(HibernateUtils.getId(propertyType));
         result.setCode(propertyType.getCode());
         result.setSimpleCode(propertyType.getSimpleCode());
+        result.setModificationDate(propertyType.getModificationDate());
         result.setInternalNamespace(propertyType.isInternalNamespace());
         result.setManagedInternally(propertyType.isManagedInternally());
         result.setLabel(propertyType.getLabel());

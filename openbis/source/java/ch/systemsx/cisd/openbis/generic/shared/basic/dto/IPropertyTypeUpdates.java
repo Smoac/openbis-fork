@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.Date;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
@@ -35,4 +37,6 @@ public interface IPropertyTypeUpdates extends IIdHolder, ICodeHolder
     String getSchema();
 
     String getTransformation();
+
+    Date getModificationDate();
 }

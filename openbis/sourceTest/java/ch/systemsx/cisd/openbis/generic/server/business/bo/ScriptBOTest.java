@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.Date;
+
 import org.jmock.Expectations;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -45,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public final class ScriptBOTest extends AbstractBOTest
 {
 
+    @SuppressWarnings("unused")
     @DataProvider
     private final static Object[][] scriptTypes()
     {
@@ -256,12 +259,14 @@ public final class ScriptBOTest extends AbstractBOTest
         String script = SCRIPT;
         updates.setScript(script);
         updates.setId(1L);
+        updates.setModificationDate(new Date(42));
 
         final ScriptPE scriptPE = new ScriptPE();
         scriptPE.setName(name + 1);
         scriptPE.setScript(script);
         scriptPE.setDescription(description + 1);
         scriptPE.setScriptType(scriptType);
+        scriptPE.setModificationDate(updates.getModificationDate());
 
         context.checking(new Expectations()
             {
@@ -300,12 +305,14 @@ public final class ScriptBOTest extends AbstractBOTest
         String script = SCRIPT;
         updates.setScript(script);
         updates.setId(1L);
+        updates.setModificationDate(new Date(42));
 
         final ScriptPE scriptPE = new ScriptPE();
         scriptPE.setName(name + 1);
         scriptPE.setScript(script + 1);
         scriptPE.setDescription(description + 1);
         scriptPE.setScriptType(scriptType);
+        scriptPE.setModificationDate(updates.getModificationDate());
         final SampleTypePropertyTypePE etpt = new SampleTypePropertyTypePE();
         SampleTypePE sampleType = new SampleTypePE();
         etpt.setEntityType(sampleType);

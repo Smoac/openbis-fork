@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.server.resultset;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs.MODIFICATION_DATE;
 import static ch.systemsx.cisd.openbis.plugin.query.client.web.client.dto.QueryBrowserGridColumnIDs.DESCRIPTION;
 import static ch.systemsx.cisd.openbis.plugin.query.client.web.client.dto.QueryBrowserGridColumnIDs.ENTITY_TYPE;
 import static ch.systemsx.cisd.openbis.plugin.query.client.web.client.dto.QueryBrowserGridColumnIDs.IS_PUBLIC;
@@ -39,12 +40,13 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 
 /**
  * Provider of {@link QueryExpression} instances.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class QueryExpressionProvider extends AbstractTableModelProvider<QueryExpression>
 {
     private final IQueryServer server;
+
     private final String sessionToken;
 
     public QueryExpressionProvider(IQueryServer server, String sessionToken)
@@ -56,9 +58,10 @@ public class QueryExpressionProvider extends AbstractTableModelProvider<QueryExp
     @Override
     protected TypedTableModel<QueryExpression> createTableModel()
     {
-        List<QueryExpression> expressions = server.listQueries(sessionToken,
-                QueryType.UNSPECIFIED, BasicEntityType.UNSPECIFIED);
-        TypedTableModelBuilder<QueryExpression> builder = new TypedTableModelBuilder<QueryExpression>();
+        List<QueryExpression> expressions =
+                server.listQueries(sessionToken, QueryType.UNSPECIFIED, BasicEntityType.UNSPECIFIED);
+        TypedTableModelBuilder<QueryExpression> builder =
+                new TypedTableModelBuilder<QueryExpression>();
         builder.addColumn(NAME);
         builder.addColumn(DESCRIPTION);
         builder.addColumn(SQL_QUERY).hideByDefault();
@@ -68,6 +71,7 @@ public class QueryExpressionProvider extends AbstractTableModelProvider<QueryExp
         builder.addColumn(QUERY_DATABASE).hideByDefault();
         builder.addColumn(REGISTRATOR).hideByDefault();
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(300).hideByDefault();
+        builder.addColumn(MODIFICATION_DATE).withDefaultWidth(300).hideByDefault();
         for (QueryExpression expression : expressions)
         {
             builder.addRow(expression);
@@ -80,6 +84,7 @@ public class QueryExpressionProvider extends AbstractTableModelProvider<QueryExp
             builder.column(QUERY_DATABASE).addString(expression.getQueryDatabaseLabel());
             builder.column(REGISTRATOR).addPerson(expression.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(expression.getRegistrationDate());
+            builder.column(MODIFICATION_DATE).addDate(expression.getModificationDate());
         }
         return builder.getModel();
     }

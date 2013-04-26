@@ -82,6 +82,7 @@ public abstract class AbstractExpression extends AbstractRegistrationHolder impl
         this.isPublic = isPublic;
     }
 
+    @Override
     public Date getModificationDate()
     {
         return modificationDate;

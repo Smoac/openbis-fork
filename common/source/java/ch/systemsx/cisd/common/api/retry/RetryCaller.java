@@ -88,15 +88,15 @@ public abstract class RetryCaller<T, E extends Throwable>
                 return result;
             } catch (RuntimeException e)
             {
-                if (isCommunicationException(e))
+                if (isRetryableException(e))
                 {
                     if (shouldRetry())
                     {
-                        logger.log(LogLevel.WARN, "Communication failed - will retry");
+                        logger.log(LogLevel.WARN, "Call failed - will retry");
                         waitForRetry();
                     } else
                     {
-                        logger.log(LogLevel.WARN, "Communication failed - will NOT retry");
+                        logger.log(LogLevel.WARN, "Call failed - will NOT retry");
                         throw e;
                     }
                 } else
@@ -107,7 +107,7 @@ public abstract class RetryCaller<T, E extends Throwable>
         }
     }
 
-    private boolean isCommunicationException(RuntimeException e)
+    protected boolean isRetryableException(RuntimeException e)
     {
         if (e instanceof RemoteConnectFailureException)
         {

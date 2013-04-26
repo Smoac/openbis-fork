@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -39,6 +40,8 @@ public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpd
     private String simpleCode;
 
     private String label;
+
+    private Date modificationDate;
 
     private boolean internalNamespace;
 
@@ -96,6 +99,17 @@ public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpd
     public void setLabel(final String label)
     {
         this.label = label;
+    }
+
+    @Override
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date modificationDate)
+    {
+        this.modificationDate = modificationDate;
     }
 
     public boolean isInternalNamespace()

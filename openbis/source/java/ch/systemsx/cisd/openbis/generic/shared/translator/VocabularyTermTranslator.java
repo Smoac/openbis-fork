@@ -52,6 +52,7 @@ public class VocabularyTermTranslator
         result.setOfficial(vt.isOfficial());
         result.setRegistrationDate(vt.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(vt.getRegistrator()));
+        result.setModificationDate(vt.getModificationDate());
 
         return result;
     }

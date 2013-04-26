@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -33,6 +34,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -76,6 +78,8 @@ public final class SpacePE extends HibernateAbstractRegistrationHolder implement
 
     // null if unknown
     private Boolean home;
+
+    private Date modificationDate;
 
     public final void setCode(final String code)
     {
@@ -121,6 +125,18 @@ public final class SpacePE extends HibernateAbstractRegistrationHolder implement
     public final void setHome(final Boolean home)
     {
         this.home = home;
+    }
+
+    @Version
+    @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false)
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date versionDate)
+    {
+        this.modificationDate = versionDate;
     }
 
     //

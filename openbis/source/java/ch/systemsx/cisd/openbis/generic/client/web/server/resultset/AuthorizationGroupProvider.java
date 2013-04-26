@@ -16,11 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
-
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.AuthorizationGroupGridColumnIDs.CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.AuthorizationGroupGridColumnIDs.DESCRIPTION;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.AuthorizationGroupGridColumnIDs.REGISTRATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.AuthorizationGroupGridColumnIDs.REGISTRATOR;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs.MODIFICATION_DATE;
 
 import java.util.List;
 
@@ -31,10 +31,11 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
  * Provider of {@link AuthorizationGroup} instances.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public class AuthorizationGroupProvider extends AbstractCommonTableModelProvider<AuthorizationGroup>
+public class AuthorizationGroupProvider extends
+        AbstractCommonTableModelProvider<AuthorizationGroup>
 {
     public AuthorizationGroupProvider(ICommonServer commonServer, String sessionToken)
     {
@@ -51,6 +52,7 @@ public class AuthorizationGroupProvider extends AbstractCommonTableModelProvider
         builder.addColumn(DESCRIPTION);
         builder.addColumn(REGISTRATOR);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(300);
+        builder.addColumn(MODIFICATION_DATE).withDefaultWidth(300).hideByDefault();
         for (AuthorizationGroup group : groups)
         {
             builder.addRow(group);
@@ -58,6 +60,7 @@ public class AuthorizationGroupProvider extends AbstractCommonTableModelProvider
             builder.column(DESCRIPTION).addString(group.getDescription());
             builder.column(REGISTRATOR).addPerson(group.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(group.getRegistrationDate());
+            builder.column(MODIFICATION_DATE).addDate(group.getModificationDate());
         }
         return builder.getModel();
     }

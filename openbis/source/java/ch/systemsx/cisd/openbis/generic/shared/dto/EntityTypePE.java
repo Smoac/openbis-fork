@@ -16,11 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.Date;
+
+import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -51,6 +55,8 @@ public abstract class EntityTypePE extends AbstractTypePE
 
     private DatabaseInstancePE databaseInstance;
 
+    private Date modificationDate;
+
     private ScriptPE validationScript;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -64,6 +70,18 @@ public abstract class EntityTypePE extends AbstractTypePE
     public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
     {
         this.databaseInstance = databaseInstance;
+    }
+
+    @Version
+    @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
+    public Date getModificationDate()
+    {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date versionDate)
+    {
+        this.modificationDate = versionDate;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)

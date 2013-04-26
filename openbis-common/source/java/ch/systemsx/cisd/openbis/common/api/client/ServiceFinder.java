@@ -160,6 +160,7 @@ public class ServiceFinder
         service =
                 createServiceStubStoringCertificateIfNecessary(serviceInterface, timeoutInMillis,
                         usedServerUrl);
+        servicePinger.ping(service);
         return new ServiceWithUrl<S>(usedServerUrl, service);
     }
 
