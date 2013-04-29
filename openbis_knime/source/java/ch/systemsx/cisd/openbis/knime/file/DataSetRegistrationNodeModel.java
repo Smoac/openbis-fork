@@ -17,8 +17,11 @@
 package ch.systemsx.cisd.openbis.knime.file;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.knime.core.data.uri.URIContent;
 import org.knime.core.data.uri.URIPortObject;
 import org.knime.core.node.ExecutionContext;
@@ -33,6 +36,8 @@ import org.knime.core.node.port.PortType;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeModel;
 import ch.systemsx.cisd.openbis.knime.common.Util;
 
@@ -46,11 +51,14 @@ public class DataSetRegistrationNodeModel extends AbstractOpenBisNodeModel
     static final String DATA_SET_TYPE_KEY = "data-set-type";
     static final String OWNER_TYPE_KEY = "owner-type";
     static final String OWNER_KEY = "owner";
+    static final String PROPERTY_TYPE_CODES_KEY = "property-type-codes";
+    static final String PROPERTY_VALUES_KEY = "property-values";
     
     private final IOpenbisServiceFacadeFactory serviceFacadeFactory;
-    private String dataSetType;
     private DataSetOwnerType ownerType;
     private String owner;
+    private Map<String, String> properties;
+    private DataSetType dataSetType;
 
     public DataSetRegistrationNodeModel(IOpenbisServiceFacadeFactory serviceFacadeFactory)
     {
@@ -68,15 +76,39 @@ public class DataSetRegistrationNodeModel extends AbstractOpenBisNodeModel
     protected void loadAdditionalValidatedSettingsFrom(NodeSettingsRO settings)
             throws InvalidSettingsException
     {
-        dataSetType = settings.getString(DATA_SET_TYPE_KEY);
+        byte[] bytes = settings.getByteArray(DATA_SET_TYPE_KEY, null);
+        dataSetType = (DataSetType) Util.deserializeDescription(bytes);
         ownerType = DataSetOwnerType.valueOf(settings.getString(OWNER_TYPE_KEY));
         owner = settings.getString(OWNER_KEY);
+        properties = getProperties(settings);
+    }
+
+    static Map<String, String> getProperties(NodeSettingsRO settings)
+            throws InvalidSettingsException
+    {
+        String[] propertyTypeCodes = settings.getStringArray(PROPERTY_TYPE_CODES_KEY);
+        String[] propertyValues = settings.getStringArray(PROPERTY_VALUES_KEY);
+        if (propertyTypeCodes.length != propertyValues.length)
+        {
+            throw new InvalidSettingsException("Corrupted properties: " + propertyTypeCodes.length
+                    + " property type codes but " + propertyValues.length + " values.");
+        }
+        Map<String, String> props = new HashMap<String, String>(); 
+        for (int i = 0; i < propertyTypeCodes.length; i++)
+        {
+            String propertyValue = propertyValues[i];
+            if (StringUtils.isNotBlank(propertyValue))
+            {
+                props.put(propertyTypeCodes[i], propertyValue);
+            }
+        }
+        return props;
     }
 
     @Override
     protected void saveAdditionalSettingsTo(NodeSettingsWO settings)
     {
-        settings.addString(DATA_SET_TYPE_KEY, dataSetType);
+        settings.addByteArray(DATA_SET_TYPE_KEY, Util.serializeDescription(dataSetType));
         settings.addString(OWNER_TYPE_KEY, (ownerType == null ? DataSetOwnerType.EXPERIMENT
                 : ownerType).name());
         settings.addString(OWNER_KEY, owner);
@@ -97,7 +129,9 @@ public class DataSetRegistrationNodeModel extends AbstractOpenBisNodeModel
             builder.setDataSetOwnerIdentifier(peekFlowVariableString(Util.VARIABLE_PREFIX + ownerType.name()));
         }
         builder.setFile(file);
-        builder.getDataSetMetadata().setDataSetTypeOrNull(dataSetType);
+        NewDataSetMetadataDTO dataSetMetadata = builder.getDataSetMetadata();
+        dataSetMetadata.setDataSetTypeOrNull(dataSetType.getCode());
+        dataSetMetadata.setProperties(properties);
         IOpenbisServiceFacade facade = serviceFacadeFactory.createFacade(url, userID, password);
         facade.putDataSet(builder.asNewDataSetDTO(), file);
         return new PortObject[] {};

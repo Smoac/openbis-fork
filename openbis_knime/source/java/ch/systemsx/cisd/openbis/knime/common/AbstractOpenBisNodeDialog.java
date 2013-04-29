@@ -22,6 +22,7 @@ import static ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeModel.USE
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -72,7 +73,6 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
     private Component createTab()
     {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setPreferredSize(new Dimension(600, 450));
         JPanel connectionPanel = new JPanel(new GridBagLayout());
         connectionPanel.setBorder(BorderFactory.createTitledBorder("Connection Parameters"));
         urlField = addField(connectionPanel, "openBIS URL", new JTextField(20));
@@ -96,6 +96,7 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
         JScrollPane scrollPane = new JScrollPane(panel);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setPreferredSize(new Dimension(600, 450));
 
         return scrollPane;
     }
@@ -152,13 +153,19 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
         }
     }
 
-    protected <T extends JComponent> T addField(JPanel panel, String label, T field)
+    protected <T extends JComponent> T addField(Container panel, String label, T field)
     {
-        panel.add(new JLabel(label + ":"), createFirst());
+        return addField(panel, label, field, false);
+    }
+
+    protected <T extends JComponent> T addField(Container panel, String label, T field,
+            boolean mandatory)
+    {
+        panel.add(new JLabel(label + (mandatory ? ":*" : ":")), createFirst());
         panel.add(field, createLast());
         return field;
     }
-
+    
     protected GridBagConstraints createLast()
     {
         GridBagConstraints last = createFirst();

@@ -19,9 +19,9 @@ For unit testing do not run a test class directly but execute the eclipse launch
 
 For manual integration test with KNIME do the following:
 1. Open site.xml in project openbis_knime.update-site.
-2. Click on 'Add Feature...' and choose in the pop-up dialog the feature 
+2. Click on category 'openBIS KNIME Nodes'.
+3. Click on 'Add Feature...' and choose in the pop-up dialog the feature 
    ch.systemsx.cisd.openbis.knime
-3. Drag and drop the new feature inside the category 'openBIS KNIME Nodes'.
 4. Click on the 'Build' button. This creates/update artifacts.jar, content.jar, 
    features/ and plugins/ folder of project openbis_knime.update-site
 5. Install/update openBIS KNIME Nodes from the local update site 
@@ -34,9 +34,9 @@ Build and deploy a new version
    13.04.02.qualifier -> 13.04.03.qualifier
 2. Does the same for feature.xml in project openbis_knime.feature.
 3. Open site.xml in project openbis_knime.update-site.
-4. Click on 'Add Feature...' and choose in the pop-up dialog the feature 
+4. Click on category 'openBIS KNIME Nodes'.
+5. Click on 'Add Feature...' and choose in the pop-up dialog the feature 
    ch.systemsx.cisd.openbis.knime
-5. Drag and drop the new feature inside the category 'openBIS KNIME Nodes'.
 6. Click on the 'Build' button. This creates/update artifacts.jar, content.jar, 
    features/ and plugins/ folder of project openbis_knime.update-site
 7. Copy these two JARs and folders to openbis@lascar:/links/groups/cisd/doc/openbis/knime-update-site
