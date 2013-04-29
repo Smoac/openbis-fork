@@ -28,6 +28,23 @@
 
 NSString *const CISDOBConnectionErrorDomain = @"CISDOBConnectionErrorDomain";
 
+BOOL IsCouldNotConnectToServerError(NSError *error)
+{
+    if (!error) return NO;
+    return ([NSURLErrorDomain isEqualToString: error.domain] && -1004 == error.code);
+}
+
+BOOL IsInternetConnectionOfflineError(NSError *error)
+{
+    if (!error) return NO;
+    return ([NSURLErrorDomain isEqualToString: error.domain] && -1009 == error.code);
+}
+
+BOOL IsSomeKindOfNetworkConnectionError(NSError *error)
+{
+    return IsCouldNotConnectToServerError(error) || IsInternetConnectionOfflineError(error);
+}
+
 
 @interface CISDOBConnection (CISDOBConnectionPrivate)
 

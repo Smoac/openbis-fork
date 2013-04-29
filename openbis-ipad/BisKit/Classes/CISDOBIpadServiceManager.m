@@ -260,7 +260,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
         }
         
         // Check the error -- the server could be unavailable
-        if ([NSURLErrorDomain isEqualToString: error.domain] && -1004 == error.code) {
+        if (IsSomeKindOfNetworkConnectionError(error)) {
             // "Could not connect to the server"
             weakSelf.online = NO;
         }

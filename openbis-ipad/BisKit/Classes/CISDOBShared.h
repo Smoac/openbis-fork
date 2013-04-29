@@ -59,6 +59,15 @@ enum CISOBJsonRpcErrorCode {
     kCISOBJsonRpcError_CallReturnedError = 5,
 };
 
+//! Return true if the error is "Could not connect to server" (Domain=NSURLErrorDomain Code=-1004
+BOOL IsCouldNotConnectToServerError(NSError *error);
+
+//! Return true if the error is "Could not connect to server" (Domain=NSURLErrorDomain Code=-1009
+BOOL IsInternetConnectionOfflineError(NSError *error);
+
+//! Return true either IsCouldNotConnectToServerError or IsInternetConnectionOfflineError
+BOOL IsSomeKindOfNetworkConnectionError(NSError *error);
+
 //
 // Shared preprocessor macros
 //

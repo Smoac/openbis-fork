@@ -156,8 +156,7 @@
         [weakSelf didConnectToServer];
     };
     call.fail = ^(NSError *error) {
-        if ([NSURLErrorDomain isEqualToString: error.domain] && -1004 == error.code) {
-            // "Could not connect to the server"
+        if (IsSomeKindOfNetworkConnectionError(error)) {
             [self serverOffline];
         } else {
             [[weakSelf detailViewController] performSegueWithIdentifier: @"ShowLoginDialog" sender: self];
