@@ -239,6 +239,31 @@ class SVNRepositoryProjectContext
         return SVNUtilities.releaseTagPattern.matcher(versionName).matches();
     }
 
+    public boolean isStageBranch(String versionName)
+    {
+        return SVNUtilities.stageBranchPattern.matcher(versionName).matches();
+    }
+
+    /**
+     * Sets the {@link SVNProjectVersionType} to {@link SVNProjectVersionType#STAGE_BRANCH} and the
+     * version to <var>branchName</var>.
+     * 
+     * @throws UserFailureException If the <var>branchName</var> is empty or contains an illegal
+     *             character.
+     */
+    public void setStageBranch(String branchName) throws UserFailureException
+    {
+        assert branchName != null;
+
+        if (false == isStageBranch(branchName))
+        {
+            throw new UserFailureException("Branch name '" + branchName
+                    + "' does not match the pattern.");
+        }
+        this.versionType = SVNProjectVersionType.STAGE_BRANCH;
+        this.version = branchName.substring(0, branchName.lastIndexOf(".stage"));
+    }
+
     /**
      * Sets the {@link SVNProjectVersionType} to {@link SVNProjectVersionType#SPRINT_TAG} and the
      * version to <var>tagName</var>.
@@ -325,22 +350,27 @@ class SVNRepositoryProjectContext
                 return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(),
                         getProjectName(), "branches/release", getVersion()), "/");
             case RELEASE_TAG:
-                {
+            {
                 final String branchName = SVNUtilities.getBranchForTagRelease(getVersion());
                 return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(),
                         getProjectName(), "tags/release", branchName, getVersion()), "/");
-                }
+            }
+            case STAGE_BRANCH:
+            {
+                return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(),
+                        getProjectName(), "branches/stage", getVersion()), "/");
+            }
             case SPRINT_BRANCH:
-                {
+            {
                 return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(),
                         getProjectName(), "branches/sprint", getVersion()), "/");
-                }
+            }
             case SPRINT_TAG:
-                {
+            {
                 final String branchName = SVNUtilities.getBranchForTagSprint(getVersion());
                 return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(),
                         getProjectName(), "tags/sprint", branchName, getVersion()), "/");
-                }
+            }
             case FEATURE_BRANCH:
                 return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(),
                         getProjectName(), "branches/feature", getVersion()), "/");
@@ -383,8 +413,9 @@ class SVNRepositoryProjectContext
                                 && subProjectName.equals(SVNUtilities.LIBRARIES) == false)
                         {
                             return StringUtils.join(Arrays.asList(getRepositoryUrl(),
-                                    SVNUtilities.LIBRARIES_TRUNK, subProjectName
-                                            .substring(SVNUtilities.LIBRARIES.length() + 1)), "/");
+                                    SVNUtilities.LIBRARIES_TRUNK,
+                                    subProjectName.substring(SVNUtilities.LIBRARIES.length() + 1)),
+                                    "/");
                         } else
                         {
                             return StringUtils.join(Arrays.asList(getRepositoryUrl(),

@@ -212,10 +212,10 @@ public class SVNRecursiveCheckoutTask extends Task
             final File libDir =
                     new File(new File(checkoutCmd.getDirectoryToCheckout(),
                             SVNUtilities.BUILD_RESOURCES_PROJECT), "lib");
-            exporterCmd.export(StringUtils.join(Arrays
-                    .asList(context.getRepositoryRoot(), context.getGroup(),
-                            SVNUtilities.BUILD_RESOURCES_PROJECT, SVNUtilities.DEFAULT_VERSION,
-                            "lib", SVNUtilities.CISD_ANT_TASKS_FILE), "/"), libDir);
+            exporterCmd.export(StringUtils.join(Arrays.asList(context.getRepositoryRoot(),
+                    context.getGroup(), SVNUtilities.BUILD_RESOURCES_PROJECT,
+                    SVNUtilities.DEFAULT_VERSION, "lib", SVNUtilities.CISD_ANT_TASKS_FILE), "/"),
+                    libDir);
             new SVNCheckoutDependentExecutor(checkoutCmd).execute(new File(workingCopyDir,
                     pathProvider.getProjectName()));
         } catch (final SVNException ex)
@@ -313,6 +313,23 @@ public class SVNRecursiveCheckoutTask extends Task
     }
 
     /**
+     * Sets the name of the stage branch specified for this project.
+     */
+    public void setStageBranch(final String branchName)
+    {
+        assert context != null;
+        assert branchName != null;
+
+        try
+        {
+            context.setStageBranch(branchName);
+        } catch (final UserFailureException ex)
+        {
+            throw new BuildException(ex.getMessage());
+        }
+    }
+
+    /**
      * Sets the name of the feature branch specified for this project.
      */
     public void setFeatureBranch(final String branchName)
@@ -349,6 +366,9 @@ public class SVNRecursiveCheckoutTask extends Task
         } else if (context.isReleaseTag(versionName))
         {
             setReleaseTag(versionName);
+        } else if (context.isStageBranch(versionName))
+        {
+            setStageBranch(versionName);
         } else if (context.isSprintBranch(versionName))
         {
             setSprintBranch(versionName);

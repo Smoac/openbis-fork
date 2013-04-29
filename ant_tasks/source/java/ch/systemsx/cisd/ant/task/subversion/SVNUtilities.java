@@ -63,6 +63,9 @@ class SVNUtilities
     /** A pattern that release tags must match. */
     static final Pattern releaseTagPattern = Pattern.compile(RELEASE_PATTERN_PREFIX + "[0-9]+");
 
+    /** A pattern that stage branches must match. */
+    static final Pattern stageBranchPattern = Pattern.compile(RELEASE_PATTERN_PREFIX + "x\\.stage");
+
     /** A pattern that sprint branches must match. */
     static final Pattern sprintBranchPattern = Pattern.compile("(S[0-9]+)\\.x");
 
@@ -391,7 +394,7 @@ class SVNUtilities
             throw new IllegalArgumentException("Not a release or Sprint branch.");
         }
     }
-    
+
     static String getFirstTagForReleaseBranch(final String branchName)
     {
         final Matcher branchMatcher = releaseBranchPattern.matcher(branchName);
