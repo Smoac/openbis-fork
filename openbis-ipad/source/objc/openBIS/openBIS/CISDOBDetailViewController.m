@@ -371,6 +371,7 @@
             NSString *description = [[errorOrNil userInfo] valueForKey: NSLocalizedDescriptionKey];
             NSString *statusText = [NSString stringWithFormat: @"Could not retrieve details: %@", description];
             [self setStatusText: statusText];
+            if (IsSomeKindOfNetworkConnectionError(errorOrNil)) [self configureToolbarButtons];
         } else {
             [self clearStatusText];
         }
