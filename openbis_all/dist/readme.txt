@@ -7,6 +7,5 @@ This package contains the following distributions of openBIS clients and APIs:
 - openBIS-query-API-<version>.zip: Distribution (with Javadoc and source files) for openBIS Query API.
 - openBIS-proteomics-API-<version>.zip: Distribution (with Javadoc and source files) for openBIS Proteomics API.
 - openBIS-screening-API-<version>.zip: Distribution (with Javadoc and source files) for openBIS Screening API.
-- ch.systemsx.cisd.openbis.knime-12.04.0.jar: openBIS KNIME nodes.
 - readme.txt: This file.
 
