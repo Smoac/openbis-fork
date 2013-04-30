@@ -7,6 +7,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.BorderLayoutDataFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DataSetKindSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeGrid;
@@ -14,7 +15,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -238,7 +238,7 @@ public class NewEntityTypeForm extends ContentPanel
                 toSaveDataSet.setCode((String) formFields.get(0).getValue());
                 toSaveDataSet.setDescription((String) formFields.get(1).getValue());
                 toSaveDataSet.setValidationScript((Script) formFields.get(2).getValue());
-                toSaveDataSet.setDataSetKind((DataSetKind) formFields.get(3).getValue());
+                toSaveDataSet.setDataSetKind(((DataSetKindSelectionWidget)formFields.get(3)).getValue().getBaseObject());
                 toSaveDataSet.setDeletionDisallow((Boolean) formFields.get(4).getValue());
                 toSaveDataSet.setMainDataSetPattern((String) formFields.get(5).getValue());
                 toSaveDataSet.setMainDataSetPath((String) formFields.get(6).getValue());
