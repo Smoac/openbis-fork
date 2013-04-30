@@ -20,4 +20,16 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.python.pydev.pythonNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>servers/deep_sequencing_unit/core-plugins/illumina-ngs</name>
+			<type>2</type>
+			<locationURI>WORKSPACE_LOC/deep_sequencing_unit/source/core-plugins/illumina-ngs</locationURI>
+		</link>
+    <link>
+      <name>servers/deep_sequencing_unit/core-plugins/ngs-sample-overview-graph</name>
+      <type>2</type>
+      <locationURI>WORKSPACE_LOC/deep_sequencing_unit/source/core-plugins/ngs-sample-overview-graph</locationURI>
+    </link>
+	</linkedResources>
 </projectDescription>
