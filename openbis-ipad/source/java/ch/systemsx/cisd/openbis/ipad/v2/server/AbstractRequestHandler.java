@@ -57,10 +57,12 @@ public class AbstractRequestHandler implements IRequestHandler
         } else if (value instanceof Double)
         {
             row.setCell(key, (Double) value);
-        }
-        if (value instanceof Date)
+        } else if (value instanceof Date)
         {
             row.setCell(key, (Date) value);
+        } else
+        {
+            row.setCell(key, value.toString());
         }
     }
 
