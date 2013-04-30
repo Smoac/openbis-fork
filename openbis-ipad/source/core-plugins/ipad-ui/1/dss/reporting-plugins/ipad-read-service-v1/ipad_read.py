@@ -1,6 +1,7 @@
+from ch.systemsx.cisd.openbis.ipad.v2.server import AbstractRequestHandler, ClientPreferencesRequestHandler, RootRequestHandler, DrillRequestHandler, NavigationRequestHandler, DetailRequestHandler, EmptyDataRequestHandler
 from ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2 import MaterialIdentifierCollection
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto import MaterialIdentifier
-from com.fasterxml.jackson.databind import ObjectMapper 
+from com.fasterxml.jackson.databind import ObjectMapper
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria, SearchSubCriteria
 
 from datetime import datetime
@@ -20,188 +21,6 @@ def json_empty_list():
 def json_empty_dict():
   """Utility function to return an json-encoded empty dictionary"""
   return json_encoded_value({})
-
-class RequestHandler(object):
-	"""Abstract superclass for the handlers for concrete requests like ROOT.
-
-	This superclass defines behavior common to all requests.
-
-	Subclasses need to implement the method optional_headers(), which returns
-	a list of the optional headers they fill out.
-
-	Subclasses should implement retrieve_data to get the data they provide.
-
-	Subclasses should implement add_data_rows. In this method, they should call add_row.
-	The method add_row takes a dictionary as an argument. The keys of the dictionary match the
-	headers in the result columns. The dictionary should include data for the required columns
-	and optional ones they fill.
-
-	"""
-
-	def __init__(self, parameters, builder):
-		self.parameters = parameters
-		self.builder = builder
-		global searchService
-		self.searchService = searchService
-		self.headers = ['PERM_ID', 'REFCON'] + self.optional_headers()
-		
-	def entities_parameter(self):
-	  """A helper method to get the value of the entities parameter. Returns an empty list if no entities were specified"""
-	  entities = self.parameters.get('entities')
-	  if entities is None:
-	    return []
-	  return entities
-
-
-	def optional_headers(self):
-		"""Return a list of optional headers supported by this request. Sublass responsibility.
-
-		See add_headers() for the list of supported headers
-		"""
-		return []
-
-	def retrieve_data(self):
-		"""Get the data for the request. Subclass responsibility"""
-		pass
-
-	def add_data_rows(self):
-		"""Take the information from the data and put it into the table.
-		Subclass responsibility.
-		"""
-		pass
-
-	def add_headers(self):
-		"""Configure the headers for this request.
-
-		The possible headers come from the following list:
-			PERM_ID : A stable identifier for the object. (required)
-			REFCON : Data that is passed unchanged back to the server when a row is modified.
-				This can be used by the server to encode whatever it needs in order to
-				modify the row. (required)
-			CATEGORY : A category identifier for grouping entities.
-			SUMMARY_HEADER : A short summary of the entity.
-			SUMMARY : A potentially longer summary of the entity.
-			CHILDREN : The permIds of the children of this entity. Transmitted as JSON.
-			IDENTIFIER : An identifier for the object.
-			IMAGES : A map with keys coming from the set 'MARQUEE', 'TILED'. The values are image specs or lists of image specs.
-				Image specs are maps with the keys: 'URL' (a URL for the iamge) or 'DATA'. The data key contains a map that
-				includes the image data and may include some image metadata as well. This format has not yet been specified.
-			PROPERTIES : Properties (metadata) that should be displayed for this entity. Transmitted as JSON.
-			ROOT_LEVEL : True if the entity should be shown on the root level.
-
-		The relevant headers are determined by the request.
-		"""
-		for header in self.headers:
-			self.builder.addHeader(header)
-
-	def add_row(self, entry):
-		"""Append a row of data to the table"""
-		row = self.builder.addRow()
-		for header in self.headers:
-			value = entry.get(header)
-			if value is not None:
-				row.setCell(header, value)
-			else:
-				row.setCell(header, "")
-
-	def add_rows(self, entities):
-		"""Take a collection of dictionaries and add a row for each one"""
-		for entry in entities:
-			self.add_row(entry)
-
-	def process_request(self):
-		"""Execute the steps necessary to process the request."""
-		self.add_headers()
-		self.retrieve_data()
-		self.add_data_rows()
-
-class ClientPreferencesRequestHandler(object):
-	"""Abstract superclass for the handlers for CLIENT_PREFS request.
-
-	This request has a slightly different structure, since it does not return entities.
-
-	Subclasses should override the preferences_dict method to return the preferences dictionary. The superclass
-	implements this method with the default values for the standard keys.
-	"""
-
-	def __init__(self, parameters, builder):
-		self.parameters = parameters
-		self.builder = builder
-		self.headers = ['KEY', 'VALUE']
-
-	def preferences_dict(self):
-		"""The dictionary containing the value for the client preferences. 
-
-		Subclasses may override if they want to change any of the values. The best way to override is to call
-		default_preferences_dict then modify/extend the resulting dictionary"""
-		return self.default_preferences_dict()
-
-	def default_preferences_dict(self):
-		"""The dictionary containing the standard keys and and default values for those keys"""
-		prefs = { 
-			# The refresh interval is a value in seconds
-			'ROOT_SET_REFRESH_INTERVAL' : 60 * 30 
-		}
-		return prefs
-
-	def add_data_rows(self):
-		"""Take the information from the preferences dict and put it into the table."""
-		prefs = self.preferences_dict()
-		for key in prefs:
-			row = self.builder.addRow()
-			row.setCell('KEY', key)
-			row.setCell('VALUE', prefs[key])
-
-	def add_headers(self):
-		"""Configure the headers for this request.
-
-		For preference request, the headers are 
-			KEY : The key of the preference.
-			VALUE : The value of the preference.
-		"""
-		for header in self.headers:
-			self.builder.addHeader(header)
-
-	def process_request(self):
-		"""Execute the steps necessary to process the request."""
-		self.add_headers()
-		self.add_data_rows()
-
-class AllDataRequestHandler(RequestHandler):
-	"""Abstract Handler for the ALLDATA request."""
-
-	def optional_headers(self):
-		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "CHILDREN", "IDENTIFIER", "IMAGES", "PROPERTIES"]
-
-class EmptyDataRequestHandler(RequestHandler):
-	"""Return nothing to the caller."""
-
-	def add_data_rows(self):
-		pass
-
-class RootRequestHandler(RequestHandler):
-	"""Abstract Handler for the ROOT request."""
-
-	def optional_headers(self):
-		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "CHILDREN", "ROOT_LEVEL"]
-
-class DrillRequestHandler(RequestHandler):
-	"""Abstract Handler for the DRILL request."""
-
-	def optional_headers(self):
-		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "CHILDREN"]
-
-class DetailRequestHandler(RequestHandler):
-	"""Abstract Handler for the DETAIL request."""
-
-	def optional_headers(self):
-		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "IDENTIFIER", "IMAGES", "PROPERTIES"]
-
-class NavigationRequestHandler(RequestHandler):
-	"""Abstract Handler for the NAVIGATION request."""
-
-	def optional_headers(self):
-		return ["CATEGORY", "SUMMARY_HEADER", "SUMMARY", "ROOT_LEVEL"]
 
 #
 # END Infrastructure
@@ -419,14 +238,14 @@ class ExampleRootRequestHandler(RootRequestHandler):
 	"""Handler for the ROOT request."""
 
 	def entities_parameter(self):
-		entities = super(ExampleRootRequestHandler, self).entities_parameter()
+		entities = self.getEntitiesParameter()
 		if len(entities) == 0:
 			materials_nav = navigation_dict('Targets and Compounds', [])
 			probe_nav = navigation_dict('Probes', [])
 			return [materials_nav, probe_nav]
 		return entities
 
-	def retrieve_data(self):
+	def retrieveData(self):
 		# Check which navigational entities are being requested here
 		nav_entities = self.entities_parameter()
 		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
@@ -438,28 +257,29 @@ class ExampleRootRequestHandler(RootRequestHandler):
 		self.material_dict_array = materials_to_dict(materials, {})
 		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
 
-	def add_data_rows(self):
+	def addDataRows(self):
 		nav_entities = self.entities_parameter()
 		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
 
 		if 'TARGETS AND COMPOUNDS' in nav_perm_ids:
 			children = [material_dict['PERM_ID'] for material_dict in self.material_dict_array]
 			materials_nav = navigation_dict('Targets and Compounds', children)
-			self.add_rows([materials_nav])
-			self.add_rows(self.material_dict_array)
+			self.addRows([materials_nav])
+			self.addRows(self.material_dict_array)
 
 		if 'PROBES' in nav_perm_ids:
 			children = [sample.getPermId() for sample in self.samples]
 			probe_nav = navigation_dict('Probes', children)
-			self.add_rows([probe_nav])
-			self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id, {}))
+			self.addRows([probe_nav])
+			self.addRows(samples_to_dict(self.samples, self.material_by_perm_id, {}))
+
 
 class ExampleDrillRequestHandler(DrillRequestHandler):
 	"""Handler for the DRILL request."""
 
-	def retrieve_data(self):
+	def retrieveData(self):
 		# Drill only happens on samples
-		drill_samples = self.entities_parameter()
+		drill_samples = self.getEntitiesParameter()
 
 		self.samples = retrieve_samples(drill_samples)
 		material_identifiers = gather_materials(self.samples)
@@ -467,16 +287,17 @@ class ExampleDrillRequestHandler(DrillRequestHandler):
 		self.material_dict_array = materials_to_dict(materials, {})
 		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
 
-	def add_data_rows(self):
-		self.add_rows(self.material_dict_array)
-		self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id, {}))
+	def addDataRows(self):
+		self.addRows(self.material_dict_array)
+		self.addRows(samples_to_dict(self.samples, self.material_by_perm_id, {}))
+
 
 class ExampleDetailRequestHandler(DetailRequestHandler):
 	"""Handler for the DETAIL request."""
 
-	def retrieve_data(self):
+	def retrieveData(self):
 		# Get the data and add a row for each data item
-		entities = self.entities_parameter()
+		entities = self.getEntitiesParameter()
 		detail_samples = [entity for entity in entities if 'SAMPLE' == entity['REFCON']['entityKind']]
 		detail_materials = [entity for entity in entities if 'MATERIAL' == entity['REFCON']['entityKind']]
 
@@ -497,21 +318,22 @@ class ExampleDetailRequestHandler(DetailRequestHandler):
 		self.material_dict_array = materials_to_dict(materials_to_return, self.material_type_properties_definitions)
 		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
 
-	def add_data_rows(self):
-		self.add_rows(self.material_dict_array)
-		self.add_rows(samples_to_dict(self.samples, self.material_by_perm_id, self.sample_type_properties_definitions))
+	def addDataRows(self):
+		self.addRows(self.material_dict_array)
+		self.addRows(samples_to_dict(self.samples, self.material_by_perm_id, self.sample_type_properties_definitions))
 
 class ExampleNavigationRequestHandler(NavigationRequestHandler):
 	"""Handler for the NAVIGATION request"""
-	def add_data_rows(self):
+	def addDataRows(self):
 		materials_nav = navigation_dict('Targets and Compounds', [])
 		probe_nav = navigation_dict('Probes', [])
-		self.add_rows([materials_nav, probe_nav])
+		self.addRows([materials_nav, probe_nav])
+
 
 class TestingNavigationRequestHandler(ExampleNavigationRequestHandler):
 	"""A version of the NAVIGATION request handler designed for testing"""
 
-	def add_data_rows(self):
+	def addDataRows(self):
 		hidden_entities = self.parameters.get("HIDE")
 		if hidden_entities is None:
 			hidden_entities = []
@@ -519,23 +341,23 @@ class TestingNavigationRequestHandler(ExampleNavigationRequestHandler):
 
 		if 'TARGETS AND COMPOUNDS' not in hidden_perm_ids:
 			materials_nav = navigation_dict('Targets and Compounds', [])
-			self.add_rows([materials_nav])
+			self.addRows([materials_nav])
 		if 'PROBES' not in hidden_perm_ids:
 			probe_nav = navigation_dict('Probes', [])
-			self.add_rows([probe_nav])
+			self.addRows([probe_nav])
 
 def aggregate(parameters, builder):
 	request_key = parameters.get('requestKey')
 	if 'CLIENT_PREFS' == request_key:
-		handler = ExampleClientPreferencesRequestHandler(parameters, builder)
+		handler = ExampleClientPreferencesRequestHandler(parameters, builder, searchService)
 	elif 'NAVIGATION' == request_key:
-		handler = TestingNavigationRequestHandler(parameters, builder)
+		handler = TestingNavigationRequestHandler(parameters, builder, searchService)
 	elif 'ROOT' == request_key:
-		handler = ExampleRootRequestHandler(parameters, builder)
+		handler = ExampleRootRequestHandler(parameters, builder, searchService)
 	elif 'DRILL' == request_key:
-		handler = ExampleDrillRequestHandler(parameters, builder)
+		handler = ExampleDrillRequestHandler(parameters, builder, searchService)
 	elif 'DETAIL' == request_key:
-		handler = ExampleDetailRequestHandler(parameters, builder)
+		handler = ExampleDetailRequestHandler(parameters, builder, searchService)
 	else:
-		handler = EmptyDataRequestHandler(parameters, builder)
-	handler.process_request()		
+		handler = EmptyDataRequestHandler(parameters, builder, searchService)
+	handler.processRequest()		

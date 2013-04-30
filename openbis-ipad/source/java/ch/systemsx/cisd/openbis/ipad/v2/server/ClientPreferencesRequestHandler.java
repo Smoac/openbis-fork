@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchService;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.IRowBuilderAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
@@ -48,11 +49,10 @@ public class ClientPreferencesRequestHandler implements IRequestHandler
      * 
      * @param parameters The request parameters.
      * @param builder A table model builder.
-     * @param searchService The service that supports searching for openBIS entities.
-     * @param optionalHeaders Non-required headers that are returned by this request.
+     * @param searchService Ignored.
      */
     protected ClientPreferencesRequestHandler(Map<String, Object> parameters,
-            ISimpleTableModelBuilderAdaptor builder)
+            ISimpleTableModelBuilderAdaptor builder, ISearchService searchService)
     {
         this.parameters = parameters;
         this.builder = builder;
