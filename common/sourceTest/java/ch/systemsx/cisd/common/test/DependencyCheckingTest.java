@@ -36,16 +36,21 @@ import classycle.util.WildCardPattern;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
- * Unit test checking dependency definitions by Classycle. Dependency definition file
- * is assumed to be <tt>resource/dependency-structure.dff</tt> .
- *
+ * Unit test checking dependency definitions by Classycle. Dependency definition file is assumed to
+ * be <tt>resource/dependency-structure.dff</tt> .
+ * 
  * @author Franz-Josef Elmer
  */
 public class DependencyCheckingTest extends AssertJUnit
 {
-    private static final String PATH_TO_DEPENDENCY_STRUCTURE_DDF = "resource/dependency-structure.ddf";
+    private static final String PATH_TO_DEPENDENCY_STRUCTURE_DDF =
+            "resource/dependency-structure.ddf";
+
     private static final String CLASSES_FOLDER = "targets/classes";
+
     private static final String ANT_CLASSES_FOLDER = "targets/ant/classes";
+
+    private static final String GRADLE_CLASSES_FOLDER = "out/classes/main";
 
     @Test
     public void test()
@@ -78,11 +83,19 @@ public class DependencyCheckingTest extends AssertJUnit
 
     private String[] getClassPaths()
     {
+
+        if (new File(GRADLE_CLASSES_FOLDER).isDirectory())
+        {
+            return new String[]
+                { GRADLE_CLASSES_FOLDER };
+        }
+
         String classes = getPathToClassesCompiledByEclipse();
         String path = new File(classes).isDirectory() ? classes : ANT_CLASSES_FOLDER;
-        return new String[] { path};
+        return new String[]
+            { path };
     }
-    
+
     /**
      * Returns the relative path to the class files compiled by Eclipse.
      */

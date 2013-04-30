@@ -2,11 +2,11 @@ apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 // apply from: 'file:///Users/anttil/Documents/workspace_openbis/gradle/javaproject.gradle'
 
 dependencies {
-	compile 'cisd:base:r27861',
+	compile 'cisd:cisd-base:r27861',
 					'springframework:spring-webmvc:2.5.6.SEC01-CISD',
 					'springframework:spring-aop:2.5.6.SEC01',
 					'javax:servlet-api:3.0',
-					'cisd:args4j:9.11.2',
+					'cisd:cisd-args4j:9.11.2',
 					'python:jython:2.5.2',
 					'apache:log4j:1.2.15',
 					'javax:mail:1.4.3',

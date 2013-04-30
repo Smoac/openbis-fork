@@ -31,7 +31,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 public class ExcelTestUtil
 {
 
-    private static final String TEST_FOLDER = "../common/sourceTest/java/";
+    private static final String TEST_FOLDER = "sourceTest/java/";
 
     public static final Sheet getSheet(Class<?> excelTestClass, String excelFileName)
             throws Exception
