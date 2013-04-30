@@ -49,6 +49,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
@@ -57,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator;
 import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeDialog;
+import ch.systemsx.cisd.openbis.knime.common.OwnerChooser;
 import ch.systemsx.cisd.openbis.knime.common.Util;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 
@@ -299,6 +301,14 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
     private void chooseOwner(IQueryApiFacade facade)
     {
         DataSetOwnerType ownerType = getSelectedOwnerType();
+        String sessionToken = facade.getSessionToken();
+        IGeneralInformationService service = facade.getGeneralInformationService();
+        String ownerOrNull =
+                new OwnerChooser(ownerField, ownerType, sessionToken, service).getOwnerOrNull();
+        if (ownerOrNull != null)
+        {
+            ownerField.setText(ownerOrNull);
+        }
     }
 
     @Override

@@ -41,12 +41,9 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchOperator;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.knime.common.AbstractDescriptionBasedNodeDialog;
-import ch.systemsx.cisd.openbis.knime.common.Util;
+import ch.systemsx.cisd.openbis.knime.common.OwnerChooser;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
@@ -184,16 +181,14 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
     {
         try
         {
-            List<DataSet> dataSets = loadDataSets(facade);
-            List<DataSet> selectedDataSets = Util.getSelectedDataSets(getPanel(), dataSets, true);
-            if (selectedDataSets.isEmpty() == false)
+            String ownerOrNull =
+                    new OwnerChooser(getPanel(), DataSetOwnerType.DATA_SET,
+                            facade.getSessionToken(), facade.getGeneralInformationService())
+                            .getOwnerOrNull();
+            if (ownerOrNull != null)
             {
-                String code = selectedDataSets.get(0).getCode();
-                if (code.equals(dataSetCodeField.getText()) == false)
-                {
-                    dataSetCodeField.setText(code);
-                    filePathField.setText("");
-                }
+                dataSetCodeField.setText(ownerOrNull);
+                filePathField.setText("");
             }
         } catch (Exception ex)
         {
@@ -263,13 +258,4 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
         }
     }
     
-    private List<DataSet> loadDataSets(IQueryApiFacade facade)
-    {
-        IGeneralInformationService service = facade.getGeneralInformationService();
-        SearchCriteria searchCriteria = new SearchCriteria();
-        searchCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
-        List<DataSet> dataSets = service.searchForDataSets(facade.getSessionToken(), searchCriteria);
-        return dataSets;
-    }
-
 }
