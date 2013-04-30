@@ -16,10 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
-import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -46,6 +42,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * Grid displaying data set types.
@@ -269,5 +269,11 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
         CheckBoxField field = new CheckBoxField(label, false);
         GWTUtils.setToolTip(field, viewContext.getMessage(Dict.DELETION_DISALLOW_TOOLTIP));
         return field;
+    }
+
+    @Override
+    public AddEntityTypeDialog<DataSetType> getNewDialog(DataSetType newType)
+    {
+        return (AddEntityTypeDialog<DataSetType>) createRegisterEntityTypeDialog("New DataSet", newType, newType.getEntityKind());
     }
 }

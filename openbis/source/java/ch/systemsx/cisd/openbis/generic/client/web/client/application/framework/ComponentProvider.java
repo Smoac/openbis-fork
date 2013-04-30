@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Da
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetUploadForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion.DeletionGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.NewEntityTypeForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRegistrationPanel;
@@ -1435,6 +1436,43 @@ public final class ComponentProvider
             };
     }
 
+    public AbstractTabItemFactory getNewEntityTypeForm(final EntityKind kind)
+    {
+        return new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    DatabaseModificationAwareComponent component = NewEntityTypeForm.create(kind, viewContext);
+                    return createRegistrationTab(getTabTitle(), component);
+                }
+
+                @Override
+                public String getId()
+                {
+                    return NewEntityTypeForm.BROWSER_ID + "-" + kind.name();
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.ADMINISTRATION, HelpPageAction.VIEW);
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return "New "+kind.name()+" Type";
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+            };
+    }
+    
     public AbstractTabItemFactory getExperimentTypeBrowser()
     {
         return new AbstractTabItemFactory()

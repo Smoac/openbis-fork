@@ -20,12 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -52,6 +46,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 /**
  * Abstract grid displaying entity types.
  * 
@@ -67,7 +67,6 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
             String browserId, String gridId)
     {
         super(viewContext, browserId, true, DisplayTypeIDGenerator.TYPE_BROWSER_GRID);
-
         postRegistrationCallback = createRefreshGridAction();
         extendBottomToolbar();
         allowMultipleSelection();
@@ -79,32 +78,42 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
         return createGridDisplayTypeID("-" + getEntityKindOrNull().toString());
     }
 
+    public abstract AddEntityTypeDialog<T> getNewDialog(T newType);
+    
     private void extendBottomToolbar()
     {
         addEntityOperationsLabel();
 
         final EntityKind entityKind = getEntityKindOrNull();
 
-        Button buttonProperties =
-                createSelectedItemButton(
-                        viewContext.getMessage(Dict.BUTTON_PROPERTIES_ASSIGNMENTS), // "Properties"
-                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<T>>>()
-                            {
-                                @Override
-                                public void invoke(
-                                        BaseEntityModel<TableModelRowWithObject<T>> selectedItem,
-                                        boolean keyPressed)
-                                {
-                                    T entityType = selectedItem.getBaseObject().getObjectOrNull();
-                                    DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
-                                            viewContext)
-                                            .getPropertyTypeAssignmentBrowser(entityType));
-                                }
+        Button buttonNew = new TextToolItem("New",
+                new SelectionListener<ButtonEvent>()
+                    {
+                        @Override
+                        public void componentSelected(ButtonEvent ce)
+                        {
+                            DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getNewEntityTypeForm(entityKind));
+                        }
+                    });
+        buttonNew.setId("add-entity-type-new-" + getEntityKindOrNull());
+        addButton(buttonNew);
+        
+        Button buttonProperties = createSelectedItemButton(viewContext.getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS), // "Properties"
+                new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<T>>>()
+                    {
+                        @Override
+                        public void invoke(
+                                BaseEntityModel<TableModelRowWithObject<T>> selectedItem,
+                                boolean keyPressed)
+                        {
+                            T entityType = selectedItem.getBaseObject().getObjectOrNull();
+                            DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getPropertyTypeAssignmentBrowser(entityType));
+                        }
 
-                            });
+                    });
         buttonProperties.setId("property-types-" + getEntityKindOrNull());
         addButton(buttonProperties);
-
+        
         Button button = new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON),
                 new SelectionListener<ButtonEvent>()
                     {

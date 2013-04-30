@@ -16,10 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
-import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -42,6 +38,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * Grid displaying sample types.
@@ -81,6 +81,11 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
         super(viewContext, BROWSER_ID, GRID_ID);
     }
 
+    @Override
+    public AddEntityTypeDialog<SampleType> getNewDialog(SampleType newType) {
+        return (AddEntityTypeDialog<SampleType>) createRegisterEntityTypeDialog("New Sample", newType, newType.getEntityKind());
+    }
+    
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<SampleType>> resultSetConfig,

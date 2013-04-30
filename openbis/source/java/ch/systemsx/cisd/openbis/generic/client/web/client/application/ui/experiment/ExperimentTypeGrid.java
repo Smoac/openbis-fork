@@ -16,14 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEntityTypeGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddEntityTypeDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -31,6 +30,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * Grid displaying experiment types.
@@ -55,6 +56,11 @@ public class ExperimentTypeGrid extends AbstractEntityTypeGrid<ExperimentType>
         super(viewContext, BROWSER_ID, GRID_ID);
     }
 
+    @Override
+    public AddEntityTypeDialog<ExperimentType> getNewDialog(ExperimentType newType) {
+        return (AddEntityTypeDialog<ExperimentType>) createRegisterEntityTypeDialog("New Experiment", newType, newType.getEntityKind());
+    }
+    
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<ExperimentType>> resultSetConfig,
