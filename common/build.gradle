@@ -1,0 +1,23 @@
+apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+// apply from: 'file:///Users/anttil/Documents/workspace_openbis/build_resources/gradle/javaproject.gradle'
+
+dependencies {
+	compile 'cisd:base:r27861',
+					'springframework:spring-webmvc:2.5.6.SEC01-CISD',
+					'springframework:spring-aop:2.5.6.SEC01',
+					'javax:servlet-api:3.0',
+					'cisd:args4j:9.11.2',
+					'python:jython:2.5.2',
+					'apache:log4j:1.2.15',
+					'javax:mail:1.4.3',
+					'apache:commons-httpclient:3.1',
+					'apache:poi:3.8-20120326',
+					'twmacinta:fast-md5:2.6.1',
+					'google:gwt-servlet:2.4',
+					'jmock:jmock:2.5.1',
+					'testng:testng:6.8-CISD',
+					'marathon:marathon-spring-util:1.2.3'
+					
+	testCompile 'fjelmer:classycle:1.4'
+					
+} 
