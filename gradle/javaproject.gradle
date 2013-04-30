@@ -1,0 +1,96 @@
+apply plugin: 'java'
+
+sourceCompatibility='1.6'
+targetCompatibility='1.6'
+
+sourceSets { 
+	main {
+		java {
+			srcDirs = ['source/java']
+		}
+		resources { 
+			srcDirs = ['resource'] 
+		}	 
+	}
+	test {
+		java {
+			srcDirs = ['sourceTest/java']
+		}
+	}
+}
+
+buildDir = 'out'
+	
+repositories {
+	ivy {
+		url '../ivy-repository'
+		layout "pattern", {
+			artifact "[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+			ivy "[organisation]/[module]/[revision]/ivy.xml"
+		}
+	}
+}
+
+test {
+	useTestNG()
+		options { suites(file('sourceTest/java/tests.xml')) }
+
+		jvmArgs '-Xmx2048m', '-XX:MaxPermSize=256m'
+		
+		testLogging.showStandardStreams = true
+}
+
+task sourceJar(type: Jar) {
+  		from sourceSets.main.allJava
+}
+
+configurations {
+	ecj 
+}
+
+dependencies {
+   	ecj "eclipse:ecj:3.8.1"
+}
+
+compileJava {
+	options.encoding = 'utf-8'
+	options.fork = true
+	doFirst {
+		options.forkOptions.with {
+			executable = 'java'
+			jvmArgs = [ '-cp', configurations.ecj.asPath, 'org.eclipse.jdt.internal.compiler.batch.Main', '-source', '1.6' ]
+		}
+	}
+}
+
+compileTestJava {
+	options.encoding = 'utf-8'
+	options.fork = true
+	doFirst {
+		options.forkOptions.with {
+			executable = 'java'
+			jvmArgs = [ '-cp', configurations.ecj.asPath, 'org.eclipse.jdt.internal.compiler.batch.Main', '-source', '1.6' ]
+		}
+	}
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'hours'
+}
+
+apply plugin: 'eclipse'
+
+eclipse {
+	classpath {
+		downloadSources=true
+		defaultOutputDir = file('targets')
+	}
+}
+
+eclipse.classpath.file {
+	whenMerged{ classpath ->
+		def projectRefs = classpath.entries.findAll{entry -> entry.kind =='src' && entry.path.startsWith('/')}
+		classpath.entries.removeAll(projectRefs)
+		classpath.entries.addAll(projectRefs)   
+	}   
+}		
