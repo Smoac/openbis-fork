@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.ipad.v2.server;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
@@ -36,11 +35,11 @@ public class IpadServiceUtilities
 {
 
     /** Utility function for converting a list into a json-encoded list. */
-    public static String jsonEncodedValue(List<Object> coll)
+    public static String jsonEncodedValue(Object thing)
     {
         try
         {
-            return new ObjectMapper().writeValueAsString(coll);
+            return new ObjectMapper().writeValueAsString(thing);
         } catch (JsonGenerationException e)
         {
             CheckedExceptionTunnel.wrapIfNecessary(e);

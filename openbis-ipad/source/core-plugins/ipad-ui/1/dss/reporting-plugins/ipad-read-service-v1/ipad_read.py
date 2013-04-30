@@ -1,30 +1,12 @@
-from ch.systemsx.cisd.openbis.ipad.v2.server import AbstractRequestHandler, ClientPreferencesRequestHandler, RootRequestHandler, DrillRequestHandler, NavigationRequestHandler, DetailRequestHandler, EmptyDataRequestHandler
+from ch.systemsx.cisd.openbis.ipad.v2.server import AbstractRequestHandler, ClientPreferencesRequestHandler, RootRequestHandler
+from ch.systemsx.cisd.openbis.ipad.v2.server import DrillRequestHandler, NavigationRequestHandler, DetailRequestHandler
+from ch.systemsx.cisd.openbis.ipad.v2.server import EmptyDataRequestHandler, IpadServiceUtilities
 from ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2 import MaterialIdentifierCollection
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto import MaterialIdentifier
 from com.fasterxml.jackson.databind import ObjectMapper
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria, SearchSubCriteria
 
 from datetime import datetime
-
-#
-# BEGIN Infrastructure
-#
-
-def json_encoded_value(coll):
-	"""Utility function for converting a list into a json-encoded list"""
-	return ObjectMapper().writeValueAsString(coll)
-
-def json_empty_list():
-  """Utility function to return an json-encoded empty list"""
-  return json_encoded_value([])
-
-def json_empty_dict():
-  """Utility function to return an json-encoded empty dictionary"""
-  return json_encoded_value({})
-
-#
-# END Infrastructure
-#
 
 DSS_DOWNLOAD_URL = 'https://localhost:8444/datastore_server/'
 
@@ -64,13 +46,13 @@ def navigation_dict(name, children):
 	refcon['code'] =  name.upper()
 	refcon['entityKind'] = 'NAVIGATION'
 	refcon['entityType'] = 'NAVIGATION'
-	navigation_dict['REFCON'] = json_encoded_value(refcon)
+	navigation_dict['REFCON'] = IpadServiceUtilities.jsonEncodedValue(refcon)
 	navigation_dict['CATEGORY'] = 'Navigation'
 
-	navigation_dict['CHILDREN'] = json_encoded_value(children)
+	navigation_dict['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue(children)
 
 	properties = dict()
-	navigation_dict['PROPERTIES'] = json_encoded_value(properties)
+	navigation_dict['PROPERTIES'] = IpadServiceUtilities.jsonEncodedValue(properties)
 	navigation_dict['ROOT_LEVEL'] = True
 	# Need to handle the material links as entity links: "TARGET", "COMPOUND"
 	return navigation_dict
@@ -85,24 +67,24 @@ def material_to_dict(material, material_type_properties_definitions):
 	refcon['identifier'] = material.getMaterialIdentifier()
 	refcon['entityKind'] = 'MATERIAL'
 	refcon['entityType'] = material.getMaterialType()
-	material_dict['REFCON'] = json_encoded_value(refcon)
+	material_dict['REFCON'] = IpadServiceUtilities.jsonEncodedValue(refcon)
 	material_dict['CATEGORY'] = material.getMaterialType()
 	if material.getMaterialType() == '5HT_COMPOUND':
 		material_dict['SUMMARY'] = material.getPropertyValue("FORMULA")
-		material_dict['IMAGES'] = json_encoded_value(marquee_image_spec_for_url(image_url_for_compound(material)))
+		material_dict['IMAGES'] = IpadServiceUtilities.jsonEncodedValue(marquee_image_spec_for_url(image_url_for_compound(material)))
 	else:
 		material_dict['SUMMARY'] = material.getPropertyValue("DESC")
-		material_dict['IMAGES'] = json_empty_dict()
+		material_dict['IMAGES'] = IpadServiceUtilities.jsonEmptyDict()
 		material_dict['ROOT_LEVEL'] = None
 
-	material_dict['CHILDREN'] = json_empty_list()
+	material_dict['CHILDREN'] = IpadServiceUtilities.jsonEmptyList()
 
 	prop_names = set(["NAME", "PROT_NAME", "GENE_NAME", "LENGTH", "CHEMBL", "DESC", "FORMULA", "WEIGHT", "SMILES"])
 	property_definitions = material_type_properties_definitions.get(material.getMaterialType(), [])
 	properties = properties_for_entity(material, property_definitions, prop_names)	
 	properties.append({'key' : 'VERY_LONG_PROPERTY_NAME', 'label' : 'Very Long Property Name', 'value' : "This is a very long text that should span multiple lines to see if this thing works, you know, the thing that causes the other thing to place text on multiple lines and stuff like that, etc., etc., so on and so forth."})
 	properties.append({'key' : 'UNICODE_PROPERTY', 'label' : 'Unicode Property', 'value' : u'A pr\u00F6perty w\u00EFth accents.'})
-	material_dict['PROPERTIES'] = json_encoded_value(properties)
+	material_dict['PROPERTIES'] = IpadServiceUtilities.jsonEncodedValue(properties)
 	return material_dict
 
 def sample_to_dict(five_ht_sample, material_by_perm_id, data_sets, sample_type_properties_definitions):
@@ -115,20 +97,20 @@ def sample_to_dict(five_ht_sample, material_by_perm_id, data_sets, sample_type_p
 	refcon['code'] =  five_ht_sample.getCode()
 	refcon['entityKind'] = 'SAMPLE'
 	refcon['entityType'] = five_ht_sample.getSampleType()
-	sample_dict['REFCON'] = json_encoded_value(refcon)
+	sample_dict['REFCON'] = IpadServiceUtilities.jsonEncodedValue(refcon)
 	sample_dict['CATEGORY'] = five_ht_sample.getSampleType()
 	compound = material_by_perm_id[five_ht_sample.getPropertyValue("COMPOUND")]
-	sample_dict['IMAGES'] = json_encoded_value(marquee_image_spec_for_url(image_url_for_sample(five_ht_sample, data_sets, compound)))
+	sample_dict['IMAGES'] = IpadServiceUtilities.jsonEncodedValue(marquee_image_spec_for_url(image_url_for_sample(five_ht_sample, data_sets, compound)))
 
 	children = [five_ht_sample.getPropertyValue("TARGET"), five_ht_sample.getPropertyValue("COMPOUND")]
-	sample_dict['CHILDREN'] = json_encoded_value(children)
-#	sample_dict['CHILDREN'] = json_encoded_value([])
+	sample_dict['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue(children)
+#	sample_dict['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue([])
 
 	prop_names = set(["DESC"])
 	property_definitions = sample_type_properties_definitions.get(five_ht_sample.getSampleType(), [])
 	properties = properties_for_entity(five_ht_sample, property_definitions, prop_names)
 	properties.append({'key' : 'TIMESTAMP', 'label' : 'Timestamp', 'value' : datetime.today().strftime('%Y-%m-%d %H:%M:%S')})
-	sample_dict['PROPERTIES'] = json_encoded_value(properties)
+	sample_dict['PROPERTIES'] = IpadServiceUtilities.jsonEncodedValue(properties)
 	sample_dict['ROOT_LEVEL'] = None
 	# Need to handle the material links as entity links: "TARGET", "COMPOUND"
 	return sample_dict
