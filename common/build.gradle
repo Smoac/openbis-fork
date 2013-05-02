@@ -1,5 +1,4 @@
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
-// apply from: 'file:///Users/anttil/Documents/workspace_openbis/gradle/javaproject.gradle'
 
 dependencies {
 	compile 'cisd:cisd-base:r27861',
@@ -19,5 +18,5 @@ dependencies {
 					'marathon:marathon-spring-util:1.2.3'
 					
 	testCompile 'fjelmer:classycle:1.4'
-					
 } 
+

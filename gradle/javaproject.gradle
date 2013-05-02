@@ -99,4 +99,19 @@ eclipse.classpath.file {
 		classpath.entries.removeAll(projectRefs)
 		classpath.entries.addAll(projectRefs)   
 	}   
-}		
+}
+
+task testJar(type: Jar, dependsOn: testClasses) {
+    baseName = "test-${project.archivesBaseName}"
+    from sourceSets.test.output
+}
+
+configurations {
+    tests  { 
+         extendsFrom testRuntime 
+     } 
+}
+
+artifacts {
+    tests testJar
+}
