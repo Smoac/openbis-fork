@@ -149,6 +149,10 @@ public class RequestHandlerDispatcher
     protected RequestType tryRequestType(Map<String, Object> parameters)
     {
         String requestKey = (String) parameters.get("requestKey");
+        if (null == requestKey)
+        {
+            return null;
+        }
         RequestType requestType;
         try
         {
@@ -162,6 +166,10 @@ public class RequestHandlerDispatcher
 
     protected IRequestHandlerFactory getHandlerFactory(RequestType requestType)
     {
+        if (null == requestType)
+        {
+            return emptyDataRequestHandlerFactory;
+        }
         IRequestHandlerFactory handlerFactory;
         switch (requestType)
         {
