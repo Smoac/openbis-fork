@@ -16,33 +16,16 @@
 
 package ch.systemsx.cisd.openbis.ipad.v2.server;
 
-import java.util.Arrays;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchService;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
- * Abstract superclass for the handlers for the DRILL request.
- * 
  * @author cramakri
  */
-public class DrillRequestHandler extends AbstractRequestHandler
+public interface IRequestHandlerFactory
 {
-
-    /**
-     * Abstract Handler for the DRILL request.
-     * 
-     * @param parameters
-     * @param builder
-     * @param searchService
-     * @param optionalHeaders
-     */
-    protected DrillRequestHandler(Map<String, Object> parameters,
-            ISimpleTableModelBuilderAdaptor builder, ISearchService searchService)
-    {
-        super(parameters, builder, searchService, Arrays.asList("CATEGORY", "SUMMARY_HEADER",
-                "SUMMARY", "CHILDREN"));
-    }
-
+    IRequestHandler createRequestHandler(Map<String, Object> parameters,
+            ISimpleTableModelBuilderAdaptor builder, ISearchService searchService);
 }

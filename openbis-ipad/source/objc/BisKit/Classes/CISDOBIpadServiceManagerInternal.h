@@ -31,6 +31,7 @@
 @property(weak, nonatomic) CISDOBIpadServiceManager *serviceManager;
 @property(strong, nonatomic) CISDOBAsyncCall *serviceCall;
 @property(nonatomic) NSUInteger retryCount;     //<! How many times has this call been retried
+@property(strong, nonatomic) CISDOBAsyncCall *loginRetryCall; //<! On a retry, it is necessary to keep the retry call live until it completes
 
 @property(copy, nonatomic) NSString *willCallNotificationName;  //<! The notification called before the call takes place, may be nil
 @property(copy, nonatomic) NSString *didCallNotificationName;   //<! The notification called after the call has completed, may be nil

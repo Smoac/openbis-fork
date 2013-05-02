@@ -23,6 +23,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchServic
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
+ * A simple request handler that just returns an empty table.
+ * 
  * @author cramakri
  */
 public class EmptyDataRequestHandler extends AbstractRequestHandler

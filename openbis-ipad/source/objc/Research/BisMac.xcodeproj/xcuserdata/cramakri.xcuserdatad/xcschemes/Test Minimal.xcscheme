@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0450"
+   LastUpgradeVersion = "0460"
    version = "1.8">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -42,9 +42,6 @@
                   Identifier = "BisMacTests">
                </Test>
                <Test
-                  Identifier = "CISDOBAsyncTest">
-               </Test>
-               <Test
                   Identifier = "CISDOBJsonRpcCallGenericTest">
                </Test>
                <Test
@@ -54,13 +51,34 @@
                   Identifier = "CISDOBJsonRpcCallTest">
                </Test>
                <Test
-                  Identifier = "CISDOBLiveConnectionTest">
-               </Test>
-               <Test
                   Identifier = "CISDOBIpadServiceTest">
                </Test>
                <Test
                   Identifier = "CISDOBIpadEntityTest">
+               </Test>
+               <Test
+                  Identifier = "CISDOBAsyncTest">
+               </Test>
+               <Test
+                  Identifier = "CISDOBIpadServiceManagerTest/testDeletedEntities">
+               </Test>
+               <Test
+                  Identifier = "CISDOBIpadServiceManagerTest/testNilUrl">
+               </Test>
+               <Test
+                  Identifier = "CISDOBIpadServiceManagerTest/testPersistDrillAndDetailsOnCollections">
+               </Test>
+               <Test
+                  Identifier = "CISDOBIpadServiceManagerTest/testPersistEntities">
+               </Test>
+               <Test
+                  Identifier = "CISDOBIpadServiceManagerTest/testUnicode">
+               </Test>
+               <Test
+                  Identifier = "CISDOBIpadServiceManagerTest/testImageRetrieval">
+               </Test>
+               <Test
+                  Identifier = "CISDOBIpadServiceManagerTest">
                </Test>
             </SkippedTests>
          </TestableReference>

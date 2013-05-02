@@ -280,11 +280,20 @@ static BOOL IsPermIdTarget(NSString *permId)
 
 - (void)performDrill:(CISDOBIpadEntity *)drillEntity
 {
+    [self performDrill: drillEntity retry: YES];
+}
+
+- (void)performDrill:(CISDOBIpadEntity *)drillEntity retry:(BOOL)shouldRetry
+{
     CISDOBAsyncCall *call;
     [self assertBeforeDrill];
     call = [self.serviceManager drillOnEntity: drillEntity];
+    if (!shouldRetry) {
+        ((CISDOBIpadServiceManagerCall *) call).retryCount = 2;
+    }
     [self configureAndRunCallSynchronously: call];
-    STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
+    
+    STAssertTrue(_callResult != nil || _callError != nil, @"The iPad service should have returned some entities or an error.");
     [self assertAfterDrill];
 }
 
@@ -374,8 +383,24 @@ static BOOL IsPermIdTarget(NSString *permId)
     NSArray *entitiesWithChildren = [self entitiesWithChildren];
     STAssertTrue([entitiesWithChildren count] > 0, @"There should be some entities with children");    
     CISDOBIpadEntity *drillEntity = [entitiesWithChildren objectAtIndex: 0];
-    [self performDrill: drillEntity];
-    NSLog(@"Error %@", _callError);
+    [self performDrill: drillEntity retry: NO];
+    STAssertNotNil(_callError, @"The request should have failed with an error");
+}
+
+- (void)testInvalidSessionTokenRetry
+{
+    [self performLogin];
+    [self performRootLevelCall];
+    
+    // Switch the session token
+    [self.serviceManager.service.connection setSessionTokenForTesting: @"junk"];
+
+    // Get drill information on some entity
+    NSArray *entitiesWithChildren = [self entitiesWithChildren];
+    STAssertTrue([entitiesWithChildren count] > 0, @"There should be some entities with children");    
+    CISDOBIpadEntity *drillEntity = [entitiesWithChildren objectAtIndex: 0];
+    [self performDrill: drillEntity retry: YES];
+    STAssertNotNil(_callResult, @"The request should have succeeded with an error");
 }
 
 - (void)retrieveRootLevelEntitiesSimulatingRemovalOfCategory:(CISDOBIpadEntity *)categoryToRemove

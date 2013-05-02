@@ -1,6 +1,7 @@
 from ch.systemsx.cisd.openbis.ipad.v2.server import AbstractRequestHandler, ClientPreferencesRequestHandler, RootRequestHandler
 from ch.systemsx.cisd.openbis.ipad.v2.server import DrillRequestHandler, NavigationRequestHandler, DetailRequestHandler
 from ch.systemsx.cisd.openbis.ipad.v2.server import EmptyDataRequestHandler, IpadServiceUtilities
+from ch.systemsx.cisd.openbis.ipad.v2.server import IRequestHandlerFactory, RequestHandlerDispatcher
 from ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2 import MaterialIdentifierCollection
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto import MaterialIdentifier
 from com.fasterxml.jackson.databind import ObjectMapper
@@ -328,18 +329,26 @@ class TestingNavigationRequestHandler(ExampleNavigationRequestHandler):
 			probe_nav = navigation_dict('Probes', [])
 			self.addRows([probe_nav])
 
+class NavigationRequestHandlerFactory(IRequestHandlerFactory):
+	def createRequestHandler(self, parameters, builder, searchService):
+		return TestingNavigationRequestHandler(parameters, builder, searchService)
+		
+class RootRequestHandlerFactory(IRequestHandlerFactory):
+	def createRequestHandler(self, parameters, builder, searchService):
+		return ExampleRootRequestHandler(parameters, builder, searchService)
+		
+class DrillRequestHandlerFactory(IRequestHandlerFactory):
+	def createRequestHandler(self, parameters, builder, searchService):
+		return ExampleDrillRequestHandler(parameters, builder, searchService)
+
+class DetailRequestHandlerFactory(IRequestHandlerFactory):
+	def createRequestHandler(self, parameters, builder, searchService):
+		return ExampleDetailRequestHandler(parameters, builder, searchService)
+
 def aggregate(parameters, builder):
-	request_key = parameters.get('requestKey')
-	if 'CLIENT_PREFS' == request_key:
-		handler = ExampleClientPreferencesRequestHandler(parameters, builder, searchService)
-	elif 'NAVIGATION' == request_key:
-		handler = TestingNavigationRequestHandler(parameters, builder, searchService)
-	elif 'ROOT' == request_key:
-		handler = ExampleRootRequestHandler(parameters, builder, searchService)
-	elif 'DRILL' == request_key:
-		handler = ExampleDrillRequestHandler(parameters, builder, searchService)
-	elif 'DETAIL' == request_key:
-		handler = ExampleDetailRequestHandler(parameters, builder, searchService)
-	else:
-		handler = EmptyDataRequestHandler(parameters, builder, searchService)
-	handler.processRequest()		
+	dispatcher = RequestHandlerDispatcher()
+	dispatcher.navigationRequestHandlerFactory = NavigationRequestHandlerFactory()
+	dispatcher.rootRequestHandlerFactory = RootRequestHandlerFactory()
+	dispatcher.drillRequestHandlerFactory = DrillRequestHandlerFactory()
+	dispatcher.detailRequestHandlerFactory = DetailRequestHandlerFactory()
+	dispatcher.dispatch(parameters, builder, searchService)

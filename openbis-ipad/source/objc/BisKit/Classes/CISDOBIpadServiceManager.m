@@ -239,6 +239,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     // Login and then retry the call
     managerCall.retryCount =  managerCall.retryCount + 1;
     CISDOBAsyncCall *call = [self.service.connection loginUser: _username password: _password];
+    managerCall.loginRetryCall = call;
     call.success = ^(id result) {
         // Fix the session token
         CISDOBIpadServiceCall *serviceCall = (CISDOBIpadServiceCall *)managerCall.serviceCall;

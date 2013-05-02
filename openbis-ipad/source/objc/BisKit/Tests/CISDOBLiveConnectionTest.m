@@ -86,7 +86,7 @@
     STAssertTrue([rows count] == 0, @"The ipad-read-service-v1 should have returned empty data.");
     
     // Call with the correct parameters
-    NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"ROOT" forKey: @"requestKey"];
+    NSDictionary *parameters = [NSDictionary dictionaryWithObject: @"NAVIGATION" forKey: @"requestKey"];
     call =
         [_connection
             createReportFromDataStore: [service objectForKey: @"dataStoreCode"]

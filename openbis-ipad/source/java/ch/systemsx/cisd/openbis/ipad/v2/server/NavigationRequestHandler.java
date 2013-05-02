@@ -23,6 +23,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchServic
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
 
 /**
+ * Abstract superclass for the handlers for the NAVIGATION request.
+ * 
  * @author cramakri
  */
 public class NavigationRequestHandler extends AbstractRequestHandler
