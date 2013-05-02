@@ -1,7 +1,7 @@
 <suite name="All" verbose="2" >
   <test name="Main" annotations="JDK">
     <classes>
-       <class name="ch.systemsx.cisd.openbis.jstest.JsSeleniumTest" />
+       <class name="ch.systemsx.cisd.openbis.jstest.suite.common.JsTestCommonSelenium" />
     </classes>  
   </test>
 </suite>

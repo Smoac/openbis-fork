@@ -36,6 +36,12 @@ public class TestDatabase
 
     private static final Logger logger = Logger.getLogger(TestDatabase.class);
 
+    private static final String CLEAN_DATABASE_PROPERTY =
+            "ch.systemsx.cisd.openbis.test.TestDatabase.clean";
+
+    private static final Template EXISTS_DATABASE_TEMPLATE = new Template(
+            "select count(*) from pg_database where datname = '${database-name}'");
+
     private static final Template DROP_DATABASE_TEMPLATE = new Template(
             "drop database if exists ${database-name}");
 
@@ -49,6 +55,7 @@ public class TestDatabase
             return;
         }
 
+        String databaseClean = System.getProperty(CLEAN_DATABASE_PROPERTY);
         File dumpFolder = new File(dumpFolderPathOrNull);
 
         if (dumpFolder.exists() && dumpFolder.isDirectory())
@@ -61,10 +68,15 @@ public class TestDatabase
                 {
                     String databaseOwner = System.getProperty("user.name");
                     String databaseName = FilenameUtils.getBaseName(dumpFile.getName());
+                    boolean databaseExists = existsDatabase(databaseName);
 
-                    dropDatabase(databaseName);
-                    createEmptyDatabase(databaseOwner, databaseName);
-                    restoreDatabaseDump(databaseOwner, databaseName, dumpFile);
+                    if (databaseExists == false || databaseClean == null
+                            || databaseClean.equalsIgnoreCase("true"))
+                    {
+                        dropDatabase(databaseName);
+                        createEmptyDatabase(databaseOwner, databaseName);
+                        restoreDatabaseDump(databaseOwner, databaseName, dumpFile);
+                    }
                 }
             }
         }
@@ -77,6 +89,15 @@ public class TestDatabase
         Template template = DROP_DATABASE_TEMPLATE.createFreshCopy();
         template.bind("database-name", databaseName);
         executeSql("postgres", template.createText());
+    }
+
+    private static boolean existsDatabase(String databaseName)
+    {
+        Template template = EXISTS_DATABASE_TEMPLATE.createFreshCopy();
+        template.bind("database-name", databaseName);
+        List<String> output = executeSql("postgres", template.createText());
+        Integer count = Integer.valueOf(output.get(2).trim());
+        return count > 0;
     }
 
     private static void createEmptyDatabase(String databaseOwner, String databaseName)
@@ -102,17 +123,26 @@ public class TestDatabase
         executeCommand(command);
     }
 
-    private static void executeSql(String userName, String sql)
+    private static List<String> executeSql(String userName, String sql)
     {
         String psql = DumpPreparator.getPSQLExecutable();
         List<String> command = Arrays.asList(psql, "-U", userName, "-c", sql);
-        executeCommand(command);
+        return executeCommand(command);
     }
 
-    private static void executeCommand(List<String> command)
+    private static List<String> executeCommand(List<String> command)
     {
         ProcessResult run = ProcessExecutionHelper.run(command, logger, logger);
-        if (run.isOK() == false)
+        if (run.isOK())
+        {
+            if (run.isOutputAvailable())
+            {
+                return run.getOutput();
+            } else
+            {
+                return null;
+            }
+        } else
         {
             throw new IllegalArgumentException("Couldn't execute a command: " + command
                     + " because: " + run.getOutput());
