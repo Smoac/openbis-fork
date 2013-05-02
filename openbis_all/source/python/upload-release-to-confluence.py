@@ -56,13 +56,16 @@ def fetchBinaries(version):
   print "Fetching {0} binaries from server ...".format(version)
   os.system("mkdir -p " + DOWNLOAD_FOLDER)
   os.system("rm {0}/*.zip".format(DOWNLOAD_FOLDER))
-  os.system("scp sprint:~/fileserver/sprint_builds/openBIS/*-{0}*/*.* {1}".format(version, DOWNLOAD_FOLDER))
+
+  file_patterns = ['openBIS-installation-standard-technologies', 'openBIS-clients-and-APIs', 'datastore_server', 'datastore_server_plugin-yeastx']
+  for file_pattern in file_patterns:
+    os.system("scp sprint:/links/groups/cisd/release_builds/openbis/13.04.x/*-{0}*/{1}-{0}-*.* {2}".format(version, file_pattern, DOWNLOAD_FOLDER))
 
 def printVersion(version, headerLevel):
   today = date.today().strftime("%d %B %Y")
   printWiki("h{2}. Version {0} ({1})".format(version, today, headerLevel))
   
-def processFile(linkName, filePattern, version, listNestedLevels=1, pagetitle="Sprint Releases"):
+def processFile(linkName, filePattern, version, listNestedLevels=1, pagetitle="Production Releases"):
   fileName = findFile(filePattern + "-" + version)
   uploadReleaseBinaryToConfluence(fileName, pagetitle)
   nestedPrefix="*"*listNestedLevels
@@ -85,25 +88,24 @@ def uploadToConfluenceMetabolomicsAndPrintPageText(version):
   printWiki()
   printWiki("h5. openBIS for Metabolomics")
   printWiki()
-  processFile("Application Server (AS)", "openBIS-server", version, 1, "openBIS Metabolomics")
-  processFile("Data Store Server (DSS)", "datastore_server_metabolomics", version, 1, "openBIS Metabolomics")
-  processFile("DSS Client", "dss_client", version, 1, "openBIS Metabolomics")
+  processFile("Application Server (AS)", "openBIS-server", version)
+  processFile("Data Store Server (DSS)", "datastore_server_metabolomics", version)
+  processFile("DSS Client", "dss_client", version)
   printWiki()
-
 
 def createMetabolomicsDssDist(version):
   # find the files we want to work with
   datastore_server = findFile("datastore_server" + "-" + version)
   yeastx_plugin = findFile("datastore_server_plugin-yeastx" + "-" + version)
 
-  # cd to the tmp directory so the paths remain consistent -- do this after findFile, since that assumes a particular path
+	# cd to the tmp directory so the paths remain consistent -- do this after findFile, since that assumes a particular path
   current_dir = os.getcwd()
   os.chdir(DOWNLOAD_FOLDER)
 
   # unzip the yeastx plugin and set up the dir structure
   datastore_dir =  "datastore_server/"
   subprocess.call(["unzip", str(yeastx_plugin)])
-
+  
   # update the datastore_server zip
   version_string = datastore_server[len("datastore_server"):len(datastore_server)]
   metabolomics_zip = "datastore_server_metabolomics" + version_string
