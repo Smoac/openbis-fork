@@ -56,7 +56,10 @@ def fetchBinaries(version):
   print "Fetching {0} binaries from server ...".format(version)
   os.system("mkdir -p " + DOWNLOAD_FOLDER)
   os.system("rm {0}/*.zip".format(DOWNLOAD_FOLDER))
-  os.system("scp sprint:~/fileserver/sprint_builds/openBIS/*-{0}*/*.* {1}".format(version, DOWNLOAD_FOLDER))
+
+  file_patterns = ['openBIS-server', 'openBIS-installation-standard-technologies', 'openBIS-clients-and-APIs', 'datastore_server', 'dss_client', 'datastore_server_plugin-yeastx']
+  for file_pattern in file_patterns:
+    os.system("scp sprint:/links/groups/cisd/release_builds/openbis/13.04.x/*-{0}*/{1}-{0}-*.* {2}".format(version, file_pattern, DOWNLOAD_FOLDER))
 
 def printVersion(version, headerLevel):
   today = date.today().strftime("%d %B %Y")
