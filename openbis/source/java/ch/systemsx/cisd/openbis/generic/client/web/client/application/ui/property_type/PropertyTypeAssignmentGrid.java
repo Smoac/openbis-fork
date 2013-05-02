@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewPTNewAssigment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -185,18 +186,20 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
         }
     }
 
-    public static IDisposableComponent create(final IViewContext<ICommonClientServiceAsync> viewContext, EntityType entity)
+    public static IDisposableComponent create(final IViewContext<ICommonClientServiceAsync> viewContext, EntityType entity, List<NewPTNewAssigment> propertyTypes)
     {
-        return new PropertyTypeAssignmentGrid(viewContext, entity).asDisposableWithoutToolbar();
+        return new PropertyTypeAssignmentGrid(viewContext, entity, propertyTypes).asDisposableWithoutToolbar();
     }
 
     private final IDelegatedAction postRegistrationCallback;
     private final EntityType entity;
+    private final List<NewPTNewAssigment> propertyTypes;
     
-    private PropertyTypeAssignmentGrid(final IViewContext<ICommonClientServiceAsync> viewContext, EntityType entity)
+    private PropertyTypeAssignmentGrid(final IViewContext<ICommonClientServiceAsync> viewContext, EntityType entity, List<NewPTNewAssigment> propertyTypes)
     {
         super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.PROPERTY_TYPE_ASSIGNMENT_BROWSER_GRID);
         this.entity = entity;
+        this.propertyTypes = propertyTypes;
         extendBottomToolbar();
         postRegistrationCallback = createRefreshGridAction();
     }
@@ -214,7 +217,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                                     @Override
                                     public void componentSelected(ButtonEvent ce)
                                     {
-                                        AddPropertyTypeDialog dialog = new AddPropertyTypeDialog(viewContext, createRefreshGridAction(), addEntity.getEntityKind(), addEntity.getCode());
+                                        AddPropertyTypeDialog dialog = new AddPropertyTypeDialog(viewContext, createRefreshGridAction(), addEntity.getEntityKind(), addEntity.getCode(), propertyTypes);
                                         dialog.show();
                                     }
                                 });

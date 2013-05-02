@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -20,6 +21,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETNewPTAssigments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewPTNewAssigment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
@@ -48,15 +51,18 @@ public class NewEntityTypeForm extends ContentPanel
     //
     private final EntityKind kind;
 
-    private EntityType newType;
+    private NewETNewPTAssigments newTypeWithAssigments;
 
     //
     // Entity Form Related
     //
     private AbstractEntityTypeGrid<? extends EntityType> typeGrid;
 
-    private FormPanel dialogForm = null;
-
+    private FormPanel dialogForm;
+    
+    //
+    // Form Creation
+    //
     private NewEntityTypeForm(EntityKind kind, IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.kind = kind;
@@ -80,8 +86,12 @@ public class NewEntityTypeForm extends ContentPanel
 
     private void initForm()
     {
-        this.removeAll();
-
+        
+        //Cleanup for the form and for the in memory structure
+        removeAll();
+        newTypeWithAssigments = new NewETNewPTAssigments();
+        newTypeWithAssigments.setAssigments(new ArrayList<NewPTNewAssigment>());
+        
         // Top panel
         initEntityTypeForm();
         dialogForm.setHeaderVisible(false);
@@ -91,7 +101,7 @@ public class NewEntityTypeForm extends ContentPanel
         add(dialogForm, BorderLayoutDataFactory.create(LayoutRegion.NORTH, 350));
 
         // Central panel
-        PropertyTypeAssignmentGrid grid = (PropertyTypeAssignmentGrid) PropertyTypeAssignmentGrid.create(viewContext, newType).getComponent();
+        PropertyTypeAssignmentGrid grid = (PropertyTypeAssignmentGrid) PropertyTypeAssignmentGrid.create(viewContext, newTypeWithAssigments.getEntity(), newTypeWithAssigments.getAssigments()).getComponent();
         final Component centerPanel = grid;
         add(centerPanel, BorderLayoutDataFactory.create(LayoutRegion.CENTER, 170));
 
@@ -109,28 +119,28 @@ public class NewEntityTypeForm extends ContentPanel
         switch (kind)
         {
             case SAMPLE:
-                newType = new SampleType();
+                newTypeWithAssigments.setEntity(new SampleType());
                 typeGrid = (SampleTypeGrid) SampleTypeGrid.create(viewContext).getComponent();
-                dialog = ((SampleTypeGrid) typeGrid).getNewDialog((SampleType) newType);
+                dialog = ((SampleTypeGrid) typeGrid).getNewDialog((SampleType) newTypeWithAssigments.getEntity());
                 break;
             case DATA_SET:
-                newType = new DataSetType();
+                newTypeWithAssigments.setEntity(new DataSetType());
                 typeGrid = (DataSetTypeGrid) DataSetTypeGrid.create(viewContext).getComponent();
-                dialog = ((DataSetTypeGrid) typeGrid).getNewDialog((DataSetType) newType);
+                dialog = ((DataSetTypeGrid) typeGrid).getNewDialog((DataSetType) newTypeWithAssigments.getEntity());
                 break;
             case EXPERIMENT:
-                newType = new ExperimentType();
+                newTypeWithAssigments.setEntity(new ExperimentType());
                 typeGrid = (ExperimentTypeGrid) ExperimentTypeGrid.create(viewContext).getComponent();
-                dialog = ((ExperimentTypeGrid) typeGrid).getNewDialog((ExperimentType) newType);
+                dialog = ((ExperimentTypeGrid) typeGrid).getNewDialog((ExperimentType) newTypeWithAssigments.getEntity());
                 break;
             case MATERIAL:
-                newType = new MaterialType();
+                newTypeWithAssigments.setEntity(new MaterialType());
                 typeGrid = (MaterialTypeGrid) MaterialTypeGrid.create(viewContext).getComponent();
-                dialog = (AddEntityTypeDialog<MaterialType>) ((MaterialTypeGrid) typeGrid).getNewDialog((MaterialType) newType);
+                dialog = (AddEntityTypeDialog<MaterialType>) ((MaterialTypeGrid) typeGrid).getNewDialog((MaterialType) newTypeWithAssigments.getEntity());
                 break;
         }
 
-        newType.setCode("" + System.currentTimeMillis()); // Just needed so the grid don't break
+        newTypeWithAssigments.getEntity().setCode("" + System.currentTimeMillis()); // Just needed so the grid don't break
                                                           // afterwards
         List<Component> dialogFormIntoList = dialog.getItems();
         dialogForm = (FormPanel) dialogFormIntoList.get(0);
@@ -155,8 +165,14 @@ public class NewEntityTypeForm extends ContentPanel
                 {
                     if (dialogForm.isValid())
                     {
+                        //Update Entity Type
                         setEntityFromForm();
-                        createUpdateEntity();
+                        //Update Entity Type Code at the Property Types
+                        for(NewPTNewAssigment assigment:newTypeWithAssigments.getAssigments()) {
+                            assigment.getAssignment().setEntityTypeCode(newTypeWithAssigments.getEntity().getCode());
+                        }
+                        //Register/Update Call
+                        viewContext.getService().registerEntitytypeAndAssignPropertyTypes(newTypeWithAssigments, new AsyncCallbackEntityType());
                     }
                 }
             });
@@ -167,52 +183,9 @@ public class NewEntityTypeForm extends ContentPanel
         return formWithButtons;
     }
 
-    private class AsyncCallbackEntityType implements AsyncCallback<Void>
-    {
-        @Override
-        public void onFailure(Throwable throwable)
-        {
-            String message = "Error";
-            if (throwable instanceof UserFailureException)
-            {
-                UserFailureException userException = (UserFailureException) throwable;
-                String details = GWTUtils.translateToHtmlLineBreaks(userException.getMessage());
-                if (details != null)
-                {
-                    message = details;
-                } 
-            }
-            MessageBox.alert("Error", message, null);
-        }
-
-        @Override
-        public void onSuccess(Void result)
-        {
-            initForm();
-        }
-    }
-
-    private void createUpdateEntity()
-    {
-        AsyncCallbackEntityType callback = new AsyncCallbackEntityType();
-        
-        switch (kind)
-        {
-            case SAMPLE:
-                viewContext.getService().registerSampleType((SampleType) newType, callback);
-                break;
-            case DATA_SET:
-                viewContext.getService().registerDataSetType((DataSetType) newType, callback);
-                break;
-            case EXPERIMENT:
-                viewContext.getService().registerExperimentType((ExperimentType) newType, callback);
-                break;
-            case MATERIAL:
-                viewContext.getService().registerMaterialType((MaterialType) newType, callback);
-                break;
-        }
-    }
-
+    //
+    // Save Functionality
+    //
     private void setEntityFromForm()
     {
         List<Field<?>> formFields = dialogForm.getFields();
@@ -231,7 +204,7 @@ public class NewEntityTypeForm extends ContentPanel
                 toSaveSample.setAutoGeneratedCode((Boolean) formFields.get(7).getValue());
                 toSaveSample.setShowParentMetadata((Boolean) formFields.get(8).getValue());
                 toSaveSample.setGeneratedCodePrefix((String) formFields.get(9).getValue());
-                newType = toSaveSample;
+                newTypeWithAssigments.setEntity(toSaveSample);
                 break;
             case DATA_SET:
                 DataSetType toSaveDataSet = new DataSetType();
@@ -242,23 +215,47 @@ public class NewEntityTypeForm extends ContentPanel
                 toSaveDataSet.setDeletionDisallow((Boolean) formFields.get(4).getValue());
                 toSaveDataSet.setMainDataSetPattern((String) formFields.get(5).getValue());
                 toSaveDataSet.setMainDataSetPath((String) formFields.get(6).getValue());
-                newType = toSaveDataSet;
+                newTypeWithAssigments.setEntity(toSaveDataSet);
                 break;
             case EXPERIMENT:
                 ExperimentType toSaveExperiment = new ExperimentType();
                 toSaveExperiment.setCode((String) formFields.get(0).getValue());
                 toSaveExperiment.setDescription((String) formFields.get(1).getValue());
                 toSaveExperiment.setValidationScript((Script) formFields.get(2).getValue());
-                newType = toSaveExperiment;
+                newTypeWithAssigments.setEntity(toSaveExperiment);
                 break;
             case MATERIAL:
                 MaterialType toSaveMaterial = new MaterialType();
                 toSaveMaterial.setCode((String) formFields.get(0).getValue());
                 toSaveMaterial.setDescription((String) formFields.get(1).getValue());
                 toSaveMaterial.setValidationScript((Script) formFields.get(2).getValue());
-                newType = toSaveMaterial;
+                newTypeWithAssigments.setEntity(toSaveMaterial);
                 break;
         }
     }
+    
+    private class AsyncCallbackEntityType implements AsyncCallback<String>
+    {
+        @Override
+        public void onFailure(Throwable throwable)
+        {
+            String message = "Error";
+            if (throwable instanceof UserFailureException)
+            {
+                UserFailureException userException = (UserFailureException) throwable;
+                String details = GWTUtils.translateToHtmlLineBreaks(userException.getMessage());
+                if (details != null)
+                {
+                    message = details;
+                }
+            }
+            MessageBox.alert("Error", message, null);
+        }
 
+        @Override
+        public void onSuccess(String result)
+        {
+            initForm();
+        }
+    }
 }

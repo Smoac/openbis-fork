@@ -223,7 +223,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETNewPTAssigments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewPTNewAssigment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -1227,6 +1229,37 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         HibernateUtils.initialize(vocabularyPE.getTerms());
     }
 
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    public String registerEntitytypeAndAssignPropertyTypes(final String sessionToken, NewETNewPTAssigments newETNewPTAssigments)
+    {
+        List<String> results = new ArrayList<String>();
+        //Entity Type Registration
+        switch (newETNewPTAssigments.getEntity().getEntityKind())
+        {
+            case SAMPLE:
+                registerSampleType(sessionToken, (SampleType) newETNewPTAssigments.getEntity());
+                break;
+            case DATA_SET:
+                registerDataSetType(sessionToken, (DataSetType) newETNewPTAssigments.getEntity());
+                break;
+            case EXPERIMENT:
+                registerExperimentType(sessionToken, (ExperimentType) newETNewPTAssigments.getEntity());
+                break;
+            case MATERIAL:
+                registerMaterialType(sessionToken, (MaterialType) newETNewPTAssigments.getEntity());
+                break;
+        }
+        //Property Types Registration/Assigments
+        for(NewPTNewAssigment assigment:newETNewPTAssigments.getAssigments()) {
+            if(assigment.getPropertyType() != null) {
+                registerPropertyType(sessionToken, assigment.getPropertyType());
+            }
+            assignPropertyType(sessionToken, assigment.getAssignment());
+        }
+        return results.toString();
+    }
+    
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public String registerAndAssignPropertyType(final String sessionToken, final PropertyType propertyType, NewETPTAssignment assignment)

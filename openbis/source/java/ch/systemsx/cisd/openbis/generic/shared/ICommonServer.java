@@ -89,6 +89,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsF
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETNewPTAssigments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -497,6 +498,14 @@ public interface ICommonServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE)
     public void deletePropertyTypes(String sessionToken, List<TechId> propertyTypeIds, String reason);
 
+
+    /**
+     * Creates and assigns property type to entity type.
+     */
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE)
+    public String registerEntitytypeAndAssignPropertyTypes(final String sessionToken, NewETNewPTAssigments newETNewPTAssigments);
+    
     /**
      * Creates and assigns property type to entity type.
      */

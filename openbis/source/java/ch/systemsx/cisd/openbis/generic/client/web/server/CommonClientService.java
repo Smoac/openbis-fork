@@ -175,6 +175,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsC
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETNewPTAssigments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -1044,6 +1045,13 @@ public final class CommonClientService extends AbstractClientService implements
         return dataTypes;
     }
 
+    @Override
+    public String registerEntitytypeAndAssignPropertyTypes(NewETNewPTAssigments newETNewPTAssigments)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException {
+        final String sessionToken = getSessionToken();
+        return commonServer.registerEntitytypeAndAssignPropertyTypes(sessionToken, newETNewPTAssigments);
+    }
+    
     @Override
     public String registerAndAssignPropertyType(PropertyType propertyType, NewETPTAssignment assignment)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException

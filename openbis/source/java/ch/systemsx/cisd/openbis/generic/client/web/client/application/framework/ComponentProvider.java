@@ -1185,7 +1185,7 @@ public final class ComponentProvider
                 @Override
                 public ITabItem create()
                 {
-                    IDisposableComponent component = PropertyTypeAssignmentGrid.create(viewContext, entity);
+                    IDisposableComponent component = PropertyTypeAssignmentGrid.create(viewContext, entity, null);
                     return createTab(getTabTitle(), component);
                 }
 

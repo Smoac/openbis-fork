@@ -92,7 +92,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectNullUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETNewPTAssigments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewPTNewAssigment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -556,6 +558,20 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return 0;
     }
 
+    @Override
+    public final String registerEntitytypeAndAssignPropertyTypes(final String sessionToken, final NewETNewPTAssigments newETNewPTAssigments)
+    {
+        for(NewPTNewAssigment newAssigment:newETNewPTAssigments.getAssigments()) {
+            final String entityTypeFormat = newAssigment.getAssignment().getEntityKind().name() + "_TYPE(%S)";
+            logTracking(sessionToken, "register_assign_property_type", " PROPERTY_TYPE(%S) " + entityTypeFormat
+                    + " MANDATORY(%S) DEFAULT(%S) SECTION(%S) PREVIOUS_ORDINAL(%S)",
+                    newAssigment.getAssignment().getPropertyTypeCode(), newAssigment.getAssignment().getEntityTypeCode(),
+                    newAssigment.getAssignment().isMandatory(), newAssigment.getAssignment().getDefaultValue(), newAssigment.getAssignment().getSection(),
+                    newAssigment.getAssignment().getOrdinal());
+        }
+        return null;
+    }
+    
     @Override
     public final String registerAndAssignPropertyType(final String sessionToken, final PropertyType propertyType, NewETPTAssignment assignment)
     {

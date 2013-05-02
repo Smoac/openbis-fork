@@ -95,6 +95,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsC
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETNewPTAssigments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -636,6 +637,11 @@ public interface ICommonClientService extends IClientService
      */
     public List<DataType> listDataTypes() throws UserFailureException;
 
+    /**
+     * Creates Entity Type and Assigns Property types creating them if they don't exist
+     */
+    public String registerEntitytypeAndAssignPropertyTypes(NewETNewPTAssigments newETNewPTAssigments) throws UserFailureException;
+    
     /**
      * Creates and assigns a property type.
      */

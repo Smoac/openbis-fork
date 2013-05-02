@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewPTNewAssigment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
@@ -146,6 +147,8 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     //
     private EntityType entity;
 
+    private EntityKind entityKind;
+    
     private static final String PREFIX = "property-type-assignment_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
@@ -200,15 +203,23 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     private boolean synchronizingGuiFields = false; // Track the state of the code
 
     //
+    // Save Property Type on memory
+    //
+    List<NewPTNewAssigment> propertyTypes;
+    
+    //
     // Constructor and Init Methods
     //
     public AddPropertyTypeDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback, EntityKind entityKind,
-            String entityCode)
+            String entityCode, List<NewPTNewAssigment> propertyTypes)
     {
         super(viewContext, viewContext.getMessage(Dict.PROPERTY_TYPE_REGISTRATION),
                 postRegistrationCallback);
         this.viewContext = viewContext;
+        this.propertyTypes = propertyTypes;
+        this.entityKind = entityKind;
+        
         setWidth(FORM_WIDTH);
         getFormPanel().setFieldWidth(FIELD_WIDTH);
         getFormPanel().setLabelWidth(LABEL_WIDTH);
@@ -293,7 +304,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         this.getFormPanel().layout();
         this.layout();
 
-        this.setSize(800, 550);
+        this.setSize(800, 650);
         this.center();
     }
 
@@ -353,9 +364,11 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         getPropertyTypeSelectionWidget().enable();
         getPropertyTypeSelectionWidget().setVisible(true);
 
-        addField(getEntityTypeSelectionWidget());
-        getEntityTypeSelectionWidget().disable();
-        getEntityTypeSelectionWidget().setVisible(false);
+        if(propertyTypes == null) {
+            addField(getEntityTypeSelectionWidget());
+            getEntityTypeSelectionWidget().disable();
+            getEntityTypeSelectionWidget().setVisible(false);
+        }
 
         addField(getScriptableCheckbox());
         getScriptableCheckbox().clear();
@@ -409,9 +422,11 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         getPropertyTypeSelectionWidget().disable();
         getPropertyTypeSelectionWidget().setVisible(false);
 
-        addField(getEntityTypeSelectionWidget());
-        getEntityTypeSelectionWidget().disable();
-        getEntityTypeSelectionWidget().setVisible(false);
+        if(propertyTypes == null) {
+            addField(getEntityTypeSelectionWidget());
+            getEntityTypeSelectionWidget().disable();
+            getEntityTypeSelectionWidget().setVisible(false);
+        }
 
         addField(getScriptableCheckbox());
         getScriptableCheckbox().clear();
@@ -440,17 +455,31 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     @Override
     protected void register(final AsyncCallback<Void> registrationCallback)
     {
-        if (false == isSelect())
-        {
-            final PropertyType propertyType = createPropertyType();
-            final NewETPTAssignment assignment = createAssignment();
-            viewContext.getService().registerAndAssignPropertyType(propertyType, assignment,
-                    new AssignPropertyTypeCallback(viewContext, registrationCallback));
-        } else
-        {
-            final NewETPTAssignment assignment = createAssignment();
-            viewContext.getService().assignPropertyType(assignment,
-                    new AssignPropertyTypeCallback(viewContext, registrationCallback));
+        if(propertyTypes == null) {
+            if (false == isSelect())
+            {
+                final PropertyType propertyType = createPropertyType();
+                final NewETPTAssignment assignment = createAssignment();
+                viewContext.getService().registerAndAssignPropertyType(propertyType, assignment,
+                        new AssignPropertyTypeCallback(viewContext, registrationCallback));
+            } else
+            {
+                final NewETPTAssignment assignment = createAssignment();
+                viewContext.getService().assignPropertyType(assignment,
+                        new AssignPropertyTypeCallback(viewContext, registrationCallback));
+            }
+        } else {
+            NewPTNewAssigment propertyType = new NewPTNewAssigment();
+            if (false == isSelect())
+            {
+                propertyType.setPropertyType(createPropertyType());
+                propertyType.setAssignment(createAssignment());
+            } else
+            {
+                propertyType.setAssignment(createAssignment());
+            }
+            propertyTypes.add(propertyType);
+            this.close();
         }
     }
 
@@ -509,21 +538,28 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
 
     private final NewETPTAssignment createAssignment()
     {
-        String code = null;
+        //This code field can only be assigend here if the entity type exists.    
+        String entityTypeCode = null;
+        if(propertyTypes == null) {
+            entityTypeCode = ((EntityType) getEntityTypeSelectionWidget().tryGetSelected()).getCode();
+        }
+        
+        //This code field comes from a different component depending if the property is being created or just assigned.    
+        String propertyTypeCode = null;
 
         if (isSelect())
-        { // The Code Field comes from a different component depending if the property is being
-          // created or just assigned.
-            code = propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode();
+        {
+            propertyTypeCode = propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode();
         } else
         {
-            code = getPropertyTypeCodeField().getValue().toUpperCase();
+            propertyTypeCode = getPropertyTypeCodeField().getValue().toUpperCase();
         }
 
+        
         NewETPTAssignment newAssignment = new NewETPTAssignment(
-                entity.getEntityKind(),
-                code,
-                ((EntityType) getEntityTypeSelectionWidget().tryGetSelected()).getCode(),
+                entityKind,
+                propertyTypeCode,
+                entityTypeCode,
                 getMandatoryCheckbox().getValue(),
                 getDefaultValue(),
                 getSectionValue(),
@@ -590,7 +626,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
             scriptChooser = ScriptChooserField.create(
                     viewContext.getMessage(Dict.PLUGIN_PLUGIN),
                     true, null,
-                    viewContext, scriptTypeProvider, entity.getEntityKind());
+                    viewContext, scriptTypeProvider, entityKind);
             scriptChooser.setId(ID_PREFIX + "script_chooser");
             FieldUtil.setVisibility(false, scriptChooser);
         }
@@ -622,7 +658,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     {
         if (entityTypeSelectionWidget == null)
         {
-            switch (entity.getEntityKind())
+            switch (entityKind)
             {
                 case EXPERIMENT:
                     ExperimentTypeSelectionWidget ew =
@@ -819,16 +855,27 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
             propertyType = this.createPropertyType();
         }
 
-        final EntityType entityType = (EntityType) getEntityTypeSelectionWidget().tryGetSelected();
-        if (propertyType != null && entityType != null && propertyType.getDataType() != null)
-        {
-            final List<EntityTypePropertyType<?>> etpts =
-                    new ArrayList<EntityTypePropertyType<?>>(entityType.getAssignedPropertyTypes());
-            sectionSelectionWidget = SectionSelectionWidget.create(viewContext, etpts);
-            this.addField(sectionSelectionWidget);
-            etptSelectionWidget = createETPTSelectionWidget(etpts);
-            this.addField(etptSelectionWidget);
+        if(propertyTypes == null) {
+            final EntityType entityType = (EntityType) getEntityTypeSelectionWidget().tryGetSelected();
+            if (propertyType != null && entityType != null && propertyType.getDataType() != null)
+            {
+                final List<EntityTypePropertyType<?>> etpts = new ArrayList<EntityTypePropertyType<?>>(entityType.getAssignedPropertyTypes());
+                sectionSelectionWidget = SectionSelectionWidget.create(viewContext, etpts);
+                this.addField(sectionSelectionWidget);
+                etptSelectionWidget = createETPTSelectionWidget(etpts);
+                this.addField(etptSelectionWidget);
+            }
+        } else {
+            if (propertyType != null && propertyType.getDataType() != null)
+            {
+                final List<EntityTypePropertyType<?>> etpts = new ArrayList<EntityTypePropertyType<?>>();
+                sectionSelectionWidget = SectionSelectionWidget.create(viewContext, etpts);
+                this.addField(sectionSelectionWidget);
+                etptSelectionWidget = createETPTSelectionWidget(etpts);
+                this.addField(etptSelectionWidget);
+            }
         }
+        
         fixLayout();
     }
 

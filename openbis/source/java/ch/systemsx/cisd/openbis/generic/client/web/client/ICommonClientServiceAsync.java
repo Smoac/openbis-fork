@@ -95,6 +95,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsC
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETNewPTAssigments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -537,9 +538,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listDataTypes(final AsyncCallback<List<DataType>> asyncCallback);
 
     /**
+     * @see ICommonClientService#registerEntitytypeAndAssignPropertyTypes(NewETNewPTAssigments newETNewPTAssigments)
+     */ 
+    public void registerEntitytypeAndAssignPropertyTypes(NewETNewPTAssigments newETNewPTAssigments, AsyncCallback<String> process);
+    
+    /**
      * @see ICommonClientService#registerAndAssignPropertyType(PropertyType propertyType, NewETPTAssignment assignment)
      */
-    public void  registerAndAssignPropertyType(PropertyType propertyType, NewETPTAssignment assignment, AsyncCallback<String> process);
+    public void registerAndAssignPropertyType(PropertyType propertyType, NewETPTAssignment assignment, AsyncCallback<String> process);
     
     /**
      * @see ICommonClientService#assignPropertyType(NewETPTAssignment assignment)
