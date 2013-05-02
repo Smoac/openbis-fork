@@ -1252,7 +1252,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
         //Property Types Registration/Assigments
         for(NewPTNewAssigment assigment:newETNewPTAssigments.getAssigments()) {
-            if(assigment.getPropertyType() != null) {
+            if(false == assigment.isExistingPropertyType()) {
                 registerPropertyType(sessionToken, assigment.getPropertyType());
             }
             assignPropertyType(sessionToken, assigment.getAssignment());

@@ -97,6 +97,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETNewPTAssigments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewPTNewAssigment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -419,6 +420,15 @@ public interface ICommonClientService extends IClientService
     public String prepareExportEntityHistory(
             TableExportCriteria<TableModelRowWithObject<EntityHistory>> criteria);
 
+    /**
+     * Returns a chunk of the property types assignment list.
+     */
+    public TypedTableResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignmentsFromBrowser(
+            DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria,
+            EntityType entity,
+            List<NewPTNewAssigment> propertyTypesAsgs)
+            throws UserFailureException;
+    
     /**
      * Returns a chunk of the property types assignment list.
      */

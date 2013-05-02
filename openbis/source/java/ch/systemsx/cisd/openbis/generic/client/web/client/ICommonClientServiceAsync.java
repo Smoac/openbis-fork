@@ -97,6 +97,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETNewPTAssigments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewPTNewAssigment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -285,6 +286,13 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             EntityType entity,
             final AsyncCallback<TypedTableResultSet<EntityTypePropertyType<?>>> asyncCallback);
 
+    /** @see ICommonClientService#listPropertyTypeAssignmentsFromBrowser(DefaultResultSetConfig, EntityType, List) */
+    public void listPropertyTypeAssignmentsFromBrowser(
+            DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria,
+            EntityType entity,
+            List<NewPTNewAssigment> propertyTypesAsgs,
+            final AsyncCallback<TypedTableResultSet<EntityTypePropertyType<?>>> asyncCallback);
+    
     /** @see ICommonClientService#listPropertyTypeAssignments(EntityType) */
     public void listPropertyTypeAssignments(EntityType entityType,
             final AsyncCallback<List<EntityTypePropertyType<?>>> asyncCallback);

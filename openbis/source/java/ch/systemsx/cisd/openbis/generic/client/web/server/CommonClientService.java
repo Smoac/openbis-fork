@@ -83,6 +83,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CustomGridCo
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataSetTypeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DeletionsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.EntityHistoryProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.EntityTypePropertyTypeBrowserProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.EntityTypePropertyTypeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.EntityTypeProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ExperimentProvider;
@@ -177,6 +178,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETNewPTAssigments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewPTNewAssigment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -685,6 +687,15 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(provider, resultSetConfig);
     }
 
+    @Override
+    public TypedTableResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignmentsFromBrowser(
+            DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria,
+            EntityType entity, List<NewPTNewAssigment> propertyTypesAsgs)
+    {
+        return listEntities(new EntityTypePropertyTypeBrowserProvider(entity, propertyTypesAsgs),
+                criteria);
+    }
+    
     @Override
     public TypedTableResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
             DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria,

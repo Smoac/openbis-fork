@@ -472,10 +472,13 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
             NewPTNewAssigment propertyType = new NewPTNewAssigment();
             if (false == isSelect())
             {
+                propertyType.setExistingPropertyType(false);
                 propertyType.setPropertyType(createPropertyType());
                 propertyType.setAssignment(createAssignment());
             } else
             {
+                propertyType.setExistingPropertyType(true);
+                propertyType.setPropertyType(propertyTypeSelectionWidget.tryGetSelectedPropertyType());
                 propertyType.setAssignment(createAssignment());
             }
             propertyTypes.add(propertyType);

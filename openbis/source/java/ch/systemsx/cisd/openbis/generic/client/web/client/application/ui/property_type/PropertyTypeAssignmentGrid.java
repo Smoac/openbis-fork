@@ -592,25 +592,29 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
             DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> resultSetConfig,
             final AbstractAsyncCallback<TypedTableResultSet<EntityTypePropertyType<?>>> callback)
     {
-        AbstractAsyncCallback<TypedTableResultSet<EntityTypePropertyType<?>>> extendedCallback =
-                new AbstractAsyncCallback<TypedTableResultSet<EntityTypePropertyType<?>>>(
-                        viewContext)
-                    {
-                        @Override
-                        protected void process(TypedTableResultSet<EntityTypePropertyType<?>> result)
+        
+            AbstractAsyncCallback<TypedTableResultSet<EntityTypePropertyType<?>>> extendedCallback =
+                    new AbstractAsyncCallback<TypedTableResultSet<EntityTypePropertyType<?>>>(
+                            viewContext)
                         {
-                            callback.onSuccess(result);
-                        }
+                            @Override
+                            protected void process(TypedTableResultSet<EntityTypePropertyType<?>> result)
+                            {
+                                callback.onSuccess(result);
+                            }
 
-                        @Override
-                        public void finishOnFailure(Throwable caught)
-                        {
-                            callback.finishOnFailure(caught);
-                        }
+                            @Override
+                            public void finishOnFailure(Throwable caught)
+                            {
+                                callback.finishOnFailure(caught);
+                            }
 
-                    };
-                    
-        viewContext.getService().listPropertyTypeAssignments(resultSetConfig, entity, extendedCallback);
+                        };
+       if(propertyTypes == null) {
+            viewContext.getService().listPropertyTypeAssignments(resultSetConfig, entity, extendedCallback);
+        } else {
+            viewContext.getService().listPropertyTypeAssignmentsFromBrowser(resultSetConfig, entity, propertyTypes, extendedCallback);
+        }
     }
 
     @Override
