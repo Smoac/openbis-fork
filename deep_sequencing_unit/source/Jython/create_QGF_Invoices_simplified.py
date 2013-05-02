@@ -383,7 +383,11 @@ def getFLowcellData(service, configMap, flowcell, logger):
         s[sampleCode.split("-")[-1]] = sampleProperties
         sampleDict[lane] = s
         pi = sanitizeString(sampleProperties[configMap["pIPropertyName"]])
-        sentInvoice = {'true': True, 'false': False}.get((sampleProperties['INVOICE']).lower())
+        invoiceProperty = sampleProperties['INVOICE']
+        # if sample got created via Excel upload, the property could be not set, which is represented by None
+        if (invoiceProperty is None):
+          invoiceProperty = 'false'
+        sentInvoice = {'true': True, 'false': False}.get(invoiceProperty.lower())
         logger.debug("PI for " + sampleCode + ": " + pi)
         logger.debug("Invoice sent for " + sampleCode + ": " + str(sentInvoice))
 
