@@ -1,0 +1,14 @@
+apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+
+dependencies {
+	compile project(':common'),
+		'googlecode:jsonrpc4j:0.24-CISD',
+		'reflections:reflections:0.9.5',
+		'cisd:cisd-jhdf5:r28568',
+		'lemnik:eodsql:2.2-CISD',
+		'springframework:spring-jdbc:2.5.6.SEC01'
+		
+	testCompile project(path: ':common', configuration: 'tests'),
+		'hamcrest:hamcrest-integration:1.1',
+		'eclipse:jetty-servlet:8.1.8.v20121106'
+}
