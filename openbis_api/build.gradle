@@ -1,7 +1,12 @@
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
 dependencies {
-	compile project(':common'),
-		'fasterxml:jackson-core:2.0.2',
-		'fasterxml:jackson-annotations:2.0.2'
+	compile (project(':common')) {
+		transitive = false
+	}
+	
+	compile 'fasterxml:jackson-core:2.0.2',
+		'fasterxml:jackson-annotations:2.0.2',
+		
+		'cisd:cisd-base:r27861'
 } 

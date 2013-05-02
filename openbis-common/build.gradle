@@ -1,14 +1,36 @@
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
 dependencies {
-	compile project(':common'),
-		'googlecode:jsonrpc4j:0.24-CISD',
+	compile (project(':common')) {
+		transitive = false
+	}
+	
+	compile 'googlecode:jsonrpc4j:0.24-CISD',
 		'reflections:reflections:0.9.5',
 		'cisd:cisd-jhdf5:r28568',
 		'lemnik:eodsql:2.2-CISD',
-		'springframework:spring-jdbc:2.5.6.SEC01'
+
+		'springframework:spring-jdbc:2.5.6.SEC01',
+		'apache:commons-lang:2.4',
+		'rinn:restrictions:1.0.1',
+		'springframework:spring-webmvc:2.5.6.SEC01-CISD',
+		'javax:servlet-api:3.0',
+		'apache:log4j:1.2.15',
+		'google:gwt-servlet:2.4',
+		'cisd:cisd-base:r27861',
+		'springframework:spring-aop:2.5.6.SEC01'
+				
 		
-	testCompile project(path: ':common', configuration: 'tests'),
-		'hamcrest:hamcrest-integration:1.1',
-		'eclipse:jetty-servlet:8.1.8.v20121106'
+	testCompile (project(path: ':common', configuration: 'tests')) {
+		transitive = false
+	}
+	
+	testCompile 'hamcrest:hamcrest-integration:1.1',
+		'eclipse:jetty-servlet:8.1.8.v20121106',
+		'testng:testng:6.8-CISD',
+		'jmock:jmock:2.5.1'
+		
+	testRuntime 'fjelmer:classycle:1.4',
+		'marathon:marathon-spring-util:1.2.3',
+		'apache:commons-httpclient:3.1'
 }

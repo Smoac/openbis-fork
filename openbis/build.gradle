@@ -1,0 +1,71 @@
+apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+
+dependencies {
+
+	compile (project(':common')) {
+		transitive = false
+	}
+
+	compile (project(':openbis_api')) {
+		transitive = false
+	}
+
+	compile (project(':openbis-common')) {
+		transitive = false
+	}
+
+	compile (project(':authentication')) {
+		transitive = false
+	}
+
+	compile (project(':dbmigration')) {
+		transitive = false
+	}
+
+	compile 'cisd:cisd-base:r27861',
+		'javax:servlet-api:3.0',
+		'apache:log4j:1.2.15',
+		'cisd:cisd-args4j:9.11.2',
+		'springframework:spring-webmvc:2.5.6.SEC01-CISD',
+		'apache:poi:3.8-20120326',
+		'fasterxml:jackson-annotations:2.0.2',
+		'python:jython:2.5.2',
+		'google:gwt-user:2.4',
+		'sencha:gxt:2.2.5',
+		'springframework:spring-aop:2.5.6.SEC01',
+		'apache:commons-collections:4.01',
+		'google:gwt-debug-panel:1.0',
+		'javax:mail:1.4.3',
+		'springframework:spring-jdbc:2.5.6.SEC01',
+		'cisd:cisd-hotdeploy:13.01.0',
+		'hibernate:hibernate-core:3.6.10.Final-CISD',
+		'springframework:spring-orm:2.5.6.SEC01',
+		'googlecode:jsonrpc4j:0.24-CISD',
+		'lemnik:eodsql:2.2-CISD',
+		'unimi:fastutil:5.1.5',
+		'apache:commons-dbcp:1.3-CISD',
+		'javax:validation-api:1.0.0.GA',
+		'hibernate:hibernate-search:3.4.2.Final',
+		'lucene:lucene-highlighter:3.1.0',
+		'eclipse:jetty-util:8.1.8.v20121106',
+		'hibernate:hibernate-validator:4.2.0.Final',
+		'eclipse:jetty-deploy:8.1.8.v20121106',
+		'apache:poi-ooxml:3.8-20120326'
+		
+		testCompile (project(path: ':common', configuration: 'tests')) {
+			transitive = false
+		}
+
+		testCompile (project(path: ':dbmigration', configuration: 'tests')) {
+			transitive = false
+		}
+		
+		testCompile 'springframework:spring-test:2.5.6.SEC01',
+								'testng:testng:6.8-CISD',
+								'hamcrest:hamcrest-library:1.1',
+								'hamcrest:hamcrest-integration:1.1',
+								'jmock:jmock:2.5.1'
+								
+		testRuntime 'fjelmer:classycle:1.4'								
+}
+

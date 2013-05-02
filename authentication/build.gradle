@@ -1,7 +1,23 @@
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
 dependencies {
-	compile project(':common')
+	compile (project(':common')) {
+		transitive = false
+	}
 	
-	testCompile project(path: ':common', configuration: 'tests')
+	compile 'rinn:restrictions:1.0.1',
+		'cisd:cisd-base:r27861',
+		'apache:log4j:1.2.15',
+		'python:jython:2.5.2',
+		'apache:commons-httpclient:3.1',
+		'cisd:cisd-args4j:9.11.2'
+	
+	testCompile (project(path: ':common', configuration: 'tests')) {
+		transitive = false
+	}
+			
+	testCompile 'testng:testng:6.8-CISD',
+		'jmock:jmock:2.5.1'
+		
+	testRuntime 'fjelmer:classycle:1.4'
 } 
