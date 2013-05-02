@@ -11,7 +11,7 @@ import sys, string, xmlrpclib, re, os, getpass, subprocess,  shutil
 
 DOWNLOAD_FOLDER="./tmp/"
 confluenceToken = None
-confluenceServer = xmlrpclib.ServerProxy('https://wiki-bsse.ethz.ch:8443/rpc/xmlrpc')
+confluenceServer = xmlrpclib.ServerProxy('https://wiki-bsse.ethz.ch/rpc/xmlrpc')
 wikiText = ""
 
 
@@ -57,7 +57,7 @@ def fetchBinaries(version):
   os.system("mkdir -p " + DOWNLOAD_FOLDER)
   os.system("rm {0}/*.zip".format(DOWNLOAD_FOLDER))
 
-  file_patterns = ['openBIS-installation-standard-technologies', 'openBIS-clients-and-APIs', 'datastore_server', 'datastore_server_plugin-yeastx']
+  file_patterns = ['openBIS-server', 'openBIS-installation-standard-technologies', 'openBIS-clients-and-APIs', 'datastore_server', 'datastore_server_plugin-yeastx']
   for file_pattern in file_patterns:
     os.system("scp sprint:/links/groups/cisd/release_builds/openbis/13.04.x/*-{0}*/{1}-{0}-*.* {2}".format(version, file_pattern, DOWNLOAD_FOLDER))
 
@@ -90,7 +90,6 @@ def uploadToConfluenceMetabolomicsAndPrintPageText(version):
   printWiki()
   processFile("Application Server (AS)", "openBIS-server", version)
   processFile("Data Store Server (DSS)", "datastore_server_metabolomics", version)
-  processFile("DSS Client", "dss_client", version)
   printWiki()
 
 def createMetabolomicsDssDist(version):
@@ -125,15 +124,15 @@ def findFile(filePattern):
 if __name__ == '__main__':
     if len(sys.argv) < 2:
        exit("""
-Usage: {0} <SPRINT-NUMBER>
-Example command: {0} S104
+Usage: {0} <RELEASE>
+Example command: {0} 13.04.0
          """.format(sys.argv[0]))
     version=sys.argv[1]
     fetchBinaries(version)
     uploadToConfluenceAndPrintPageText(version)
     print "===================================================================="
     print " Paste the following text on the Sprint Releases page in confluence "
-    print " Link: https://wiki-bsse.ethz.ch/display/bis/Sprint+Releases        "
+    print " Link: https://wiki-bsse.ethz.ch/display/bis/Production+Releases    "
     print "===================================================================="
     print wikiText
     
@@ -142,6 +141,6 @@ Example command: {0} S104
     uploadToConfluenceMetabolomicsAndPrintPageText(version)
     print "========================================================================="
     print " Paste the following text on the openBIS Metabolomics page in confluence "
-    print " Link: https://wiki-bsse.ethz.ch/display/bis/openBIS+Metabolomics        "
+    print " Link: https://wiki-bsse.ethz.ch/display/bis/Production+Releases         "
     print "========================================================================="
     print wikiText
