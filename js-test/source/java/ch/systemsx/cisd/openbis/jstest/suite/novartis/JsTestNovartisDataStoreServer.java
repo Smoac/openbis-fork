@@ -24,9 +24,4 @@ import ch.systemsx.cisd.openbis.jstest.server.JsTestDataStoreServer1;
 public class JsTestNovartisDataStoreServer extends JsTestDataStoreServer1
 {
 
-    public JsTestNovartisDataStoreServer()
-    {
-        setName("standard");
-    }
-
 }

@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.jstest.suite.dsu;
-
-import ch.systemsx.cisd.openbis.jstest.server.JsTestDataStoreServer1;
+package ch.systemsx.cisd.openbis.jstest.suite.basynthec;
 
 /**
  * @author pkupczyk
  */
-public class JsTestDsuDataStoreServer extends JsTestDataStoreServer1
+public class JsTestBasynthec
 {
+
+    public static void main(String[] args) throws Exception
+    {
+        JsTestBasynthecApplicationServer as = new JsTestBasynthecApplicationServer();
+        JsTestBasynthecDataStoreServer dss = new JsTestBasynthecDataStoreServer();
+
+        as.start();
+        dss.start();
+    }
 
 }
