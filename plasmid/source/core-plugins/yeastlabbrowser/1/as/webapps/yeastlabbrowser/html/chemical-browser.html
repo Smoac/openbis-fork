@@ -17,7 +17,7 @@
 <script>
 
 /// The openbisServer we use for our data
-openbisServer = new openbis('https://openbis-csb.ethz.ch/openbis/openbis', 'https://openbis-csb.ethz.ch:443/datastore_server');
+openbisServer = new openbis('/openbis/openbis', '/datastore_server');
 
 // Some global variables we refer to
 
@@ -191,7 +191,7 @@ function filelist(chemical, dataset, files) {
 			var inspector = inspectors.select("#"+chemical.code+"_INSPECTOR");
 			var fileTable = inspector.select("table");
 			var pathInDataSet = files.result[i].pathInDataSet;
-			var downloadUrl = 'https://openbis-csb.ethz.ch:443/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
+			var downloadUrl = '/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
 			fileTable.append("tr").append("td").attr("colspan", "2").append("a").attr("href", downloadUrl).text(pathInDataSet);
 			if (/\.svg$/.test(pathInDataSet)) {
 					// Retrieve the svg file and inject it into the DOM

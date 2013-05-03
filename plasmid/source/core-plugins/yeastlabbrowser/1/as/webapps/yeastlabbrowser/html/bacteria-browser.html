@@ -103,7 +103,7 @@
 <script>
 
 /// The openbisServer we use for our data
-openbisServer = new openbis('https://openbis-csb.ethz.ch/openbis/openbis', 'https://openbis-csb.ethz.ch:443/datastore_server');
+openbisServer = new openbis('/openbis/openbis', '/datastore_server');
 
 
 
@@ -467,7 +467,7 @@ function filelist(bacteria, dataset, files) {
 		if (!files.result[i].isDirectory) {
 			var inspector = inspectors.select("#"+bacteria.code+"_INSPECTOR");
 			var pathInDataSet = files.result[i].pathInDataSet;
-			var downloadUrl = 'https://openbis-csb.ethz.ch:443/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
+			var downloadUrl = '/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
 			
 			inspector.select("td.data_sets").append("a").attr("href", downloadUrl).text(pathInDataSet)
 			inspector.select("td.data_sets").append("br");
