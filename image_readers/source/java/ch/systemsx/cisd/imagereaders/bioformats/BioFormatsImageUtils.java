@@ -32,11 +32,16 @@ import java.util.UUID;
 
 import loci.common.IRandomAccess;
 import loci.common.Location;
+import loci.common.RandomAccessInputStream;
 import loci.formats.FormatException;
+import loci.formats.FormatHandler;
 import loci.formats.IFormatHandler;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
+import loci.formats.MetadataTools;
+import loci.formats.codec.ZlibCodec;
 import loci.formats.gui.BufferedImageReader;
+import loci.formats.in.CellomicsReader;
 import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
 import loci.formats.in.MetadataOptions;
@@ -54,6 +59,12 @@ final class BioFormatsImageUtils
 {
 
     private static final IFormatReader[] READERS = new ImageReader().getReaders();
+
+    static
+    {
+        MetadataTools.setDefaultDateEnabled(false);
+        CellomicsReader.setNoHiddenFiles(true);
+    }
 
     /**
      * Tries to create a suitable reader for the file specified with <var>fileName</var>. This is a
@@ -201,7 +212,7 @@ final class BioFormatsImageUtils
             throws IOExceptionUnchecked, IllegalArgumentException
     {
         String handleId = generateHandleId(reader, imageID);
-        
+
         // Add to static map.
         Location.mapFile(handleId, handle);
         try
@@ -286,7 +297,7 @@ final class BioFormatsImageUtils
     {
         // Add to static map.
         String handleId = generateHandleId(reader, imageID);
-        
+
         Location.mapFile(handleId, handle);
         try
         {
@@ -326,6 +337,11 @@ final class BioFormatsImageUtils
         Location.mapFile(handleId, handle);
         try
         {
+            if (reader instanceof CellomicsReader)
+            {
+                return CellomicsReaderUtil.readSize(handleId);
+            }
+
             // This does the actual parsing.
             reader.setId(handleId);
             reader.setSeries(imageID.getSeriesIndex());
@@ -343,6 +359,42 @@ final class BioFormatsImageUtils
         {
             // Remove from static map.
             Location.mapFile(handleId, null);
+        }
+    }
+
+    public static class CellomicsReaderUtil
+    {
+        public static Dimension readSize(String id) throws FormatException, IOException
+        {
+            RandomAccessInputStream in = getDecompressedStream(id);
+
+            in.order(true);
+            in.skipBytes(4);
+
+            int x = in.readInt();
+            int y = in.readInt();
+
+            in.close();
+
+            return new Dimension(x, y);
+
+        }
+
+        private static RandomAccessInputStream getDecompressedStream(String filename)
+                throws FormatException, IOException
+        {
+            RandomAccessInputStream s = new RandomAccessInputStream(filename);
+            if (FormatHandler.checkSuffix(filename, "c01"))
+            {
+
+                s.seek(4);
+                ZlibCodec codec = new ZlibCodec();
+                byte[] file = codec.decompress(s, null);
+                s.close();
+
+                return new RandomAccessInputStream(file);
+            }
+            return s;
         }
     }
 
