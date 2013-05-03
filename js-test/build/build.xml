@@ -107,6 +107,14 @@
 		</antcall>
 	</target>
 	
+	<target name="create-webapp-yeastlab">
+		<antcall target="create-webapp">
+			<param name="js-test.project.name" value="openbis" />
+			<param name="js-test.webapp.name" value="ch.systemsx.cisd.openbis.OpenBIS" />
+			<param name="js-test.suite.name" value="yeastlab" />
+		</antcall>
+	</target>
+	
 	<target name="run-webapp-common">
 		<antcall target="run-webapp">
 			<param name="js-test.suite.name" value="common" />
@@ -135,7 +143,14 @@
 		</antcall>
 	</target>
 	
-	<target name="run-tests-js-on-new-server" depends="compile-tests">
+	<target name="run-webapp-yeastlab">
+		<antcall target="run-webapp">
+			<param name="js-test.suite.name" value="yeastlab" />
+			<param name="js-test.suite.class" value="ch.systemsx.cisd.openbis.jstest.suite.yeastlab.JsTestYeastlab" />
+		</antcall>
+	</target>
+	
+	<target name="run-automated-tests-on-new-server" depends="compile-tests">
 		<delete dir="${output.test}" />
 		<testng workingDir="servers/common/openBIS-server"
 		        outputdir="${output.test}"
@@ -166,7 +181,7 @@
 		<fail if="${tests.failed}" />
 	</target>
 	
-	<target name="run-tests-js-on-existing-server" depends="compile-tests">
+	<target name="run-automated-tests-on-existing-server" depends="compile-tests">
 		<delete dir="${output.test}" />
 		<testng workingDir="servers/common/openBIS-server"
 		        outputdir="${output.test}"
@@ -196,6 +211,6 @@
 		<fail if="${tests.failed}" />
 	</target>
 
-	<target name="ci" depends="create-webapp, run-tests-js-on-new-server" />
+	<target name="ci" depends="create-webapp, run-automated-tests-on-new-server" />
 
 </project>
