@@ -1,5 +1,5 @@
 <suite name="All" verbose="2" >
-  <test name="All" annotations="JDK">
+  <test name="unit" annotations="JDK">
     <groups>
       <run>
         <exclude name="abstract" />
@@ -11,7 +11,25 @@
     <packages>
       <package name="ch.systemsx.cisd.openbis.*">
         <exclude name="ch.systemsx.cisd.openbis.common.*" />
-      </package>
+        <exclude name="ch.systemsx.cisd.openbis.remoteapitest.*" />
+        <exclude name="ch.systemsx.cisd.openbis.systemtest.*" />
+      </package>      
+    </packages>     
+  </test>
+  
+  <test name="system" annotations="JDK">
+    <groups>
+      <run>
+        <exclude name="abstract" />
+        <exclude name="broken" />
+        <exclude name="scalability"/>
+        <exclude name="system-cleandb"/>
+      </run>
+    </groups>
+    <packages>
+        <package name="ch.systemsx.cisd.openbis.remoteapitest.*" />
+        <package name="ch.systemsx.cisd.openbis.systemtest.*" />
     </packages>
   </test>
+  
 </suite>
