@@ -1,8 +1,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class NewETNewPTAssigments implements Serializable
@@ -40,6 +38,7 @@ public class NewETNewPTAssigments implements Serializable
             if(entity.getAssignedPropertyTypes().get(i).getPropertyType().getCode().equals(code)) {
                 entity.getAssignedPropertyTypes().remove(i);
                 assigments.remove(i);
+                break;
             }
         }
         
@@ -62,10 +61,11 @@ public class NewETNewPTAssigments implements Serializable
         }
             
         //
-        // Update Internal List - Reorder the items due to an insert
+        // Update Lists - This Reorder the items due to an insert
         //
-        EntityTypePropertyType<?> newEtpt = getEntityTypePropertyType(entity.getEntityKind(), newAssigment);
         
+        //Internal List
+        EntityTypePropertyType<?> newEtpt = getEntityTypePropertyType(entity.getEntityKind(), newAssigment);
         switch (entity.getEntityKind())
         {
             case SAMPLE:
@@ -86,46 +86,15 @@ public class NewETNewPTAssigments implements Serializable
                 break;
         }
         
+        //External List
+        assigments.add(insertPos, newAssigment);
+        
         //
-        // Update Internal List - Second pass set proper positions after reordering
+        // Update Ordinal - Internal/External List
         //
         for(int i = 0; i < entity.getAssignedPropertyTypes().size(); i++) {
             entity.getAssignedPropertyTypes().get(i).setOrdinal((long) i + 1);
-        }
-        
-        //
-        // Update Visible List with internal list order
-        //
-        assigments.add(newAssigment);
-        for(int i = 0; i < entity.getAssignedPropertyTypes().size(); i++) {
-            EntityTypePropertyType<?> etpt = entity.getAssignedPropertyTypes().get(i);
-            String code = etpt.getPropertyType().getCode();
-            
-            for(NewPTNewAssigment assigment:assigments) {
-                if(assigment.getPropertyType().getCode().equals(code)) {
-                    assigment.getAssignment().setOrdinal((long) (i + 1));
-                }
-            }
-        }
-        
-        //
-        // Update Visible List order
-        //
-        Collections.sort(assigments, new NewPTNewAssigmentComparator());
-    }
-    
-    private class NewPTNewAssigmentComparator implements Comparator<NewPTNewAssigment>{
-
-        @Override
-        public int compare(NewPTNewAssigment arg0, NewPTNewAssigment arg1)
-        {
-            int isEqualIfZero = 0;
-            if(arg0.getAssignment().getOrdinal() > arg1.getAssignment().getOrdinal()) {
-                isEqualIfZero = 1;
-            } else if(arg0.getAssignment().getOrdinal() < arg1.getAssignment().getOrdinal()) {
-                isEqualIfZero = -1;
-            }
-            return isEqualIfZero;
+            assigments.get(i).getAssignment().setOrdinal((long) i + 1);
         }
         
     }
