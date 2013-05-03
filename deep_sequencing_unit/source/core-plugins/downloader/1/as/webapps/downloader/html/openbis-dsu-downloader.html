@@ -21,7 +21,7 @@
   <!-- <script type="text/javascript" src="/openbis/resources/js/openbis-request-cache.js"></script> -->
   <script>
 
-dsu = new openbis_dsu('https://openbis-dsu.ethz.ch/openbis/openbis', 'https://openbis-dsu.ethz.ch/datastore_server');
+dsu = new openbis_dsu('/openbis/openbis', '/datastore_server');
 
 //After logout the URL redirected to, just go to current URL in this case
 var logouturl = $(location).attr('href');
