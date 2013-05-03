@@ -17,13 +17,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETNewPTAssigments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewPTNewAssigment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -119,22 +123,30 @@ public class NewEntityTypeForm extends ContentPanel
         switch (kind)
         {
             case SAMPLE:
-                newTypeWithAssigments.setEntity(new SampleType());
+                SampleType sampleType = new SampleType();
+                sampleType.setSampleTypePropertyTypes(new ArrayList<SampleTypePropertyType>());
+                newTypeWithAssigments.setEntity(sampleType);
                 typeGrid = (SampleTypeGrid) SampleTypeGrid.create(viewContext).getComponent();
                 dialog = ((SampleTypeGrid) typeGrid).getNewDialog((SampleType) newTypeWithAssigments.getEntity());
                 break;
             case DATA_SET:
-                newTypeWithAssigments.setEntity(new DataSetType());
+                DataSetType dataSetType = new DataSetType();
+                dataSetType.setDataSetTypePropertyTypes(new ArrayList<DataSetTypePropertyType>());
+                newTypeWithAssigments.setEntity(dataSetType);
                 typeGrid = (DataSetTypeGrid) DataSetTypeGrid.create(viewContext).getComponent();
                 dialog = ((DataSetTypeGrid) typeGrid).getNewDialog((DataSetType) newTypeWithAssigments.getEntity());
                 break;
             case EXPERIMENT:
-                newTypeWithAssigments.setEntity(new ExperimentType());
+                ExperimentType experimentType = new ExperimentType();
+                experimentType.setExperimentTypePropertyTypes(new ArrayList<ExperimentTypePropertyType>());
+                newTypeWithAssigments.setEntity(experimentType);
                 typeGrid = (ExperimentTypeGrid) ExperimentTypeGrid.create(viewContext).getComponent();
                 dialog = ((ExperimentTypeGrid) typeGrid).getNewDialog((ExperimentType) newTypeWithAssigments.getEntity());
                 break;
             case MATERIAL:
-                newTypeWithAssigments.setEntity(new MaterialType());
+                MaterialType materialType = new MaterialType();
+                materialType.setMaterialTypePropertyTypes(new ArrayList<MaterialTypePropertyType>());
+                newTypeWithAssigments.setEntity(materialType);
                 typeGrid = (MaterialTypeGrid) MaterialTypeGrid.create(viewContext).getComponent();
                 dialog = (AddEntityTypeDialog<MaterialType>) ((MaterialTypeGrid) typeGrid).getNewDialog((MaterialType) newTypeWithAssigments.getEntity());
                 break;

@@ -230,8 +230,9 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                                                 viewContext,
                                                 createRefreshGridAction(),
                                                 newTypeWithAssigments.getEntity().getEntityKind(),
-                                                newTypeWithAssigments.getEntity().getCode(),
-                                                new InMemoryGridAddCallback()
+                                                null,
+                                                new InMemoryGridAddCallback(),
+                                                newTypeWithAssigments.getEntity()
                                                 );
                                         dialog.show();
                                     }
@@ -268,7 +269,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                                     {
                                         AddPropertyTypeDialog dialog =
                                                 new AddPropertyTypeDialog(viewContext, createRefreshGridAction(), addEntity.getEntityKind(),
-                                                        addEntity.getCode(), null);
+                                                        addEntity.getCode(), null, null);
                                         dialog.show();
                                     }
                                 });
@@ -331,13 +332,8 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
     
     public class InMemoryGridRemoveCallback {
         public void callback(final EntityTypePropertyType<?> etpt) {
-            for(int i = 0; i < newTypeWithAssigments.getAssigments().size(); i++) {
-                if(newTypeWithAssigments.getAssigments().get(i).getPropertyType().getCode().equals(etpt.getPropertyType().getCode())) {
-                    newTypeWithAssigments.getAssigments().remove(i);
-                    break;
-                }
-            }
-            newTypeWithAssigments.refreshOrder();
+            String codeToDelete = etpt.getPropertyType().getCode();
+            newTypeWithAssigments.refreshOrderDelete(codeToDelete);
             refresh();
         }
     }
@@ -348,8 +344,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
             newPTNewAssigment.setExistingPropertyType(isExixtingPropertyType);
             newPTNewAssigment.setPropertyType(propertyType);
             newPTNewAssigment.setAssignment(assignment);
-            newTypeWithAssigments.getAssigments().add(newPTNewAssigment);
-            newTypeWithAssigments.refreshOrder();
+            newTypeWithAssigments.refreshOrderAdd(newPTNewAssigment);
             refresh();
         }
     }

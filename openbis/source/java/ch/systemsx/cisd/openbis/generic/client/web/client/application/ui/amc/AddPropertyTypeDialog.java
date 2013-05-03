@@ -195,8 +195,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
 
     private RadioGroup scriptTypeRadioGroup;
 
-    private boolean userDidChangeShownInEditViewCheckBox = false; // Track if the user has set a
-                                                                  // value
+    private boolean userDidChangeShownInEditViewCheckBox = false; // Track if the user has set a value
 
     private boolean userDidChangeShowRawValueCheckBox = false; // Track if the user has set a value
 
@@ -212,10 +211,9 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     //
     public AddPropertyTypeDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback, EntityKind entityKind,
-            String entityCode, InMemoryGridAddCallback inMemoryGridCallback)
+            String entityCode, InMemoryGridAddCallback inMemoryGridCallback, EntityType inMemoryEntityType)
     {
-        super(viewContext, viewContext.getMessage(Dict.PROPERTY_TYPE_REGISTRATION),
-                postRegistrationCallback);
+        super(viewContext, viewContext.getMessage(Dict.PROPERTY_TYPE_REGISTRATION), postRegistrationCallback);
         this.viewContext = viewContext;
         this.inMemoryGridCallback = inMemoryGridCallback;
         this.entityKind = entityKind;
@@ -225,6 +223,9 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         getFormPanel().setLabelWidth(LABEL_WIDTH);
         loading = new Label(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
         addField(loading);
+        
+        
+        this.entity = inMemoryEntityType;
         loadEntityDialog(entityKind, entityCode);
     }
 
@@ -256,7 +257,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     {
 
         private String code;
-
+        
         AsyncCallbackEntityTypeForDialog(String code)
         {
             this.code = code;
@@ -285,7 +286,10 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
 
     private void entityLoaded(EntityType entity)
     {
-        this.entity = entity;
+        if(inMemoryGridCallback  == null) { //If is not an in memory grid
+            this.entity = entity;
+        }
+        
         removeField(loading);
         // Enable Layout Changes
         getFormPanel().setLayoutOnChange(true);
@@ -858,27 +862,23 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
             propertyType = this.createPropertyType();
         }
 
+        EntityType entityType = null;
+        
         if(inMemoryGridCallback == null) {
-            final EntityType entityType = (EntityType) getEntityTypeSelectionWidget().tryGetSelected();
-            if (propertyType != null && entityType != null && propertyType.getDataType() != null)
-            {
-                final List<EntityTypePropertyType<?>> etpts = new ArrayList<EntityTypePropertyType<?>>(entityType.getAssignedPropertyTypes());
-                sectionSelectionWidget = SectionSelectionWidget.create(viewContext, etpts);
-                this.addField(sectionSelectionWidget);
-                etptSelectionWidget = createETPTSelectionWidget(etpts);
-                this.addField(etptSelectionWidget);
-            }
+            entityType = (EntityType) getEntityTypeSelectionWidget().tryGetSelected();
         } else {
-            if (propertyType != null && propertyType.getDataType() != null)
-            {
-                final List<EntityTypePropertyType<?>> etpts = new ArrayList<EntityTypePropertyType<?>>();
-                sectionSelectionWidget = SectionSelectionWidget.create(viewContext, etpts);
-                this.addField(sectionSelectionWidget);
-                etptSelectionWidget = createETPTSelectionWidget(etpts);
-                this.addField(etptSelectionWidget);
-            }
+            entityType = entity;
         }
         
+        if (propertyType != null && entityType != null && propertyType.getDataType() != null)
+        {
+            final List<EntityTypePropertyType<?>> etpts = new ArrayList<EntityTypePropertyType<?>>(entityType.getAssignedPropertyTypes());
+            sectionSelectionWidget = SectionSelectionWidget.create(viewContext, etpts);
+            this.addField(sectionSelectionWidget);
+            etptSelectionWidget = createETPTSelectionWidget(etpts);
+            this.addField(etptSelectionWidget);
+        }
+
         fixLayout();
     }
 

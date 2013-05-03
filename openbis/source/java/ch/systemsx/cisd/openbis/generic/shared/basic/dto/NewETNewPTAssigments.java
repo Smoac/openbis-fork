@@ -1,6 +1,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class NewETNewPTAssigments implements Serializable
@@ -30,79 +32,102 @@ public class NewETNewPTAssigments implements Serializable
     }
     
 
-    public void refreshOrder() {
-//        //
-//        // Get List
-//        //
-//        List<? extends EntityTypePropertyType<?>> list = entity.getAssignedPropertyTypes();
-//        
-//        switch (entity.getEntityKind())
-//        {
-//            case SAMPLE:
-//                SampleType sampleType = (SampleType) entity;
-//                if(entity.getAssignedPropertyTypes() == null) {
-//                    sampleType.setSampleTypePropertyTypes(new ArrayList<SampleTypePropertyType>());
-//                }
-//                entity.getAssignedPropertyTypes().clear();
-//                break;
-//            case EXPERIMENT:
-//                ExperimentType experimentType = (ExperimentType) entity;
-//                if(entity.getAssignedPropertyTypes() == null) {
-//                    experimentType.setExperimentTypePropertyTypes(new ArrayList<ExperimentTypePropertyType>());
-//                }
-//                entity.getAssignedPropertyTypes().clear();
-//                break;
-//            case DATA_SET:
-//                DataSetType datasetType = (DataSetType) entity;
-//                if(entity.getAssignedPropertyTypes() == null) {
-//                    datasetType.setDataSetTypePropertyTypes(new ArrayList<DataSetTypePropertyType>());
-//                }
-//                entity.getAssignedPropertyTypes().clear();
-//                break;
-//            case MATERIAL:
-//                MaterialType materialType = (MaterialType) entity;
-//                if(entity.getAssignedPropertyTypes() == null) {
-//                    materialType.setMaterialTypePropertyTypes(new ArrayList<MaterialTypePropertyType>());
-//                }
-//                entity.getAssignedPropertyTypes().clear();
-//                break;
-//        }
-//        
-//        //
-//        // Update List
-//        //
-//        for(int i = 0; i < assigments.size(); i++) {
-//            NewPTNewAssigment assigment = assigments.get(i);
-//            int insertPos = -1;
-//            EntityTypePropertyType<?> etpt = getEntityTypePropertyType(entity.getEntityKind(), assigment);
-//            
-//            if(assigment.getAssignment().getOrdinal() == 0) {
-//                insertPos = 0;
-//            } else if (assigment.getAssignment().getOrdinal() != 0) {
-//                insertPos = i;
-//            }
-//            etpt.setOrdinal(insertPos+1L);
-//            
-//            switch (entity.getEntityKind())
-//            {
-//                case SAMPLE:
-//                    SampleType sampleType = (SampleType) entity;
-//                    sampleType.getAssignedPropertyTypes().add(insertPos, (SampleTypePropertyType) etpt);
-//                    break;
-//                case EXPERIMENT:
-//                    ExperimentType experimentType = (ExperimentType) entity;
-//                    experimentType.getAssignedPropertyTypes().add(insertPos, (ExperimentTypePropertyType) etpt);
-//                    break;
-//                case DATA_SET:
-//                    DataSetType datasetType = (DataSetType) entity;
-//                    datasetType.getAssignedPropertyTypes().add(insertPos, (DataSetTypePropertyType) etpt);
-//                    break;
-//                case MATERIAL:
-//                    MaterialType materialType = (MaterialType) entity;
-//                    materialType.getAssignedPropertyTypes().add(insertPos, (MaterialTypePropertyType) etpt);
-//                    break;
-//            }
-//        }
+    public void refreshOrderDelete(String code) {
+        //
+        // Delete Code - Internal/External List
+        //
+        for(int i = 0; i < entity.getAssignedPropertyTypes().size(); i++) {
+            if(entity.getAssignedPropertyTypes().get(i).getPropertyType().getCode().equals(code)) {
+                entity.getAssignedPropertyTypes().remove(i);
+                assigments.remove(i);
+            }
+        }
+        
+        //
+        // Update Ordinal - Internal/External List
+        //
+        for(int i = 0; i < entity.getAssignedPropertyTypes().size(); i++) {
+            entity.getAssignedPropertyTypes().get(i).setOrdinal((long) i + 1);
+            assigments.get(i).getAssignment().setOrdinal((long) i + 1);
+        }
+    }
+    
+    public void refreshOrderAdd(NewPTNewAssigment newAssigment) {
+        int insertPos = 0;
+        
+        if(assigments.isEmpty()) {
+            insertPos = 0;
+        } else {
+            insertPos = newAssigment.getAssignment().getOrdinal().intValue();
+        }
+            
+        //
+        // Update Internal List - Reorder the items due to an insert
+        //
+        EntityTypePropertyType<?> newEtpt = getEntityTypePropertyType(entity.getEntityKind(), newAssigment);
+        
+        switch (entity.getEntityKind())
+        {
+            case SAMPLE:
+                SampleType sampleType = (SampleType) entity;
+                sampleType.getAssignedPropertyTypes().add(insertPos, (SampleTypePropertyType) newEtpt);
+                break;
+            case EXPERIMENT:
+                ExperimentType experimentType = (ExperimentType) entity;
+                experimentType.getAssignedPropertyTypes().add(insertPos, (ExperimentTypePropertyType) newEtpt);
+                break;
+            case DATA_SET:
+                DataSetType datasetType = (DataSetType) entity;
+                datasetType.getAssignedPropertyTypes().add(insertPos, (DataSetTypePropertyType) newEtpt);
+                break;
+            case MATERIAL:
+                MaterialType materialType = (MaterialType) entity;
+                materialType.getAssignedPropertyTypes().add(insertPos, (MaterialTypePropertyType) newEtpt);
+                break;
+        }
+        
+        //
+        // Update Internal List - Second pass set proper positions after reordering
+        //
+        for(int i = 0; i < entity.getAssignedPropertyTypes().size(); i++) {
+            entity.getAssignedPropertyTypes().get(i).setOrdinal((long) i + 1);
+        }
+        
+        //
+        // Update Visible List with internal list order
+        //
+        assigments.add(newAssigment);
+        for(int i = 0; i < entity.getAssignedPropertyTypes().size(); i++) {
+            EntityTypePropertyType<?> etpt = entity.getAssignedPropertyTypes().get(i);
+            String code = etpt.getPropertyType().getCode();
+            
+            for(NewPTNewAssigment assigment:assigments) {
+                if(assigment.getPropertyType().getCode().equals(code)) {
+                    assigment.getAssignment().setOrdinal((long) (i + 1));
+                }
+            }
+        }
+        
+        //
+        // Update Visible List order
+        //
+        Collections.sort(assigments, new NewPTNewAssigmentComparator());
+    }
+    
+    private class NewPTNewAssigmentComparator implements Comparator<NewPTNewAssigment>{
+
+        @Override
+        public int compare(NewPTNewAssigment arg0, NewPTNewAssigment arg1)
+        {
+            int isEqualIfZero = 0;
+            if(arg0.getAssignment().getOrdinal() > arg1.getAssignment().getOrdinal()) {
+                isEqualIfZero = 1;
+            } else if(arg0.getAssignment().getOrdinal() < arg1.getAssignment().getOrdinal()) {
+                isEqualIfZero = -1;
+            }
+            return isEqualIfZero;
+        }
+        
     }
     
     public static EntityTypePropertyType<?> getEntityTypePropertyType(EntityKind kind, NewPTNewAssigment propertyTypeAsg) {
