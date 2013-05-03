@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.jstest.suite.common;
 
-import ch.systemsx.cisd.openbis.jstest.JsTestScreeningApplicationServer;
+import ch.systemsx.cisd.openbis.jstest.server.JsTestScreeningApplicationServer;
 
 /**
  * @author pkupczyk

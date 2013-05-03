@@ -14,23 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.jstest;
+package ch.systemsx.cisd.openbis.jstest.suite.novartis;
 
-import ch.systemsx.cisd.openbis.test.TestApplicationServer;
+import ch.systemsx.cisd.openbis.jstest.server.JsTestGenericApplicationServer;
 
 /**
  * @author pkupczyk
  */
-public class JsTestScreeningApplicationServer extends TestApplicationServer
+public class JsTestNovartisApplicationServer extends JsTestGenericApplicationServer
 {
-
-    public JsTestScreeningApplicationServer()
-    {
-        setWebXmlPath("targets/www/ch.systemsx.cisd.openbis.plugin.screening.OpenBIS/WEB-INF/web.xml");
-        setRootPath("targets/www/ch.systemsx.cisd.openbis.plugin.screening.OpenBIS");
-        setContextPath("/openbis");
-        setDumpsPath("db");
-        setPort(20000);
-    }
 
 }

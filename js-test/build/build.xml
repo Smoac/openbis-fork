@@ -91,6 +91,14 @@
 		</antcall>
 	</target>
 	
+	<target name="create-webapp-novartis">
+		<antcall target="create-webapp">
+			<param name="js-test.project.name" value="openbis" />
+			<param name="js-test.webapp.name" value="ch.systemsx.cisd.openbis.OpenBIS" />
+			<param name="js-test.suite.name" value="novartis" />
+		</antcall>
+	</target>
+	
 	<target name="run-webapp-common">
 		<antcall target="run-webapp">
 			<param name="js-test.suite.name" value="common" />
@@ -102,6 +110,13 @@
 		<antcall target="run-webapp">
 			<param name="js-test.suite.name" value="dsu" />
 			<param name="js-test.suite.class" value="ch.systemsx.cisd.openbis.jstest.suite.dsu.JsTestDsu" />
+		</antcall>
+	</target>
+	
+	<target name="run-webapp-novartis">
+		<antcall target="run-webapp">
+			<param name="js-test.suite.name" value="novartis" />
+			<param name="js-test.suite.class" value="ch.systemsx.cisd.openbis.jstest.suite.novartis.JsTestNovartis" />
 		</antcall>
 	</target>
 	

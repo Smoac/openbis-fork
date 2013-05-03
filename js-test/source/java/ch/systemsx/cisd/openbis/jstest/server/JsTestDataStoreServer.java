@@ -15,9 +15,9 @@
  */
 
 
-package ch.systemsx.cisd.openbis.jstest;
+package ch.systemsx.cisd.openbis.jstest.server;
 
-import ch.systemsx.cisd.openbis.test.TestDataStoreServer;
+import ch.systemsx.cisd.openbis.test.server.TestDataStoreServer;
 
 /**
  * @author pkupczyk

@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.jstest.suite.common;
 
-import ch.systemsx.cisd.openbis.jstest.JsTestDataStoreServer1;
+import ch.systemsx.cisd.openbis.jstest.server.JsTestDataStoreServer1;
 
 /**
  * @author pkupczyk

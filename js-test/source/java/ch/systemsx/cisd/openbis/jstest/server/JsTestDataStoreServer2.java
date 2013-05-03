@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.jstest.suite.common;
-
-import ch.systemsx.cisd.openbis.jstest.server.JsTestDataStoreServer2;
+package ch.systemsx.cisd.openbis.jstest.server;
 
 /**
  * @author pkupczyk
  */
-public class JsTestCommonDataStoreServer2 extends JsTestDataStoreServer2
+public class JsTestDataStoreServer2 extends JsTestDataStoreServer
 {
+
+    public JsTestDataStoreServer2()
+    {
+        setName("DSS2");
+        setRootPath("../datastore_server2");
+        setDumpsPath("../datastore_server2/db");
+        setPort(20002);
+        setDebugPort(20012);
+    }
 
 }

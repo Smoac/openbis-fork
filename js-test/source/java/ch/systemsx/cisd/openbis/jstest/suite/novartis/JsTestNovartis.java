@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.jstest.suite.common;
-
-import ch.systemsx.cisd.openbis.jstest.server.JsTestDataStoreServer2;
+package ch.systemsx.cisd.openbis.jstest.suite.novartis;
 
 /**
  * @author pkupczyk
  */
-public class JsTestCommonDataStoreServer2 extends JsTestDataStoreServer2
+public class JsTestNovartis
 {
+
+    public static void main(String[] args) throws Exception
+    {
+        JsTestNovartisApplicationServer as = new JsTestNovartisApplicationServer();
+        JsTestNovartisDataStoreServer dss = new JsTestNovartisDataStoreServer();
+
+        as.start();
+        dss.start();
+    }
 
 }

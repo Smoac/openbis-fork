@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.jstest;
+package ch.systemsx.cisd.openbis.jstest.server;
+
+import ch.systemsx.cisd.openbis.test.server.TestApplicationServer;
 
 /**
  * @author pkupczyk
  */
-public class JsTestDataStoreServer1 extends JsTestDataStoreServer
+public class JsTestGenericApplicationServer extends TestApplicationServer
 {
 
-    public JsTestDataStoreServer1()
+    public JsTestGenericApplicationServer()
     {
-        setName("DSS1");
-        setRootPath("../datastore_server");
-        setDumpsPath("../datastore_server/db");
-        setPort(20001);
-        setDebugPort(20011);
+        setWebXmlPath("targets/www/ch.systemsx.cisd.openbis.OpenBIS/WEB-INF/web.xml");
+        setRootPath("targets/www/ch.systemsx.cisd.openbis.OpenBIS");
+        setContextPath("/openbis");
+        setDumpsPath("db");
+        setPort(20000);
     }
 
 }

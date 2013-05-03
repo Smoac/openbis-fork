@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.test;
+package ch.systemsx.cisd.openbis.test.server;
 
 import java.io.File;
 import java.util.Arrays;

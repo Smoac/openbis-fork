@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.jstest.suite.dsu;
 
-import ch.systemsx.cisd.openbis.jstest.JsTestGenericApplicationServer;
+import ch.systemsx.cisd.openbis.jstest.server.JsTestGenericApplicationServer;
 
 /**
  * @author pkupczyk

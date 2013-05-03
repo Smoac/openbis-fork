@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.jstest;
+package ch.systemsx.cisd.openbis.jstest.server;
 
 /**
  * @author pkupczyk
  */
-public class JsTestDataStoreServer2 extends JsTestDataStoreServer
+public class JsTestDataStoreServer1 extends JsTestDataStoreServer
 {
 
-    public JsTestDataStoreServer2()
+    public JsTestDataStoreServer1()
     {
-        setName("DSS2");
-        setRootPath("../datastore_server2");
-        setDumpsPath("../datastore_server2/db");
-        setPort(20002);
-        setDebugPort(20012);
+        setName("DSS1");
+        setRootPath("../datastore_server");
+        setDumpsPath("../datastore_server/db");
+        setPort(20001);
+        setDebugPort(20011);
     }
 
 }
