@@ -52,20 +52,67 @@ dependencies {
 		'eclipse:jetty-deploy:8.1.8.v20121106',
 		'apache:poi-ooxml:3.8-20120326'
 		
-		testCompile (project(path: ':common', configuration: 'tests')) {
-			transitive = false
-		}
+	runtime (project(':common')) {
+		transitive = true
+	}
 
-		testCompile (project(path: ':dbmigration', configuration: 'tests')) {
-			transitive = false
-		}
-		
-		testCompile 'springframework:spring-test:2.5.6.SEC01',
-								'testng:testng:6.8-CISD',
-								'hamcrest:hamcrest-library:1.1',
-								'hamcrest:hamcrest-integration:1.1',
-								'jmock:jmock:2.5.1'
-								
-		testRuntime 'fjelmer:classycle:1.4'								
+	runtime (project(':openbis_api')) {
+		transitive = true
+	}
+
+	runtime (project(':openbis-common')) {
+		transitive = true
+	}
+
+	runtime (project(':authentication')) {
+		transitive = true
+	}
+
+	runtime (project(':dbmigration')) {
+		transitive = true
+	}
+	
+	testCompile (project(path: ':common', configuration: 'tests')) {
+		transitive = false
+	}
+
+	testCompile (project(path: ':dbmigration', configuration: 'tests')) {
+		transitive = false
+	}
+	
+	testCompile 'springframework:spring-test:2.5.6.SEC01',
+							'testng:testng:6.8-CISD',
+							'hamcrest:hamcrest-library:1.1',
+							'hamcrest:hamcrest-integration:1.1',
+							'jmock:jmock:2.5.1'
+				
+	testRuntime (project(path: ':common', configuration: 'tests')) {
+		transitive = true
+	}
+
+	testRuntime (project(path: ':dbmigration', configuration: 'tests')) {
+		transitive = true
+	}
+										
+	testRuntime 'fjelmer:classycle:1.4', 
+		'apache:commons-fileupload:1.2.1'
 }
+
+sourceSets { 
+	test {
+		resources {
+			srcDirs = ['source/java']
+		}
+	}
+}
+
+// This task is here to make WebAppsPropertiesTest to work. It requires some data files
+// to be present on the same directory than the class file itself.
+task copyTestData(type: Copy, dependsOn: testClasses) {
+    from 'sourceTest/java/ch/systemsx/cisd/openbis/generic/shared/basic'
+    into 'out/classes/test/ch/systemsx/cisd/openbis/generic/shared/basic'
+    include '*.properties'
+}
+test.dependsOn(copyTestData)
+
 

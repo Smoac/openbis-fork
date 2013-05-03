@@ -13,9 +13,6 @@ sourceSets {
 		java {
 			srcDirs = ['source/java']
 		}
-		resources { 
-			srcDirs = ['resource'] 
-		}	 
 	}
 	test {
 		java {
@@ -28,7 +25,6 @@ buildDir = 'out'
 	
 repositories {
 	ivy {
-//		url '../ivy-repository'
 		url 'http://svncisd.ethz.ch/repos/cisd/ivy-repository/trunk'
 		layout "pattern", {
 			artifact "[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
