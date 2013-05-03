@@ -101,7 +101,7 @@ public class NewEntityTypeForm extends ContentPanel
         add(dialogForm, BorderLayoutDataFactory.create(LayoutRegion.NORTH, 350));
 
         // Central panel
-        PropertyTypeAssignmentGrid grid = (PropertyTypeAssignmentGrid) PropertyTypeAssignmentGrid.create(viewContext, newTypeWithAssigments.getEntity(), newTypeWithAssigments.getAssigments()).getComponent();
+        PropertyTypeAssignmentGrid grid = (PropertyTypeAssignmentGrid) PropertyTypeAssignmentGrid.create(viewContext, null, newTypeWithAssigments).getComponent();
         final Component centerPanel = grid;
         add(centerPanel, BorderLayoutDataFactory.create(LayoutRegion.CENTER, 170));
 

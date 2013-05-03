@@ -55,7 +55,7 @@ public class EntityTypePropertyTypeProvider extends
         AbstractCommonTableModelProvider<EntityTypePropertyType<?>>
 {
 
-    private final EntityType entity;
+    protected final EntityType entity;
 
     public EntityTypePropertyTypeProvider(ICommonServer commonServer, String sessionToken,
             EntityType entity)
@@ -125,7 +125,7 @@ public class EntityTypePropertyTypeProvider extends
         return builder.getModel();
     }
 
-    private static String renderDataType(PropertyType entity)
+    protected static String renderDataType(PropertyType entity)
     {
         DataTypeCode dataType = entity.getDataType().getCode();
         switch (dataType)
@@ -156,13 +156,13 @@ public class EntityTypePropertyTypeProvider extends
         }
     }
 
-    private static String tryGetVocabularyCode(PropertyType entity)
+    protected static String tryGetVocabularyCode(PropertyType entity)
     {
         Vocabulary vocabulary = entity.getVocabulary();
         return vocabulary != null ? vocabulary.getCode() : null;
     }
 
-    private static String tryGetMaterialTypeCode(PropertyType entity)
+    protected static String tryGetMaterialTypeCode(PropertyType entity)
     {
         MaterialType materialType = entity.getMaterialType();
         return materialType != null ? materialType.getCode() : null;

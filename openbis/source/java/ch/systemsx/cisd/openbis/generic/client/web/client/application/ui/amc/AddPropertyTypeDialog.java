@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.X
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.DataTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.EntityTypePropertyTypeSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentGrid.InMemoryGridAddCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.SectionSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
@@ -63,7 +64,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewPTNewAssigment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
@@ -205,19 +205,19 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     //
     // Save Property Type on memory
     //
-    List<NewPTNewAssigment> propertyTypes;
+    InMemoryGridAddCallback inMemoryGridCallback;
     
     //
     // Constructor and Init Methods
     //
     public AddPropertyTypeDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback, EntityKind entityKind,
-            String entityCode, List<NewPTNewAssigment> propertyTypes)
+            String entityCode, InMemoryGridAddCallback inMemoryGridCallback)
     {
         super(viewContext, viewContext.getMessage(Dict.PROPERTY_TYPE_REGISTRATION),
                 postRegistrationCallback);
         this.viewContext = viewContext;
-        this.propertyTypes = propertyTypes;
+        this.inMemoryGridCallback = inMemoryGridCallback;
         this.entityKind = entityKind;
         
         setWidth(FORM_WIDTH);
@@ -364,7 +364,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         getPropertyTypeSelectionWidget().enable();
         getPropertyTypeSelectionWidget().setVisible(true);
 
-        if(propertyTypes == null) {
+        if(inMemoryGridCallback == null) {
             addField(getEntityTypeSelectionWidget());
             getEntityTypeSelectionWidget().disable();
             getEntityTypeSelectionWidget().setVisible(false);
@@ -422,7 +422,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         getPropertyTypeSelectionWidget().disable();
         getPropertyTypeSelectionWidget().setVisible(false);
 
-        if(propertyTypes == null) {
+        if(inMemoryGridCallback == null) {
             addField(getEntityTypeSelectionWidget());
             getEntityTypeSelectionWidget().disable();
             getEntityTypeSelectionWidget().setVisible(false);
@@ -455,7 +455,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     @Override
     protected void register(final AsyncCallback<Void> registrationCallback)
     {
-        if(propertyTypes == null) {
+        if(inMemoryGridCallback == null) {
             if (false == isSelect())
             {
                 final PropertyType propertyType = createPropertyType();
@@ -469,19 +469,19 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                         new AssignPropertyTypeCallback(viewContext, registrationCallback));
             }
         } else {
-            NewPTNewAssigment propertyType = new NewPTNewAssigment();
+            boolean isExixtingPropertyType = isSelect();
+            PropertyType propertyType = null;
+            NewETPTAssignment assignment = createAssignment();
+            
             if (false == isSelect())
             {
-                propertyType.setExistingPropertyType(false);
-                propertyType.setPropertyType(createPropertyType());
-                propertyType.setAssignment(createAssignment());
+                propertyType = createPropertyType();
             } else
             {
-                propertyType.setExistingPropertyType(true);
-                propertyType.setPropertyType(propertyTypeSelectionWidget.tryGetSelectedPropertyType());
-                propertyType.setAssignment(createAssignment());
+                propertyType = propertyTypeSelectionWidget.tryGetSelectedPropertyType();
             }
-            propertyTypes.add(propertyType);
+            
+            inMemoryGridCallback.callback(isExixtingPropertyType, propertyType, assignment);
             this.close();
         }
     }
@@ -543,7 +543,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     {
         //This code field can only be assigend here if the entity type exists.    
         String entityTypeCode = null;
-        if(propertyTypes == null) {
+        if(inMemoryGridCallback == null) {
             entityTypeCode = ((EntityType) getEntityTypeSelectionWidget().tryGetSelected()).getCode();
         }
         
@@ -858,7 +858,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
             propertyType = this.createPropertyType();
         }
 
-        if(propertyTypes == null) {
+        if(inMemoryGridCallback == null) {
             final EntityType entityType = (EntityType) getEntityTypeSelectionWidget().tryGetSelected();
             if (propertyType != null && entityType != null && propertyType.getDataType() != null)
             {

@@ -32,21 +32,14 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.PropertyTyp
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractCommonTableModelProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETNewPTAssigments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewPTNewAssigment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
@@ -54,17 +47,13 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
  * 
  * @author Juan Fuentes
  */
-public class EntityTypePropertyTypeBrowserProvider extends AbstractCommonTableModelProvider<EntityTypePropertyType<?>>
+public class EntityTypePropertyTypeBrowserProvider extends EntityTypePropertyTypeProvider
 {
-
-    private final EntityType entity;
-    
     private final List<NewPTNewAssigment> propertyTypesAsgs;
 
     public EntityTypePropertyTypeBrowserProvider(EntityType entity, List<NewPTNewAssigment> propertyTypesAsgs)
     {
-        super(null, null);
-        this.entity = entity;
+        super(null, null, entity);
         this.propertyTypesAsgs = propertyTypesAsgs;
     }
 
@@ -91,35 +80,7 @@ public class EntityTypePropertyTypeBrowserProvider extends AbstractCommonTableMo
             //
             // Create EntityTypePropertyType from Browser in memory structure
             //
-            EntityTypePropertyType<?> etpt = null;
-            switch (entity.getEntityKind())
-            {
-                case SAMPLE:
-                    etpt = new SampleTypePropertyType();
-                    break;
-                case EXPERIMENT:
-                    etpt = new ExperimentTypePropertyType();
-                    break;
-                case DATA_SET:
-                    etpt = new DataSetTypePropertyType();
-                    break;
-                case MATERIAL:
-                    etpt = new MaterialTypePropertyType();
-                    break;
-            }
-            etpt.setPropertyType(propertyTypeAsg.getPropertyType());
-            etpt.setOrdinal(propertyTypeAsg.getAssignment().getOrdinal()); //TO-DO Sort list by order
-            etpt.setSection(propertyTypeAsg.getAssignment().getSection());
-            etpt.setMandatory(propertyTypeAsg.getAssignment().isMandatory());
-            etpt.setDynamic(propertyTypeAsg.getAssignment().isDynamic());
-            etpt.setManaged(propertyTypeAsg.getAssignment().isManaged());
-            etpt.setShownInEditView(propertyTypeAsg.getAssignment().isShownInEditView());
-            etpt.setShowRawValue(propertyTypeAsg.getAssignment().getShowRawValue());
-            if(propertyTypeAsg.getAssignment().getScriptName() != null) {
-                Script scriptNew = new Script();
-                scriptNew.setName(propertyTypeAsg.getAssignment().getScriptName());
-                etpt.setScript(scriptNew);
-            }
+            EntityTypePropertyType<?> etpt = NewETNewPTAssigments.getEntityTypePropertyType(entity.getEntityKind(), propertyTypeAsg);
             
             //
             // Create Row
@@ -145,49 +106,6 @@ public class EntityTypePropertyTypeBrowserProvider extends AbstractCommonTableMo
             }
         }
         return builder.getModel();
-    }
-
-    private static String renderDataType(PropertyType entity)
-    {
-        DataTypeCode dataType = entity.getDataType().getCode();
-        switch (dataType)
-        {
-            case BOOLEAN:
-                return "True / False";
-            case CONTROLLEDVOCABULARY:
-                return "Vocabulary: " + tryGetVocabularyCode(entity);
-            case INTEGER:
-                return "Integer Number";
-            case MATERIAL:
-                String materialTypeCode = tryGetMaterialTypeCode(entity);
-                if (materialTypeCode == null)
-                {
-                    return "Material of Any Type";
-                } else
-                {
-                    return "Material of Type: " + materialTypeCode;
-                }
-            case REAL:
-                return "Float Number";
-            case TIMESTAMP:
-                return "Date and Time";
-            case VARCHAR:
-                return "Text";
-            default:
-                return dataType.name();
-        }
-    }
-
-    private static String tryGetVocabularyCode(PropertyType entity)
-    {
-        Vocabulary vocabulary = entity.getVocabulary();
-        return vocabulary != null ? vocabulary.getCode() : null;
-    }
-
-    private static String tryGetMaterialTypeCode(PropertyType entity)
-    {
-        MaterialType materialType = entity.getMaterialType();
-        return materialType != null ? materialType.getCode() : null;
     }
 
 }
