@@ -115,6 +115,13 @@ sourceSets {
 	}
 }
 
+
+task cleanDbSuite(type: Test) {
+	useTestNG()
+	options.suites('sourceTest/java/tests_system_cleandb_excluding_authorization.xml')
+}
+
+
 // This task is here to make WebAppsPropertiesTest to work. It requires some data files
 // to be present on the same directory than the class file itself.
 task copyTestData(type: Copy, dependsOn: testClasses) {
@@ -123,6 +130,8 @@ task copyTestData(type: Copy, dependsOn: testClasses) {
     include '*.properties'
 }
 test.dependsOn(copyTestData)
+test.dependsOn(cleanDbSuite)
+
 
 task compileGwt (dependsOn: classes, type: JavaExec) {
 
