@@ -6,6 +6,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.BorderLayoutDataFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DataSetKindSelectionWidget;
@@ -81,13 +82,12 @@ public class NewEntityTypeForm extends ContentPanel
         initForm();
     }
 
-    public static DatabaseModificationAwareComponent create(EntityKind kind,
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+    public static DatabaseModificationAwareComponent create(EntityKind kind, final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         NewEntityTypeForm form = new NewEntityTypeForm(kind, viewContext);
-        return new DatabaseModificationAwareComponent(form, null);
+        return new DatabaseModificationAwareComponent(form,new CompositeDatabaseModificationObserver());
     }
-
+    
     private void initForm()
     {
         
@@ -179,6 +179,8 @@ public class NewEntityTypeForm extends ContentPanel
                     {
                         //Update Entity Type
                         setEntityFromForm();
+                        //To order of the ordinals for the database start at 0
+                        newTypeWithAssigments.updateOrdinalToDBOrder();
                         //Update Entity Type Code at the Property Types
                         for(NewPTNewAssigment assigment:newTypeWithAssigments.getAssigments()) {
                             assigment.getAssignment().setEntityTypeCode(newTypeWithAssigments.getEntity().getCode());
@@ -205,7 +207,7 @@ public class NewEntityTypeForm extends ContentPanel
         switch (kind)
         {
             case SAMPLE:
-                SampleType toSaveSample = new SampleType();
+                SampleType toSaveSample = (SampleType) newTypeWithAssigments.getEntity();
                 toSaveSample.setCode((String) formFields.get(0).getValue());
                 toSaveSample.setDescription((String) formFields.get(1).getValue());
                 toSaveSample.setValidationScript((Script) formFields.get(2).getValue());
@@ -219,7 +221,7 @@ public class NewEntityTypeForm extends ContentPanel
                 newTypeWithAssigments.setEntity(toSaveSample);
                 break;
             case DATA_SET:
-                DataSetType toSaveDataSet = new DataSetType();
+                DataSetType toSaveDataSet = (DataSetType) newTypeWithAssigments.getEntity();
                 toSaveDataSet.setCode((String) formFields.get(0).getValue());
                 toSaveDataSet.setDescription((String) formFields.get(1).getValue());
                 toSaveDataSet.setValidationScript((Script) formFields.get(2).getValue());
@@ -230,14 +232,14 @@ public class NewEntityTypeForm extends ContentPanel
                 newTypeWithAssigments.setEntity(toSaveDataSet);
                 break;
             case EXPERIMENT:
-                ExperimentType toSaveExperiment = new ExperimentType();
+                ExperimentType toSaveExperiment = (ExperimentType) newTypeWithAssigments.getEntity();
                 toSaveExperiment.setCode((String) formFields.get(0).getValue());
                 toSaveExperiment.setDescription((String) formFields.get(1).getValue());
                 toSaveExperiment.setValidationScript((Script) formFields.get(2).getValue());
                 newTypeWithAssigments.setEntity(toSaveExperiment);
                 break;
             case MATERIAL:
-                MaterialType toSaveMaterial = new MaterialType();
+                MaterialType toSaveMaterial = (MaterialType) newTypeWithAssigments.getEntity();
                 toSaveMaterial.setCode((String) formFields.get(0).getValue());
                 toSaveMaterial.setDescription((String) formFields.get(1).getValue());
                 toSaveMaterial.setValidationScript((Script) formFields.get(2).getValue());
@@ -254,6 +256,9 @@ public class NewEntityTypeForm extends ContentPanel
             String message = "Error";
             if (throwable instanceof UserFailureException)
             {
+                //In case it fails the order of the properties need to be the one at the grid
+                newTypeWithAssigments.updateOrdinalToGridOrder();
+                //Show error message
                 UserFailureException userException = (UserFailureException) throwable;
                 String details = GWTUtils.translateToHtmlLineBreaks(userException.getMessage());
                 if (details != null)

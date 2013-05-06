@@ -29,36 +29,30 @@ public class NewETNewPTAssigments implements Serializable
         this.assigments = assigments;
     }
     
-
-    public void refreshOrderDelete(String code) {
-        //
-        // Delete Code - Internal/External List
-        //
-        for(int i = 0; i < entity.getAssignedPropertyTypes().size(); i++) {
-            if(entity.getAssignedPropertyTypes().get(i).getPropertyType().getCode().equals(code)) {
-                entity.getAssignedPropertyTypes().remove(i);
-                assigments.remove(i);
-                break;
-            }
-        }
-        
-        //
+    public void updateOrdinalToDBOrder() {
         // Update Ordinal - Internal/External List
-        //
+        for(int i = 0; i < entity.getAssignedPropertyTypes().size(); i++) {
+            entity.getAssignedPropertyTypes().get(i).setOrdinal((long) i);
+            assigments.get(i).getAssignment().setOrdinal((long) i);
+        }
+    }
+    
+    public void updateOrdinalToGridOrder() {
+        // Update Ordinal - Internal/External List
         for(int i = 0; i < entity.getAssignedPropertyTypes().size(); i++) {
             entity.getAssignedPropertyTypes().get(i).setOrdinal((long) i + 1);
             assigments.get(i).getAssignment().setOrdinal((long) i + 1);
         }
     }
     
-    public void refreshOrderAdd(NewPTNewAssigment newAssigment) {
-        int insertPos = 0;
-        
-        if(assigments.isEmpty()) {
-            insertPos = 0;
-        } else {
-            insertPos = newAssigment.getAssignment().getOrdinal().intValue();
+    public void refreshOrderAdd(NewPTNewAssigment newAssigment) throws Exception {
+        if(isAssigmentFound(newAssigment)) {
+            throw new Exception("A property can't be assigned twice.");
         }
+        
+        // Update Ordinal - Internal/External List
+        updateOrdinalToDBOrder();
+        int insertPos = newAssigment.getAssignment().getOrdinal().intValue();
             
         //
         // Update Lists - This Reorder the items due to an insert
@@ -89,14 +83,36 @@ public class NewETNewPTAssigments implements Serializable
         //External List
         assigments.add(insertPos, newAssigment);
         
-        //
         // Update Ordinal - Internal/External List
+        updateOrdinalToGridOrder();
+    }
+    
+    public void refreshOrderDelete(String code) {
+        // Update Ordinal - Internal/External List
+        updateOrdinalToDBOrder();
+        
+        //
+        // Delete Code - Internal/External List
         //
         for(int i = 0; i < entity.getAssignedPropertyTypes().size(); i++) {
-            entity.getAssignedPropertyTypes().get(i).setOrdinal((long) i + 1);
-            assigments.get(i).getAssignment().setOrdinal((long) i + 1);
+            if(entity.getAssignedPropertyTypes().get(i).getPropertyType().getCode().equals(code)) {
+                entity.getAssignedPropertyTypes().remove(i);
+                assigments.remove(i);
+                break;
+            }
         }
         
+        // Update Ordinal - Internal/External List
+        updateOrdinalToGridOrder();
+    }
+    
+    public boolean isAssigmentFound(NewPTNewAssigment assigment) {
+        for(NewPTNewAssigment assigmentFound:assigments) {
+            if(assigmentFound.getPropertyType().getCode().equals(assigment.getPropertyType().getCode())) {
+                return true;
+            }
+        }
+        return false;
     }
     
     public static EntityTypePropertyType<?> getEntityTypePropertyType(EntityKind kind, NewPTNewAssigment propertyTypeAsg) {

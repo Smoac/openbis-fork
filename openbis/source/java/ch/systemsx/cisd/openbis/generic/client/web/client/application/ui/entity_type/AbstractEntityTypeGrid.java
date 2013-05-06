@@ -86,7 +86,7 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
 
         final EntityKind entityKind = getEntityKindOrNull();
 
-        Button buttonNew = new TextToolItem("New",
+        Button buttonNew = new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON)+"V2",
                 new SelectionListener<ButtonEvent>()
                     {
                         @Override
