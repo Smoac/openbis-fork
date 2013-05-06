@@ -1,4 +1,9 @@
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+apply plugin: 'war'
+
+configurations {
+	gwt
+}
 
 dependencies {
 
@@ -30,7 +35,6 @@ dependencies {
 		'apache:poi:3.8-20120326',
 		'fasterxml:jackson-annotations:2.0.2',
 		'python:jython:2.5.2',
-		'google:gwt-user:2.4',
 		'sencha:gxt:2.2.5',
 		'springframework:spring-aop:2.5.6.SEC01',
 		'apache:commons-collections:4.01',
@@ -96,6 +100,11 @@ dependencies {
 										
 	testRuntime 'fjelmer:classycle:1.4', 
 		'apache:commons-fileupload:1.2.1'
+		
+	providedCompile 'google:gwt-user:2.4', 'google:gwt-dev:2.4'		
+	
+	gwt 'reveregroup:gwt-image-loader:1.1.4'
+	
 }
 
 sourceSets { 
@@ -115,10 +124,47 @@ task copyTestData(type: Copy, dependsOn: testClasses) {
 }
 test.dependsOn(copyTestData)
 
+task compileGwt (dependsOn: classes, type: JavaExec) {
 
-test {
-	useTestNG {
-		suites.add('sourceTest/java/tests_system_cleandb_excluding_authorization.xml')
+	buildDir = "${project.buildDir}/gwt"
+	extraDir = "${project.buildDir}/extra"
+     
+	inputs.source sourceSets.main.java.srcDirs
+	inputs.dir sourceSets.main.output.resourcesDir
+	outputs.dir buildDir
+     
+	doFirst {
+		file(buildDir).mkdirs()
 	}
+     
+	main = 'com.google.gwt.dev.Compiler'
+ 
+	classpath {
+		[
+			sourceSets.main.java.srcDirs,           // Java source
+			sourceSets.main.output.resourcesDir,    // Generated resources
+			sourceSets.main.output.classesDir,      // Generated classes
+			sourceSets.main.compileClasspath,       // Deps
+			project(":common").sourceSets.main.java.srcDirs,
+			project(":openbis_api").sourceSets.main.java.srcDirs,
+			configurations.gwt
+		]   
+	}
+     
+	args =
+		[
+			'ch.systemsx.cisd.openbis.OpenBIS', // Your GWT module
+			'-war', buildDir,
+			'-logLevel', 'INFO',
+			'-localWorkers', '2',
+			'-compileReport', 
+			'-extra', extraDir,
+		]
+	
+	maxHeapSize = '1024m'
 }
-
+ 
+war.dependsOn compileGwt
+war {
+    from compileGwt.buildDir
+}
