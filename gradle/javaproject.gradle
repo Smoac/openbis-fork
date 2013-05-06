@@ -34,12 +34,13 @@ repositories {
 }
 
 test {
-	useTestNG()
-		options { suites(file('sourceTest/java/tests.xml')) }
-
-		jvmArgs '-Xmx2048m', '-XX:MaxPermSize=256m'
-		
-		testLogging.showStandardStreams = true
+	useTestNG {
+		suites = ['sourceTest/java/tests.xml']
+	}
+	
+	jvmArgs '-Xmx2048m', '-XX:MaxPermSize=256m'
+	
+	testLogging.showStandardStreams = true
 }
 
 task sourceJar(type: Jar) {

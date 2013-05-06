@@ -116,3 +116,9 @@ task copyTestData(type: Copy, dependsOn: testClasses) {
 test.dependsOn(copyTestData)
 
 
+test {
+	useTestNG {
+		suites.add('sourceTest/java/tests_system_cleandb_excluding_authorization.xml')
+	}
+}
+
