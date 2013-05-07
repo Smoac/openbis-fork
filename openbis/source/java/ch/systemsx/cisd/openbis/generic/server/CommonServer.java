@@ -1412,7 +1412,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         final Session session = getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
-        vocabularyBO.setAllowChangingInternallyManaged(true);
+        if (allowChangingInternallyManaged)
+        {
+            vocabularyBO.setAllowChangingInternallyManaged(true);
+        }
         vocabularyBO.loadDataByTechId(vocabularyId);
         vocabularyBO.addNewTerms(vocabularyTerms, previousTermOrdinal);
         vocabularyBO.save();
