@@ -88,7 +88,7 @@ public class ConvertToolImageTransformer implements IStreamingImageTransformer
 
     private final boolean useGraphicsMagic;
 
-    protected ConvertToolImageTransformer(String arguments, ToolChoice choiceOrNull)
+    public ConvertToolImageTransformer(String arguments, ToolChoice choiceOrNull)
     {
         this.convertCliArguments = parseCommandArguments(arguments);
         ToolChoice choice = (choiceOrNull == null ? ToolChoice.ENFORCE_IMAGEMAGICK : choiceOrNull);
