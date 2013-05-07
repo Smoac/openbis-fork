@@ -211,6 +211,6 @@
 		<fail if="${tests.failed}" />
 	</target>
 
-	<target name="ci" depends="create-webapp, run-automated-tests-on-new-server" />
+	<target name="ci" depends="create-webapp-common, run-automated-tests-on-new-server" />
 
 </project>
