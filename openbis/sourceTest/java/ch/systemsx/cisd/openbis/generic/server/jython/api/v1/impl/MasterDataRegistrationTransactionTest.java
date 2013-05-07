@@ -494,7 +494,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
             {
                 {
                     one(server).addVocabularyTerms(with(SESSION_TOKEN), with(new TechId(VOCA_ID)),
-                            with(newTermsMatcher), with((Long) null));
+                            with(newTermsMatcher), with((Long) null), with(true));
                 }
             });
 
@@ -662,7 +662,7 @@ public class MasterDataRegistrationTransactionTest extends AssertJUnit
             {
                 {
                     one(server).addVocabularyTerms(with(SESSION_TOKEN), with(new TechId(VOCA_ID)),
-                            with(any(List.class)), with((Long) null));
+                            with(any(List.class)), with((Long) null), with(true));
                     will(throwException(throwable));
                 }
             });

@@ -613,10 +613,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     @Override
     public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
-            List<VocabularyTerm> vocabularyTerms, Long previousTermOrdinal)
+            List<VocabularyTerm> vocabularyTerms, Long previousTermOrdinal,
+            boolean allowChangingInternallyManaged)
     {
-        logTracking(sessionToken, "add_vocabulary_terms", "ID(%s) TERMS(%s) PREVIOUS_ORDINAL(%s)",
-                vocabularyId, abbreviate(vocabularyTerms), Long.toString(previousTermOrdinal));
+        logTracking(sessionToken, "add_vocabulary_terms",
+                "ID(%s) TERMS(%s) PREVIOUS_ORDINAL(%s) ALLOW_CHANGING_INTERNALLY_MANAGED(%s)",
+                vocabularyId, abbreviate(vocabularyTerms), Long.toString(previousTermOrdinal),
+                allowChangingInternallyManaged);
     }
 
     @Override

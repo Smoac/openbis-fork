@@ -1354,7 +1354,7 @@ public final class CommonClientService extends AbstractClientService implements
         {
             final String sessionToken = getSessionToken();
             commonServer.addVocabularyTerms(sessionToken, vocabularyId, vocabularyTerms,
-                    previousTermOrdinal);
+                    previousTermOrdinal, false);
         }
     }
 

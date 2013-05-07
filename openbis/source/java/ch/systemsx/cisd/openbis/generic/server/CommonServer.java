@@ -1404,13 +1404,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("WRITE_VOCABULARY_TERM")
     public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
-            List<VocabularyTerm> vocabularyTerms, Long previousTermOrdinal)
+            List<VocabularyTerm> vocabularyTerms, Long previousTermOrdinal,
+            boolean allowChangingInternallyManaged)
     {
         assert sessionToken != null : "Unspecified session token";
         assert vocabularyId != null : "Unspecified vocabulary id";
 
         final Session session = getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
+        vocabularyBO.setAllowChangingInternallyManaged(true);
         vocabularyBO.loadDataByTechId(vocabularyId);
         vocabularyBO.addNewTerms(vocabularyTerms, previousTermOrdinal);
         vocabularyBO.save();

@@ -212,7 +212,7 @@ public class EncapsulatedCommonServer
     }
 
     public void addVocabularyTerms(Long vocabularyId, List<VocabularyTerm> terms,
-            Long previousTermOrdinal)
+            Long previousTermOrdinal, boolean allowChangingInternallyManaged)
     {
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm> list =
                 new ArrayList<ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm>();
@@ -221,7 +221,7 @@ public class EncapsulatedCommonServer
             list.add(vocabularyTerm.getVocabularyTerm());
         }
         commonServer.addVocabularyTerms(sessionToken, new TechId(vocabularyId), list,
-                previousTermOrdinal);
+                previousTermOrdinal, allowChangingInternallyManaged);
     }
 
     public void update(VocabularyTermImmutable term)
