@@ -125,13 +125,12 @@ task cleanDbSuite(type: Test) {
 // This task is here to make WebAppsPropertiesTest to work. It requires some data files
 // to be present on the same directory than the class file itself.
 task copyTestData(type: Copy, dependsOn: testClasses) {
-    from 'sourceTest/java/ch/systemsx/cisd/openbis/generic/shared/basic'
-    into 'out/classes/test/ch/systemsx/cisd/openbis/generic/shared/basic'
-    include '*.properties'
+    from "${project.projectDir}/sourceTest/java/ch/systemsx/cisd/openbis/generic/shared/basic"
+    into "${project.buildDir}/classes/test/ch/systemsx/cisd/openbis/generic/shared/basic"
+    include "*.properties"
 }
 test.dependsOn(copyTestData)
 test.dependsOn(cleanDbSuite)
-
 
 task compileGwt (dependsOn: classes, type: JavaExec) {
 
