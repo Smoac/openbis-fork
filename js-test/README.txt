@@ -10,7 +10,10 @@ To run automatic js tests on an existing and already running server:
 - run create-webapp-common and run-automated-tests-on-existing-server ant targets
 
 To run a lab specific webapp:
-- download database dumps from lascar:/links/groups/cisd/js-test/ directory to
+- download database dumps from lascar:/links/groups/cisd/js-test/XXX directory to
   appropriate local directories i.e. pathinfo_test_js_XXX.js to servers/XXX/datastore_server/db
   and openbis_test_js_XXX.js to servers/XXX/openBIS-server/db
+- download and extract a store dump from lascar:/links/groups/cisd/js-test/XXX directory to
+  local directory servers/XXX/datastore_server/data/store
 - run create-webapp-XXX and run-webapp-XXX ant targets
+- openBIS is running at http://localhost:20000/openbis/
