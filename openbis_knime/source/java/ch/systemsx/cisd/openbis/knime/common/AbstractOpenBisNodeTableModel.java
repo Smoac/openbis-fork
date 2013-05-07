@@ -49,42 +49,49 @@ public abstract class AbstractOpenBisNodeTableModel extends AbstractOpenBisNodeM
     protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec)
             throws Exception
     {
-        QueryTableModel result = getData(FacadeFactory.create(url, userID, password));
-        List<QueryTableColumn> columns = result.getColumns();
-        String[] columnTitles = new String[columns.size()];
-        DataType[] dataTypes = new DataType[columns.size()];
-        ColumnType[] columnTypes = new ColumnType[columns.size()];
-        Map<String, Integer> columnNames = new HashMap<String, Integer>();
-        for (int i = 0, n = columns.size(); i < n; i++)
+        IQueryApiFacade facade = FacadeFactory.create(url, userID, password);
+        try
         {
-            QueryTableColumn column = columns.get(i);
-            String title = column.getTitle();
-            Integer count = columnNames.get(title);
-            if (count == null)
+            QueryTableModel result = getData(facade);
+            List<QueryTableColumn> columns = result.getColumns();
+            String[] columnTitles = new String[columns.size()];
+            DataType[] dataTypes = new DataType[columns.size()];
+            ColumnType[] columnTypes = new ColumnType[columns.size()];
+            Map<String, Integer> columnNames = new HashMap<String, Integer>();
+            for (int i = 0, n = columns.size(); i < n; i++)
             {
-                count = 0;
+                QueryTableColumn column = columns.get(i);
+                String title = column.getTitle();
+                Integer count = columnNames.get(title);
+                if (count == null)
+                {
+                    count = 0;
+                }
+                count++;
+                columnNames.put(title, count);
+                columnTitles[i] = count == 1 ? title : title + "[" + count + "]";
+                columnTypes[i] = Util.getColumnType(column.getDataType());
+                dataTypes[i] = columnTypes[i].getDataType();
             }
-            count++;
-            columnNames.put(title, count);
-            columnTitles[i] = count == 1 ? title : title + "[" + count + "]";
-            columnTypes[i] = Util.getColumnType(column.getDataType());
-            dataTypes[i] = columnTypes[i].getDataType();
-        }
-        DataTableSpec dataTableSpec = new DataTableSpec(columnTitles, dataTypes);
-        BufferedDataContainer container = exec.createDataContainer(dataTableSpec);
-        List<Serializable[]> rows = result.getRows();
-        for (int i = 0, n = rows.size(); i < n; i++)
+            DataTableSpec dataTableSpec = new DataTableSpec(columnTitles, dataTypes);
+            BufferedDataContainer container = exec.createDataContainer(dataTableSpec);
+            List<Serializable[]> rows = result.getRows();
+            for (int i = 0, n = rows.size(); i < n; i++)
+            {
+                Serializable[] row = rows.get(i);
+                DataCell[] cells = new DataCell[row.length];
+                for (int c = 0; c < row.length; c++)
+                {
+                    cells[c] = columnTypes[c].createCell(row[c]);
+                }
+                container.addRowToTable(new DefaultRow(Integer.toString(i), cells));
+            }
+            container.close();
+            return new BufferedDataTable[] {container.getTable()};
+        } finally
         {
-            Serializable[] row = rows.get(i);
-            DataCell[] cells = new DataCell[row.length];
-            for (int c = 0; c < row.length; c++)
-            {
-                cells[c] = columnTypes[c].createCell(row[c]);
-            }
-            container.addRowToTable(new DefaultRow(Integer.toString(i), cells));
+            facade.logout();
         }
-        container.close();
-        return new BufferedDataTable[] {container.getTable()};
     }
 
     @Override

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.knime.query;
+package ch.systemsx.cisd.openbis.knime.common;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -30,38 +30,38 @@ import org.knime.core.node.NodeSettingsWO;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
- * 
+ * Helper class for handling parameter bindings.
  *
  * @author Franz-Josef Elmer
  */
-class ParameterBindings
+public class ParameterBindings
 {
-    static final String PARAMETER_KEYS_KEY = "query-parameter-keys";
-    static final String PARAMETER_VALUES_KEY = "query-parameter-values";
+    public static final String PARAMETER_KEYS_KEY = "query-parameter-keys";
+    public static final String PARAMETER_VALUES_KEY = "query-parameter-values";
 
     private Map<String, String> bindings = new LinkedHashMap<String, String>();
     
-    void removeAllBindings()
+    public void removeAllBindings()
     {
         bindings.clear();
     }
     
-    void bind(String parameter, String value)
+    public void bind(String parameter, String value)
     {
         bindings.put(parameter, value);
     }
     
-    Map<String, String> getBindings()
+    public Map<String, String> getBindings()
     {
         return bindings;
     }
     
-    String tryToGetBinding(String parameter)
+    public String tryToGetBinding(String parameter)
     {
         return bindings.get(parameter);
     }
 
-    void loadValidatedSettingsFrom(NodeSettingsRO settings)
+    public void loadValidatedSettingsFrom(NodeSettingsRO settings)
     {
         String[] parameterKeys;
         String[] parameterValues;
@@ -80,7 +80,7 @@ class ParameterBindings
         }
     }
     
-    void saveSettingsTo(NodeSettingsWO settings)
+    public void saveSettingsTo(NodeSettingsWO settings)
     {
         List<String> parameterKeys = new ArrayList<String>(bindings.size());
         List<String> parameterValues = new ArrayList<String>(bindings.size());

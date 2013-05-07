@@ -11,6 +11,8 @@
             id="ch.systemsx.cisd.openbis.knime.file.DataSetImportNodeFactory"/>
       <node category-path="/community/openbis" factory-class="ch.systemsx.cisd.openbis.knime.file.DataSetRegistrationNodeFactory"
             id="ch.systemsx.cisd.openbis.knime.file.DataSetRegistrationNodeFactory"/>
+      <node category-path="/community/openbis" factory-class="ch.systemsx.cisd.openbis.knime.file.AggregatedDataFileImportNodeFactory"
+            id="ch.systemsx.cisd.openbis.knime.file.AggregatedDataFileImportNodeFactory"/>
    </extension>
    
    <extension point="org.knime.workbench.repository.categories">

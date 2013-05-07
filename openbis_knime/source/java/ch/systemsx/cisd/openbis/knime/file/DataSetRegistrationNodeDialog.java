@@ -47,7 +47,6 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ControlledVocabularyPropertyType;
@@ -227,8 +226,6 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
         abstract JComponent create(PropertyType propertyType, String valueOrNull);
     }
     
-    private final IOpenbisServiceFacadeFactory serviceFacadeFactory;
-    
     private JComboBox ownerTypeComboBox;
     private JTextField ownerField;
     private JComboBox dataSetTypeComboBox;
@@ -239,8 +236,7 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
 
     protected DataSetRegistrationNodeDialog(IOpenbisServiceFacadeFactory serviceFacadeFactory)
     {
-        super("Data Set Registration Settings");
-        this.serviceFacadeFactory = serviceFacadeFactory;
+        super("Data Set Registration Settings", serviceFacadeFactory);
     }
 
     @Override
@@ -484,21 +480,6 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
             }
         }
         return result;
-    }
-
-    private IOpenbisServiceFacade createOpenbisFacade()
-    {
-        try
-        {
-            String url = urlField.getText();
-            String userID = userField.getText();
-            String password = new String(passwordField.getPassword());
-            return serviceFacadeFactory.createFacade(url, userID, password);
-        } catch (RuntimeException ex)
-        {
-            showException(ex);
-            throw ex;
-        }
     }
 
 }

@@ -48,6 +48,9 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
+import ch.systemsx.cisd.openbis.knime.file.IOpenbisServiceFacadeFactory;
+import ch.systemsx.cisd.openbis.knime.file.OpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.FacadeFactory;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 
@@ -64,8 +67,16 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
 
     protected JPasswordField passwordField;
 
+    private final IOpenbisServiceFacadeFactory serviceFacadeFactory;
+    
     protected AbstractOpenBisNodeDialog(String tabTitle)
     {
+        this(tabTitle, new OpenbisServiceFacadeFactory());
+    }
+    
+    protected AbstractOpenBisNodeDialog(String tabTitle, IOpenbisServiceFacadeFactory serviceFacadeFactory)
+    {
+        this.serviceFacadeFactory = serviceFacadeFactory;
         logger = NodeLogger.getLogger(getClass());
         addTab(tabTitle, createTab());
     }
@@ -153,6 +164,22 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
         }
     }
 
+    protected IOpenbisServiceFacade createOpenbisFacade()
+    {
+        try
+        {
+            String url = urlField.getText();
+            String userID = userField.getText();
+            String password = new String(passwordField.getPassword());
+            IOpenbisServiceFacade facade = serviceFacadeFactory.createFacade(url, userID, password);
+            return facade;
+        } catch (RuntimeException ex)
+        {
+            showException(ex);
+            throw ex;
+        }
+    }
+    
     protected <T extends JComponent> T addField(Container panel, String label, T field)
     {
         return addField(panel, label, field, false);

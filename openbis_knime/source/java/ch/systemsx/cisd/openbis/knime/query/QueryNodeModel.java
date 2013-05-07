@@ -21,6 +21,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeTableModel;
+import ch.systemsx.cisd.openbis.knime.common.ParameterBindings;
 import ch.systemsx.cisd.openbis.knime.common.Util;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;

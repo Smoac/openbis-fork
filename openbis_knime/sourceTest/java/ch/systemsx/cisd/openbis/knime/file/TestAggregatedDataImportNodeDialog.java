@@ -21,26 +21,31 @@ import org.knime.core.node.NodeSettings;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 
+import ch.systemsx.cisd.common.reflection.AnnotationUtils.Parameter;
+import ch.systemsx.cisd.openbis.knime.common.ParameterBindings;
+
 /**
- * Stand alone application for testing {@link DataSetRegistrationNodeDialog}.
+ * Stand alone application for testing {@link AggregatedDataFileImportNodeDialog}.
  *
  * @author Franz-Josef Elmer
  */
-public class TestDataSetRegistrationNodeDialog extends AbstractTestNodeDialog
+public class TestAggregatedDataImportNodeDialog extends AbstractTestNodeDialog
 {
     
     public static void main(String[] args) throws NotConfigurableException
     {
-        AbstractTestNodeDialog.createAndShow(new TestDataSetRegistrationNodeDialog());
+        AbstractTestNodeDialog.createAndShow(new TestAggregatedDataImportNodeDialog());
     }
 
     @Override
     NodeDialogPane create() throws NotConfigurableException
     {
-        return new DataSetRegistrationNodeDialog(new OpenbisServiceFacadeFactory())
+        return new AggregatedDataFileImportNodeDialog()
             {
                 {
                     NodeSettings settings = createSettings();
+                    settings.addStringArray(ParameterBindings.PARAMETER_KEYS_KEY, new String[0]);
+                    settings.addStringArray(ParameterBindings.PARAMETER_VALUES_KEY, new String[0]);
                     loadSettingsFrom(settings, (PortObjectSpec[]) null);
                 }
             };

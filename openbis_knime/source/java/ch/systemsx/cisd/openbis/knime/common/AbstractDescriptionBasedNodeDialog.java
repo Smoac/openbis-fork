@@ -37,13 +37,12 @@ import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
  */
 public abstract class AbstractDescriptionBasedNodeDialog<D extends Serializable> extends AbstractOpenBisNodeDialog
 {
+    private JComboBox descriptionComboBox;
 
     protected AbstractDescriptionBasedNodeDialog(String tabTitle)
     {
         super(tabTitle);
     }
-
-    private JComboBox descriptionComboBox;
 
     @Override
     protected void defineQueryForm(JPanel queryPanel)
