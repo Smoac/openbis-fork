@@ -69,7 +69,7 @@
 			<jvmarg value="-Dch.systemsx.cisd.openbis.test.TestDatabase.clean=true" />
 			<classpath>
 				<pathelement path="servers/${js-test.suite.name}/openBIS-server/etc" />
-				<pathelement path="${eclipse.cp}" />
+				<!--<pathelement path="${eclipse.cp}" />-->
 				<pathelement path="${ecp}" />
 			</classpath>
 		</java>
@@ -165,7 +165,7 @@
 			<jvmarg value="-Dui-test.start-page=http://localhost:20000/openbis" />
 			<classpath>
 				<pathelement path="servers/common/openBIS-server/etc" />
-				<pathelement path="${eclipse.cp}" />
+				<!--<pathelement path="${eclipse.cp}" />-->
 				<pathelement path="${ecp}" />
 			</classpath>
 		</testng>
@@ -195,7 +195,7 @@
 			<jvmarg value="-Dui-test.dss-url2=http://localhost:20002" />
 			<jvmarg value="-Dui-test.start-page=http://localhost:20000/openbis" />
 			<classpath>
-				<pathelement path="${eclipse.cp}" />
+				<!--<pathelement path="${eclipse.cp}" />-->
 				<pathelement path="${ecp}" />
 			</classpath>
 		</testng>
