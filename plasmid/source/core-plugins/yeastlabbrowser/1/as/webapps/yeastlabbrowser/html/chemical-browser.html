@@ -17,7 +17,7 @@
 <script>
 
 /// The openbisServer we use for our data
-openbisServer = new openbis('/openbis/openbis', '/datastore_server');
+openbisServer = new openbis(openbisUrl, dssUrl);
 
 // Some global variables we refer to
 
@@ -184,30 +184,6 @@ function closeInspector(chemical)
 	resizeChemicalTable();
 	updateInspectors(1000);
 }
-
-function filelist(chemical, dataset, files) {
-	for (var i in files.result) {
-		if (!files.result[i].isDirectory) {
-			var inspector = inspectors.select("#"+chemical.code+"_INSPECTOR");
-			var fileTable = inspector.select("table");
-			var pathInDataSet = files.result[i].pathInDataSet;
-			var downloadUrl = '/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
-			fileTable.append("tr").append("td").attr("colspan", "2").append("a").attr("href", downloadUrl).text(pathInDataSet);
-			if (/\.svg$/.test(pathInDataSet)) {
-					// Retrieve the svg file and inject it into the DOM
-					d3.xml(downloadUrl, "image/svg+xml", function(xml) {
-						var importedNode = document.importNode(xml.documentElement, true);
-						d3.select(importedNode)
-							.attr("width", inspectorsWidth - 20)
-							.attr("height", inspectorsWidth - 20)
-							.attr("viewBox", "200 200 650 650");
-						inspector.node().appendChild(importedNode);
-					});
-			}
-		}
-	}
-}
-
 
 /**
  * Draw / update node inspectors

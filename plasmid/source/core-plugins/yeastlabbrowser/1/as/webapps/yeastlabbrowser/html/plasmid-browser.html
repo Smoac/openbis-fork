@@ -101,7 +101,7 @@
 <script>
 
 /// The openbisServer we use for our data
-openbisServer = new openbis('/openbis/openbis', '/datastore_server');
+openbisServer = new openbis(openbisUrl, dssUrl);
 
 //openbisServer = new openbis('https://localhost:8443/openbis/openbis', 'https://bs-mbp156.ethz.ch:8443/datastore_server');
 
@@ -441,32 +441,6 @@ function closeInspector(plasmid)
 	resizePlasmidTable();
 	updateInspectors(1000);
 }
-
-function filelist(plasmid, dataset, files) {
-	for (var i in files.result) {
-		if (!files.result[i].isDirectory) {
-			var inspector = inspectors.select("#"+plasmid.code+"_INSPECTOR");
-			var pathInDataSet = files.result[i].pathInDataSet;
-			var downloadUrl = '/datastore_server/'+dataset.code+"/"+pathInDataSet+"?sessionID=" + openbisServer.sessionToken;
-			
-			inspector.select("td.data_sets").append("a").attr("href", downloadUrl).text(pathInDataSet)
-			inspector.select("td.data_sets").append("br");
-			
-			if (/\.svg$/.test(pathInDataSet)) {
-					// Retrieve the svg file and inject it into the DOM
-					d3.xml(downloadUrl, "image/svg+xml", function(xml) {
-						var importedNode = document.importNode(xml.documentElement, true);
-						d3.select(importedNode)
-							.attr("width", inspectorsWidth - 20)
-							.attr("height", inspectorsWidth - 20)
-							.attr("viewBox", "200 200 650 650");
-						inspector.node().appendChild(importedNode);
-					});
-			}
-		}
-	}
-}
-
 
 /**
  * Draw / update node inspectors
