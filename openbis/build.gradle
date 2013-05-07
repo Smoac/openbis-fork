@@ -115,10 +115,10 @@ sourceSets {
 	}
 }
 
-
 task cleanDbSuite(type: Test) {
 	useTestNG()
 	options.suites('sourceTest/java/tests_system_cleandb_excluding_authorization.xml')
+	testReportDir = file("${project.buildDir}/reports/tests-cleandb")
 }
 
 
@@ -150,10 +150,10 @@ task compileGwt (dependsOn: classes, type: JavaExec) {
  
 	classpath {
 		[
-			sourceSets.main.java.srcDirs,           // Java source
-			sourceSets.main.output.resourcesDir,    // Generated resources
-			sourceSets.main.output.classesDir,      // Generated classes
-			sourceSets.main.compileClasspath,       // Deps
+			sourceSets.main.java.srcDirs,
+			sourceSets.main.output.resourcesDir,
+			sourceSets.main.output.classesDir,
+			sourceSets.main.compileClasspath,
 			project(":common").sourceSets.main.java.srcDirs,
 			project(":openbis_api").sourceSets.main.java.srcDirs,
 			configurations.gwt
