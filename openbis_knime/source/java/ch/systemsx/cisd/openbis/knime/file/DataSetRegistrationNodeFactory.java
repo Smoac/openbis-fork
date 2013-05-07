@@ -20,6 +20,9 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
+import ch.systemsx.cisd.openbis.knime.common.IOpenbisServiceFacadeFactory;
+import ch.systemsx.cisd.openbis.knime.common.OpenbisServiceFacadeFactory;
+
 /**
  * 
  *

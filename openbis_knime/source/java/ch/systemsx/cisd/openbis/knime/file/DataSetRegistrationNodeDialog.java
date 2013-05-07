@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator;
 import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeDialog;
+import ch.systemsx.cisd.openbis.knime.common.IOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.knime.common.OwnerChooser;
 import ch.systemsx.cisd.openbis.knime.common.Util;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;

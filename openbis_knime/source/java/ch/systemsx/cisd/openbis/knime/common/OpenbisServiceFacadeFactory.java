@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.knime.file;
+package ch.systemsx.cisd.openbis.knime.common;
 
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 

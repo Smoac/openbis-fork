@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeModel;
+import ch.systemsx.cisd.openbis.knime.common.IOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.knime.common.Util;
 
 /**

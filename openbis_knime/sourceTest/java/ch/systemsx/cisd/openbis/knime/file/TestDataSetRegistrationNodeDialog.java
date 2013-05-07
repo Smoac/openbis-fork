@@ -21,6 +21,8 @@ import org.knime.core.node.NodeSettings;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 
+import ch.systemsx.cisd.openbis.knime.common.OpenbisServiceFacadeFactory;
+
 /**
  * Stand alone application for testing {@link DataSetRegistrationNodeDialog}.
  *
