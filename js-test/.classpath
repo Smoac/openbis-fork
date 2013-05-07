@@ -4,6 +4,8 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/openbis"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/screening"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/deep_sequencing_unit"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/rtd_phosphonetx"/>  
 	<classpathentry combineaccessrules="false" kind="src" path="/ui-test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="/libraries/selenium/lib/jna-3.4.0.jar"/>
