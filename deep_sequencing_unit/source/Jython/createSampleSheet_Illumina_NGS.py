@@ -64,16 +64,23 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SampleFetchOption
 
 lineending = {'win32':'\r\n', 'linux':'\n', 'mac':'\r'}
 COMMA = ','
+SAMPLETYPE = 'SAMPLETYPE'
 
 def getLaneAncestors(service, lane, logger):
+  '''
+  Gets all ancestors and corresponding properties of a sample
+  '''
   fetchOptions = EnumSet.of(SampleFetchOption.ANCESTORS, SampleFetchOption.PROPERTIES)
-
   sc = SearchCriteria();
   sc.addMatchClause(SearchCriteria.MatchClause.createAttributeMatch(SearchCriteria.MatchClauseAttribute.CODE, lane));
   dList = service.searchForSamples(sc, fetchOptions)
 
-
   def recursiveSamples(list, codeList, propertyDict):
+    '''
+    Recursively walks through the sample tree and write the sample codes
+    to a list and the properties into a dictionary. The sample code is
+    the key, the properties are the values
+    '''
        
     for element in list:
       elementCode = element.getCode()
@@ -85,7 +92,7 @@ def getLaneAncestors(service, lane, logger):
       for eP in elementProperties:
         tmpDict[eP] = elementProperties[eP]
         
-      tmpDict['SAMPLETYPE'] = element.getSampleTypeCode()
+      tmpDict[SAMPLETYPE] = element.getSampleTypeCode()
       propertyDict[elementCode] = tmpDict
 
       elementParents = element.getParents()
@@ -104,15 +111,15 @@ def getLaneAncestors(service, lane, logger):
   return codeList, propertyDict
 
 
-def login(configMap, logger):
-  logger.info('Logging into ' + configMap['openbisServer'])
+def login(configDict, logger):
+  logger.info('Logging into ' + configDict['openbisServer'])
   try:
-    service = OpenbisServiceFacadeFactory.tryCreate(configMap['openbisUserName'],
-                                                  configMap['openbisPassword'],
-                                                  configMap['openbisServer'],
-                                                  configMap['connectionTimeout'])
+    service = OpenbisServiceFacadeFactory.tryCreate(configDict['openbisUserName'],
+                                                  configDict['openbisPassword'],
+                                                  configDict['openbisServer'],
+                                                  configDict['connectionTimeout'])
   except BaseException:
-    print ('Could not connect to ' + configMap['openbisServer'] + '. Please check if the server ' +
+    print ('Could not connect to ' + configDict['openbisServer'] + '. Please check if the server ' +
     'address is OK, the firewall is not blocking the communication, or openBIS is down.')
 
   return service
@@ -150,6 +157,11 @@ def parseOptions(logger):
                   default='./',
                   help='Specify the ouput directory. Default: ./' ,
                   metavar='<outdir>')
+  parser.add_option('-s', '--singlelane',
+                  dest='singlelane',
+                  default=False,
+                  action='store_true',
+                  help='Creates a single Sample Sheet for each lane. Default: False')
   parser.add_option('-d', '--debug',
                   dest='debug',
                   default=False,
@@ -187,37 +199,47 @@ def readConfig(logger):
   OPENBIS = 'OPENBIS'
   ILLUMINA = 'ILLUMINA'
 
-  configMap = {}
+  configDict = {}
 
   configParameters = parseConfigurationFile(logger)
 
-  configMap['facilityName'] = configParameters.get(GENERAL, 'facilityName')
-  configMap['facilityNameShort'] = configParameters.get(GENERAL, 'facilityNameShort')
-  configMap['facilityInstitution'] = configParameters.get(GENERAL, 'facilityInstitution')
-  configMap['sampleSheetFileName'] = configParameters.get(GENERAL, 'sampleSheetFileName')
-  configMap['separator'] = configParameters.get(GENERAL, 'separator')
-  configMap['indexSeparator'] = configParameters.get(GENERAL, 'indexSeparator')
+  configDict['facilityName'] = configParameters.get(GENERAL, 'facilityName')
+  configDict['facilityNameShort'] = configParameters.get(GENERAL, 'facilityNameShort')
+  configDict['facilityInstitution'] = configParameters.get(GENERAL, 'facilityInstitution')
+  configDict['sampleSheetFileName'] = configParameters.get(GENERAL, 'sampleSheetFileName')
+  configDict['separator'] = configParameters.get(GENERAL, 'separator')
+  configDict['indexSeparator'] = configParameters.get(GENERAL, 'indexSeparator')
 
-  configMap['openbisUserName'] = configParameters.get(OPENBIS, 'openbisUserName')
-  configMap['openbisPassword'] = configParameters.get(OPENBIS, 'openbisPassword', raw=True)
-  configMap['openbisServer'] = configParameters.get(OPENBIS, 'openbisServer')
-  configMap['connectionTimeout'] = configParameters.getint(OPENBIS, 'connectionTimeout')
-  configMap['illuminaFlowCellTypeName'] = configParameters.get(OPENBIS, 'illuminaFlowCellTypeName')
-  configMap['index1Name'] = configParameters.get(OPENBIS, 'index1Name')
-  configMap['index2Name'] = configParameters.get(OPENBIS, 'index2Name')
-  configMap['species'] = configParameters.get(OPENBIS, 'species')
-  configMap['sampleName'] = configParameters.get(OPENBIS, 'sampleName')
-  configMap['operator'] = configParameters.get(OPENBIS, 'operator')
-  configMap['endType'] = configParameters.get(OPENBIS, 'endType')
-  configMap['readLength'] = configParameters.get(OPENBIS, 'readLength')
-  configMap['lengthIndex1'] = configParameters.get(OPENBIS, 'lengthIndex1')
-  configMap['lengthIndex2'] = configParameters.get(OPENBIS, 'lengthIndex2')
-  configMap['gaNumber'] = configParameters.get(OPENBIS, 'gaNumber')
+  configDict['openbisUserName'] = configParameters.get(OPENBIS, 'openbisUserName')
+  configDict['openbisPassword'] = configParameters.get(OPENBIS, 'openbisPassword', raw=True)
+  configDict['openbisServer'] = configParameters.get(OPENBIS, 'openbisServer')
+  configDict['connectionTimeout'] = configParameters.getint(OPENBIS, 'connectionTimeout')
+  configDict['illuminaFlowCellTypeName'] = configParameters.get(OPENBIS, 'illuminaFlowCellTypeName')
 
-  configMap['hiSeqNames'] = configParameters.get(ILLUMINA, 'hiSeqNames')
-  configMap['hiSeqHeader'] = configParameters.get(ILLUMINA, 'hiSeqHeader')
+  configDict['illuminaFlowLaneTypeName'] = configParameters.get(OPENBIS, 'illuminaFlowLaneTypeName')
+  configDict['libraryPoolTypeName'] = configParameters.get(OPENBIS, 'libraryPoolTypeName')
+  configDict['libraryTypeName'] = configParameters.get(OPENBIS, 'libraryTypeName')
+  configDict['rawTypeName'] = configParameters.get(OPENBIS, 'rawTypeName')
+  configDict['masterTypeName'] = configParameters.get(OPENBIS, 'masterTypeName')
+  configDict['index1Name'] = configParameters.get(OPENBIS, 'index1Name')
+  configDict['index2Name'] = configParameters.get(OPENBIS, 'index2Name')
+  configDict['operator'] = configParameters.get(OPENBIS, 'operator')
+  configDict['endType'] = configParameters.get(OPENBIS, 'endType')
+  configDict['lengthIndex1'] = configParameters.get(OPENBIS, 'lengthIndex1')
+  configDict['lengthIndex2'] = configParameters.get(OPENBIS, 'lengthIndex2')
+  
+  configDict['endType'] = configParameters.get(OPENBIS, 'endType')
+  configDict['cycles'] = configParameters.get(OPENBIS, 'cycles')
+  configDict['runFolderName'] = configParameters.get(OPENBIS, 'runFolderName')
+  configDict['ncbiOrganismTaxonomy'] = configParameters.get(OPENBIS, 'ncbiOrganismTaxonomy')
+  configDict['externalSampleName'] = configParameters.get(OPENBIS, 'externalSampleName')
+  
+  configDict['phixNcbiCode'] = configParameters.getint(OPENBIS, 'phixNcbiCode')
 
-  return configMap
+  configDict['hiSeqNames'] = configParameters.get(ILLUMINA, 'hiSeqNames')
+  configDict['hiSeqHeader'] = configParameters.get(ILLUMINA, 'hiSeqHeader')
+
+  return configDict
 
 def sanitizeString(myString):
   return re.sub('[^A-Za-z0-9]+', '_', myString)
@@ -304,7 +326,7 @@ def getContainedSampleProperties(logger, containedSamples, service):
   return laneParentDict
 
 
-def convertSampleToDict(foundFlowCell, configMap):
+def convertSampleToDict(foundFlowCell, configDict):
   '''
   converts <type 'ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample'> to a python dict
   '''
@@ -316,113 +338,57 @@ def convertSampleToDict(foundFlowCell, configMap):
   flowCellDict['CODE'] = foundFlowCell.getCode()
   return flowCellDict
 
-def getIndex(indx1, indx2, index1ReadLength, indexRead2Length, properties, configMap):
-  if indx1 in properties and index1ReadLength > 0:
-    index = properties[indx1][0:index1ReadLength]
-  else:
-    index = ''
-  if indx2 in properties and indexRead2Length > 0:
-    index = index + configMap['indexSeparator'] + properties[indx2][0:index1ReadLength]
-  return index
-
-
-def getSampleProperties(parentsKey, service, logger):
-  for sample in parentsKey:
-    sampleProperties = sample.getProperties()
-    logger.debug(sample.getSampleTypeCode() + ' ' + sample.getCode())
-    parentSamples = getParents(sample.getCode(), service)
-    for parentSample in parentSamples:
-      logger.debug(parentSample.getSampleTypeCode() + ' ' + parentSample.getCode())
-      parentSampleProperties = parentSample.getProperties()
-
-  return parentSample, parentSampleProperties
-
-
-def createSampleSheetDict(configMap, control, sampleSheetDict, flowCellName, flowCellOperator,
-                           end_type, cycles, lane, gaNumber, index, sample, sampleProperties, library):
-  sampleSheetDict[lane + '_' + sample.getCode()] = [
-    flowCellName + COMMA + lane + COMMA + library.getCode() + COMMA +
-    sampleProperties[configMap['species']] + COMMA + index + COMMA +
-    sanitizeString(sampleProperties[configMap['sampleName']]) + COMMA + control + COMMA +
-    end_type + '_' + cycles + COMMA + flowCellOperator + COMMA + gaNumber]
-
-
-def createHiseqSampleSheet(codeList, propertyDict, laneParentDict, flowCellDict, configMap, service, logger, myoptions):
+def writeSampleSheet(configDict, flowCellName, sortedSampleSheetList, myoptions, logger, fileName):
   '''
-    Builds up a dictionary with all entries in the Sample Sheet
-  '''
-  control = 'N'
-  # the illlumina pipeline uses always one base less than the sequencer is sequencing
-  demultiplexIndexLengthPenalty = 0
-
-  sampleSheetDict = {}
-  # Making sure this is on the top of the Sample Sheet
-  sampleSheetDict[u'!'] = ([configMap['hiSeqHeader']])
-
-  indx1 = configMap['index1Name']
-  indx2 = configMap['index2Name']
-
-  flowCellName = flowCellDict['CODE']
-  flowCellOperator = flowCellDict[configMap['operator']]
-  end_type = flowCellDict[configMap['endType']]
-  cycles = flowCellDict[configMap['readLength']]
-  index1ReadLength = int(flowCellDict[configMap['lengthIndex1']]) + demultiplexIndexLengthPenalty
-  indexRead2Length = int(flowCellDict[configMap['lengthIndex2']]) + demultiplexIndexLengthPenalty
-
-  for key in laneParentDict.keys():
-    lane = laneParentDict[key]['LANE'][-1:]
-    properties = laneParentDict[key]
-    sampleName = laneParentDict[key]['LIBRARYID']
-
-    # already Library with index
-    if indx1 in properties:
-      gaNumber = laneParentDict[key][configMap['gaNumber']]
-      index = getIndex(indx1, indx2, index1ReadLength, indexRead2Length, properties, configMap)
-      sample, sampleProperties = getSampleProperties(getParents(sampleName, service), service, logger)
-
-      createSampleSheetDict(configMap, control, sampleSheetDict, flowCellName, flowCellOperator,
-                          end_type, cycles, lane, gaNumber, index, sample, sampleProperties)
-    else:
-      for library in getParents(sampleName, service):
-        libraryProperties = library.getProperties()
-        gaNumber = libraryProperties[configMap['gaNumber']]
-        if not gaNumber:
-          logger.warning('No GA number found for ' + library.getCode())
-        index = getIndex(indx1, indx2, index1ReadLength, indexRead2Length, libraryProperties, configMap)
-        if not index:
-          logger.warning('No index found for ' + library.getCode())
-        sample, sampleProperties = getSampleProperties(getParents(library.getCode(), service), service, logger)
-
-        createSampleSheetDict(configMap, control, sampleSheetDict, flowCellName, flowCellOperator,
-                          end_type, cycles, lane, gaNumber, index, sample, sampleProperties, library)
-
-  logger.debug(sampleSheetDict)
-  sortedSampleSheetList = sampleSheetDict.keys()
-  sortedSampleSheetList.sort()
-  writeSampleSheet(flowCellName, sampleSheetDict, sortedSampleSheetList, myoptions, logger, fileName=myoptions.outdir +
-                      configMap['sampleSheetFileName'])
-
-def writeSampleSheet(flowCellName, sampleSheetDict, sortedSampleSheetList, myoptions, logger, fileName):
-  '''
-  Write the given dictionary to a csv file
+  Write the given list of class sampleSheetLine to a csv file
   '''
   newline = lineending[myoptions.lineending]
   myFile = fileName + '_' + flowCellName + '.csv'
   try:
     with open(myFile, 'w') as sampleSheetFile:
-      for listElement in sortedSampleSheetList:
-        if myoptions.verbose:
-          print sampleSheetDict[listElement][0]
-        sampleSheetFile.write(sampleSheetDict[listElement][0] + newline)
-
-      logger.info('Writing file ' + myFile)
+      sampleSheetFile.write(configDict['hiSeqHeader'] + newline)
+      for laneElement in sortedSampleSheetList:
+        for indexElement in laneElement:
+          if myoptions.verbose:
+            print indexElement
+          sampleSheetFile.write(indexElement.__str__() + newline)
+    logger.info('Writing file ' + myFile)
 
   except IOError:
     logger.error('File error: ' + str(err))
     print ('File error: ' + str(err))
 
 
+def writeSampleSheetPerLane(configDict, flowCellName, sortedSampleSheetList, myoptions, logger, fileName):
+  '''
+  Write the given list of class sampleSheetLine to multiple csv files
+  '''
+  newline = lineending[myoptions.lineending]
+
+  for laneElement in sortedSampleSheetList:
+    lane = sortedSampleSheetList.index(laneElement) + 1
+    myFile = fileName + '_' + flowCellName + '_' + str(lane) +'.csv'
+    try:
+      with open(myFile, 'w') as sampleSheetFile:
+        sampleSheetFile.write(configDict['hiSeqHeader'] + newline)
+        for indexElement in laneElement:
+          if myoptions.verbose:
+            print indexElement
+          sampleSheetFile.write(indexElement.__str__() + newline)
+    
+      logger.info('Writing file ' + myFile)
+
+    except IOError:
+      logger.error('File error: ' + str(err))
+      print ('File error: ' + str(err))
+
+
+
 class sampleSheetLine:
+  '''
+  Represents one line in a Illumina Sample Sheet
+  '''
+  
   def __init__(self, fcId='', lane=0, sampleId='', sampleRef='', index='', description='',
                  control='', recipe='', operator='', sampleProject=''):
     self.fcId = fcId
@@ -449,6 +415,7 @@ def main():
   '''
   Main script
   '''
+  demuxPenalty = -1
   print datetime.now()
 
   logger = setUpLogger('log/')
@@ -465,70 +432,74 @@ def main():
   foundFlowCell, containedSamples = getFlowCell(configDict['illuminaFlowCellTypeName'], flowCellName, service, logger)
   flowCellName = foundFlowCell.getCode()
   flowCellDict = convertSampleToDict(foundFlowCell, configDict)
+  
+  index1ReadLength = int(flowCellDict[configDict['lengthIndex1']]) + demuxPenalty
+  indexRead2Length = int(flowCellDict[configDict['lengthIndex2']]) + demuxPenalty
 
   laneParentDict = getContainedSampleProperties(logger, containedSamples, service)
   
   sortedParentList = laneParentDict.keys()
   sortedParentList.sort()
   
+  sampleSheetList = []
+  
   for laneKey in sortedParentList:
     lane = laneParentDict[laneKey]['LANE']
-    print lane
     logger.info('Processing Lane '+ lane)
     codeList, propertyDict = getLaneAncestors(service, lane, logger)
-    #print codeList
-    #print propertyDict
     
-  #print codeList
-  
     ssLine = sampleSheetLine (operator=configDict['facilityInstitution'])
     ssLineList = []
     
     for code in codeList:
       sampleProperties = propertyDict[code]
-      #print sampleProperties
-      
       
       # Precedence of the EXTERNAL_SAMPLE_NAME property is:
       # RAW_SAMPLE -> LIBRARY -> LIBRARY_POOL 
       try:
-        ssLine.description = sampleProperties['EXTERNAL_SAMPLE_NAME']
+        ssLine.description = sanitizeString(sampleProperties[configDict['externalSampleName']])
       except:
         pass
       
-      if sampleProperties['SAMPLETYPE'] == 'LIBRARY':
-          
+      if sampleProperties[SAMPLETYPE] == configDict['libraryTypeName']:
+        
         index = ''
           
-        if 'INDEX1' in sampleProperties:
-          index = sampleProperties['INDEX1'][:-1]
-        if 'INDEX2' in sampleProperties:
-          index = index + sampleProperties['INDEX2']
+        if configDict['index1Name'] in sampleProperties and index1ReadLength > 0:
+          index = sampleProperties[configDict['index1Name']][0:index1ReadLength]
+        
+        if configDict['index2Name'] in sampleProperties and indexRead2Length > 0:
+          index = index + configDict['indexSeparator'] + sampleProperties[configDict['index2Name']][0:indexRead2Length]
           
         ssLine.fcId = flowCellName
         ssLine.lane = lane[-1]
-        ssLine.sampleId = code + '_' + flowCellDict['RUN_FOLDER_NAME'] + '_' + ssLine.lane
+        ssLine.sampleId = code + '_' + flowCellDict[configDict['runFolderName']] + '_' + ssLine.lane
         ssLine.index = index
         
-        
-      if sampleProperties['SAMPLETYPE'] == 'MASTER_SAMPLE':
-        ssLine.sampleRef = sampleProperties['NCBI_ORGANISM_TAXONOMY'] 
+      if sampleProperties[SAMPLETYPE] == configDict['masterTypeName']:
+        ssLine.sampleRef = sampleProperties[configDict['ncbiOrganismTaxonomy']] 
         
         # Check if PhiX Control
-        if int(ssLine.sampleRef) == 10847:
+        if int(ssLine.sampleRef) == configDict['phixNcbiCode']:
           ssLine.control = 'Y'
         else:
           ssLine.control = 'N'
         
-        ssLine.recipe = flowCellDict['END_TYPE'] + '_' + flowCellDict['CYCLES']
-        ssLine.sampleProject = flowCellDict['RUN_FOLDER_NAME'] + '_' + ssLine.lane
-  
+        ssLine.recipe = flowCellDict[configDict['endType']] + '_' + flowCellDict[configDict['cycles']]
+        ssLine.sampleProject = flowCellDict[configDict['runFolderName']] + '_' + ssLine.lane
+        
         ssLineList.append(ssLine)
         ssLine = sampleSheetLine (operator=configDict['facilityInstitution'])
-  
-    for l in ssLineList: 
-      print l
 
+    sampleSheetList.append(ssLineList)
+
+  if myoptions.singlelane:
+    writeSampleSheetPerLane (configDict, flowCellName, sampleSheetList, myoptions, logger, fileName=myoptions.outdir +
+                      configDict['sampleSheetFileName'])
+  else:    
+    writeSampleSheet(configDict, flowCellName, sampleSheetList, myoptions, logger, fileName=myoptions.outdir +
+                      configDict['sampleSheetFileName'])
+    
   logout(service, logger)
   print datetime.now()
 
