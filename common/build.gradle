@@ -1,23 +1,23 @@
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
 dependencies {
-	compile 'cisd:cisd-base:r27861',
-					'springframework:spring-webmvc:2.5.6.SEC01-CISD',
-					'springframework:spring-aop:2.5.6.SEC01',
-					'javax:servlet-api:3.0',
-					'cisd:cisd-args4j:9.11.2',
-					'python:jython:2.5.2',
-					'apache:log4j:1.2.15',
-					'javax:mail:1.4.3',
-					'apache:commons-httpclient:3.1',
-					'apache:poi:3.8-20120326',
-					'twmacinta:fast-md5:2.6.1',
-					'google:gwt-servlet:2.4',
-					'jmock:jmock:2.5.1',
-					'testng:testng:6.8-CISD',
-					'marathon:marathon-spring-util:1.2.3'
+	compile 'cisd:cisd-base:+',
+					'springframework:spring-webmvc:+',
+					'springframework:spring-aop:+',
+					'javax:servlet-api:+',
+					'cisd:cisd-args4j:+',
+					'python:jython:+',
+					'apache:log4j:+',
+					'javax:mail:+',
+					'apache:commons-httpclient:+',
+					'apache:poi:+',
+					'twmacinta:fast-md5:+',
+					'google:gwt-servlet:+',
+					'jmock:jmock:+',
+					'testng:testng:+',
+					'marathon:marathon-spring-util:+'
 					
-	testCompile 'fjelmer:classycle:1.4'
+	testCompile 'fjelmer:classycle:+'
 } 
 
 jar {
