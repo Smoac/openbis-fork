@@ -23,10 +23,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class storing personalized display settings. This class implements {@link Serializable} not only
- * for transferring it's content remotely but also to store it in the database. Thus, CHANGES IN
- * THIS CLASS MIGHT LEAD TO A LOST OF PERSONAL SETTINGS. In all cases deserialization leads to an
- * exception the default settings is used.
+ * Class storing personalized display settings. This class implements {@link Serializable} not only for transferring it's content remotely but also to
+ * store it in the database. Thus, CHANGES IN THIS CLASS MIGHT LEAD TO A LOST OF PERSONAL SETTINGS. In all cases deserialization leads to an exception
+ * the default settings is used.
  * <p>
  * NOTE: This class has to be Java serializable and GWT serializable.
  * <p>
@@ -65,6 +64,8 @@ public class DisplaySettings implements Serializable
 
     private boolean ignoreLastHistoryToken = false;
 
+    private boolean legacyMedadataUIEnabled = false;
+
     private RealNumberFormatingParameters realNumberFormatingParameters =
             new RealNumberFormatingParameters();
 
@@ -101,6 +102,7 @@ public class DisplaySettings implements Serializable
         this.visits = other.visits;
         this.portletConfigurations = other.portletConfigurations;
         this.customWebAppDisplaySettings = other.customWebAppDisplaySettings;
+        this.legacyMedadataUIEnabled = other.legacyMedadataUIEnabled;
     }
 
     /** @deprecated Should be used only by DisplaySettingsManager. */
@@ -280,6 +282,20 @@ public class DisplaySettings implements Serializable
     public boolean isIgnoreLastHistoryToken()
     {
         return ignoreLastHistoryToken;
+    }
+
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
+    public boolean isLegacyMedadataUIEnabled()
+    {
+        return legacyMedadataUIEnabled;
+    }
+
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
+    public void setLegacyMedadataUIEnabled(boolean legacyMedadataUIEnabled)
+    {
+        this.legacyMedadataUIEnabled = legacyMedadataUIEnabled;
     }
 
     /** @deprecated Should be used only by DisplaySettingsManager. */

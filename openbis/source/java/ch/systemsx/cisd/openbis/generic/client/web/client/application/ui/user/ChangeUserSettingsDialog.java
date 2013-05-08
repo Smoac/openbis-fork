@@ -16,21 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.user;
 
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
-import com.extjs.gxt.ui.client.widget.layout.FormLayout;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -52,6 +37,21 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingPara
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StandardPortletNames;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
+
 /**
  * {@link Window} containing form for changing logged user settings.
  * 
@@ -69,7 +69,9 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
     private final SpaceSelectionWidget homeSpaceField;
 
     private final CheckBoxField reopenLastTabField;
-    
+
+    private final CheckBoxField enableLegacyMetadataUI;
+
     private final CheckBoxField showLastVisitsField;
 
     private final CheckBoxField useWildcardSearchModeCheckbox;
@@ -97,6 +99,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
         addField(homeSpaceField = createHomeGroupField());
         addField(reopenLastTabField = createReopenLastTabOnLoginField());
+        addField(enableLegacyMetadataUI = createEnableLegacyMetadataUIField());
         addField(showLastVisitsField = createShowLastVisitsField());
         addField(useWildcardSearchModeCheckbox = createUseWildcardSearchModeField());
         formatingFields = createRealFormatingFieldSet();
@@ -126,6 +129,15 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         return field;
     }
 
+    private CheckBoxField createEnableLegacyMetadataUIField()
+    {
+        CheckBoxField field = new CheckBoxField("Enable Legacy Metadata UI (Needs Re-login)", false);
+        GWTUtils.setToolTip(field,
+                "When selected the legacy  UI to manage metadata is available and the new one is hidden. A change on this field needs to Re-Login the application.");
+        field.setValue(viewContext.getDisplaySettingsManager().isLegacyMedadataUIEnabled());
+        return field;
+    }
+
     private CheckBoxField createReopenLastTabOnLoginField()
     {
         CheckBoxField field =
@@ -143,13 +155,13 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
     private CheckBoxField createShowLastVisitsField()
     {
         CheckBoxField field =
-            new CheckBoxField(viewContext.getMessage(Dict.SHOW_LAST_VISITS_LABEL),
-                    false);
+                new CheckBoxField(viewContext.getMessage(Dict.SHOW_LAST_VISITS_LABEL),
+                        false);
         GWTUtils.setToolTip(field, viewContext.getMessage(Dict.SHOW_LAST_VISITS_INFO));
         field.setValue(viewContext.getDisplaySettingsManager().getPortletConfigurations().containsKey(StandardPortletNames.HISTORY));
         return field;
     }
-    
+
     private final CheckBoxField createUseWildcardSearchModeField()
     {
         CheckBoxField field =
@@ -182,6 +194,9 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
         boolean restoreLastTab = reopenLastTabField.getValue();
         displaySettingsManager.setReopenLastTabOnLogin(restoreLastTab);
+
+        boolean isLegacyMetadataEnabled = enableLegacyMetadataUI.getValue();
+        viewContext.getDisplaySettingsManager().setLegacyMedadataUIEnabled(isLegacyMetadataEnabled);
 
         if (showLastVisitsField.getValue())
         {
