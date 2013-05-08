@@ -80,8 +80,8 @@ public class EntityTypePropertyTypeBrowserProvider extends EntityTypePropertyTyp
             //
             // Create EntityTypePropertyType from Browser in memory structure
             //
-            EntityTypePropertyType<?> etpt = NewETNewPTAssigments.getEntityTypePropertyType(entity.getEntityKind(), propertyTypeAsg);
-            
+            EntityTypePropertyType<?> etpt = NewETNewPTAssigments.getEntityTypePropertyType(entity, propertyTypeAsg);
+
             //
             // Create Row
             //

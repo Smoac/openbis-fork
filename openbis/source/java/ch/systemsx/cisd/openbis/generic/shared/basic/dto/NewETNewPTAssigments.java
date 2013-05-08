@@ -65,7 +65,7 @@ public class NewETNewPTAssigments implements Serializable
         //
 
         // Internal List
-        EntityTypePropertyType<?> newEtpt = getEntityTypePropertyType(entity.getEntityKind(), newAssigment);
+        EntityTypePropertyType<?> newEtpt = getEntityTypePropertyType(entity, newAssigment);
         switch (entity.getEntityKind())
         {
             case SAMPLE:
@@ -115,6 +115,25 @@ public class NewETNewPTAssigments implements Serializable
         updateOrdinalToGridOrder();
     }
 
+    public void refreshOrderUpdate(NewETPTAssignment toRegister) throws Exception
+    {
+        NewPTNewAssigment current = null;
+        for (NewPTNewAssigment assigment : assigments)
+        {
+            if (assigment.getAssignment().getPropertyTypeCode().equals(toRegister.getPropertyTypeCode()))
+            {
+                current = assigment;
+                break;
+            }
+        }
+
+        refreshOrderDelete(toRegister.getPropertyTypeCode());
+
+        current.setAssignment(toRegister);
+
+        refreshOrderAdd(current);
+    }
+
     public boolean isAssigmentFound(NewPTNewAssigment assigment)
     {
         for (NewPTNewAssigment assigmentFound : assigments)
@@ -127,24 +146,29 @@ public class NewETNewPTAssigments implements Serializable
         return false;
     }
 
-    public static EntityTypePropertyType<?> getEntityTypePropertyType(EntityKind kind, NewPTNewAssigment propertyTypeAsg)
+    public static EntityTypePropertyType<?> getEntityTypePropertyType(EntityType entityType, NewPTNewAssigment propertyTypeAsg)
     {
         EntityTypePropertyType<?> etpt = null;
-        switch (kind)
+        switch (entityType.getEntityKind())
         {
             case SAMPLE:
                 etpt = new SampleTypePropertyType();
+                ((SampleTypePropertyType) etpt).setEntityType((SampleType) entityType);
                 break;
             case EXPERIMENT:
                 etpt = new ExperimentTypePropertyType();
+                ((ExperimentTypePropertyType) etpt).setEntityType((ExperimentType) entityType);
                 break;
             case DATA_SET:
                 etpt = new DataSetTypePropertyType();
+                ((DataSetTypePropertyType) etpt).setEntityType((DataSetType) entityType);
                 break;
             case MATERIAL:
                 etpt = new MaterialTypePropertyType();
+                ((MaterialTypePropertyType) etpt).setEntityType((MaterialType) entityType);
                 break;
         }
+
         etpt.setPropertyType(propertyTypeAsg.getPropertyType());
         etpt.setOrdinal(propertyTypeAsg.getAssignment().getOrdinal());
         etpt.setSection(propertyTypeAsg.getAssignment().getSection());
@@ -164,4 +188,5 @@ public class NewETNewPTAssigments implements Serializable
 
         return etpt;
     }
+
 }
