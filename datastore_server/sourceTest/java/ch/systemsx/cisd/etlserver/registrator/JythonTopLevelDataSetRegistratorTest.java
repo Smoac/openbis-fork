@@ -188,8 +188,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         int index = 0;
         for (T t : testCases)
         {
-            resultsList[index++] = new Object[]
-                { t };
+            resultsList[index++] = new Object[] { t };
         }
 
         return resultsList;
@@ -251,13 +250,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         testCases.addAll(multipleVersionsOfTestCase(testCase));
 
         String[] allErrors =
-                    { ConfiguredOnErrorActionDecision.INVALID_DATA_SET_KEY,
-                            ConfiguredOnErrorActionDecision.OPENBIS_REGISTRATION_FAILURE_KEY,
-                            ConfiguredOnErrorActionDecision.POST_REGISTRATION_ERROR_KEY,
-                            ConfiguredOnErrorActionDecision.REGISTRATION_SCRIPT_ERROR_KEY,
-                            ConfiguredOnErrorActionDecision.STORAGE_PROCESSOR_ERROR_KEY,
-                            ConfiguredOnErrorActionDecision.PREPARATION_ERROR_KEY,
-                            ConfiguredOnErrorActionDecision.VALIDATION_SCRIPT_ERROR_KEY, };
+        { ConfiguredOnErrorActionDecision.INVALID_DATA_SET_KEY,
+                ConfiguredOnErrorActionDecision.OPENBIS_REGISTRATION_FAILURE_KEY,
+                ConfiguredOnErrorActionDecision.POST_REGISTRATION_ERROR_KEY,
+                ConfiguredOnErrorActionDecision.REGISTRATION_SCRIPT_ERROR_KEY,
+                ConfiguredOnErrorActionDecision.STORAGE_PROCESSOR_ERROR_KEY,
+                ConfiguredOnErrorActionDecision.PREPARATION_ERROR_KEY,
+                ConfiguredOnErrorActionDecision.VALIDATION_SCRIPT_ERROR_KEY, };
 
         // simple test failing registration testCase
         testCase = new TestCaseParameters("The simple transaction rollback with DELETE on error.");
@@ -301,7 +300,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
         testCase =
 
-        new TestCaseParameters("The simple validation without post_storage function defined.");
+                new TestCaseParameters("The simple validation without post_storage function defined.");
         testCase.dropboxScriptPath = "testcase-without-post-storage.py";
         testCase.postStorageFunctionNotDefinedInADropbox = true;
         testCases.addAll(multipleVersionsOfTestCase(testCase));
@@ -456,17 +455,15 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         protected IDelegatedAction createDataSetDelegate = null;
 
         /**
-         * Specifies the point of failure in registration process. Used for setting the expectations
-         * (at which point we should stop expecting method calls from the happy scenario), as well
-         * as for flow control (throw exception from the right mocked methods), and for verification
-         * of expectations.
+         * Specifies the point of failure in registration process. Used for setting the expectations (at which point we should stop expecting method
+         * calls from the happy scenario), as well as for flow control (throw exception from the right mocked methods), and for verification of
+         * expectations.
          */
         protected FailurePoint failurePoint = null;
 
         /**
-         * True if the registration should throw exception to the top level. With this setting the
-         * handler is said to throw all exception to the top level, so that we can catch them. To
-         * check recovery from errors (like rollback mechanism) this should be set to false.
+         * True if the registration should throw exception to the top level. With this setting the handler is said to throw all exception to the top
+         * level, so that we can catch them. To check recovery from errors (like rollback mechanism) this should be set to false.
          */
         protected boolean shouldThrowExceptionDuringRegistration = false;
 
@@ -476,14 +473,13 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         protected IPredicate<Exception> exceptionAcceptor = null;
 
         /**
-         * True if commit_transaction function is defined in a jython dropbox script file, and
-         * post_storage function is not. Used to check which of two should be checked for.
+         * True if commit_transaction function is defined in a jython dropbox script file, and post_storage function is not. Used to check which of
+         * two should be checked for.
          */
         protected boolean postStorageFunctionNotDefinedInADropbox = false;
 
         /**
-         * True if the jython dropbox is in version 2 and the old jython hook methods should not be
-         * called
+         * True if the jython dropbox is in version 2 and the old jython hook methods should not be called
          */
         protected boolean dontCallOldApiJythonHooks = false;
 
@@ -1635,10 +1631,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         try
         {
             File root = new File(workingDirectory, "data_set");
-            int[] numberOfFolders =
-                { 100, 10 };
-            int[] numberOfFiles =
-                { 1, 10, 10 };
+            int[] numberOfFolders = { 100, 10 };
+            int[] numberOfFiles = { 1, 10, 10 };
             TestBigStructureCreator creator =
                     new TestBigStructureCreator(root, numberOfFolders, numberOfFiles);
             incomingDataSetFile = creator.createBigStructure();
@@ -2004,8 +1998,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                 {
                     oneOf(dataSourceQueryService).select("path-info-db",
                             "SELECT * from data_set_files WHERE parent_id is NULL");
-                    Object[] args =
-                        { 155555 };
+                    Object[] args = { 155555 };
                     will(returnValue(new MockDataSet<Map<String, Object>>()));
                     oneOf(dataSourceQueryService).select("path-info-db",
                             "SELECT * from data_set_files WHERE parent_id = ?1", args);

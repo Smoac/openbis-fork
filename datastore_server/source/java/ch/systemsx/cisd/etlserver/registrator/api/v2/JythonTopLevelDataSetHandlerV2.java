@@ -71,8 +71,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     }
 
     /**
-     * Create a registration service that includes a python interpreter (we need the interpreter in
-     * the service so we can use it in error handling).
+     * Create a registration service that includes a python interpreter (we need the interpreter in the service so we can use it in error handling).
      */
     @Override
     protected DataSetRegistrationService<T> createDataSetRegistrationService(
@@ -141,8 +140,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     }
 
     /**
-     * V2 registration framework -- do not put files that are scheduled for recovery into the faulty
-     * paths.
+     * V2 registration framework -- do not put files that are scheduled for recovery into the faulty paths.
      */
     @Override
     public boolean shouldNotAddToFaultyPathsOrNull(File file)
@@ -205,8 +203,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     public enum JythonHookFunction
     {
         /**
-         * The name of the v2 process function, that is executed during the registration. A
-         * replacement for a top-level file body code in v1.
+         * The name of the v2 process function, that is executed during the registration. A replacement for a top-level file body code in v1.
          */
         PROCESS_FUNCTION("process", 1),
 
@@ -216,8 +213,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         ROLLBACK_SERVICE_FUNCTION_NAME("rollback_service", 2),
 
         /**
-         * The name of the function to define to hook into the transaction rollback mechanism. V1
-         * only.
+         * The name of the function to define to hook into the transaction rollback mechanism. V1 only.
          */
         ROLLBACK_TRANSACTION_FUNCTION_NAME("rollback_transaction", 4),
 
@@ -232,14 +228,12 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         POST_STORAGE_FUNCTION_NAME("post_storage", 1),
 
         /**
-         * The name of the function called just before registration of datasets in application
-         * server.
+         * The name of the function called just before registration of datasets in application server.
          */
         PRE_REGISTRATION_FUNCTION_NAME("pre_metadata_registration", 1),
 
         /**
-         * The name of the function called just after successful registration of datasets in
-         * application server.
+         * The name of the function called just after successful registration of datasets in application server.
          */
         POST_REGISTRATION_FUNCTION_NAME("post_metadata_registration", 1),
 
@@ -254,8 +248,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         SHOULD_RETRY_PROCESS_FUNCTION_NAME("should_retry_processing", 2),
 
         /**
-         * The name of the function called when secondary transactions, DynamicTransactionQuery
-         * objects, fail.
+         * The name of the function called when secondary transactions, DynamicTransactionQuery objects, fail.
          */
         DID_ENCOUNTER_SECONDARY_TRANSACTION_ERRORS_FUNCTION_NAME(
                 "did_encounter_secondary_transaction_errors", 3);
@@ -285,8 +278,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     protected static final String STATE_VARIABLE_NAME = "state";
 
     /**
-     * The name of the local variable under which the incoming directory is made available to the
-     * script.
+     * The name of the local variable under which the incoming directory is made available to the script.
      */
     protected static final String INCOMING_DATA_SET_VARIABLE_NAME = "incoming";
 
