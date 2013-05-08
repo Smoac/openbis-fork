@@ -3,10 +3,10 @@
  * with screening sprint server database version
  */
 
-var testProtocol = "http";
-var testHost = "localhost";
-var testPort = "20000";
-var testUrl = testProtocol + "://" + testHost + ":" + testPort;
+var testProtocol = window.location.protocol;
+var testHost = window.location.hostname;
+var testPort = window.location.port;
+var testUrl = testProtocol + "//" + testHost + ":" + testPort;
 
 var testUserId = "openbis_test_js";
 var testUserPassword = "password";
@@ -237,7 +237,7 @@ test("new openbis(/openbis/openbis)", function(){
 });
 
 test("new openbis(protocol, host, port)", function(){
-	var url = testProtocol + "://" + testHost + ":" + testPort;
+	var url = testProtocol + "//" + testHost + ":" + testPort;
 	createFacadeAndLogin(function(facade){
 		ok(true, "Successfully connected to server with url: " + url);
 		facade.close();
@@ -245,7 +245,7 @@ test("new openbis(protocol, host, port)", function(){
 });
 
 test("new openbis(protocol, host, port, /openbis)", function(){
-	var url = testProtocol + "://" + testHost + ":" + testPort + "/openbis";
+	var url = testProtocol + "//" + testHost + ":" + testPort + "/openbis";
 	createFacadeAndLogin(function(facade){
 		ok(true, "Successfully connected to server with url: " + url);
 		facade.close();
@@ -253,7 +253,7 @@ test("new openbis(protocol, host, port, /openbis)", function(){
 });
 
 test("new openbis(protocol, host, port, /openbis/)", function(){
-	var url = testProtocol + "://" + testHost + ":" + testPort + "/openbis/";
+	var url = testProtocol + "//" + testHost + ":" + testPort + "/openbis/";
 	createFacadeAndLogin(function(facade){
 		ok(true, "Successfully connected to server with url: " + url);
 		facade.close();
@@ -261,7 +261,7 @@ test("new openbis(protocol, host, port, /openbis/)", function(){
 });
 
 test("new openbis(protocol, host, port, /openbis/openbis)", function(){
-	var url = testProtocol + "://" + testHost + ":" + testPort + "/openbis/openbis";
+	var url = testProtocol + "//" + testHost + ":" + testPort + "/openbis/openbis";
 	createFacadeAndLogin(function(facade){
 		ok(true, "Successfully connected to server with url: " + url);
 		facade.close();
@@ -269,7 +269,7 @@ test("new openbis(protocol, host, port, /openbis/openbis)", function(){
 });
 
 test("new openbis(protocol, host, port, /openbis/openbis/)", function(){
-	var url = testProtocol + "://" + testHost + ":" + testPort + "/openbis/openbis/";
+	var url = testProtocol + "//" + testHost + ":" + testPort + "/openbis/openbis/";
 	createFacadeAndLogin(function(facade){
 		ok(true, "Successfully connected to server with url: " + url);
 		facade.close();
@@ -277,7 +277,7 @@ test("new openbis(protocol, host, port, /openbis/openbis/)", function(){
 });
 
 test("new openbis(protocol, host, port, /someRandomPath/)", function(){
-	var url = testProtocol + "://" + testHost + ":" + testPort + "/someRandomPath/";
+	var url = testProtocol + "//" + testHost + ":" + testPort + "/someRandomPath/";
 	createFacadeAndLogin(function(facade){
 		ok(true, "Successfully connected to server with url: " + url);
 		facade.close();

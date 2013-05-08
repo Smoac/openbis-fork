@@ -3,10 +3,10 @@
  * with screening sprint server database version
  */
 
-var testProtocol = "http";
-var testHost = "localhost";
-var testPort = "20000";
-var testUrl = testProtocol + "://" + testHost + ":" + testPort;
+var testProtocol = window.location.protocol;
+var testHost = window.location.hostname;
+var testPort = window.location.port;
+var testUrl = testProtocol + "//" + testHost + ":" + testPort;
 
 var testUserId = "openbis_screening_test_js";
 var testUserPassword = "password";
