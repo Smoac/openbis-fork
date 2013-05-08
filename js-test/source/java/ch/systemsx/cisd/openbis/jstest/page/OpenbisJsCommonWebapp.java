@@ -35,7 +35,7 @@ public class OpenbisJsCommonWebapp
 
     public int getFailedCount()
     {
-        SeleniumTest.setImplicitWait(120, TimeUnit.SECONDS);
+        SeleniumTest.setImplicitWait(300, TimeUnit.SECONDS);
         try
         {
             WebElement failedElement = infoBox.findElement(By.xpath("span[3]"));
