@@ -39,6 +39,8 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
+import ch.systemsx.cisd.openbis.knime.server.FieldType;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 
 /**
@@ -109,7 +111,8 @@ public abstract class AbstractParameterDescriptionBasedNodeDialog<D extends Seri
             if (field == null)
             {
                 String fieldParameters = fieldDescription.getFieldParameters();
-                field = fieldDescription.getFieldType().create(fieldParameters, facade);
+                FieldType fieldType = fieldDescription.getFieldType();
+                field = createField(fieldType, fieldParameters, facade);
                 parameterFields.put(name, field);
             }
             String value = parameterBindings.tryToGetBinding(name);
@@ -121,6 +124,18 @@ public abstract class AbstractParameterDescriptionBasedNodeDialog<D extends Seri
         }
         parametersPanel.invalidate();
         parametersPanel.getParent().validate();
+    }
+
+    private IField createField(FieldType fieldType, String fieldParameters, IQueryApiFacade facade)
+    {
+        switch (fieldType)
+        {
+            case VOCABULARY: return new VocabularyField(fieldParameters);
+            case EXPERIMENT: return new OwnerField(DataSetOwnerType.EXPERIMENT, facade);
+            case SAMPLE: return new OwnerField(DataSetOwnerType.SAMPLE, facade);
+            case DATA_SET: return new OwnerField(DataSetOwnerType.DATA_SET, facade);
+            default: return new TextField();
+        }
     }
     
     @Override

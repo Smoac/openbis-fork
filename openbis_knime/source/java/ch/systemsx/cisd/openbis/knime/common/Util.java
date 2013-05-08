@@ -28,7 +28,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -48,7 +51,11 @@ import org.knime.core.util.KnimeEncryption;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.knime.server.Constants;
+import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumnDataType;
+import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
 /**
  * Utility methods.
@@ -209,6 +216,109 @@ public class Util
                 }
             });
         return filterField;
+    }
+
+    public static QueryTableModel createReportFromAggregationService(IQueryApiFacade facade,
+            ParameterBindings parameterBindings, AggregatedDataImportDescription description)
+    {
+        Map<String, Object> serviceParameters = new HashMap<String, Object>();
+        for (Entry<String, String> entry : parameterBindings.getBindings().entrySet())
+        {
+            serviceParameters.put(entry.getKey(), entry.getValue());
+        }
+        return createReportFromAggregationService(facade, description, serviceParameters);
+    }
+
+    public static QueryTableModel createReportFromAggregationService(IQueryApiFacade facade,
+            AggregatedDataImportDescription description, Map<String, Object> serviceParameters)
+    {
+        QueryTableModel result = facade.createReportFromAggregationService(
+                description.getAggregationServiceDescription(), serviceParameters);
+        assertNoError(result, description);
+        return result;
+    }
+    
+    private static void assertNoError(QueryTableModel result, AggregatedDataImportDescription description)
+    {
+        List<QueryTableColumn> columns = result.getColumns();
+        if (columns.size() != 5 || columns.get(0).getTitle().equals(Constants.EXCEPTION_COLUMN) == false)
+        {
+            return;
+        }
+        ExceptionReplicate rootException = null;
+        ExceptionReplicate previousException = null;
+        ExceptionReplicate currentExecption = null;
+        List<Serializable[]> rows = result.getRows();
+        List<StackTraceElement> stackTrace = new ArrayList<StackTraceElement>();
+        for (Serializable[] row : rows)
+        {
+            Serializable exception = row[0];
+            if ("".equals(exception) == false)
+            {
+                currentExecption = new ExceptionReplicate(String.valueOf(row[0]));
+                if (previousException != null)
+                {
+                    previousException.setStackTrace(stackTrace.toArray(new StackTraceElement[0]));
+                    previousException.setCause(currentExecption);
+                    stackTrace.clear();
+                } else
+                {
+                    rootException = currentExecption;
+                }
+                previousException = currentExecption;
+            } else if (currentExecption != null)
+            {
+                StackTraceElement stackTraceElement = new StackTraceElement(String.valueOf(row[1]), 
+                        String.valueOf(row[2]), String.valueOf(row[3]), 
+                        Integer.parseInt(String.valueOf(row[4])));
+                stackTrace.add(stackTraceElement);
+            }
+        }
+        if (currentExecption != null && stackTrace.isEmpty() == false)
+        {
+            currentExecption.setStackTrace(stackTrace.toArray(new StackTraceElement[0]));
+        }
+        if (rootException != null)
+        {
+            throw rootException;
+        }
+    }
+
+    private static final class ExceptionReplicate extends RuntimeException
+    {
+        private static final long serialVersionUID = 1L;
+
+        private static String extractMessage(String toStringText)
+        {
+            int indexOfColon = toStringText.indexOf(":");
+            return indexOfColon < 0 ? "" : toStringText.substring(indexOfColon + 1).trim();
+        }
+        
+        private final String toStringText;
+        private ExceptionReplicate cause;
+
+        ExceptionReplicate(String toStringText)
+        {
+            super(extractMessage(toStringText));
+            this.toStringText = toStringText;
+        }
+        
+        public void setCause(ExceptionReplicate cause)
+        {
+            this.cause = cause;
+        }
+
+        @Override
+        public Throwable getCause()
+        {
+            return cause;
+        }
+        
+        @Override
+        public String toString()
+        {
+            return toStringText;
+        }
     }
 
 }

@@ -93,7 +93,14 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    updateQueryForm(createFacade());
+                    IQueryApiFacade facade = createFacade();
+                    try
+                    {
+                        updateQueryForm(facade);
+                    } catch (Throwable ex)
+                    {
+                        showException(ex);
+                    }
                 }
             });
         connectionPanel.add(button, createLast());
@@ -132,8 +139,20 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
     protected void showException(Throwable throwable)
     {
         logger.error("Exception", throwable);
-        JOptionPane.showMessageDialog(getPanel(), throwable.toString(), "Error",
-                JOptionPane.ERROR_MESSAGE);
+        String message = throwable.toString();
+        String[] lines = message.split("\n");
+        int maxNumberOfLines = 10;
+        if (lines.length > maxNumberOfLines)
+        {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < maxNumberOfLines; i++)
+            {
+                builder.append(lines[i]).append('\n');
+            }
+            builder.append("...\n\nSee KNIME log for the complete error message.");
+            message = builder.toString();
+        }
+        JOptionPane.showMessageDialog(getPanel(), message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     protected abstract void defineQueryForm(JPanel queryPanel);

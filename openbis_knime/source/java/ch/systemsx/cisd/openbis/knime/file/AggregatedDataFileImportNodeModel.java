@@ -22,10 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.activation.MimetypesFileTypeMap;
 
@@ -45,6 +42,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStore;
 import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeModel;
+import ch.systemsx.cisd.openbis.knime.common.AggregatedDataImportDescription;
 import ch.systemsx.cisd.openbis.knime.common.ParameterBindings;
 import ch.systemsx.cisd.openbis.knime.common.Util;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.FacadeFactory;
@@ -58,14 +56,12 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
  */
 public class AggregatedDataFileImportNodeModel extends AbstractOpenBisNodeModel
 {
-    static final String AGGREGATION_DESCRIPTION_KEY = "aggregation-description";
-
     public AggregatedDataFileImportNodeModel()
     {
         super(new PortType[] {}, new PortType[] { new PortType(URIPortObject.class) });
     }
 
-    private AggregatedDataFileImportDescription description;
+    private AggregatedDataImportDescription description;
     private ParameterBindings parameterBindings = new ParameterBindings();
 
     @Override
@@ -73,14 +69,15 @@ public class AggregatedDataFileImportNodeModel extends AbstractOpenBisNodeModel
             throws InvalidSettingsException
     {
         description = Util.deserializeDescription(
-                settings.getByteArray(AGGREGATION_DESCRIPTION_KEY));
+                settings.getByteArray(AggregatedDataImportDescription.AGGREGATION_DESCRIPTION_KEY));
         parameterBindings.loadValidatedSettingsFrom(settings);
     }
 
     @Override
     protected void saveAdditionalSettingsTo(NodeSettingsWO settings)
     {
-        settings.addByteArray(AGGREGATION_DESCRIPTION_KEY, Util.serializeDescription(description));
+        settings.addByteArray(AggregatedDataImportDescription.AGGREGATION_DESCRIPTION_KEY, 
+                Util.serializeDescription(description));
         parameterBindings.saveSettingsTo(settings);
     }
 
@@ -96,15 +93,8 @@ public class AggregatedDataFileImportNodeModel extends AbstractOpenBisNodeModel
         IQueryApiFacade facade = FacadeFactory.create(url, userID, password);
         try
         {
-            Map<String, Object> serviceParameters = new HashMap<String, Object>();
-            serviceParameters.put("requestKey", "execute");
-            for (Entry<String, String> entry : parameterBindings.getBindings().entrySet())
-            {
-                serviceParameters.put(entry.getKey(), entry.getValue());
-            }
             QueryTableModel report =
-                    facade.createReportFromAggregationService(
-                            description.getAggregationServiceDescription(), serviceParameters);
+                    Util.createReportFromAggregationService(facade, parameterBindings, description);
             String fileName = (String) report.getRows().get(0)[0];
             String downloadUrl = getDataStore(facade).getDownloadUrl();
             File file = download(facade.getSessionToken(), fileName, downloadUrl);
@@ -118,7 +108,7 @@ public class AggregatedDataFileImportNodeModel extends AbstractOpenBisNodeModel
             facade.logout();
         }
     }
-   
+
     private File download(String sessionToken, String fileName, String baseURL)
     {
         File systemTempDir = new File(System.getProperty("java.io.tmpdir"));

@@ -7,6 +7,8 @@
             id="ch.systemsx.cisd.openbis.knime.query.QueryNodeFactory"/>
       <node category-path="/community/openbis" factory-class="ch.systemsx.cisd.openbis.knime.query.ReportNodeFactory" 
             id="ch.systemsx.cisd.openbis.knime.query.ReportNodeFactory"/>
+      <node category-path="/community/openbis" factory-class="ch.systemsx.cisd.openbis.knime.query.AggregatedDataTableImportNodeFactory" 
+            id="ch.systemsx.cisd.openbis.knime.query.AggregatedDataTableImportNodeFactory"/>
       <node category-path="/community/openbis" factory-class="ch.systemsx.cisd.openbis.knime.file.DataSetFileImportNodeFactory"
             id="ch.systemsx.cisd.openbis.knime.file.DataSetImportNodeFactory"/>
       <node category-path="/community/openbis" factory-class="ch.systemsx.cisd.openbis.knime.file.DataSetRegistrationNodeFactory"

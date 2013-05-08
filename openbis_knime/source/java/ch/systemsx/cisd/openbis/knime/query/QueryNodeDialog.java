@@ -25,7 +25,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.knime.common.AbstractParameterDescriptionBasedNodeDialog;
 import ch.systemsx.cisd.openbis.knime.common.FieldDescription;
-import ch.systemsx.cisd.openbis.knime.common.FieldType;
+import ch.systemsx.cisd.openbis.knime.server.FieldType;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryDescription;
 

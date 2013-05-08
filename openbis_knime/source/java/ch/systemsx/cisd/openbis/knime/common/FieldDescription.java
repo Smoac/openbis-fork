@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.knime.common;
 
+import ch.systemsx.cisd.openbis.knime.server.FieldType;
+
 /**
  * Description necessary to create a {@link IField}.
  *

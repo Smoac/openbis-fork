@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.knime.file;
+package ch.systemsx.cisd.openbis.knime.query;
 
 import java.util.List;
 
@@ -23,29 +23,29 @@ import ch.systemsx.cisd.openbis.knime.common.AggregatedDataImportDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 
 /**
- * Node dialog for get a data file created by an aggregation service.
+ * Node dialog for get a table created by an aggregation service.
  *
  * @author Franz-Josef Elmer
  */
-class AggregatedDataFileImportNodeDialog extends AbstractAggregatedDataImportNodeDialog
+class AggregatedDataTableImportNodeDialog extends AbstractAggregatedDataImportNodeDialog
 {
-    AggregatedDataFileImportNodeDialog()
+    AggregatedDataTableImportNodeDialog()
     {
-        super("Aggregated Data File Importing Settings");
+        super("Aggregation Service Report Settings");
     }
 
     @Override
     protected void addDescription(List<AggregatedDataImportDescription> descriptions,
             AggregationServiceDescription aggregationServiceDescription)
     {
-        AggregatedDataImportDescription.addDescriptionIfDataFile(descriptions,
+        AggregatedDataImportDescription.addDescriptionIfDataTable(descriptions,
                 aggregationServiceDescription);
     }
 
     @Override
     protected String getDescriptionComboBoxLabel()
     {
-        return "Data File Importing Service";
+        return "Aggregation Service";
     }
 
 }
