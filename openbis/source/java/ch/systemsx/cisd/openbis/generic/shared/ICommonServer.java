@@ -125,9 +125,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * Definition of the client-server interface of the openBIS core. It contains entity-type unspecific
- * operations needed by all openBIS installations. Customization for a specific use cases (i.e.
- * specific entity types) can be achieved through implementing plugins.
+ * Definition of the client-server interface of the openBIS core. It contains entity-type unspecific operations needed by all openBIS installations.
+ * Customization for a specific use cases (i.e. specific entity types) can be achieved through implementing plugins.
  * 
  * @author Franz-Josef Elmer
  */
@@ -138,8 +137,8 @@ public interface ICommonServer extends IServer
     public void keepSessionAlive(String sessionToken);
 
     /**
-     * Returns scripts of specified type compatible with selected {@link EntityKind}. If script type
-     * or entity kind is not specified no restriction on them is set.
+     * Returns scripts of specified type compatible with selected {@link EntityKind}. If script type or entity kind is not specified no restriction on
+     * them is set.
      * 
      * @return a sorted list of {@link Script}s.
      */
@@ -275,8 +274,7 @@ public interface ICommonServer extends IServer
     public List<SampleType> listSampleTypes(String sessionToken);
 
     /**
-     * Lists managed properties widgets descriptions for the specified entity kind and entity type
-     * code.
+     * Lists managed properties widgets descriptions for the specified entity kind and entity type code.
      */
     @Transactional(readOnly = true)
     public Map<String, List<IManagedInputWidgetDescription>> listManagedInputWidgetDescriptions(
@@ -363,8 +361,7 @@ public interface ICommonServer extends IServer
             List<ExperimentIdentifier> experimentIdentifiers);
 
     /**
-     * For given sample {@link TechId} returns the corresponding list of
-     * {@link AbstractExternalData}.
+     * For given sample {@link TechId} returns the corresponding list of {@link AbstractExternalData}.
      * 
      * @return a sorted list of {@link AbstractExternalData}.
      */
@@ -373,8 +370,7 @@ public interface ICommonServer extends IServer
             final TechId sampleId, final boolean showOnlyDirectlyConnected);
 
     /**
-     * For given experiment {@link TechId} returns the corresponding list of
-     * {@link AbstractExternalData}.
+     * For given experiment {@link TechId} returns the corresponding list of {@link AbstractExternalData}.
      * 
      * @return a sorted list of {@link AbstractExternalData}.
      */
@@ -383,8 +379,7 @@ public interface ICommonServer extends IServer
             final TechId experimentId, boolean showOnlyDirectlyConnected);
 
     /**
-     * For given metaproject {@link IMetaprojectId} returns the corresponding list of
-     * {@link AbstractExternalData}.
+     * For given metaproject {@link IMetaprojectId} returns the corresponding list of {@link AbstractExternalData}.
      * 
      * @return a sorted list of {@link AbstractExternalData}.
      */
@@ -393,8 +388,7 @@ public interface ICommonServer extends IServer
             final IMetaprojectId metaprojectId);
 
     /**
-     * For given data set {@link TechId} in given relationship <var>role</var> returns corresponding
-     * list of {@link AbstractExternalData}.
+     * For given data set {@link TechId} in given relationship <var>role</var> returns corresponding list of {@link AbstractExternalData}.
      * 
      * @return a sorted list of {@link AbstractExternalData}.
      */
@@ -498,21 +492,27 @@ public interface ICommonServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE)
     public void deletePropertyTypes(String sessionToken, List<TechId> propertyTypeIds, String reason);
 
-
     /**
      * Creates and assigns property type to entity type.
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE)
     public String registerEntitytypeAndAssignPropertyTypes(final String sessionToken, NewETNewPTAssigments newETNewPTAssigments);
-    
+
+    /**
+     * Updates and assigns property type to entity type.
+     */
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE)
+    public String updateEntitytypeAndPropertyTypes(final String sessionToken, NewETNewPTAssigments newETNewPTAssigments);
+
     /**
      * Creates and assigns property type to entity type.
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE)
     public String registerAndAssignPropertyType(final String sessionToken, PropertyType propertyType, NewETPTAssignment assignment);
-    
+
     /**
      * Assigns property type to entity type.
      */
@@ -537,8 +537,7 @@ public interface ICommonServer extends IServer
             String propertyTypeCode, String entityTypeCode);
 
     /**
-     * Returns the number of entities of specified kind and type which have a property of specified
-     * type.
+     * Returns the number of entities of specified kind and type which have a property of specified type.
      */
     @Transactional(readOnly = true)
     public int countPropertyTypedEntities(String sessionToken, EntityKind entityKind,
@@ -649,9 +648,8 @@ public interface ICommonServer extends IServer
             DetailedSearchCriteria criteria);
 
     /**
-     * Searches for samples that fulfill the specified search criteria. The search is executed on
-     * behalf of a user identified by the userId (the returned results are exactly the same as if
-     * that user called the search method).
+     * Searches for samples that fulfill the specified search criteria. The search is executed on behalf of a user identified by the userId (the
+     * returned results are exactly the same as if that user called the search method).
      */
     @Transactional(readOnly = true)
     public List<AbstractExternalData> searchForDataSetsOnBehalfOfUser(String sessionToken,
@@ -787,24 +785,22 @@ public interface ICommonServer extends IServer
     public void updateDataSetType(String sessionToken, EntityType entityType);
 
     /**
-     * Deletes/Trashes specified data sets. This method CANNOT delete data sets with
-     * deletion_disallow flag set to true in their type (compare with
+     * Deletes/Trashes specified data sets. This method CANNOT delete data sets with deletion_disallow flag set to true in their type (compare with
      * {@link #deleteDataSetsForced(String, List, String, DeletionType, boolean)}).
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.DATA_SET, ObjectKind.DELETION })
+    { ObjectKind.DATA_SET, ObjectKind.DELETION })
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason,
             DeletionType type, boolean isTrashEnabled);
 
     /**
-     * Deletes/Trashes specified data sets. It CAN delete data sets with deletion_disallow flag set
-     * to true in their type (compare with
+     * Deletes/Trashes specified data sets. It CAN delete data sets with deletion_disallow flag set to true in their type (compare with
      * {@link #deleteDataSets(String, List, String, DeletionType, boolean)}).
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.DATA_SET, ObjectKind.DELETION })
+    { ObjectKind.DATA_SET, ObjectKind.DELETION })
     public void deleteDataSetsForced(String sessionToken, List<String> dataSetCodes, String reason,
             DeletionType type, boolean isTrashEnabled);
 
@@ -813,7 +809,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.SAMPLE, ObjectKind.DELETION })
+    { ObjectKind.SAMPLE, ObjectKind.DELETION })
     public void deleteSamples(String sessionToken, List<TechId> sampleIds, String reason,
             DeletionType type);
 
@@ -822,7 +818,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.EXPERIMENT, ObjectKind.DELETION })
+    { ObjectKind.EXPERIMENT, ObjectKind.DELETION })
     public void deleteExperiments(String sessionToken, List<TechId> experimentIds, String reason,
             DeletionType deletionType);
 
@@ -899,8 +895,7 @@ public interface ICommonServer extends IServer
     public List<DataSetType> listDataSetTypes(String sessionToken);
 
     /**
-     * @return Information about the time and kind of the last modification, separately for each
-     *         kind of database object.
+     * @return Information about the time and kind of the last modification, separately for each kind of database object.
      */
     public LastModificationState getLastModificationState(String sessionToken);
 
@@ -908,8 +903,8 @@ public interface ICommonServer extends IServer
      * For given {@link TechId} returns the {@link Sample} and its derived (child) samples.
      * 
      * @return never <code>null</code>.
-     * @throws UserFailureException if given <var>sessionToken</var> is invalid or whether sample
-     *             uniquely identified by given <var>sampleId</var> does not exist.
+     * @throws UserFailureException if given <var>sessionToken</var> is invalid or whether sample uniquely identified by given <var>sampleId</var>
+     *             does not exist.
      */
     @Transactional(readOnly = true)
     public SampleParentWithDerived getSampleInfo(final String sessionToken, final TechId sampleId)
@@ -939,7 +934,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @DatabaseUpdateModification(value =
-        { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
+    { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
     public ExperimentUpdateResult updateExperiment(String sessionToken, ExperimentUpdatesDTO updates);
 
     /**
@@ -949,8 +944,7 @@ public interface ICommonServer extends IServer
     public Project getProjectInfo(String sessionToken, TechId projectId);
 
     /**
-     * For given {@link ProjectIdentifier} returns the corresponding {@link Project} (without
-     * attachments).
+     * For given {@link ProjectIdentifier} returns the corresponding {@link Project} (without attachments).
      */
     @Transactional(readOnly = true)
     public Project getProjectInfo(String sessionToken, ProjectIdentifier projectIdentifier);
@@ -979,7 +973,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.DATASET_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
+    { ObjectKind.DATASET_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public void deleteDataSetTypes(String sessionToken, List<String> entityTypesCodes);
 
     /**
@@ -987,7 +981,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.SAMPLE_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
+    { ObjectKind.SAMPLE_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public void deleteSampleTypes(String sessionToken, List<String> entityTypesCodes);
 
     /**
@@ -995,7 +989,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.EXPERIMENT_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
+    { ObjectKind.EXPERIMENT_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public void deleteExperimentTypes(String sessionToken, List<String> entityTypesCodes);
 
     /**
@@ -1003,7 +997,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.FILE_FORMAT_TYPE })
+    { ObjectKind.FILE_FORMAT_TYPE })
     public void deleteFileFormatTypes(String sessionToken, List<String> codes);
 
     /**
@@ -1011,12 +1005,11 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.MATERIAL_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
+    { ObjectKind.MATERIAL_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public void deleteMaterialTypes(String sessionToken, List<String> entityTypesCodes);
 
     /**
-     * For given {@link EntityKind} and permanent <var>identifier</var> returns the corresponding
-     * {@link IEntityInformationHolderWithPermId}.
+     * For given {@link EntityKind} and permanent <var>identifier</var> returns the corresponding {@link IEntityInformationHolderWithPermId}.
      */
     @Transactional(readOnly = true)
     public IEntityInformationHolderWithPermId getEntityInformationHolder(String sessionToken,
@@ -1042,8 +1035,7 @@ public interface ICommonServer extends IServer
     public Material getMaterialInfo(String sessionToken, TechId materialId);
 
     /**
-     * For given {@link MaterialIdentifier} returns the corresponding
-     * {@link IEntityInformationHolder}.
+     * For given {@link MaterialIdentifier} returns the corresponding {@link IEntityInformationHolder}.
      */
     @Transactional(readOnly = true)
     public IEntityInformationHolderWithPermId getMaterialInformationHolder(String sessionToken,
@@ -1119,8 +1111,7 @@ public interface ICommonServer extends IServer
             NewAttachment attachment);
 
     /**
-     * Lists all DSS server registered this openBIS server instance. Any of the returned instances
-     * could be offline at the time of the listing.
+     * Lists all DSS server registered this openBIS server instance. Any of the returned instances could be offline at the time of the listing.
      */
     @Transactional(readOnly = true)
     public List<DataStore> listDataStores(String sessionToken);
@@ -1145,8 +1136,8 @@ public interface ICommonServer extends IServer
     /**
      * Schedules archiving of specified data sets.
      * 
-     * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from
-     *            the data store after a successful archiving operation.
+     * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from the data store after a successful archiving
+     *            operation.
      * @return number of data sets scheduled for archiving.
      */
     @Transactional
@@ -1397,27 +1388,25 @@ public interface ICommonServer extends IServer
     @Transactional
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DELETION)
     @DatabaseUpdateModification(value =
-        { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     public void revertDeletions(final String sessionToken, final List<TechId> deletionIds);
 
     /**
-     * Permanently deletes entities moved to trash in specified deletions. This method CANNOT delete
-     * data sets with deletion_disallow flag set to true in their type (compare with
-     * {@link #deletePermanentlyForced(String, List)})
+     * Permanently deletes entities moved to trash in specified deletions. This method CANNOT delete data sets with deletion_disallow flag set to true
+     * in their type (compare with {@link #deletePermanentlyForced(String, List)})
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     public void deletePermanently(final String sessionToken, final List<TechId> deletionIds);
 
     /**
-     * Permanently deletes entities moved to trash in specified deletions. It CAN delete data sets
-     * with deletion_disallow flag set to true in their type (compare with
-     * {@link #deletePermanently(String, List)}).
+     * Permanently deletes entities moved to trash in specified deletions. It CAN delete data sets with deletion_disallow flag set to true in their
+     * type (compare with {@link #deletePermanently(String, List)}).
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     public void deletePermanentlyForced(final String sessionToken, final List<TechId> deletionIds);
 
     /**
@@ -1434,8 +1423,7 @@ public interface ICommonServer extends IServer
             CustomImportFile customImportFile) throws UserFailureException;
 
     /**
-     * Sends the e-mail containing number of active users to CISD Help desk and user, who triggered
-     * the action
+     * Sends the e-mail containing number of active users to CISD Help desk and user, who triggered the action
      */
     @Transactional(readOnly = true)
     public void sendCountActiveUsersEmail(String sessionToken);
@@ -1447,8 +1435,7 @@ public interface ICommonServer extends IServer
     public List<ExternalDataManagementSystem> listExternalDataManagementSystems(String sessionToken);
 
     /**
-     * Gets external data management system specified by given code or <code>null</code> if one
-     * couldn't be found.
+     * Gets external data management system specified by given code or <code>null</code> if one couldn't be found.
      */
     @Transactional(readOnly = true)
     public ExternalDataManagementSystem getExternalDataManagementSystem(String sessionToken,

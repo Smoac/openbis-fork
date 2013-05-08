@@ -124,9 +124,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
 /**
  * Service interface for the generic GWT client.
  * <p>
- * Each method should declare throwing {@link UserFailureException}. The authorization framework can
- * throw it when the user has insufficient privileges. If it is not marked, the GWT client will
- * report unexpected exception.
+ * Each method should declare throwing {@link UserFailureException}. The authorization framework can throw it when the user has insufficient
+ * privileges. If it is not marked, the GWT client will report unexpected exception.
  * </p>
  * 
  * @author Franz-Josef Elmer
@@ -334,8 +333,8 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Returns a key which can be used be the export servlet (and eventually
-     * {@link #getExportTable(String, String)}) to reference the export criteria in an easy way.
+     * Returns a key which can be used be the export servlet (and eventually {@link #getExportTable(String, String)}) to reference the export criteria
+     * in an easy way.
      */
     public String prepareExportSamples(
             final TableExportCriteria<TableModelRowWithObject<Sample>> criteria)
@@ -428,7 +427,7 @@ public interface ICommonClientService extends IClientService
             EntityType entity,
             List<NewPTNewAssigment> propertyTypesAsgs)
             throws UserFailureException;
-    
+
     /**
      * Returns a chunk of the property types assignment list.
      */
@@ -451,8 +450,7 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Returns the number of entities of specified kind and type which have a property of specified
-     * type.
+     * Returns the number of entities of specified kind and type which have a property of specified type.
      */
     public int countPropertyTypedEntities(EntityKind entityKind, String propertyTypeCode,
             String entityTypeCode) throws UserFailureException;
@@ -580,9 +578,8 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Assumes that preparation of the export ( {@link #prepareExportSamples(TableExportCriteria)}
-     * or {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and
-     * returned with an exportDataKey passed here as a parameter.
+     * Assumes that preparation of the export ( {@link #prepareExportSamples(TableExportCriteria)} or
+     * {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and returned with an exportDataKey passed here as a parameter.
      */
     public String getExportTable(String exportDataKey, String lineSeparator)
             throws UserFailureException;
@@ -608,8 +605,7 @@ public interface ICommonClientService extends IClientService
             boolean onlyDirectlyConnected) throws UserFailureException;
 
     /**
-     * For given <var>metaprojectId</var> returns corresponding list of {@link AbstractExternalData}
-     * .
+     * For given <var>metaprojectId</var> returns corresponding list of {@link AbstractExternalData} .
      */
     public TypedTableResultSet<AbstractExternalData> listMetaprojectDataSets(
             final TechId metaprojectId,
@@ -617,15 +613,13 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * For given <var>metaprojectId</var> returns corresponding list of {@link AbstractExternalData}
-     * .
+     * For given <var>metaprojectId</var> returns corresponding list of {@link AbstractExternalData} .
      */
     public List<AbstractExternalData> listMetaprojectDataSets(final Long metaprojectId)
             throws UserFailureException;
 
     /**
-     * For given <var>datasetId</var> in given relationship <var>role</var> returns corresponding
-     * list of {@link AbstractExternalData}.
+     * For given <var>datasetId</var> in given relationship <var>role</var> returns corresponding list of {@link AbstractExternalData}.
      */
     public TypedTableResultSet<AbstractExternalData> listDataSetRelationships(TechId datasetId,
             DataSetRelationshipRole role,
@@ -651,12 +645,17 @@ public interface ICommonClientService extends IClientService
      * Creates Entity Type and Assigns Property types creating them if they don't exist
      */
     public String registerEntitytypeAndAssignPropertyTypes(NewETNewPTAssigments newETNewPTAssigments) throws UserFailureException;
-    
+
+    /**
+     * Updates Entity Type and Updates Property types creating them if they don't exist
+     */
+    public String updateEntitytypeAndPropertyTypes(NewETNewPTAssigments newETNewPTAssigments) throws UserFailureException;
+
     /**
      * Creates and assigns a property type.
      */
     public String registerAndAssignPropertyType(PropertyType propertyType, NewETPTAssignment assignment) throws UserFailureException;
-    
+
     /**
      * Assigns property type to entity type.
      */
@@ -702,15 +701,13 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Adds specified terms to the specified vocabulary after specified ordinal (first shift all
-     * terms with bigger ordinal).
+     * Adds specified terms to the specified vocabulary after specified ordinal (first shift all terms with bigger ordinal).
      */
     public void addVocabularyTerms(TechId vocabularyId, List<VocabularyTerm> vocabularyTerms,
             Long previousTermOrdinal) throws UserFailureException;
 
     /**
-     * Adds specified unofficial terms to the specified vocabulary after specified ordinal (first
-     * shift all terms with bigger ordinal).
+     * Adds specified unofficial terms to the specified vocabulary after specified ordinal (first shift all terms with bigger ordinal).
      */
     public void addUnofficialVocabularyTerm(TechId vocabularyId, String code, String label,
             String description, Long previousTermOrdinal) throws UserFailureException;
@@ -807,8 +804,7 @@ public interface ICommonClientService extends IClientService
             boolean forceDisallowedTypes) throws UserFailureException;
 
     /**
-     * Deletes/Trashes the specified samples. NOTE: this is a stale version used only for samples
-     * with abundance.
+     * Deletes/Trashes the specified samples. NOTE: this is a stale version used only for samples with abundance.
      */
     public void deleteSamples(List<TechId> sampleIds, String reason, DeletionType deletionType)
             throws UserFailureException;
@@ -852,15 +848,13 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Deletes specified attachments (all versions with given file names) of specified attachment
-     * holder.
+     * Deletes specified attachments (all versions with given file names) of specified attachment holder.
      */
     public void deleteAttachments(TechId holderId, AttachmentHolderKind holderKind,
             List<String> fileNames, String reason) throws UserFailureException;
 
     /**
-     * Returns a list of all attachments which belong to the specified holder grouped in
-     * {@link AttachmentVersions}.
+     * Returns a list of all attachments which belong to the specified holder grouped in {@link AttachmentVersions}.
      */
     public TypedTableResultSet<AttachmentVersions> listAttachmentVersions(TechId holderId,
             AttachmentHolderKind holderKind,
@@ -881,8 +875,7 @@ public interface ICommonClientService extends IClientService
             DataSetUploadParameters uploadParameters) throws UserFailureException;
 
     /**
-     * Information about the time and kind of the last modification, separately for each kind of
-     * database object.
+     * Information about the time and kind of the last modification, separately for each kind of database object.
      */
     public LastModificationState getLastModificationState() throws UserFailureException;
 
@@ -937,15 +930,13 @@ public interface ICommonClientService extends IClientService
     public void deleteFileFormatTypes(List<String> fileFormatTypeCodes) throws UserFailureException;
 
     /**
-     * For given {@link EntityKind} and <var>permId</var> returns the corresponding
-     * {@link IEntityInformationHolderWithPermId}.
+     * For given {@link EntityKind} and <var>permId</var> returns the corresponding {@link IEntityInformationHolderWithPermId}.
      */
     public IEntityInformationHolderWithPermId getEntityInformationHolder(EntityKind entityKind,
             String permId) throws UserFailureException;
 
     /**
-     * For given {@link BasicEntityDescription} returns the corresponding
-     * {@link IEntityInformationHolderWithPermId}.
+     * For given {@link BasicEntityDescription} returns the corresponding {@link IEntityInformationHolderWithPermId}.
      */
     public IEntityInformationHolderWithPermId getEntityInformationHolder(BasicEntityDescription info)
             throws UserFailureException;
@@ -961,8 +952,7 @@ public interface ICommonClientService extends IClientService
     public Material getMaterialInfo(TechId techId) throws UserFailureException;
 
     /**
-     * For given {@link MaterialIdentifier} returns the corresponding
-     * {@link IEntityInformationHolderWithPermId}.
+     * For given {@link MaterialIdentifier} returns the corresponding {@link IEntityInformationHolderWithPermId}.
      */
     public IEntityInformationHolderWithPermId getMaterialInformationHolder(
             MaterialIdentifier identifier) throws UserFailureException;
@@ -997,8 +987,7 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * For given {@link DataStoreServiceKind} returns a list of all corresponding
-     * {@link DatastoreServiceDescription}s.
+     * For given {@link DataStoreServiceKind} returns a list of all corresponding {@link DatastoreServiceDescription}s.
      */
     public List<DatastoreServiceDescription> listDataStoreServices(
             DataStoreServiceKind pluginTaskKind) throws UserFailureException;
@@ -1286,14 +1275,12 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Sends the e-mail containing number of active users to CISD Help desk and user, who triggered
-     * the action
+     * Sends the e-mail containing number of active users to CISD Help desk and user, who triggered the action
      */
     public void sendCountActiveUsersEmail() throws UserFailureException;
 
     /**
-     * Register a new metaproject by given name. Throws exception if metaproject by this name
-     * already exists.
+     * Register a new metaproject by given name. Throws exception if metaproject by this name already exists.
      */
     public void registerMetaProject(String name) throws UserFailureException;
 

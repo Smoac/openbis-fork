@@ -284,8 +284,8 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     /**
-     * Assumes that preparation of the export ( {@link #prepareExportSamples(TableExportCriteria)}
-     * has been invoked before and returned with an exportDataKey passed here as a parameter.
+     * Assumes that preparation of the export ( {@link #prepareExportSamples(TableExportCriteria)} has been invoked before and returned with an
+     * exportDataKey passed here as a parameter.
      */
     @Override
     public final String getExportTable(final String exportDataKey, final String lineSeparator)
@@ -695,7 +695,7 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(new EntityTypePropertyTypeBrowserProvider(entity, propertyTypesAsgs),
                 criteria);
     }
-    
+
     @Override
     public TypedTableResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
             DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria,
@@ -1058,11 +1058,20 @@ public final class CommonClientService extends AbstractClientService implements
 
     @Override
     public String registerEntitytypeAndAssignPropertyTypes(NewETNewPTAssigments newETNewPTAssigments)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException {
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
         final String sessionToken = getSessionToken();
         return commonServer.registerEntitytypeAndAssignPropertyTypes(sessionToken, newETNewPTAssigments);
     }
-    
+
+    @Override
+    public String updateEntitytypeAndPropertyTypes(NewETNewPTAssigments newETNewPTAssigments)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        return commonServer.updateEntitytypeAndPropertyTypes(sessionToken, newETNewPTAssigments);
+    }
+
     @Override
     public String registerAndAssignPropertyType(PropertyType propertyType, NewETPTAssignment assignment)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1070,7 +1079,7 @@ public final class CommonClientService extends AbstractClientService implements
         final String sessionToken = getSessionToken();
         return commonServer.registerAndAssignPropertyType(sessionToken, propertyType, assignment);
     }
-    
+
     @Override
     public String assignPropertyType(NewETPTAssignment assignment)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1266,8 +1275,8 @@ public final class CommonClientService extends AbstractClientService implements
             }
 
             /**
-             * Prepares details about which values should be updated in general taking into account
-             * only the information about availability of columns in the file.
+             * Prepares details about which values should be updated in general taking into account only the information about availability of columns
+             * in the file.
              */
             private VocabularyTermBatchUpdateDetails createBasicBatchUpdateDetails()
             {
@@ -1291,8 +1300,8 @@ public final class CommonClientService extends AbstractClientService implements
             //
 
             /**
-             * Returns details about which values should be updated for the specified term. If a
-             * cell was left empty in the file the corresponding value will not be modified.
+             * Returns details about which values should be updated for the specified term. If a cell was left empty in the file the corresponding
+             * value will not be modified.
              */
             private VocabularyTermBatchUpdateDetails createBatchUpdateDetails(VocabularyTerm term)
             {

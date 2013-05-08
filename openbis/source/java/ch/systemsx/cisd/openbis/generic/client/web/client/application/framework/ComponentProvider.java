@@ -116,8 +116,8 @@ public final class ComponentProvider
     }
 
     /**
-     * Creates a tab with the specified component. The tab is unaware of database modifications and
-     * will not be automatically refreshed if changes occur.
+     * Creates a tab with the specified component. The tab is unaware of database modifications and will not be automatically refreshed if changes
+     * occur.
      */
     private ITabItem createSimpleTab(String title, Component component,
             boolean isCloseConfirmationNeeded)
@@ -1192,9 +1192,11 @@ public final class ComponentProvider
                 @Override
                 public String getId()
                 {
-                    if(entity != null) {
-                        return PropertyTypeAssignmentGrid.BROWSER_ID+" "+entity.getEntityKind().name()+" "+entity.getCode();
-                    } else {
+                    if (entity != null)
+                    {
+                        return PropertyTypeAssignmentGrid.BROWSER_ID + " " + entity.getEntityKind().name() + " " + entity.getCode();
+                    } else
+                    {
                         return PropertyTypeAssignmentGrid.BROWSER_ID;
                     }
                 }
@@ -1208,9 +1210,11 @@ public final class ComponentProvider
                 @Override
                 public String getTabTitle()
                 {
-                    if(entity != null) {
-                        return getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS)+" "+entity.getEntityKind().name()+" "+entity.getCode();
-                    } else {
+                    if (entity != null)
+                    {
+                        return getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS) + " " + entity.getEntityKind().name() + " " + entity.getCode();
+                    } else
+                    {
                         return getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS);
                     }
                 }
@@ -1436,14 +1440,14 @@ public final class ComponentProvider
             };
     }
 
-    public AbstractTabItemFactory getNewEntityTypeForm(final EntityKind kind)
+    public AbstractTabItemFactory getNewEntityTypeForm(final EntityKind kind, final EntityType type)
     {
         return new AbstractTabItemFactory()
             {
                 @Override
                 public ITabItem create()
                 {
-                    DatabaseModificationAwareComponent component = NewEntityTypeForm.create(kind, viewContext);
+                    DatabaseModificationAwareComponent component = NewEntityTypeForm.create(kind, type, viewContext);
                     return createRegistrationTab(getTabTitle(), component);
                 }
 
@@ -1462,7 +1466,15 @@ public final class ComponentProvider
                 @Override
                 public String getTabTitle()
                 {
-                    return "New "+kind.name()+" Type";
+                    String preTitle = null;
+                    if (type == null)
+                    {
+                        preTitle = "New ";
+                    } else
+                    {
+                        preTitle = "Edit ";
+                    }
+                    return preTitle + kind.name() + " Type";
                 }
 
                 @Override
@@ -1472,7 +1484,7 @@ public final class ComponentProvider
                 }
             };
     }
-    
+
     public AbstractTabItemFactory getExperimentTypeBrowser()
     {
         return new AbstractTabItemFactory()

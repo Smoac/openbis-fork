@@ -6,7 +6,7 @@ import java.util.List;
 public class NewETNewPTAssigments implements Serializable
 {
     private EntityType entity;
-    
+
     private List<NewPTNewAssigment> assigments;
 
     public EntityType getEntity()
@@ -28,37 +28,43 @@ public class NewETNewPTAssigments implements Serializable
     {
         this.assigments = assigments;
     }
-    
-    public void updateOrdinalToDBOrder() {
+
+    public void updateOrdinalToDBOrder()
+    {
         // Update Ordinal - Internal/External List
-        for(int i = 0; i < entity.getAssignedPropertyTypes().size(); i++) {
+        for (int i = 0; i < entity.getAssignedPropertyTypes().size(); i++)
+        {
             entity.getAssignedPropertyTypes().get(i).setOrdinal((long) i);
             assigments.get(i).getAssignment().setOrdinal((long) i);
         }
     }
-    
-    public void updateOrdinalToGridOrder() {
+
+    public void updateOrdinalToGridOrder()
+    {
         // Update Ordinal - Internal/External List
-        for(int i = 0; i < entity.getAssignedPropertyTypes().size(); i++) {
+        for (int i = 0; i < entity.getAssignedPropertyTypes().size(); i++)
+        {
             entity.getAssignedPropertyTypes().get(i).setOrdinal((long) i + 1);
             assigments.get(i).getAssignment().setOrdinal((long) i + 1);
         }
     }
-    
-    public void refreshOrderAdd(NewPTNewAssigment newAssigment) throws Exception {
-        if(isAssigmentFound(newAssigment)) {
+
+    public void refreshOrderAdd(NewPTNewAssigment newAssigment) throws Exception
+    {
+        if (isAssigmentFound(newAssigment))
+        {
             throw new Exception("A property can't be assigned twice.");
         }
-        
+
         // Update Ordinal - Internal/External List
         updateOrdinalToDBOrder();
         int insertPos = newAssigment.getAssignment().getOrdinal().intValue();
-            
+
         //
         // Update Lists - This Reorder the items due to an insert
         //
-        
-        //Internal List
+
+        // Internal List
         EntityTypePropertyType<?> newEtpt = getEntityTypePropertyType(entity.getEntityKind(), newAssigment);
         switch (entity.getEntityKind())
         {
@@ -79,43 +85,50 @@ public class NewETNewPTAssigments implements Serializable
                 materialType.getAssignedPropertyTypes().add(insertPos, (MaterialTypePropertyType) newEtpt);
                 break;
         }
-        
-        //External List
+
+        // External List
         assigments.add(insertPos, newAssigment);
-        
+
         // Update Ordinal - Internal/External List
         updateOrdinalToGridOrder();
     }
-    
-    public void refreshOrderDelete(String code) {
+
+    public void refreshOrderDelete(String code)
+    {
         // Update Ordinal - Internal/External List
         updateOrdinalToDBOrder();
-        
+
         //
         // Delete Code - Internal/External List
         //
-        for(int i = 0; i < entity.getAssignedPropertyTypes().size(); i++) {
-            if(entity.getAssignedPropertyTypes().get(i).getPropertyType().getCode().equals(code)) {
+        for (int i = 0; i < entity.getAssignedPropertyTypes().size(); i++)
+        {
+            if (entity.getAssignedPropertyTypes().get(i).getPropertyType().getCode().equals(code))
+            {
                 entity.getAssignedPropertyTypes().remove(i);
                 assigments.remove(i);
                 break;
             }
         }
-        
+
         // Update Ordinal - Internal/External List
         updateOrdinalToGridOrder();
     }
-    
-    public boolean isAssigmentFound(NewPTNewAssigment assigment) {
-        for(NewPTNewAssigment assigmentFound:assigments) {
-            if(assigmentFound.getPropertyType().getCode().equals(assigment.getPropertyType().getCode())) {
+
+    public boolean isAssigmentFound(NewPTNewAssigment assigment)
+    {
+        for (NewPTNewAssigment assigmentFound : assigments)
+        {
+            if (assigmentFound.getPropertyType().getCode().equals(assigment.getPropertyType().getCode()))
+            {
                 return true;
             }
         }
         return false;
     }
-    
-    public static EntityTypePropertyType<?> getEntityTypePropertyType(EntityKind kind, NewPTNewAssigment propertyTypeAsg) {
+
+    public static EntityTypePropertyType<?> getEntityTypePropertyType(EntityKind kind, NewPTNewAssigment propertyTypeAsg)
+    {
         EntityTypePropertyType<?> etpt = null;
         switch (kind)
         {
@@ -133,20 +146,22 @@ public class NewETNewPTAssigments implements Serializable
                 break;
         }
         etpt.setPropertyType(propertyTypeAsg.getPropertyType());
-        etpt.setOrdinal(propertyTypeAsg.getAssignment().getOrdinal()); //TO-DO Sort list by order
+        etpt.setOrdinal(propertyTypeAsg.getAssignment().getOrdinal());
         etpt.setSection(propertyTypeAsg.getAssignment().getSection());
         etpt.setMandatory(propertyTypeAsg.getAssignment().isMandatory());
         etpt.setDynamic(propertyTypeAsg.getAssignment().isDynamic());
         etpt.setManaged(propertyTypeAsg.getAssignment().isManaged());
         etpt.setShownInEditView(propertyTypeAsg.getAssignment().isShownInEditView());
         etpt.setShowRawValue(propertyTypeAsg.getAssignment().getShowRawValue());
-        
-        if(propertyTypeAsg.getAssignment().getScriptName() != null) {
+        etpt.setModificationDate(propertyTypeAsg.getAssignment().getModificationDate());
+
+        if (propertyTypeAsg.getAssignment().getScriptName() != null)
+        {
             Script scriptNew = new Script();
             scriptNew.setName(propertyTypeAsg.getAssignment().getScriptName());
             etpt.setScript(scriptNew);
         }
-        
+
         return etpt;
     }
 }

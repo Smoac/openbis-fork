@@ -1234,7 +1234,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public String registerEntitytypeAndAssignPropertyTypes(final String sessionToken, NewETNewPTAssigments newETNewPTAssigments)
     {
         List<String> results = new ArrayList<String>();
-        //Entity Type Registration
+        // Entity Type Registration
         switch (newETNewPTAssigments.getEntity().getEntityKind())
         {
             case SAMPLE:
@@ -1250,16 +1250,120 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 registerMaterialType(sessionToken, (MaterialType) newETNewPTAssigments.getEntity());
                 break;
         }
-        //Property Types Registration/Assigments
-        for(NewPTNewAssigment assigment:newETNewPTAssigments.getAssigments()) {
-            if(false == assigment.isExistingPropertyType()) {
+        // Property Types Registration/Assigments
+        for (NewPTNewAssigment assigment : newETNewPTAssigments.getAssigments())
+        {
+            if (false == assigment.isExistingPropertyType())
+            {
                 registerPropertyType(sessionToken, assigment.getPropertyType());
             }
-            assignPropertyType(sessionToken, assigment.getAssignment());
+            String result = assignPropertyType(sessionToken, assigment.getAssignment());
+            results.add(result);
         }
         return results.toString();
     }
-    
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    public String updateEntitytypeAndPropertyTypes(final String sessionToken, NewETNewPTAssigments newETNewPTAssigments)
+    {
+        List<String> results = new ArrayList<String>();
+
+        // Entity Type Update
+        switch (newETNewPTAssigments.getEntity().getEntityKind())
+        {
+            case SAMPLE:
+                updateSampleType(sessionToken, (SampleType) newETNewPTAssigments.getEntity());
+                break;
+            case DATA_SET:
+                updateDataSetType(sessionToken, (DataSetType) newETNewPTAssigments.getEntity());
+                break;
+            case EXPERIMENT:
+                updateExperimentType(sessionToken, (ExperimentType) newETNewPTAssigments.getEntity());
+                break;
+            case MATERIAL:
+                updateMaterialType(sessionToken, (MaterialType) newETNewPTAssigments.getEntity());
+                break;
+        }
+
+        // Update Algorithm, it calculates the changes necessary without destroying assignments when possible to prevent data loss
+        List<EntityTypePropertyType<?>> ini = listEntityTypePropertyTypes(sessionToken, newETNewPTAssigments.getEntity());
+        List<EntityTypePropertyType<?>> fin = (List<EntityTypePropertyType<?>>) newETNewPTAssigments.getEntity().getAssignedPropertyTypes();
+
+        for (int i = 0; i < fin.size(); i++)
+        {
+            if (i < fin.size() && i < ini.size()) // Is Check Possible
+            {
+                if (ini.get(i).equals(fin.get(i))) // Do nothing.
+                {
+                    // Positions are equal but maibe the data have changed.
+                    if (ini.get(i).getOrdinal() != fin.get(i).getOrdinal())
+                    {
+                        updatePropertyTypeAssignment(sessionToken, newETNewPTAssigments.getAssigments().get(i).getAssignment());
+                    }
+                } else if (false == ini.get(i).equals(fin.get(i))) // Something needs to be done.
+                {
+                    if (false == fin.contains(ini.get(i))) // Delete
+                    {
+                        unassignPropertyType(sessionToken,
+                                newETNewPTAssigments.getEntity().getEntityKind(),
+                                ini.get(i).getPropertyType().getCode(),
+                                newETNewPTAssigments.getEntity().getCode());
+                        ini.remove(i);
+                    } else
+                    { // Is present into another position, but is not this one. Leave it
+                        if (ini.contains(fin.get(i)))
+                        { // Edit
+                            updatePropertyTypeAssignment(sessionToken, newETNewPTAssigments.getAssigments().get(i).getAssignment());
+                            ini.remove(fin.get(i));
+                            ini.add(i, fin.get(i));
+                        } else
+                        { // Insert
+                            if (false == newETNewPTAssigments.getAssigments().get(i).isExistingPropertyType())
+                            {
+                                registerPropertyType(sessionToken, newETNewPTAssigments.getAssigments().get(i).getPropertyType());
+                            }
+                            String result = assignPropertyType(sessionToken, newETNewPTAssigments.getAssigments().get(i).getAssignment());
+                            results.add(result);
+                            ini.add(i, fin.get(i));
+                        }
+                    }
+
+                    i--;
+                }
+            } else if (i >= ini.size())
+            {
+                if (false == newETNewPTAssigments.getAssigments().get(i).isExistingPropertyType())
+                {
+                    registerPropertyType(sessionToken, newETNewPTAssigments.getAssigments().get(i).getPropertyType());
+                }
+                String result = assignPropertyType(sessionToken, newETNewPTAssigments.getAssigments().get(i).getAssignment());
+                results.add(result);
+                ini.add(i, fin.get(i));
+                i--;
+            }
+        }
+
+        for (int i = 0; i < ini.size(); i++)
+        {
+            if (i < fin.size() && i < ini.size() // Is Check Possible
+                    && ini.get(i).equals(fin.get(i))) // Do nothing.
+            {
+                // Positions are equal
+            } else if (i >= fin.size())
+            {
+                unassignPropertyType(sessionToken,
+                        newETNewPTAssigments.getEntity().getEntityKind(),
+                        ini.get(i).getPropertyType().getCode(),
+                        newETNewPTAssigments.getEntity().getCode());
+                ini.remove(i);
+                i--;
+            }
+        }
+
+        return results.toString();
+    }
+
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public String registerAndAssignPropertyType(final String sessionToken, final PropertyType propertyType, NewETPTAssignment assignment)
@@ -1267,7 +1371,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         registerPropertyType(sessionToken, propertyType);
         return assignPropertyType(sessionToken, assignment);
     }
-    
+
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public String assignPropertyType(final String sessionToken, NewETPTAssignment assignment)

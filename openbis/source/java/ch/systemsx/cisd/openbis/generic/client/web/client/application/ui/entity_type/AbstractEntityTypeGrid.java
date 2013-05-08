@@ -79,25 +79,39 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
     }
 
     public abstract AddEntityTypeDialog<T> getNewDialog(T newType);
-    
+
     private void extendBottomToolbar()
     {
         addEntityOperationsLabel();
 
         final EntityKind entityKind = getEntityKindOrNull();
 
-        Button buttonNew = new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON)+"V2",
+        Button buttonAddNew = new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON) + "V2",
                 new SelectionListener<ButtonEvent>()
                     {
                         @Override
                         public void componentSelected(ButtonEvent ce)
                         {
-                            DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getNewEntityTypeForm(entityKind));
+                            DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getNewEntityTypeForm(entityKind, null));
                         }
                     });
-        buttonNew.setId("add-entity-type-new-" + getEntityKindOrNull());
-        addButton(buttonNew);
-        
+        buttonAddNew.setId("add-entity-type-new-" + getEntityKindOrNull());
+        addButton(buttonAddNew);
+
+        Button buttonEditNew = createSelectedItemButton(viewContext.getMessage(Dict.EDIT_TYPE_BUTTON) + "V2",
+                new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<T>>>()
+                    {
+                        @Override
+                        public void invoke(BaseEntityModel<TableModelRowWithObject<T>> selectedItem, boolean keyPressed)
+                        {
+                            T entityType = selectedItem.getBaseObject().getObjectOrNull();
+                            DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getNewEntityTypeForm(entityKind, entityType));
+                        }
+
+                    });
+        buttonEditNew.setId("edit-entity-type-" + getEntityKindOrNull());
+        addButton(buttonEditNew);
+
         Button buttonProperties = createSelectedItemButton(viewContext.getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS), // "Properties"
                 new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<T>>>()
                     {
@@ -113,7 +127,7 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
                     });
         buttonProperties.setId("property-types-" + getEntityKindOrNull());
         addButton(buttonProperties);
-        
+
         Button button = new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON),
                 new SelectionListener<ButtonEvent>()
                     {
