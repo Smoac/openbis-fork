@@ -207,6 +207,16 @@
     </antcall>
   </target>
 	
+	 <!--
+	      // Compiles the javascript for Firefox using GWT compiler.
+		  -->
+  <target name="compile-firefox-javascript" depends="prepare-web-client" description="Compiles the javascript using GWT compiler.">
+    <antcall target="compile-gwt-module-flexible">
+      <param name="gwt.module.name" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBISFirefox" />
+      <param name="gwt.output.name" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
+    </antcall>
+  </target>
+	
 	<!-- 
 		Use this only if you want to use image viewer (screening.jar needs to be created and it slows down the build process).
 		Otherwise use prepare-gwt.
@@ -218,6 +228,12 @@
 			<param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
 		</antcall>
   </target>
+	
+  <target name="prepare-firefox-gwt">
+		<antcall target="openbis.do-prepare-gwt">
+			<param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBISFirefox" />
+		</antcall>
+  </target>	
 
 	<target name="jar" depends="openbis.jar">
 	  <property name="dist.file.name"
