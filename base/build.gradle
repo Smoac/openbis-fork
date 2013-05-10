@@ -12,9 +12,9 @@ dependencies {
 
 
 group="cisd"
-version="UNSPECIFIED_VERSION"
+version="testtag"
 
-if (version.equals("UNSPECIFIED_VERSION")) {
+if (version.equals("testtag")) {
 	new ByteArrayOutputStream().withStream { os ->
 	    def result = exec {
 	        executable = 'svn'
