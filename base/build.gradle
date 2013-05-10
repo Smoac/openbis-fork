@@ -12,21 +12,25 @@ dependencies {
 
 
 group="cisd"
-version="UNSPECIFIED_VERSION"
+new ByteArrayOutputStream().withStream { os ->
+    def result = exec {
+        executable = 'svn'
+        args = ['info']
+        standardOutput = os
+    }
+    def outputAsString = os.toString()
+    def matchLastChangedRevMatcher = outputAsString =~ /Last Changed Rev: (\d+)/
+    def urlMatcher = outputAsString =~ /URL: .*\/(.+)/
 
-if (version.equals("UNSPECIFIED_VERSION")) {
-	new ByteArrayOutputStream().withStream { os ->
-	    def result = exec {
-	        executable = 'svn'
-	        args = ['info']
-	        standardOutput = os
-	    }
-	    def outputAsString = os.toString()
-	    def matchLastChangedRev = outputAsString =~ /Last Changed Rev: (\d+)/
-	    project.version = "r${matchLastChangedRev[0][1]}"
+	def revision = "r${matchLastChangedRevMatcher[0][1]}"
+	def branch = urlMatcher[0][1]
+	
+	if (branch.equals('trunk')) {
+		project.version = revision
+	} else {
+		project.version = branch
 	}
 }
-
 
 publishing {
     publications {

@@ -12,7 +12,7 @@ svn checkout --depth=empty svn+ssh://svncisd.ethz.ch/repos/cisd/base/branches/$1
 cd out/temp_checkout
 svn update gradlew gradle build.gradle
 ./gradlew dependencyReport
-cat out/reports/project/dependencies.txt|egrep ^.---|awk '{print $2}'|sort|uniq|egrep -v ^$|awk -F: '{print "s/" $1 ":" $2 ":+/" $1 ":" $2 ":" $3 "/g"}' > sed_commands
+cat out/reports/project/dependencies.txt|egrep ^.---|grep \>|sort|uniq|awk '{print $2 ":" $4}'|awk -F: '{print "s/" $1 ":" $2 ":" $3 "/" $1 ":" $2 ":" $4 "/g"}' > sed_commands
 sed -f sed_commands build.gradle > build.gradle.tmp
 mv build.gradle.tmp build.gradle
 svn commit build.gradle -m "fixed dependencies for branch $1"
