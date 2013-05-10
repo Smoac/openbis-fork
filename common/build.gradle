@@ -1,8 +1,9 @@
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
 dependencies {
-	compile 'cisd:cisd-base:+',
-					'springframework:spring-webmvc:+',
+	compile group: "cisd", name: "cisd-base", version: "+", changing: true
+
+	compile			'springframework:spring-webmvc:+',
 					'springframework:spring-aop:+',
 					'javax:servlet-api:+',
 					'cisd:cisd-args4j:+',

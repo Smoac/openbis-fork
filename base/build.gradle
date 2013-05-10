@@ -41,8 +41,8 @@ publishing {
     }
     repositories {
     	ivy {
-			ivyPattern "file://$buildDir/../../ivy-repository/[organisation]/[module]/[revision]/ivy.xml"
-		    artifactPattern "file://$buildDir/../../ivy-repository/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+			ivyPattern "file://${project.projectDir}/../ivy-repository/[organisation]/[module]/[revision]/ivy.xml"
+		    artifactPattern "file://${project.projectDir}/../ivy-repository/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
 	    }
     }
 }
