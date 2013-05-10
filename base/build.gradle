@@ -12,7 +12,7 @@ dependencies {
 
 
 group="cisd"
-version="test_tag"
+version="UNSPECIFIED_VERSION"
 
 if (version.equals("UNSPECIFIED_VERSION")) {
 	new ByteArrayOutputStream().withStream { os ->
