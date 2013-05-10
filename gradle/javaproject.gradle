@@ -85,7 +85,7 @@ compileTestJava {
 }
 
 processTestResources {
-	fileMode="666"
+	fileMode=666
 }
 
 configurations.all {
