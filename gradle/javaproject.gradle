@@ -84,6 +84,10 @@ compileTestJava {
 	}
 }
 
+processTestResources {
+	fileMode="666"
+}
+
 configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'hours'
 }
