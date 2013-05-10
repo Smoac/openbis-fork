@@ -1,0 +1,49 @@
+apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+apply plugin: 'ivy-publish'
+
+dependencies {
+	compile 'apache:commons-io:1.4',
+			'apache:commons-lang:2.4',
+			'testng:testng:6.8-CISD',
+			'rinn:restrictions:1.0.1',
+			'cisd:cisd-unix:r15645',
+			'cisd:cisd-nativedata:r27382'
+} 
+
+
+group="cisd"
+version="UNSPECIFIED_VERSION"
+
+if (version.equals("UNSPECIFIED_VERSION")) {
+	new ByteArrayOutputStream().withStream { os ->
+	    def result = exec {
+	        executable = 'svn'
+	        args = ['info']
+	        standardOutput = os
+	    }
+	    def outputAsString = os.toString()
+	    def matchLastChangedRev = outputAsString =~ /Last Changed Rev: (\d+)/
+	    project.version = "r${matchLastChangedRev[0][1]}"
+	}
+}
+
+
+publishing {
+    publications {
+    	ivy(IvyPublication) {
+			from components.java
+			artifact(sourceJar)
+		}
+    }
+    repositories {
+    	ivy {
+			ivyPattern "file://$buildDir/../../ivy-repository/[organisation]/[module]/[revision]/ivy.xml"
+		    artifactPattern "file://$buildDir/../../ivy-repository/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+	    }
+    }
+}
+
+publish {
+	dependsOn build
+}
+
