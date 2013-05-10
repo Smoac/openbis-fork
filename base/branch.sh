@@ -8,7 +8,7 @@ CURRENT=`svn info|grep URL|cut -d" " -f2`
 svn copy $CURRENT svn+ssh://svncisd.ethz.ch/repos/cisd/base/branches/$1 -m "create branch $1"
 mkdir -p out
 rm -r out/temp_checkout
-svn checkout --depth=empty svn+ssh://svncisd.ethz.ch/repos/cisd/common/branches/$1 out/temp_checkout
+svn checkout --depth=empty svn+ssh://svncisd.ethz.ch/repos/cisd/base/branches/$1 out/temp_checkout
 cd out/temp_checkout
 svn update gradlew gradle build.gradle
 ./gradlew dependencyReport
