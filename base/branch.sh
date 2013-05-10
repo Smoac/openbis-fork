@@ -1,5 +1,19 @@
 #!/bin/bash
 
+if [ `dirname $0` != "." ]
+then
+	echo "Please run from the same directory than the script source file is in"
+	exit 1
+fi
+
+if [ $# -ne 1 ]
+then
+  echo "Usage: ./branch.sh [branch]"
+  echo ""
+  echo "Example: ./branch.sh release/13.04.x"
+  exit 1
+fi
+
 svn info svn+ssh://svncisd.ethz.ch/repos/cisd/base/branches/$1 2>/dev/null
 if [ $? -eq 0 ]; then echo "Branch already exists!"; exit 1; fi
 
@@ -9,6 +23,8 @@ svn copy $CURRENT svn+ssh://svncisd.ethz.ch/repos/cisd/base/branches/$1 -m "crea
 mkdir -p out
 rm -r out/temp_checkout
 svn checkout --depth=empty svn+ssh://svncisd.ethz.ch/repos/cisd/base/branches/$1 out/temp_checkout
+if [ $? -ne 0 ]; then echo "Checkout of new branch $1 failed!"; exit 1; fi
+
 cd out/temp_checkout
 svn update gradlew gradle build.gradle
 ./gradlew dependencyReport
