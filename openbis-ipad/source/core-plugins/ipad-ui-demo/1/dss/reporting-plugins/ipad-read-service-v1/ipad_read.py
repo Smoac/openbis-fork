@@ -1,5 +1,5 @@
 from ch.systemsx.cisd.openbis.ipad.v2.server import AbstractRequestHandler, ClientPreferencesRequestHandler, RootRequestHandler
-from ch.systemsx.cisd.openbis.ipad.v2.server import DrillRequestHandler, NavigationRequestHandler, DetailRequestHandler
+from ch.systemsx.cisd.openbis.ipad.v2.server import DrillRequestHandler, NavigationRequestHandler, DetailRequestHandler, SearchRequestHandler
 from ch.systemsx.cisd.openbis.ipad.v2.server import EmptyDataRequestHandler, IpadServiceUtilities
 from ch.systemsx.cisd.openbis.ipad.v2.server import IRequestHandlerFactory, RequestHandlerDispatcher
 from ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2 import MaterialIdentifierCollection
@@ -329,6 +329,30 @@ class TestingNavigationRequestHandler(ExampleNavigationRequestHandler):
 			probe_nav = navigation_dict('Probes', [])
 			self.addRows([probe_nav])
 
+class ExampleSearchRequestHandler(SearchRequestHandler):
+	"""Handler for the SEARCH request"""
+
+	def retrieveData(self):
+		sc = self.trySearchCriteria()
+		if sc is None:
+			self.samples = None
+			return
+
+		# There is no way to search for materials, so only samples are taken into consideration here		
+		self.samples = self.searchService.searchForSamples(sc)
+
+		material_identifiers = gather_materials(self.samples)
+		materials = self.searchService.listMaterials(material_identifiers)
+		self.material_dict_array = materials_to_dict(materials, {})
+		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
+
+	def addDataRows(self):
+		if self.samples is None:
+			return
+		self.addRows(self.material_dict_array)
+		self.addRows(samples_to_dict(self.samples, self.material_by_perm_id, {}))
+
+
 class NavigationRequestHandlerFactory(IRequestHandlerFactory):
 	def createRequestHandler(self, parameters, builder, searchService):
 		return TestingNavigationRequestHandler(parameters, builder, searchService)
@@ -345,10 +369,15 @@ class DetailRequestHandlerFactory(IRequestHandlerFactory):
 	def createRequestHandler(self, parameters, builder, searchService):
 		return ExampleDetailRequestHandler(parameters, builder, searchService)
 
+class SearchRequestHandlerFactory(IRequestHandlerFactory):
+	def createRequestHandler(self, parameters, builder, searchService):
+		return ExampleSearchRequestHandler(parameters, builder, searchService)
+
 def aggregate(parameters, builder):
 	dispatcher = RequestHandlerDispatcher()
 	dispatcher.navigationRequestHandlerFactory = NavigationRequestHandlerFactory()
 	dispatcher.rootRequestHandlerFactory = RootRequestHandlerFactory()
 	dispatcher.drillRequestHandlerFactory = DrillRequestHandlerFactory()
 	dispatcher.detailRequestHandlerFactory = DetailRequestHandlerFactory()
+	dispatcher.searchRequestHandlerFactory = SearchRequestHandlerFactory()
 	dispatcher.dispatch(parameters, builder, searchService)

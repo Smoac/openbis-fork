@@ -39,6 +39,8 @@ NSString *const CISDOBIpadServiceWillRetrieveDetailsForEntityNotification = @"CI
 NSString *const CISDOBIpadServiceDidRetrieveDetailsForEntityNotification = @"CISDOBIpadServiceDidRetrieveDetailsForEntityNotification";
 NSString *const CISDOBIpadServiceWillSynchEntitiesNotification = @"CISDOBIpadServiceWillSynchEntitiesNotification";
 NSString *const CISDOBIpadServiceDidSynchEntitiesNotification = @"CISDOBIpadServiceDidSynchEntitiesNotification";
+NSString *const CISDOBIpadServiceWillSearchForEntityNotification = @"CISDOBIpadServiceWillSearchForEntityNotification";
+NSString *const CISDOBIpadServiceDidSearchForEntityNotification = @"CISDOBIpadServiceDidSearchForEntityNotification";
 
 NSString *const CISDOBIpadServiceManagerErrorDomain = @"CISDOBIpadServiceManagerErrorDomain";
 
@@ -402,6 +404,17 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     
     managerCall.willCallNotificationName = CISDOBIpadServiceWillRetrieveDetailsForEntityNotification;
     managerCall.didCallNotificationName = CISDOBIpadServiceDidRetrieveDetailsForEntityNotification;
+    
+    return managerCall;
+}
+
+- (CISDOBAsyncCall *)searchForText:(NSString *)searchText
+{
+    CISDOBAsyncCall *call = [self.service searchForText: searchText];
+    CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call];
+    
+    managerCall.willCallNotificationName = CISDOBIpadServiceWillSearchForEntityNotification;
+    managerCall.didCallNotificationName = CISDOBIpadServiceDidSearchForEntityNotification;
     
     return managerCall;
 }

@@ -209,9 +209,16 @@ The communication model between the iPad and the service has been designed to tr
 			<td>DETAIL</td>
 			<td>entities : List of {"PERM_ID" : String, REFCON : String}</td>
 			<td>Return detail information for the specified entities.</td>
-			<td>Display the entity in the detail view. This should return all information necessary to show the entity</td>
+			<td>Used to display the entity in the detail view. This should return all information necessary to show the entity.</td>
 			<td>PERM_ID, REFCON, SUMMARY_HEADER, SUMMARY, IDENTIFIER, IMAGES, PROPERTIES</td>
 		</tr>
+		<tr>
+			<td>SEARCH</td>
+			<td>searchtext : String</td>
+			<td>Return a list of entities that match the specified search string</td>
+			<td>Used to search for matching entities on the server. This returns information necessary to navigate the results (same as DRILL).</td>
+			<td>PERM_ID, REFCON, CATEGORY, SUMMARY_HEADER, SUMMARY, CHILDREN</td>
+		</tr>		
 	</tbody>
 </table>
 

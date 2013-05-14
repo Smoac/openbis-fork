@@ -31,7 +31,7 @@ public class RequestHandlerDispatcher
 
     public static enum RequestType
     {
-        CLIENT_PREFS, NAVIGATION, ROOT, DRILL, DETAIL
+        CLIENT_PREFS, NAVIGATION, ROOT, DRILL, DETAIL, SEARCH
     }
 
     private IRequestHandlerFactory clientPreferencesRequestHandlerFactory;
@@ -44,12 +44,13 @@ public class RequestHandlerDispatcher
 
     private IRequestHandlerFactory detailRequestHandlerFactory;
 
+    private IRequestHandlerFactory searchRequestHandlerFactory;
+
     private IRequestHandlerFactory emptyDataRequestHandlerFactory;
 
     /**
-     * The constructor initialized the clientPreferencesRequestHandlerFactory and
-     * emptyDataRequestHandlerFactory variables. All others must be initialized by the client of
-     * this object.
+     * The constructor initialized the clientPreferencesRequestHandlerFactory and emptyDataRequestHandlerFactory variables. All others must be
+     * initialized by the client of this object.
      */
     public RequestHandlerDispatcher()
     {
@@ -127,6 +128,16 @@ public class RequestHandlerDispatcher
         this.detailRequestHandlerFactory = detailRequestHandlerFactory;
     }
 
+    public IRequestHandlerFactory getSearchRequestHandlerFactory()
+    {
+        return searchRequestHandlerFactory;
+    }
+
+    public void setSearchRequestHandlerFactory(IRequestHandlerFactory searchRequestHandlerFactory)
+    {
+        this.searchRequestHandlerFactory = searchRequestHandlerFactory;
+    }
+
     public IRequestHandlerFactory getEmptyDataRequestHandlerFactory()
     {
         return emptyDataRequestHandlerFactory;
@@ -188,10 +199,13 @@ public class RequestHandlerDispatcher
             case ROOT:
                 handlerFactory = rootRequestHandlerFactory;
                 break;
+            case SEARCH:
+                handlerFactory = searchRequestHandlerFactory;
+                break;
             default:
                 handlerFactory = emptyDataRequestHandlerFactory;
                 break;
         }
-        return handlerFactory;
+        return (handlerFactory != null) ? handlerFactory : emptyDataRequestHandlerFactory;
     }
 }

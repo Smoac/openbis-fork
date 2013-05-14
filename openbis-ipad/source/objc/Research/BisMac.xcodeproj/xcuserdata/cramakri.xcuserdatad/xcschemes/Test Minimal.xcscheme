@@ -51,9 +51,6 @@
                   Identifier = "CISDOBJsonRpcCallTest">
                </Test>
                <Test
-                  Identifier = "CISDOBIpadServiceTest">
-               </Test>
-               <Test
                   Identifier = "CISDOBIpadEntityTest">
                </Test>
                <Test
@@ -79,6 +76,9 @@
                </Test>
                <Test
                   Identifier = "CISDOBIpadServiceManagerTest">
+               </Test>
+               <Test
+                  Identifier = "CISDOBLiveConnectionTest">
                </Test>
             </SkippedTests>
          </TestableReference>

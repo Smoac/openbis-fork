@@ -125,6 +125,9 @@ typedef void (^MocSaveBlock)(CISDOBIpadServiceManager *serviceManager, NSArray *
 //! Get detail information from the openBIS ipad service and store the results in the managedObjectContext.
 - (CISDOBAsyncCall *)detailsForEntities:(NSArray *)entities;
 
+//! Search for entities matching the searchText and store the results in the managedObjectContext.
+- (CISDOBAsyncCall *)searchForText:(NSString *)searchText;
+
 //
 // Local Actions -- actions that do not require a network connection
 //

@@ -74,6 +74,9 @@ enum CISOBIpadServiceErrorCode {
 //! A convenience version of detailsForEntities:refcons: for one entity.
 - (CISDOBAsyncCall *)detailsForEntityWithPermId:(NSString *)permId refcon:(id)refcon;
 
+//! Search for entities matching the searchText. The success block will be invoked with a collection of CISDOBIpadRawEntity objects.
+- (CISDOBAsyncCall *)searchForText:(NSString *)searchText;
+
 // Utility Methods
 
 - (NSArray *)convertToEntitiesPermIds:(NSArray *)permIds refcons:(NSArray *)refcons count:(NSUInteger)count;
