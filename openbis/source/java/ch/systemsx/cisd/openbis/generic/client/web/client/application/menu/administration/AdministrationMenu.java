@@ -45,8 +45,13 @@ public class AdministrationMenu extends TopMenuItem
         Menu submenu = new Menu();
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.ADMINISTRATION_MENU_MANAGE_GROUPS, messageProvider, componentProvider.getGroupBrowser()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.VOCABULARY_MENU_BROWSE, messageProvider, componentProvider.getVocabularyBrowser()));
-        submenu.add(new TypesMenu(messageProvider, componentProvider));
-        submenu.add(new PropertyTypesMenu(viewContext, messageProvider, componentProvider));
+        submenu.add(new TypesMenu(viewContext, messageProvider, componentProvider));
+
+        if (viewContext.getDisplaySettingsManager().isLegacyMedadataUIEnabled())
+        {
+            submenu.add(new PropertyTypesMenu(messageProvider, componentProvider));
+        }
+
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.SCRIPT_MENU_BROWSE, messageProvider, componentProvider.getScriptBrowser()));
         submenu.add(new AuthorizationMenu(messageProvider, componentProvider));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.ACTIVE_USERS_COUNT, messageProvider, new ActiveUsersCountAction(viewContext)));
