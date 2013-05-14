@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -27,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -57,10 +61,11 @@ public class ExperimentTypeGrid extends AbstractEntityTypeGrid<ExperimentType>
     }
 
     @Override
-    public AddEntityTypeDialog<ExperimentType> getNewDialog(ExperimentType newType) {
+    public AddEntityTypeDialog<ExperimentType> getNewDialog(ExperimentType newType)
+    {
         return (AddEntityTypeDialog<ExperimentType>) createRegisterEntityTypeDialog("New Experiment", newType, newType.getEntityKind());
     }
-    
+
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<ExperimentType>> resultSetConfig,
@@ -93,5 +98,17 @@ public class ExperimentTypeGrid extends AbstractEntityTypeGrid<ExperimentType>
     protected ExperimentType createNewEntityType()
     {
         return new ExperimentType();
+    }
+
+    @Override
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[] { createOrDelete(ObjectKind.EXPERIMENT_TYPE),
+                edit(ObjectKind.EXPERIMENT_TYPE),
+                createOrDelete(ObjectKind.PROPERTY_TYPE),
+                edit(ObjectKind.PROPERTY_TYPE),
+                createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
+        };
     }
 }

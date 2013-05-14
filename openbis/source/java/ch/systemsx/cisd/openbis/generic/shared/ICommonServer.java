@@ -496,21 +496,23 @@ public interface ICommonServer extends IServer
      * Creates and assigns property type to entity type.
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE)
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.PROPERTY_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT, ObjectKind.DATASET_TYPE,
+            ObjectKind.SAMPLE_TYPE, ObjectKind.EXPERIMENT_TYPE, ObjectKind.MATERIAL_TYPE })
     public String registerEntitytypeAndAssignPropertyTypes(final String sessionToken, NewETNewPTAssigments newETNewPTAssigments);
 
     /**
      * Updates and assigns property type to entity type.
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE)
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.PROPERTY_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT, ObjectKind.DATASET_TYPE,
+            ObjectKind.SAMPLE_TYPE, ObjectKind.EXPERIMENT_TYPE, ObjectKind.MATERIAL_TYPE })
     public String updateEntitytypeAndPropertyTypes(final String sessionToken, NewETNewPTAssigments newETNewPTAssigments);
 
     /**
      * Creates and assigns property type to entity type.
      */
     @Transactional
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE)
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.PROPERTY_TYPE, ObjectKind.PROPERTY_TYPE_ASSIGNMENT })
     public String registerAndAssignPropertyType(final String sessionToken, PropertyType propertyType, NewETPTAssignment assignment);
 
     /**

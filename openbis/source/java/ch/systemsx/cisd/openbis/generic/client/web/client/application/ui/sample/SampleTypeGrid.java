@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -35,6 +37,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Dialo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -82,10 +86,11 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
     }
 
     @Override
-    public AddEntityTypeDialog<SampleType> getNewDialog(SampleType newType) {
+    public AddEntityTypeDialog<SampleType> getNewDialog(SampleType newType)
+    {
         return (AddEntityTypeDialog<SampleType>) createRegisterEntityTypeDialog("New Sample", newType, newType.getEntityKind());
     }
-    
+
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<SampleType>> resultSetConfig,
@@ -286,4 +291,17 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
 
         }
     }
+
+    @Override
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[] { createOrDelete(ObjectKind.SAMPLE_TYPE),
+                edit(ObjectKind.SAMPLE_TYPE),
+                createOrDelete(ObjectKind.PROPERTY_TYPE),
+                edit(ObjectKind.PROPERTY_TYPE),
+                createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
+        };
+    }
+
 }

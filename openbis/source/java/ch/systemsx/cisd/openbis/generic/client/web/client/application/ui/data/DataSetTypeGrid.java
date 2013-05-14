@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -38,6 +40,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
@@ -275,5 +279,17 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
     public AddEntityTypeDialog<DataSetType> getNewDialog(DataSetType newType)
     {
         return (AddEntityTypeDialog<DataSetType>) createRegisterEntityTypeDialog("New DataSet", newType, newType.getEntityKind());
+    }
+
+    @Override
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[] { createOrDelete(ObjectKind.DATASET_TYPE),
+                edit(ObjectKind.DATASET_TYPE),
+                createOrDelete(ObjectKind.PROPERTY_TYPE),
+                edit(ObjectKind.PROPERTY_TYPE),
+                createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
+        };
     }
 }
