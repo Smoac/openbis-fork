@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTable
  */
 public class AggregationCommand
 {
-    public void handleRequest(Map<String, Object> parameters,
+    public final void handleRequest(Map<String, Object> parameters,
             ISimpleTableModelBuilderAdaptor tableBuilder)
     {
         try

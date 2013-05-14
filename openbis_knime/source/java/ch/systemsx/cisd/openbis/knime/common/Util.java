@@ -268,9 +268,17 @@ public class Util
                 previousException = currentExecption;
             } else if (currentExecption != null)
             {
+                int lineNumber;
+                try
+                {
+                    lineNumber = Integer.parseInt(String.valueOf(row[4]));
+                } catch (NumberFormatException ex)
+                {
+                    lineNumber = 0;
+                }
                 StackTraceElement stackTraceElement = new StackTraceElement(String.valueOf(row[1]), 
                         String.valueOf(row[2]), String.valueOf(row[3]), 
-                        Integer.parseInt(String.valueOf(row[4])));
+                        lineNumber);
                 stackTrace.add(stackTraceElement);
             }
         }

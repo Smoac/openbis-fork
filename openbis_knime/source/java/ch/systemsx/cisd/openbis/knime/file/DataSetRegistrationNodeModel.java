@@ -87,8 +87,8 @@ public class DataSetRegistrationNodeModel extends AbstractOpenBisNodeModel
     static Map<String, String> getProperties(NodeSettingsRO settings)
             throws InvalidSettingsException
     {
-        String[] propertyTypeCodes = settings.getStringArray(PROPERTY_TYPE_CODES_KEY);
-        String[] propertyValues = settings.getStringArray(PROPERTY_VALUES_KEY);
+        String[] propertyTypeCodes = settings.getStringArray(PROPERTY_TYPE_CODES_KEY, new String[0]);
+        String[] propertyValues = settings.getStringArray(PROPERTY_VALUES_KEY, new String[0]);
         if (propertyTypeCodes.length != propertyValues.length)
         {
             throw new InvalidSettingsException("Corrupted properties: " + propertyTypeCodes.length
