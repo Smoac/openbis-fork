@@ -16,6 +16,7 @@
     <script type="text/javascript">
 	    $(document).ready(function() {
             configureLoginPage(openbisServer, enterApp);
+            configureTabs();
 		});
     </script>
 
@@ -59,40 +60,52 @@
 	        <div class="container">
 	          <a class="brand" href="#">iPadUI (debug)</a>
 		      <ul class="nav">
-		        <li class="active"><a href="#">Home</a></li>
-		        <li><a href="#about">About</a></li>
+		        <li class="active"><a id="activate-home" href="#">Home</a></li>
+		        <li><a id="activate-search" href="#search">Search</a></li>
 		      </ul>
 	        </div>
 	      </div>
 	    </div>
 	
-	    <div class="container">
+	    <div id="home" class="container">
+            <h1>Client Preferences</h1>
+            <div class="row-fluid">
+                <div id="clientprefs" class="span12" style="overflow: auto;"></div>
+            </div>
 
-        <h1>Client Preferences</h1>
-        <div class="row-fluid">
-            <div id="clientprefs" class="span12" style="overflow: auto;"></div>
-        </div>
-
-        <h1>Navigation</h1>
-        <div class="row-fluid">
-            <div id="navigation" class="span12" style="overflow: auto;"></div>
-        </div>
-	    <h1>Root</h1>
-        <div class="row-fluid">
-            <div id="root" class="span12" style="height: 410px; overflow: auto;"></div>
-        </div>
-        <br>
-        <h1>Drill</h1>
-        <div class="row-fluid">
-            <div id="drill" class="span12" style="overflow: auto;"></div>
-        </div>
-        <br>
-        <h1>Details</h1>
-        <div class="row-fluid">
-            <div id="detail" class="span12" style="overflow: auto;"></div>
-        </div>
-	
+            <h1>Navigation</h1>
+            <div class="row-fluid">
+                <div id="navigation" class="span12" style="overflow: auto;"></div>
+            </div>
+    	    <h1>Root</h1>
+            <div class="row-fluid">
+                <div id="root" class="span12" style="height: 410px; overflow: auto;"></div>
+            </div>
+            <br>
+            <h1>Drill</h1>
+            <div class="row-fluid">
+                <div id="drill" class="span12" style="overflow: auto;"></div>
+            </div>
+            <br>
+            <h1>Details</h1>
+            <div class="row-fluid">
+                <div id="detail" class="span12" style="overflow: auto;"></div>
+            </div>	
 	    </div> <!-- /container -->
+        <div id="search" class="container">
+            <div class="row-fluid">
+              <form id="search-form" class="well form-inline" action="javascript:">
+                <input id="searchtext" type="text" placeholder="search text">
+                <button id="search-button" type="submit" class="btn">Search</button>
+              </form>
+            </div>
+
+            <h1>Results</h1>
+            <div class="row-fluid">
+                <div id="searchresults" class="span12" style="overflow: auto;"></div>
+            </div> 
+        </div> <!-- /container -->
+
 	</div> <!-- /main -->
     
 

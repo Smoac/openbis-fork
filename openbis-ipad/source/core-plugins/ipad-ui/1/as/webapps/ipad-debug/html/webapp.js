@@ -52,13 +52,17 @@ IpadModel.prototype.selectNormalEntity = function(permId, refcon, d) {
 	}	
 }
 
+IpadModel.prototype.setSearchText = function(searchText) {
+	searchForText(searchText);
+}
+
 /// The model that manages state and implements the operations
 var model;
 model = new IpadModel();
 
 
 /// The visualization, referenced by functions that display content
-var clientPrefs, navigation, root, drill, detail;
+var clientPrefs, navigation, root, drill, detail, searchresults;
 
 /**
  * Create the DOM elements to store the visualization (tree + inspectors)
@@ -73,6 +77,7 @@ function createVis()
 	root = d3.select("#root");
 	drill = d3.select("#drill");	
 	detail = d3.select("#detail");
+	searchresults = d3.select("#searchresults");
 
 	didCreateVis = true;
 }
@@ -152,6 +157,7 @@ function displayNavigation(data) { displayResults(navigation, data) }
 function displayRoot(data) { displayResults(root, data) }
 function displayDrill(data) { displayResults(drill, data) }
 function displayDetail(data) { displayResults(detail, data) }
+function displaySearchResults(data) { displayResults(searchresults, data) }
 
 /**
  * Request the client perferences and show them in the page.
@@ -203,6 +209,39 @@ function detailsForEntity(permId, refcon)
 	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, displayDetail);
 }
 
+function searchForText(searchText)
+{
+	var parameters = {requestKey : 'SEARCH', searchtext: searchText};
+
+	displayCallInProgress(searchresults);
+	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, displaySearchResults);
+}
+
+function homeTab()
+{
+    $('#home').show();
+    $('#search').hide();
+	$('#activate-home').parent().addClass("active");
+    $('#activate-search').parent().removeClass("active");    
+}
+
+function searchTab()
+{
+    $('#home').hide();
+    $('#search').show();
+    $('#activate-home').parent().removeClass("active");
+    $('#activate-search').parent().addClass("active");
+}
+
+function configureTabs()
+{
+	$('#activate-search').click(searchTab);
+	$('#activate-home').click(homeTab);	
+	
+	$('#search-form').submit(function() {
+		model.setSearchText($.trim($('#searchtext').val()));
+	});
+}
 
 function enterApp(data)
 {
@@ -214,6 +253,7 @@ function enterApp(data)
 
 	$('#login').hide();
     $('#main').show();
+    $('#search').hide();
 
     createVis();
     listClientPreferences();
