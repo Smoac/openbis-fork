@@ -1454,7 +1454,14 @@ public final class ComponentProvider
                 @Override
                 public String getId()
                 {
-                    return NewEntityTypeForm.BROWSER_ID + "-" + kind.name();
+                    if (type == null) // Create new entity option
+                    {
+                        return NewEntityTypeForm.BROWSER_ID + "-" + kind.name() + "-" + System.currentTimeMillis();
+                    } else
+                    // Edit existing entity option
+                    {
+                        return NewEntityTypeForm.BROWSER_ID + "-" + kind.name() + "-" + type.getCode();
+                    }
                 }
 
                 @Override
@@ -1467,14 +1474,14 @@ public final class ComponentProvider
                 public String getTabTitle()
                 {
                     String preTitle = null;
-                    if (type == null)
+                    if (type == null) // Create new entity option
                     {
-                        preTitle = "New ";
+                        return "New " + kind.name() + " Type";
                     } else
+                    // Edit existing entity option
                     {
-                        preTitle = "Edit ";
+                        return "Edit " + kind.name() + " Type " + type.getCode();
                     }
-                    return preTitle + kind.name() + " Type";
                 }
 
                 @Override
