@@ -16,15 +16,20 @@
 
 package ch.systemsx.cisd.openbis.jstest.suite.common;
 
+import java.io.File;
+
 import junit.framework.Assert;
 
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.jstest.layout.OpenbisJsWebappLocation;
 import ch.systemsx.cisd.openbis.jstest.layout.OpenbisScreeningJsWebappLocation;
+import ch.systemsx.cisd.openbis.jstest.page.OpenbisJsCommonWebapp;
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.layout.Location;
 
 /**
  * @author pkupczyk
@@ -73,26 +78,31 @@ public class JsTestCommonSelenium extends SeleniumTest
     @Test
     public void runOpenbisJsTests()
     {
-        try
-        {
-            Assert.assertEquals(0, browser().goTo(new OpenbisJsWebappLocation()).getFailedCount());
-        } finally
-        {
-            SeleniumTest.driver.switchTo().defaultContent();
-        }
+        runTests("runOpenbisJsTests", new OpenbisJsWebappLocation());
     }
 
     @Test
     public void runOpenbisScreeningJsTests()
     {
+        runTests("runOpenbisScreeningJsTests", new OpenbisScreeningJsWebappLocation());
+    }
+
+    private void runTests(String method, Location<OpenbisJsCommonWebapp> location)
+    {
         try
         {
-            Assert.assertEquals(0, browser().goTo(new OpenbisScreeningJsWebappLocation())
-                    .getFailedCount());
+            OpenbisJsCommonWebapp webapp = browser().goTo(location);
+            int failedCount = webapp.getFailedCount();
+
+            File report =
+                    new File("targets/dist/" + this.getClass().getSimpleName() + "/" + method
+                            + "/report.xml");
+            FileUtilities.writeToFile(report, webapp.getJunitReport());
+
+            Assert.assertEquals(0, failedCount);
         } finally
         {
             SeleniumTest.driver.switchTo().defaultContent();
         }
     }
-
 }

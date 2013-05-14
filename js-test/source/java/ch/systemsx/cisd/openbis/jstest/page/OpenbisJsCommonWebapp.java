@@ -33,6 +33,9 @@ public class OpenbisJsCommonWebapp
     @Locate("qunit-testresult")
     private WebElement infoBox;
 
+    @Locate("qunit-junit-report")
+    private WebElement junitReport;
+    
     public int getFailedCount()
     {
         SeleniumTest.setImplicitWait(300, TimeUnit.SECONDS);
@@ -46,4 +49,8 @@ public class OpenbisJsCommonWebapp
         }
     }
 
+    public String getJunitReport()
+    {
+        return junitReport.getText();
+    }
 }

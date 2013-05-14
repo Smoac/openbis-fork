@@ -1,3 +1,8 @@
+QUnit.jUnitReport = function(report) {
+	$("#qunit-junit-report").text(report.xml);
+    console.log(report.xml);
+}
+
 var createFacade = function(action, url, timeoutOrNull){
 	stop();
 	
