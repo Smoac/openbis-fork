@@ -46,6 +46,9 @@ FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidRetrieveDetailsForEntityNo
 FOUNDATION_EXPORT NSString *const CISDOBIpadServiceWillSynchEntitiesNotification;
 FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidSynchEntitiesNotification;
 
+FOUNDATION_EXPORT NSString *const CISDOBIpadServiceWillSearchForEntitiesNotification;
+FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidSearchForEntitiesNotification;
+
 
 //
 // Errors that can happen in the service manager

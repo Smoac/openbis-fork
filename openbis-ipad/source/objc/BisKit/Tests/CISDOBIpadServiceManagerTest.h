@@ -45,4 +45,7 @@
 @property(nonatomic) BOOL willRetrieveDetails;
 @property(nonatomic) BOOL didRetrieveDetails;
 
+@property(nonatomic) BOOL willSearch;
+@property(nonatomic) BOOL didSearch;
+
 @end

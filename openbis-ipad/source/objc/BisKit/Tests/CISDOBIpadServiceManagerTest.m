@@ -74,7 +74,13 @@ static BOOL IsPermIdTarget(NSString *permId)
     }
     if ([CISDOBIpadServiceDidRetrieveDetailsForEntityNotification isEqualToString: [note name]]) {
         self.didRetrieveDetails = YES;
-    }    
+    }
+    if ([CISDOBIpadServiceWillSearchForEntitiesNotification isEqualToString: [note name]]) {
+        self.willSearch = YES;
+    }
+    if ([CISDOBIpadServiceDidSearchForEntitiesNotification isEqualToString: [note name]]) {
+        self.didSearch = YES;
+    }
 }
 
 - (void)registerForNotifications
@@ -259,6 +265,18 @@ static BOOL IsPermIdTarget(NSString *permId)
     STAssertTrue(self.didRetrieveDetails, @"Should have retrieved details");
 }
 
+- (void)assertBeforeSearch
+{
+    STAssertFalse(self.willSearch, @"Should not have searched");
+    STAssertFalse(self.didSearch, @"Should not have searched");
+}
+
+- (void)assertAfterSearch
+{
+    STAssertTrue(self.willSearch, @"Should have searched");
+    STAssertTrue(self.didSearch, @"Should have searched");
+}
+
 - (void)performLogin
 {
     CISDOBAsyncCall *call;
@@ -319,10 +337,22 @@ static BOOL IsPermIdTarget(NSString *permId)
 - (void)performDetailsOnCollection:(NSArray *)detailsEntities
 {
     CISDOBAsyncCall *call;
+    [self assertBeforeDetails];
     call = [self.serviceManager detailsForEntities:  detailsEntities];
     [self configureAndRunCallSynchronously: call];
     STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
     [self assertAfterDetails];
+}
+
+
+- (void)performSearch:(NSString *)searchText
+{
+    CISDOBAsyncCall *call;
+    [self assertBeforeSearch];
+    call = [self.serviceManager searchForText: searchText];
+    [self configureAndRunCallSynchronously: call];
+    STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
+    [self assertAfterSearch];
 }
 
 - (void)testPersistEntities
@@ -369,6 +399,14 @@ static BOOL IsPermIdTarget(NSString *permId)
     
     // Check that the children could be found
     [self checkFindingChildren];
+}
+
+- (void)testSearch
+{
+    [self performLogin];
+    [self performSearch: @"5-hydroxytryptamine 3"];
+    [self performRootLevelCall];
+    
 }
 
 - (void)testInvalidSessionToken

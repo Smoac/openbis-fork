@@ -75,10 +75,10 @@
                   Identifier = "CISDOBIpadServiceManagerTest/testImageRetrieval">
                </Test>
                <Test
-                  Identifier = "CISDOBIpadServiceManagerTest">
+                  Identifier = "CISDOBLiveConnectionTest">
                </Test>
                <Test
-                  Identifier = "CISDOBLiveConnectionTest">
+                  Identifier = "CISDOBIpadServiceTest">
                </Test>
             </SkippedTests>
          </TestableReference>
