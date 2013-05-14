@@ -1473,7 +1473,6 @@ public final class ComponentProvider
                 @Override
                 public String getTabTitle()
                 {
-                    String preTitle = null;
                     if (type == null) // Create new entity option
                     {
                         return "New " + kind.name() + " Type";
