@@ -1,3 +1,7 @@
+from ch.systemsx.cisd.openbis.ipad.v2.server import IRequestHandler, AbstractRequestHandler, ClientPreferencesRequestHandler, RootRequestHandler
+from ch.systemsx.cisd.openbis.ipad.v2.server import DrillRequestHandler, NavigationRequestHandler, DetailRequestHandler
+from ch.systemsx.cisd.openbis.ipad.v2.server import EmptyDataRequestHandler, IpadServiceUtilities
+from ch.systemsx.cisd.openbis.ipad.v2.server import IRequestHandlerFactory, RequestHandlerDispatcher
 from ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1 import MaterialIdentifierCollection
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto import MaterialIdentifier
 from com.fasterxml.jackson.databind import ObjectMapper 
@@ -13,17 +17,17 @@ import codecs
 
 def json_encoded_value(coll):
 	"""Utility function for converting a list into a json-encoded list"""
-	return ObjectMapper().writeValueAsString(coll)
+	return IpadServiceUtilities.jsonEncodedValue(coll)
 
 def json_empty_list():
   """Utility function to return an json-encoded empty list"""
-  return json_encoded_value([])
+  return IpadServiceUtilities.jsonEmptyList()
 
 def json_empty_dict():
   """Utility function to return an json-encoded empty dictionary"""
-  return json_encoded_value({})
+  return IpadServiceUtilities.jsonEmptyDict()
 
-class RequestHandler(object):
+class RequestHandler(IRequestHandler):
 	"""Abstract superclass for the handlers for concrete requests like ROOT.
 
 	This superclass defines behavior common to all requests.
@@ -156,7 +160,10 @@ class RequestHandler(object):
 			elif 'ENZYME' == sample.getSampleType():
 				self.enzymes.append(sample)
 			elif 'WESTERN_BLOTTING' == sample.getSampleType():
-				self.westernBlottings.append(sample)		
+				self.westernBlottings.append(sample)
+
+	def processRequest(self):
+		self.process_request()
 
 class ClientPreferencesRequestHandler(object):
 	"""Abstract superclass for the handlers for CLIENT_PREFS request.
@@ -733,21 +740,29 @@ class YeastLabDetailRequestHandler(DetailRequestHandler):
 		self.add_rows(yeasts_to_dict(self.yeasts, {}, True))
 		self.add_rows(bacterias_to_dict(self.bacterias, True))
 		self.add_rows(enzymes_to_dict(self.enzymes, True))
-		self.add_rows(westernBlottings_to_dict(self.westernBlottings, True))	  
+		self.add_rows(westernBlottings_to_dict(self.westernBlottings, True))
+
+class NavigationRequestHandlerFactory(IRequestHandlerFactory):
+	def createRequestHandler(self, parameters, builder, searchService):
+		return YeastLabNavigationRequestHandler(parameters, builder)
+		
+class RootRequestHandlerFactory(IRequestHandlerFactory):
+	def createRequestHandler(self, parameters, builder, searchService):
+		return YeastLabRootRequestHandler(parameters, builder)
+		
+class DrillRequestHandlerFactory(IRequestHandlerFactory):
+	def createRequestHandler(self, parameters, builder, searchService):
+		return YeastLabDrillRequestHandler(parameters, builder)
+
+class DetailRequestHandlerFactory(IRequestHandlerFactory):
+	def createRequestHandler(self, parameters, builder, searchService):
+		return YeastLabDetailRequestHandler(parameters, builder)
 			
 
 def aggregate(parameters, builder):
-	request_key = parameters.get('requestKey')
-	if 'CLIENT_PREFS' == request_key:
-		handler = YeastLabClientPreferencesRequestHandler(parameters, builder)
-	elif 'NAVIGATION' == request_key:
-		handler = YeastLabNavigationRequestHandler(parameters, builder)
-	elif 'ROOT' == request_key:
-		handler = YeastLabRootRequestHandler(parameters, builder)
-	elif 'DRILL' == request_key:
-		handler = YeastLabDrillRequestHandler(parameters, builder)
-	elif 'DETAIL' == request_key:
-		handler = YeastLabDetailRequestHandler(parameters, builder)
-	else:		
-		handler = EmptyDataRequestHandler(parameters, builder)
-	handler.process_request()		
+	dispatcher = RequestHandlerDispatcher()
+	dispatcher.navigationRequestHandlerFactory = NavigationRequestHandlerFactory()
+	dispatcher.rootRequestHandlerFactory = RootRequestHandlerFactory()
+	dispatcher.drillRequestHandlerFactory = DrillRequestHandlerFactory()
+	dispatcher.detailRequestHandlerFactory = DetailRequestHandlerFactory()
+	dispatcher.dispatch(parameters, builder, searchService)
