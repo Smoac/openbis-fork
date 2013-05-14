@@ -148,7 +148,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     private EntityType entity;
 
     private EntityKind entityKind;
-    
+
     private static final String PREFIX = "property-type-assignment_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
@@ -205,7 +205,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     // Save Property Type on memory
     //
     InMemoryGridAddCallback inMemoryGridCallback;
-    
+
     //
     // Constructor and Init Methods
     //
@@ -217,14 +217,13 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         this.viewContext = viewContext;
         this.inMemoryGridCallback = inMemoryGridCallback;
         this.entityKind = entityKind;
-        
+
         setWidth(FORM_WIDTH);
         getFormPanel().setFieldWidth(FIELD_WIDTH);
         getFormPanel().setLabelWidth(LABEL_WIDTH);
         loading = new Label(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
         addField(loading);
-        
-        
+
         this.entity = inMemoryEntityType;
         loadEntityDialog(entityKind, entityCode);
     }
@@ -257,7 +256,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     {
 
         private String code;
-        
+
         AsyncCallbackEntityTypeForDialog(String code)
         {
             this.code = code;
@@ -286,10 +285,11 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
 
     private void entityLoaded(EntityType entity)
     {
-        if(inMemoryGridCallback  == null) { //If is not an in memory grid
+        if (inMemoryGridCallback == null)
+        { // If is not an in memory grid
             this.entity = entity;
         }
-        
+
         removeField(loading);
         // Enable Layout Changes
         getFormPanel().setLayoutOnChange(true);
@@ -340,7 +340,6 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                     public void handleEvent(BaseEvent be)
                     {
                         setSelect(false == isSelect());
-
                         hidePropertyTypeRelatedFields();
                         hideEntityTypePropertyTypeRelatedFields();
                         getFormPanel().removeAll();
@@ -368,7 +367,8 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         getPropertyTypeSelectionWidget().enable();
         getPropertyTypeSelectionWidget().setVisible(true);
 
-        if(inMemoryGridCallback == null) {
+        if (inMemoryGridCallback == null)
+        {
             addField(getEntityTypeSelectionWidget());
             getEntityTypeSelectionWidget().disable();
             getEntityTypeSelectionWidget().setVisible(false);
@@ -410,6 +410,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         addField(getVocabularySelectionWidget());
         getVocabularySelectionWidget().clear();
         getVocabularySelectionWidget().setVisible(false);
+
         addField(getMaterialTypeSelectionWidget());
         getMaterialTypeSelectionWidget().clear();
         getMaterialTypeSelectionWidget().setVisible(false);
@@ -426,7 +427,8 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         getPropertyTypeSelectionWidget().disable();
         getPropertyTypeSelectionWidget().setVisible(false);
 
-        if(inMemoryGridCallback == null) {
+        if (inMemoryGridCallback == null)
+        {
             addField(getEntityTypeSelectionWidget());
             getEntityTypeSelectionWidget().disable();
             getEntityTypeSelectionWidget().setVisible(false);
@@ -459,7 +461,8 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     @Override
     protected void register(final AsyncCallback<Void> registrationCallback)
     {
-        if(inMemoryGridCallback == null) {
+        if (inMemoryGridCallback == null)
+        {
             if (false == isSelect())
             {
                 final PropertyType propertyType = createPropertyType();
@@ -472,11 +475,12 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                 viewContext.getService().assignPropertyType(assignment,
                         new AssignPropertyTypeCallback(viewContext, registrationCallback));
             }
-        } else {
+        } else
+        {
             boolean isExixtingPropertyType = isSelect();
             PropertyType propertyType = null;
             NewETPTAssignment assignment = createAssignment();
-            
+
             if (false == isSelect())
             {
                 propertyType = createPropertyType();
@@ -484,7 +488,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
             {
                 propertyType = propertyTypeSelectionWidget.tryGetSelectedPropertyType();
             }
-            
+
             inMemoryGridCallback.callback(isExixtingPropertyType, propertyType, assignment);
             this.close();
         }
@@ -517,7 +521,10 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     private final PropertyType createPropertyType()
     {
         final PropertyType propertyType = new PropertyType();
-        propertyType.setCode(getPropertyTypeCodeField().getValue());
+        if (getPropertyTypeCodeField().getValue() != null)
+        {
+            propertyType.setCode(getPropertyTypeCodeField().getValue().toUpperCase());
+        }
         propertyType.setLabel(getPropertyTypeLabelField().getValue());
         propertyType.setDescription(getPropertyTypeDescriptionField().getValue());
         propertyType.setDataType(getDataTypeSelectionWidget().tryGetSelectedDataType());
@@ -545,13 +552,14 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
 
     private final NewETPTAssignment createAssignment()
     {
-        //This code field can only be assigend here if the entity type exists.    
+        // This code field can only be assigend here if the entity type exists.
         String entityTypeCode = null;
-        if(inMemoryGridCallback == null) {
+        if (inMemoryGridCallback == null)
+        {
             entityTypeCode = ((EntityType) getEntityTypeSelectionWidget().tryGetSelected()).getCode();
         }
-        
-        //This code field comes from a different component depending if the property is being created or just assigned.    
+
+        // This code field comes from a different component depending if the property is being created or just assigned.
         String propertyTypeCode = null;
 
         if (isSelect())
@@ -562,7 +570,6 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
             propertyTypeCode = getPropertyTypeCodeField().getValue().toUpperCase();
         }
 
-        
         NewETPTAssignment newAssignment = new NewETPTAssignment(
                 entityKind,
                 propertyTypeCode,
@@ -863,13 +870,15 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         }
 
         EntityType entityType = null;
-        
-        if(inMemoryGridCallback == null) {
+
+        if (inMemoryGridCallback == null)
+        {
             entityType = (EntityType) getEntityTypeSelectionWidget().tryGetSelected();
-        } else {
+        } else
+        {
             entityType = entity;
         }
-        
+
         if (propertyType != null && entityType != null && propertyType.getDataType() != null)
         {
             final List<EntityTypePropertyType<?>> etpts = new ArrayList<EntityTypePropertyType<?>>(entityType.getAssignedPropertyTypes());
@@ -1189,13 +1198,13 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         {
             vocabularySelectionWidget = new VocabularySelectionWidget(viewContext);
             Listener<BaseEvent> vocabularyListener = new Listener<BaseEvent>()
-            {
-                @Override
-                public void handleEvent(BaseEvent be)
                 {
-                    updatePropertyTypeRelatedFields();
-                }
-            };
+                    @Override
+                    public void handleEvent(BaseEvent be)
+                    {
+                        updatePropertyTypeRelatedFields();
+                    }
+                };
             vocabularySelectionWidget.addListener(Events.Change, vocabularyListener);
             FieldUtil.markAsMandatory(vocabularySelectionWidget);
         }
@@ -1206,17 +1215,18 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     {
         if (materialTypeSelectionWidget == null)
         {
-            materialTypeSelectionWidget = MaterialTypeSelectionWidget.createWithAdditionalOption(viewContext, viewContext.getMessage(Dict.ALLOW_ANY_TYPE), null, ID);
+            materialTypeSelectionWidget =
+                    MaterialTypeSelectionWidget.createWithAdditionalOption(viewContext, viewContext.getMessage(Dict.ALLOW_ANY_TYPE), null, ID);
             Listener<BaseEvent> materialListener = new Listener<BaseEvent>()
+                {
+                    @Override
+                    public void handleEvent(BaseEvent be)
                     {
-                        @Override
-                        public void handleEvent(BaseEvent be)
-                        {
-                            //TO-DO The material type selector widget don't supports to change the selected type after creation.
-                            //Because of that is necessary to force the reload of this fields.
-                            updatePropertyTypeRelatedFields();
-                        }
-                    };
+                        // TO-DO The material type selector widget don't supports to change the selected type after creation.
+                        // Because of that is necessary to force the reload of this fields.
+                        updatePropertyTypeRelatedFields();
+                    }
+                };
             materialTypeSelectionWidget.addListener(Events.Change, materialListener);
             FieldUtil.markAsMandatory(materialTypeSelectionWidget);
         }

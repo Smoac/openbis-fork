@@ -351,7 +351,13 @@ public class NewEntityTypeForm extends ContentPanel
                 SampleType toSaveSample = (SampleType) newTypeWithAssigments.getEntity();
                 toSaveSample.setCode((String) formFields.get(0).getValue());
                 toSaveSample.setDescription((String) formFields.get(1).getValue());
-                toSaveSample.setValidationScript((Script) formFields.get(2).getValue());
+                ScriptChooserField scriptChooserField = (ScriptChooserField) formFields.get(2);
+                if (formFields.get(2).getValue() != null)
+                {
+                    Script script = new Script();
+                    script.setName((String) formFields.get(2).getValue());
+                    toSaveSample.setValidationScript(script);
+                }
                 toSaveSample.setListable((Boolean) formFields.get(3).getValue());
                 toSaveSample.setShowContainer((Boolean) formFields.get(4).getValue());
                 toSaveSample.setShowParents((Boolean) formFields.get(5).getValue());
@@ -365,7 +371,12 @@ public class NewEntityTypeForm extends ContentPanel
                 DataSetType toSaveDataSet = (DataSetType) newTypeWithAssigments.getEntity();
                 toSaveDataSet.setCode((String) formFields.get(0).getValue());
                 toSaveDataSet.setDescription((String) formFields.get(1).getValue());
-                toSaveDataSet.setValidationScript((Script) formFields.get(2).getValue());
+                if (formFields.get(2).getValue() != null)
+                {
+                    Script script = new Script();
+                    script.setName((String) formFields.get(2).getValue());
+                    toSaveDataSet.setValidationScript(script);
+                }
                 toSaveDataSet.setDataSetKind(((DataSetKindSelectionWidget) formFields.get(3)).getValue().getBaseObject());
                 toSaveDataSet.setDeletionDisallow((Boolean) formFields.get(4).getValue());
                 toSaveDataSet.setMainDataSetPattern((String) formFields.get(5).getValue());
@@ -376,14 +387,24 @@ public class NewEntityTypeForm extends ContentPanel
                 ExperimentType toSaveExperiment = (ExperimentType) newTypeWithAssigments.getEntity();
                 toSaveExperiment.setCode((String) formFields.get(0).getValue());
                 toSaveExperiment.setDescription((String) formFields.get(1).getValue());
-                toSaveExperiment.setValidationScript((Script) formFields.get(2).getValue());
+                if (formFields.get(2).getValue() != null)
+                {
+                    Script script = new Script();
+                    script.setName((String) formFields.get(2).getValue());
+                    toSaveExperiment.setValidationScript(script);
+                }
                 newTypeWithAssigments.setEntity(toSaveExperiment);
                 break;
             case MATERIAL:
                 MaterialType toSaveMaterial = (MaterialType) newTypeWithAssigments.getEntity();
                 toSaveMaterial.setCode((String) formFields.get(0).getValue());
                 toSaveMaterial.setDescription((String) formFields.get(1).getValue());
-                toSaveMaterial.setValidationScript((Script) formFields.get(2).getValue());
+                if (formFields.get(2).getValue() != null)
+                {
+                    Script script = new Script();
+                    script.setName((String) formFields.get(2).getValue());
+                    toSaveMaterial.setValidationScript(script);
+                }
                 newTypeWithAssigments.setEntity(toSaveMaterial);
                 break;
         }
@@ -415,7 +436,15 @@ public class NewEntityTypeForm extends ContentPanel
         {
             // In case of success, in case the user reopen it without refreshing to avoid a glitch
             newTypeWithAssigments.updateOrdinalToGridOrder();
-            initForm(true);
+
+            if (entityToEdit == null)
+            {
+                MessageBox.alert("Success", "Registration Successful.", null);
+                initForm(true);
+            } else
+            {
+                MessageBox.alert("Success", "Update Successful.", null);
+            }
         }
     }
 }
