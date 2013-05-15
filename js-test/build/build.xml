@@ -7,8 +7,9 @@
 		Parameters:
 		* js-test.project.name
 	-->
-	<target name="prepare-gwt">
+	<target name="prepare-gwt" depends="compile">
 		<subant target="prepare-firefox-gwt">
+			<property name="compile.bypass" value="true"/>
 			<fileset dir="../${js-test.project.name}/build" includes="build.xml" />
 		</subant>
 	</target>
@@ -17,8 +18,9 @@
 		Parameters:
 		* js-test.project.name
 	-->
-	<target name="compile-javascript">
+	<target name="compile-javascript" depends="prepare-gwt">
 		<subant target="compile-firefox-javascript">
+			<property name="compile.bypass" value="true"/>
 			<fileset dir="../${js-test.project.name}/build" includes="build.xml" />
 		</subant>
 	</target>
