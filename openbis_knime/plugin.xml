@@ -29,6 +29,15 @@
    <extension point="org.knime.product.splashExtension">
       <splashExtension icon="icons/openBIS_logo.png" id="openBIS" tooltip="openBIS Nodes for KNIME"/>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="org.knime.workbench.ui.preferences"
+            class="ch.systemsx.cisd.openbis.knime.common.OpenBisPreferencePage"
+            id="openbis"
+            name="openBIS">
+      </page>
+   </extension>
 </plugin>
 
 

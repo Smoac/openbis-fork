@@ -39,6 +39,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.workflow.ICredentials;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
@@ -203,9 +204,10 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
         {
             return;
         }
-        String url = urlField.getText();
-        String userID = userField.getText();
-        String password = new String(passwordField.getPassword());
+        String url = getUrl();
+        ICredentials credentials = getCredentials();
+        String userID = credentials.getLogin();
+        String password = credentials.getPassword();
 
         try
         {

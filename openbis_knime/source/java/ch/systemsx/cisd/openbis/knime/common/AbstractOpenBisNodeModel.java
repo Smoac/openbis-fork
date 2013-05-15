@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.knime.common;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.lang.StringUtils;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
@@ -27,6 +28,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortType;
+import org.knime.core.node.workflow.ICredentials;
 
 /**
  * Abstract super class of start nodes getting some data from openBIS.
@@ -36,6 +38,7 @@ import org.knime.core.node.port.PortType;
 public abstract class AbstractOpenBisNodeModel extends NodeModel
 {
     public static final String URL_KEY = "url";
+    public static final String CREDENTIALS_KEY = "credentials";
     public static final String USER_KEY = "user";
     public static final String PASSWORD_KEY = "password";
     
@@ -43,6 +46,7 @@ public abstract class AbstractOpenBisNodeModel extends NodeModel
     protected String url;
     protected String userID;
     protected String password;
+    private String credentialsName;
 
     protected AbstractOpenBisNodeModel()
     {
@@ -65,8 +69,21 @@ public abstract class AbstractOpenBisNodeModel extends NodeModel
     protected void loadValidatedSettingsFrom(NodeSettingsRO settings) throws InvalidSettingsException
     {
         url = settings.getString(URL_KEY);
-        userID = settings.getString(USER_KEY);
-        password = Util.getDecryptedPassword(settings);
+        credentialsName = settings.getString(CREDENTIALS_KEY, "");
+        if (StringUtils.isNotBlank(credentialsName))
+        {
+            ICredentials credentials = getCredentialsProvider().get(credentialsName);
+            if (credentials == null)
+            {
+                throw new InvalidSettingsException("Unknown credentials '" + credentialsName + "'.");
+            }
+            userID = credentials.getLogin();
+            password = credentials.getPassword();
+        } else
+        {
+            userID = settings.getString(USER_KEY);
+            password = Util.getDecryptedPassword(settings);
+        }
         loadAdditionalValidatedSettingsFrom(settings);
     }
 
@@ -74,9 +91,13 @@ public abstract class AbstractOpenBisNodeModel extends NodeModel
     protected void saveSettingsTo(NodeSettingsWO settings)
     {
         settings.addString(URL_KEY, url);
-        settings.addString(USER_KEY, userID);
-        settings.addString(PASSWORD_KEY,
-                password == null ? null : Util.getEncryptedPassword(password.toCharArray()));
+        settings.addString(CREDENTIALS_KEY, credentialsName);
+        if (StringUtils.isBlank(credentialsName))
+        {
+            settings.addString(USER_KEY, userID);
+            settings.addString(PASSWORD_KEY,
+                    password == null ? null : Util.getEncryptedPassword(password.toCharArray()));
+        }
         saveAdditionalSettingsTo(settings);
     }
 

@@ -16,12 +16,16 @@
 
 package ch.systemsx.cisd.openbis.knime.file;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettings;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.workflow.Credentials;
+import org.knime.core.node.workflow.ICredentials;
 
-import ch.systemsx.cisd.common.reflection.AnnotationUtils.Parameter;
 import ch.systemsx.cisd.openbis.knime.common.ParameterBindings;
 
 /**
@@ -48,6 +52,25 @@ public class TestAggregatedDataImportNodeDialog extends AbstractTestNodeDialog
                     settings.addStringArray(ParameterBindings.PARAMETER_VALUES_KEY, new String[0]);
                     loadSettingsFrom(settings, (PortObjectSpec[]) null);
                 }
+
+                @Override
+                protected String[] getUrls()
+                {
+                    return new String[] {"http://localhost:8888"};
+                }
+
+                @Override
+                protected Collection<String> getAllCredentialsNames()
+                {
+                    return Arrays.asList("test");
+                }
+
+                @Override
+                protected ICredentials getCredentials()
+                {
+                    return new Credentials("_", "test", "a");
+                }
+                
             };
     }
 }
