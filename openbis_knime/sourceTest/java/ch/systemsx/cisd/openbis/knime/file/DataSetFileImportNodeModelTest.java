@@ -108,6 +108,20 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
             return credentialsMap.get(name);
         }
         
+        String getUrl()
+        {
+            return url;
+        }
+        
+        String getUserId()
+        {
+            return userID;
+        }
+        
+        String getPassword()
+        {
+            return password;
+        }
     }
 
     private Mockery context;
@@ -193,6 +207,9 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         model.loadValidatedSettingsFrom(nodeSettingsRO);
         model.saveSettingsTo(nodeSettingsWO);
 
+        assertEquals(URL, model.getUrl());
+        assertEquals(USER2, model.getUserId());
+        assertEquals(MY_PASSWORD2, model.getPassword());
         context.assertIsSatisfied();
     }
     
@@ -219,6 +236,9 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         model.loadValidatedSettingsFrom(nodeSettingsRO);
         model.saveSettingsTo(nodeSettingsWO);
         
+        assertEquals(URL, model.getUrl());
+        assertEquals(USER, model.getUserId());
+        assertEquals(MY_PASSWORD, model.getPassword());
         context.assertIsSatisfied();
     }
     
