@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.sun.jna.Platform;
-
 /**
  * @author anttil
  */
@@ -48,26 +46,13 @@ public abstract class TestDataStoreServer
 
     protected abstract String getCommand();
 
-    protected abstract String getLinuxCommand();
-
     public String start() throws Exception
     {
         TestDatabase.restoreDumps(getDumpsPath());
 
-        System.out.println("STARTING DATA STORE " + getName());
+        System.out.println("STARTING DATA STORE: " + getName() + " COMMAND: " + getCommand());
 
-        String command;
-        if (Platform.isLinux())
-        {
-            command = getLinuxCommand();
-        } else
-        {
-            command = getCommand();
-        }
-
-        System.out.println("DATA STORE " + getName() + " COMMAND " + command.toString());
-
-        ProcessHandler p = new ProcessHandler(command.toString(), getRootPath());
+        ProcessHandler p = new ProcessHandler(getCommand(), getRootPath());
 
         p.addListener(new Listener()
             {

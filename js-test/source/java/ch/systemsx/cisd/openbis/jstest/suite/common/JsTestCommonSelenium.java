@@ -96,7 +96,7 @@ public class JsTestCommonSelenium extends SeleniumTest
 
             File report =
                     new File("targets/dist/" + this.getClass().getSimpleName() + "/" + method
-                            + "/report.xml");
+                            + "/TEST-" + method + ".xml");
             FileUtilities.writeToFile(report, webapp.getJunitReport());
 
             Assert.assertEquals(0, failedCount);
