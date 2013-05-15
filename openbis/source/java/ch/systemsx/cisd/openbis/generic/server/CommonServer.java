@@ -1292,16 +1292,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         for (int i = 0; i < fin.size(); i++)
         {
-            if (i < fin.size() && i < ini.size()) // Is Check Possible
+            newETNewPTAssigments.getAssigments().get(i).getAssignment().setModificationDate(null);
+            if (i < ini.size()) // Is Check Possible
             {
                 if (ini.get(i).equals(fin.get(i))) // Do nothing.
                 {
-                    // Positions are equal but maibe the data have changed.
-                    if (ini.get(i).getOrdinal() != fin.get(i).getOrdinal())
-                    {
-                        updatePropertyTypeAssignment(sessionToken, newETNewPTAssigments.getAssigments().get(i).getAssignment());
-                    }
-                } else if (false == ini.get(i).equals(fin.get(i))) // Something needs to be done.
+                    // Positions are equal but maybe the data have changed.
+                    updatePropertyTypeAssignment(sessionToken, newETNewPTAssigments.getAssigments().get(i).getAssignment());
+                } else
+                // Something needs to be done.
                 {
                     if (false == fin.contains(ini.get(i))) // Delete
                     {
@@ -1331,7 +1330,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
                     i--;
                 }
-            } else if (i >= ini.size())
+            } else
             {
                 if (false == newETNewPTAssigments.getAssigments().get(i).isExistingPropertyType())
                 {
@@ -1342,15 +1341,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 ini.add(i, fin.get(i));
                 i--;
             }
+
         }
 
         for (int i = 0; i < ini.size(); i++)
         {
-            if (i < fin.size() && i < ini.size() // Is Check Possible
-                    && ini.get(i).equals(fin.get(i))) // Do nothing.
+            newETNewPTAssigments.getAssigments().get(i).getAssignment().setModificationDate(null);
+
+            if (i < fin.size() && ini.get(i).equals(fin.get(i))) // Do nothing.
             {
                 // Positions are equal
-            } else if (i >= fin.size())
+            } else
             {
                 unassignPropertyType(sessionToken,
                         newETNewPTAssigments.getEntity().getEntityKind(),
@@ -1359,6 +1360,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 ini.remove(i);
                 i--;
             }
+
         }
 
         return results.toString();
