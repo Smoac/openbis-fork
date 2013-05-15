@@ -72,7 +72,7 @@ public abstract class AbstractOpenBisNodeModel extends NodeModel
         credentialsName = settings.getString(CREDENTIALS_KEY, "");
         if (StringUtils.isNotBlank(credentialsName))
         {
-            ICredentials credentials = getCredentialsProvider().get(credentialsName);
+            ICredentials credentials = getCredentials(credentialsName);
             if (credentials == null)
             {
                 throw new InvalidSettingsException("Unknown credentials '" + credentialsName + "'.");
@@ -85,6 +85,11 @@ public abstract class AbstractOpenBisNodeModel extends NodeModel
             password = Util.getDecryptedPassword(settings);
         }
         loadAdditionalValidatedSettingsFrom(settings);
+    }
+
+    protected ICredentials getCredentials(String name)
+    {
+        return getCredentialsProvider().get(name);
     }
 
     @Override

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.knime.file;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -35,6 +36,8 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.workflow.Credentials;
+import org.knime.core.node.workflow.ICredentials;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -59,12 +62,16 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
     private static final String FILE_PATH = "document.txt";
     private static final String DATA_SET_CODE = "DS-42";
     private static final String MY_PASSWORD = "my-password";
+    private static final String MY_PASSWORD2 = "my-password2";
+    private static final String CREDENTIALS_NAME = "my-credentials";
     private static final String USER = "albert";
+    private static final String USER2 = "isaac";
     private static final String URL = "https://open.bis";
 
     private static final class Model extends DataSetFileImportNodeModel
     {
         private final Map<String, String> flowVariables = new TreeMap<String, String>();
+        private final Map<String, ICredentials> credentialsMap = new HashMap<String, ICredentials>();
         
         public Model(IDataSetProvider dataSetProvider)
         {
@@ -89,6 +96,18 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         {
             flowVariables.put(name, value);
         }
+        
+        void addCredentials(String name, ICredentials credentials)
+        {
+            credentialsMap.put(name, credentials);
+        }
+
+        @Override
+        protected ICredentials getCredentials(String name)
+        {
+            return credentialsMap.get(name);
+        }
+        
     }
 
     private Mockery context;
@@ -131,6 +150,7 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         dataSetInitializer.setSampleIdentifierOrNull("/A/B");
         metadata = new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet(dataSetInitializer);
         model = new Model(dataSetProvider);
+        model.addCredentials(CREDENTIALS_NAME, new Credentials(CREDENTIALS_NAME, USER2, MY_PASSWORD2));
         dataSet = new DataSet(facade, dssComponent, metadata, dataSetDss);
         context.checking(new Expectations()
             {
@@ -153,11 +173,10 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testLoadingAndSavingSettings() throws InvalidSettingsException
+    public void testLoadingAndSavingSettingsWithCredentials() throws InvalidSettingsException
     {
         prepareLoadSaveStringSetting(AbstractOpenBisNodeModel.URL_KEY, URL);
-        prepareLoadSaveStringSetting(AbstractOpenBisNodeModel.USER_KEY, USER);
-        prepareLoadSaveStringSetting(AbstractOpenBisNodeModel.PASSWORD_KEY, MY_PASSWORD, "");
+        prepareLoadSaveStringSetting(AbstractOpenBisNodeModel.CREDENTIALS_KEY, CREDENTIALS_NAME, "");
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.DATA_SET_CODE_KEY, DATA_SET_CODE);
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.FILE_PATH_KEY, FILE_PATH);
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.DOWNLOADS_PATH_KEY, workingDirectory.getAbsolutePath());
@@ -174,6 +193,32 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         model.loadValidatedSettingsFrom(nodeSettingsRO);
         model.saveSettingsTo(nodeSettingsWO);
 
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testLoadingAndSavingSettingsWithUserAndPassword() throws InvalidSettingsException
+    {
+        prepareLoadSaveStringSetting(AbstractOpenBisNodeModel.URL_KEY, URL);
+        prepareLoadSaveStringSetting(AbstractOpenBisNodeModel.CREDENTIALS_KEY, "", "");
+        prepareLoadSaveStringSetting(AbstractOpenBisNodeModel.USER_KEY, USER);
+        prepareLoadSaveStringSetting(AbstractOpenBisNodeModel.PASSWORD_KEY, MY_PASSWORD, "");
+        prepareLoadSaveStringSetting(DataSetFileImportNodeModel.DATA_SET_CODE_KEY, DATA_SET_CODE);
+        prepareLoadSaveStringSetting(DataSetFileImportNodeModel.FILE_PATH_KEY, FILE_PATH);
+        prepareLoadSaveStringSetting(DataSetFileImportNodeModel.DOWNLOADS_PATH_KEY, workingDirectory.getAbsolutePath());
+        context.checking(new Expectations()
+            {
+                {
+                    one(nodeSettingsRO).getBoolean(DataSetFileImportNodeModel.REUSE_FILE, false);
+                    will(returnValue(true));
+
+                    one(nodeSettingsWO).addBoolean(DataSetFileImportNodeModel.REUSE_FILE, true);
+                }
+            });
+        
+        model.loadValidatedSettingsFrom(nodeSettingsRO);
+        model.saveSettingsTo(nodeSettingsWO);
+        
         context.assertIsSatisfied();
     }
     
