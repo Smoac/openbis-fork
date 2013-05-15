@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 public interface IETLEntityOperationChecker
 {
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ETL_SERVER)
+    @Capability("CREATE_SPACES_VIA_DSS")
     public void assertSpaceCreationAllowed(IAuthSession session, List<NewSpace> newSpaces);
 
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ETL_SERVER)
