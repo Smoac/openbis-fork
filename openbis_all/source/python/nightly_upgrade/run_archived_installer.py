@@ -63,6 +63,6 @@ def cleanup():
 # # # # # # # # # # # # # # # # # # # # # # # # #
 # The Script
 setup_and_preflight()
-#unpack_installer()
+unpack_installer()
 run_installer()
-#cleanup()
+cleanup()
