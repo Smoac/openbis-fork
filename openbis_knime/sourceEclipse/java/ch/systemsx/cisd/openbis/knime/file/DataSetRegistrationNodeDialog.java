@@ -253,7 +253,8 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
                     setOwnerToolTip();
                 }
             });
-        addField(fields, "Owner type", ownerTypeComboBox);
+        addField(fields, "Owner type", ownerTypeComboBox)
+            .setToolTipText("The type of owner the new data set will directly be linked to.");
         ownerField = new JTextField(20);
         setOwnerToolTip();
         JPanel textFieldWithButton = new JPanel(new BorderLayout());
@@ -268,7 +269,8 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
                 }
             });
         textFieldWithButton.add(button, BorderLayout.EAST);
-        addField(fields, "Owner", textFieldWithButton);
+        addField(fields, "Owner", textFieldWithButton)
+                .setToolTipText("Owner is the experiment/sample/data set the new data set will directly be linked to.");
         dataSetTypeComboBox = new JComboBox();
         addField(fields, "Data Set Type", dataSetTypeComboBox);
         propertiesLabel = new JSeparator();
