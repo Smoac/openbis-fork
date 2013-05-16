@@ -3,7 +3,7 @@
       id="ch.systemsx.cisd.openbis.knime.feature"
       label="openBIS Knime Nodes"
       version="13.5.0.qualifier"
-      provider-name="CISD">
+      provider-name="CISD ETH Zürich">
 
    <description url="https://wiki-bsse.ethz.ch/display/openBISDoc1304/openBIS+KNIME+Nodes">
       KNIME Nodes to access openBIS
