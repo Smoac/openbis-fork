@@ -20,22 +20,7 @@ def run_cmd(cmd):
   print("\n")
   return subprocess.check_output(cmd)
 
-def get_files_ssh(proj_name, extension):
-  # configuration -- server name and location of artifacts
-  artifacts_folder = "hudson/jobs"
-  
-  last_build_folder = "%(artifacts_folder)s/%(proj_name)s/lastSuccessful/archive/_main/targets/dist" % vars()
-  list_cmd = "ls -1 %s | sort | tail -1" % last_build_folder
-  server = build_server
-  last_build_cmd = "ssh -T %(server)s '%(list_cmd)s'" % vars()
-  last_build = run_cmd(last_build_cmd)
-  msg = "Fetching artificts for %s : %s\n" % (proj_name, last_build)
-  print(msg)
 
-  output_dir = dest_dir
-  retrieve_files_cmd = "scp %(server)s:%(last_build_folder)s/*.%(extension)s %(output_dir)s/" % vars()
-  run_cmd(retrieve_files_cmd)
-  
 def get_artifacts_list(proj_name):
   build_info_cmd = ["ssh", "-T", build_server, "curl", "-s", "%s/job/%s/lastSuccessfulBuild/api/json" % (server_url, proj_name)]
   json_string = run_cmd(build_info_cmd)
@@ -54,7 +39,7 @@ def get_artifact(proj_name, artifact):
   dl_cmd = ["scp", server_file, dest_dir]
   run_cmd(dl_cmd)
   
-def get_files_rest(proj_name, extension):
+def get_files(proj_name, extension):
   artifacts = get_artifacts_list(proj_name)
   artifact_to_get = None
   for artifact in artifacts:
@@ -65,8 +50,6 @@ def get_files_rest(proj_name, extension):
     return
   get_artifact(proj_name, artifact_to_get)
 
-def get_files(proj_name, extension):
-  get_files_rest(proj_name, extension)
 
 def clean_installer_dir():
   files_to_delete = glob.glob(os.path.join(dest_dir, "openBIS-installation-standard-technologies-*-*.tar.gz"))
