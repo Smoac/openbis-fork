@@ -21,7 +21,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
-import com.izforge.izpack.api.installer.DataValidator;
 
 /**
  * Tests if there is a valid PostgreSQL installation on the local machine that is setup to accept
@@ -29,7 +28,7 @@ import com.izforge.izpack.api.installer.DataValidator;
  * 
  * @author Kaloyan Enimanev
  */
-public class DBConnectionValidator implements DataValidator
+public class DBConnectionValidator extends AbstractDataValidator
 {
 
     private static final String DEFAULT_ERROR_MESSAGE = "Cannot connect to the specified database.";
@@ -42,8 +41,6 @@ public class DBConnectionValidator implements DataValidator
 
     private static final String NO_PASSWORD = "";
 
-    private String errorMessage;
-
     @Override
     public boolean getDefaultAnswer()
     {
@@ -53,9 +50,9 @@ public class DBConnectionValidator implements DataValidator
     @Override
     public String getErrorMessageId()
     {
-        if (errorMessage != null)
+        if (getErrorMessage() != null)
         {
-            return errorMessage;
+            return getErrorMessage();
         } else
         {
             return DEFAULT_ERROR_MESSAGE;
@@ -161,18 +158,18 @@ public class DBConnectionValidator implements DataValidator
             }
         } catch (ClassNotFoundException cnfe)
         {
-            errorMessage = createMessage(cnfe, messagePostfix);
+            createMessage(cnfe, messagePostfix);
         } catch (SQLException e)
         {
-            errorMessage = createMessage(e, messagePostfix);
+            createMessage(e, messagePostfix);
         }
 
         return connected;
     }
 
-    private String createMessage(Exception exception, String messagePostfix)
+    private void createMessage(Exception exception, String messagePostfix)
     {
-        return exception.getMessage() + ".\nThe error is probably caused by an illconfigured "
-                + messagePostfix + ".";
+        setErrorMessage(exception.getMessage() + ".\nThe error is probably caused by an illconfigured "
+                + messagePostfix + ".");
     }
 }
