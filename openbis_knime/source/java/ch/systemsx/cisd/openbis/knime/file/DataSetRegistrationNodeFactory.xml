@@ -8,6 +8,9 @@
     <fullDescription>
         <intro>The URI input port specifies the locations of the files to be registered. 
         The owner of the freshly registered data set is specified by a variable.  
+        <p> 
+        For more details see <a href="https://wiki-bsse.ethz.ch/display/openBISDoc1304/openBIS+KNIME+Nodes">openBIS KNIME Nodes</a>.
+        </p>
         </intro>
     </fullDescription>
     

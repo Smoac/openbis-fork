@@ -6,7 +6,11 @@
     <shortDescription>Importing a file from a selected data set of an openBIS instance</shortDescription>
     
     <fullDescription>
-        <intro>A selected file of a data set is imported and stored locally. An URI pointing to this file is provided so that other nodes can access its content.  
+        <intro>A selected file of a data set is imported and stored locally. 
+        An URI pointing to this file is provided so that other nodes can access its content. 
+        <p> 
+        For more details see <a href="https://wiki-bsse.ethz.ch/display/openBISDoc1304/openBIS+KNIME+Nodes">openBIS KNIME Nodes</a>.
+        </p>
         </intro>
     </fullDescription>
     

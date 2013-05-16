@@ -7,7 +7,10 @@
     
     <fullDescription>
         <intro>This node invokes an openBIS aggregation services which is specialized 
-        to create from some input parameter a file which is delivered to the node at execution time.  
+        to create from some input parameter a file which is delivered to the node at execution time.
+        <p> 
+        For more details see <a href="https://wiki-bsse.ethz.ch/display/openBISDoc1304/openBIS+KNIME+Nodes">openBIS KNIME Nodes</a>.
+        </p>
         </intro>
     </fullDescription>
     

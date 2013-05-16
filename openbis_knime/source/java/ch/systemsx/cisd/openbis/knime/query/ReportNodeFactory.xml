@@ -6,7 +6,10 @@
     <shortDescription>openBIS report node</shortDescription>
     
     <fullDescription>
-        <intro>Data source node to run a data set report on openBIS  
+        <intro>Data source node to run a data set report on openBIS.  
+        <p> 
+        For more details see <a href="https://wiki-bsse.ethz.ch/display/openBISDoc1304/openBIS+KNIME+Nodes">openBIS KNIME Nodes</a>.
+        </p>
         </intro>
     </fullDescription>
     
