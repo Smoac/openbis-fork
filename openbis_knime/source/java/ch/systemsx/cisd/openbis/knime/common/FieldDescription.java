@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.knime.common;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.openbis.knime.server.FieldType;
 
 /**
@@ -49,6 +51,12 @@ public class FieldDescription
     public String getFieldParameters()
     {
         return fieldParameters;
+    }
+
+    @Override
+    public String toString()
+    {
+        return name + ":" + fieldType + (StringUtils.isBlank(fieldParameters) ? "" : "[" + fieldParameters + "]");
     }
     
 }

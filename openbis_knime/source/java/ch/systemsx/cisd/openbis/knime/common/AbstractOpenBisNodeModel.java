@@ -30,6 +30,9 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.workflow.ICredentials;
 
+import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.FacadeFactory;
+import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
+
 /**
  * Abstract super class of start nodes getting some data from openBIS.
  *
@@ -126,6 +129,11 @@ public abstract class AbstractOpenBisNodeModel extends NodeModel
     protected void loadInternals(File arg0, ExecutionMonitor arg1) throws IOException,
     CanceledExecutionException
     {
+    }
+
+    protected IQueryApiFacade createQueryFacade()
+    {
+        return FacadeFactory.create(url, userID, password);
     }
     
 }

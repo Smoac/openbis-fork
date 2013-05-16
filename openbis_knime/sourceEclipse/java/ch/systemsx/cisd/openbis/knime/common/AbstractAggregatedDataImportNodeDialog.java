@@ -16,18 +16,13 @@
 
 package ch.systemsx.cisd.openbis.knime.common;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.knime.server.Constants;
-import ch.systemsx.cisd.openbis.knime.server.FieldType;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
-import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
 /**
  * Abstract super class of nodes dialogs for importing data from an aggregation service.
@@ -46,47 +41,7 @@ public abstract class AbstractAggregatedDataImportNodeDialog
     protected List<FieldDescription> getFieldDescriptions(
             AggregatedDataImportDescription description)
     {
-        List<FieldDescription> fieldDescriptions = new ArrayList<FieldDescription>();
-        HashMap<String, Object> serviceParameters = new HashMap<String, Object>();
-        serviceParameters.put(Constants.REQUEST_KEY, Constants.GET_PARAMETER_DESCRIPTIONS_REQUEST);
-        IQueryApiFacade facade = createFacade();
-        QueryTableModel report =
-                Util.createReportFromAggregationService(facade, description, serviceParameters);
-
-        List<Serializable[]> rows = report.getRows();
-        for (Serializable[] row : rows)
-        {
-            if (row == null || row.length == 0 || row[0] == null)
-            {
-                throw new IllegalArgumentException("Empty row.");
-            }
-            String name = String.valueOf(row[0]);
-            FieldType fieldType = FieldType.VARCHAR;
-            String fieldParameters = "";
-            if (row.length > 0)
-            {
-                Serializable parameter = row[1];
-                if (parameter != null)
-                {
-                    String type = String.valueOf(parameter);
-                    int indexOfSeparator = type.indexOf(':');
-                    if (indexOfSeparator >= 0)
-                    {
-                        fieldParameters = type.substring(indexOfSeparator + 1);
-                        type = type.substring(0, indexOfSeparator);
-                    }
-                    try
-                    {
-                        fieldType = FieldType.valueOf(type.trim().toUpperCase());
-                    } catch (IllegalArgumentException ex)
-                    {
-                        logger.warn("Unknown field type '" + type + "' using VARCHAR instead.");
-                    }
-                }
-            }
-            fieldDescriptions.add(new FieldDescription(name, fieldType, fieldParameters));
-        }
-        return fieldDescriptions;
+        return Util.getFieldDescriptions(createFacade(), description, logger);
     }
 
     @Override

@@ -46,12 +46,15 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.apache.commons.lang.StringUtils;
+import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.util.KnimeEncryption;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.knime.server.Constants;
+import ch.systemsx.cisd.openbis.knime.server.FieldType;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumnDataType;
@@ -65,6 +68,9 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 public class Util
 {
     public static final String VARIABLE_PREFIX = "openbis.";
+
+    private static final String[] EXPECTED_COLUMNS = { Constants.PARAMETER_DESCRIPTION_NAME_COLUMN,
+            Constants.PARAMETER_DESCRIPTION_TYPE_COLUMN };
     
     public static <D extends Serializable> byte[] serializeDescription(D descriptionOrNull)
     {
@@ -100,6 +106,76 @@ public class Util
         }
     }
     
+    public static List<FieldDescription> getFieldDescriptions(IQueryApiFacade facade,
+            AggregatedDataImportDescription description, NodeLogger logger)
+    {
+        List<FieldDescription> fieldDescriptions = new ArrayList<FieldDescription>();
+        Map<String, Object> serviceParameters = new HashMap<String, Object>();
+        serviceParameters.put(Constants.REQUEST_KEY, Constants.GET_PARAMETER_DESCRIPTIONS_REQUEST);
+        QueryTableModel report =
+                createReportFromAggregationService(facade, description, serviceParameters);
+        List<QueryTableColumn> columns = report.getColumns();
+        if (columns.size() != EXPECTED_COLUMNS.length)
+        {
+            throw createException(description, columns.size() + " columns instead of " + EXPECTED_COLUMNS.length);
+        }
+        for (int i = 0; i < EXPECTED_COLUMNS.length; i++)
+        {
+            String expectedColumn = EXPECTED_COLUMNS[i];
+            String column = columns.get(i).getTitle();
+            if (expectedColumn.equals(column) == false)
+            {
+                throw createException(description, (i + 1) + ". column is '" + column
+                        + "' instead of '" + expectedColumn + "'.");
+            }
+        }
+        List<Serializable[]> rows = report.getRows();
+        for (Serializable[] row : rows)
+        {
+            if (row == null || row.length == 0 || row[0] == null)
+            {
+                throw createException(description, "Empty row.");
+            }
+            String name = String.valueOf(row[0]);
+            if (StringUtils.isBlank(name))
+            {
+                throw createException(description, "Unspecified parameter name.");
+            }
+            FieldType fieldType = FieldType.VARCHAR;
+            String fieldParameters = "";
+            if (row.length > 1)
+            {
+                Serializable parameter = row[1];
+                if (parameter != null)
+                {
+                    String type = String.valueOf(parameter);
+                    int indexOfSeparator = type.indexOf(':');
+                    if (indexOfSeparator >= 0)
+                    {
+                        fieldParameters = type.substring(indexOfSeparator + 1);
+                        type = type.substring(0, indexOfSeparator);
+                    }
+                    try
+                    {
+                        fieldType = FieldType.valueOf(type.trim().toUpperCase());
+                    } catch (IllegalArgumentException ex)
+                    {
+                        logger.warn("Unknown field type '" + type + "' using " + fieldType + " instead.");
+                    }
+                }
+            }
+            fieldDescriptions.add(new FieldDescription(name, fieldType, fieldParameters));
+        }
+        return fieldDescriptions;
+    }
+
+    private static RuntimeException createException(AggregatedDataImportDescription description, String msg)
+    {
+        String service = description.getAggregationServiceDescription().getServiceKey();
+        return new IllegalArgumentException("Invalid response of aggregation service '" + service + "' when invoked with parameter "
+                + Constants.REQUEST_KEY + " = " + Constants.GET_PARAMETER_DESCRIPTIONS_REQUEST + ":\n" + msg);
+    }
+
     public static ColumnType getColumnType(QueryTableColumnDataType dataType)
     {
         switch (dataType)

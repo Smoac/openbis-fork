@@ -28,6 +28,10 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServic
  */
 public class AggregatedDataImportDescription implements Serializable
 {
+    public static final String PREFIX = "knime-";
+
+    public static final String FILE_PREFIX = PREFIX + "file-";
+
     public static final String AGGREGATION_DESCRIPTION_KEY = "aggregation-description";
     
     private static final long serialVersionUID = 1L;
@@ -39,7 +43,7 @@ public class AggregatedDataImportDescription implements Serializable
             List<AggregatedDataImportDescription> descriptions,
             AggregationServiceDescription description)
     {
-        addDescription(descriptions, description, "knime-");
+        addDescription(descriptions, description, PREFIX);
     }
 
     /**
@@ -48,7 +52,7 @@ public class AggregatedDataImportDescription implements Serializable
     public static void addDescriptionIfDataFile(List<AggregatedDataImportDescription> descriptions,
             AggregationServiceDescription description)
     {
-        addDescription(descriptions, description, "knime-file-");
+        addDescription(descriptions, description, FILE_PREFIX);
     }
 
     private static void addDescription(List<AggregatedDataImportDescription> descriptions,

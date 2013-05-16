@@ -45,7 +45,6 @@ import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeModel;
 import ch.systemsx.cisd.openbis.knime.common.AggregatedDataImportDescription;
 import ch.systemsx.cisd.openbis.knime.common.ParameterBindings;
 import ch.systemsx.cisd.openbis.knime.common.Util;
-import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.FacadeFactory;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 
@@ -56,13 +55,13 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
  */
 public class AggregatedDataFileImportNodeModel extends AbstractOpenBisNodeModel
 {
+    private AggregatedDataImportDescription description;
+    private ParameterBindings parameterBindings = new ParameterBindings();
+    
     public AggregatedDataFileImportNodeModel()
     {
         super(new PortType[] {}, new PortType[] { new PortType(URIPortObject.class) });
     }
-
-    private AggregatedDataImportDescription description;
-    private ParameterBindings parameterBindings = new ParameterBindings();
 
     @Override
     protected void loadAdditionalValidatedSettingsFrom(NodeSettingsRO settings)
@@ -90,14 +89,15 @@ public class AggregatedDataFileImportNodeModel extends AbstractOpenBisNodeModel
     @Override
     protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception
     {
-        IQueryApiFacade facade = FacadeFactory.create(url, userID, password);
+        IQueryApiFacade facade = createQueryFacade();
         try
         {
             QueryTableModel report =
                     Util.createReportFromAggregationService(facade, parameterBindings, description);
             String fileName = (String) report.getRows().get(0)[0];
             String downloadUrl = getDataStore(facade).getDownloadUrl();
-            File file = download(facade.getSessionToken(), fileName, downloadUrl);
+            File systemTempDir = getSystemTempDir();
+            File file = download(facade.getSessionToken(), systemTempDir, fileName, downloadUrl);
             String type = createType(fileName);
             logger.info("Content MIME type: " + type);
             return new PortObject[]
@@ -109,9 +109,13 @@ public class AggregatedDataFileImportNodeModel extends AbstractOpenBisNodeModel
         }
     }
 
-    private File download(String sessionToken, String fileName, String baseURL)
+    protected File getSystemTempDir()
     {
-        File systemTempDir = new File(System.getProperty("java.io.tmpdir"));
+        return new File(System.getProperty("java.io.tmpdir"));
+    }
+
+    private File download(String sessionToken, File systemTempDir, String fileName, String baseURL)
+    {
         File tempDir = new File(systemTempDir, "knime-openbis-" + sessionToken);
         tempDir.mkdirs();
         tempDir.deleteOnExit();
