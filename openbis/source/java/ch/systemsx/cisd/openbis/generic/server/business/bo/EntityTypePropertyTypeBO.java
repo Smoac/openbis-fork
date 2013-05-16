@@ -218,7 +218,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
     public void updateLoadedAssignment(NewETPTAssignment assignmentUpdates)
     {
         if (assignment.getModificationDate().equals(assignmentUpdates.getModificationDate()) == false &&
-                (assignmentUpdates.getModificationDate() == null) == false)
+                (assignmentUpdates.getModificationDate() == null) == false) // If the modification date is null, the update is forced
         {
             throwModifiedEntityException("Property type assignment");
         }

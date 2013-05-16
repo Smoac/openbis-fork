@@ -312,8 +312,6 @@ public class NewEntityTypeForm extends ContentPanel
                     {
                         // Update Entity Type
                         setEntityFromForm();
-                        // To order of the ordinals for the database start at 0
-                        newTypeWithAssigments.updateOrdinalToDBOrder();
                         // Update Entity Type Code at the Property Types
                         for (NewPTNewAssigment assigment : newTypeWithAssigments.getAssigments())
                         {
@@ -418,8 +416,6 @@ public class NewEntityTypeForm extends ContentPanel
             String message = "Error";
             if (throwable instanceof UserFailureException)
             {
-                // In case it fails the order of the properties need to be the one at the grid
-                newTypeWithAssigments.updateOrdinalToGridOrder();
                 // Show error message
                 UserFailureException userException = (UserFailureException) throwable;
                 String details = GWTUtils.translateToHtmlLineBreaks(userException.getMessage());
@@ -434,9 +430,6 @@ public class NewEntityTypeForm extends ContentPanel
         @Override
         public void onSuccess(String result)
         {
-            // In case of success, in case the user reopen it without refreshing to avoid a glitch
-            newTypeWithAssigments.updateOrdinalToGridOrder();
-
             if (entityToEdit == null)
             {
                 MessageBox.alert("Success", "Registration Successful.", null);

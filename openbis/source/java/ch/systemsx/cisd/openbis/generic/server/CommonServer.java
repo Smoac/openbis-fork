@@ -1233,6 +1233,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public String registerEntitytypeAndAssignPropertyTypes(final String sessionToken, NewETNewPTAssigments newETNewPTAssigments)
     {
+        newETNewPTAssigments.updateOrdinalToDBOrder();
+
         List<String> results = new ArrayList<String>();
         // Entity Type Registration
         switch (newETNewPTAssigments.getEntity().getEntityKind())
@@ -1267,24 +1269,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public String updateEntitytypeAndPropertyTypes(final String sessionToken, NewETNewPTAssigments newETNewPTAssigments)
     {
-        List<String> results = new ArrayList<String>();
+        newETNewPTAssigments.updateOrdinalToDBOrder();
 
-        // Entity Type Update
-        switch (newETNewPTAssigments.getEntity().getEntityKind())
-        {
-            case SAMPLE:
-                updateSampleType(sessionToken, (SampleType) newETNewPTAssigments.getEntity());
-                break;
-            case DATA_SET:
-                updateDataSetType(sessionToken, (DataSetType) newETNewPTAssigments.getEntity());
-                break;
-            case EXPERIMENT:
-                updateExperimentType(sessionToken, (ExperimentType) newETNewPTAssigments.getEntity());
-                break;
-            case MATERIAL:
-                updateMaterialType(sessionToken, (MaterialType) newETNewPTAssigments.getEntity());
-                break;
-        }
+        List<String> results = new ArrayList<String>();
 
         // Update Algorithm, it calculates the changes necessary without destroying assignments when possible to prevent data loss
         List<EntityTypePropertyType<?>> ini = listEntityTypePropertyTypes(sessionToken, newETNewPTAssigments.getEntity());
@@ -1295,9 +1282,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             newETNewPTAssigments.getAssigments().get(i).getAssignment().setModificationDate(null);
             if (i < ini.size()) // Is Check Possible
             {
-                if (ini.get(i).equals(fin.get(i))) // Do nothing.
+                if (ini.get(i).getPropertyType().getCode().equals(fin.get(i).getPropertyType().getCode())) // Do nothing.
                 {
-                    // Positions are equal but maybe the data have changed.
+                    // Positions are equal but maybe something have changed.
                     updatePropertyTypeAssignment(sessionToken, newETNewPTAssigments.getAssigments().get(i).getAssignment());
                 } else
                 // Something needs to be done.
@@ -1309,14 +1296,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                                 ini.get(i).getPropertyType().getCode(),
                                 newETNewPTAssigments.getEntity().getCode());
                         ini.remove(i);
+                        i--;
                     } else
-                    { // Is present into another position, but is not this one. Leave it
-                        if (ini.contains(fin.get(i)))
+                    {
+                        if (ini.contains(fin.get(i))) // Is present into another position, but is not this one, move it.
                         { // Edit
                             updatePropertyTypeAssignment(sessionToken, newETNewPTAssigments.getAssigments().get(i).getAssignment());
                             ini.remove(fin.get(i));
                             ini.add(i, fin.get(i));
                         } else
+                        // Not present, insert
                         { // Insert
                             if (false == newETNewPTAssigments.getAssigments().get(i).isExistingPropertyType())
                             {
@@ -1328,7 +1317,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                         }
                     }
 
-                    i--;
                 }
             } else
             {
@@ -1339,16 +1327,13 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 String result = assignPropertyType(sessionToken, newETNewPTAssigments.getAssigments().get(i).getAssignment());
                 results.add(result);
                 ini.add(i, fin.get(i));
-                i--;
             }
 
         }
 
         for (int i = 0; i < ini.size(); i++)
         {
-            newETNewPTAssigments.getAssigments().get(i).getAssignment().setModificationDate(null);
-
-            if (i < fin.size() && ini.get(i).equals(fin.get(i))) // Do nothing.
+            if (i < fin.size() && ini.get(i).getEntityType().getCode().equals(fin.get(i).getEntityType().getCode())) // Do nothing.
             {
                 // Positions are equal
             } else
@@ -1357,10 +1342,35 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                         newETNewPTAssigments.getEntity().getEntityKind(),
                         ini.get(i).getPropertyType().getCode(),
                         newETNewPTAssigments.getEntity().getCode());
+                unassignPropertyType(sessionToken,
+                        newETNewPTAssigments.getEntity().getEntityKind(),
+                        ini.get(i).getPropertyType().getCode(),
+                        newETNewPTAssigments.getEntity().getCode());
                 ini.remove(i);
                 i--;
             }
+        }
 
+        // Entity Type Update
+        newETNewPTAssigments.getEntity().setModificationDate(null);
+        switch (newETNewPTAssigments.getEntity().getEntityKind())
+        {
+            case SAMPLE:
+                ((SampleType) newETNewPTAssigments.getEntity()).setSampleTypePropertyTypes(null);
+                updateSampleType(sessionToken, (SampleType) newETNewPTAssigments.getEntity());
+                break;
+            case DATA_SET:
+                ((DataSetType) newETNewPTAssigments.getEntity()).setDataSetTypePropertyTypes(null);
+                updateDataSetType(sessionToken, (DataSetType) newETNewPTAssigments.getEntity());
+                break;
+            case EXPERIMENT:
+                ((ExperimentType) newETNewPTAssigments.getEntity()).setExperimentTypePropertyTypes(null);
+                updateExperimentType(sessionToken, (ExperimentType) newETNewPTAssigments.getEntity());
+                break;
+            case MATERIAL:
+                ((MaterialType) newETNewPTAssigments.getEntity()).setMaterialTypePropertyTypes(null);
+                updateMaterialType(sessionToken, (MaterialType) newETNewPTAssigments.getEntity());
+                break;
         }
 
         return results.toString();
@@ -1972,7 +1982,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         IEntityTypeDAO entityTypeDAO =
                 getDAOFactory().getEntityTypeDAO(DtoConverters.convertEntityKind(entityKind));
         EntityTypePE entityTypePE = entityTypeDAO.tryToFindEntityTypeByCode(entityType.getCode());
-        if (entityTypePE.getModificationDate().equals(entityType.getModificationDate()) == false)
+        if (entityTypePE.getModificationDate().equals(entityType.getModificationDate()) == false
+                && (entityType.getModificationDate() == null) == false) // If the modification date is null, the update is forced
         {
             throw new UserFailureException("Unfortunately " + entityType.getCode()
                     + " has been modified in the meantime.\n\n"
