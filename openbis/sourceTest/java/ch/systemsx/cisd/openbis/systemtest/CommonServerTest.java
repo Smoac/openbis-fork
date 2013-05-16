@@ -267,7 +267,6 @@ public class CommonServerTest extends SystemTestCase
 
             // Validation
             List<EntityTypePropertyType<?>> listAssigments = commonServer.listEntityTypePropertyTypes(systemSessionToken, entityType);
-
             for (int i = 0; i < assigments.getAssigments().size(); i++)
             {
                 assertEquals(assigments.getAssigments().get(i).getPropertyType(), listAssigments.get(i).getPropertyType());
@@ -354,34 +353,62 @@ public class CommonServerTest extends SystemTestCase
 
             // New Assignments
             Random random = new Random();
-            final int numberOfProperties = random.nextInt(20) + 1;
+            final int numberOfProperties = random.nextInt(30) + 1;
             for (int i = 0; i < numberOfProperties; i++)
             {
-                final String propertyTypeCode = "TEST_PROPERTY_TYPE_CODE_" + random.nextInt();
-                final String propertyTypeLabel = "TEST_PROPERTY_TYPE_LABEL_" + random.nextInt();
-                final String propertyTypeDescription = "TEST_PROPERTY_TYPE_DESCRIPTION_" + random.nextInt();
-                final DataType dataType = new DataType();
-                dataType.setCode(DataTypeCode.INTEGER);
+                switch (random.nextInt(3))
+                {
+                    case 0: // Insert
+                        final String propertyTypeCode = "TEST_PROPERTY_TYPE_CODE_" + random.nextInt();
+                        final String propertyTypeLabel = "TEST_PROPERTY_TYPE_LABEL_" + random.nextInt();
+                        final String propertyTypeDescription = "TEST_PROPERTY_TYPE_DESCRIPTION_" + random.nextInt();
+                        final DataType dataType = new DataType();
+                        dataType.setCode(DataTypeCode.INTEGER);
 
-                PropertyType newPropertyType = new PropertyType();
-                newPropertyType.setCode(propertyTypeCode);
-                newPropertyType.setLabel(propertyTypeLabel);
-                newPropertyType.setDescription(propertyTypeDescription);
-                newPropertyType.setDataType(dataType);
+                        PropertyType newPropertyType = new PropertyType();
+                        newPropertyType.setCode(propertyTypeCode);
+                        newPropertyType.setLabel(propertyTypeLabel);
+                        newPropertyType.setDescription(propertyTypeDescription);
+                        newPropertyType.setDataType(dataType);
 
-                NewETPTAssignment newETPTAssigment = new NewETPTAssignment();
-                newETPTAssigment.setEntityKind(entityKind);
-                newETPTAssigment.setPropertyTypeCode(propertyTypeCode);
-                newETPTAssigment.setEntityTypeCode(entityTypeCode);
-                newETPTAssigment.setOrdinal((long) random.nextInt(assigments.getAssigments().size()));
-                newETPTAssigment.setModificationDate(new Date());
+                        NewETPTAssignment newETPTAssigment = new NewETPTAssignment();
+                        newETPTAssigment.setEntityKind(entityKind);
+                        newETPTAssigment.setPropertyTypeCode(propertyTypeCode);
+                        newETPTAssigment.setEntityTypeCode(entityTypeCode);
+                        if (assigments.getAssigments().size() > 0)
+                        {
+                            newETPTAssigment.setOrdinal((long) random.nextInt(assigments.getAssigments().size()));
+                        } else
+                        {
+                            newETPTAssigment.setOrdinal(0L);
+                        }
+                        newETPTAssigment.setModificationDate(new Date());
 
-                NewPTNewAssigment newPTNewassignment = new NewPTNewAssigment();
-                newPTNewassignment.setExistingPropertyType(false);
-                newPTNewassignment.setPropertyType(newPropertyType);
-                newPTNewassignment.setAssignment(newETPTAssigment);
+                        NewPTNewAssigment newPTNewassignment = new NewPTNewAssigment();
+                        newPTNewassignment.setExistingPropertyType(false);
+                        newPTNewassignment.setPropertyType(newPropertyType);
+                        newPTNewassignment.setAssignment(newETPTAssigment);
 
-                assigments.refreshOrderAdd(newPTNewassignment);
+                        assigments.refreshOrderAdd(newPTNewassignment);
+                        break;
+                    case 1: // Modification
+                        if (assigments.getAssigments().size() > 0)
+                        {
+                            int posToModify = random.nextInt(assigments.getAssigments().size()); // Random Position
+                            NewETPTAssignment toModify = assigments.getAssigments().get(posToModify).getAssignment();
+                            int toNewPos = random.nextInt(assigments.getAssigments().size()); // Random Position
+                            toModify.setOrdinal((long) toNewPos);
+                            assigments.refreshOrderUpdate(toModify);
+                        }
+                        break;
+                    case 2: // Delete
+                        if (assigments.getAssigments().size() > 0)
+                        {
+                            int posToDelete = random.nextInt(assigments.getAssigments().size()); // Random Position
+                            assigments.refreshOrderDelete(assigments.getAssigments().get(posToDelete).getPropertyType().getCode());
+                        }
+                        break;
+                }
             }
 
             // Call
@@ -389,10 +416,13 @@ public class CommonServerTest extends SystemTestCase
 
             // Validation
             List<EntityTypePropertyType<?>> listAssigments = commonServer.listEntityTypePropertyTypes(systemSessionToken, entityType);
+
+            assertEquals(assigments.getAssigments().size(), listAssigments.size());
             for (int i = 0; i < assigments.getAssigments().size(); i++)
             {
                 assertEquals(assigments.getAssigments().get(i).getPropertyType(), listAssigments.get(i).getPropertyType());
             }
         }
     }
+
 }
