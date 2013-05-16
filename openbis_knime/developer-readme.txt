@@ -24,8 +24,10 @@ For manual integration test with KNIME do the following:
    ch.systemsx.cisd.openbis.knime
 4. Click on the 'Build' button. This creates/update artifacts.jar, content.jar, 
    features/ and plugins/ folder of project openbis_knime.update-site
-5. Install/update openBIS KNIME Nodes from the local update site 
+5. Install/update openBIS KNIME Nodes of the KNIME application from the local update site 
    file:/<absolut path to your Eclipse workspace>/openbis_knime.update-site
+   Be sure that update site http://tech.knime.org/update/community-contributions/nightly/ is defined for
+   the KNIME application.
    
 Build and deploy a new version
 ==============================
