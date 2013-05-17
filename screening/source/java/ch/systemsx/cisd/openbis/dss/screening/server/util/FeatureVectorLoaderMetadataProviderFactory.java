@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.IMetadataProvider;
 
 /**
@@ -38,13 +38,12 @@ public class FeatureVectorLoaderMetadataProviderFactory
 {
 
     private static HashMap<String, List<String>> createContainedDatasetMapFromFeatureVectors(
-            IEncapsulatedOpenBISService service,
-            List<? extends FeatureVectorDatasetReference> featureDatasets)
+            IEncapsulatedOpenBISService service, List<? extends IDatasetIdentifier> featureDatasets)
     {
 
         List<String> dsCodes = new LinkedList<String>();
 
-        for (FeatureVectorDatasetReference ds : featureDatasets)
+        for (IDatasetIdentifier ds : featureDatasets)
         {
             dsCodes.add(ds.getDatasetCode());
         }
@@ -181,7 +180,7 @@ public class FeatureVectorLoaderMetadataProviderFactory
      */
     public static IMetadataProvider createMetadataProviderFromFeatureVectors(
             final IEncapsulatedOpenBISService openBISService,
-            final List<? extends FeatureVectorDatasetReference> featureDatasets)
+            final List<? extends IDatasetIdentifier> featureDatasets)
     {
 
         return createMetadataProvider(openBISService,

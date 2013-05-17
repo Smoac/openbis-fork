@@ -105,6 +105,15 @@ var createSizeCriterion = function(width, height, type){
 	};
 }
 
+var createFeatureVectorWellReference = function(featureVectorDatasetReference, wellRow, wellColumn){
+    // little hack to avoid creating FeatureVectorDatasetWellReference
+    // object by hand as it is pretty complex to do
+	var wellReference = jQuery.extend(true, {}, featureVectorDatasetReference);
+	wellReference["@type"] = "FeatureVectorDatasetWellReference";
+	wellReference["wellPosition"] = createWellPosition(wellRow, wellColumn);
+	return wellReference;
+}
+
 var listImageDatasetReferencesForPlateIdentifier = function(facade, plateIdentifier, action){
 	var plateIdentifiers = [ createPlateIdentifier(plateIdentifier) ];
 	
@@ -139,6 +148,30 @@ var listImageReferencesAndFormatForPlateIdentifierAndWellPositionAndChannel = fu
 				});
 			});
 		});
+	});
+}
+
+var listFeatureVectorPhysicalDatasets = function(facade, plateIdentifiers, action){
+	facade.listFeatureVectorDatasets(plateIdentifiers, function(response){
+		var featureDatasets = response.result;
+		
+		var physicalFeatureDatasets = featureDatasets.filter(function(featureDataset){
+			return featureDataset.dataSetType == "HCS_ANALYSIS_WELL_FEATURES";
+		});
+		
+		action(physicalFeatureDatasets);
+	});
+}
+
+var listFeatureVectorContainerDatasets = function(facade, plateIdentifiers, action){
+	facade.listFeatureVectorDatasets(plateIdentifiers, function(response){
+		var featureDatasets = response.result;
+		
+		var containerFeatureDatasets = featureDatasets.filter(function(featureDataset){
+			return featureDataset.dataSetType == "HCS_ANALYSIS_CONTAINER_WELL_FEATURES";
+		});
+		
+		action(containerFeatureDatasets);
 	});
 }
 
@@ -205,8 +238,8 @@ test("listFeatureVectorDatasets()", function(){
 		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
 		
 		facade.listFeatureVectorDatasets(plateIdentifiers, function(response){
-			assertObjectsCount(response.result, 1);
-			assertObjectsWithValues(response.result, "datasetCode", ["20130412153659994-391"]);
+			assertObjectsCount(response.result, 2);
+			assertObjectsWithValues(response.result, "datasetCode", ["20130412153659945-390", "20130412153659994-391"]);
 			facade.close();
 		});
 	});
@@ -352,17 +385,11 @@ test("getExperimentImageMetadata()", function(){
 	});
 });
 
-/*
-
-TODO: these methods do not work for a container dataset 
-
-test("listAvailableFeatureCodes()", function(){
+var testListAvailableFeatureCodes = function(listFeatureVectorDatasetsFunction){
 	createFacadeAndLogin(function(facade){
 		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
 		
-		facade.listFeatureVectorDatasets(plateIdentifiers, function(response){
-			var featureDatasets = response.result;
-			
+		listFeatureVectorDatasetsFunction(facade, plateIdentifiers, function(featureDatasets){
 			facade.listAvailableFeatureCodes(featureDatasets, function(response){
 				assertObjectsCount(response.result, 4);
 				assertArrays(response.result, ["ROW_NUMBER", "COLUMN_NUMBER", "TPU", "STATE"], "Feature codes are correct");
@@ -370,15 +397,21 @@ test("listAvailableFeatureCodes()", function(){
 			});
 		});
 	});
+}
+
+test("listAvailableFeatureCodes() for physical data set", function(){
+	testListAvailableFeatureCodes(listFeatureVectorPhysicalDatasets);
 });
 
-test("listAvailableFeatures()", function(){
+test("listAvailableFeatureCodes() for container data set", function(){
+	testListAvailableFeatureCodes(listFeatureVectorContainerDatasets);
+});
+
+var testListAvailableFeatures = function(listFeatureVectorDatasetsFunction){
 	createFacadeAndLogin(function(facade){
 		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
 		
-		facade.listFeatureVectorDatasets(plateIdentifiers, function(response){
-			var featureDatasets = response.result;
-			
+		listFeatureVectorDatasetsFunction(facade, plateIdentifiers, function(featureDatasets){
 			facade.listAvailableFeatures(featureDatasets, function(response){
 				assertObjectsCount(response.result, 4);
 				assertObjectsWithValues(response.result, 'code', ["ROW_NUMBER", "COLUMN_NUMBER", "TPU", "STATE"]);
@@ -386,34 +419,46 @@ test("listAvailableFeatures()", function(){
 			});
 		});
 	});
+}
+
+test("listAvailableFeatures() for physical data set", function(){
+	testListAvailableFeatures(listFeatureVectorPhysicalDatasets);
 });
 
-test("loadFeaturesForDatasetWellReferences()", function(){
-        createFacadeAndLogin(function(facade){
-                var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
-
-                facade.listFeatureVectorDatasets(plateIdentifiers, function(response){
-
-                        // little hack to avoid creating FeatureVectorDatasetWellReference
-                        // object by hand as it is pretty complex to do
-                        var featureVectorDataset = response.result[0];
-                        featureVectorDataset["@type"] = "FeatureVectorDatasetWellReference";
-                        featureVectorDataset["wellPosition"] = createWellPosition(1, 2);
-
-                        var datasetWellReferences = [ featureVectorDataset ];
-                        var featureCodes = ["ROW_NUMBER", "STATE"];
-
-                        facade.loadFeaturesForDatasetWellReferences(datasetWellReferences, featureCodes, function(response){
-                                assertObjectsCount(response.result, 1);
-                                assertArrays(response.result[0].featureCodes, featureCodes, 'Feature codes are correct');
-                                equal(response.result[0].wellPosition.wellRow, 1, 'Well row is correct');
-                                equal(response.result[0].wellPosition.wellColumn, 2, 'Well column is correct');
-                                facade.close();
-                        });
-                });
-        });
+test("listAvailableFeatures() for container data set", function(){
+	testListAvailableFeatures(listFeatureVectorContainerDatasets);
 });
 
+var testLoadFeaturesForDatasetWellReferences = function(listFeatureVectorDatasetsFunction){
+	createFacadeAndLogin(function(facade){
+	    var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
+
+	    listFeatureVectorDatasetsFunction(facade, plateIdentifiers, function(featureDatasets){
+	            var datasetWellReferences = [ createFeatureVectorWellReference(featureDatasets[0], 1, 2) ];
+	            var featureCodes = ["ROW_NUMBER", "STATE"];
+
+	            facade.loadFeaturesForDatasetWellReferences(datasetWellReferences, featureCodes, function(response){
+	                    assertObjectsCount(response.result, 1);
+	                    assertArrays(response.result[0].featureCodes, featureCodes, 'Feature codes are correct');
+	                    equal(response.result[0].wellPosition.wellRow, 1, 'Well row is correct');
+	                    equal(response.result[0].wellPosition.wellColumn, 2, 'Well column is correct');
+	                    facade.close();
+	            });
+	    });
+	});
+}
+
+test("loadFeaturesForDatasetWellReferences() for physical data set", function(){
+	testLoadFeaturesForDatasetWellReferences(listFeatureVectorPhysicalDatasets);
+});
+
+/*
+
+FAILS
+
+test("loadFeaturesForDatasetWellReferences() for container data set", function(){
+	testLoadFeaturesForDatasetWellReferences(listFeatureVectorContainerDatasets);
+});
 */
 
 test("loadFeatures()", function(){
@@ -425,9 +470,11 @@ test("loadFeatures()", function(){
 			var featureCodes = ["ROW_NUMBER", "STATE"];
 			
 			facade.loadFeatures(featureDatasets, featureCodes, function(response){
-				assertObjectsCount(response.result, 1);
+				assertObjectsCount(response.result, 2);
 				assertArrays(response.result[0].featureCodes, featureCodes, 'Feature codes are correct');
 				equal(response.result[0].featureVectors.length, 96, 'Feature vectors count is correct');
+				assertArrays(response.result[1].featureCodes, featureCodes, 'Feature codes are correct');
+				equal(response.result[1].featureVectors.length, 96, 'Feature vectors count is correct');
 				facade.close();
 			});
 		});
@@ -574,11 +621,9 @@ test("loadImagesBase64ForDataSetIdentifierAndWellPositionsAndChannelAndImageSize
 	});
 });
 
-/*
 
-TODO: this method works only for a container dataset
+// TODO: this method works only for a container dataset
 
-*/
 test("loadImagesBase64ForDataSetIdentifierAndChannelAndImageSize()", function(){
 	createFacadeAndLogin(function(facade){
 		var datasetCodes = ["20130417094937144-429"];
@@ -596,11 +641,8 @@ test("loadImagesBase64ForDataSetIdentifierAndChannelAndImageSize()", function(){
 	});
 });
 
-/*
+// TODO: this method works only for a container dataset
 
-TODO: this method works only for a container dataset
-
-*/
 test("loadThumbnailImagesBase64ForDataSetIdentifierAndChannels()", function(){
 	createFacadeAndLogin(function(facade){
 		var datasetCodes = ["20130417094937144-429"];
@@ -647,11 +689,8 @@ test("listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannels()"
 	});
 });
 
-/*
+// TODO: this method works only for a container dataset
 
-TODO: this method works only for a container dataset
-
-*/
 test("listImageReferencesForDataSetIdentifierAndChannel()", function(){
 	createFacadeAndLogin(function(facade){
 		var datasetCodes = ["20130417094937144-429"];
@@ -668,11 +707,8 @@ test("listImageReferencesForDataSetIdentifierAndChannel()", function(){
 	});
 });
 
-/*
+// TODO: this method works only for a container dataset
 
-TODO: this method works only for a container dataset
-
-*/
 test("listImageReferencesForDataSetIdentifierAndChannels()", function(){
 	createFacadeAndLogin(function(facade){
 		var datasetCodes = ["20130417094937144-429"];
@@ -689,20 +725,32 @@ test("listImageReferencesForDataSetIdentifierAndChannels()", function(){
 	});
 });
 
-test("listAvailableFeatureLists()", function(){
+var testListAvailableFeatureLists = function(listFeatureVectorDatasetsFunction){
 	createFacadeAndLogin(function(facade){
 		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
 		
-		facade.listFeatureVectorDatasets(plateIdentifiers, function(response){
-			var featureDataset = response.result[0];
-			
-			facade.listAvailableFeatureLists(featureDataset, function(response){
+		listFeatureVectorDatasetsFunction(facade, plateIdentifiers, function(featureDatasets){
+			facade.listAvailableFeatureLists(featureDatasets[0], function(response){
 				assertObjectsCount(response.result, 2);
 				assertArrays(response.result, ["BARCODE_AND_STATE_FEATURE_LIST","NUMBER_FEATURE_LIST"], "Feature lists are correct");
 				facade.close();
 			});
 		});
 	});
+}
+
+/*
+
+FAILS
+
+test("listAvailableFeatureLists() for physical data set", function(){
+	testListAvailableFeatureLists(listFeatureVectorPhysicalDatasets);
+});
+ 
+*/
+
+test("listAvailableFeatureLists() for container data set", function(){
+	testListAvailableFeatureLists(listFeatureVectorContainerDatasets);
 });
 
 test("getFeatureList()", function(){
@@ -720,3 +768,4 @@ test("getFeatureList()", function(){
 		});
 	});
 });
+

@@ -13,7 +13,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -55,7 +54,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchOperator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.IDataSetFilter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
@@ -862,9 +860,6 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public List<String> listAvailableFeatureCodes(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
-        List<? extends IFeatureVectorDatasetIdentifier> identifiersIncludingContained =
-                listFeatureDatasetsIncludingContained(featureDatasets);
-
         IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, String> handler =
                 new IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, String>()
                     {
@@ -881,7 +876,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     };
 
-        return dssMultiplexer.process(identifiersIncludingContained, handler).withoutDuplicates();
+        return dssMultiplexer.process(featureDatasets, handler).withoutDuplicates();
     }
 
     @Override
@@ -939,9 +934,6 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public List<FeatureInformation> listAvailableFeatures(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
-        List<? extends IFeatureVectorDatasetIdentifier> identifiersIncludingContained =
-                listFeatureDatasetsIncludingContained(featureDatasets);
-
         IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, FeatureInformation> handler =
                 new IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, FeatureInformation>()
                     {
@@ -977,62 +969,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     };
 
-        return dssMultiplexer.process(
-                identifiersIncludingContained == null ? featureDatasets
-                        : identifiersIncludingContained, handler)
-                .withoutDuplicatesPreservingOrder();
-    }
-
-    protected List<? extends IFeatureVectorDatasetIdentifier> listFeatureDatasetsIncludingContained(
-            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
-    {
-        List<DataSet> containedDataSets = getContainedDataSets(featureDatasets);
-
-        List<IFeatureVectorDatasetIdentifier> identifiersIncludingContained = null;
-
-        if (containedDataSets.size() == 0)
-        {
-            return featureDatasets;
-        } else
-        {
-            String host = featureDatasets.get(0).getDatastoreServerUrl();
-
-            identifiersIncludingContained = new LinkedList<IFeatureVectorDatasetIdentifier>();
-            identifiersIncludingContained.addAll(featureDatasets);
-            for (DataSet contained : containedDataSets)
-            {
-                IFeatureVectorDatasetIdentifier containedIdentifier =
-                        new FeatureVectorDatasetReference(contained.getCode(),
-                                contained.getDataSetTypeCode(), host, null, null, null, null, null,
-                                null);
-                identifiersIncludingContained.add(containedIdentifier);
-            }
-            return identifiersIncludingContained;
-        }
-    }
-
-    private SearchSubCriteria getContainerSearchCriteria(String containerCode)
-    {
-        SearchCriteria searchSubCriteria = new SearchCriteria();
-        searchSubCriteria.addMatchClause(MatchClause.createAttributeMatch(
-                MatchClauseAttribute.CODE, containerCode));
-        return SearchSubCriteria.createDataSetContainerCriteria(searchSubCriteria);
-    }
-
-    protected List<DataSet> getContainedDataSets(
-            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
-    {
-        SearchCriteria searchCriteria = new SearchCriteria();
-        for (IFeatureVectorDatasetIdentifier id : featureDatasets)
-        {
-            String containerId = id.getDatasetCode();
-            searchCriteria.addSubCriteria(getContainerSearchCriteria(containerId));
-        }
-        searchCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
-
-        List<DataSet> containedDataSets =
-                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
-        return containedDataSets;
+        return dssMultiplexer.process(featureDatasets, handler).withoutDuplicatesPreservingOrder();
     }
 
     /**

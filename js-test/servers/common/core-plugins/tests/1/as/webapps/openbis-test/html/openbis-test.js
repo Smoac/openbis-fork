@@ -435,7 +435,7 @@ test("listDataSetsForSamples()", function(){
 			var samples = response.result;
 			
 			facade.listDataSetsForSamples(samples, function(response){
-				assertObjectsCount(response.result, 8);
+				assertObjectsCount(response.result, 11);
 				facade.close();
 			});
 		});
@@ -519,7 +519,7 @@ test("listDataSetsForSample()", function(){
 			var restrictToDirectlyConnected = true;
 			
 			facade.listDataSetsForSample(sample, restrictToDirectlyConnected, function(response){
-				assertObjectsCount(response.result, 8);
+				assertObjectsCount(response.result, 11);
 				facade.close();
 			});
 		});
@@ -1804,7 +1804,7 @@ test("SearchSubCriteria.createSampleCriteria()", function(){
 		criteria.addSubCriteria(SearchSubCriteria.createSampleCriteria(sampleCriteria));
 		
 		facade.searchForDataSets(criteria, function(response){
-			assertObjectsCount(response.result, 8);
+			assertObjectsCount(response.result, 11);
 			facade.close();
 		});
 	});
