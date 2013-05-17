@@ -559,33 +559,6 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @Override
     @RolesAllowed(
         { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public Experiment tryGetExperimentReduced(String sessionToken,
-            @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class)
-            ExperimentIdentifier experimentIdentifier) throws UserFailureException
-    {
-        assert sessionToken != null : "Unspecified session token.";
-        assert experimentIdentifier != null : "Unspecified experiment identifier.";
-
-        final Session session = getSession(sessionToken);
-        ExperimentPE experiment =
-                tryLoadExperimentByIdentifierReduced(session, experimentIdentifier);
-        if (experiment == null)
-        {
-            return null;
-        }
-
-        Collection<MetaprojectPE> metaprojectPEs =
-                getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
-                        session.tryGetPerson(), experiment);
-
-        return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
-                MetaprojectTranslator.translate(metaprojectPEs), managedPropertyEvaluatorFactory,
-                LoadableFields.PROPERTIES);
-    }
-
-    @Override
-    @RolesAllowed(
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> listSamples(final String sessionToken,
             @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class)
@@ -612,30 +585,6 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         {
             HibernateUtils.initialize(sample.getProperties());
             enrichWithProperties(sample.getExperiment());
-            metaprojects =
-                    getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
-                            session.tryGetPerson(), sample);
-        }
-        return SampleTranslator.translate(sample, session.getBaseIndexURL(), true, true,
-                MetaprojectTranslator.translate(metaprojects), managedPropertyEvaluatorFactory);
-    }
-
-    @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public Sample tryGetSampleWithExperimentReduced(final String sessionToken,
-            @AuthorizationGuard(guardClass = ExistingSampleOwnerIdentifierPredicate.class)
-            final SampleIdentifier sampleIdentifier) throws UserFailureException
-    {
-
-        assert sessionToken != null : "Unspecified session token.";
-        assert sampleIdentifier != null : "Unspecified sample identifier.";
-
-        final Session session = getSession(sessionToken);
-        SamplePE sample = tryLoadSampleReduced(session, sampleIdentifier);
-
-        Collection<MetaprojectPE> metaprojects = Collections.emptySet();
-        if (sample != null)
-        {
             metaprojects =
                     getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
                             session.tryGetPerson(), sample);
@@ -681,13 +630,6 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         return experimentBO.tryFindByExperimentIdentifier(experimentIdentifier);
     }
 
-    private ExperimentPE tryLoadExperimentByIdentifierReduced(final Session session,
-            ExperimentIdentifier experimentIdentifier)
-    {
-        final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
-        return experimentBO.tryFindByExperimentIdentifierReduced(experimentIdentifier);
-    }
-
     private SamplePE tryLoadSample(final Session session, SampleIdentifier sampleIdentifier)
     {
         SamplePE result = null;
@@ -695,21 +637,6 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         try
         {
             sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
-            result = sampleBO.tryToGetSample();
-        } catch (UserFailureException ufe)
-        {
-            // sample does not exist
-        }
-        return result;
-    }
-
-    private SamplePE tryLoadSampleReduced(final Session session, SampleIdentifier sampleIdentifier)
-    {
-        SamplePE result = null;
-        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        try
-        {
-            sampleBO.tryToLoadBySampleIdentifierReduced(sampleIdentifier);
             result = sampleBO.tryToGetSample();
         } catch (UserFailureException ufe)
         {

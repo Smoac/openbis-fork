@@ -1024,11 +1024,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         {
             ignoring(openBisService).heartbeat();
             // get experiment
-            allowing(openBisService).tryGetExperiment(
-                    new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier());
-            will(returnValue(experiment));
-
-            allowing(openBisService).tryGetExperimentReduced(
+            atLeast(1).of(openBisService).tryGetExperiment(
                     new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier());
             will(returnValue(experiment));
 
@@ -1195,11 +1191,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             will(returnValue(DATA_SET_CODE));
 
             // get experiment
-            allowing(openBisService).tryGetExperiment(
-                    new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier());
-            will(returnValue(experiment));
-
-            allowing(openBisService).tryGetExperimentReduced(
+            atLeast(1).of(openBisService).tryGetExperiment(
                     new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier());
             will(returnValue(experiment));
 

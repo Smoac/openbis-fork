@@ -82,12 +82,6 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
     public ExperimentPE tryFindByCodeAndProject(ProjectPE project, String experimentCode);
 
     /**
-     * Returns {@link ExperimentPE} defined by given project and experiment code. Returned value
-     * does not contain database instance information.
-     */
-    public ExperimentPE tryFindByCodeAndProjectReduced(ProjectPE project, String experimentCode);
-
-    /**
      * Lists experiments (with minimal additional information) belonging to the given
      * <code>project</code> and having a property with the specified value.
      */

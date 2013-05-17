@@ -145,17 +145,6 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
                 sampleIdMapper, AuthorizationHelper.EntityKind.SAMPLE);
     }
 
-    
-    @Override
-    @ManagedAuthentication
-    public Sample tryGetSampleWithExperimentReduced(SampleIdentifier sampleIdentifier)
-            throws UserFailureException
-    {
-        Sample sample = encapsulatedService.tryGetSampleWithExperimentReduced(sampleIdentifier);
-        return AuthorizationHelper.filterToVisible(encapsulatedService, userName, sample,
-                sampleIdMapper, AuthorizationHelper.EntityKind.SAMPLE);
-    }
-
     @Override
     public List<AbstractExternalData> searchForDataSets(SearchCriteria searchCriteria)
     {
@@ -186,17 +175,6 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
         return AuthorizationHelper.filterToVisible(encapsulatedService, userName, experiment,
                 experimentIdMapper, AuthorizationHelper.EntityKind.EXPERIMENT);
     }
-    
-    @Override
-    @ManagedAuthentication
-    public Experiment tryGetExperimentReduced(ExperimentIdentifier experimentIdentifier)
-            throws UserFailureException
-    {
-        Experiment experiment = encapsulatedService.tryGetExperimentReduced(experimentIdentifier);
-        return AuthorizationHelper.filterToVisible(encapsulatedService, userName, experiment,
-                experimentIdMapper, AuthorizationHelper.EntityKind.EXPERIMENT);
-    }
-
 
     @Override
     public Collection<VocabularyTerm> listVocabularyTerms(String vocabularyCode)

@@ -801,15 +801,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                 protected void tryGetExperiment()
                 {
-                    allowing(openBisService).tryGetExperiment(
+                    atLeast(1).of(openBisService).tryGetExperiment(
                             new ExperimentIdentifierFactory(experiment.getIdentifier())
                                     .createIdentifier());
                     will(returnValue(experiment));
-                    allowing(openBisService).tryGetExperimentReduced(
-                            new ExperimentIdentifierFactory(experiment.getIdentifier())
-                                    .createIdentifier());
-                    will(returnValue(experiment));
-
                 }
 
                 protected void createDataSet()
@@ -1796,12 +1791,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     one(openBisService).createPermId();
                     will(returnValue(DATA_SET_CODE));
 
-                    allowing(openBisService).tryGetExperiment(
-                            new ExperimentIdentifierFactory(experiment.getIdentifier())
-                                    .createIdentifier());
-                    will(returnValue(experiment));
-
-                    allowing(openBisService).tryGetExperimentReduced(
+                    exactly(2).of(openBisService).tryGetExperiment(
                             new ExperimentIdentifierFactory(experiment.getIdentifier())
                                     .createIdentifier());
                     will(returnValue(experiment));

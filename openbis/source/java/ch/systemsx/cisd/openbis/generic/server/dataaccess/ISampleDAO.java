@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
  */
 public interface ISampleDAO extends IGenericDAO<SamplePE>
 {
-
     /**
      * Inserts given {@link SamplePE} into the database or updates it if it already exists.
      */
@@ -68,13 +67,6 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
      * Returns the sample specified by given <var>sampleCode</var> and given <var>space</var>.
      */
     SamplePE tryFindByCodeAndSpace(final String sampleCode, final SpacePE space)
-            throws DataAccessException;
-
-    /**
-     * Returns the sample specified by given <var>sampleCode</var> and given <var>space</var>.
-     * Returned sample does not contain database instance information.
-     */
-    SamplePE tryFindByCodeAndSpaceReduced(final String sampleCode, final SpacePE space)
             throws DataAccessException;
 
     /**

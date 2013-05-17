@@ -232,69 +232,6 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
     }
 
     @Override
-    public ExperimentPE tryFindByCodeAndProjectReduced(final ProjectPE project,
-            final String experimentCode)
-    {
-        assert experimentCode != null : "Unspecified experiment code.";
-        assert project != null : "Unspecified project.";
-
-        final Criteria criteria = getSession().createCriteria(getEntityClass());
-        criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(experimentCode)));
-        criteria.add(Restrictions.eq("projectInternal", project));
-        criteria.setFetchMode("experimentProperties", FetchMode.JOIN);
-        criteria.setFetchMode("registrator", FetchMode.SELECT);
-        criteria.setFetchMode("modifier", FetchMode.SELECT);
-        criteria.setFetchMode("projectInternal.registrator", FetchMode.SELECT);
-        criteria.setFetchMode("projectInternal.modifier", FetchMode.SELECT);
-        criteria.setFetchMode("projectInternal.projectLeader", FetchMode.SELECT);
-        criteria.setFetchMode("projectInternal.space.databaseInstance", FetchMode.SELECT);
-        criteria.setFetchMode("experimentType.databaseInstance", FetchMode.SELECT);
-        criteria.setFetchMode("experimentType.validationScript.databaseInstance", FetchMode.SELECT);
-        criteria.setFetchMode("experimentProperties.author", FetchMode.SELECT);
-        criteria.setFetchMode("experimentProperties.materialValue.databaseInstance",
-                FetchMode.SELECT);
-        criteria.setFetchMode("experimentProperties.materialValue.registrator", FetchMode.SELECT);
-        criteria.setFetchMode("experimentProperties.materialValue.materialType.databaseInstance",
-                FetchMode.SELECT);
-        criteria.setFetchMode(
-                "experimentProperties.materialValue.materialType.validationScript.databaseInstance",
-                FetchMode.SELECT);
-        criteria.setFetchMode(
-                "experimentProperties.vocabularyTerm.vocabularyInternal.databaseInstance",
-                FetchMode.SELECT);
-        criteria.setFetchMode(
-                "experimentProperties.entityTypePropertyType.script.databaseInstance",
-                FetchMode.SELECT);
-        criteria.setFetchMode(
-                "experimentProperties.entityTypePropertyType.propertyTypeInternal.databaseInstance",
-                FetchMode.SELECT);
-        criteria.setFetchMode(
-                "experimentProperties.entityTypePropertyType.propertyTypeInternal.vocabulary.databaseInstance",
-                FetchMode.SELECT);
-        criteria.setFetchMode(
-                "experimentProperties.entityTypePropertyType.propertyTypeInternal.materialType.databaseInstance",
-                FetchMode.SELECT);
-        criteria.setFetchMode(
-                "experimentProperties.entityTypePropertyType.propertyTypeInternal.materialType.validationScript.databaseInstance",
-                FetchMode.SELECT);
-        criteria.setFetchMode(
-                "experimentProperties.entityTypePropertyType.entityTypeInternal.databaseInstance",
-                FetchMode.SELECT);
-        criteria.setFetchMode(
-                "experimentProperties.entityTypePropertyType.entityTypeInternal.validationScript.databaseInstance",
-                FetchMode.SELECT);
-
-        final ExperimentPE experiment = (ExperimentPE) criteria.uniqueResult();
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format(
-                    "Following experiment '%s' has been found for code '%s' and project '%s'.",
-                    experiment, experimentCode, project));
-        }
-        return experiment;
-    }
-
-    @Override
     public List<ExperimentPE> listExperimentsByProjectAndProperty(String propertyCode,
             String propertyValue, ProjectPE project) throws DataAccessException
     {

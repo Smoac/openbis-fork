@@ -277,13 +277,6 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         assert experimentIdentifier != null : " Unspecified experiment identifier.";
         return service.tryGetExperiment(session.getSessionToken(), experimentIdentifier);
     }
-    
-    @Override
-    public Experiment tryGetExperimentReduced(ExperimentIdentifier experimentIdentifier)
-    {
-        assert experimentIdentifier != null : " Unspecified experiment identifier.";
-        return service.tryGetExperimentReduced(session.getSessionToken(), experimentIdentifier);
-    }
 
     @Override
     public Space tryGetSpace(SpaceIdentifier spaceIdentifier) throws UserFailureException
@@ -311,13 +304,6 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         assert sampleIdentifier != null : "Given sample identifier can not be null.";
         return service.tryGetSampleWithExperiment(session.getSessionToken(), sampleIdentifier);
-    }
-    
-    @Override
-    public final Sample tryGetSampleWithExperimentReduced(final SampleIdentifier sampleIdentifier)
-    {
-        assert sampleIdentifier != null : "Given sample identifier can not be null.";
-        return service.tryGetSampleWithExperimentReduced(session.getSessionToken(), sampleIdentifier);
     }
 
     @Override

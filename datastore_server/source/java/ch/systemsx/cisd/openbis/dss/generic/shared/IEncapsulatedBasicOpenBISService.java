@@ -103,16 +103,6 @@ public interface IEncapsulatedBasicOpenBISService
             throws UserFailureException;
 
     /**
-     * Gets a sample with the specified identifier. Sample is enriched with properties and the
-     * experiment with properties, but does not contain database instance information.
-     * 
-     * @return <code>null</code> if no sample could be found for given <var>sampleIdentifier</var>.
-     */
-    @ManagedAuthentication
-    public Sample tryGetSampleWithExperimentReduced(final SampleIdentifier sampleIdentifier)
-            throws UserFailureException;
-
-    /**
      * {@link IServiceForDataStoreServer#searchForDataSets(String, SearchCriteria)}
      */
     @ManagedAuthentication
@@ -130,15 +120,6 @@ public interface IEncapsulatedBasicOpenBISService
     @ManagedAuthentication
     public Experiment tryGetExperiment(ExperimentIdentifier experimentIdentifier)
             throws UserFailureException;
-
-    /**
-     * Tries to get the experiment of specified identifier or <code>null</code> if not found.
-     * Resulting Experiment does not contain database instance information.
-     */
-    @ManagedAuthentication
-    public Experiment tryGetExperimentReduced(ExperimentIdentifier experimentIdentifier)
-            throws UserFailureException;
-
 
     /**
      * Lists vocabulary terms.
