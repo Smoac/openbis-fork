@@ -117,6 +117,7 @@ public class NewETNewPTAssigments implements Serializable
 
     public void refreshOrderUpdate(NewETPTAssignment toRegister) throws Exception
     {
+        updateOrdinalToDBOrder();
         NewPTNewAssigment current = null;
         for (NewPTNewAssigment assigment : assigments)
         {
@@ -127,10 +128,17 @@ public class NewETNewPTAssigments implements Serializable
             }
         }
 
+        // If position to insert is after the current position, the index need to be changed to -1.
+        long currentOrdinal = current.getAssignment().getOrdinal();
+        long newOrdinal = toRegister.getOrdinal();
+        if (newOrdinal > currentOrdinal)
+        {
+            toRegister.setOrdinal(toRegister.getOrdinal() - 1);
+        }
+        updateOrdinalToGridOrder();
+
         refreshOrderDelete(toRegister.getPropertyTypeCode());
-
         current.setAssignment(toRegister);
-
         refreshOrderAdd(current);
     }
 

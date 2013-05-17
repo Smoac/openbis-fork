@@ -1265,23 +1265,71 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return results.toString();
     }
 
+    public static PropertyType returnIfContained(PropertyType propertyType, List<EntityTypePropertyType<?>> inList)
+    {
+        for (EntityTypePropertyType etpt : inList)
+        {
+            if (etpt.getPropertyType().getCode().equals(propertyType.getCode()))
+            {
+                return etpt.getPropertyType();
+            }
+        }
+        return null;
+    }
+
+    public void runIntegrityTest(List<EntityTypePropertyType<?>> ini, List<EntityTypePropertyType<?>> fin)
+    {
+        for (EntityTypePropertyType etpt : fin)
+        {
+            PropertyType contained = returnIfContained(etpt.getPropertyType(), ini);
+            if (contained != null &&
+                    false == contained.getModificationDate().equals(etpt.getPropertyType().getModificationDate()))
+            {
+                throw new UserFailureException("Unfortunately " + contained.getCode()
+                        + " has been modified in the meantime.\n\n"
+                        + "Please, refresh the data and try it again.");
+            }
+        }
+    }
+
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public String updateEntitytypeAndPropertyTypes(final String sessionToken, NewETNewPTAssigments newETNewPTAssigments)
     {
         newETNewPTAssigments.updateOrdinalToDBOrder();
 
+        // Entity Type Update
+        switch (newETNewPTAssigments.getEntity().getEntityKind())
+        {
+            case SAMPLE:
+                updateSampleType(sessionToken, (SampleType) newETNewPTAssigments.getEntity());
+                break;
+            case DATA_SET:
+                updateDataSetType(sessionToken, (DataSetType) newETNewPTAssigments.getEntity());
+                break;
+            case EXPERIMENT:
+                updateExperimentType(sessionToken, (ExperimentType) newETNewPTAssigments.getEntity());
+                break;
+            case MATERIAL:
+                updateMaterialType(sessionToken, (MaterialType) newETNewPTAssigments.getEntity());
+                break;
+        }
+
         List<String> results = new ArrayList<String>();
 
-        // Update Algorithm, it calculates the changes necessary without destroying assignments when possible to prevent data loss
+        // Update Algorithm for property types
+        // It calculates the changes necessary without destroying assignments when possible to prevent data loss
         List<EntityTypePropertyType<?>> ini = listEntityTypePropertyTypes(sessionToken, newETNewPTAssigments.getEntity());
         List<EntityTypePropertyType<?>> fin = (List<EntityTypePropertyType<?>>) newETNewPTAssigments.getEntity().getAssignedPropertyTypes();
 
+        runIntegrityTest(ini, fin); // Since some changes trigger other changes this ones are validated only once at the beginning.
+
         for (int i = 0; i < fin.size(); i++)
         {
-            newETNewPTAssigments.getAssigments().get(i).getAssignment().setModificationDate(null);
             if (i < ini.size()) // Is Check Possible
             {
+                newETNewPTAssigments.getAssigments().get(i).getAssignment().setModificationDate(null); // Avoid further validation
+
                 if (ini.get(i).getPropertyType().getCode().equals(fin.get(i).getPropertyType().getCode())) // Do nothing.
                 {
                     // Positions are equal but maybe something have changed.
@@ -1342,6 +1390,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                         newETNewPTAssigments.getEntity().getEntityKind(),
                         ini.get(i).getPropertyType().getCode(),
                         newETNewPTAssigments.getEntity().getCode());
+                // This is a hack, for some reason on the tests the changes don't go in until another change is done.
                 unassignPropertyType(sessionToken,
                         newETNewPTAssigments.getEntity().getEntityKind(),
                         ini.get(i).getPropertyType().getCode(),
@@ -1349,28 +1398,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 ini.remove(i);
                 i--;
             }
-        }
-
-        // Entity Type Update
-        newETNewPTAssigments.getEntity().setModificationDate(null);
-        switch (newETNewPTAssigments.getEntity().getEntityKind())
-        {
-            case SAMPLE:
-                ((SampleType) newETNewPTAssigments.getEntity()).setSampleTypePropertyTypes(null);
-                updateSampleType(sessionToken, (SampleType) newETNewPTAssigments.getEntity());
-                break;
-            case DATA_SET:
-                ((DataSetType) newETNewPTAssigments.getEntity()).setDataSetTypePropertyTypes(null);
-                updateDataSetType(sessionToken, (DataSetType) newETNewPTAssigments.getEntity());
-                break;
-            case EXPERIMENT:
-                ((ExperimentType) newETNewPTAssigments.getEntity()).setExperimentTypePropertyTypes(null);
-                updateExperimentType(sessionToken, (ExperimentType) newETNewPTAssigments.getEntity());
-                break;
-            case MATERIAL:
-                ((MaterialType) newETNewPTAssigments.getEntity()).setMaterialTypePropertyTypes(null);
-                updateMaterialType(sessionToken, (MaterialType) newETNewPTAssigments.getEntity());
-                break;
         }
 
         return results.toString();
@@ -1982,8 +2009,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         IEntityTypeDAO entityTypeDAO =
                 getDAOFactory().getEntityTypeDAO(DtoConverters.convertEntityKind(entityKind));
         EntityTypePE entityTypePE = entityTypeDAO.tryToFindEntityTypeByCode(entityType.getCode());
-        if (entityTypePE.getModificationDate().equals(entityType.getModificationDate()) == false
-                && (entityType.getModificationDate() == null) == false) // If the modification date is null, the update is forced
+        if (entityType.getModificationDate() != null && // Avoid validation, needed to make multiple modifications with one call
+                entityTypePE.getModificationDate().equals(entityType.getModificationDate()) == false)
         {
             throw new UserFailureException("Unfortunately " + entityType.getCode()
                     + " has been modified in the meantime.\n\n"
