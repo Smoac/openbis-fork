@@ -196,92 +196,18 @@ public class CommonServerTest extends SystemTestCase
     @Test
     public void testRegisterEntitytypeAndAssignPropertyTypes() throws Exception
     {
-        for (EntityKind entityKind : EntityKind.values())
-        {
-            // Entity Type
-            final String entityTypeCode = "TEST_ENTITY_TYPE_CODE_" + entityKind.name();
-            EntityType entityType = null;
-
-            switch (entityKind)
-            {
-                case EXPERIMENT:
-                    entityType = new ExperimentType();
-                    ((ExperimentType) entityType).setExperimentTypePropertyTypes(new ArrayList<ExperimentTypePropertyType>());
-                    break;
-                case DATA_SET:
-                    entityType = new DataSetType();
-                    ((DataSetType) entityType).setDataSetKind(DataSetKind.PHYSICAL);
-                    ((DataSetType) entityType).setDataSetTypePropertyTypes(new ArrayList<DataSetTypePropertyType>());
-                    break;
-                case MATERIAL:
-                    entityType = new MaterialType();
-                    ((MaterialType) entityType).setMaterialTypePropertyTypes(new ArrayList<MaterialTypePropertyType>());
-                    break;
-                case SAMPLE:
-                    entityType = new SampleType();
-                    ((SampleType) entityType).setGeneratedCodePrefix("TEST");
-                    ((SampleType) entityType).setSampleTypePropertyTypes(new ArrayList<SampleTypePropertyType>());
-                    break;
-            }
-            entityType.setCode(entityTypeCode);
-
-            // Complete Assignments Object
-            NewETNewPTAssigments assigments = new NewETNewPTAssigments();
-            assigments.setEntity(entityType);
-            assigments.setAssigments(new ArrayList<NewPTNewAssigment>());
-
-            Random random = new Random();
-            final int numberOfProperties = random.nextInt(20) + 1;
-            for (int i = 0; i < numberOfProperties; i++)
-            {
-                // Property Type
-                final String propertyTypeCode = "TEST_PROPERTY_TYPE_CODE_" + random.nextInt();
-                final String propertyTypeLabel = "TEST_PROPERTY_TYPE_LABEL_" + random.nextInt();
-                final String propertyTypeDescription = "TEST_PROPERTY_TYPE_DESCRIPTION_" + random.nextInt();
-                final DataType dataType = new DataType();
-                dataType.setCode(DataTypeCode.INTEGER);
-
-                PropertyType newPropertyType = new PropertyType();
-                newPropertyType.setCode(propertyTypeCode);
-                newPropertyType.setLabel(propertyTypeLabel);
-                newPropertyType.setDescription(propertyTypeDescription);
-                newPropertyType.setDataType(dataType);
-
-                // New Assignments
-                NewETPTAssignment newETPTAssigment = new NewETPTAssignment();
-                newETPTAssigment.setEntityKind(entityKind);
-                newETPTAssigment.setPropertyTypeCode(propertyTypeCode);
-                newETPTAssigment.setEntityTypeCode(entityTypeCode);
-                newETPTAssigment.setOrdinal((long) assigments.getAssigments().size());
-
-                NewPTNewAssigment newPTNewAssigment = new NewPTNewAssigment();
-                newPTNewAssigment.setExistingPropertyType(false);
-                newPTNewAssigment.setPropertyType(newPropertyType);
-                newPTNewAssigment.setAssignment(newETPTAssigment);
-
-                assigments.refreshOrderAdd(newPTNewAssigment);
-            }
-
-            // Call
-            commonServer.registerEntitytypeAndAssignPropertyTypes(systemSessionToken, assigments);
-
-            // Validation
-            List<EntityTypePropertyType<?>> listAssigments = commonServer.listEntityTypePropertyTypes(systemSessionToken, entityType);
-            for (int i = 0; i < assigments.getAssigments().size(); i++)
-            {
-                assertEquals(assigments.getAssigments().get(i).getPropertyType(), listAssigments.get(i).getPropertyType());
-            }
-        }
+        registerEntitytypeAndAssignPropertyTypesWithId(0);
     }
 
     @Test
     public void testUpdateEntitytypeAndPropertyTypes() throws Exception
     {
-        testRegisterEntitytypeAndAssignPropertyTypes();
+        int testId = 1;
+        registerEntitytypeAndAssignPropertyTypesWithId(testId);
         for (EntityKind entityKind : EntityKind.values())
         {
             // Existing Entity Type
-            final String entityTypeCode = "TEST_ENTITY_TYPE_CODE_" + entityKind.name();
+            final String entityTypeCode = "TEST_ENTITY_TYPE_CODE_" + entityKind.name() + "_" + testId;
             List<? extends EntityType> types = null;
             EntityType entityType = null;
 
@@ -420,9 +346,107 @@ public class CommonServerTest extends SystemTestCase
             assertEquals(assigments.getAssigments().size(), listAssigments.size());
             for (int i = 0; i < assigments.getAssigments().size(); i++)
             {
-                assertEquals(assigments.getAssigments().get(i).getPropertyType(), listAssigments.get(i).getPropertyType());
+                if (assigments.getAssigments().get(i).getPropertyType().getCode().equals(listAssigments.get(i).getPropertyType().getCode())
+                        || isContained(assigments.getAssigments().get(i).getPropertyType(), listAssigments))
+                {
+                    // Cool, is ok
+                } else
+                {
+                    throw new AssertionError("Not contained in list");
+                }
             }
         }
     }
 
+    public static boolean isContained(PropertyType propertyType, List<EntityTypePropertyType<?>> inList)
+    {
+        for (EntityTypePropertyType etpt : inList)
+        {
+            if (etpt.getPropertyType().getCode().equals(propertyType.getCode()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void registerEntitytypeAndAssignPropertyTypesWithId(int testId) throws Exception
+    {
+        for (EntityKind entityKind : EntityKind.values())
+        {
+            // Entity Type
+            final String entityTypeCode = "TEST_ENTITY_TYPE_CODE_" + entityKind.name() + "_" + testId;
+            EntityType entityType = null;
+
+            switch (entityKind)
+            {
+                case EXPERIMENT:
+                    entityType = new ExperimentType();
+                    ((ExperimentType) entityType).setExperimentTypePropertyTypes(new ArrayList<ExperimentTypePropertyType>());
+                    break;
+                case DATA_SET:
+                    entityType = new DataSetType();
+                    ((DataSetType) entityType).setDataSetKind(DataSetKind.PHYSICAL);
+                    ((DataSetType) entityType).setDataSetTypePropertyTypes(new ArrayList<DataSetTypePropertyType>());
+                    break;
+                case MATERIAL:
+                    entityType = new MaterialType();
+                    ((MaterialType) entityType).setMaterialTypePropertyTypes(new ArrayList<MaterialTypePropertyType>());
+                    break;
+                case SAMPLE:
+                    entityType = new SampleType();
+                    ((SampleType) entityType).setGeneratedCodePrefix("TEST");
+                    ((SampleType) entityType).setSampleTypePropertyTypes(new ArrayList<SampleTypePropertyType>());
+                    break;
+            }
+            entityType.setCode(entityTypeCode);
+
+            // Complete Assignments Object
+            NewETNewPTAssigments assigments = new NewETNewPTAssigments();
+            assigments.setEntity(entityType);
+            assigments.setAssigments(new ArrayList<NewPTNewAssigment>());
+
+            Random random = new Random();
+            final int numberOfProperties = random.nextInt(20) + 1;
+            for (int i = 0; i < numberOfProperties; i++)
+            {
+                // Property Type
+                final String propertyTypeCode = "TEST_PROPERTY_TYPE_CODE_" + random.nextInt();
+                final String propertyTypeLabel = "TEST_PROPERTY_TYPE_LABEL_" + random.nextInt();
+                final String propertyTypeDescription = "TEST_PROPERTY_TYPE_DESCRIPTION_" + random.nextInt();
+                final DataType dataType = new DataType();
+                dataType.setCode(DataTypeCode.INTEGER);
+
+                PropertyType newPropertyType = new PropertyType();
+                newPropertyType.setCode(propertyTypeCode);
+                newPropertyType.setLabel(propertyTypeLabel);
+                newPropertyType.setDescription(propertyTypeDescription);
+                newPropertyType.setDataType(dataType);
+
+                // New Assignments
+                NewETPTAssignment newETPTAssigment = new NewETPTAssignment();
+                newETPTAssigment.setEntityKind(entityKind);
+                newETPTAssigment.setPropertyTypeCode(propertyTypeCode);
+                newETPTAssigment.setEntityTypeCode(entityTypeCode);
+                newETPTAssigment.setOrdinal((long) assigments.getAssigments().size());
+
+                NewPTNewAssigment newPTNewAssigment = new NewPTNewAssigment();
+                newPTNewAssigment.setExistingPropertyType(false);
+                newPTNewAssigment.setPropertyType(newPropertyType);
+                newPTNewAssigment.setAssignment(newETPTAssigment);
+
+                assigments.refreshOrderAdd(newPTNewAssigment);
+            }
+
+            // Call
+            commonServer.registerEntitytypeAndAssignPropertyTypes(systemSessionToken, assigments);
+
+            // Validation
+            List<EntityTypePropertyType<?>> listAssigments = commonServer.listEntityTypePropertyTypes(systemSessionToken, entityType);
+            for (int i = 0; i < assigments.getAssigments().size(); i++)
+            {
+                assertEquals(assigments.getAssigments().get(i).getPropertyType(), listAssigments.get(i).getPropertyType());
+            }
+        }
+    }
 }
