@@ -20,6 +20,7 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
+import ch.systemsx.cisd.openbis.uitest.page.UserSettingsDialog;
 
 /**
  * @author anttil
@@ -32,6 +33,8 @@ public abstract class SprintSuite extends SeleniumTest
         useGui();
         login(ADMIN_USER, ADMIN_PASSWORD);
 
+        enableLegacyUi(); // This is here to enable the legacy UI for metadata since tests use it
+
         // TODO
         // This is because changing filters later at the same time with columns
         // causes StaleElementReferenceExceptions. Should be fixed.
@@ -39,6 +42,15 @@ public abstract class SprintSuite extends SeleniumTest
         browser().goTo(sampleBrowser()).allSpaces();
         browser().goTo(sampleBrowser()).getPaging().settings();
         browser().goTo(sampleBrowser()).getSettings().showFilters("Subcode");
+    }
+
+    protected void enableLegacyUi()
+    {
+        UserSettingsDialog settings = browser().goTo(userSettings());
+        settings.setLegacyUi();
+        settings.save();
+        logout();
+        login(ADMIN_USER, ADMIN_PASSWORD);
     }
 
     @AfterTest

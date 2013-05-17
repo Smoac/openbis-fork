@@ -93,6 +93,7 @@ import ch.systemsx.cisd.openbis.uitest.gui.RegisterSampleBatchGui;
 import ch.systemsx.cisd.openbis.uitest.layout.Location;
 import ch.systemsx.cisd.openbis.uitest.layout.RegisterSampleLocation;
 import ch.systemsx.cisd.openbis.uitest.layout.SampleBrowserLocation;
+import ch.systemsx.cisd.openbis.uitest.layout.UserSettingsDialogLocation;
 import ch.systemsx.cisd.openbis.uitest.menu.TabBar;
 import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.page.Browsable;
@@ -188,16 +189,14 @@ public abstract class SeleniumTest
 
         /* Run against sprint server */
         /*
-         * asUrl = "https://sprint-openbis.ethz.ch/openbis"; dssUrl =
-         * "https://sprint-openbis.ethz.ch"; startPage = asUrl;
+         * asUrl = "https://sprint-openbis.ethz.ch/openbis"; dssUrl = "https://sprint-openbis.ethz.ch"; startPage = asUrl;
          */
 
         /* Run against local DSS and local AS in development mode */
         /* Firefox profile should be one with GWT dev mode plugin available */
         /*
          * asUrl = "http://127.0.0.1:8888"; dssUrl = "http://127.0.0.1:8889"; startPage = asUrl +
-         * "/ch.systemsx.cisd.openbis.OpenBIS/index.html?gwt.codesvr=127.0.0.1:9997";
-         * System.setProperty("webdriver.firefox.profile", "default");
+         * "/ch.systemsx.cisd.openbis.OpenBIS/index.html?gwt.codesvr=127.0.0.1:9997"; System.setProperty("webdriver.firefox.profile", "default");
          */
 
         if (asUrl == null)
@@ -462,6 +461,11 @@ public abstract class SeleniumTest
     protected SampleBrowserLocation sampleBrowser()
     {
         return new SampleBrowserLocation();
+    }
+
+    protected UserSettingsDialogLocation userSettings()
+    {
+        return new UserSettingsDialogLocation();
     }
 
     protected Collection<SampleType> sampleTypesInSampleBrowser()

@@ -25,8 +25,16 @@ public class UserMenu
     @Locate("openbis_top-menu_USER_MENU_LOGOUT")
     private Link logout;
 
+    @Locate("openbis_top-menu_USER_MENU_CHANGE_SETTINGS")
+    private Link settings;
+
     public void logout()
     {
         logout.click();
+    }
+
+    public void settings()
+    {
+        settings.click();
     }
 }
