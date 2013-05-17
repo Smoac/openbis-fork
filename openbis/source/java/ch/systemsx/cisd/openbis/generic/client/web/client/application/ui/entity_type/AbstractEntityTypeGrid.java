@@ -61,13 +61,18 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
 {
     protected IDelegatedAction postRegistrationCallback;
 
+    protected ComponentProvider componentProvider;
+
     abstract protected void register(T entityType, AsyncCallback<Void> registrationCallback);
 
     protected AbstractEntityTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext,
+            ComponentProvider componentProvider,
             String browserId, String gridId)
     {
         super(viewContext, browserId, true, DisplayTypeIDGenerator.TYPE_BROWSER_GRID);
+        this.componentProvider = componentProvider;
         postRegistrationCallback = createRefreshGridAction();
+
         extendBottomToolbar();
         allowMultipleSelection();
     }
@@ -94,7 +99,7 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
                             @Override
                             public void componentSelected(ButtonEvent ce)
                             {
-                                DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getNewEntityTypeForm(entityKind, null));
+                                DispatcherHelper.dispatchNaviEvent(componentProvider.getNewEntityTypeForm(entityKind, null));
                             }
                         });
             buttonAddNew.setId("add-entity-type-new-" + getEntityKindOrNull());
@@ -107,7 +112,7 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
                             public void invoke(BaseEntityModel<TableModelRowWithObject<T>> selectedItem, boolean keyPressed)
                             {
                                 T entityType = selectedItem.getBaseObject().getObjectOrNull();
-                                DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getNewEntityTypeForm(entityKind, entityType));
+                                DispatcherHelper.dispatchNaviEvent(componentProvider.getNewEntityTypeForm(entityKind, entityType));
                             }
 
                         });

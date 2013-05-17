@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEditEntityTypeDialog;
@@ -74,15 +75,15 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
     private static final Boolean DEFAULT_SHOW_PARENTS_VALUE = true;
 
     public static IDisposableComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext, ComponentProvider componentProvider)
     {
-        final SampleTypeGrid grid = new SampleTypeGrid(viewContext);
+        final SampleTypeGrid grid = new SampleTypeGrid(viewContext, componentProvider);
         return grid.asDisposableWithoutToolbar();
     }
 
-    private SampleTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
+    private SampleTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext, ComponentProvider componentProvider)
     {
-        super(viewContext, BROWSER_ID, GRID_ID);
+        super(viewContext, componentProvider, BROWSER_ID, GRID_ID);
     }
 
     @Override

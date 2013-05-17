@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DataSetKindSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
@@ -64,15 +65,15 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
     public static final String GRID_ID = BROWSER_ID + TypedTableGrid.GRID_POSTFIX;
 
     public static IDisposableComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext, ComponentProvider componentProvider)
     {
-        final DataSetTypeGrid grid = new DataSetTypeGrid(viewContext);
+        final DataSetTypeGrid grid = new DataSetTypeGrid(viewContext, componentProvider);
         return grid.asDisposableWithoutToolbar();
     }
 
-    private DataSetTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
+    private DataSetTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext, ComponentProvider componentProvider)
     {
-        super(viewContext, BROWSER_ID, GRID_ID);
+        super(viewContext, componentProvider, BROWSER_ID, GRID_ID);
     }
 
     @Override

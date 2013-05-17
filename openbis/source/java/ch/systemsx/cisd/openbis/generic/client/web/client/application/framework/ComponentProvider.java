@@ -1366,12 +1366,13 @@ public final class ComponentProvider
 
     public AbstractTabItemFactory getSampleTypeBrowser()
     {
+    	final ComponentProvider componentProvider = this;
         return new AbstractTabItemFactory()
             {
                 @Override
                 public ITabItem create()
                 {
-                    IDisposableComponent component = SampleTypeGrid.create(viewContext);
+                    IDisposableComponent component = SampleTypeGrid.create(viewContext, componentProvider);
                     return createTab(getTabTitle(), component);
                 }
 
@@ -1404,12 +1405,13 @@ public final class ComponentProvider
 
     public AbstractTabItemFactory getMaterialTypeBrowser()
     {
+		final ComponentProvider componentProvider = this;
         return new AbstractTabItemFactory()
             {
                 @Override
                 public ITabItem create()
                 {
-                    IDisposableComponent component = MaterialTypeGrid.create(viewContext);
+                    IDisposableComponent component = MaterialTypeGrid.create(viewContext, componentProvider);
                     return createTab(getTabTitle(), component);
                 }
 
@@ -1442,26 +1444,20 @@ public final class ComponentProvider
 
     public AbstractTabItemFactory getNewEntityTypeForm(final EntityKind kind, final EntityType type)
     {
+    	final ComponentProvider componentProvider = this;
         return new AbstractTabItemFactory()
             {
                 @Override
                 public ITabItem create()
                 {
-                    DatabaseModificationAwareComponent component = NewEntityTypeForm.create(kind, type, viewContext);
+                    DatabaseModificationAwareComponent component = NewEntityTypeForm.create(kind, type, viewContext, componentProvider);
                     return createRegistrationTab(getTabTitle(), component);
                 }
 
                 @Override
                 public String getId()
                 {
-                    if (type == null) // Create new entity option
-                    {
-                        return NewEntityTypeForm.BROWSER_ID + "-" + kind.name() + "-" + System.currentTimeMillis();
-                    } else
-                    // Edit existing entity option
-                    {
-                        return NewEntityTypeForm.BROWSER_ID + "-" + kind.name() + "-" + type.getCode();
-                    }
+                    return NewEntityTypeForm.getTabId(kind, type);
                 }
 
                 @Override
@@ -1493,12 +1489,13 @@ public final class ComponentProvider
 
     public AbstractTabItemFactory getExperimentTypeBrowser()
     {
+    	final ComponentProvider componentProvider = this;
         return new AbstractTabItemFactory()
             {
                 @Override
                 public ITabItem create()
                 {
-                    IDisposableComponent component = ExperimentTypeGrid.create(viewContext);
+                    IDisposableComponent component = ExperimentTypeGrid.create(viewContext, componentProvider);
                     return createTab(getTabTitle(), component);
                 }
 
@@ -1531,12 +1528,13 @@ public final class ComponentProvider
 
     public AbstractTabItemFactory getDataSetTypeBrowser()
     {
+    	final ComponentProvider componentProvider = this;
         return new AbstractTabItemFactory()
             {
                 @Override
                 public ITabItem create()
                 {
-                    IDisposableComponent component = DataSetTypeGrid.create(viewContext);
+                    IDisposableComponent component = DataSetTypeGrid.create(viewContext, componentProvider);
                     return createTab(getTabTitle(), component);
                 }
 

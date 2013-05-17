@@ -6,8 +6,10 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataSetKindModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.BorderLayoutDataFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DataSetKindSelectionWidget;
@@ -44,6 +46,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -67,6 +70,8 @@ public class NewEntityTypeForm extends ContentPanel
 
     private NewETNewPTAssigments newTypeWithAssigments;
 
+    private final ComponentProvider componentProvider;
+
     //
     // Entity Form Related
     //
@@ -77,11 +82,13 @@ public class NewEntityTypeForm extends ContentPanel
     //
     // Form Creation
     //
-    private NewEntityTypeForm(EntityKind kind, EntityType entityToEdit, IViewContext<ICommonClientServiceAsync> viewContext)
+    private NewEntityTypeForm(EntityKind kind, EntityType entityToEdit, IViewContext<ICommonClientServiceAsync> viewContext,
+            ComponentProvider componentProvider)
     {
         this.kind = kind;
         this.entityToEdit = entityToEdit;
         this.viewContext = viewContext;
+        this.componentProvider = componentProvider;
 
         // Main panel
         setLayout(new BorderLayout());
@@ -89,19 +96,20 @@ public class NewEntityTypeForm extends ContentPanel
         this.setBorders(false);
         this.setBodyBorder(false);
 
-        initForm(false);
+        initForm();
     }
 
     public static DatabaseModificationAwareComponent create(
             EntityKind kind,
             EntityType entityToEdit,
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            ComponentProvider componentProvider)
     {
-        NewEntityTypeForm form = new NewEntityTypeForm(kind, entityToEdit, viewContext);
+        NewEntityTypeForm form = new NewEntityTypeForm(kind, entityToEdit, viewContext, componentProvider);
         return new DatabaseModificationAwareComponent(form, new CompositeDatabaseModificationObserver());
     }
 
-    private void initForm(boolean isRefresh)
+    private void initForm()
     {
         // Cleanup for the form and for the in memory structure
         removeAll();
@@ -110,7 +118,7 @@ public class NewEntityTypeForm extends ContentPanel
 
         // Top panel
         initEntityTypeForm();
-        if (entityToEdit == null || isRefresh)
+        if (entityToEdit == null)
         {
             initCreateEntity();
         } else
@@ -143,19 +151,19 @@ public class NewEntityTypeForm extends ContentPanel
         switch (kind)
         {
             case SAMPLE:
-                typeGrid = (SampleTypeGrid) SampleTypeGrid.create(viewContext).getComponent();
+                typeGrid = (SampleTypeGrid) SampleTypeGrid.create(viewContext, componentProvider).getComponent();
                 dialog = ((SampleTypeGrid) typeGrid).getNewDialog((SampleType) new SampleType());
                 break;
             case DATA_SET:
-                typeGrid = (DataSetTypeGrid) DataSetTypeGrid.create(viewContext).getComponent();
+                typeGrid = (DataSetTypeGrid) DataSetTypeGrid.create(viewContext, componentProvider).getComponent();
                 dialog = ((DataSetTypeGrid) typeGrid).getNewDialog((DataSetType) new DataSetType());
                 break;
             case EXPERIMENT:
-                typeGrid = (ExperimentTypeGrid) ExperimentTypeGrid.create(viewContext).getComponent();
+                typeGrid = (ExperimentTypeGrid) ExperimentTypeGrid.create(viewContext, componentProvider).getComponent();
                 dialog = ((ExperimentTypeGrid) typeGrid).getNewDialog((ExperimentType) new ExperimentType());
                 break;
             case MATERIAL:
-                typeGrid = (MaterialTypeGrid) MaterialTypeGrid.create(viewContext).getComponent();
+                typeGrid = (MaterialTypeGrid) MaterialTypeGrid.create(viewContext, componentProvider).getComponent();
                 dialog = (AddEntityTypeDialog<MaterialType>) ((MaterialTypeGrid) typeGrid)
                         .getNewDialog((MaterialType) new MaterialType());
                 break;
@@ -408,6 +416,18 @@ public class NewEntityTypeForm extends ContentPanel
         }
     }
 
+    public static String getTabId(EntityKind kind, EntityType type)
+    {
+        if (type == null) // Create new entity option
+        {
+            return NewEntityTypeForm.BROWSER_ID + "-" + kind.name() + "-New";
+        } else
+        // Edit existing entity option
+        {
+            return NewEntityTypeForm.BROWSER_ID + "-" + kind.name() + "-" + type.getCode();
+        }
+    }
+
     private class AsyncCallbackEntityType implements AsyncCallback<String>
     {
         @Override
@@ -433,11 +453,16 @@ public class NewEntityTypeForm extends ContentPanel
             if (entityToEdit == null)
             {
                 MessageBox.alert("Success", "Registration Successful.", null);
-                initForm(true);
             } else
             {
                 MessageBox.alert("Success", "Update Successful.", null);
             }
+
+            // Close Tab
+            MainTabPanel tabPanel = (MainTabPanel) componentProvider.tryGetMainTabPanel();
+            String getTabId = getTabId(kind, entityToEdit) + MainTabPanel.TAB_SUFFIX;
+            TabItem item = tabPanel.getItemByItemId(getTabId);
+            item.close();
         }
     }
 }

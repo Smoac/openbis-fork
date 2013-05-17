@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEntityTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddEntityTypeDialog;
@@ -49,15 +50,15 @@ public class MaterialTypeGrid extends AbstractEntityTypeGrid<MaterialType>
     public static final String GRID_ID = BROWSER_ID + TypedTableGrid.GRID_POSTFIX;
 
     public static IDisposableComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext, ComponentProvider componentProvider)
     {
-        final MaterialTypeGrid grid = new MaterialTypeGrid(viewContext);
+        final MaterialTypeGrid grid = new MaterialTypeGrid(viewContext, componentProvider);
         return grid.asDisposableWithoutToolbar();
     }
 
-    private MaterialTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
+    private MaterialTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext, ComponentProvider componentProvider)
     {
-        super(viewContext, BROWSER_ID, GRID_ID);
+        super(viewContext, componentProvider, BROWSER_ID, GRID_ID);
     }
 
     @Override
