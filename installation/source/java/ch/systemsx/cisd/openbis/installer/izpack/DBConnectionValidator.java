@@ -76,11 +76,11 @@ public class DBConnectionValidator extends AbstractDataValidator
         String adminPassword = getAdminPassword();
         String owner = getOwner();
         String ownerPassword = getOwnerPassword();
-        if (testConnectionOK(admin, adminPassword, "admin user") == false)
+        if (testConnectionOK(admin, adminPassword, "database.admin-user") == false)
         {
             return Status.ERROR;
         }
-        if (testConnectionOK(owner, ownerPassword, "owner") == false)
+        if (testConnectionOK(owner, ownerPassword, "database.owner") == false)
         {
             return Status.ERROR;
         }
@@ -169,7 +169,7 @@ public class DBConnectionValidator extends AbstractDataValidator
 
     private void createMessage(Exception exception, String messagePostfix)
     {
-        setErrorMessage(exception.getMessage() + ".\nThe error is probably caused by an illconfigured "
+        setErrorMessage(exception.getMessage() + ".\nThe error is probably caused by an ill-configured "
                 + messagePostfix + ".");
     }
 }
