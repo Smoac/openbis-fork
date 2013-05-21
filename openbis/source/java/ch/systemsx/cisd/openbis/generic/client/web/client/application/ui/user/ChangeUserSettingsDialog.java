@@ -59,10 +59,11 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
  */
 public class ChangeUserSettingsDialog extends AbstractSaveDialog
 {
-    public static final String DIALOG_ID = GenericConstants.ID_PREFIX
-            + "change-user-settings-dialog";
+    public static final String DIALOG_ID = GenericConstants.ID_PREFIX + "change-user-settings-dialog";
 
     public static final String GROUP_FIELD_ID = DIALOG_ID + "-group-field";
+
+    public static final String LEGACYUI_FIELD_ID = GROUP_FIELD_ID + "-legacyUI-field";
 
     private final IViewContext<?> viewContext;
 
@@ -135,6 +136,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         GWTUtils.setToolTip(field,
                 "When selected the legacy  UI to manage metadata is available and the new one is hidden. A change on this field needs to Re-Login the application.");
         field.setValue(viewContext.getDisplaySettingsManager().isLegacyMedadataUIEnabled());
+        field.setId(LEGACYUI_FIELD_ID);
         return field;
     }
 
