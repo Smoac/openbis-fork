@@ -13,7 +13,7 @@ import glob
 
 build_server = "ci"
 dest_dir = os.path.expanduser("~")
-server_url = 'http://localhost:8090'
+server_url = 'http://stage-jenkins.ethz.ch:8090'
 
 def run_cmd(cmd): 
   print(" ".join(cmd))
