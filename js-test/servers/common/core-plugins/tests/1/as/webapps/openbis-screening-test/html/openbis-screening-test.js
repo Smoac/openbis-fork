@@ -452,34 +452,37 @@ test("loadFeaturesForDatasetWellReferences() for physical data set", function(){
 	testLoadFeaturesForDatasetWellReferences(listFeatureVectorPhysicalDatasets);
 });
 
-/*
-
-FAILS
-
+/* FAILS
 test("loadFeaturesForDatasetWellReferences() for container data set", function(){
 	testLoadFeaturesForDatasetWellReferences(listFeatureVectorContainerDatasets);
 });
 */
 
-test("loadFeatures()", function(){
+var testLoadFeatures = function(listFeatureVectorDatasetsFunction){
 	createFacadeAndLogin(function(facade){
 		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
 		
-		facade.listFeatureVectorDatasets(plateIdentifiers, function(response){
-			var featureDatasets = response.result;
+		listFeatureVectorDatasetsFunction(facade, plateIdentifiers, function(featureDatasets){
 			var featureCodes = ["ROW_NUMBER", "STATE"];
 			
 			facade.loadFeatures(featureDatasets, featureCodes, function(response){
-				assertObjectsCount(response.result, 2);
+				assertObjectsCount(response.result, 1);
 				assertArrays(response.result[0].featureCodes, featureCodes, 'Feature codes are correct');
 				equal(response.result[0].featureVectors.length, 96, 'Feature vectors count is correct');
-				assertArrays(response.result[1].featureCodes, featureCodes, 'Feature codes are correct');
-				equal(response.result[1].featureVectors.length, 96, 'Feature vectors count is correct');
 				facade.close();
 			});
 		});
 	});
+}
+
+test("loadFeatures() for physical data set", function(){
+	testLoadFeatures(listFeatureVectorPhysicalDatasets);
 });
+
+test("loadFeatures() for container data set", function(){
+	testLoadFeatures(listFeatureVectorContainerDatasets);
+});
+
 
 test("loadImagesBase64ForImageReferencesAndImageConversion()", function(){
 	createFacadeAndLogin(function(facade){
@@ -605,10 +608,12 @@ test("loadPhysicalThumbnailsBase64ForImageReferencesAndImageRepresentationFormat
 	});
 });
 
-test("loadImagesBase64ForDataSetIdentifierAndWellPositionsAndChannelAndImageSize()", function(){
+testLoadImagesBase64ForDataSetIdentifierAndWellPositionsAndChannelAndImageSize = function(datasetCode){
 	createFacadeAndLogin(function(facade){
-		listImageDatasetReferencesForPlateIdentifier(facade, "/PLATONIC/PLATE-1", function(imageDataSets){
-			var dataSetIdentifier = imageDataSets[0];
+		var datasetCodes = [datasetCode];
+		
+		facade.getDatasetIdentifiers(datasetCodes, function(response){
+			var dataSetIdentifier = response.result[0];
 			var wellPositions = [ createWellPosition(1, 1) ];
 			var channel = "DAPI";
 			var thumbnailSizeOrNull = createImageSize(100, 100);
@@ -619,14 +624,21 @@ test("loadImagesBase64ForDataSetIdentifierAndWellPositionsAndChannelAndImageSize
 			});
 		});
 	});
+}
+
+/* FAILS
+test("loadImagesBase64ForDataSetIdentifierAndWellPositionsAndChannelAndImageSize() for physical data set", function(){
+	testLoadImagesBase64ForDataSetIdentifierAndWellPositionsAndChannelAndImageSize("20130412143119901-199");
+});
+*/
+
+test("loadImagesBase64ForDataSetIdentifierAndWellPositionsAndChannelAndImageSize() for container data set", function(){
+	testLoadImagesBase64ForDataSetIdentifierAndWellPositionsAndChannelAndImageSize("20130412143121081-200");
 });
 
-
-// TODO: this method works only for a container dataset
-
-test("loadImagesBase64ForDataSetIdentifierAndChannelAndImageSize()", function(){
+var testLoadImagesBase64ForDataSetIdentifierAndChannelAndImageSize = function(datasetCode){
 	createFacadeAndLogin(function(facade){
-		var datasetCodes = ["20130417094937144-429"];
+		var datasetCodes = [datasetCode];
 		
 		facade.getDatasetIdentifiers(datasetCodes, function(response){
 			var datasetIdentifier = response.result[0];
@@ -639,13 +651,21 @@ test("loadImagesBase64ForDataSetIdentifierAndChannelAndImageSize()", function(){
 			});
 		});
 	});
+}
+
+/* FAILS
+test("loadImagesBase64ForDataSetIdentifierAndChannelAndImageSize() for physical data set", function(){
+	testLoadImagesBase64ForDataSetIdentifierAndChannelAndImageSize("20130417094936021-428");
+});
+*/
+
+test("loadImagesBase64ForDataSetIdentifierAndChannelAndImageSize() for container data set", function(){
+	testLoadImagesBase64ForDataSetIdentifierAndChannelAndImageSize("20130417094937144-429");
 });
 
-// TODO: this method works only for a container dataset
-
-test("loadThumbnailImagesBase64ForDataSetIdentifierAndChannels()", function(){
+var testLoadThumbnailImagesBase64ForDataSetIdentifierAndChannels = function(datasetCode){
 	createFacadeAndLogin(function(facade){
-		var datasetCodes = ["20130417094937144-429"];
+		var datasetCodes = [datasetCode];
 		
 		facade.getDatasetIdentifiers(datasetCodes, function(response){
 			var datasetIdentifier = response.result[0];
@@ -657,12 +677,24 @@ test("loadThumbnailImagesBase64ForDataSetIdentifierAndChannels()", function(){
 			});
 		});
 	});
+}
+
+/* FAILS
+test("loadThumbnailImagesBase64ForDataSetIdentifierAndChannels() for physical data set", function(){
+	testLoadThumbnailImagesBase64ForDataSetIdentifierAndChannels("20130417094934693-427");
+});
+*/
+
+test("loadThumbnailImagesBase64ForDataSetIdentifierAndChannels() for container data set", function(){
+	testLoadThumbnailImagesBase64ForDataSetIdentifierAndChannels("20130417094937144-429");
 });
 
-test("listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel()", function(){
+var testListPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel = function(datasetCode){
 	createFacadeAndLogin(function(facade){
-		listImageDatasetReferencesForPlateIdentifier(facade, "/PLATONIC/PLATE-1", function(imageDataSets){
-			var dataSetIdentifier = imageDataSets[0];
+		var datasetCodes = [datasetCode];
+		
+		facade.getDatasetIdentifiers(datasetCodes, function(response){
+			var dataSetIdentifier = response.result[0];
 			var wellPositions = [ createWellPosition(1, 1) ];
 			var channel = "DAPI";
 			
@@ -672,12 +704,25 @@ test("listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel()",
 			});
 		});
 	});
+}
+
+/* FAILS
+test("listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel() for physical data set", function(){
+	testListPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel("20130412143119901-199");
+});
+*/
+
+test("listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel() for container data set", function(){
+	testListPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannel("20130412143121081-200");
 });
 
-test("listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannels()", function(){
+
+var testListPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannels = function(datasetCode){
 	createFacadeAndLogin(function(facade){
-		listImageDatasetReferencesForPlateIdentifier(facade, "/PLATONIC/PLATE-1", function(imageDataSets){
-			var dataSetIdentifier = imageDataSets[0];
+		var datasetCodes = [datasetCode];
+		
+		facade.getDatasetIdentifiers(datasetCodes, function(response){
+			var dataSetIdentifier = response.result[0];
 			var wellPositions = [ createWellPosition(1, 1) ];
 			var channels = ["DAPI"];
 			
@@ -687,13 +732,21 @@ test("listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannels()"
 			});
 		});
 	});
+}
+
+/* FAILS
+test("listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannels() for physical data set", function(){
+	testListPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannels("20130412143119901-199");
+});
+*/
+
+test("listPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannels() for container data set", function(){
+	testListPlateImageReferencesForDataSetIdentifierAndWellPositionsAndChannels("20130412143121081-200");
 });
 
-// TODO: this method works only for a container dataset
-
-test("listImageReferencesForDataSetIdentifierAndChannel()", function(){
+var testListImageReferencesForDataSetIdentifierAndChannel = function(datasetCode){
 	createFacadeAndLogin(function(facade){
-		var datasetCodes = ["20130417094937144-429"];
+		var datasetCodes = [datasetCode];
 		
 		facade.getDatasetIdentifiers(datasetCodes, function(response){
 			var datasetIdentifier = response.result[0];
@@ -705,13 +758,21 @@ test("listImageReferencesForDataSetIdentifierAndChannel()", function(){
 			});
 		});
 	});
+}
+
+/* FAILS
+test("listImageReferencesForDataSetIdentifierAndChannel() for physical data set", function(){
+	testListImageReferencesForDataSetIdentifierAndChannel("20130417094936021-428");
+});
+*/
+
+test("listImageReferencesForDataSetIdentifierAndChannel() for container data set", function(){
+	testListImageReferencesForDataSetIdentifierAndChannel("20130417094937144-429");
 });
 
-// TODO: this method works only for a container dataset
-
-test("listImageReferencesForDataSetIdentifierAndChannels()", function(){
+var testListImageReferencesForDataSetIdentifierAndChannels = function(datasetCode){
 	createFacadeAndLogin(function(facade){
-		var datasetCodes = ["20130417094937144-429"];
+		var datasetCodes = [datasetCode];
 		
 		facade.getDatasetIdentifiers(datasetCodes, function(response){
 			var datasetIdentifier = response.result[0];
@@ -723,6 +784,16 @@ test("listImageReferencesForDataSetIdentifierAndChannels()", function(){
 			});
 		});
 	});
+}
+
+/* FAILS
+test("listImageReferencesForDataSetIdentifierAndChannels() for physical data set", function(){
+	testListImageReferencesForDataSetIdentifierAndChannels("20130417094936021-428");
+});
+*/
+
+test("listImageReferencesForDataSetIdentifierAndChannels() for container data set", function(){
+	testListImageReferencesForDataSetIdentifierAndChannels("20130417094937144-429");
 });
 
 var testListAvailableFeatureLists = function(listFeatureVectorDatasetsFunction){
@@ -739,26 +810,22 @@ var testListAvailableFeatureLists = function(listFeatureVectorDatasetsFunction){
 	});
 }
 
-/*
-
-FAILS
-
+/* FAILS
 test("listAvailableFeatureLists() for physical data set", function(){
 	testListAvailableFeatureLists(listFeatureVectorPhysicalDatasets);
 });
- 
 */
-
+ 
 test("listAvailableFeatureLists() for container data set", function(){
 	testListAvailableFeatureLists(listFeatureVectorContainerDatasets);
 });
 
-test("getFeatureList()", function(){
+var testGetFeatureList = function(listFeatureVectorDatasetsFunction){
 	createFacadeAndLogin(function(facade){
 		var plateIdentifiers = [ createPlateIdentifier("/PLATONIC/PLATE-1") ];
 		
-		facade.listFeatureVectorDatasets(plateIdentifiers, function(response){
-			var featureDataset = response.result[0];
+		listFeatureVectorDatasetsFunction(facade, plateIdentifiers, function(featureDatasets){
+			var featureDataset = featureDatasets[0];
 			
 			facade.getFeatureList(featureDataset, "BARCODE_AND_STATE_FEATURE_LIST", function(response){
 				assertObjectsCount(response.result, 2);
@@ -767,5 +834,14 @@ test("getFeatureList()", function(){
 			});
 		});
 	});
-});
+}
 
+/* FAILS
+test("getFeatureList() for physical data set", function(){
+	testGetFeatureList(listFeatureVectorPhysicalDatasets);
+});
+*/
+
+test("getFeatureList() for container data set", function(){
+	testGetFeatureList(listFeatureVectorContainerDatasets);
+});
