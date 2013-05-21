@@ -217,7 +217,8 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
     @Override
     public void updateLoadedAssignment(NewETPTAssignment assignmentUpdates)
     {
-        if (assignment.getModificationDate().equals(assignmentUpdates.getModificationDate()))
+        if (assignmentUpdates.getModificationDate() != null && // Avoid validation, needed to make multiple modifications with one call
+                assignment.getModificationDate().equals(assignmentUpdates.getModificationDate()) == false)
         {
             throwModifiedEntityException("Property type assignment");
         }

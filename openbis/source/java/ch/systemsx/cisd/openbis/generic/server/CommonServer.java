@@ -1333,6 +1333,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 if (ini.get(i).getPropertyType().getCode().equals(fin.get(i).getPropertyType().getCode())) // Do nothing.
                 {
                     // Positions are equal but maybe something have changed.
+                    newETNewPTAssigments.getAssigments().get(i).getAssignment().setModificationDate(null);
                     updatePropertyTypeAssignment(sessionToken, newETNewPTAssigments.getAssigments().get(i).getAssignment());
                 } else
                 // Something needs to be done.
@@ -1349,6 +1350,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     {
                         if (ini.contains(fin.get(i))) // Is present into another position, but is not this one, move it.
                         { // Edit
+                            newETNewPTAssigments.getAssigments().get(i).getAssignment().setModificationDate(null);
                             updatePropertyTypeAssignment(sessionToken, newETNewPTAssigments.getAssigments().get(i).getAssignment());
                             ini.remove(fin.get(i));
                             ini.add(i, fin.get(i));
