@@ -583,18 +583,30 @@ test("listImageMetadata()", function(){
 	});
 });
 
-test("listAvailableImageRepresentationFormats()", function(){
+var testListAvailableImageRepresentationFormats = function(datasetCode){
 	createFacadeAndLogin(function(facade){
-		listImageDatasetReferencesForPlateIdentifier(facade, "/PLATONIC/PLATE-1", function(imageDataSets){
-			facade.listAvailableImageRepresentationFormats(imageDataSets, function(response){
+		var datasetCodes = [datasetCode];
+		
+		facade.getDatasetIdentifiers(datasetCodes, function(response){
+			var dataSetIdentifiers = response.result; 
+			
+			facade.listAvailableImageRepresentationFormats(dataSetIdentifiers, function(response){
 				assertObjectsCount(response.result, 1);
 				assertObjectsWithValuesFunction(response.result, "datasetCode", function(result){
 					return result.dataset.datasetCode;
-				}, ["20130412143121081-200"]);
+				}, [datasetCode]);
 				facade.close();
 			});
 		});
 	});
+}
+
+test("listAvailableImageRepresentationFormats() for physical data set", function(){
+	testListAvailableImageRepresentationFormats("20130412143119901-199");
+});
+
+test("listAvailableImageRepresentationFormats() for container data set", function(){
+	testListAvailableImageRepresentationFormats("20130412143121081-200");
 });
 
 test("loadPhysicalThumbnailsBase64ForImageReferencesAndImageRepresentationFormat()", function(){
