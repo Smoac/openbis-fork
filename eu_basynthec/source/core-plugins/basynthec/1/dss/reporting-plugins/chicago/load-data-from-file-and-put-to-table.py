@@ -29,7 +29,7 @@ def indexDataByStrainId(data):
   dataById = {}
   for strainData in data:
     tokens = strainData.strip("{}  \n").split(',')
-    theIds = [token for token in tokens if token.startswith('"id"')]
+    theIds = [token for token in tokens if token.strip().startswith('"id"')]
     if (len(theIds) < 1):
        continue
     theId = theIds[0].split(':')[1].strip('"  \n')
@@ -65,7 +65,6 @@ def filterToUnknownStrains(dataSets, dataById):
     for strain in strains:
       if dataById.get(strain) is None:
         unknownStrains.add(strain)
-  print unknownStrains
   return unknownStrains
 
 def aggregate(parameters, table):

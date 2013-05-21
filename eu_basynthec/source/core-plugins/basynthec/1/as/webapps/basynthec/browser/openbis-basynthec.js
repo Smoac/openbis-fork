@@ -64,7 +64,7 @@ openbis_basynthec.prototype.getStrains = function(dataSet)
 
 openbis_basynthec.prototype.getStrainsPhenotypesAndPredictions = function(action){
 	this.server.createReportFromAggregationService("DSS1","chicago", null, function(response){
-		var result = [];
+		var result = {};
 		
 		if(response.result && response.result.rows){
 			$.each(response.result.rows, function(index, row){
@@ -72,6 +72,8 @@ openbis_basynthec.prototype.getStrainsPhenotypesAndPredictions = function(action
 				strain.name = strain.id;
 				strain.hasPredictions = strain.predictions != null && strain.predictions.length > 0;
 				strain.hasPhenotypes = strain.phenotypes != null && strain.phenotypes.length > 0;
+				strain.hasParent = strain.parent != null;
+				strain.hasIntervals = strain.intervals != null;
 				result[strain.id] = strain;
 			});
 		}

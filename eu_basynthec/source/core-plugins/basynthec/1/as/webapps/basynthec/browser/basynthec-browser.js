@@ -411,7 +411,7 @@ AppPresenter.prototype.retrieveOd600DataForDataSet = function(ds)
 	var tsvPathInDataSet = "";
 	ds.files.forEach(function (file) { if (endsWith(file.pathInDataSet, "xls.tsv")) tsvPathInDataSet = file.pathInDataSet});
 		
-	var tsvUrl = dssUrl + "/" + ds.bis.code + "/" + tsvPathInDataSet + "?sessionID=" + basynthec.server.getSession();
+	var tsvUrl = dssUrl + "/" + ds.bis.code + "/" + tsvPathInDataSet + "?sessionID=" + basynthec.server.sessionToken;
 	
 	var lexicalParent = this;
 
@@ -1040,6 +1040,8 @@ Od600InspectorView.prototype.updateView = function(duration)
 		});
 
 	appendGrowthSection(inspectorEnter);
+	appendParentSection(inspectorEnter);
+	appendIntervalsSection(inspectorEnter);
 	
 	appendObjectSection({
 		getSectionContainer: function(){
@@ -1180,6 +1182,32 @@ Od600InspectorView.prototype.updateView = function(duration)
 		.duration(duration)
 		.style("opacity", "0")
 		.remove();
+}
+
+function appendParentSection(inspectorEnter) {
+	var parentSection = inspectorEnter.append("div");
+	var parents = parentSection.selectAll("div.parent")
+		.data(function(d) { return [d.data.parent]; });
+	parents.enter().append("div")
+		.attr("class", "parent")
+		.text("Parent: ");
+	parents.selectAll("span")
+		.data(function(d) { return [d] })
+	.enter().append("span")
+		.text(function (d) { return (d) ? d : "None" });
+}
+
+function appendIntervalsSection(inspectorEnter) {
+	var intervalsSection = inspectorEnter.append("div");
+	var intervals = intervalsSection.selectAll("div.intervals")
+		.data(function(d) {	return [d.data.intervals]; });
+	intervals.enter().append("div")
+		.attr("class", "intervals")
+		.text("Intervals: ");
+	intervals.selectAll("span")
+		.data(function(d) { return d; })
+	.enter().append("span")
+		.text(function (d) { return d + " " });
 }
 
 function appendGrowthSection(inspectorEnter) {
