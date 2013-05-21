@@ -24,7 +24,9 @@ import static ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeModel.USE
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -33,6 +35,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -63,10 +67,54 @@ import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.FacadeFactory;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 
 /**
+ * Abstract super class of all openBIS KNIME nodes.
+ * 
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
 {
+    private static final class Key
+    {
+        private final String url;
+        private final String userID;
+        private final String password;
+
+        Key(String url, String userID, String password)
+        {
+            this.url = url;
+            this.userID = userID;
+            this.password = password;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (obj == this)
+            {
+                return true;
+            }
+            if (obj instanceof Key == false)
+            {
+                return false;
+            }
+            Key key = (Key) obj;
+            return String.valueOf(key.url).equals(String.valueOf(url))
+                    && String.valueOf(key.userID).equals(String.valueOf(userID))
+                    && String.valueOf(key.password).equals(String.valueOf(password));
+        }
+        
+        @Override
+        public int hashCode()
+        {
+            int result = String.valueOf(url).hashCode();
+            result = 37 * result + String.valueOf(userID).hashCode();
+            result = 37 * result + String.valueOf(password).hashCode();
+            return result;
+        }
+    }
+    
+    private Map<Key, IQueryApiFacade> facades = new HashMap<Key, IQueryApiFacade>();
+
     protected NodeLogger logger;
 
     private JComboBox urlField;
@@ -121,14 +169,7 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    IQueryApiFacade facade = createFacade();
-                    try
-                    {
-                        updateQueryForm(facade);
-                    } catch (Throwable ex)
-                    {
-                        showException(ex);
-                    }
+                    connectServer();
                 }
             });
         connectionPanel.add(button, createLast());
@@ -215,13 +256,39 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
 
     protected abstract void defineQueryForm(JPanel queryPanel);
 
-    protected abstract void updateQueryForm(IQueryApiFacade facade);
+    protected abstract void updateQueryForm(IQueryApiFacade queryFacade);
 
     protected abstract void loadAdditionalSettingsFrom(NodeSettingsRO settings,
             PortObjectSpec[] specs) throws NotConfigurableException;
 
     protected abstract void saveAdditionalSettingsTo(NodeSettingsWO settings)
             throws InvalidSettingsException;
+    
+    private void connectServer()
+    {
+        new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    final IQueryApiFacade queryFacade = createFacade();
+                    EventQueue.invokeLater(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                try
+                                {
+                                    updateQueryForm(queryFacade);
+                                } catch (Throwable ex)
+                                {
+                                    showException(ex);
+                                }
+                            }
+                        });
+                }
+            }).start();
+    }
 
     protected IQueryApiFacade createFacade()
     {
@@ -231,7 +298,22 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
             ICredentials credentials = getCredentials();
             String userID = credentials.getLogin();
             String password = credentials.getPassword();
-            IQueryApiFacade facade = FacadeFactory.create(url, userID, password);
+            Key key = new Key(url, userID, password);
+            IQueryApiFacade facade = facades.get(key);
+            if (facade == null)
+            {
+                JPanel panel = getPanel();
+                Cursor cursor = panel.getCursor();
+                try
+                {
+                    panel.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+                    facade = FacadeFactory.create(url, userID, password);
+                } finally
+                {
+                    panel.setCursor(cursor);
+                }
+                facades.put(key, facade);
+            }
             return facade;
         } catch (RuntimeException ex)
         {
@@ -242,24 +324,34 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
 
     protected IOpenbisServiceFacade createOpenbisFacade()
     {
+        JPanel panel = getPanel();
+        Cursor cursor = panel.getCursor();
         try
         {
             String url = getUrl();
             ICredentials credentials = getCredentials();
             String userID = credentials.getLogin();
             String password = credentials.getPassword();
-            IOpenbisServiceFacade facade = serviceFacadeFactory.createFacade(url, userID, password);
-            return facade;
+            panel.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+            return serviceFacadeFactory.createFacade(url, userID, password);
         } catch (RuntimeException ex)
         {
             showException(ex);
             throw ex;
+        } finally
+        {
+            panel.setCursor(cursor);
         }
     }
 
     protected String getUrl()
     {
-        return urlField.getSelectedItem().toString();
+        Object selectedItem = urlField.getSelectedItem();
+        if (selectedItem == null)
+        {
+            throw new IllegalArgumentException("Missing URL.");
+        }
+        return selectedItem.toString();
     }
     
     protected ICredentials getCredentials()
@@ -267,7 +359,17 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
         Object selectedItem = credentialsField.getSelectedItem();
         if (selectedItem == null || selectedItem.toString().trim().length() == 0)
         {
-            return new Credentials("_", userField.getText(), new String(passwordField.getPassword()));
+            String user = userField.getText();
+            if (StringUtils.isBlank(user))
+            {
+                throw new IllegalArgumentException("Unspecified credentials or missing user.");
+            }
+            char[] password = passwordField.getPassword();
+            if (password == null || password.length == 0)
+            {
+                throw new IllegalArgumentException("Unspecified credentials or missing password.");
+            }
+            return new Credentials("_", user, new String(password));
         }
         return getCredentialsProvider().get(selectedItem.toString());
     }

@@ -52,9 +52,9 @@ public abstract class AbstractDescriptionBasedNodeDialog<D extends Serializable>
     }
 
     @Override
-    protected void updateQueryForm(IQueryApiFacade facade)
+    protected void updateQueryForm(IQueryApiFacade queryFacade)
     {
-        List<D> descriptions = getSortedDescriptions(facade);
+        List<D> descriptions = getSortedDescriptions(queryFacade);
         D selectedQueryDescription = getSelectedDescriptionOrNull();
         descriptionComboBox.removeAllItems();
         for (D description : descriptions)

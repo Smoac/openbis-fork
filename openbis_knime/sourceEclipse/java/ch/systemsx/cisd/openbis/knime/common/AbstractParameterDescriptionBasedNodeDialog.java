@@ -102,7 +102,7 @@ public abstract class AbstractParameterDescriptionBasedNodeDialog<D extends Seri
         List<FieldDescription> fieldDescriptions = getFieldDescriptions(description);
         parametersPanel.removeAll();
         parameterFields.clear();
-        parametersPanel.setVisible(fieldDescriptions.isEmpty() == false);
+        parametersPanel.getParent().setVisible(fieldDescriptions.isEmpty() == false);
         IQueryApiFacade facade = createFacade();
         for (FieldDescription fieldDescription : fieldDescriptions)
         {
