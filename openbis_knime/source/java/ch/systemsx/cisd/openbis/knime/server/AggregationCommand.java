@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTable
  */
 public class AggregationCommand
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             AggregationCommand.class);
     
     public final void handleRequest(Map<String, Object> parameters,
