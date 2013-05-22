@@ -52,7 +52,7 @@ public class AggregationCommand
             }
         } catch (Throwable ex)
         {
-            operationLog.error(ex);
+            operationLog.error("", ex);
             ITableModel tableModel = tableBuilder.getTableModel();
             if (tableModel instanceof TableModel)
             {
