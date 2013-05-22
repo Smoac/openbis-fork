@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 
@@ -126,7 +127,7 @@ public class AggregatedDataFileImportNodeModel extends AbstractOpenBisNodeModel
         try
         {
             in = new URL(baseURL + "/session_workspace_file_download?sessionID=" + sessionToken
-                    + "&filePath=" + fileName).openStream();
+                    + "&filePath=" + URLEncoder.encode(fileName, "UTF-8")).openStream();
             file.getParentFile().mkdirs();
             out = new FileOutputStream(file);
             byte[] buffer = new byte[1024];
