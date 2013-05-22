@@ -23,13 +23,11 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -39,12 +37,11 @@ import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
+
+import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -152,33 +149,10 @@ public class OwnerChooser
         tree.setShowsRootHandles(true);
         tree.setCellRenderer(new DecoratingTreeCellRenderer(tree.getCellRenderer()));
         tree.addTreeExpansionListener(createTreeExpansionListener(tree, chooserTreeModel));
-        final JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(component), "Chooser");
-        dialog.setModal(true);
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(new JScrollPane(tree), BorderLayout.CENTER);
-        JPanel buttonPanel = new JPanel();
-        final JButton okButton = new JButton("OK");
-        okButton.setEnabled(false);
-        okButton.addActionListener(new ActionListener()
-            {
-                @Override
-                public void actionPerformed(ActionEvent event)
-                {
-                    setOwner(tree);
-                    dialog.setVisible(false);
-                }
-            });
-        buttonPanel.add(okButton);
-        panel.add(buttonPanel, BorderLayout.SOUTH);
-        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener()
-            {
-                @Override
-                public void valueChanged(TreeSelectionEvent e)
-                {
-                    okButton.setEnabled(chooserTreeModel.isSelectable(e.getPath()));
-                }
-            });
+        JPanel treePanel = new JPanel(new BorderLayout());
+        treePanel.add(new JScrollPane(tree), BorderLayout.CENTER);
+        final JOptionPane optionPane = new JOptionPane(treePanel, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+        optionPane.setSize(600, 800);
         tree.addMouseListener(new MouseAdapter()
             {
                 @Override
@@ -190,16 +164,24 @@ public class OwnerChooser
                                 tree.getClosestPathForLocation(e.getX(), e.getY());
                         if (chooserTreeModel.isSelectable(closestPathForLocation))
                         {
-                            setOwner(tree);
-                            dialog.setVisible(false);
+                            Window window = SwingUtilities.getWindowAncestor(tree);
+                            if (window != null)
+                            {
+                                optionPane.setValue(JOptionPane.OK_OPTION);
+                                window.setVisible(false);
+                            }
                         }
                     }
                 }
             });
-        dialog.getContentPane().add(panel);
-        dialog.setSize(600, 500);
-        dialog.setLocationRelativeTo(component);
+        String title = StringUtils.capitalize(ownerType.toString().toLowerCase()) + " Chooser";
+        JDialog dialog = optionPane.createDialog(component, title);
         dialog.setVisible(true);
+        Object value = optionPane.getValue();
+        if (new Integer(JOptionPane.OK_OPTION).equals(value))
+        {
+            setOwner(tree);
+        }
         return owner;
     }
 

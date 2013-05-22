@@ -187,7 +187,7 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
     }
 
     @Override
-    protected void loadSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs)
+    protected final void loadSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs)
             throws NotConfigurableException
     {
         String[] urls = getUrls();
@@ -199,7 +199,8 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
         urlField.setSelectedItem(settings.getString(URL_KEY, ""));
         credentialsField.removeAllItems();
         credentialsField.addItem("");
-        for (String credentialsName : getAllCredentialsNames())
+        Collection<String> credentialsNames = getAllCredentialsNames();
+        for (String credentialsName : credentialsNames)
         {
             credentialsField.addItem(credentialsName);
         }
@@ -222,10 +223,11 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
     }
 
     @Override
-    protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException
+    protected final void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException
     {
         settings.addString(URL_KEY, getUrl());
-        String credentialsName = credentialsField.getSelectedItem().toString();
+        Object selectedCredentials = credentialsField.getSelectedItem();
+        String credentialsName = selectedCredentials == null ? "" : selectedCredentials.toString();
         settings.addString(CREDENTIALS_KEY, credentialsName);
         if (StringUtils.isBlank(credentialsName))
         {

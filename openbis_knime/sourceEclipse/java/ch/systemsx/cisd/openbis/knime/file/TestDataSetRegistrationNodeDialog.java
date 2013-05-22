@@ -16,10 +16,15 @@
 
 package ch.systemsx.cisd.openbis.knime.file;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettings;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.workflow.Credentials;
+import org.knime.core.node.workflow.ICredentials;
 
 import ch.systemsx.cisd.openbis.knime.common.OpenbisServiceFacadeFactory;
 
@@ -44,6 +49,23 @@ public class TestDataSetRegistrationNodeDialog extends AbstractTestNodeDialog
                 {
                     NodeSettings settings = createSettings();
                     loadSettingsFrom(settings, (PortObjectSpec[]) null);
+                }
+                @Override
+                protected String[] getUrls()
+                {
+                    return new String[] {"http://localhost:8888"};
+                }
+
+                @Override
+                protected Collection<String> getAllCredentialsNames()
+                {
+                    return Arrays.asList("test");
+                }
+
+                @Override
+                protected ICredentials getCredentials()
+                {
+                    return new Credentials("_", "test", "a");
                 }
             };
     }

@@ -120,6 +120,10 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
         try
         {
             DataSet dataSet = dataSetProvider.getDataSet(url, userID, password, dataSetCode);
+            if (dataSet == null)
+            {
+                throw new IllegalArgumentException("Unknown data set '" + dataSetCode + "'.");
+            }
             pushDataSetMetaDataToVariables(dataSet);
             in = dataSet.getFile(filePath);
             file.getParentFile().mkdirs();

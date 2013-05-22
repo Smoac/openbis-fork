@@ -190,7 +190,8 @@ public class Util
     {
         try
         {
-            return KnimeEncryption.decrypt(settings.getString(PASSWORD_KEY, ""));
+            String encryptedPassword = settings.getString(PASSWORD_KEY, "");
+            return StringUtils.isBlank(encryptedPassword) ? "" : KnimeEncryption.decrypt(encryptedPassword);
         } catch (Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.knime.file;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Window;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -28,9 +31,11 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -39,7 +44,7 @@ import javax.swing.tree.TreeSelectionModel;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 
 /**
- * 
+ * Chooser for files in a data set.
  *
  * @author Franz-Josef Elmer
  */
@@ -161,6 +166,38 @@ public class FileChooser extends JPanel
         add(new JLabel("Choose a single file:"), BorderLayout.NORTH);
         tree = new JTree(new DefaultTreeModel(createTree(dataSetCode, fileInfos), true));
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        tree.addMouseListener(new MouseAdapter()
+            {
+                @Override
+                public void mousePressed(MouseEvent e)
+                {
+                    if (e.getClickCount() < 2)
+                    {
+                        return;
+                    }
+                    TreePath path = tree.getClosestPathForLocation(e.getX(), e.getY());
+                    if (path == null)
+                    {
+                        return;
+                    }
+                    FileInfoDssDTO fileInfo = ((FileNode) path.getLastPathComponent()).getFileInfo();
+                    if (fileInfo.isDirectory())
+                    {
+                        return;
+                    }
+                    Window window = SwingUtilities.getWindowAncestor(tree);
+                    if (window == null)
+                    {
+                        return;
+                    }
+                    JOptionPane op = (JOptionPane) SwingUtilities.getAncestorOfClass(JOptionPane.class, tree);
+                    if (op != null)
+                    {
+                        op.setValue(JOptionPane.OK_OPTION);
+                    }
+                    window.setVisible(false);
+                }
+            });
         add(new JScrollPane(tree), BorderLayout.CENTER);
         setPreferredSize(new Dimension(500, 700));
     }

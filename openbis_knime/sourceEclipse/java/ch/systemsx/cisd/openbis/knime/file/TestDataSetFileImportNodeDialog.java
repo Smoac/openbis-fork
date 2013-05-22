@@ -16,27 +16,61 @@
 
 package ch.systemsx.cisd.openbis.knime.file;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import java.util.Arrays;
+import java.util.Collection;
 
-import ch.systemsx.cisd.common.logging.LogInitializer;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeSettings;
+import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.workflow.Credentials;
+import org.knime.core.node.workflow.ICredentials;
+
+import ch.systemsx.cisd.openbis.knime.common.ParameterBindings;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class TestDataSetFileImportNodeDialog
+public class TestDataSetFileImportNodeDialog extends AbstractTestNodeDialog
 {
     public static void main(String[] args)
     {
-        LogInitializer.init();
-        JFrame frame = new JFrame("test");
-        JPanel panel = new JPanel();
-        frame.getContentPane().add(panel);
-        panel.add(new DataSetFileImportNodeDialog(new DataSetProvider()).getPanel());
-        frame.setSize(600, 600);
-        frame.setVisible(true);
+        AbstractTestNodeDialog.createAndShow(new TestDataSetFileImportNodeDialog());
+    }
+
+    @Override
+    NodeDialogPane create() throws NotConfigurableException
+    {
+        return new DataSetFileImportNodeDialog(new DataSetProvider())
+        {
+            {
+                NodeSettings settings = createSettings();
+                settings.addStringArray(ParameterBindings.PARAMETER_KEYS_KEY, new String[0]);
+                settings.addStringArray(ParameterBindings.PARAMETER_VALUES_KEY, new String[0]);
+                loadSettingsFrom(settings, (PortObjectSpec[]) null);
+            }
+
+            @Override
+            protected String[] getUrls()
+            {
+                return new String[] {"http://localhost:8888"};
+            }
+
+            @Override
+            protected Collection<String> getAllCredentialsNames()
+            {
+                return Arrays.asList("test");
+            }
+
+            @Override
+            protected ICredentials getCredentials()
+            {
+                return new Credentials("_", "test", "a");
+            }
+            
+        };
     }
 
 }

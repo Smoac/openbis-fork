@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.openbis.knime.common;
 
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.io.Serializable;
 import java.util.List;
 
 import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -38,6 +41,7 @@ import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 public abstract class AbstractDescriptionBasedNodeDialog<D extends Serializable> extends AbstractOpenBisNodeDialog
 {
     private JComboBox descriptionComboBox;
+    private FocusAdapter focusListener;
 
     protected AbstractDescriptionBasedNodeDialog(String tabTitle)
     {
@@ -48,6 +52,17 @@ public abstract class AbstractDescriptionBasedNodeDialog<D extends Serializable>
     protected void defineQueryForm(JPanel queryPanel)
     {
         descriptionComboBox = new JComboBox();
+        focusListener = new FocusAdapter()
+            {
+                @Override
+                public void focusGained(FocusEvent e)
+                {
+                    JOptionPane.showMessageDialog(descriptionComboBox, 
+                            "Please, reconnect to openBIS to get all available " + getDescriptionKey() + ".");
+                    descriptionComboBox.removeFocusListener(focusListener);
+                }
+            };
+        descriptionComboBox.addFocusListener(focusListener);
         defineQueryForm(queryPanel, descriptionComboBox);
     }
 
@@ -56,6 +71,7 @@ public abstract class AbstractDescriptionBasedNodeDialog<D extends Serializable>
     {
         List<D> descriptions = getSortedDescriptions(queryFacade);
         D selectedQueryDescription = getSelectedDescriptionOrNull();
+        descriptionComboBox.removeFocusListener(focusListener);
         descriptionComboBox.removeAllItems();
         for (D description : descriptions)
         {
@@ -75,7 +91,7 @@ public abstract class AbstractDescriptionBasedNodeDialog<D extends Serializable>
     }
 
     @Override
-    protected void loadAdditionalSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs)
+    protected final void loadAdditionalSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs)
             throws NotConfigurableException
     {
         byte[] bytes = settings.getByteArray(getDescriptionKey(), null);
@@ -89,19 +105,20 @@ public abstract class AbstractDescriptionBasedNodeDialog<D extends Serializable>
     }
 
     @Override
-    protected void saveAdditionalSettingsTo(NodeSettingsWO settings)
+    protected final void saveAdditionalSettingsTo(NodeSettingsWO settings)
             throws InvalidSettingsException
     {
         byte[] bytes = Util.serializeDescription(getSelectedDescriptionOrNull());
         settings.addByteArray(getDescriptionKey(), bytes);
         saveMoreSettingsTo(settings);
     }
-
+    
     protected abstract void defineQueryForm(JPanel queryPanel, JComboBox comboBoxWithDescriptions);
 
     protected abstract List<D> getSortedDescriptions(IQueryApiFacade facade);
     
     protected abstract String getDescriptionKey();
+    
     
     protected abstract void loadMoreSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs)
             throws NotConfigurableException;

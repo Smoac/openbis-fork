@@ -109,7 +109,10 @@ public class DataSetRegistrationNodeModel extends AbstractOpenBisNodeModel
     @Override
     protected void saveAdditionalSettingsTo(NodeSettingsWO settings)
     {
-        settings.addByteArray(DATA_SET_TYPE_KEY, Util.serializeDescription(dataSetType));
+        if (dataSetType != null)
+        {
+            settings.addByteArray(DATA_SET_TYPE_KEY, Util.serializeDescription(dataSetType));
+        }
         settings.addString(OWNER_TYPE_KEY, (ownerType == null ? DataSetOwnerType.EXPERIMENT
                 : ownerType).name());
         settings.addString(OWNER_KEY, owner);

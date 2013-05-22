@@ -220,16 +220,13 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
             }
             FileInfoDssDTO[] files = dataSet.listFiles("", true);
             FileChooser fileChooser = new FileChooser(dataSetCode, files);
-            JOptionPane.showMessageDialog(getPanel(), fileChooser);
+            int result = JOptionPane.showOptionDialog(getPanel(), fileChooser, "Data Set File Chooser", 
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
             FileInfoDssDTO fileInfo = fileChooser.getSelectedFileInfoOrNull();
             if (fileInfo != null && fileInfo.getPathInListing() != null
-                    && fileInfo.isDirectory() == false)
+                    && fileInfo.isDirectory() == false && result == JOptionPane.OK_OPTION)
             {
                 filePathField.setText(fileInfo.getPathInDataSet());
-            } else
-            {
-                JOptionPane.showMessageDialog(getPanel(),
-                        "Either no file or a directory has been chosen");
             }
         } catch (RuntimeException e)
         {

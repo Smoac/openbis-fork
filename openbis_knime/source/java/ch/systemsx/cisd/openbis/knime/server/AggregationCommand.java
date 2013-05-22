@@ -18,7 +18,11 @@ package ch.systemsx.cisd.openbis.knime.server;
 
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ITableModel;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTableModelBuilderAdaptor;
@@ -30,6 +34,9 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.api.ISimpleTable
  */
 public class AggregationCommand
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            AggregationCommand.class);
+    
     public final void handleRequest(Map<String, Object> parameters,
             ISimpleTableModelBuilderAdaptor tableBuilder)
     {
@@ -45,6 +52,7 @@ public class AggregationCommand
             }
         } catch (Throwable ex)
         {
+            operationLog.error(ex);
             ITableModel tableModel = tableBuilder.getTableModel();
             if (tableModel instanceof TableModel)
             {
