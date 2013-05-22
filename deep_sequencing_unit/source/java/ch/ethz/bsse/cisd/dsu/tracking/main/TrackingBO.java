@@ -16,7 +16,11 @@
 
 package ch.ethz.bsse.cisd.dsu.tracking.main;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -30,9 +34,19 @@ import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchOperator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -42,27 +56,40 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  */
 public class TrackingBO
 {
-    private static final String SEQUENCING_SAMPLE_TYPE = "ILLUMINA_SEQUENCING";
+    private static final String EXTERNAL_SAMPLE_NAME = "EXTERNAL_SAMPLE_NAME";
 
-    private static final String FLOW_LANE_SAMPLE_TYPE = "ILLUMINA_FLOW_LANE";
+    private static final String LIBRARY_SAMPLE_TYPE = "LIBRARY";
 
-    private static final String PROCESSING_POSSIBLE_PROPERTY_CODE = "LIBRARY_PROCESSING_POSSIBLE";
+    private static final String RAW_SAMPLE_TYPE = "RAW_SAMPLE";
+
+    private static final String DATASET_ATTACHED_TO_SAMPLE_TYPE = "LIBRARY";
+
+    private static final String PROCESSING_POSSIBLE_PROPERTY_CODE = "LIBRARY_PROCESSING_POSSIBLE_YES_NO";
 
     private static final String PROCESSING_SUCCESSFUL_PROPERTY_CODE =
             "LIBRARY_PROCESSING_SUCCESSFUL";
 
+    private final static String CONTACT_PERSON_EMAIL = "CONTACT_PERSON_EMAIL";
+
+    private final static String PRINCIPAL_INVESTIGATOR_EMAIL = "PRINCIPAL_INVESTIGATOR_EMAIL";
+
     private static final String TRUE = "true";
 
+    private static final String YES = "YES";
+
     private final ITrackingServer trackingServer;
+
+    private final IGeneralInformationService gis;
 
     private final IEntityTrackingEmailGenerator emailGenerator;
 
     private final IMailClient mailClient;
 
-    public TrackingBO(ITrackingServer trackingServer, IEntityTrackingEmailGenerator emailGenerator,
+    public TrackingBO(ITrackingServer trackingServer, IGeneralInformationService gis, IEntityTrackingEmailGenerator emailGenerator,
             IMailClient mailClient)
     {
         this.trackingServer = trackingServer;
+        this.gis = gis;
         this.emailGenerator = emailGenerator;
         this.mailClient = mailClient;
     }
@@ -72,7 +99,7 @@ public class TrackingBO
         TrackingStateDTO prevTrackingState = trackingDAO.getTrackingState();
 
         TrackedEntities changedEntities =
-                fetchChangedEntities(prevTrackingState, trackingServer, session);
+                fetchChangedEntities(prevTrackingState, trackingServer, gis, session);
         List<EmailWithSummary> emailsWithSummary = emailGenerator.generateEmails(changedEntities);
         sendEmails(emailsWithSummary, mailClient);
         saveTrackingState(prevTrackingState, changedEntities, trackingDAO);
@@ -163,17 +190,18 @@ public class TrackingBO
     }
 
     private static TrackedEntities fetchChangedEntities(TrackingStateDTO trackingState,
-            ITrackingServer trackingServer, SessionContextDTO session)
+            ITrackingServer trackingServer, IGeneralInformationService gis, SessionContextDTO session)
     {
         List<Sample> sequencingSamplesToBeProcessed =
-                listSequencingSamples(PROCESSING_POSSIBLE_PROPERTY_CODE, trackingState
-                        .getAlreadyTrackedSampleIdsToBeProcessed(), trackingServer, session);
+                listSequencingSamples(RAW_SAMPLE_TYPE, YES, PROCESSING_POSSIBLE_PROPERTY_CODE, trackingState
+                        .getAlreadyTrackedSampleIdsToBeProcessed(), trackingServer, gis, session);
+
         List<Sample> sequencingSamplesSuccessfullyProcessed =
-                listSequencingSamples(PROCESSING_SUCCESSFUL_PROPERTY_CODE, trackingState
-                        .getAlreadyTrackedSampleIdsProcessed(), trackingServer, session);
+                listSequencingSamples(LIBRARY_SAMPLE_TYPE, TRUE, PROCESSING_SUCCESSFUL_PROPERTY_CODE, trackingState
+                        .getAlreadyTrackedSampleIdsProcessed(), trackingServer, gis, session);
 
         TrackingDataSetCriteria dataSetCriteria =
-                new TrackingDataSetCriteria(FLOW_LANE_SAMPLE_TYPE, trackingState
+                new TrackingDataSetCriteria(DATASET_ATTACHED_TO_SAMPLE_TYPE, trackingState
                         .getLastSeenDatasetId());
         List<AbstractExternalData> dataSets =
                 trackingServer.listDataSets(session.getSessionToken(), dataSetCriteria);
@@ -182,22 +210,100 @@ public class TrackingBO
                 sequencingSamplesSuccessfullyProcessed, dataSets);
     }
 
-    private static List<Sample> listSequencingSamples(String propertyTypeCode,
-            Set<Long> alreadyTrackedSampleIds, ITrackingServer trackingServer,
+    private static List<Sample> listSequencingSamples(String SampleType, String propertyValue, String propertyTypeCode,
+            Set<Long> alreadyTrackedSampleIds, ITrackingServer trackingServer, IGeneralInformationService gis,
             SessionContextDTO session)
     {
-        return listSamples(SEQUENCING_SAMPLE_TYPE, propertyTypeCode, TRUE, alreadyTrackedSampleIds,
-                trackingServer, session);
+        return listSamples(SampleType, propertyTypeCode, propertyValue, alreadyTrackedSampleIds,
+                trackingServer, gis, session);
     }
 
     private static List<Sample> listSamples(String sampleType, String propertyTypeCode,
             String propertyValue, Set<Long> alreadyTrackedSampleIds,
-            ITrackingServer trackingServer, SessionContextDTO session)
+            ITrackingServer trackingServer, IGeneralInformationService gis, SessionContextDTO session)
     {
         TrackingSampleCriteria criteria =
                 new TrackingSampleCriteria(sampleType, propertyTypeCode, propertyValue,
                         alreadyTrackedSampleIds);
-        return trackingServer.listSamples(session.getSessionToken(), criteria);
+        List<Sample> samples = trackingServer.listSamples(session.getSessionToken(), criteria);
+
+        for (Sample sample : samples)
+        {
+            SearchCriteria parentCriteria = new SearchCriteria();
+            parentCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
+
+            for (Sample parent : sample.getParents())
+            {
+                parentCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, parent.getCode()));
+            }
+
+            List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample> apiParents =
+                    gis.searchForSamples(session.getSessionToken(), parentCriteria,
+                            EnumSet.of(SampleFetchOption.PARENTS, SampleFetchOption.PROPERTIES));
+            Set<Sample> dtoParents = new HashSet<Sample>();
+
+            for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample apiParent : apiParents)
+            {
+                dtoParents.add(convertSample(apiParent));
+            }
+            sample.setParents(dtoParents);
+        }
+
+        return samples;
+    }
+
+    private static Sample convertSample(ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample apiSample)
+    {
+        Sample dtoSample = new Sample();
+
+        EntityProperty person = new EntityProperty();
+        EntityProperty pi = new EntityProperty();
+        EntityProperty externalSampleName = new EntityProperty();
+
+        List<IEntityProperty> propertyList = new ArrayList<IEntityProperty>();
+
+        dtoSample.setCode(apiSample.getCode());
+        String sampleTypeCode = apiSample.getSampleTypeCode();
+
+        SampleType stc = new SampleType();
+        stc.setCode(sampleTypeCode);
+
+        dtoSample.setSampleType(stc);
+
+        Map<String, String> properties = apiSample.getProperties();
+
+        PropertyType personType = new PropertyType();
+        PropertyType piType = new PropertyType();
+        PropertyType externalSampleNameType = new PropertyType();
+
+        personType.setCode(CONTACT_PERSON_EMAIL);
+        piType.setCode(PRINCIPAL_INVESTIGATOR_EMAIL);
+        externalSampleNameType.setCode(EXTERNAL_SAMPLE_NAME);
+
+        person.setPropertyType(personType);
+        person.setValue(properties.get(CONTACT_PERSON_EMAIL));
+        propertyList.add(person);
+
+        pi.setPropertyType(piType);
+        pi.setValue(properties.get(PRINCIPAL_INVESTIGATOR_EMAIL));
+        propertyList.add(pi);
+
+        externalSampleName.setPropertyType(externalSampleNameType);
+        externalSampleName.setValue(properties.get(EXTERNAL_SAMPLE_NAME));
+        propertyList.add(externalSampleName);
+
+        dtoSample.setProperties(propertyList);
+
+        if (apiSample.getRetrievedFetchOptions().contains(SampleFetchOption.PARENTS))
+        {
+            Set<Sample> dtoParents = new HashSet<Sample>();
+            for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample apiParent : apiSample.getParents())
+            {
+                dtoParents.add(convertSample(apiParent));
+            }
+            dtoSample.setParents(dtoParents);
+        }
+        return dtoSample;
     }
 
     static class TrackingStateUpdateHelper

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeMap;
 
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackedEntities;
@@ -163,11 +164,11 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
 
         private static final String PERMLINK_LABEL = "See details in openBIS";
 
-        private static final String GENARATED_CONTENT_TARGET = "{generated-content}";
+        private static final String GENERATED_CONTENT_TARGET = "{generated-content}";
 
         public static String fillTemplateWithData(String template, EntityTrackingEmailData emailData)
         {
-            return template.replace(GENARATED_CONTENT_TARGET, generateContent(emailData));
+            return template.replace(GENERATED_CONTENT_TARGET, generateContent(emailData));
         }
 
         private static String generateContent(EntityTrackingEmailData emailData)
@@ -179,12 +180,33 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             return sb.toString();
         }
 
+        private static String getName(Sample sequencingSample)
+        {
+            /**
+             * We try to get the external sample name recursively in the sample tree. This means we take the first name in the tree. This results in
+             * the following precedence: LIBARY -> RAW
+             */
+
+            String externalSampleName = getExternalSampleName(sequencingSample);
+            if (externalSampleName == null || externalSampleName.isEmpty())
+            {
+                Set<Sample> parents = sequencingSample.getParents();
+                for (Sample parent : parents)
+                {
+                    externalSampleName = getName(parent);
+                }
+            }
+
+            return externalSampleName;
+
+        }
+
         private static void appendSequencingSamplesData(StringBuilder sb,
                 Collection<Sample> sequencingSamples, boolean processed)
         {
             for (Sample sequencingSample : sequencingSamples)
             {
-                final String externalSampleName = getExternalSampleName(sequencingSample);
+                String externalSampleName = getName(sequencingSample);
 
                 appendln(sb, SECTION_SEPARATOR_LINE);
                 appendln(sb, SUBSECTION_SEPARATOR_LINE);
@@ -229,18 +251,19 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             appendln(sb, SUBSECTION_SEPARATOR_LINE);
             appendln(sb, "There are new sequencing results available to you.");
             appendln(sb, SUBSECTION_SEPARATOR_LINE);
-            
+
             // Using a TreeMap, so the keys are sorted
             TreeMap<String, List<AbstractExternalData>> sampleMap = new TreeMap<String, List<AbstractExternalData>>();
-            List <AbstractExternalData> dsList = new ArrayList<AbstractExternalData>();
-            
+            List<AbstractExternalData> dsList = new ArrayList<AbstractExternalData>();
+
             // we just loop over the data sets and write the connected samples as keys
-            // and the data sets as values in a map, so that we can group together as 
+            // and the data sets as values in a map, so that we can group together as
             // data sets per lane
             for (AbstractExternalData dataSet : dataSets)
             {
                 Sample s = dataSet.getSample();
-                if (sampleMap.containsKey(s.getIdentifier())) {
+                if (sampleMap.containsKey(s.getIdentifier()))
+                {
                     dsList = sampleMap.get(s.getIdentifier());
                 }
                 dsList.add(dataSet);
@@ -250,11 +273,13 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
 
             // now we can write out this per sample
             Iterator<Entry<String, List<AbstractExternalData>>> it = sampleMap.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry pairs = (Map.Entry)it.next();
+            while (it.hasNext())
+            {
+                Map.Entry pairs = (Map.Entry) it.next();
                 appendln(sb, String.format("Results for %s", pairs.getKey()));
                 dsList = (List<AbstractExternalData>) pairs.getValue();
-                for (AbstractExternalData ed : dsList) {
+                for (AbstractExternalData ed : dsList)
+                {
                     appendDataSetDetails(sb, ed);
                 }
                 it.remove(); // avoids a ConcurrentModificationException
@@ -270,23 +295,27 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             assert flowLaneSample != null;
             sequencingSamples = flowLaneSample.getParents();
             assert sequencingSamples != null;
-            
+
             String Index1 = getIndex1(dataSet);
             String Index2 = getIndex2(dataSet);
             String Index = null;
 
-            if (Index1 != null) {
+            if (Index1 != null)
+            {
                 Index = Index1;
             }
-            if (Index2 != null) {
+            if (Index2 != null)
+            {
                 Index = Index + "-" + Index2;
             }
 
-            if (Index != null) {
+            if (Index != null)
+            {
                 appendln(sb, "Data Set Type: " + dataSet.getDataSetType().toString() +
                         " Index: " + Index);
             }
-            else {
+            else
+            {
                 appendln(sb, "Data Set Type: " + dataSet.getDataSetType().toString());
             }
             appendln(sb, dataSet.getPermlink());
@@ -296,33 +325,26 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
         {
             String externalSampleName =
                     tryGetSamplePropertyValue(sequencingSample, EXTERNAL_SAMPLE_NAME_PROPERTY_CODE);
-            assert externalSampleName != null;
+            // assert externalSampleName != null;
+            if (externalSampleName == null)
+            {
+                externalSampleName = "";
+            }
             return externalSampleName;
         }
-        
-        private static String getIndex1(AbstractExternalData dataSet) {
+
+        private static String getIndex1(AbstractExternalData dataSet)
+        {
             List<IEntityProperty> properties = dataSet.getProperties();
-            
-            String Index = null; 
-            for (IEntityProperty p : properties) {
-                if (p.getPropertyType().getCode().equals(INDEX1_PROPERTY_CODE)) {
+
+            String Index = null;
+            for (IEntityProperty p : properties)
+            {
+                if (p.getPropertyType().getCode().equals(INDEX1_PROPERTY_CODE))
+                {
                     Index = p.getVocabularyTerm().getCode();
-                    if (! Index.equals("NOINDEX")) {
-                        return Index;
-                    }
-                }
-            }
-            return null;
-        }
-        
-        private static String getIndex2(AbstractExternalData dataSet) {
-            List<IEntityProperty> properties = dataSet.getProperties();
-            
-            String Index = null; 
-            for (IEntityProperty p : properties) {
-                if (p.getPropertyType().getCode().equals(INDEX2_PROPERTY_CODE)) {
-                    Index = p.getVocabularyTerm().getCode();
-                    if (! Index.equals("NOINDEX")) {
+                    if (!Index.equals("NOINDEX"))
+                    {
                         return Index;
                     }
                 }
@@ -330,6 +352,24 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             return null;
         }
 
+        private static String getIndex2(AbstractExternalData dataSet)
+        {
+            List<IEntityProperty> properties = dataSet.getProperties();
+
+            String Index = null;
+            for (IEntityProperty p : properties)
+            {
+                if (p.getPropertyType().getCode().equals(INDEX2_PROPERTY_CODE))
+                {
+                    Index = p.getVocabularyTerm().getCode();
+                    if (!Index.equals("NOINDEX"))
+                    {
+                        return Index;
+                    }
+                }
+            }
+            return null;
+        }
 
         private static String tryGetSamplePropertyValue(Sample sequencingSample, String propertyCode)
         {
@@ -383,6 +423,12 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             Arrays.fill(line, separatorChar);
             return new String(line);
         }
+
+    }
+
+    public static void findSampleWithExternalSampleName(Sample sequencingSample)
+    {
+        // TODO Auto-generated method stub
 
     }
 

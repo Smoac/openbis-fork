@@ -29,7 +29,6 @@ import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 import net.lemnik.eodsql.TypeMapper;
 import net.lemnik.eodsql.spi.util.NonUpdateCapableDataObjectBinding;
-
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
@@ -43,11 +42,10 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
- * A {@link TransactionQuery} interface for obtaining large sets of sample-related entities from the
- * database.
+ * A {@link TransactionQuery} interface for obtaining large sets of sample-related entities from the database.
  * <p>
- * This interface is intended to be used only in this package. The <code>public</code> modifier is
- * needed for creating a dynamic proxy by the EOD SQL library.
+ * This interface is intended to be used only in this package. The <code>public</code> modifier is needed for creating a dynamic proxy by the EOD SQL
+ * library.
  * 
  * @author Bernd Rinn
  */
@@ -165,8 +163,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
             String groupCode, long sampleTypeId);
 
     /**
-     * Returns the samples for the given <var>groupCode</var> and <var>sampleTypeId</var> that are
-     * assigned to an experiment.
+     * Returns the samples for the given <var>groupCode</var> and <var>sampleTypeId</var> that are assigned to an experiment.
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " join spaces g on s.space_id=g.id "
             + " where s.expe_id is not null and g.dbin_id=?{1} and g.code=?{2} and s.saty_id=?{3} "
@@ -200,8 +197,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
             long sampleTypeId);
 
     /**
-     * Returns the samples for all spaces and <var>sampleTypeId</var> that are assigned to an
-     * experiment.
+     * Returns the samples for all spaces and <var>sampleTypeId</var> that are assigned to an experiment.
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " join spaces g on s.space_id=g.id "
             + " where s.expe_id is not null and g.dbin_id=?{1} and s.saty_id=?{2} "
@@ -282,9 +278,8 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
     //
 
     /**
-     * Returns all samples with a <var>propertyType</var> attached having specified
-     * <var>popertyValue</var>. Additionally id of the sample SHOULDN'T be in the specified set of
-     * ids.
+     * Returns all samples with a <var>propertyType</var> attached having specified <var>popertyValue</var>. Additionally id of the sample SHOULDN'T
+     * be in the specified set of ids.
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " where s.saty_id=?{1} and s.id in ("
             + "       select samp_id from sample_properties sp where sp.stpt_id in ("
@@ -294,6 +289,22 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
             + "       ) and not id = any(?{4})", parameterBindings =
         { TypeMapper.class, TypeMapper.class, TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getSamplesWithPropertyValue(long sampleTypeId,
+            String propertyTypeCode, String propertyValue, LongSet sampleIds);
+
+    /**
+     * Returns all samples with a <var>propertyType</var> and s specific <var>propertyValue</var> The <var>propertyValue</var> is a term of a
+     * controlled vocabulary in this case. Additionally <var>sampleTypeId</var> should not be in the the list of <var>sampleIds</var>
+     */
+    @Select(sql = SELECT_FROM_SAMPLES_S + " where s.saty_id=?{1} and s.id in ("
+            + "       select samp_id from sample_properties sp where sp.stpt_id in ("
+            + "              select id from sample_type_property_types stpt where stpt.prty_id = "
+            + "                     (select id from property_types where code=?{2})"
+            + "              )  and cvte_id in ( "
+            + "                        select id from controlled_vocabulary_terms where code=?{3}"
+            + "                 )"
+            + "       ) and not id = any(?{4})", parameterBindings =
+        { TypeMapper.class, TypeMapper.class, TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getSamplesWithControlledVocabularyWithPropertyValue(long sampleTypeId,
             String propertyTypeCode, String propertyValue, LongSet sampleIds);
 
     //
@@ -335,8 +346,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
     }
 
     /**
-     * Returns the sample type for the given <code>sampleCode</code>. Note that the code of the
-     * result is already HTML escaped.
+     * Returns the sample type for the given <code>sampleCode</code>. Note that the code of the result is already HTML escaped.
      */
     @Select(sql = "select id, code, generated_from_depth, part_of_depth from sample_types"
             + "      where code=?{2} and dbin_id=?{1}", resultSetBinding = SampleTypeDataObjectBinding.class)
@@ -408,8 +418,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
             LongSet sampleIds);
 
     /**
-     * Returns all controlled vocabulary property values of all samples specified by
-     * <var>sampleIds</var>.
+     * Returns all controlled vocabulary property values of all samples specified by <var>sampleIds</var>.
      * 
      * @param sampleIds The set of sample ids to get the property values for.
      */

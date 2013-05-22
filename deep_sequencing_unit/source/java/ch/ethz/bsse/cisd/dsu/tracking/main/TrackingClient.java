@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -74,10 +75,11 @@ public class TrackingClient
         Parameters params = new Parameters(props);
 
         ITrackingServer trackingServer = createOpenBISTrackingServer(params);
+        IGeneralInformationService gis = createOpenBISGeneralInformationService(params);
         IEntityTrackingEmailGenerator emailGenerator =
                 new EntityTrackingEmailGenerator(props, retrieveEmailTemplate());
         IMailClient mailClient = params.getMailClient();
-        TrackingBO trackingBO = new TrackingBO(trackingServer, emailGenerator, mailClient);
+        TrackingBO trackingBO = new TrackingBO(trackingServer, gis, emailGenerator, mailClient);
 
         ITrackingDAO trackingDAO = new FileBasedTrackingDAO(LOCAL_STORAGE_FILE);
 
@@ -90,6 +92,13 @@ public class TrackingClient
     {
         String serviceURL = params.getOpenbisServerURL() + OPENBIS_RMI_TRACKING;
         return HttpInvokerUtils.createServiceStub(ITrackingServer.class, serviceURL,
+                5 * DateUtils.MILLIS_PER_MINUTE);
+    }
+
+    private static IGeneralInformationService createOpenBISGeneralInformationService(Parameters params)
+    {
+        String serviceURL = params.getOpenbisServerURL() + IGeneralInformationService.SERVICE_URL;
+        return HttpInvokerUtils.createServiceStub(IGeneralInformationService.class, serviceURL,
                 5 * DateUtils.MILLIS_PER_MINUTE);
     }
 

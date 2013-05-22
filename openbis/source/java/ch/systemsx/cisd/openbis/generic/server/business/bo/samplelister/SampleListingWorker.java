@@ -59,19 +59,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 
 /**
- * A business worker object for fast sample listing. It has only one interface method, which is
- * {@link #load()}. This method deals with
+ * A business worker object for fast sample listing. It has only one interface method, which is {@link #load()}. This method deals with
  * <ul>
  * <li>information stored in the sample table</li>
  * <li>sample type information</li>
  * <li>assigned experiment, project, group and database instance</li>
  * <li>sample relationships (parent-child and contained-container)</li>
  * </ul>
- * It delegates the work of enriching the samples with properties to an implementation of a
- * {@link IEntityPropertiesEnricher}. The worker follows the logic that only the samples specified
- * by the {@link ListSampleCriteria}, the <i>primary samples</i>, should be enriched with properties
- * (as only primary samples are shown in a separate row of the list). From <i>dependent samples</i>,
- * only basic information is obtained.
+ * It delegates the work of enriching the samples with properties to an implementation of a {@link IEntityPropertiesEnricher}. The worker follows the
+ * logic that only the samples specified by the {@link ListSampleCriteria}, the <i>primary samples</i>, should be enriched with properties (as only
+ * primary samples are shown in a separate row of the list). From <i>dependent samples</i>, only basic information is obtained.
  * 
  * @author Bernd Rinn
  */
@@ -214,8 +211,8 @@ final class SampleListingWorker extends AbstractLister
     //
 
     /**
-     * Load the samples defined by the criteria given to the constructor. The samples will be
-     * enriched with sample properties and dependencies to parents and container will be resolved.
+     * Load the samples defined by the criteria given to the constructor. The samples will be enriched with sample properties and dependencies to
+     * parents and container will be resolved.
      */
     public List<Sample> load()
     {
@@ -234,7 +231,8 @@ final class SampleListingWorker extends AbstractLister
         retrievePrimaryBasicSamples(tryGetIteratorForContainedSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForParentSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForChildSamples());
-        retrievePrimaryBasicSamples(tryGetIteratorForNewTrackedSamples());
+        retrievePrimaryBasicSamples(tryGetIteratorForNewTrackedProcessedSamples());
+        retrievePrimaryBasicSamples(tryGetIteratorForNewTrackedToBeProcessedSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForMetaprojectSamples());
         if (operationLog.isDebugEnabled())
         {
@@ -589,7 +587,7 @@ final class SampleListingWorker extends AbstractLister
         }
     }
 
-    private Iterable<SampleRecord> tryGetIteratorForNewTrackedSamples()
+    private Iterable<SampleRecord> tryGetIteratorForNewTrackedProcessedSamples()
     {
         if (criteria.getSampleTypeCode() == null)
         {
@@ -600,6 +598,21 @@ final class SampleListingWorker extends AbstractLister
         final String propertyTypeCode = criteria.getPropertyTypeCode();
         final String propertyValue = criteria.getPropertyValue();
         return query.getSamplesWithPropertyValue(sampleTypeId, propertyTypeCode, propertyValue,
+                new LongOpenHashSet(criteria.getAlreadyTrackedSampleIds()));
+
+    }
+
+    private Iterable<SampleRecord> tryGetIteratorForNewTrackedToBeProcessedSamples()
+    {
+        if (criteria.getSampleTypeCode() == null)
+        {
+            return null;
+        }
+        final long sampleTypeId =
+                referencedEntityDAO.getSampleTypeIdForSampleTypeCode(criteria.getSampleTypeCode());
+        final String propertyTypeCode = criteria.getPropertyTypeCode();
+        final String propertyValue = criteria.getPropertyValue();
+        return query.getSamplesWithControlledVocabularyWithPropertyValue(sampleTypeId, propertyTypeCode, propertyValue,
                 new LongOpenHashSet(criteria.getAlreadyTrackedSampleIds()));
     }
 
