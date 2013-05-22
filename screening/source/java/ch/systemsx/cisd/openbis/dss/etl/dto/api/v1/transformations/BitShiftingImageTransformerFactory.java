@@ -14,7 +14,7 @@ import ch.systemsx.cisd.common.image.IntensityRescaling;
  * 
  * @author Jakub Straszewski
  */
-@JsonObject("BitShiftingImageTransformerFactory")
+@JsonObject("BitShiftingImageTransformerFactory_obsolete")
 final class BitShiftingImageTransformerFactory implements IImageTransformerFactory
 {
     private static final long serialVersionUID = 1L;
