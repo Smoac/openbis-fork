@@ -1,12 +1,12 @@
-This short text explain how to do development, build and deploymanet of openBIS KNIME nodes.
+This short text explain how to do development, build and deployment of openBIS KNIME nodes.
 
 Prerequisites for developing
 ============================
 
 1. There are three Eclipse projects which belong together:
    openbis_knime, openbis_knime.feature and openbis_knime.update-site
-   All three have to be checked out.
-2. In addition the KNIME plug-in has to be installed.
+   All three have to be checked out (they won't compile properly until KNIME plugin-in is installed).
+2. In addition the KNIME Node Development Tools plug-in has to be installed.
    The update site is http://www.knime.org/update/2.7/
    
 Developing and Testing
