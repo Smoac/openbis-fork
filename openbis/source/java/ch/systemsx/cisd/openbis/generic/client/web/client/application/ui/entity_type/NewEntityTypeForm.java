@@ -452,10 +452,10 @@ public class NewEntityTypeForm extends ContentPanel
         {
             if (entityToEdit == null)
             {
-                MessageBox.alert("Success", "Registration Successful.", null);
+                MessageBox.info("Success", "Registration Successful.", null);
             } else
             {
-                MessageBox.alert("Success", "Update Successful.", null);
+                MessageBox.info("Success", "Update Successful.", null);
             }
 
             // Close Tab
