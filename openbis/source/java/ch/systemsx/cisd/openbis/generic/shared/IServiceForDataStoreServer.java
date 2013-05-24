@@ -388,6 +388,13 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
     public String createPermId(final String sessionToken) throws UserFailureException;
 
     /**
+     * Create and return a list of new permanent ids that can be used to identify samples,
+     * experiments and datasets.
+     */
+    @Transactional
+    public List<String> createPermIds(final String sessionToken, int n) throws UserFailureException;
+
+    /**
      * Draw a new unique ID. The returned value is guaranteed to be unique.
      */
     @Transactional

@@ -217,7 +217,8 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
     @Override
     public void updateLoadedAssignment(NewETPTAssignment assignmentUpdates)
     {
-        if (assignment.getModificationDate().equals(assignmentUpdates.getModificationDate()) == false)
+        if (assignmentUpdates.getModificationDate() != null && // Avoid validation, needed to make multiple modifications with one call
+                assignment.getModificationDate().equals(assignmentUpdates.getModificationDate()) == false)
         {
             throwModifiedEntityException("Property type assignment");
         }
@@ -322,8 +323,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
     }
 
     /**
-     * shift specified entity type etpts by specified increment starting from etpt with specified
-     * ordinal
+     * shift specified entity type etpts by specified increment starting from etpt with specified ordinal
      * 
      * @param entityType
      */

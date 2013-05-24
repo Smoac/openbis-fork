@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.screening.server.dropbox;
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Properties;
 
@@ -262,16 +263,16 @@ public class JythonScreeningDropboxRecoveryTest extends AbstractJythonDataSetHan
             int permIds = 2;
             for (int i = 0; i < permIds; i++)
             {
-                one(openBisService).createPermId();
-                will(returnValue("UNIQUE_PERM_ID_" + i));
+                one(openBisService).createPermIds(with(any(Integer.class)));
+                will(returnValue(Collections.singletonList("UNIQUE_PERM_ID_" + i)));
             }
 
             int dataSets = 3;
             for (int i = 0; i < dataSets; i++)
             {
                 // create dataset
-                one(openBisService).createPermId();
-                will(returnValue(DATA_SET_CODE + i));
+                one(openBisService).createPermIds(with(any(Integer.class)));
+                will(returnValue(Collections.singletonList(DATA_SET_CODE + i)));
 
                 one(dataSetValidator).assertValidDataSet(with(any(DataSetType.class)),
                         with(any(File.class)));

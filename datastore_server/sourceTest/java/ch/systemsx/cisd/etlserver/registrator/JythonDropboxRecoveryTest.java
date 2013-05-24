@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.registrator;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -957,9 +958,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             // create dataset
             for (int i = 0; i < retryCount; i++)
             {
-                one(openBisService).createPermId();
-                will(returnValue(DATA_SET_CODE + i)); // this dataset will never get done anything
-                                                      // about
+                createPermId(DATA_SET_CODE + i);
             }
 
             initialExpectations();
@@ -1031,9 +1030,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             // create dataset
             for (int i = 0; i <= retryCount; i++)
             {
-                one(openBisService).createPermId();
-                will(returnValue(DATA_SET_CODE + i)); // this dataset will never get done anything
-                                                      // about
+                createPermId(DATA_SET_CODE + i);
             }
         }
     }
@@ -1187,8 +1184,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             ignoring(openBisService).heartbeat();
 
             // create dataset
-            one(openBisService).createPermId();
-            will(returnValue(DATA_SET_CODE));
+            createPermId(DATA_SET_CODE);
 
             // get experiment
             atLeast(1).of(openBisService).tryGetExperiment(
@@ -1204,8 +1200,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         {
 
             // create dataset
-            one(openBisService).createPermId();
-            will(returnValue(CONTAINER_DATA_SET_CODE));
+            createPermId(CONTAINER_DATA_SET_CODE);
 
             // validate dataset
             one(dataSetValidator).assertValidDataSet(CONTAINER_DATA_SET_TYPE, null);
@@ -1334,6 +1329,12 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 will(throwException(new EnvironmentFailureException(
                         "Setting storage confirmation fail.")));
             }
+        }
+
+        protected void createPermId(String dataSetCode)
+        {
+            one(openBisService).createPermIds(with(any(Integer.class)));
+            will(returnValue(Collections.singletonList(dataSetCode)));
         }
     }
 

@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogDirectoryHelper;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.IDataStoreStrategy;
+import ch.systemsx.cisd.etlserver.IDataStrategyStore;
 import ch.systemsx.cisd.etlserver.IStorageProcessorTransactional.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.IdentifiedDataStrategy;
@@ -78,6 +79,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
     private final ITopLevelDataSetRegistratorDelegate delegate;
 
+    private final IDataStrategyStore dataStrategyStore;
+
     static private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetRegistrationService.class);
 
@@ -109,6 +112,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         this.globalCleanAfterwardsAction = globalCleanAfterwardsAction;
         this.dataSetRegistrationDetailsFactory = registrationDetailsFactory;
         this.delegate = delegate;
+        this.dataStrategyStore =
+                registratorContext.getDataStrategyStore().getCachedDataStrategyStore();
 
         ThreadParameters threadParameters =
                 registratorContext.getGlobalState().getThreadParameters();
@@ -237,7 +242,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         return rollbacker.doRollback(dssRegistrationLog);
     }
 
-    public void didRollbackTransaction(DataSetRegistrationTransaction<T> transaction,
+    public void didRollbackTransaction(DataSetRegistrationTransaction<T> t,
             DataSetStorageAlgorithmRunner<T> algorithm, Throwable ex, ErrorType errorType)
     {
         encounteredErrors.add(ex);
@@ -256,9 +261,9 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         registrator.didRollbackTransaction(this, transaction, algorithm, ex);
     }
 
-    public void executePostCommit(DataSetRegistrationTransaction<T> transaction)
+    public void executePostCommit(DataSetRegistrationTransaction<T> t)
     {
-        registrator.didCommitTransaction(this, transaction);
+        registrator.didCommitTransaction(this, t);
     }
 
     @Override
@@ -273,11 +278,10 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         registrator.didPostRegistration(this, registrationContextHolder);
     }
 
-    public void didEncounterSecondaryTransactionErrors(
-            DataSetRegistrationTransaction<T> transaction,
+    public void didEncounterSecondaryTransactionErrors(DataSetRegistrationTransaction<T> t,
             List<SecondaryTransactionFailure> secondaryErrors)
     {
-        registrator.didEncounterSecondaryTransactionErrors(this, transaction, secondaryErrors);
+        registrator.didEncounterSecondaryTransactionErrors(this, t, secondaryErrors);
     }
 
     /**
@@ -288,8 +292,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
             DataSetRegistrationDetails<? extends T> dataSetDetails)
     {
         IDataStoreStrategy strategy =
-                registratorContext.getDataStrategyStore().getDataStoreStrategy(
-                        dataSetDetails.getDataSetInformation(), dataSetFile);
+                dataStrategyStore.getDataStoreStrategy(dataSetDetails.getDataSetInformation(),
+                        dataSetFile);
         return createStorageAlgorithmWithStrategy(dataSetFile, dataSetDetails, strategy);
     }
 

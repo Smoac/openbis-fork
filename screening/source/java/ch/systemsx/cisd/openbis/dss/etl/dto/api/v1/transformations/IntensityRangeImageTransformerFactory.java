@@ -16,7 +16,15 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations;
 
+import java.awt.image.BufferedImage;
+import java.util.EnumSet;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.base.image.IImageTransformer;
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+import ch.systemsx.cisd.common.image.IntensityRescaling;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
 
 /**
  * This class is obsolete, and should not be used. Use
@@ -26,15 +34,54 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author Jakub Straszewski
  */
 @JsonObject("IntensityRangeImageTransformerFactory_obsolete")
-public class IntensityRangeImageTransformerFactory
-        extends
-        ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.IntensityRangeImageTransformerFactory
+public class IntensityRangeImageTransformerFactory implements IImageTransformerFactory
 {
     private static final long serialVersionUID = 1L;
 
+    private final int blackPointIntensity;
+
+    private final int whitePointIntensity;
+
     public IntensityRangeImageTransformerFactory(int blackPointIntensity, int whitePointIntensity)
     {
-        super(blackPointIntensity, whitePointIntensity);
+        this.blackPointIntensity = blackPointIntensity;
+        this.whitePointIntensity = whitePointIntensity;
     }
 
+    public int getBlackPointIntensity()
+    {
+        return blackPointIntensity;
+    }
+
+    public int getWhitePointIntensity()
+    {
+        return whitePointIntensity;
+    }
+
+    @Override
+    public IImageTransformer createTransformer()
+    {
+        return new IImageTransformer()
+            {
+                @Override
+                public BufferedImage transform(BufferedImage image)
+                {
+                    if (IntensityRescaling.isNotGrayscale(image))
+                    {
+                        EnumSet<Channel> channels = IntensityRescaling.getUsedRgbChannels(image);
+                        if (channels.size() != 1)
+                        {
+                            return image;
+                        } else
+                        {
+                            Levels levels = new Levels(blackPointIntensity, whitePointIntensity);
+                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels,
+                                    channels.iterator().next());
+                        }
+                    }
+                    Levels levels = new Levels(blackPointIntensity, whitePointIntensity);
+                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
+                }
+            };
+    }
 }

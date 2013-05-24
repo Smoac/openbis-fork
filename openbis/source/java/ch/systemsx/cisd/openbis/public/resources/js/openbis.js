@@ -297,7 +297,9 @@ openbis.prototype.login = function(userId, userPassword, action) {
 					openbisObj._internal.sessionToken = loginResponse.result;
 					openbisObj.rememberSession();
 				}
-				action(loginResponse);
+				openbisObj._internal.initDataStores(function(){
+					action(loginResponse);	
+				});
 			}
 	 });
 }
@@ -1725,3 +1727,244 @@ openbisWebAppContext.prototype.getParameter = function(parameterName){
 	return this._internal.getParameter(parameterName);
 }
 
+/**
+ * =======================
+ * OpenBIS Search Criteria
+ * =======================
+ *
+ * Methods and classes for constructing search criteria objects for use in searches.
+ */
+
+/**
+ * It is easier to construct instances of match clauses using one of the factory methods:
+ *
+ * 		createPropertyMatch
+ * 		createAttributeMatch
+ * 		createTimeAttributeMatch
+ * 		createAnyPropertyMatch
+ * 		createAnyFieldMatch
+ *
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause
+ * @class
+ */
+function SearchCriteriaMatchClause(type, fieldType, fieldCode, desiredValue) {
+	this["@type"] = type;
+	this["fieldType"] = fieldType;
+	this["fieldCode"] = fieldCode;
+	this["desiredValue"] = desiredValue;
+	// compareMode should be one of "LESS_THAN_OR_EQUAL", "EQUALS", "GREATER_THAN_OR_EQUAL"
+	this["compareMode"] = "EQUALS";
+}
+
+/**
+ * Factory method to create a match for a property.
+ * 
+ * @param propertyCode The code of the property to compare against
+ * @param desiredValue The value used in the comparison
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause.createPropertyMatch(String, String)
+ * @method
+ */
+SearchCriteriaMatchClause.createPropertyMatch = function(propertyCode, desiredValue) {
+	var matchClause = new SearchCriteriaMatchClause("PropertyMatchClause", "PROPERTY", propertyCode, desiredValue);
+	matchClause["propertyCode"] = propertyCode;
+	return matchClause;
+}
+
+/**
+ * Factory method to create a match for an attribute.
+ *
+ * @param attribute Should be a valid ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute.
+ *   It should come from this list:
+ *      // common
+ *      "CODE", "TYPE", "PERM_ID",
+ *      // for sample or experiment
+ *      "SPACE",
+ *      // for experiment
+ *      "PROJECT",
+ *      // for all types of entities
+ *      "METAPROJECT"
+ * @param desiredValue The value used in the comparison 
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause.createAttributeMatch(MatchClauseAttribute, String)
+ * @method
+ */
+SearchCriteriaMatchClause.createAttributeMatch = function(attribute, desiredValue) {
+	var matchClause = new SearchCriteriaMatchClause("AttributeMatchClause", "ATTRIBUTE", attribute, desiredValue);
+	matchClause["attribute"] = attribute;
+	return matchClause;
+}
+
+/**
+ * Factory method to create a MatchClause matching against registration or modification
+ * date.
+ * 
+ * @param attribute Should be a valid ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseTimeAttribute
+ * 	It should come from this list: REGISTRATION_DATE, MODIFICATION_DATE
+ *
+ * @param mode One of "LESS_THAN_OR_EQUAL", "EQUALS", "GREATER_THAN_OR_EQUAL"
+ * @param date The date to compare against, format YYYY-MM-DD
+ * @timezone The time zone of the date ("+1", "-5", "0", etc.)
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause.createAttributeMatch(MatchClauseTimeAttribute, CompareMode, String, String)
+ * @method
+ */
+SearchCriteriaMatchClause.createTimeAttributeMatch = function(attribute, mode, date, timezone)
+{
+    var matchClause = new SearchCriteriaMatchClause("TimeAttributeMatchClause", "ATTRIBUTE", attribute, date);
+	matchClause["attribute"] = attribute;
+	matchClause["compareMode"] = mode;
+	matchClause["timeZone"] = timezone;
+	return matchClause;
+}
+
+/**
+ * Factory method to create a match for against any property.
+ * 
+ * @param desiredValue The value used in the comparison
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause.createAnyPropertyMatch(String)
+ * @method
+ */
+SearchCriteriaMatchClause.createAnyPropertyMatch = function(desiredValue) {
+	var matchClause = new SearchCriteriaMatchClause("AnyPropertyMatchClause", "ANY_PROPERTY", null, desiredValue);
+	return matchClause;
+}
+
+/**
+ * Factory method to create a match for against any field (property or attribute).
+ * 
+ * @param desiredValue The value used in the comparison
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause.createAnyFieldMatch(String)
+ * @method
+ */
+SearchCriteriaMatchClause.createAnyFieldMatch = function(desiredValue) {
+	var matchClause = new SearchCriteriaMatchClause("AnyFieldMatchClause", "ANY_FIELD", null, desiredValue);
+	return matchClause;
+}
+
+/**
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria
+ * @class
+ */
+function SearchCriteria() {
+	this["@type"] =  "SearchCriteria";
+	// operator should be either of "MATCH_ALL_CLAUSES" or "MATCH_ANY_CLAUSES"
+	this["operator"] = "MATCH_ALL_CLAUSES";
+	this["matchClauses"] = [];
+	this["subCriterias"] = [];
+}
+
+/**
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.addMatchClause(MatchClause)
+ * @method
+ */
+SearchCriteria.prototype.addMatchClause = function(matchClause) {
+	this["matchClauses"].push(matchClause);
+};
+
+/**
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.addSubCriteria(SearchSubCriteria)
+ * @method
+ */
+SearchCriteria.prototype.addSubCriteria = function(subCriteria) {
+	this["subCriterias"].push(subCriteria);
+};
+
+
+/**
+ * It is easier to construct instances of sub criteria using one of the factory methods:
+ *
+ * 		createSampleParentCriteria
+ * 		createSampleChildCriteria
+ * 		createSampleContainerCriteria
+ * 		createSampleCriteria
+ * 		createExperimentCriteria
+ * 		createDataSetContainerCriteria
+ * 		createDataSetParentCriteria
+ * 		createDataSetChildCriteria
+ *
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria
+ * @class
+ */
+function SearchSubCriteria(targetEntityKind, searchCriteria) {
+	this["@type"] = "SearchSubCriteria";
+	this["targetEntityKind"] = targetEntityKind;	
+	this["criteria"] = searchCriteria;
+}
+
+/**
+ * Factory method to create a match for a sample parent.
+ * 
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria.createSampleParentCriteria(SearchCriteria)
+ * @method
+ */
+SearchSubCriteria.createSampleParentCriteria = function(searchCriteria) {
+	return new SearchSubCriteria("SAMPLE_PARENT", searchCriteria)
+}
+
+/**
+ * Factory method to create a match for a sample child.
+ * 
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria.createSampleChildCriteria(SearchCriteria)
+ * @method
+ */
+SearchSubCriteria.createSampleChildCriteria = function(searchCriteria) {
+	return new SearchSubCriteria("SAMPLE_CHILD", searchCriteria)
+}
+
+/**
+ * Factory method to create a match for a sample container.
+ * 
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria.createSampleContainerCriteria(SearchCriteria)
+ * @method
+ */
+SearchSubCriteria.createSampleContainerCriteria = function(searchCriteria) {
+	return new SearchSubCriteria("SAMPLE_CONTAINER", searchCriteria)
+}
+
+/**
+ * Factory method to create a match for a sample.
+ * 
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria.createSampleCriteria(SearchCriteria)
+ * @method
+ */
+SearchSubCriteria.createSampleCriteria = function(searchCriteria) {
+	return new SearchSubCriteria("SAMPLE", searchCriteria)
+}
+
+/**
+ * Factory method to create a match for an experiment.
+ * 
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria.createExperimentCriteria(SearchCriteria)
+ * @method
+ */
+SearchSubCriteria.createExperimentCriteria = function(searchCriteria) {
+	return new SearchSubCriteria("EXPERIMENT", searchCriteria)
+}
+
+/**
+ * Factory method to create a match for a data set container.
+ * 
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria.createDataSetContainerCriteria(SearchCriteria)
+ * @method
+ */
+SearchSubCriteria.createDataSetContainerCriteria = function(searchCriteria) {
+	return new SearchSubCriteria("DATA_SET_CONTAINER", searchCriteria)
+}
+
+/**
+ * Factory method to create a match for a data set parent.
+ * 
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria.createDataSetParentCriteria(SearchCriteria)
+ * @method
+ */
+SearchSubCriteria.createDataSetParentCriteria = function(searchCriteria) {
+	return new SearchSubCriteria("DATA_SET_PARENT", searchCriteria)
+}
+
+/**
+ * Factory method to create a match for a data set child.
+ * 
+ * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria.createDataSetChildCriteria(SearchCriteria)
+ * @method
+ */
+SearchSubCriteria.createDataSetChildCriteria = function(searchCriteria) {
+	return new SearchSubCriteria("DATA_SET_CHILD", searchCriteria)
+}

@@ -1250,7 +1250,38 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        createServer().addVocabularyTerms(SESSION_TOKEN, vocabularyId, terms, previousTermOrdinal);
+        createServer().addVocabularyTerms(SESSION_TOKEN, vocabularyId, terms, previousTermOrdinal,
+                false);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testAddVocabularyTermsManagedInternally()
+    {
+        VocabularyTerm t1 = new VocabularyTerm();
+        t1.setCode("aöé");
+        VocabularyTerm t2 = new VocabularyTerm();
+        t2.setCode("büç");
+        final List<VocabularyTerm> terms = Arrays.asList(t1, t2);
+        final TechId vocabularyId = CommonTestUtils.TECH_ID;
+        final Long previousTermOrdinal = 0L;
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createVocabularyBO(session);
+                    will(returnValue(vocabularyBO));
+
+                    one(vocabularyBO).setAllowChangingInternallyManaged(true);
+                    one(vocabularyBO).loadDataByTechId(vocabularyId);
+                    one(vocabularyBO).addNewTerms(terms, previousTermOrdinal);
+                    one(vocabularyBO).save();
+                }
+            });
+
+        createServer().addVocabularyTerms(SESSION_TOKEN, vocabularyId, terms, previousTermOrdinal,
+                true);
 
         context.assertIsSatisfied();
     }

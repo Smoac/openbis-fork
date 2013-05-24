@@ -51,7 +51,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETNewPTAssigments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewPTNewAssigment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -185,18 +188,24 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
         }
     }
 
-    public static IDisposableComponent create(final IViewContext<ICommonClientServiceAsync> viewContext, EntityType entity)
+    public static IDisposableComponent create(final IViewContext<ICommonClientServiceAsync> viewContext, EntityType entity,
+            NewETNewPTAssigments newTypeWithAssigments)
     {
-        return new PropertyTypeAssignmentGrid(viewContext, entity).asDisposableWithoutToolbar();
+        return new PropertyTypeAssignmentGrid(viewContext, entity, newTypeWithAssigments).asDisposableWithoutToolbar();
     }
 
     private final IDelegatedAction postRegistrationCallback;
+
     private final EntityType entity;
-    
-    private PropertyTypeAssignmentGrid(final IViewContext<ICommonClientServiceAsync> viewContext, EntityType entity)
+
+    private final NewETNewPTAssigments newTypeWithAssigments;
+
+    private PropertyTypeAssignmentGrid(final IViewContext<ICommonClientServiceAsync> viewContext, EntityType entity,
+            NewETNewPTAssigments newTypeWithAssigments)
     {
         super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.PROPERTY_TYPE_ASSIGNMENT_BROWSER_GRID);
         this.entity = entity;
+        this.newTypeWithAssigments = newTypeWithAssigments;
         extendBottomToolbar();
         postRegistrationCallback = createRefreshGridAction();
     }
@@ -205,7 +214,11 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
     {
         addEntityOperationsLabel();
 
-        if(entity != null) { //View showing only property types for one type allow to add new properties  
+        //
+        // Buttons used by the in memory grid form to create new entity types
+        //
+        if (newTypeWithAssigments != null)
+        {
             final EntityType addEntity = this.entity;
             final Button addButton =
                     new Button(viewContext.getMessage(Dict.BUTTON_ADD, ""),
@@ -214,61 +227,164 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                                     @Override
                                     public void componentSelected(ButtonEvent ce)
                                     {
-                                        AddPropertyTypeDialog dialog = new AddPropertyTypeDialog(viewContext, createRefreshGridAction(), addEntity.getEntityKind(), addEntity.getCode());
+                                        AddPropertyTypeDialog dialog = new AddPropertyTypeDialog(
+                                                viewContext,
+                                                createRefreshGridAction(),
+                                                newTypeWithAssigments.getEntity().getEntityKind(),
+                                                null,
+                                                new InMemoryGridAddCallback(),
+                                                newTypeWithAssigments.getEntity()
+                                                );
+                                        dialog.show();
+                                    }
+                                });
+            addButton.setId(GRID_ID + "-add");
+            addButton(addButton);
+
+            Button editButton = createSelectedItemButton(
+                    viewContext.getMessage(Dict.BUTTON_EDIT),
+                    new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>>>()
+                        {
+
+                            @Override
+                            public void invoke(
+                                    BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>> selectedItem,
+                                    boolean keyPressed)
+                            {
+                                final EntityTypePropertyType<?> etpt = selectedItem.getBaseObject().getObjectOrNull();
+                                if (etpt.isManagedInternally())
+                                {
+                                    final String errorMsg = "Assignments of internally managed property types cannot be edited.";
+                                    MessageBox.alert("Error", errorMsg, null);
+                                } else
+                                {
+                                    createEditDialog(etpt).show();
+                                }
+                            }
+                        });
+            editButton.setId(GRID_ID + "-edit");
+            addButton(editButton);
+
+            Button removeButton =
+                    createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_DELETE),
+                            new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>>>()
+                                {
+                                    @Override
+                                    public void invoke(BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>> selectedItem,
+                                            boolean keyPressed)
+                                    {
+                                        final EntityTypePropertyType<?> etpt = selectedItem.getBaseObject().getObjectOrNull();
+                                        (new InMemoryGridRemoveCallback()).callback(etpt);
+                                    }
+
+                                });
+            removeButton.setId(GRID_ID + "-remove");
+            addButton(removeButton);
+        }
+
+        //
+        // Button used by the entity types grids
+        //
+        if (entity != null)
+        { // View showing only property types for one type allow to add new properties
+            final EntityType addEntity = this.entity;
+            final Button addButton =
+                    new Button(viewContext.getMessage(Dict.BUTTON_ADD, ""),
+                            new SelectionListener<ButtonEvent>()
+                                {
+                                    @Override
+                                    public void componentSelected(ButtonEvent ce)
+                                    {
+                                        AddPropertyTypeDialog dialog =
+                                                new AddPropertyTypeDialog(viewContext, createRefreshGridAction(), addEntity.getEntityKind(),
+                                                        addEntity.getCode(), null, null);
                                         dialog.show();
                                     }
                                 });
             addButton.setId(GRID_ID + "-add");
             addButton(addButton);
         }
-        
-        Button editButton =
-                createSelectedItemButton(
-                        viewContext.getMessage(Dict.BUTTON_EDIT),
-                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>>>()
-                            {
 
-                                @Override
-                                public void invoke(
-                                        BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>> selectedItem,
-                                        boolean keyPressed)
-                                {
-                                    final EntityTypePropertyType<?> etpt =
-                                            selectedItem.getBaseObject().getObjectOrNull();
-                                    if (etpt.isManagedInternally())
-                                    {
-                                        final String errorMsg =
-                                                "Assignments of internally managed property types cannot be edited.";
-                                        MessageBox.alert("Error", errorMsg, null);
-                                    } else
-                                    {
-                                        createEditDialog(etpt).show();
-                                    }
-                                }
-                            });
-        editButton.setId(GRID_ID + "-edit");
-        addButton(editButton);
-        
-        Button releaseButton =
-                createSelectedItemButton(
-                        viewContext.getMessage(Dict.UNASSIGN_BUTTON_LABEL),
-                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>>>()
-                            {
-                                @Override
-                                public void invoke(
-                                        BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>> selectedItem,
-                                        boolean keyPressed)
-                                {
-                                    final EntityTypePropertyType<?> etpt =
-                                            selectedItem.getBaseObject().getObjectOrNull();
-                                    unassignPropertyType(etpt);
-                                }
+        //
+        // Buttons used by the entity types grids and propertyes browser
+        //
+        if (newTypeWithAssigments == null)
+        {
+            Button editButton = createSelectedItemButton(
+                    viewContext.getMessage(Dict.BUTTON_EDIT),
+                    new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>>>()
+                        {
 
-                            });
-        releaseButton.setId(GRID_ID + "-release");
-        addButton(releaseButton);
+                            @Override
+                            public void invoke(
+                                    BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>> selectedItem,
+                                    boolean keyPressed)
+                            {
+                                final EntityTypePropertyType<?> etpt =
+                                        selectedItem.getBaseObject().getObjectOrNull();
+                                if (etpt.isManagedInternally())
+                                {
+                                    final String errorMsg =
+                                            "Assignments of internally managed property types cannot be edited.";
+                                    MessageBox.alert("Error", errorMsg, null);
+                                } else
+                                {
+                                    createEditDialog(etpt).show();
+                                }
+                            }
+                        });
+            editButton.setId(GRID_ID + "-edit");
+            addButton(editButton);
+
+            Button releaseButton = createSelectedItemButton(
+                    viewContext.getMessage(Dict.UNASSIGN_BUTTON_LABEL),
+                    new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>>>()
+                        {
+                            @Override
+                            public void invoke(
+                                    BaseEntityModel<TableModelRowWithObject<EntityTypePropertyType<?>>> selectedItem,
+                                    boolean keyPressed)
+                            {
+                                final EntityTypePropertyType<?> etpt =
+                                        selectedItem.getBaseObject().getObjectOrNull();
+                                unassignPropertyType(etpt);
+                            }
+
+                        });
+            releaseButton.setId(GRID_ID + "-release");
+            addButton(releaseButton);
+        }
 
         addEntityOperationsSeparator();
+    }
+
+    public class InMemoryGridRemoveCallback
+    {
+        public void callback(final EntityTypePropertyType<?> etpt)
+        {
+            String codeToDelete = etpt.getPropertyType().getCode();
+            newTypeWithAssigments.refreshOrderDelete(codeToDelete);
+            refresh();
+        }
+    }
+
+    public class InMemoryGridAddCallback
+    {
+        public void callback(boolean isExixtingPropertyType, PropertyType propertyType, NewETPTAssignment assignment)
+        {
+            NewPTNewAssigment newPTNewAssigment = new NewPTNewAssigment();
+            newPTNewAssigment.setExistingPropertyType(isExixtingPropertyType);
+            newPTNewAssigment.setPropertyType(propertyType);
+            newPTNewAssigment.setAssignment(assignment);
+            try
+            {
+                newTypeWithAssigments.refreshOrderAdd(newPTNewAssigment);
+            } catch (Exception ex)
+            {
+                MessageBox.alert("Error", ex.getMessage(), null);
+            }
+            refresh();
+        }
     }
 
     private static ScriptChooserField createScriptChooserField(
@@ -284,13 +400,15 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
     private Window createEditDialog(final EntityTypePropertyType<?> etpt)
     {
+        final NewETNewPTAssigments newTypeWithAssigments = this.newTypeWithAssigments;
         final EntityKind entityKind = etpt.getEntityKind();
         final String entityTypeCode = etpt.getEntityType().getCode();
         final String propertyTypeCode = etpt.getPropertyType().getCode();
-
-        final String title =
-                viewContext.getMessage(Dict.EDIT_PROPERTY_TYPE_ASSIGNMENT_TITLE,
-                        entityKind.getDescription(), entityTypeCode, propertyTypeCode);
+        final String title = viewContext.getMessage(
+                Dict.EDIT_PROPERTY_TYPE_ASSIGNMENT_TITLE,
+                entityKind.getDescription(),
+                entityTypeCode,
+                propertyTypeCode);
 
         return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
             {
@@ -324,15 +442,21 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                     loading = new Label(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
                     addField(loading);
 
-                    viewContext.getCommonService().listPropertyTypeAssignments(
-                            etpt.getEntityType(),
+                    viewContext.getCommonService().listPropertyTypeAssignments(etpt.getEntityType(),
                             new AbstractAsyncCallback<List<EntityTypePropertyType<?>>>(viewContext)
                                 {
                                     @Override
                                     protected void process(List<EntityTypePropertyType<?>> etpts)
                                     {
                                         form.remove(loading);
-                                        initFields(etpts);
+                                        if (newTypeWithAssigments == null)
+                                        {
+                                            initFields(etpts);
+                                        } else
+                                        {
+                                            List dirtyfix = newTypeWithAssigments.getEntity().getAssignedPropertyTypes();
+                                            initFields(dirtyfix);
+                                        }
                                         isLoaded = true;
                                     }
                                 });
@@ -340,27 +464,24 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
                 private void initFields(List<EntityTypePropertyType<?>> etpts)
                 {
+                    // Mandatory Field
                     originalIsMandatory = etpt.isMandatory();
-
-                    mandatoryCheckbox =
-                            new CheckBoxField(viewContext.getMessage(Dict.MANDATORY), false);
+                    mandatoryCheckbox = new CheckBoxField(viewContext.getMessage(Dict.MANDATORY), false);
                     mandatoryCheckbox.setValue(originalIsMandatory);
-
                     if (script != null)
                     {
                         mandatoryCheckbox.setVisible(false);
                     }
                     addField(mandatoryCheckbox);
 
-                    scriptChooser =
-                            createScriptChooserField(viewContext, script != null ? script.getName()
-                                    : null, script != null, script != null ? script.getScriptType()
-                                    : null, entityKind);
+                    // Script Field
+                    scriptChooser = createScriptChooserField(viewContext, script != null ? script.getName()
+                            : null, script != null, script != null ? script.getScriptType()
+                            : null, entityKind);
                     addField(scriptChooser);
 
-                    shownInEditViewCheckBox =
-                            new CheckBoxField(viewContext.getMessage(Dict.SHOWN_IN_EDIT_VIEW),
-                                    false);
+                    // Show in edit views Field
+                    shownInEditViewCheckBox = new CheckBoxField(viewContext.getMessage(Dict.SHOWN_IN_EDIT_VIEW), false);
                     shownInEditViewCheckBox.setValue(etpt.isShownInEditView());
                     if (false == etpt.isManaged())
                     {
@@ -369,8 +490,8 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                     }
                     addField(shownInEditViewCheckBox);
 
-                    showRawValuesCheckBox =
-                            new CheckBoxField(viewContext.getMessage(Dict.SHOW_RAW_VALUE), false);
+                    // Show raw values Field
+                    showRawValuesCheckBox = new CheckBoxField(viewContext.getMessage(Dict.SHOW_RAW_VALUE), false);
                     showRawValuesCheckBox.setValue(etpt.getShowRawValue());
                     if (false == etpt.isManaged())
                     {
@@ -382,12 +503,14 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                     // default value needs to be specified only if currently property is optional
                     if (originalIsMandatory == false)
                     {
-                        defaultValueField =
-                                PropertyFieldFactory.createField(etpt.getPropertyType(), false,
-                                        viewContext.getMessage(Dict.DEFAULT_UPDATE_VALUE),
-                                        "default_value_field", null, viewContext).get();
-                        defaultValueField.setToolTip(viewContext
-                                .getMessage(Dict.DEFAULT_UPDATE_VALUE_TOOLTIP));
+                        defaultValueField = PropertyFieldFactory.createField(
+                                etpt.getPropertyType(),
+                                false,
+                                viewContext.getMessage(Dict.DEFAULT_UPDATE_VALUE),
+                                "default_value_field",
+                                null,
+                                viewContext).get();
+                        defaultValueField.setToolTip(viewContext.getMessage(Dict.DEFAULT_UPDATE_VALUE_TOOLTIP));
                         addField(defaultValueField);
 
                         mandatoryCheckbox.addListener(Events.Change, new Listener<FieldEvent>()
@@ -429,16 +552,13 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                         List<EntityTypePropertyType<?>> allETPTs)
                 {
                     // create a new list of items from all etpts assigned to entity type
-                    final List<EntityTypePropertyType<?>> etpts =
-                            new ArrayList<EntityTypePropertyType<?>>();
+                    final List<EntityTypePropertyType<?>> etpts = new ArrayList<EntityTypePropertyType<?>>();
                     etpts.add(null); // null will be transformed into '(top)'
                     String initialPropertyTypeCodeOrNull = null;
-                    String previousPropertyTypeCodeOrNull =
-                            EntityTypePropertyTypeSelectionWidget.TOP_ITEM_CODE;
+                    String previousPropertyTypeCodeOrNull = EntityTypePropertyTypeSelectionWidget.TOP_ITEM_CODE;
                     for (EntityTypePropertyType<?> currentETPT : allETPTs)
                     {
-                        final String currentPropertyTypeCode =
-                                currentETPT.getPropertyType().getCode();
+                        final String currentPropertyTypeCode = currentETPT.getPropertyType().getCode();
                         if (propertyTypeCode.equals(currentPropertyTypeCode) == false)
                         {
                             etpts.add(currentETPT);
@@ -449,8 +569,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                         }
                     }
                     final EntityTypePropertyTypeSelectionWidget result =
-                            new EntityTypePropertyTypeSelectionWidget(viewContext, getId(), etpts,
-                                    initialPropertyTypeCodeOrNull);
+                            new EntityTypePropertyTypeSelectionWidget(viewContext, getId(), etpts, initialPropertyTypeCodeOrNull);
                     FieldUtil.setMandatoryFlag(result, true);
                     return result;
                 }
@@ -461,8 +580,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                 }
 
                 /**
-                 * extracts ordinal of an entity type property type after which edited property
-                 * should be put
+                 * extracts ordinal of an entity type property type after which edited property should be put
                  */
                 private Long getPreviousETPTOrdinal()
                 {
@@ -530,20 +648,33 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                 {
                     if (isLoaded)
                     {
-                        viewContext.getService().updatePropertyTypeAssignment(
-                                new NewETPTAssignment(entityKind, propertyTypeCode, entityTypeCode,
-                                        getMandatoryValue(), getDefaultValue(), getSectionValue(),
-                                        getPreviousETPTOrdinal(), etpt.isDynamic(),
-                                        etpt.isManaged(), etpt.getModificationDate(),
-                                        tryGetScriptNameValue(), isShownInEditView(),
-                                        getShowRawValue()), registrationCallback);
+                        NewETPTAssignment toRegister = new NewETPTAssignment(entityKind, propertyTypeCode, entityTypeCode,
+                                getMandatoryValue(), getDefaultValue(), getSectionValue(),
+                                getPreviousETPTOrdinal(), etpt.isDynamic(),
+                                etpt.isManaged(), etpt.getModificationDate(),
+                                tryGetScriptNameValue(), isShownInEditView(),
+                                getShowRawValue());
+
+                        if (newTypeWithAssigments == null)
+                        {
+                            viewContext.getService().updatePropertyTypeAssignment(toRegister, registrationCallback);
+                        } else
+                        {
+                            try
+                            {
+                                newTypeWithAssigments.refreshOrderUpdate(toRegister);
+                                registrationCallback.onSuccess(null);
+                            } catch (Exception ex)
+                            {
+                                registrationCallback.onFailure(ex);
+                            }
+                        }
                     }
                 }
 
                 private HelpPageIdentifier createHelpPageIdentifier()
                 {
-                    return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.ASSIGNMENT,
-                            HelpPageIdentifier.HelpPageAction.EDIT);
+                    return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.ASSIGNMENT, HelpPageIdentifier.HelpPageAction.EDIT);
                 }
             };
     }
@@ -554,10 +685,8 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
         final String entityTypeCode = etpt.getEntityType().getCode();
         final String propertyTypeCode = etpt.getPropertyType().getCode();
         final IBrowserGridActionInvoker invoker = asActionInvoker();
-        final AsyncCallback<Integer> callback =
-                new UnassignmentPreparationCallback(viewContext, etpt, invoker);
-        viewContext.getService().countPropertyTypedEntities(entityKind, propertyTypeCode,
-                entityTypeCode, callback);
+        final AsyncCallback<Integer> callback = new UnassignmentPreparationCallback(viewContext, etpt, invoker);
+        viewContext.getService().countPropertyTypedEntities(entityKind, propertyTypeCode, entityTypeCode, callback);
     }
 
     @Override
@@ -589,6 +718,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
             DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> resultSetConfig,
             final AbstractAsyncCallback<TypedTableResultSet<EntityTypePropertyType<?>>> callback)
     {
+
         AbstractAsyncCallback<TypedTableResultSet<EntityTypePropertyType<?>>> extendedCallback =
                 new AbstractAsyncCallback<TypedTableResultSet<EntityTypePropertyType<?>>>(
                         viewContext)
@@ -606,8 +736,14 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                         }
 
                     };
-                    
-        viewContext.getService().listPropertyTypeAssignments(resultSetConfig, entity, extendedCallback);
+        if (newTypeWithAssigments == null)
+        {
+            viewContext.getService().listPropertyTypeAssignments(resultSetConfig, entity, extendedCallback);
+        } else
+        {
+            viewContext.getService().listPropertyTypeAssignmentsFromBrowser(resultSetConfig, newTypeWithAssigments.getEntity(),
+                    newTypeWithAssigments.getAssigments(), extendedCallback);
+        }
     }
 
     @Override

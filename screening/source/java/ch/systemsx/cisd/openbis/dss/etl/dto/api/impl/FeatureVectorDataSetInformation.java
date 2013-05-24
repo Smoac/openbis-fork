@@ -39,7 +39,7 @@ public class FeatureVectorDataSetInformation extends DataSetInformation
     private static final long serialVersionUID = IServer.VERSION;
 
     private List<FeatureDefinition> features;
-    
+
     public FeatureVectorDataSetInformation()
     {
         this.features = new ArrayList<FeatureDefinition>();
@@ -61,7 +61,7 @@ public class FeatureVectorDataSetInformation extends DataSetInformation
     }
 
     /** are all necessary fields filled? */
-    public boolean isValid()
+    public boolean isNotEmpty()
     {
         return features != null && features.size() > 0;
     }

@@ -55,7 +55,7 @@ public class EntityTypePropertyTypeProvider extends
         AbstractCommonTableModelProvider<EntityTypePropertyType<?>>
 {
 
-    private final EntityType entity;
+    protected final EntityType entity;
 
     public EntityTypePropertyTypeProvider(ICommonServer commonServer, String sessionToken,
             EntityType entity)
@@ -71,6 +71,8 @@ public class EntityTypePropertyTypeProvider extends
                 commonServer.listEntityTypePropertyTypes(sessionToken);
         TypedTableModelBuilder<EntityTypePropertyType<?>> builder =
                 new TypedTableModelBuilder<EntityTypePropertyType<?>>();
+        builder.addColumn(ORDINAL).withDefaultWidth(100);
+        builder.addColumn(SECTION);
         builder.addColumn(PROPERTY_TYPE_CODE).withDefaultWidth(200);
         builder.addColumn(LABEL).hideByDefault();
         builder.addColumn(DESCRIPTION).hideByDefault();
@@ -82,8 +84,6 @@ public class EntityTypePropertyTypeProvider extends
         }
         builder.addColumn(IS_MANDATORY);
         builder.addColumn(DATA_TYPE).withDefaultWidth(200);
-        builder.addColumn(ORDINAL).withDefaultWidth(100).hideByDefault();
-        builder.addColumn(SECTION);
         builder.addColumn(IS_DYNAMIC);
         builder.addColumn(IS_MANAGED);
         builder.addColumn(IS_SHOWN_IN_EDITOR_VIEW);
@@ -95,6 +95,8 @@ public class EntityTypePropertyTypeProvider extends
             {
                 builder.addRow(etpt);
                 PropertyType propertyType = etpt.getPropertyType();
+                builder.column(ORDINAL).addInteger(etpt.getOrdinal());
+                builder.column(SECTION).addString(etpt.getSection());
                 builder.column(PROPERTY_TYPE_CODE).addString(propertyType.getCode());
                 builder.column(LABEL).addString(propertyType.getLabel());
                 builder.column(DESCRIPTION).addString(propertyType.getDescription());
@@ -107,8 +109,6 @@ public class EntityTypePropertyTypeProvider extends
                 builder.column(IS_MANDATORY).addString(
                         SimpleYesNoRenderer.render(etpt.isMandatory()));
                 builder.column(DATA_TYPE).addString(renderDataType(propertyType));
-                builder.column(ORDINAL).addInteger(etpt.getOrdinal());
-                builder.column(SECTION).addString(etpt.getSection());
                 builder.column(IS_DYNAMIC).addString(SimpleYesNoRenderer.render(etpt.isDynamic()));
                 builder.column(IS_MANAGED).addString(SimpleYesNoRenderer.render(etpt.isManaged()));
                 builder.column(IS_SHOWN_IN_EDITOR_VIEW).addString(
@@ -125,7 +125,7 @@ public class EntityTypePropertyTypeProvider extends
         return builder.getModel();
     }
 
-    private static String renderDataType(PropertyType entity)
+    protected static String renderDataType(PropertyType entity)
     {
         DataTypeCode dataType = entity.getDataType().getCode();
         switch (dataType)
@@ -156,13 +156,13 @@ public class EntityTypePropertyTypeProvider extends
         }
     }
 
-    private static String tryGetVocabularyCode(PropertyType entity)
+    protected static String tryGetVocabularyCode(PropertyType entity)
     {
         Vocabulary vocabulary = entity.getVocabulary();
         return vocabulary != null ? vocabulary.getCode() : null;
     }
 
-    private static String tryGetMaterialTypeCode(PropertyType entity)
+    protected static String tryGetMaterialTypeCode(PropertyType entity)
     {
         MaterialType materialType = entity.getMaterialType();
         return materialType != null ? materialType.getCode() : null;

@@ -16,21 +16,27 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEntityTypeGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddEntityTypeDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * Grid displaying material types.
@@ -44,15 +50,21 @@ public class MaterialTypeGrid extends AbstractEntityTypeGrid<MaterialType>
     public static final String GRID_ID = BROWSER_ID + TypedTableGrid.GRID_POSTFIX;
 
     public static IDisposableComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext, ComponentProvider componentProvider)
     {
-        final MaterialTypeGrid grid = new MaterialTypeGrid(viewContext);
+        final MaterialTypeGrid grid = new MaterialTypeGrid(viewContext, componentProvider);
         return grid.asDisposableWithoutToolbar();
     }
 
-    private MaterialTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
+    private MaterialTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext, ComponentProvider componentProvider)
     {
-        super(viewContext, BROWSER_ID, GRID_ID);
+        super(viewContext, componentProvider, BROWSER_ID, GRID_ID);
+    }
+
+    @Override
+    public AddEntityTypeDialog<MaterialType> getNewDialog(MaterialType newType)
+    {
+        return (AddEntityTypeDialog<MaterialType>) createRegisterEntityTypeDialog("New Material", newType, newType.getEntityKind());
     }
 
     @Override
@@ -87,5 +99,17 @@ public class MaterialTypeGrid extends AbstractEntityTypeGrid<MaterialType>
     protected MaterialType createNewEntityType()
     {
         return new MaterialType();
+    }
+
+    @Override
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[] { createOrDelete(ObjectKind.MATERIAL_TYPE),
+                edit(ObjectKind.MATERIAL_TYPE),
+                createOrDelete(ObjectKind.PROPERTY_TYPE),
+                edit(ObjectKind.PROPERTY_TYPE),
+                createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
+        };
     }
 }

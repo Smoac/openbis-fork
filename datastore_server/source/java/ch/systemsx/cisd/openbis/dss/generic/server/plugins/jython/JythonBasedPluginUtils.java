@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
@@ -148,6 +149,30 @@ public class JythonBasedPluginUtils
                 public String getDataSetCode()
                 {
                     return description.getDataSetCode();
+                }
+
+                @Override
+                public String getFileFormatType()
+                {
+                    return description.getFileFormatType();
+                }
+
+                @Override
+                public Date getRegistrationTimestamp()
+                {
+                    return description.getRegistrationTimestamp();
+                }
+
+                @Override
+                public String getDataStoreCode()
+                {
+                    return description.getDataStoreCode();
+                }
+
+                @Override
+                public String getDataStoreUrl()
+                {
+                    return description.getDataStoreUrl();
                 }
 
             };

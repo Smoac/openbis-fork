@@ -16,15 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
-import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEditEntityTypeDialog;
@@ -39,9 +38,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Dialo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * Grid displaying sample types.
@@ -70,15 +75,21 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
     private static final Boolean DEFAULT_SHOW_PARENTS_VALUE = true;
 
     public static IDisposableComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext, ComponentProvider componentProvider)
     {
-        final SampleTypeGrid grid = new SampleTypeGrid(viewContext);
+        final SampleTypeGrid grid = new SampleTypeGrid(viewContext, componentProvider);
         return grid.asDisposableWithoutToolbar();
     }
 
-    private SampleTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
+    private SampleTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext, ComponentProvider componentProvider)
     {
-        super(viewContext, BROWSER_ID, GRID_ID);
+        super(viewContext, componentProvider, BROWSER_ID, GRID_ID);
+    }
+
+    @Override
+    public AddEntityTypeDialog<SampleType> getNewDialog(SampleType newType)
+    {
+        return (AddEntityTypeDialog<SampleType>) createRegisterEntityTypeDialog("New Sample", newType, newType.getEntityKind());
     }
 
     @Override
@@ -281,4 +292,17 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
 
         }
     }
+
+    @Override
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[] { createOrDelete(ObjectKind.SAMPLE_TYPE),
+                edit(ObjectKind.SAMPLE_TYPE),
+                createOrDelete(ObjectKind.PROPERTY_TYPE),
+                edit(ObjectKind.PROPERTY_TYPE),
+                createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
+        };
+    }
+
 }

@@ -92,7 +92,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectNullUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETNewPTAssigments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewPTNewAssigment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -143,9 +145,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 final class CommonServerLogger extends AbstractServerLogger implements ICommonServerForInternalUse
 {
     /**
-     * Creates an instance for the specified session manager, invocation status and elapsed time.
-     * The session manager is used to retrieve user information which will be a part of the log
-     * message.
+     * Creates an instance for the specified session manager, invocation status and elapsed time. The session manager is used to retrieve user
+     * information which will be a part of the log message.
      */
     CommonServerLogger(final ISessionManager<Session> sessionManager,
             IInvocationLoggerContext context)
@@ -557,6 +558,38 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
+    public final String registerEntitytypeAndAssignPropertyTypes(final String sessionToken, final NewETNewPTAssigments newETNewPTAssigments)
+    {
+        for (NewPTNewAssigment newAssigment : newETNewPTAssigments.getAssigments())
+        {
+            final String entityTypeFormat = newAssigment.getAssignment().getEntityKind().name() + "_TYPE(%S)";
+            logTracking(sessionToken, "register_assign_property_type", " PROPERTY_TYPE(%S) " + entityTypeFormat
+                    + " MANDATORY(%S) DEFAULT(%S) SECTION(%S) PREVIOUS_ORDINAL(%S)",
+                    newAssigment.getAssignment().getPropertyTypeCode(), newAssigment.getAssignment().getEntityTypeCode(),
+                    newAssigment.getAssignment().isMandatory(), newAssigment.getAssignment().getDefaultValue(), newAssigment.getAssignment()
+                            .getSection(),
+                    newAssigment.getAssignment().getOrdinal());
+        }
+        return null;
+    }
+
+    @Override
+    public final String updateEntitytypeAndPropertyTypes(final String sessionToken, final NewETNewPTAssigments newETNewPTAssigments)
+    {
+        for (NewPTNewAssigment newAssigment : newETNewPTAssigments.getAssigments())
+        {
+            final String entityTypeFormat = newAssigment.getAssignment().getEntityKind().name() + "_TYPE(%S)";
+            logTracking(sessionToken, "update_assign_property_type", " PROPERTY_TYPE(%S) " + entityTypeFormat
+                    + " MANDATORY(%S) DEFAULT(%S) SECTION(%S) PREVIOUS_ORDINAL(%S)",
+                    newAssigment.getAssignment().getPropertyTypeCode(), newAssigment.getAssignment().getEntityTypeCode(),
+                    newAssigment.getAssignment().isMandatory(), newAssigment.getAssignment().getDefaultValue(), newAssigment.getAssignment()
+                            .getSection(),
+                    newAssigment.getAssignment().getOrdinal());
+        }
+        return null;
+    }
+
+    @Override
     public final String registerAndAssignPropertyType(final String sessionToken, final PropertyType propertyType, NewETPTAssignment assignment)
     {
         final String entityTypeFormat = assignment.getEntityKind().name() + "_TYPE(%S)";
@@ -567,7 +600,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 assignment.getOrdinal());
         return null;
     }
-    
+
     @Override
     public final void registerPropertyType(final String sessionToken,
             final PropertyType propertyType)
@@ -597,10 +630,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     @Override
     public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
-            List<VocabularyTerm> vocabularyTerms, Long previousTermOrdinal)
+            List<VocabularyTerm> vocabularyTerms, Long previousTermOrdinal,
+            boolean allowChangingInternallyManaged)
     {
-        logTracking(sessionToken, "add_vocabulary_terms", "ID(%s) TERMS(%s) PREVIOUS_ORDINAL(%s)",
-                vocabularyId, abbreviate(vocabularyTerms), Long.toString(previousTermOrdinal));
+        logTracking(sessionToken, "add_vocabulary_terms",
+                "ID(%s) TERMS(%s) PREVIOUS_ORDINAL(%s) ALLOW_CHANGING_INTERNALLY_MANAGED(%s)",
+                vocabularyId, abbreviate(vocabularyTerms), Long.toString(previousTermOrdinal),
+                allowChangingInternallyManaged);
     }
 
     @Override

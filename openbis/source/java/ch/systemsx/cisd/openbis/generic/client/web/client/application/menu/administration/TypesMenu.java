@@ -16,14 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.administration;
 
-import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 
 /**
  * Types menu for managing entity types.
@@ -33,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 public class TypesMenu extends MenuItem
 {
 
-    public TypesMenu(IMessageProvider messageProvider, ComponentProvider componentProvider)
+    public TypesMenu(final IViewContext<?> viewContext, IMessageProvider messageProvider, ComponentProvider componentProvider)
     {
         super(messageProvider.getMessage(Dict.MENU_TYPES));
         setId(TopMenu.ActionMenuKind.ADMINISTRATION_MENU_MANAGE_TYPES.toString());
@@ -49,6 +50,12 @@ public class TypesMenu extends MenuItem
                 componentProvider.getMaterialTypeBrowser()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_FILE_FORMATS,
                 messageProvider, componentProvider.getFileFormatTypeBrowser()));
+
+        if (false == viewContext.getDisplaySettingsManager().isLegacyMedadataUIEnabled())
+        {
+            submenu.add(new ActionMenu(TopMenu.ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES, messageProvider, componentProvider
+                    .getPropertyTypeBrowser()));
+        }
 
         setSubMenu(submenu);
     }

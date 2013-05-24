@@ -21,14 +21,13 @@ import static ch.systemsx.cisd.openbis.installer.izpack.GlobalInstallationContex
 import java.io.File;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
-import com.izforge.izpack.api.installer.DataValidator;
 
 /**
  * Validates the user input for the location of the postgres installation.
  * 
  * @author Kaloyan Enimanev
  */
-public class PostgresToolsPathValidator implements DataValidator
+public class PostgresToolsPathValidator extends AbstractDataValidator
 {
 
     @Override
@@ -67,8 +66,7 @@ public class PostgresToolsPathValidator implements DataValidator
             return Status.OK;
         } else
         {
-            // only useful for console installations
-            System.err.println(getErrorMessageId());
+            setErrorMessage("'psql' and 'pg_dump' must be available on the specified path: " + selectedPath);
             return Status.ERROR;
         }
 

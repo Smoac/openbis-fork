@@ -119,6 +119,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     public TestCaseParameters versionV2(final TestCaseParameters other)
     {
         TestCaseParameters params = other.clone();
+        params.isV2 = true;
         params.overrideProperties = new HashMap<String, String>(params.overrideProperties);
         params.overrideProperties.put("TEST_V2_API", "");
         params.dontCallOldApiJythonHooks = true;
@@ -131,6 +132,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
     public TestCaseParameters versionJavaV2(final TestCaseParameters other)
     {
         TestCaseParameters params = other.clone();
+        params.isV2 = true;
         params.overrideProperties = new HashMap<String, String>(params.overrideProperties);
         params.overrideProperties.put("TEST_JAVA_V2_API", "");
         params.dontCallOldApiJythonHooks = true;
@@ -495,6 +497,11 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
          */
         protected boolean shouldUseAutoRecovery = false;
 
+        /**
+         * True if this is a v2 dropbox
+         */
+        protected boolean isV2 = false;
+
         private TestCaseParameters(String title)
         {
             this.title = title;
@@ -809,12 +816,25 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
 
                 protected void createDataSet()
                 {
-                    one(openBisService).createPermId();
-                    will(returnValue(DATA_SET_CODE));
-                    if (testCase.shouldRegisterTwoDataSets)
+                    if (testCase.isV2)
+                    {
+                        one(openBisService).createPermIds(with(any(Integer.class)));
+                        if (testCase.shouldRegisterTwoDataSets)
+                        {
+                            will(returnValue(Arrays.asList(DATA_SET_CODE, DATA_SET_CODE_1)));
+                        } else
+                        {
+                            will(returnValue(Collections.singletonList(DATA_SET_CODE)));
+                        }
+                    } else
                     {
                         one(openBisService).createPermId();
-                        will(returnValue(DATA_SET_CODE_1));
+                        will(returnValue(DATA_SET_CODE));
+                        if (testCase.shouldRegisterTwoDataSets)
+                        {
+                            one(openBisService).createPermId();
+                            will(returnValue(DATA_SET_CODE_1));
+                        }
                     }
                 }
 
@@ -988,6 +1008,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
         {
             TestCaseParameters testCase = new TestCaseParameters(title);
             testCase.shouldUseAutoRecovery = true;
+            testCase.isV2 = true;
             if (deletionPoint == DeletionPoint.BEFORE_OPENBIS_REGISTRATION)
             {
                 testCase.failurePoint = TestCaseParameters.FailurePoint.BEFORE_OPENBIS_REGISTRATION;
@@ -1520,7 +1541,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     one(openBisService).createPermId();
                     will(returnValue(DATA_SET_CODE));
 
-                    exactly(2).of(openBisService).tryGetExperiment(
+                    atLeast(1).of(openBisService).tryGetExperiment(
                             new ExperimentIdentifierFactory(experiment.getIdentifier())
                                     .createIdentifier());
                     will(returnValue(experiment));
@@ -1788,10 +1809,10 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     allowing(storageRecoveryManager).getProcessingMarkerFile(incomingDataSetFile);
                     will(returnValue(new File(incomingDataSetFile.getParent(), "a_marker_file")));
 
-                    one(openBisService).createPermId();
-                    will(returnValue(DATA_SET_CODE));
+                    one(openBisService).createPermIds(1);
+                    will(returnValue(Arrays.asList(DATA_SET_CODE)));
 
-                    exactly(2).of(openBisService).tryGetExperiment(
+                    atLeast(1).of(openBisService).tryGetExperiment(
                             new ExperimentIdentifierFactory(experiment.getIdentifier())
                                     .createIdentifier());
                     will(returnValue(experiment));

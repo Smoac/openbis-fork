@@ -36,6 +36,8 @@ public class AggregationServiceDescription implements Serializable
 
     private String serviceKey;
 
+    private String label;
+
     private AggregationServiceType type;
 
     /**
@@ -65,6 +67,16 @@ public class AggregationServiceDescription implements Serializable
     }
 
     /**
+     * Returns the label of the service.
+     * 
+     * @since 1.5
+     */
+    public String getLabel()
+    {
+        return label;
+    }
+
+    /**
      * The type of the service. Non-null.
      */
     public AggregationServiceType getType()
@@ -89,6 +101,11 @@ public class AggregationServiceDescription implements Serializable
         this.serviceKey = key;
     }
 
+    public void setLabel(String label)
+    {
+        this.label = label;
+    }
+
     public void setType(AggregationServiceType type)
     {
         this.type = type;
@@ -98,6 +115,6 @@ public class AggregationServiceDescription implements Serializable
     public String toString()
     {
         return "AggregationServiceDescription [dataStoreCode=" + dataStoreCode + ", serviceKey="
-                + serviceKey + ", type=" + type + "]";
+                + serviceKey + ", label=" + label + ", type=" + type + "]";
     }
 }

@@ -422,6 +422,14 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<String> createPermIds(String sessionToken, int n) throws UserFailureException
+    {
+        checkSession(sessionToken);
+        return daoFactory.getPermIdDAO().createPermIds(n);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public long drawANewUniqueID(String sessionToken) throws UserFailureException
     {
         checkSession(sessionToken);

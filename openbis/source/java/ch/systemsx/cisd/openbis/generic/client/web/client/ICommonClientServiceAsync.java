@@ -95,7 +95,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsC
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETNewPTAssigments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewPTNewAssigment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -284,6 +286,13 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             EntityType entity,
             final AsyncCallback<TypedTableResultSet<EntityTypePropertyType<?>>> asyncCallback);
 
+    /** @see ICommonClientService#listPropertyTypeAssignmentsFromBrowser(DefaultResultSetConfig, EntityType, List) */
+    public void listPropertyTypeAssignmentsFromBrowser(
+            DefaultResultSetConfig<String, TableModelRowWithObject<EntityTypePropertyType<?>>> criteria,
+            EntityType entity,
+            List<NewPTNewAssigment> propertyTypesAsgs,
+            final AsyncCallback<TypedTableResultSet<EntityTypePropertyType<?>>> asyncCallback);
+
     /** @see ICommonClientService#listPropertyTypeAssignments(EntityType) */
     public void listPropertyTypeAssignments(EntityType entityType,
             final AsyncCallback<List<EntityTypePropertyType<?>>> asyncCallback);
@@ -359,8 +368,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> asyncCallback);
 
     /**
-     * @see ICommonClientService#listMatchingEntities(SearchableEntity, String, boolean,
-     *      IResultSetConfig)
+     * @see ICommonClientService#listMatchingEntities(SearchableEntity, String, boolean, IResultSetConfig)
      */
     public void listMatchingEntities(
             final SearchableEntity searchableEntity,
@@ -515,8 +523,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<List<AbstractExternalData>> asyncCallback);
 
     /**
-     * @see ICommonClientService#listDataSetRelationships(TechId, DataSetRelationshipRole,
-     *      DefaultResultSetConfig)
+     * @see ICommonClientService#listDataSetRelationships(TechId, DataSetRelationshipRole, DefaultResultSetConfig)
      */
     public void listDataSetRelationships(
             TechId datasetId,
@@ -537,10 +544,20 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listDataTypes(final AsyncCallback<List<DataType>> asyncCallback);
 
     /**
+     * @see ICommonClientService#registerEntitytypeAndAssignPropertyTypes(NewETNewPTAssigments newETNewPTAssigments)
+     */
+    public void registerEntitytypeAndAssignPropertyTypes(NewETNewPTAssigments newETNewPTAssigments, AsyncCallback<String> process);
+
+    /**
+     * @see ICommonClientService#updateEntitytypeAndPropertyTypes(NewETNewPTAssigments newETNewPTAssigments)
+     */
+    public void updateEntitytypeAndPropertyTypes(NewETNewPTAssigments newETNewPTAssigments, AsyncCallback<String> process);
+
+    /**
      * @see ICommonClientService#registerAndAssignPropertyType(PropertyType propertyType, NewETPTAssignment assignment)
      */
-    public void  registerAndAssignPropertyType(PropertyType propertyType, NewETPTAssignment assignment, AsyncCallback<String> process);
-    
+    public void registerAndAssignPropertyType(PropertyType propertyType, NewETPTAssignment assignment, AsyncCallback<String> process);
+
     /**
      * @see ICommonClientService#assignPropertyType(NewETPTAssignment assignment)
      */
@@ -665,8 +682,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<Void> callback);
 
     /**
-     * @see ICommonClientService#deleteDataSets(DisplayedOrSelectedDatasetCriteria, String,
-     *      DeletionType, boolean)
+     * @see ICommonClientService#deleteDataSets(DisplayedOrSelectedDatasetCriteria, String, DeletionType, boolean)
      */
     public void deleteDataSets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason,
@@ -682,8 +698,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<Void> asyncCallback);
 
     /**
-     * @see ICommonClientService#deleteSamples(DisplayedOrSelectedIdHolderCriteria, String,
-     *      DeletionType)
+     * @see ICommonClientService#deleteSamples(DisplayedOrSelectedIdHolderCriteria, String, DeletionType)
      */
     public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<? extends IIdHolder> criteria,
             String reason, DeletionType deletionType, AsyncCallback<Void> asyncCallback);
@@ -694,8 +709,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /**
      * @param deletionType
-     * @see ICommonClientService#deleteExperiments(DisplayedOrSelectedIdHolderCriteria, String,
-     *      DeletionType)
+     * @see ICommonClientService#deleteExperiments(DisplayedOrSelectedIdHolderCriteria, String, DeletionType)
      */
     public void deleteExperiments(
             DisplayedOrSelectedIdHolderCriteria<TableModelRowWithObject<Experiment>> criteria,
@@ -732,8 +746,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             List<String> fileNames, String reason, AsyncCallback<Void> asyncCallback);
 
     /**
-     * @see ICommonClientService#listAttachmentVersions(TechId, AttachmentHolderKind,
-     *      DefaultResultSetConfig)
+     * @see ICommonClientService#listAttachmentVersions(TechId, AttachmentHolderKind, DefaultResultSetConfig)
      */
     public void listAttachmentVersions(TechId holderId, AttachmentHolderKind holderKind,
             DefaultResultSetConfig<String, TableModelRowWithObject<AttachmentVersions>> criteria,
@@ -743,8 +756,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listDataSetTypes(AsyncCallback<List<DataSetType>> callback);
 
     /**
-     * @see ICommonClientService#uploadDataSets(DisplayedOrSelectedDatasetCriteria,
-     *      DataSetUploadParameters)
+     * @see ICommonClientService#uploadDataSets(DisplayedOrSelectedDatasetCriteria, DataSetUploadParameters)
      */
     public void uploadDataSets(DisplayedOrSelectedDatasetCriteria criteria,
             DataSetUploadParameters uploadParameters, AsyncCallback<String> callback);
@@ -839,8 +851,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<IEntityInformationHolderWithPermId> openEntityDetailsTabCallback);
 
     /**
-     * @see ICommonClientService#getTemplate(EntityKind, String, boolean, boolean, boolean,
-     *      BatchOperationKind)
+     * @see ICommonClientService#getTemplate(EntityKind, String, boolean, boolean, boolean, BatchOperationKind)
      */
     public void getTemplate(EntityKind kind, String type, boolean autoGenerate,
             boolean withExperiments, boolean withSpace, BatchOperationKind operationKind,
@@ -860,8 +871,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             NewAttachment attachment, AsyncCallback<Void> asyncCallback);
 
     /**
-     * @see ICommonClientService#updateManagedProperty(TechId, EntityKind, IManagedProperty,
-     *      IManagedUiAction)
+     * @see ICommonClientService#updateManagedProperty(TechId, EntityKind, IManagedProperty, IManagedUiAction)
      */
     public void updateManagedProperty(TechId entityId, EntityKind entityKind,
             IManagedProperty managedProperty, IManagedUiAction updateAction,
@@ -872,8 +882,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<List<DatastoreServiceDescription>> callback);
 
     /**
-     * @see ICommonClientService#createReportFromDatasets(DatastoreServiceDescription,
-     *      DisplayedOrSelectedDatasetCriteria)
+     * @see ICommonClientService#createReportFromDatasets(DatastoreServiceDescription, DisplayedOrSelectedDatasetCriteria)
      */
     public void createReportFromDatasets(DatastoreServiceDescription serviceDescription,
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria,
@@ -886,8 +895,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<TableModelReference> callback);
 
     /**
-     * @see ICommonClientService#createReportFromAggregationService(DatastoreServiceDescription,
-     *      Map)
+     * @see ICommonClientService#createReportFromAggregationService(DatastoreServiceDescription, Map)
      */
     public void createReportFromAggregationService(DatastoreServiceDescription serviceDescription,
             Map<String, Object> parameters, AsyncCallback<TableModelReference> callback);
@@ -907,8 +915,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /**
-     * @see ICommonClientService#processDatasets(DatastoreServiceDescription,
-     *      DisplayedOrSelectedDatasetCriteria)
+     * @see ICommonClientService#processDatasets(DatastoreServiceDescription, DisplayedOrSelectedDatasetCriteria)
      */
     public void processDatasets(DatastoreServiceDescription service,
             DisplayedOrSelectedDatasetCriteria criteria, AsyncCallback<Void> callback);

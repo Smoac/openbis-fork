@@ -78,6 +78,8 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
 
     private VocabularyPE vocabularyPE;
 
+    private boolean allowChangingInternallyManaged = false;
+
     public VocabularyBO(final IDAOFactory daoFactory, final Session session,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
@@ -121,7 +123,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
             boolean isOfficial)
     {
         assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
-        if (vocabularyPE.isManagedInternally())
+        if (vocabularyPE.isManagedInternally() && false == allowChangingInternallyManaged)
         {
             throw new UserFailureException(
                     "Not allowed to add terms to an internally managed vocabulary.");
@@ -156,7 +158,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
         assert code != null : "Unspecified vocabulary term code";
         assert previousTermOrdinal != null : "Unspecified previous term ordinal";
-        if (vocabularyPE.isManagedInternally())
+        if (vocabularyPE.isManagedInternally() && false == allowChangingInternallyManaged)
         {
             throw new UserFailureException(
                     "Not allowed to add terms to an internally managed vocabulary.");
@@ -196,7 +198,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
             List<VocabularyTermReplacement> termsToBeReplaced)
     {
         assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
-        if (vocabularyPE.isManagedInternally())
+        if (vocabularyPE.isManagedInternally() && false == allowChangingInternallyManaged)
         {
             throw new UserFailureException(
                     "Not allowed to delete terms from an internally managed vocabulary.");
@@ -458,7 +460,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     public void updateTerms(List<VocabularyTerm> terms)
     {
         assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
-        if (vocabularyPE.isManagedInternally())
+        if (vocabularyPE.isManagedInternally() && false == allowChangingInternallyManaged)
         {
             throw new UserFailureException(
                     UPDATING_CONTENT_OF_INTERNALLY_MANAGED_VOCABULARIES_IS_NOT_ALLOWED);
@@ -539,5 +541,11 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
             list.add(t.getCode());
         }
         return list;
+    }
+
+    @Override
+    public void setAllowChangingInternallyManaged(boolean allowChangingInternallyManaged)
+    {
+        this.allowChangingInternallyManaged = allowChangingInternallyManaged;
     }
 }

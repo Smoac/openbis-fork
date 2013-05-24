@@ -203,6 +203,7 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
                 {
                     AggregationServiceDescription info = new AggregationServiceDescription();
                     info.setServiceKey(service.getKey());
+                    info.setLabel(service.getLabel());
                     info.setDataStoreCode(dataStore.getCode());
                     info.setDataStoreBaseUrl(dataStore.getDownloadUrl());
                     services.add(info);
@@ -234,7 +235,7 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
     @Override
     public int getMinorVersion()
     {
-        return 4;
+        return 5;
     }
 
     private QueryTableModel translate(TableModel result)

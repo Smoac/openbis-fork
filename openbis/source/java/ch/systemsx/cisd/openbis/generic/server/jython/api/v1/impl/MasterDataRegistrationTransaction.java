@@ -650,7 +650,7 @@ public class MasterDataRegistrationTransaction implements IMasterDataRegistratio
             List<VocabularyTerm> newTerms = entry.getValue();
             try
             {
-                commonServer.addVocabularyTerms(vocaId, newTerms, null);
+                commonServer.addVocabularyTerms(vocaId, newTerms, null, true);
             } catch (Exception ex)
             {
                 transactionErrors.addVocabularyTermsRegistrationError(ex, newTerms);

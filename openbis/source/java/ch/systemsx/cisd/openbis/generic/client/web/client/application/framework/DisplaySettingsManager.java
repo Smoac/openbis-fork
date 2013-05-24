@@ -24,14 +24,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ColumnModelEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.util.DelayedTask;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
@@ -45,10 +37,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.ColumnDisplaySettingsUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ColumnModelEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.util.DelayedTask;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+
 /**
- * Manager of {@link DisplaySettings}. The manager itself is stateless. It only changes the wrapped
- * {@link DisplaySettings} object. The attributes of this class are assumed to be de facto
- * singletons. The display setting manager will be created after the user logs into application.
+ * Manager of {@link DisplaySettings}. The manager itself is stateless. It only changes the wrapped {@link DisplaySettings} object. The attributes of
+ * this class are assumed to be de facto singletons. The display setting manager will be created after the user logs into application.
  * 
  * @author Franz-Josef Elmer
  */
@@ -71,8 +70,7 @@ public class DisplaySettingsManager
     }
 
     /**
-     * Private, we need this interface to make tests easier. We wrap {@link DelayedTask} which
-     * requires the access to the browser.
+     * Private, we need this interface to make tests easier. We wrap {@link DelayedTask} which requires the access to the browser.
      */
     public interface IDisplaySettingsDelayedUpdater
     {
@@ -160,8 +158,7 @@ public class DisplaySettingsManager
     }
 
     /**
-     * Register listeners which monitors all the column configuration changes and makes them
-     * persistent.
+     * Register listeners which monitors all the column configuration changes and makes them persistent.
      */
     public <C> void registerGridSettingsChangesListener(final String displayTypeID,
             final IDisplaySettingsGetter grid)
@@ -223,8 +220,7 @@ public class DisplaySettingsManager
                 }
 
                 /**
-                 * Is specified <code>event</code> a fake width change event that does not change
-                 * width?
+                 * Is specified <code>event</code> a fake width change event that does not change width?
                  */
                 private boolean isFakeWidthChangeEvent(ColumnModelEvent event)
                 {
@@ -248,8 +244,8 @@ public class DisplaySettingsManager
     }
 
     /**
-     * Synchronizes the initial grid display settings with the settings stored at the specified
-     * display type ID. Stored settings (if any) override the current settings.
+     * Synchronizes the initial grid display settings with the settings stored at the specified display type ID. Stored settings (if any) override the
+     * current settings.
      */
     public GridDisplaySettings tryApplySettings(String displayTypeID, ColumnModel columnModel,
             List<String> filteredColumnIds, SortInfo sortInfo)
@@ -325,8 +321,7 @@ public class DisplaySettingsManager
     /**
      * Update grid columns and filters by applying the specified settings.
      * 
-     * @param filteredColumnIds used only to check if the user settings are different form the
-     *            defaults
+     * @param filteredColumnIds used only to check if the user settings are different form the defaults
      */
     private static GridDisplaySettings tryApplySettings(List<ColumnSetting> columnSettings,
             ColumnModel columnModel, List<String> filteredColumnIds, SortInfo sortInfo)
@@ -633,6 +628,18 @@ public class DisplaySettingsManager
     public final void setReopenLastTabOnLogin(boolean isReopen)
     {
         displaySettings.setIgnoreLastHistoryToken(isReopen == false);
+    }
+
+    @SuppressWarnings("deprecation")
+    public final boolean isLegacyMedadataUIEnabled()
+    {
+        return displaySettings.isLegacyMedadataUIEnabled();
+    }
+
+    @SuppressWarnings("deprecation")
+    public final void setLegacyMedadataUIEnabled(boolean legacyMedadataUIEnabled)
+    {
+        displaySettings.setLegacyMedadataUIEnabled(legacyMedadataUIEnabled);
     }
 
     @SuppressWarnings("deprecation")

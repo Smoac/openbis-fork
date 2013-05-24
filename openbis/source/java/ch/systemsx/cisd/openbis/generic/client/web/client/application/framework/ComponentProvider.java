@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Da
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetUploadForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion.DeletionGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.NewEntityTypeForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRegistrationPanel;
@@ -115,8 +116,8 @@ public final class ComponentProvider
     }
 
     /**
-     * Creates a tab with the specified component. The tab is unaware of database modifications and
-     * will not be automatically refreshed if changes occur.
+     * Creates a tab with the specified component. The tab is unaware of database modifications and will not be automatically refreshed if changes
+     * occur.
      */
     private ITabItem createSimpleTab(String title, Component component,
             boolean isCloseConfirmationNeeded)
@@ -1184,16 +1185,18 @@ public final class ComponentProvider
                 @Override
                 public ITabItem create()
                 {
-                    IDisposableComponent component = PropertyTypeAssignmentGrid.create(viewContext, entity);
+                    IDisposableComponent component = PropertyTypeAssignmentGrid.create(viewContext, entity, null);
                     return createTab(getTabTitle(), component);
                 }
 
                 @Override
                 public String getId()
                 {
-                    if(entity != null) {
-                        return PropertyTypeAssignmentGrid.BROWSER_ID+" "+entity.getEntityKind().name()+" "+entity.getCode();
-                    } else {
+                    if (entity != null)
+                    {
+                        return PropertyTypeAssignmentGrid.BROWSER_ID + " " + entity.getEntityKind().name() + " " + entity.getCode();
+                    } else
+                    {
                         return PropertyTypeAssignmentGrid.BROWSER_ID;
                     }
                 }
@@ -1207,9 +1210,11 @@ public final class ComponentProvider
                 @Override
                 public String getTabTitle()
                 {
-                    if(entity != null) {
-                        return getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS)+" "+entity.getEntityKind().name()+" "+entity.getCode();
-                    } else {
+                    if (entity != null)
+                    {
+                        return getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS) + " " + entity.getEntityKind().name() + " " + entity.getCode();
+                    } else
+                    {
                         return getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS);
                     }
                 }
@@ -1361,12 +1366,13 @@ public final class ComponentProvider
 
     public AbstractTabItemFactory getSampleTypeBrowser()
     {
+    	final ComponentProvider componentProvider = this;
         return new AbstractTabItemFactory()
             {
                 @Override
                 public ITabItem create()
                 {
-                    IDisposableComponent component = SampleTypeGrid.create(viewContext);
+                    IDisposableComponent component = SampleTypeGrid.create(viewContext, componentProvider);
                     return createTab(getTabTitle(), component);
                 }
 
@@ -1399,12 +1405,13 @@ public final class ComponentProvider
 
     public AbstractTabItemFactory getMaterialTypeBrowser()
     {
+		final ComponentProvider componentProvider = this;
         return new AbstractTabItemFactory()
             {
                 @Override
                 public ITabItem create()
                 {
-                    IDisposableComponent component = MaterialTypeGrid.create(viewContext);
+                    IDisposableComponent component = MaterialTypeGrid.create(viewContext, componentProvider);
                     return createTab(getTabTitle(), component);
                 }
 
@@ -1435,14 +1442,60 @@ public final class ComponentProvider
             };
     }
 
-    public AbstractTabItemFactory getExperimentTypeBrowser()
+    public AbstractTabItemFactory getNewEntityTypeForm(final EntityKind kind, final EntityType type)
     {
+    	final ComponentProvider componentProvider = this;
         return new AbstractTabItemFactory()
             {
                 @Override
                 public ITabItem create()
                 {
-                    IDisposableComponent component = ExperimentTypeGrid.create(viewContext);
+                    DatabaseModificationAwareComponent component = NewEntityTypeForm.create(kind, type, viewContext, componentProvider);
+                    return createRegistrationTab(getTabTitle(), component);
+                }
+
+                @Override
+                public String getId()
+                {
+                    return NewEntityTypeForm.getTabId(kind, type);
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.ADMINISTRATION, HelpPageAction.VIEW);
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    if (type == null) // Create new entity option
+                    {
+                        return "New " + kind.name() + " Type";
+                    } else
+                    // Edit existing entity option
+                    {
+                        return "Edit " + kind.name() + " Type " + type.getCode();
+                    }
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+            };
+    }
+
+    public AbstractTabItemFactory getExperimentTypeBrowser()
+    {
+    	final ComponentProvider componentProvider = this;
+        return new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    IDisposableComponent component = ExperimentTypeGrid.create(viewContext, componentProvider);
                     return createTab(getTabTitle(), component);
                 }
 
@@ -1475,12 +1528,13 @@ public final class ComponentProvider
 
     public AbstractTabItemFactory getDataSetTypeBrowser()
     {
+    	final ComponentProvider componentProvider = this;
         return new AbstractTabItemFactory()
             {
                 @Override
                 public ITabItem create()
                 {
-                    IDisposableComponent component = DataSetTypeGrid.create(viewContext);
+                    IDisposableComponent component = DataSetTypeGrid.create(viewContext, componentProvider);
                     return createTab(getTabTitle(), component);
                 }
 

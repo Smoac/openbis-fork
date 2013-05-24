@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -30,6 +32,11 @@ public interface IPermIdDAO
      * Creates permanent identifier.
      */
     public String createPermId();
+
+    /**
+     * Creates n permanent identifiers.
+     */
+    public List<String> createPermIds(int n);
 
     /**
      * Returns {@link IEntityInformationHolderDTO} for given permId and entityKind or null if

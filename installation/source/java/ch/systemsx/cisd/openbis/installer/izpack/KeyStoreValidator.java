@@ -27,18 +27,15 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 
 import com.izforge.izpack.api.data.AutomatedInstallData;
-import com.izforge.izpack.api.installer.DataValidator;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class KeyStoreValidator implements DataValidator
+public class KeyStoreValidator extends AbstractDataValidator
 {
     
-    private String errorMessage;
-
     @Override
     public Status validateData(AutomatedInstallData data)
     {
@@ -71,8 +68,7 @@ public class KeyStoreValidator implements DataValidator
                 }
             } catch (Exception ex)
             {
-                errorMessage =
-                        "Error for key store " + keyStoreFile.getPath() + ":" + ex.getMessage();
+                setErrorMessage("Error for key store " + keyStoreFile.getPath() + ":" + ex.getMessage());
                 return Status.ERROR;
             } finally
             {
@@ -93,7 +89,7 @@ public class KeyStoreValidator implements DataValidator
     @Override
     public String getErrorMessageId()
     {
-        return errorMessage;
+        return getErrorMessage();
     }
 
     @Override

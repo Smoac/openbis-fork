@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationSchedulerWithQueue;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -70,6 +71,10 @@ public class DynamicPropertyEvaluationMaintenanceTask implements IMaintenanceTas
             DynamicPropertyEvaluationOperation operation =
                     DynamicPropertyEvaluationOperation.evaluateAll(entityClass);
             scheduler.scheduleUpdate(operation);
+        }
+        if (scheduler instanceof IDynamicPropertyEvaluationSchedulerWithQueue)
+        {
+            ((IDynamicPropertyEvaluationSchedulerWithQueue) scheduler).synchronizeThreadQueue();
         }
         operationLog.info("task executed");
     }

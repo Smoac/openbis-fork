@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -30,8 +31,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -46,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Christian Ribeaud
  */
-public final class DataStrategyStore implements IDataStrategyStore
+public class DataStrategyStore implements IDataStrategyStore
 {
     static final String SUBJECT_FORMAT = "ATTENTION: experiment '%s'";
 
@@ -62,12 +63,27 @@ public final class DataStrategyStore implements IDataStrategyStore
 
     private final Map<DataStoreStrategyKey, IDataStoreStrategy> dataStoreStrategies;
 
+    private final IOpenbisWrapper openbisServiceWrapper;
+
     public DataStrategyStore(final IEncapsulatedOpenBISService limsService,
             final IMailClient mailClient)
     {
         this.mailClient = mailClient;
         dataStoreStrategies = createDataStoreStrategies();
         this.limsService = limsService;
+        this.openbisServiceWrapper = new BasicOpenbisWrapper();
+    }
+
+    /**
+     * Create version of data strategy store with the same contents as the argument, but caching
+     * openbis calls
+     */
+    public DataStrategyStore(final DataStrategyStore other)
+    {
+        this.mailClient = other.mailClient;
+        this.dataStoreStrategies = other.dataStoreStrategies;
+        this.limsService = other.limsService;
+        this.openbisServiceWrapper = new CachedOpenbisWrapper();
     }
 
     private final static void putDataStoreStrategy(
@@ -129,10 +145,11 @@ public final class DataStrategyStore implements IDataStrategyStore
             assert incomingDataSetPath != null : "Incoming data set path for a normal data set can not be null.";
         }
 
-        if (dataSetInfo.tryGetContainerDatasetPermId() != null)
+        String containerDatasetPermId = dataSetInfo.tryGetContainerDatasetPermId();
+        if (containerDatasetPermId != null)
         {
             AbstractExternalData container =
-                    limsService.tryGetDataSet(dataSetInfo.tryGetContainerDatasetPermId());
+                    openbisServiceWrapper.tryGetDataSet(containerDatasetPermId);
             if (container != null)
             {
                 dataSetInfo.setContainerDataSet(container);
@@ -145,7 +162,7 @@ public final class DataStrategyStore implements IDataStrategyStore
         if (sampleIdentifier == null)
         {
             experimentIdentifier = dataSetInfo.getExperimentIdentifier();
-            Experiment experiment = limsService.tryGetExperiment(experimentIdentifier);
+            Experiment experiment = openbisServiceWrapper.tryGetExperiment(experimentIdentifier);
             if (experiment == null)
             {
                 error(emailOrNull, "Unknown experiment identifier '" + experimentIdentifier + "'.");
@@ -159,7 +176,7 @@ public final class DataStrategyStore implements IDataStrategyStore
             dataSetInfo.setExperiment(experiment);
         } else
         {
-            final Sample sample = tryGetSample(sampleIdentifier);
+            final Sample sample = openbisServiceWrapper.tryGetSample(sampleIdentifier);
             if (sample == null)
             {
                 error(emailOrNull, createNotificationMessage(dataSetInfo, incomingDataSetPath));
@@ -183,7 +200,7 @@ public final class DataStrategyStore implements IDataStrategyStore
             dataSetInfo.setExperimentIdentifier(experimentIdentifier);
 
             final IEntityProperty[] properties =
-                    limsService.tryGetPropertiesOfSample(sampleIdentifier);
+                    openbisServiceWrapper.tryGetPropertiesOfSample(sampleIdentifier);
             if (properties == null)
             {
                 final Person registrator = experiment.getRegistrator();
@@ -232,17 +249,6 @@ public final class DataStrategyStore implements IDataStrategyStore
         }
     }
 
-    private Sample tryGetSample(final SampleIdentifier sampleIdentifier)
-    {
-        try
-        {
-            return limsService.tryGetSampleWithExperiment(sampleIdentifier);
-        } catch (UserFailureException ex)
-        {
-            return null;
-        }
-    }
-
     private void sendEmail(final String message, final ExperimentIdentifier experimentIdentifier,
             final String recipientMail)
     {
@@ -255,4 +261,118 @@ public final class DataStrategyStore implements IDataStrategyStore
             operationLog.error(ex.getMessage());
         }
     }
+
+    @Override
+    public IDataStrategyStore getCachedDataStrategyStore()
+    {
+        return new DataStrategyStore(this);
+    }
+
+    private interface IOpenbisWrapper
+    {
+        Sample tryGetSample(final SampleIdentifier sampleIdentifier);
+
+        AbstractExternalData tryGetDataSet(String containerDatasetPermId);
+
+        Experiment tryGetExperiment(ExperimentIdentifier experimentIdentifier);
+
+        IEntityProperty[] tryGetPropertiesOfSample(final SampleIdentifier sampleIdentifier);
+    }
+
+    private class BasicOpenbisWrapper implements IOpenbisWrapper
+    {
+        @Override
+        public Sample tryGetSample(final SampleIdentifier sampleIdentifier)
+        {
+            try
+            {
+                return limsService.tryGetSampleWithExperiment(sampleIdentifier);
+            } catch (UserFailureException ex)
+            {
+                return null;
+            }
+        }
+
+        @Override
+        public AbstractExternalData tryGetDataSet(String containerDatasetPermId)
+        {
+            return limsService.tryGetDataSet(containerDatasetPermId);
+        }
+
+        @Override
+        public Experiment tryGetExperiment(ExperimentIdentifier experimentIdentifier)
+        {
+            return limsService.tryGetExperiment(experimentIdentifier);
+        }
+
+        @Override
+        public IEntityProperty[] tryGetPropertiesOfSample(final SampleIdentifier sampleIdentifier)
+        {
+            return limsService.tryGetPropertiesOfSample(sampleIdentifier);
+        }
+    }
+
+    private class CachedOpenbisWrapper extends BasicOpenbisWrapper
+    {
+        final HashMap<SampleIdentifier, Sample> sampleCache;
+
+        final HashMap<String, AbstractExternalData> dataSetCache;
+
+        final HashMap<ExperimentIdentifier, Experiment> experimentCache;
+
+        final HashMap<SampleIdentifier, IEntityProperty[]> samplePropertiesCache;
+
+        private CachedOpenbisWrapper()
+        {
+            this.sampleCache = new HashMap<SampleIdentifier, Sample>();
+            this.dataSetCache = new HashMap<String, AbstractExternalData>();
+            this.experimentCache = new HashMap<ExperimentIdentifier, Experiment>();
+            this.samplePropertiesCache = new HashMap<SampleIdentifier, IEntityProperty[]>();
+        }
+
+        @Override
+        public Sample tryGetSample(SampleIdentifier sampleIdentifier)
+        {
+            if (false == sampleCache.containsKey(sampleIdentifier))
+            {
+                sampleCache.put(sampleIdentifier, super.tryGetSample(sampleIdentifier));
+            }
+            return sampleCache.get(sampleIdentifier);
+        }
+
+        @Override
+        public AbstractExternalData tryGetDataSet(String containerDatasetPermId)
+        {
+            if (false == dataSetCache.containsKey(containerDatasetPermId))
+            {
+                dataSetCache.put(containerDatasetPermId,
+                        super.tryGetDataSet(containerDatasetPermId));
+            }
+            return dataSetCache.get(containerDatasetPermId);
+        }
+
+        @Override
+        public Experiment tryGetExperiment(ExperimentIdentifier experimentIdentifier)
+        {
+            if (false == experimentCache.containsKey(experimentIdentifier))
+            {
+                experimentCache.put(experimentIdentifier,
+                        super.tryGetExperiment(experimentIdentifier));
+            }
+            return experimentCache.get(experimentIdentifier);
+        }
+
+        @Override
+        public IEntityProperty[] tryGetPropertiesOfSample(SampleIdentifier sampleIdentifier)
+        {
+            if (false == samplePropertiesCache.containsKey(sampleIdentifier))
+            {
+                samplePropertiesCache.put(sampleIdentifier,
+                        super.tryGetPropertiesOfSample(sampleIdentifier));
+            }
+            return samplePropertiesCache.get(sampleIdentifier);
+        }
+
+    }
+
 }
