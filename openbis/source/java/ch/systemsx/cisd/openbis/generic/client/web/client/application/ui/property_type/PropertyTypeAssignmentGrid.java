@@ -190,9 +190,9 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
     }
 
     public static IDisposableComponent create(final IViewContext<ICommonClientServiceAsync> viewContext, EntityType entity,
-            NewETNewPTAssigments newTypeWithAssigments)
+            NewETNewPTAssigments newTypeWithAssigments, boolean isEntityTypeEdit)
     {
-        return new PropertyTypeAssignmentGrid(viewContext, entity, newTypeWithAssigments).asDisposableWithoutToolbar();
+        return new PropertyTypeAssignmentGrid(viewContext, entity, newTypeWithAssigments, isEntityTypeEdit).asDisposableWithoutToolbar();
     }
 
     private final IDelegatedAction postRegistrationCallback;
@@ -201,12 +201,15 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
     private final NewETNewPTAssigments newTypeWithAssigments;
 
+    private final boolean isEntityTypeEdit;
+
     private PropertyTypeAssignmentGrid(final IViewContext<ICommonClientServiceAsync> viewContext, EntityType entity,
-            NewETNewPTAssigments newTypeWithAssigments)
+            NewETNewPTAssigments newTypeWithAssigments, boolean isEntityTypeEdit)
     {
         super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.PROPERTY_TYPE_ASSIGNMENT_BROWSER_GRID);
         this.entity = entity;
         this.newTypeWithAssigments = newTypeWithAssigments;
+        this.isEntityTypeEdit = isEntityTypeEdit;
         extendBottomToolbar();
         postRegistrationCallback = createRefreshGridAction();
     }
@@ -234,8 +237,8 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                                                 newTypeWithAssigments.getEntity().getEntityKind(),
                                                 null,
                                                 new InMemoryGridAddCallback(),
-                                                newTypeWithAssigments.getEntity()
-                                                );
+                                                newTypeWithAssigments.getEntity(),
+                                                isEntityTypeEdit);
                                         dialog.show();
                                     }
                                 });
@@ -298,7 +301,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                                     {
                                         AddPropertyTypeDialog dialog =
                                                 new AddPropertyTypeDialog(viewContext, createRefreshGridAction(), addEntity.getEntityKind(),
-                                                        addEntity.getCode(), null, null);
+                                                        addEntity.getCode(), null, null, true);
                                         dialog.show();
                                     }
                                 });

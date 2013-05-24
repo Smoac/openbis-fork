@@ -149,6 +149,8 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
 
     private EntityKind entityKind;
 
+    private boolean isExitingEntity;
+
     private static final String PREFIX = "property-type-assignment_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
@@ -211,12 +213,13 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     //
     public AddPropertyTypeDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback, EntityKind entityKind,
-            String entityCode, InMemoryGridAddCallback inMemoryGridCallback, EntityType inMemoryEntityType)
+            String entityCode, InMemoryGridAddCallback inMemoryGridCallback, EntityType inMemoryEntityType, boolean isExitingEntity)
     {
         super(viewContext, viewContext.getMessage(Dict.PROPERTY_TYPE_REGISTRATION), postRegistrationCallback);
         this.viewContext = viewContext;
         this.inMemoryGridCallback = inMemoryGridCallback;
         this.entityKind = entityKind;
+        this.isExitingEntity = isExitingEntity;
 
         setWidth(FORM_WIDTH);
         getFormPanel().setFieldWidth(FIELD_WIDTH);
@@ -750,8 +753,17 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         {
             mandatoryCheckbox = new CheckBoxField(viewContext.getMessage(Dict.MANDATORY), false);
             mandatoryCheckbox.setId(createChildId(MANDATORY_CHECKBOX_ID_SUFFIX));
-            mandatoryCheckbox.setFireChangeEventOnSetValue(false);
             mandatoryCheckbox.setValue(false);
+            mandatoryCheckbox.addListener(Events.Change, new Listener<BaseEvent>()
+                {
+                    @Override
+                    public void handleEvent(BaseEvent be)
+                    {
+                        // Show init value if necessary
+                        updatePropertyTypeRelatedFields();
+                    }
+                });
+
             FieldUtil.setVisibility(isScriptable() == false, mandatoryCheckbox);
         }
         return mandatoryCheckbox;
@@ -761,8 +773,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     {
         if (null == shownInEditViewCheckBox)
         {
-            shownInEditViewCheckBox =
-                    new CheckBoxField(viewContext.getMessage(Dict.IS_SHOWN_IN_EDIT_VIEW), false);
+            shownInEditViewCheckBox = new CheckBoxField(viewContext.getMessage(Dict.IS_SHOWN_IN_EDIT_VIEW), false);
             shownInEditViewCheckBox.setValue(true);
             shownInEditViewCheckBox.setVisible(false);
             shownInEditViewCheckBox.addListener(Events.Change, new Listener<BaseEvent>()
@@ -823,8 +834,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
             propertyType = this.createPropertyType();
         }
 
-        // Is necessary to manage the case where the vocabulary is not set because there is no
-        // vocabularies on the system to avoid a null pointer
+        // Is necessary to manage the case where the vocabulary is not set to avoid a null pointer
         if (propertyType != null && propertyType.getDataType() != null
                 && propertyType.getDataType().getCode() != DataTypeCode.CONTROLLEDVOCABULARY
                 ||
@@ -832,20 +842,23 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                 && propertyType.getDataType().getCode() == DataTypeCode.CONTROLLEDVOCABULARY
                 && propertyType.getVocabulary() != null)
         {
-            String fieldId = createChildId(DEFAULT_VALUE_ID_PART);
-            DatabaseModificationAwareField<?> fieldHolder =
-                    PropertyFieldFactory.createField(propertyType,
-                            false,
-                            viewContext.getMessage(Dict.DEFAULT_VALUE),
-                            fieldId,
-                            null,
-                            viewContext);
-            GWTUtils.setToolTip(fieldHolder.get(), viewContext
-                    .getMessage(Dict.DEFAULT_VALUE_TOOLTIP));
-            defaultValueField = fieldHolder;
-            defaultValueField.get().show();
-            FieldUtil.setVisibility(isScriptable() == false, defaultValueField.get());
-            this.addField(defaultValueField.get());
+            if (isExitingEntity && getMandatoryCheckbox().getValue())
+            {
+                String fieldId = createChildId(DEFAULT_VALUE_ID_PART);
+                DatabaseModificationAwareField<?> fieldHolder =
+                        PropertyFieldFactory.createField(propertyType,
+                                false,
+                                viewContext.getMessage(Dict.DEFAULT_VALUE),
+                                fieldId,
+                                null,
+                                viewContext);
+                GWTUtils.setToolTip(fieldHolder.get(), viewContext
+                        .getMessage(Dict.DEFAULT_VALUE_TOOLTIP));
+                defaultValueField = fieldHolder;
+                defaultValueField.get().show();
+                FieldUtil.setVisibility(isScriptable() == false, defaultValueField.get());
+                this.addField(defaultValueField.get());
+            }
         }
         updateEntityTypePropertyTypeRelatedFields();
     }

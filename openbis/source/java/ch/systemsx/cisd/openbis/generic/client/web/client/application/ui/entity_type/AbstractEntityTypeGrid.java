@@ -129,7 +129,8 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends Typed
                                     boolean keyPressed)
                             {
                                 T entityType = selectedItem.getBaseObject().getObjectOrNull();
-                                DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getPropertyTypeAssignmentBrowser(entityType));
+                                DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getPropertyTypeAssignmentBrowser(entityType,
+                                        false));
                             }
 
                         });

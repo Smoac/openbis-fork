@@ -129,12 +129,19 @@ public class NewEntityTypeForm extends ContentPanel
         dialogForm.setBorders(false);
         dialogForm.setBodyBorder(false);
         dialogForm.setLabelWidth(180);
+
         add(dialogForm, BorderLayoutDataFactory.create(LayoutRegion.NORTH, 350));
 
         // Central panel
-        PropertyTypeAssignmentGrid grid = (PropertyTypeAssignmentGrid) PropertyTypeAssignmentGrid
-                .create(viewContext, null, newTypeWithAssigments).getComponent();
+        PropertyTypeAssignmentGrid grid = (PropertyTypeAssignmentGrid) PropertyTypeAssignmentGrid.create(
+                viewContext,
+                null,
+                newTypeWithAssigments,
+                entityToEdit != null
+                ).getComponent();
+
         final Component centerPanel = grid;
+        centerPanel.setStyleAttribute("padding", "10px");
         add(centerPanel, BorderLayoutDataFactory.create(LayoutRegion.CENTER, 170));
 
         // Bottom panel
