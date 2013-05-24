@@ -289,12 +289,13 @@ public class NewEntityTypeForm extends ContentPanel
             newETPTAssigment.setShowRawValue(entityToEdit.getAssignedPropertyTypes().get(i).getShowRawValue());
             newETPTAssigment.setModificationDate(entityToEdit.getAssignedPropertyTypes().get(i).getModificationDate());
 
+            assigment.setAssignment(newETPTAssigment);
+
             if (entityToEdit.getAssignedPropertyTypes().get(i).getScript() != null)
             {
                 assigment.getAssignment().setScriptName(entityToEdit.getAssignedPropertyTypes().get(i).getScript().getName());
             }
 
-            assigment.setAssignment(newETPTAssigment);
             newTypeWithAssigments.getAssigments().add(assigment);
         }
     }
