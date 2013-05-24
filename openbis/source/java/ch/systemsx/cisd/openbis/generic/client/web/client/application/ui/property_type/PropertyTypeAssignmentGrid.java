@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPropertyTypeDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
@@ -258,7 +259,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                                     MessageBox.alert("Error", errorMsg, null);
                                 } else
                                 {
-                                    createEditDialog(etpt).show();
+                                    createEditDialog(etpt, newTypeWithAssigments).show();
                                 }
                             }
                         });
@@ -329,7 +330,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                                     MessageBox.alert("Error", errorMsg, null);
                                 } else
                                 {
-                                    createEditDialog(etpt).show();
+                                    createEditDialog(etpt, null).show();
                                 }
                             }
                         });
@@ -399,7 +400,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
         return field;
     }
 
-    private Window createEditDialog(final EntityTypePropertyType<?> etpt)
+    private Window createEditDialog(final EntityTypePropertyType<?> etpt, final NewETNewPTAssigments newETNewPTAssigments)
     {
         final NewETNewPTAssigments newTypeWithAssigments = this.newTypeWithAssigments;
         final EntityKind entityKind = etpt.getEntityKind();
@@ -418,6 +419,8 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                 }
 
                 Script script = etpt.getScript();
+
+                private CodeField codeField;
 
                 private boolean originalIsMandatory;
 
@@ -465,6 +468,15 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
                 private void initFields(List<EntityTypePropertyType<?>> etpts)
                 {
+                    // Code Field
+                    if (newETNewPTAssigments != null && newETNewPTAssigments.isNewPropertyType(etpt.getPropertyType().getCode()))
+                    {
+                        codeField = new CodeField(viewContext, viewContext.getMessage(Dict.CODE));
+                        codeField.setId(getId() + "_code");
+                        codeField.setValue(etpt.getPropertyType().getCode());
+                        addField(codeField);
+                    }
+
                     // Mandatory Field
                     originalIsMandatory = etpt.isMandatory();
                     mandatoryCheckbox = new CheckBoxField(viewContext.getMessage(Dict.MANDATORY), false);
@@ -649,7 +661,16 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                 {
                     if (isLoaded)
                     {
-                        NewETPTAssignment toRegister = new NewETPTAssignment(entityKind, propertyTypeCode, entityTypeCode,
+                        String propertyTypeCodeToUse = null;
+                        if (codeField != null)
+                        {
+                            propertyTypeCodeToUse = codeField.getValue();
+                        } else
+                        {
+                            propertyTypeCodeToUse = propertyTypeCode;
+                        }
+
+                        NewETPTAssignment toRegister = new NewETPTAssignment(entityKind, propertyTypeCodeToUse, entityTypeCode,
                                 getMandatoryValue(), getDefaultValue(), getSectionValue(),
                                 getPreviousETPTOrdinal(), etpt.isDynamic(),
                                 etpt.isManaged(), etpt.getModificationDate(),
@@ -663,6 +684,10 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                         {
                             try
                             {
+                                if (codeField != null)
+                                {
+                                    newTypeWithAssigments.updateCodeFromNewPropertyType(etpt.getPropertyType().getCode(), codeField.getValue());
+                                }
                                 newTypeWithAssigments.refreshOrderUpdate(toRegister);
                                 registrationCallback.onSuccess(null);
                             } catch (Exception ex)

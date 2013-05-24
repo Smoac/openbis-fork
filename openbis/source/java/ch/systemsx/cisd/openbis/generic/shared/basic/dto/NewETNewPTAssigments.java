@@ -29,6 +29,37 @@ public class NewETNewPTAssigments implements Serializable
         this.assigments = assigments;
     }
 
+    public boolean isNewPropertyType(String code)
+    {
+        for (int i = 0; i < entity.getAssignedPropertyTypes().size(); i++)
+        {
+            if (entity.getAssignedPropertyTypes().get(i).getPropertyType().getCode().equals(code))
+            {
+                return false == assigments.get(i).isExistingPropertyType();
+            }
+        }
+        return false;
+    }
+
+    public void updateCodeFromNewPropertyType(String currentCode, String newCode)
+    {
+        if (isNewPropertyType(currentCode))
+        {
+            for (int i = 0; i < entity.getAssignedPropertyTypes().size(); i++)
+            {
+                if (entity.getAssignedPropertyTypes().get(i).getPropertyType().getCode().equals(currentCode))
+                {
+                    entity.getAssignedPropertyTypes().get(i).getPropertyType().setCode(newCode);
+                    assigments.get(i).getPropertyType().setCode(newCode);
+                    assigments.get(i).getAssignment().setPropertyTypeCode(newCode);
+                }
+            }
+        } else
+        {
+            throw new RuntimeException("A code from an existing property type can't be modified.");
+        }
+    }
+
     public void updateOrdinalToDBOrder()
     {
         // Update Ordinal - Internal/External List
