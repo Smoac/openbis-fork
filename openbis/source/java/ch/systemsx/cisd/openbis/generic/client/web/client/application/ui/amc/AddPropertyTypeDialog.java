@@ -489,8 +489,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                 propertyType = propertyTypeSelectionWidget.tryGetSelectedPropertyType();
             }
 
-            inMemoryGridCallback.callback(isExixtingPropertyType, propertyType, assignment);
-            this.close();
+            inMemoryGridCallback.callback(isExixtingPropertyType, propertyType, assignment, this);
         }
     }
 

@@ -370,7 +370,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
     public class InMemoryGridAddCallback
     {
-        public void callback(boolean isExixtingPropertyType, PropertyType propertyType, NewETPTAssignment assignment)
+        public void callback(boolean isExixtingPropertyType, PropertyType propertyType, NewETPTAssignment assignment, AddPropertyTypeDialog dialog)
         {
             NewPTNewAssigment newPTNewAssigment = new NewPTNewAssigment();
             newPTNewAssigment.setExistingPropertyType(isExixtingPropertyType);
@@ -379,11 +379,12 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
             try
             {
                 newTypeWithAssigments.refreshOrderAdd(newPTNewAssigment);
+                dialog.close();
+                refresh();
             } catch (Exception ex)
             {
                 MessageBox.alert("Error", ex.getMessage(), null);
             }
-            refresh();
         }
     }
 
