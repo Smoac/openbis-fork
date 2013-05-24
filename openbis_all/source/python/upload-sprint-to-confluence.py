@@ -117,11 +117,13 @@ def createMetabolomicsDssDist(version):
   # return to the original dir
   os.chdir(current_dir)
 
-
+# When looking for a file this method returns the last founded, this way if there is more than one version it returns the latest.
 def findFile(filePattern):
+  foundFile = None
   for file in os.listdir(DOWNLOAD_FOLDER):
       if file.startswith(filePattern):
-          return file
+          foundFile = file
+  return foundFile
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
