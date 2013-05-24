@@ -94,11 +94,11 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     //
     // Cosmetics
     //
-    private static final int FORM_WIDTH = 700;
+    private static final int FORM_WIDTH = 600;
 
-    private static final int LABEL_WIDTH = 100;
+    private static final int LABEL_WIDTH = 150;
 
-    private static final int FIELD_WIDTH = 600;
+    private static final int FIELD_WIDTH = 400;
 
     private Label loading;
 
@@ -311,7 +311,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         this.getFormPanel().layout();
         this.layout();
 
-        this.setSize(800, 650);
+        this.setSize(FORM_WIDTH, 650);
         this.center();
     }
 
