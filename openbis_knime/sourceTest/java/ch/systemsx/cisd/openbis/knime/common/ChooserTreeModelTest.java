@@ -63,10 +63,16 @@ public class ChooserTreeModelTest extends AssertJUnit
     {
         private static final long serialVersionUID = 1L;
 
-        NonThreadChooserTreeModel(DataSetOwnerType ownerType, String sessionToken,
+        NonThreadChooserTreeModel(DataSetOwnerType entityType, String sessionToken,
                 IGeneralInformationService service)
         {
-            super(ownerType, sessionToken, service);
+            this(entityType, true, sessionToken, service);
+        }
+        
+        NonThreadChooserTreeModel(DataSetOwnerType entityType, boolean ownerEntity, String sessionToken,
+                IGeneralInformationService service)
+        {
+            super(entityType, ownerEntity, sessionToken, service);
         }
 
         @Override
@@ -146,7 +152,7 @@ public class ChooserTreeModelTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    exactly(3).of(service).listSampleTypes(SESSION_TOKEN);
+                    atLeast(3).of(service).listSampleTypes(SESSION_TOKEN);
                     SampleType.SampleTypeInitializer sampleTypeInitializer =
                             new SampleType.SampleTypeInitializer();
                     sampleTypeInitializer.setCode(LISTABLE_SAMPLE_TYPE);
@@ -157,7 +163,7 @@ public class ChooserTreeModelTest extends AssertJUnit
                     SampleType nonListableSampleType = new SampleType(sampleTypeInitializer);
                     will(returnValue(Arrays.asList(listableSampleType, nonListableSampleType)));
 
-                    exactly(3).of(service).listProjects(SESSION_TOKEN);
+                    atLeast(3).of(service).listProjects(SESSION_TOKEN);
                     will(returnValue(Arrays.asList(new Project(SPACE_1, P_1),
                             new Project(SPACE_2, P_1),
                             new Project(SPACE_1, P_2))));
@@ -185,50 +191,113 @@ public class ChooserTreeModelTest extends AssertJUnit
     }
 
     @Test
-    public void testSpacesAndProjects()
+    public void testSpaces()
     {
         Object root = experimentChooserModel.getRoot();
         Object space1 = experimentChooserModel.getChild(root, 0);
         Object space2 = experimentChooserModel.getChild(root, 1);
-        Object project11 = experimentChooserModel.getChild(space1, 0);
-        Object project12 = experimentChooserModel.getChild(space1, 1);
-        Object project21 = experimentChooserModel.getChild(space2, 0);
-        Object loadingNode1 = experimentChooserModel.getChild(project11, 0);
-        Object loadingNode2 = experimentChooserModel.getChild(project12, 0);
-        Object loadingNode3 = experimentChooserModel.getChild(project21, 0);
+        Object loadingNode1 = experimentChooserModel.getChild(space1, 0);
+        Object loadingNode2 = experimentChooserModel.getChild(space2, 0);
 
         assertEquals(2, experimentChooserModel.getChildCount(root));
         assertEquals(SPACE_1, space1.toString());
         assertEquals(SPACE_2, space2.toString());
-        assertEquals(2, experimentChooserModel.getChildCount(space1));
+        assertEquals(1, experimentChooserModel.getChildCount(space1));
         assertEquals(1, experimentChooserModel.getChildCount(space2));
-        assertEquals(P_1, project11.toString());
-        assertEquals(P_2, project12.toString());
-        assertEquals(P_1, project21.toString());
-        assertEquals(1, experimentChooserModel.getChildCount(project11));
-        assertEquals(1, experimentChooserModel.getChildCount(project12));
-        assertEquals(1, experimentChooserModel.getChildCount(project21));
         assertEquals(LOADING_TEXT, loadingNode1.toString());
         assertEquals(LOADING_TEXT, loadingNode2.toString());
-        assertEquals(LOADING_TEXT, loadingNode3.toString());
         assertEquals(0, experimentChooserModel.getChildCount(loadingNode1));
         assertEquals(0, experimentChooserModel.getChildCount(loadingNode2));
-        assertEquals(0, experimentChooserModel.getChildCount(loadingNode3));
         assertSelectibility(false, experimentChooserModel, root);
         assertSelectibility(false, experimentChooserModel, space1);
-        assertSelectibility(false, experimentChooserModel, project11);
         assertSelectibility(false, experimentChooserModel, loadingNode1);
         context.assertIsSatisfied();
     }
     
     @Test
-    public void testExpandSpaceNode()
+    public void testExpandSpaceNodeInDataSetChooserForOwner()
+    {
+        Object root = dataSetChooserModel.getRoot();
+        Object space1 = dataSetChooserModel.getChild(root, 0);
+        RecordingMatcher<TreeModelEvent> matcher = prepareTreeStructureChanged(1);
+
+        dataSetChooserModel.expandNode(createPath(dataSetChooserModel, space1), nodeAction);
+
+        assertEquals(null, nodeAction.handledException);
+        assertEquals(true, nodeAction.executed);
+        assertEquals(2, dataSetChooserModel.getChildCount(space1));
+        assertEquals("P1", dataSetChooserModel.getChild(space1, 0).toString());
+        assertEquals("P2", dataSetChooserModel.getChild(space1, 1).toString());
+        assertEquals(createPath(dataSetChooserModel, space1).toString(), 
+                matcher.recordedObject().getTreePath().toString());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testExpandSpaceNodeInDataSetChooserForNoOwner()
+    {
+        NonThreadChooserTreeModel chooser 
+                = new NonThreadChooserTreeModel(DataSetOwnerType.DATA_SET, false, SESSION_TOKEN, service);
+        chooser.addTreeModelListener(treeModelListener);
+        Object root = chooser.getRoot();
+        Object space1 = chooser.getChild(root, 0);
+        RecordingMatcher<TreeModelEvent> matcher = prepareTreeStructureChanged(1);
+        
+        chooser.expandNode(createPath(chooser, space1), nodeAction);
+        
+        assertEquals(null, nodeAction.handledException);
+        assertEquals(true, nodeAction.executed);
+        assertEquals(2, chooser.getChildCount(space1));
+        assertEquals("P1", chooser.getChild(space1, 0).toString());
+        assertEquals("P2", chooser.getChild(space1, 1).toString());
+        assertEquals(createPath(chooser, space1).toString(), 
+                matcher.recordedObject().getTreePath().toString());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testExpandSpaceNodeInSampleChooserForOwner()
     {
         Object root = sampleChooserModel.getRoot();
         Object space1 = sampleChooserModel.getChild(root, 0);
-
-        sampleChooserModel.expandNode(createPath(sampleChooserModel, space1), null);
-
+        RecordingMatcher<TreeModelEvent> matcher = prepareTreeStructureChanged(1);
+        
+        sampleChooserModel.expandNode(createPath(sampleChooserModel, space1), nodeAction);
+        
+        assertEquals(null, nodeAction.handledException);
+        assertEquals(true, nodeAction.executed);
+        assertEquals(2, sampleChooserModel.getChildCount(space1));
+        assertEquals("P1", sampleChooserModel.getChild(space1, 0).toString());
+        assertEquals("P2", sampleChooserModel.getChild(space1, 1).toString());
+        assertEquals(createPath(sampleChooserModel, space1).toString(), 
+                matcher.recordedObject().getTreePath().toString());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testExpandSpaceNodeInSampleChooserForNoOwner()
+    {
+        NonThreadChooserTreeModel chooser 
+        = new NonThreadChooserTreeModel(DataSetOwnerType.SAMPLE, false, SESSION_TOKEN, service);
+        chooser.addTreeModelListener(treeModelListener);
+        Object root = chooser.getRoot();
+        Object space1 = chooser.getChild(root, 0);
+        RecordingMatcher<TreeModelEvent> matcher = prepareTreeStructureChanged(1);
+        Sample s2 = sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_2);
+        Sample s1 = sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_1);
+        prepareSearchForSamples(s2, s1);
+        
+        chooser.expandNode(createPath(chooser, space1), nodeAction);
+        
+        assertEquals(null, nodeAction.handledException);
+        assertEquals(true, nodeAction.executed);
+        assertEquals(4, chooser.getChildCount(space1));
+        assertEquals("/SP1/S1", chooser.getChild(space1, 0).toString());
+        assertEquals("/SP1/S2", chooser.getChild(space1, 1).toString());
+        assertEquals("P1", chooser.getChild(space1, 2).toString());
+        assertEquals("P2", chooser.getChild(space1, 3).toString());
+        assertEquals(createPath(chooser, space1).toString(), 
+                matcher.recordedObject().getTreePath().toString());
         context.assertIsSatisfied();
     }
     
@@ -237,6 +306,10 @@ public class ChooserTreeModelTest extends AssertJUnit
     {
         Object root = dataSetChooserModel.getRoot();
         Object space1 = dataSetChooserModel.getChild(root, 0);
+        prepareTreeStructureChanged(1);
+        dataSetChooserModel.expandNode(createPath(dataSetChooserModel, space1), nodeAction);
+        assertEquals(null, nodeAction.handledException);
+        assertEquals(2, dataSetChooserModel.getChildCount(space1));
 
         dataSetChooserModel.collapsNode(createPath(dataSetChooserModel, space1));
         
@@ -251,9 +324,11 @@ public class ChooserTreeModelTest extends AssertJUnit
     {
         Object root = experimentChooserModel.getRoot();
         Object space1 = experimentChooserModel.getChild(root, 0);
+        RecordingMatcher<TreeModelEvent> matcher = prepareTreeStructureChanged(2);
+        experimentChooserModel.expandNode(createPath(experimentChooserModel, space1), nodeAction);
+        assertEquals(null, nodeAction.handledException);
         Object project11 = experimentChooserModel.getChild(space1, 0);
         prepareListExperiments(project11);
-        RecordingMatcher<TreeModelEvent> matcher = prepareTreeStructureChanged(1);
         
         experimentChooserModel.expandNode(createPath(experimentChooserModel, project11), nodeAction);
 
@@ -268,8 +343,11 @@ public class ChooserTreeModelTest extends AssertJUnit
         assertEquals(EXP_2, child2.toString());
         assertEquals(0, experimentChooserModel.getChildCount(child2));
         assertEquals(true, experimentChooserModel.isLeaf(child2));
+        assertEquals(createPath(experimentChooserModel, space1).toString(), 
+                matcher.getRecordedObjects().get(0).getTreePath().toString());
         assertEquals(createPath(experimentChooserModel, project11).toString(), 
-                matcher.recordedObject().getTreePath().toString());
+                matcher.getRecordedObjects().get(1).getTreePath().toString());
+        assertEquals(2, matcher.getRecordedObjects().size());
         context.assertIsSatisfied();
     }
     
@@ -278,9 +356,11 @@ public class ChooserTreeModelTest extends AssertJUnit
     {
         Object root = sampleChooserModel.getRoot();
         Object space1 = sampleChooserModel.getChild(root, 0);
+        RecordingMatcher<TreeModelEvent> matcher = prepareTreeStructureChanged(2);
+        sampleChooserModel.expandNode(createPath(sampleChooserModel, space1), nodeAction);
+        assertEquals(null, nodeAction.handledException);
         Object project11 = sampleChooserModel.getChild(space1, 0);
         prepareListExperiments(project11);
-        RecordingMatcher<TreeModelEvent> matcher = prepareTreeStructureChanged(1);
         
         sampleChooserModel.expandNode(createPath(sampleChooserModel, project11), nodeAction);
         
@@ -297,8 +377,11 @@ public class ChooserTreeModelTest extends AssertJUnit
         assertEquals(1, sampleChooserModel.getChildCount(child2));
         assertEquals(LOADING_TEXT, sampleChooserModel.getChild(child2, 0).toString());
         assertEquals(false, sampleChooserModel.isLeaf(child2));
+        assertEquals(createPath(sampleChooserModel, space1).toString(), 
+                matcher.getRecordedObjects().get(0).getTreePath().toString());
         assertEquals(createPath(sampleChooserModel, project11).toString(), 
-                matcher.recordedObject().getTreePath().toString());
+                matcher.getRecordedObjects().get(1).getTreePath().toString());
+        assertEquals(2, matcher.getRecordedObjects().size());
         context.assertIsSatisfied();
     }
     
@@ -307,9 +390,11 @@ public class ChooserTreeModelTest extends AssertJUnit
     {
         Object root = dataSetChooserModel.getRoot();
         Object space1 = dataSetChooserModel.getChild(root, 0);
+        prepareTreeStructureChanged(3);
+        dataSetChooserModel.expandNode(createPath(dataSetChooserModel, space1), nodeAction);
+        assertEquals(null, nodeAction.handledException);
         Object project11 = dataSetChooserModel.getChild(space1, 0);
         prepareListExperiments(project11);
-        prepareTreeStructureChanged(2);
         TreePath path = createPath(dataSetChooserModel, project11);
         dataSetChooserModel.expandNode(path, nodeAction);
         assertEquals(null, nodeAction.handledException);
@@ -327,9 +412,11 @@ public class ChooserTreeModelTest extends AssertJUnit
     {
         Object root = sampleChooserModel.getRoot();
         Object space1 = sampleChooserModel.getChild(root, 0);
+        RecordingMatcher<TreeModelEvent> eventMatcher = prepareTreeStructureChanged(3);
+        sampleChooserModel.expandNode(createPath(sampleChooserModel, space1), nodeAction);
+        assertEquals(null, nodeAction.handledException);
         Object project11 = sampleChooserModel.getChild(space1, 0);
         prepareListExperiments(project11);
-        RecordingMatcher<TreeModelEvent> eventMatcher = prepareTreeStructureChanged(2);
         sampleChooserModel.expandNode(createPath(sampleChooserModel, project11), nodeAction);
         assertEquals(null, nodeAction.handledException);
         Object exp1 = sampleChooserModel.getChild(project11, 0);
@@ -342,11 +429,13 @@ public class ChooserTreeModelTest extends AssertJUnit
         assertEquals(null, nodeAction.handledException);
         assertEquals(true, nodeAction.executed);
         List<TreeModelEvent> recordedObjects = eventMatcher.getRecordedObjects();
-        assertEquals(createPath(sampleChooserModel, project11).toString(), 
+        assertEquals(createPath(sampleChooserModel, space1).toString(), 
                 recordedObjects.get(0).getTreePath().toString());
-        assertEquals(createPath(sampleChooserModel, exp1).toString(), 
+        assertEquals(createPath(sampleChooserModel, project11).toString(), 
                 recordedObjects.get(1).getTreePath().toString());
-        assertEquals(2, recordedObjects.size());
+        assertEquals(createPath(sampleChooserModel, exp1).toString(), 
+                recordedObjects.get(2).getTreePath().toString());
+        assertEquals(3, recordedObjects.size());
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[" 
                 + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,ST1,EQUALS]]," 
                 + "[SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
@@ -367,9 +456,11 @@ public class ChooserTreeModelTest extends AssertJUnit
     {
         Object root = dataSetChooserModel.getRoot();
         Object space1 = dataSetChooserModel.getChild(root, 0);
+        RecordingMatcher<TreeModelEvent> eventMatcher = prepareTreeStructureChanged(3);
+        dataSetChooserModel.expandNode(createPath(dataSetChooserModel, space1), nodeAction);
+        assertEquals(null, nodeAction.handledException);
         Object project11 = dataSetChooserModel.getChild(space1, 0);
         prepareListExperiments(project11);
-        RecordingMatcher<TreeModelEvent> eventMatcher = prepareTreeStructureChanged(2);
         dataSetChooserModel.expandNode(createPath(dataSetChooserModel, project11), nodeAction);
         assertEquals(null, nodeAction.handledException);
         Object exp1 = dataSetChooserModel.getChild(project11, 0);
@@ -384,11 +475,13 @@ public class ChooserTreeModelTest extends AssertJUnit
         assertEquals(null, nodeAction.handledException);
         assertEquals(true, nodeAction.executed);
         List<TreeModelEvent> recordedObjects = eventMatcher.getRecordedObjects();
-        assertEquals(createPath(dataSetChooserModel, project11).toString(), 
+        assertEquals(createPath(dataSetChooserModel, space1).toString(), 
                 recordedObjects.get(0).getTreePath().toString());
-        assertEquals(createPath(dataSetChooserModel, exp1).toString(), 
+        assertEquals(createPath(dataSetChooserModel, project11).toString(), 
                 recordedObjects.get(1).getTreePath().toString());
-        assertEquals(2, recordedObjects.size());
+        assertEquals(createPath(dataSetChooserModel, exp1).toString(), 
+                recordedObjects.get(2).getTreePath().toString());
+        assertEquals(3, recordedObjects.size());
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,["
                 + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,ST1,EQUALS]],"
                 + "[SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
@@ -420,9 +513,11 @@ public class ChooserTreeModelTest extends AssertJUnit
     {
         Object root = sampleChooserModel.getRoot();
         Object space1 = sampleChooserModel.getChild(root, 0);
+        prepareTreeStructureChanged(4);
+        sampleChooserModel.expandNode(createPath(sampleChooserModel, space1), nodeAction);
+        assertEquals(null, nodeAction.handledException);
         Object project11 = sampleChooserModel.getChild(space1, 0);
         prepareListExperiments(project11);
-        prepareTreeStructureChanged(3);
         sampleChooserModel.expandNode(createPath(sampleChooserModel, project11), nodeAction);
         assertEquals(null, nodeAction.handledException);
         Object exp1 = sampleChooserModel.getChild(project11, 0);
@@ -446,9 +541,11 @@ public class ChooserTreeModelTest extends AssertJUnit
     {
         Object root = sampleChooserModel.getRoot();
         Object space1 = sampleChooserModel.getChild(root, 0);
+        RecordingMatcher<TreeModelEvent> eventMatcher = prepareTreeStructureChanged(4);
+        sampleChooserModel.expandNode(createPath(sampleChooserModel, space1), nodeAction);
+        assertEquals(null, nodeAction.handledException);
         Object project11 = sampleChooserModel.getChild(space1, 0);
         prepareListExperiments(project11);
-        RecordingMatcher<TreeModelEvent> eventMatcher = prepareTreeStructureChanged(3);
         sampleChooserModel.expandNode(createPath(sampleChooserModel, project11), nodeAction);
         assertEquals(null, nodeAction.handledException);
         Object exp1 = sampleChooserModel.getChild(project11, 0);
@@ -471,13 +568,15 @@ public class ChooserTreeModelTest extends AssertJUnit
         assertEquals(null, nodeAction.handledException);
         assertEquals(true, nodeAction.executed);
         List<TreeModelEvent> recordedObjects = eventMatcher.getRecordedObjects();
-        assertEquals(createPath(sampleChooserModel, project11).toString(),
+        assertEquals(createPath(sampleChooserModel, space1).toString(),
                 recordedObjects.get(0).getTreePath().toString());
-        assertEquals(createPath(sampleChooserModel, exp1).toString(),
+        assertEquals(createPath(sampleChooserModel, project11).toString(),
                 recordedObjects.get(1).getTreePath().toString());
-        assertEquals(createPath(sampleChooserModel, sample1).toString(),
+        assertEquals(createPath(sampleChooserModel, exp1).toString(),
                 recordedObjects.get(2).getTreePath().toString());
-        assertEquals(3, recordedObjects.size());
+        assertEquals(createPath(sampleChooserModel, sample1).toString(),
+                recordedObjects.get(3).getTreePath().toString());
+        assertEquals(4, recordedObjects.size());
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,["
                 + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,ST1,EQUALS]],"
                 + "[SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
@@ -514,9 +613,11 @@ public class ChooserTreeModelTest extends AssertJUnit
     {
         Object root = dataSetChooserModel.getRoot();
         Object space1 = dataSetChooserModel.getChild(root, 0);
+        RecordingMatcher<TreeModelEvent> eventMatcher = prepareTreeStructureChanged(4);
+        dataSetChooserModel.expandNode(createPath(dataSetChooserModel, space1), nodeAction);
+        assertEquals(null, nodeAction.handledException);
         Object project11 = dataSetChooserModel.getChild(space1, 0);
         prepareListExperiments(project11);
-        RecordingMatcher<TreeModelEvent> eventMatcher = prepareTreeStructureChanged(3);
         dataSetChooserModel.expandNode(createPath(dataSetChooserModel, project11), nodeAction);
         assertEquals(null, nodeAction.handledException);
         Object exp1 = dataSetChooserModel.getChild(project11, 0);
@@ -539,13 +640,15 @@ public class ChooserTreeModelTest extends AssertJUnit
         assertEquals(null, nodeAction.handledException);
         assertEquals(true, nodeAction.executed);
         List<TreeModelEvent> recordedObjects = eventMatcher.getRecordedObjects();
-        assertEquals(createPath(dataSetChooserModel, project11).toString(),
+        assertEquals(createPath(dataSetChooserModel, space1).toString(),
                 recordedObjects.get(0).getTreePath().toString());
-        assertEquals(createPath(dataSetChooserModel, exp1).toString(),
+        assertEquals(createPath(dataSetChooserModel, project11).toString(),
                 recordedObjects.get(1).getTreePath().toString());
-        assertEquals(createPath(dataSetChooserModel, sample1).toString(),
+        assertEquals(createPath(dataSetChooserModel, exp1).toString(),
                 recordedObjects.get(2).getTreePath().toString());
-        assertEquals(3, recordedObjects.size());
+        assertEquals(createPath(dataSetChooserModel, sample1).toString(),
+                recordedObjects.get(3).getTreePath().toString());
+        assertEquals(4, recordedObjects.size());
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,["
                 + "SearchCriteria.AttributeMatchClause[ATTRIBUTE,TYPE,ST1,EQUALS]],"
                 + "[SearchSubCriteria[EXPERIMENT,SearchCriteria[MATCH_ALL_CLAUSES,"
@@ -596,9 +699,11 @@ public class ChooserTreeModelTest extends AssertJUnit
     {
         Object root = sampleChooserModel.getRoot();
         Object space1 = sampleChooserModel.getChild(root, 0);
+        prepareTreeStructureChanged(5);
+        sampleChooserModel.expandNode(createPath(sampleChooserModel, space1), nodeAction);
+        assertEquals(null, nodeAction.handledException);
         Object project11 = sampleChooserModel.getChild(space1, 0);
         prepareListExperiments(project11);
-        prepareTreeStructureChanged(4);
         sampleChooserModel.expandNode(createPath(sampleChooserModel, project11), nodeAction);
         assertEquals(null, nodeAction.handledException);
         Object exp1 = sampleChooserModel.getChild(project11, 0);

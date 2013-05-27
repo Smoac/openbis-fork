@@ -131,9 +131,9 @@ public abstract class AbstractParameterDescriptionBasedNodeDialog<D extends Seri
         switch (fieldType)
         {
             case VOCABULARY: return new VocabularyField(fieldParameters);
-            case EXPERIMENT: return new OwnerField(DataSetOwnerType.EXPERIMENT, facade);
-            case SAMPLE: return new OwnerField(DataSetOwnerType.SAMPLE, facade);
-            case DATA_SET: return new OwnerField(DataSetOwnerType.DATA_SET, facade);
+            case EXPERIMENT: return new EntityField(DataSetOwnerType.EXPERIMENT, facade);
+            case SAMPLE: return new EntityField(DataSetOwnerType.SAMPLE, facade);
+            case DATA_SET: return new EntityField(DataSetOwnerType.DATA_SET, facade);
             default: return new TextField();
         }
     }

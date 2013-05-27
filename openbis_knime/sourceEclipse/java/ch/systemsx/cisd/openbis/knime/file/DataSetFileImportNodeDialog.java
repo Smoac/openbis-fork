@@ -44,7 +44,7 @@ import org.knime.core.node.workflow.ICredentials;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.knime.common.AbstractDescriptionBasedNodeDialog;
-import ch.systemsx.cisd.openbis.knime.common.OwnerChooser;
+import ch.systemsx.cisd.openbis.knime.common.EntityChooser;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
@@ -183,7 +183,7 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
         try
         {
             String ownerOrNull =
-                    new OwnerChooser(getPanel(), DataSetOwnerType.DATA_SET,
+                    new EntityChooser(getPanel(), DataSetOwnerType.DATA_SET, true,
                             facade.getSessionToken(), facade.getGeneralInformationService())
                             .getOwnerOrNull();
             if (ownerOrNull != null)

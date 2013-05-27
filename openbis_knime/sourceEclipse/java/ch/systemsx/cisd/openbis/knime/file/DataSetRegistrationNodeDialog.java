@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator;
 import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeDialog;
 import ch.systemsx.cisd.openbis.knime.common.IOpenbisServiceFacadeFactory;
-import ch.systemsx.cisd.openbis.knime.common.OwnerChooser;
+import ch.systemsx.cisd.openbis.knime.common.EntityChooser;
 import ch.systemsx.cisd.openbis.knime.common.Util;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 
@@ -303,7 +303,7 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
         String sessionToken = facade.getSessionToken();
         IGeneralInformationService service = facade.getGeneralInformationService();
         String ownerOrNull =
-                new OwnerChooser(ownerField, ownerType, sessionToken, service).getOwnerOrNull();
+                new EntityChooser(ownerField, ownerType, true, sessionToken, service).getOwnerOrNull();
         if (ownerOrNull != null)
         {
             ownerField.setText(ownerOrNull);

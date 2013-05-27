@@ -31,11 +31,11 @@ import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 
 /**
  * One-line text field for an identifier for an entity of type Experiment, Sample or Data Set. 
- * An additional button allows to use {@link OwnerChooser}.
+ * An additional button allows to use {@link EntityChooser}.
  * 
  * @author Franz-Josef Elmer
  */
-class OwnerField implements IField
+class EntityField implements IField
 {
     private final DataSetOwnerType ownerType;
     
@@ -45,9 +45,9 @@ class OwnerField implements IField
 
     private final JTextField ownerField;
 
-    OwnerField(DataSetOwnerType ownerType, IQueryApiFacade facade)
+    EntityField(DataSetOwnerType entityType, IQueryApiFacade facade)
     {
-        this.ownerType = ownerType;
+        this.ownerType = entityType;
         this.facade = facade;
         textFieldWithButton = new JPanel(new BorderLayout());
         ownerField = new JTextField(20);
@@ -87,7 +87,7 @@ class OwnerField implements IField
         String sessionToken = facade.getSessionToken();
         IGeneralInformationService service = facade.getGeneralInformationService();
         String ownerOrNull =
-                new OwnerChooser(ownerField, ownerType, sessionToken, service).getOwnerOrNull();
+                new EntityChooser(ownerField, ownerType, false, sessionToken, service).getOwnerOrNull();
         if (ownerOrNull != null)
         {
             ownerField.setText(ownerOrNull);

@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchO
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 
 /**
- * The tree model for {@link OwnerChooser}.
+ * The tree model for {@link EntityChooser}.
  *
  * @author Franz-Josef Elmer
  */
@@ -223,6 +223,28 @@ public class ChooserTreeModel extends DefaultTreeModel
         }
     }
     
+    private static final class SamplesAndProjects
+    {
+        private final List<Sample> samples;
+        private final List<Project> projects;
+
+        SamplesAndProjects(List<Sample> samples, List<Project> projects)
+        {
+            this.samples = samples;
+            this.projects = projects;
+        }
+
+        public List<Sample> getSamples()
+        {
+            return samples;
+        }
+
+        public List<Project> getProjects()
+        {
+            return projects;
+        }
+    }
+    
     private static final class SamplesAndDataSets
     {
         private final List<Sample> samples;
@@ -283,27 +305,31 @@ public class ChooserTreeModel extends DefaultTreeModel
         };
                         
     private final IGeneralInformationService service;
-    private final DataSetOwnerType ownerType;
+    private final DataSetOwnerType entityType;
+    private final boolean ownerEntity;
     private final String sessionToken;
 
     private List<SampleType> sampleTypes;
 
-    ChooserTreeModel(DataSetOwnerType ownerType, String sessionToken,
+    private TreeMap<String, List<Project>> spaceToProjectsMap;
+
+    ChooserTreeModel(DataSetOwnerType entityType, boolean ownerEntity, String sessionToken,
             IGeneralInformationService service)
     {
         super(new DefaultMutableTreeNode());
-        this.ownerType = ownerType;
+        this.entityType = entityType;
+        this.ownerEntity = ownerEntity;
         this.sessionToken = sessionToken;
         this.service = service;
-        addSpaceAndProjectNodes();
+        addTopLevelNodes();
         sampleTypes = service.listSampleTypes(sessionToken);
     }
 
-    private void addSpaceAndProjectNodes()
+    private void addTopLevelNodes()
     {
         DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getRoot();
         rootNode.setUserObject(RootNode.ROOT);
-        TreeMap<String, List<Project>> spaceToProjectsMap = new TreeMap<String, List<Project>>();
+        spaceToProjectsMap = new TreeMap<String, List<Project>>();
         List<Project> projects = service.listProjects(sessionToken);
         Collections.sort(projects, PROJECT_COMPARATOR);
         for (Project project : projects)
@@ -321,13 +347,7 @@ public class ChooserTreeModel extends DefaultTreeModel
             String spaceCode = entry.getKey();
             DefaultMutableTreeNode spaceNode = new DefaultMutableTreeNode(new SpaceNode(spaceCode));
             rootNode.add(spaceNode);
-            for (Project project : entry.getValue())
-            {
-                DefaultMutableTreeNode projectNode =
-                        new DefaultMutableTreeNode(new ProjectNode(project));
-                spaceNode.add(projectNode);
-                projectNode.add(createLoadingNode());
-            }
+            spaceNode.add(createLoadingNode());
         }
     }
 
@@ -341,7 +361,7 @@ public class ChooserTreeModel extends DefaultTreeModel
         }
         IChooserTreeNode<?> treeNode = (IChooserTreeNode<?>) userObject;
         ChooserTreeNodeType nodeType = treeNode.getNodeType();
-        switch (ownerType)
+        switch (entityType)
         {
             case EXPERIMENT: return nodeType == ChooserTreeNodeType.EXPERIMENT;
             case SAMPLE: return nodeType == ChooserTreeNodeType.SAMPLE;
@@ -371,6 +391,12 @@ public class ChooserTreeModel extends DefaultTreeModel
     {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
         Object userObject = node.getUserObject();
+        String space = tryGetWrappedObject(String.class, userObject);
+        if (space != null)
+        {
+            expandSpaceNode(node, space, action);
+            return;
+        }
         Project project = tryGetWrappedObject(Project.class, userObject);
         if (project != null)
         {
@@ -388,6 +414,50 @@ public class ChooserTreeModel extends DefaultTreeModel
         {
             expandSampleNode(node, sample, action);
         }
+    }
+    
+    private void expandSpaceNode(final DefaultMutableTreeNode node, final String space, IAsyncNodeAction action)
+    {
+        executeAsync(new ILoadingBuildingAction<SamplesAndProjects>()
+            {
+                @Override
+                public SamplesAndProjects load()
+                {
+                    List<Sample> samples = new ArrayList<Sample>();
+                    if (isSampleTypeButNotOwner())
+                    {
+                        gatherListableSamples(samples, space, null);
+                        Collections.sort(samples, SAMPLE_COMPARATOR);
+                    }
+                    List<Project> projects = spaceToProjectsMap.get(space);
+                    if (projects == null)
+                    {
+                        projects = Collections.emptyList();
+                    }
+                    return new SamplesAndProjects(samples, projects);
+                }
+
+                @Override
+                public void build(SamplesAndProjects data)
+                {
+                    node.removeAllChildren();
+                    List<Sample> samples = data.getSamples();
+                    for (Sample sample : samples)
+                    {
+                        DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(new SampleNode(sample));
+                        node.add(childNode);
+                        childNode.add(createLoadingNode());
+                    }
+                    for (Project project : data.getProjects())
+                    {
+                        DefaultMutableTreeNode projectNode =
+                                new DefaultMutableTreeNode(new ProjectNode(project));
+                        node.add(projectNode);
+                        projectNode.add(createLoadingNode());
+                    }
+                    nodeStructureChanged(node);
+                }
+            }, action);
     }
 
     private void expandProjectNode(final DefaultMutableTreeNode node, final Project project,
@@ -413,7 +483,7 @@ public class ChooserTreeModel extends DefaultTreeModel
                         DefaultMutableTreeNode childNode =
                                 new DefaultMutableTreeNode(new ExperimentNode(experiment));
                         node.add(childNode);
-                        if (ownerType != DataSetOwnerType.EXPERIMENT)
+                        if (entityType != DataSetOwnerType.EXPERIMENT)
                         {
                             childNode.add(createLoadingNode());
                         }
@@ -433,27 +503,10 @@ public class ChooserTreeModel extends DefaultTreeModel
                 public SamplesAndDataSets load()
                 {
                     List<Sample> samples = new ArrayList<Sample>();
-                    for (SampleType sampleType : sampleTypes)
-                    {
-                        if (sampleType.isListable())
-                        {
-                            SearchCriteria searchCriteria = new SearchCriteria();
-                            searchCriteria.setOperator(SearchOperator.MATCH_ALL_CLAUSES);
-                            searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
-                                    MatchClauseAttribute.TYPE,
-                                    sampleType.getCode()));
-                            SearchCriteria experimentCriteria = new SearchCriteria();
-                            experimentCriteria.addMatchClause(MatchClause.createAttributeMatch(
-                                    MatchClauseAttribute.PERM_ID, experimentPermId));
-                            searchCriteria.addSubCriteria(SearchSubCriteria
-                                    .createExperimentCriteria(experimentCriteria));
-                            samples.addAll(service.searchForSamples(sessionToken, searchCriteria,
-                                    null));
-                        }
-                    }
+                    gatherListableSamples(samples, null, experimentPermId);
                     Collections.sort(samples, SAMPLE_COMPARATOR);
                     List<DataSet> dataSets = new ArrayList<DataSet>();
-                    if (ownerType == DataSetOwnerType.DATA_SET)
+                    if (entityType == DataSetOwnerType.DATA_SET)
                     {
                         SearchCriteria searchCriteria = new SearchCriteria();
                         SearchCriteria experimentCriteria = new SearchCriteria();
@@ -473,6 +526,35 @@ public class ChooserTreeModel extends DefaultTreeModel
                     addSampleAndDataSetNodes(node, data);
                 }
             }, action);
+    }
+
+    private void gatherListableSamples(List<Sample> samples, String spaceOrNull, String experimentPermIdOrNull)
+    {
+        for (SampleType sampleType : sampleTypes)
+        {
+            if (sampleType.isListable())
+            {
+                SearchCriteria searchCriteria = new SearchCriteria();
+                searchCriteria.setOperator(SearchOperator.MATCH_ALL_CLAUSES);
+                searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                        MatchClauseAttribute.TYPE,
+                        sampleType.getCode()));
+                if (spaceOrNull != null)
+                {
+                    searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.SPACE, spaceOrNull));
+                }
+                if (experimentPermIdOrNull != null)
+                {
+                    SearchCriteria experimentCriteria = new SearchCriteria();
+                    experimentCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                            MatchClauseAttribute.PERM_ID, experimentPermIdOrNull));
+                    searchCriteria.addSubCriteria(SearchSubCriteria
+                            .createExperimentCriteria(experimentCriteria));
+                }
+                samples.addAll(service.searchForSamples(sessionToken, searchCriteria,
+                        null));
+            }
+        }
     }
 
     private void expandSampleNode(final DefaultMutableTreeNode node, final Sample sample,
@@ -502,7 +584,7 @@ public class ChooserTreeModel extends DefaultTreeModel
                             service.searchForSamples(sessionToken, searchCriteria, null));
                     Collections.sort(samples, SAMPLE_COMPARATOR);
                     List<DataSet> dataSets = new ArrayList<DataSet>();
-                    if (ownerType == DataSetOwnerType.DATA_SET)
+                    if (entityType == DataSetOwnerType.DATA_SET)
                     {
                         searchCriteria = new SearchCriteria();
                         sampleCriteria = new SearchCriteria();
@@ -526,16 +608,21 @@ public class ChooserTreeModel extends DefaultTreeModel
     
     private void addFilteredSamples(List<Sample> samples, List<Sample> samplesToAdd)
     {
-        boolean ownerIsSample = ownerType != DataSetOwnerType.SAMPLE;
+        boolean isNotSample = entityType != DataSetOwnerType.SAMPLE;
         for (Sample sample : samplesToAdd)
         {
-            if (ownerIsSample || sample.getExperimentIdentifierOrNull() != null)
+            if (isSampleTypeButNotOwner() || isNotSample || sample.getExperimentIdentifierOrNull() != null)
             {
                 samples.add(sample);
             }
         }
     }
 
+    private boolean isSampleTypeButNotOwner()
+    {
+        return ownerEntity == false && entityType == DataSetOwnerType.SAMPLE;
+    }
+    
     private void addSampleAndDataSetNodes(DefaultMutableTreeNode node, SamplesAndDataSets data)
     {
         node.removeAllChildren();
