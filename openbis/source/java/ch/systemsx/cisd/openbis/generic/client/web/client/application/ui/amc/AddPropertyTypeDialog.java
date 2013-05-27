@@ -1217,7 +1217,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                         updatePropertyTypeRelatedFields();
                     }
                 };
-            vocabularySelectionWidget.addListener(Events.Change, vocabularyListener);
+            vocabularySelectionWidget.addListener(Events.SelectionChange, vocabularyListener);
             FieldUtil.markAsMandatory(vocabularySelectionWidget);
         }
         return vocabularySelectionWidget;
@@ -1239,7 +1239,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                         updatePropertyTypeRelatedFields();
                     }
                 };
-            materialTypeSelectionWidget.addListener(Events.Change, materialListener);
+            materialTypeSelectionWidget.addListener(Events.SelectionChange, materialListener);
             FieldUtil.markAsMandatory(materialTypeSelectionWidget);
         }
         return materialTypeSelectionWidget;
