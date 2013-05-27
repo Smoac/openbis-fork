@@ -44,8 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
- * An algorithm that implements the logic running many data set storage algorithms in one logical
- * transaction.
+ * An algorithm that implements the logic running many data set storage algorithms in one logical transaction.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -167,9 +166,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
     }
 
     /**
-     * This object will live in the persistent stack of the transaction. In case the server process
-     * is killed in the middle of a transaction, the {@link #rollback()} will attempt to rollback
-     * the storage processor transaction after restart.
+     * This object will live in the persistent stack of the transaction. In case the server process is killed in the middle of a transaction, the
+     * {@link #rollback()} will attempt to rollback the storage processor transaction after restart.
      */
     public static class StorageProcessorTransactionCommand implements ITransactionalCommand
     {
@@ -206,11 +204,10 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
                 String dataSetCode = storageAlgorithm.getDataSetInformation().getDataSetCode();
                 openBISService.setStorageConfirmed(dataSetCode);
             }
-            dssRegistrationLog.log("Storage has been confirmed in openBIS Application Server.");
+            dssRegistrationLog.info(operationLog, "Storage has been confirmed in openBIS Application Server.");
         } catch (final Exception ex)
         {
-            operationLog.error("Error during storage confirmation", ex);
-            dssRegistrationLog.log(ex, "Error during storage confirmation");
+            dssRegistrationLog.error(operationLog, "Error during storage confirmation", ex);
             return false;
             // There is nothing we can do without recovery
         }
@@ -224,11 +221,11 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         {
             DataSetStorageAlgorithm<T> anAlgorithm = dataSetStorageAlgorithms.get(0);
             File precommitDirectory = anAlgorithm.getPreCommitDirectory();
-            dssRegistrationLog.log("Data has been moved to the pre-commit directory: "
+            dssRegistrationLog.info(operationLog, "Data has been moved to the pre-commit directory: "
                     + precommitDirectory.getAbsolutePath());
         } else
         {
-            dssRegistrationLog.log("In pre-commit state; no data needed to be moved.");
+            dssRegistrationLog.info(operationLog, "In pre-commit state; no data needed to be moved.");
         }
     }
 
@@ -239,8 +236,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             postPreRegistrationHooks.executePreRegistration(registrationContextHolder);
         } catch (Throwable throwable)
         {
-            operationLog.error("Error in execution of pre registration hooks", throwable);
-            dssRegistrationLog.log(throwable, "Error in execution of pre registration hooks");
+            dssRegistrationLog.error(operationLog, "Error in execution of pre registration hooks", throwable);
 
             rollbackDuringPreRegistration(throwable);
             return false;
@@ -311,7 +307,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private void logMetadataRegistration(TechId registrationId)
     {
-        dssRegistrationLog.log("About to register metadata with AS: registrationId("
+        dssRegistrationLog.info(operationLog, "About to register metadata with AS: registrationId("
                 + registrationId.toString() + ")");
     }
 
@@ -341,8 +337,8 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
     private void waitUntilApplicationIsReady()
     {
-        while (false == DssRegistrationHealthMonitor.getInstance().isApplicationReady(
-                incomingDataSetFile.getRealIncomingFile().getParentFile()))
+        while (DssRegistrationHealthMonitor.getInstance().checkHealthState(
+                incomingDataSetFile.getRealIncomingFile().getParentFile()).isUnavailable())
         {
             waitTheRetryPeriod();
             // do nothing. just repeat until the application is ready
@@ -432,12 +428,11 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
                 storageAlgorithm.moveToTheStore();
             }
             logSuccessfulRegistration();
-            dssRegistrationLog.log("Data has been moved to the final store.");
+            dssRegistrationLog.info(operationLog, "Data has been moved to the final store.");
         } catch (final Throwable throwable)
         {
-            dssRegistrationLog.log(throwable, "Error while storing committed datasets.");
             // Something has gone really wrong
-            operationLog.error("Error while storing committed datasets", throwable);
+            dssRegistrationLog.error(operationLog, "Error while storing committed datasets", throwable);
             return false;
         }
         return true;
@@ -473,13 +468,12 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             {
                 storageAlgorithm.commitStorageProcessor();
             }
-            dssRegistrationLog.log("Storage processors have committed.");
+            dssRegistrationLog.info(operationLog, "Storage processors have committed.");
 
         } catch (final Throwable throwable)
         {
-            dssRegistrationLog.log(throwable, "Error in commit of storage processors.");
             // Something has gone really wrong
-            operationLog.error("Error while committing storage processors", throwable);
+            dssRegistrationLog.error(operationLog, "Error while committing storage processors", throwable);
 
             rollbackAfterStorageProcessorAndMetadataRegistration(throwable);
             return false;
@@ -493,7 +487,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
         boolean result = registerData(registrationId, registrationData);
         if (result)
         {
-            dssRegistrationLog.log("Data has been registered with the openBIS Application Server.");
+            dssRegistrationLog.info(operationLog, "Data has been registered with the openBIS Application Server.");
         }
         return result;
     }
@@ -509,8 +503,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
 
         } catch (final Throwable throwable)
         {
-            operationLog.error("Error in registrating data in application server", throwable);
-            dssRegistrationLog.log("Error in registrating data in application server");
+            dssRegistrationLog.error(operationLog, "Error in registrating data in application server", throwable);
             rollbackDuringMetadataRegistration(throwable);
             return false;
         }
@@ -549,10 +542,7 @@ public class DataSetStorageAlgorithmRunner<T extends DataSetInformation>
             postPreRegistrationHooks.executePostRegistration(registrationContextHolder);
         } catch (final Throwable throwable)
         {
-            dssRegistrationLog.log("Post-registration action failed:");
-            dssRegistrationLog.log(throwable.toString());
-
-            operationLog.warn("Post-registration action failed", throwable);
+            dssRegistrationLog.warn(operationLog, "Post-registration action failed", throwable);
         }
     }
 

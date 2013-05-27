@@ -762,8 +762,8 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                         // return value from performEntityOperations
                         // perform additional check if the precommit dir is empty immediatelly after
                         // performEntityOperations returns
-                        will(doAll(returnValue(new AtomicEntityOperationResult()),
-                                checkPrecommitDirIsNotEmpty()));
+
+                        will(doAll(checkPrecommitDirIsNotEmpty(), returnValue(new AtomicEntityOperationResult())));
 
                         if (testCase.shouldRegisterTwoDataSets)
                         {
@@ -771,8 +771,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                             will(returnValue(new Long(2)));
                             one(openBisService).performEntityOperations(
                                     with(atomicatOperationDetails));
-                            will(doAll(returnValue(new AtomicEntityOperationResult()),
-                                    checkPrecommitDirIsNotEmpty()));
+                            will(doAll(checkPrecommitDirIsNotEmpty(), returnValue(new AtomicEntityOperationResult())));
                         }
                         if (testCase.shouldUseAutoRecovery)
                         {
@@ -1706,6 +1705,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     oneOf(openBisService)
                             .performEntityOperations(
                                     with(any(ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails.class)));
+                    will(returnValue(new AtomicEntityOperationResult()));
                 }
             });
 
@@ -1750,6 +1750,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     oneOf(openBisService)
                             .performEntityOperations(
                                     with(any(ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails.class)));
+                    will(returnValue(new AtomicEntityOperationResult()));
 
                     one(storageRecoveryManager)
                             .checkpointPrecommittedStateAfterPostRegistrationHook(
@@ -1826,6 +1827,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     oneOf(openBisService)
                             .performEntityOperations(
                                     with(any(ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails.class)));
+                    will(returnValue(new AtomicEntityOperationResult()));
 
                     one(storageRecoveryManager)
                             .checkpointPrecommittedStateAfterPostRegistrationHook(
@@ -2022,7 +2024,7 @@ public class JythonTopLevelDataSetRegistratorTest extends AbstractJythonDataSetH
                     oneOf(openBisService)
                             .performEntityOperations(
                                     with(any(ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails.class)));
-
+                    will(returnValue(new AtomicEntityOperationResult()));
                 }
             });
     }

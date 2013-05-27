@@ -27,9 +27,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 
 /**
- * The helper class for checking if all conditions necessary for the succesfull registration are
- * met. That includes the availability of application server and availability of the necessary
- * filesystems.
+ * The helper class for checking if all conditions necessary for the succesfull registration are met. That includes the availability of application
+ * server and availability of the necessary filesystems.
  * 
  * @author jakubs
  */
@@ -110,15 +109,49 @@ public class DssRegistrationHealthMonitor
     private static final String MESSAGE_RESOURCE_UNAVAILABLE =
             "The resource %s has become unavailable.";
 
-    public boolean isApplicationReady(File dropboxDirectory)
+    public enum DssRegistrationHealthState
     {
-        return isFilesystemAvailable(dropboxDirectory) && isRecoveryStateFileSystemAvailable()
-                && isApplicationServerAlive();
+        HEALTHY(true), FILE_SYSTEM_UNAVAILABLE, RECOVERY_FILE_SYSTEM_UNAVAILABLE, APPLICATION_SERVER_UNAVAILABLE;
+
+        private final boolean isHealthy;
+
+        private DssRegistrationHealthState()
+        {
+            isHealthy = false;
+        }
+
+        private DssRegistrationHealthState(boolean isHealthy)
+        {
+            this.isHealthy = isHealthy;
+        }
+
+        public boolean isUnavailable()
+        {
+            return false == isHealthy;
+        }
+    }
+
+    public DssRegistrationHealthState checkHealthState(File dropboxDirectory)
+    {
+        if (!isFilesystemAvailable(dropboxDirectory))
+        {
+            return DssRegistrationHealthState.FILE_SYSTEM_UNAVAILABLE;
+        }
+
+        if (!isRecoveryStateFileSystemAvailable())
+        {
+            return DssRegistrationHealthState.RECOVERY_FILE_SYSTEM_UNAVAILABLE;
+        }
+        if (!isApplicationServerAlive())
+        {
+            return DssRegistrationHealthState.APPLICATION_SERVER_UNAVAILABLE;
+        }
+        return DssRegistrationHealthState.HEALTHY;
     }
 
     /**
-     * Updates the information about the resource recognized by key is available. It the
-     * availability of the given resource has changed - the notification is being sent.
+     * Updates the information about the resource recognized by key is available. It the availability of the given resource has changed - the
+     * notification is being sent.
      */
     private boolean updateKeyAvailability(String key, boolean isAvailable, String resourceName)
     {
@@ -140,8 +173,8 @@ public class DssRegistrationHealthMonitor
     }
 
     /**
-     * Checks if the connection to the application server is valid. Sends notification email if the
-     * result of this check has changed from the previous call to this method.
+     * Checks if the connection to the application server is valid. Sends notification email if the result of this check has changed from the previous
+     * call to this method.
      */
     public boolean isApplicationServerAlive()
     {
@@ -162,8 +195,8 @@ public class DssRegistrationHealthMonitor
     }
 
     /**
-     * Checks if the recoveryState file system is available. Sends notification email if the result
-     * of this check has changed from the previous call to this method.
+     * Checks if the recoveryState file system is available. Sends notification email if the result of this check has changed from the previous call
+     * to this method.
      */
     public boolean isRecoveryStateFileSystemAvailable()
     {
@@ -173,8 +206,8 @@ public class DssRegistrationHealthMonitor
     }
 
     /**
-     * Checks if the filesystem for the given path is available. Sends notification email if the
-     * result of this check has changed from the previous call to this method.
+     * Checks if the filesystem for the given path is available. Sends notification email if the result of this check has changed from the previous
+     * call to this method.
      */
     public boolean isFilesystemAvailable(File path)
     {
@@ -183,8 +216,7 @@ public class DssRegistrationHealthMonitor
     }
 
     /**
-     * private function that checks if the given path is available by creating and deleting a
-     * temporary file.
+     * private function that checks if the given path is available by creating and deleting a temporary file.
      */
     private boolean checkFilesystemAvailable(File path)
     {

@@ -115,12 +115,48 @@ public class DssRegistrationLogger
         FileUtilities.appendToFile(file, logMessage.toString(), false);
     }
 
+    public void info(Logger logger, String message)
+    {
+        logger.info(message);
+        log(message);
+    }
+
+    public void warn(Logger logger, String message)
+    {
+        logger.warn(message);
+        log(message);
+    }
+
+    public void error(Logger logger, String message)
+    {
+        logger.error(message);
+        log(message);
+    }
+
+    public void info(Logger logger, String message, Throwable ex)
+    {
+        logger.info(message, ex);
+        log(ex, message);
+    }
+
+    public void warn(Logger logger, String message, Throwable ex)
+    {
+        logger.warn(message, ex);
+        log(ex, message);
+    }
+
+    public void error(Logger logger, String message, Throwable ex)
+    {
+        logger.error(message, ex);
+        log(ex, message);
+    }
+
     /**
      * Logs class and message of exception.
      */
-    public void log(Throwable ex, String message)
+    private void log(Throwable ex, String message)
     {
-        log(message+": " + ex.toString());
+        log(message + ": " + ex.toString());
     }
 
     /**
@@ -145,8 +181,7 @@ public class DssRegistrationLogger
     }
 
     /**
-     * Log either success or the failure with error details.
-     * Registers success only if <code>encounteredErrors</code> is empty.
+     * Log either success or the failure with error details. Registers success only if <code>encounteredErrors</code> is empty.
      */
     public void logDssRegistrationResult(List<Throwable> encounteredErrors)
     {

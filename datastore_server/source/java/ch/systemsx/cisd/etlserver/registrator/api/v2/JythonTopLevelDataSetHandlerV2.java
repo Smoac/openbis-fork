@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.jython.PythonInterpreter;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
@@ -116,11 +117,15 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
     protected void executeJythonScript(DataSetFile dataSetFile, String scriptString,
             JythonDataSetRegistrationService<T> service)
     {
+        DssRegistrationLogger logger = service.getDssRegistrationLog();
+
         // Configure the evaluator
         PythonInterpreter interpreter = service.getInterpreter();
 
         IJavaDataSetRegistrationDropboxV2 v2Programm =
                 new JythonAsJavaDataSetRegistrationDropboxV2Wrapper(interpreter);
+
+        logger.info(operationLog, "Compile python script");
 
         // Invoke the evaluator
         interpreter.exec(scriptString, scriptFile.getPath());
@@ -131,6 +136,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         {
             // in case when there is no retry function defined we just call the process and don't
             // try to catch any kind of exceptions
+            logger.info(operationLog, "Start processing");
             v2Programm.process(wrapTransaction(service.transaction()));
         } else
         {
@@ -302,7 +308,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
         JythonDataSetRegistrationService<T> service =
                 (JythonDataSetRegistrationService<T>) genericService;
 
-        waitUntilApplicationIsReady(dataSetFile);
+        waitUntilApplicationIsReady(genericService, dataSetFile);
 
         executeJythonScript(dataSetFile, scriptString, service);
     }

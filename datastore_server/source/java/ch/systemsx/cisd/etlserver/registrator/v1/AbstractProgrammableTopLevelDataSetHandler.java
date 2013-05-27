@@ -61,8 +61,8 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
 
     protected void waitUntilApplicationIsReady(DataSetFile incomingDataSetFile)
     {
-        while (false == DssRegistrationHealthMonitor.getInstance().isApplicationReady(
-                incomingDataSetFile.getRealIncomingFile().getParentFile()))
+        while (DssRegistrationHealthMonitor.getInstance().checkHealthState(
+                incomingDataSetFile.getRealIncomingFile().getParentFile()).isUnavailable())
         {
             waitTheRetryPeriod(10);
             // do nothing. just repeat until the application is ready

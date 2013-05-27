@@ -78,12 +78,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInform
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 
 /**
  * The implementation of a transaction. This class is designed to be used in one thread.
  * <p>
- * A transaction tracks commands that are invoked on it so they can be reverted (rolledback) if
- * necessary.
+ * A transaction tracks commands that are invoked on it so they can be reverted (rolledback) if necessary.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -126,8 +126,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     /**
-     * Check if there are any uncompleted transactions and roll them back. To be called during
-     * startup of a thread.
+     * Check if there are any uncompleted transactions and roll them back. To be called during startup of a thread.
      */
     public static synchronized void rollbackDeadTransactions(File rollBackStackParentFolder)
     {
@@ -222,6 +221,8 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         this.registrationContext =
                 new DataSetRegistrationContext(new DataSetRegistrationPersistentMap(),
                         this.registrationService.getRegistratorContext().getGlobalState());
+        DssRegistrationLogger dssRegistrationLog = this.registrationService.getDssRegistrationLog();
+        dssRegistrationLog.info(operationLog, "Start registration");
     }
 
     @Override
@@ -569,15 +570,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         } catch (Throwable t)
         {
             DssRegistrationLogger dssRegistrationLog = registrationService.getDssRegistrationLog();
-            dssRegistrationLog.log("Post-storage action failed:");
-            dssRegistrationLog.log(t.toString());
-            operationLog.warn("Failed to invoke post transaction hook:" + t.getMessage(), t);
+            dssRegistrationLog.warn(operationLog, "Failed to invoke post transaction hook:" + t.getMessage(), t);
         }
     }
 
     /**
-     * Rollback any commands that have been executed. Rollback is done in the reverse order of
-     * execution.
+     * Rollback any commands that have been executed. Rollback is done in the reverse order of execution.
      */
     public void rollback()
     {
@@ -623,12 +621,11 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     /**
-     * Delegate method called by the {@link DataSetStorageAlgorithmRunner}. This implementation asks
-     * the DataSetRegistrationService to register not just the data sets, but perform any creation
-     * or updates of Experiments and Samples as well.
+     * Delegate method called by the {@link DataSetStorageAlgorithmRunner}. This implementation asks the DataSetRegistrationService to register not
+     * just the data sets, but perform any creation or updates of Experiments and Samples as well.
      */
     @Override
-    public void registerDataSetsInApplicationServer(TechId registrationId,
+    public AtomicEntityOperationResult registerDataSetsInApplicationServer(TechId registrationId,
             List<DataSetRegistrationInformation<T>> dataSetRegistrations) throws Throwable
     {
         AtomicEntityOperationDetails<T> registrationDetails =
@@ -639,7 +636,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
         verifyOriginalFileIsStillAvailable();
 
-        entityRegistrationService.performOperationsInApplicationServer(registrationDetails);
+        return entityRegistrationService.performOperationsInApplicationServer(registrationDetails);
     }
 
     /**
