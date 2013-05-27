@@ -894,31 +894,41 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         if (propertyType != null && entityType != null && propertyType.getDataType() != null)
         {
             final List<EntityTypePropertyType<?>> etpts = new ArrayList<EntityTypePropertyType<?>>(entityType.getAssignedPropertyTypes());
-            sectionSelectionWidget = SectionSelectionWidget.create(viewContext, etpts);
-            this.addField(sectionSelectionWidget);
-            etptSelectionWidget = createETPTSelectionWidget(etpts);
-            this.addField(etptSelectionWidget);
+            this.addField(getSectionSelectionWidget(etpts));
+            this.addField(getETPTSelectionWidget(etpts));
         }
 
         fixLayout();
     }
 
+    private EntityTypePropertyTypeSelectionWidget getETPTSelectionWidget(final List<EntityTypePropertyType<?>> etpts)
+    {
+        if (etptSelectionWidget == null)
+        {
+            etptSelectionWidget = createETPTSelectionWidget(etpts);
+        }
+        return etptSelectionWidget;
+    }
+
+    private SectionSelectionWidget getSectionSelectionWidget(final List<EntityTypePropertyType<?>> etpts)
+    {
+        if (sectionSelectionWidget == null)
+        {
+            sectionSelectionWidget = SectionSelectionWidget.create(viewContext, etpts);
+        }
+        return sectionSelectionWidget;
+    }
+
     private void hideEntityTypePropertyTypeRelatedFields()
     {
-        if (sectionSelectionWidget != null
-                && this.getFormPanel().getFields().contains(sectionSelectionWidget))
+        if (sectionSelectionWidget != null && this.getFormPanel().getFields().contains(sectionSelectionWidget))
         {
-            sectionSelectionWidget.hide();
             this.removeField(sectionSelectionWidget);
-            sectionSelectionWidget = null;
         }
 
-        if (etptSelectionWidget != null
-                && this.getFormPanel().getFields().contains(etptSelectionWidget))
+        if (etptSelectionWidget != null && this.getFormPanel().getFields().contains(etptSelectionWidget))
         {
-            etptSelectionWidget.hide();
             this.removeField(etptSelectionWidget);
-            etptSelectionWidget = null;
         }
     }
 
