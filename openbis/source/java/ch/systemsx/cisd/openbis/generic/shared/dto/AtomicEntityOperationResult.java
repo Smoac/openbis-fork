@@ -151,4 +151,50 @@ public class AtomicEntityOperationResult implements Serializable
         return vocabulariesUpdatedCount;
     }
 
+    private long getAllOperationsCount()
+    {
+        return spacesCreatedCount + projectsCreatedCount + projectsUpdatedCount + materialsCreatedCount + materialsUpdatedCount
+                + experimentsCreatedCount + experimentsUpdatedCount + samplesCreatedCount + samplesUpdatedCount + dataSetsCreatedCount
+                + dataSetsUpdatedCount + metaprojectsCreatedCount + metaprojectsUpdatedCount + vocabulariesUpdatedCount;
+    }
+
+    @Override
+    public String toString()
+    {
+        if (getAllOperationsCount() == 0)
+        {
+            return "No entities have been created or updated";
+        }
+
+        StringBuilder message = new StringBuilder();
+
+        message.append("Total of " + getAllOperationsCount() + " entities have been created or updated.\n");
+
+        updateMessage(message, spacesCreatedCount, "Spaces created");
+        updateMessage(message, projectsCreatedCount, "Projects created");
+        updateMessage(message, projectsUpdatedCount, "Projects updated");
+        updateMessage(message, materialsCreatedCount, "Materials created");
+        updateMessage(message, materialsUpdatedCount, "Materials updated");
+        updateMessage(message, experimentsCreatedCount, "Experiments created");
+        updateMessage(message, experimentsUpdatedCount, "Experiments updated");
+        updateMessage(message, samplesCreatedCount, "Samples created");
+        updateMessage(message, samplesUpdatedCount, "Samples updated");
+        updateMessage(message, dataSetsCreatedCount, "Data sets created");
+        updateMessage(message, dataSetsUpdatedCount, "Data sets updated");
+        updateMessage(message, metaprojectsCreatedCount, "Metaprojects created");
+        updateMessage(message, metaprojectsUpdatedCount, "Metaprojects updated");
+        updateMessage(message, vocabulariesUpdatedCount, "Vocabularies updated");
+
+        return message.toString();
+
+    }
+
+    private void updateMessage(StringBuilder builder, long count, String msg)
+    {
+        if (count > 0)
+        {
+            builder.append(msg + ": " + count + "\n");
+        }
+    }
+
 }
