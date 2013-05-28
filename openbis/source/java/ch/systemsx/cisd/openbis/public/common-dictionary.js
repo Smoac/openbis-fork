@@ -982,7 +982,7 @@ progress_processing: "Processing",
 assign_group_existing: "Existing",
 assign_group_new: "New",
 assign_group_property: "Property",
-
+vocabulary_registration_popup_warning: "WARNING: The information will be saved immediately and not with the master form.",
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };
