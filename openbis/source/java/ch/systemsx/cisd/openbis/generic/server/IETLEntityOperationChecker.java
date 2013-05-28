@@ -59,21 +59,23 @@ public interface IETLEntityOperationChecker
     public void assertSpaceCreationAllowed(IAuthSession session, List<NewSpace> newSpaces);
 
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ETL_SERVER)
+    @Capability("CREATE_MATERIALS_VIA_DSS")
     public void assertMaterialCreationAllowed(IAuthSession session,
             Map<String, List<NewMaterial>> materials);
 
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ETL_SERVER)
+    @Capability("UPDATE_MATERIALS_VIA_DSS")
     public void assertMaterialUpdateAllowed(IAuthSession session, List<MaterialUpdateDTO> materials);
 
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+        { RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_PROJECTS_VIA_DSS")
     public void assertProjectCreationAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = NewProjectPredicate.class)
             List<NewProject> newProjects);
 
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+        { RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_PROJECTS_VIA_DSS")
     public void assertProjectUpdateAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = ProjectUpdatesPredicate.class)
@@ -91,9 +93,10 @@ public interface IETLEntityOperationChecker
     @Capability("UPDATE_EXPERIMENTS_VIA_DSS")
     public void assertExperimentUpdateAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = ExperimentUpdatesPredicate.class)
-            ExperimentUpdatesDTO experimentUpdates);
+            List<ExperimentUpdatesDTO> experimentUpdates);
 
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ETL_SERVER)
+    @Capability("CREATE_INSTANCE_SAMPLES_VIA_DSS")
     public void assertInstanceSampleCreationAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = NewSamplePredicate.class)
             List<NewSample> instanceSamples);
@@ -106,6 +109,7 @@ public interface IETLEntityOperationChecker
             List<NewSample> spaceSamples);
 
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ETL_SERVER)
+    @Capability("UPDATE_INSTANCE_SAMPLES_VIA_DSS")
     public void assertInstanceSampleUpdateAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = SampleUpdatesCollectionPredicate.class)
             List<SampleUpdatesDTO> instanceSamples);
@@ -118,14 +122,14 @@ public interface IETLEntityOperationChecker
             List<SampleUpdatesDTO> spaceSamples);
 
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+        { RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_DATA_SETS_VIA_DSS")
     public void assertDataSetCreationAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = NewExternalDataPredicate.class)
             List<? extends NewExternalData> dataSets);
 
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+        { RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("UPDATE_DATA_SETS_VIA_DSS")
     public void assertDataSetUpdateAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = DataSetUpdatesCollectionPredicate.class)

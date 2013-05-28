@@ -2280,8 +2280,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                 operationDetails.getExperimentRegistrations();
         if (authorize)
         {
-            entityOperationChecker
-                    .assertExperimentCreationAllowed(session, experimentRegistrations);
+            checkExperimentCreationAllowed(session, experimentRegistrations);
         }
         int index = 0;
         for (NewExperiment experiment : experimentRegistrations)
@@ -2290,6 +2289,15 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             progress.update("createExperiments", experimentRegistrations.size(), ++index);
         }
         return index;
+    }
+
+    protected void checkExperimentCreationAllowed(Session session,
+            List<NewExperiment> newExperiments)
+    {
+        if (newExperiments != null && newExperiments.isEmpty() == false)
+        {
+            entityOperationChecker.assertExperimentCreationAllowed(session, newExperiments);
+        }
     }
 
     private void updateExperiment(Session session, ExperimentUpdatesDTO updates)
@@ -2304,16 +2312,26 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     {
         List<ExperimentUpdatesDTO> updates = operationDetails.getExperimentUpdates();
 
+        if (authorize)
+        {
+            checkExperimentUpdateAllowed(session, updates);
+        }
+
         for (ExperimentUpdatesDTO update : updates)
         {
-            if (authorize)
-            {
-                entityOperationChecker.assertExperimentUpdateAllowed(session, update);
-            }
             updateExperiment(session, update);
         }
 
         return updates.size();
+    }
+
+    protected void checkExperimentUpdateAllowed(Session session,
+            List<ExperimentUpdatesDTO> experimentUpdates)
+    {
+        if (experimentUpdates != null && experimentUpdates.isEmpty() == false)
+        {
+            entityOperationChecker.assertExperimentUpdateAllowed(session, experimentUpdates);
+        }
     }
 
     private IDataBO registerDataSetInternal(final Session session,

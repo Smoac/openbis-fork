@@ -114,7 +114,7 @@ public class ETLEntityOperationChecker implements IETLEntityOperationChecker
 
     @Override
     public void assertExperimentUpdateAllowed(IAuthSession session,
-            ExperimentUpdatesDTO experimentUpdates)
+            List<ExperimentUpdatesDTO> experimentUpdates)
     {
     }
 }
