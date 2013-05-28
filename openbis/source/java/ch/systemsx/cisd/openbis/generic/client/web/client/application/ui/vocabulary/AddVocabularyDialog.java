@@ -1,5 +1,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CallbackListenerAdapter;
@@ -10,13 +13,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 public class AddVocabularyDialog extends AbstractRegistrationDialog
 {
 
     private final VocabularyRegistrationForm vocabularyRegistrationForm;
+
+    private IDelegatedAction postRegistrationCallback;
 
     public class VocabularyPopUpCallbackListener extends CallbackListenerAdapter<Void>
     {
@@ -33,6 +35,7 @@ public class AddVocabularyDialog extends AbstractRegistrationDialog
         {
             VocabularyRegistrationCallback vocabularyCallback = (VocabularyRegistrationCallback) callback;
             MessageBox.info("Success", vocabularyCallback.createSuccessfullRegistrationInfo(null), null);
+            postRegistrationCallback.execute();
             hide();
         }
 
@@ -40,7 +43,8 @@ public class AddVocabularyDialog extends AbstractRegistrationDialog
 
     public AddVocabularyDialog(IViewContext<ICommonClientServiceAsync> viewContext, IDelegatedAction postRegistrationCallback)
     {
-        super(viewContext, "Register Vocabulary", postRegistrationCallback);
+        super(viewContext, "Register Vocabulary", null);
+        this.postRegistrationCallback = postRegistrationCallback;
         vocabularyRegistrationForm = new VocabularyRegistrationForm(viewContext, true, new VocabularyPopUpCallbackListener());
         addField(vocabularyRegistrationForm);
     }

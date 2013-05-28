@@ -19,12 +19,20 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabu
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
@@ -32,13 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-
-import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * A {@link ComboBox} extension for selecting a {@link Vocabulary}.
@@ -64,11 +65,21 @@ public class VocabularySelectionWidget extends DropDownList<BaseModelData, Vocab
 
     private class AddVocabularyListener implements Listener<BaseEvent>
     {
+        @Override
         public void handleEvent(BaseEvent be)
         {
-            AddVocabularyDialog dialog = new AddVocabularyDialog(viewContext, null);
+            IDelegatedAction postRegistrationCallback = new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        refreshStore();
+                    }
+                };
+
+            AddVocabularyDialog dialog = new AddVocabularyDialog(viewContext, postRegistrationCallback);
             dialog.show();
-        };
+        }
     }
 
     //
@@ -139,6 +150,6 @@ public class VocabularySelectionWidget extends DropDownList<BaseModelData, Vocab
     @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return new DatabaseModificationKind[]  { DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY) };
+        return new DatabaseModificationKind[] { DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY) };
     }
 }
