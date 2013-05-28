@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeModel.PAS
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -214,7 +215,7 @@ public class Util
         }
     }
     
-    public static List<DataSet> getSelectedDataSets(Component parentComponent,
+    public static List<DataSet> getSelectedDataSets(Component parentComponent, Cursor oldCursor,
             List<DataSet> dataSets, boolean singleSelection)
     {
         JTable table = new JTable(createTableModel(dataSets));
@@ -257,6 +258,7 @@ public class Util
         filterPanel.add(filterField, BorderLayout.CENTER);
         panel.add(filterPanel, BorderLayout.SOUTH);
         JOptionPane optionPane = new JOptionPane(panel, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+        parentComponent.setCursor(oldCursor);
         JDialog dialog = optionPane.createDialog(parentComponent, "Data Sets");
         dialog.setResizable(true);
         dialog.setVisible(true);

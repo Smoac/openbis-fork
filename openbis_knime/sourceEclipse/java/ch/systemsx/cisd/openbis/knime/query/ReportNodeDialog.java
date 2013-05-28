@@ -152,50 +152,50 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
         {
             return;
         }
-        List<DataSet> dataSets = loadDataSets(description, facade);
-        List<DataSet> selectedDataSets = Util.getSelectedDataSets(getPanel(), dataSets, false);
-        if (selectedDataSets.isEmpty())
-        {
-            return;
-        }
-        StringBuilder builder = new StringBuilder();
-        for (DataSet dataSet : selectedDataSets)
-        {
-
-            if (builder.length() > 0)
-            {
-                builder.append(DELIMITER);
-            }
-            builder.append(dataSet.getCode());
-        }
-        dataSetCodeFields.setText(builder.toString());
-    }
-
-    private List<DataSet> loadDataSets(ReportDescription description, IQueryApiFacade facade)
-    {
         JPanel panel = getPanel();
         Cursor cursor = panel.getCursor();
         try
         {
             panel.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-            List<String> dataSetTypes = description.getDataSetTypes();
-            IGeneralInformationService service = facade.getGeneralInformationService();
-            List<DataSet> allDataSets = new ArrayList<DataSet>();
-            for (String dataSetType : dataSetTypes)
+            List<DataSet> dataSets = loadDataSets(description, facade);
+            List<DataSet> selectedDataSets = Util.getSelectedDataSets(getPanel(), cursor, dataSets, false);
+            if (selectedDataSets.isEmpty())
             {
-                SearchCriteria searchCriteria = new SearchCriteria();
-                searchCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
-                MatchClause clause =
-                        MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, dataSetType);
-                searchCriteria.addMatchClause(clause);
-                List<DataSet> dataSets = service.searchForDataSets(facade.getSessionToken(), searchCriteria);
-                logger.info(dataSets.size() + " data sets of type " + dataSetType);
-                allDataSets.addAll(dataSets);
+                return;
             }
-            return allDataSets;
+            StringBuilder builder = new StringBuilder();
+            for (DataSet dataSet : selectedDataSets)
+            {
+                
+                if (builder.length() > 0)
+                {
+                    builder.append(DELIMITER);
+                }
+                builder.append(dataSet.getCode());
+            }
+            dataSetCodeFields.setText(builder.toString());
         } finally
         {
             panel.setCursor(cursor);
         }
+    }
+
+    private List<DataSet> loadDataSets(ReportDescription description, IQueryApiFacade facade)
+    {
+        List<String> dataSetTypes = description.getDataSetTypes();
+        IGeneralInformationService service = facade.getGeneralInformationService();
+        List<DataSet> allDataSets = new ArrayList<DataSet>();
+        for (String dataSetType : dataSetTypes)
+        {
+            SearchCriteria searchCriteria = new SearchCriteria();
+            searchCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
+            MatchClause clause =
+                    MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, dataSetType);
+            searchCriteria.addMatchClause(clause);
+            List<DataSet> dataSets = service.searchForDataSets(facade.getSessionToken(), searchCriteria);
+            logger.info(dataSets.size() + " data sets of type " + dataSetType);
+            allDataSets.addAll(dataSets);
+        }
+        return allDataSets;
     }
 }

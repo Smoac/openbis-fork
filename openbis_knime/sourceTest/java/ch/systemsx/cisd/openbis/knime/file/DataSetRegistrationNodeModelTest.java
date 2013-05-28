@@ -120,6 +120,9 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
                     
                     allowing(facadeFactory).createFacade(null, null, null);
                     will(returnValue(serviceFacade));
+                    
+                    allowing(queryFacade).logout();
+                    allowing(serviceFacade).logout();
                 }
             });
         flowVariables = new HashMap<String, String>();
@@ -505,5 +508,4 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
             }
         });
     }
-
 }
