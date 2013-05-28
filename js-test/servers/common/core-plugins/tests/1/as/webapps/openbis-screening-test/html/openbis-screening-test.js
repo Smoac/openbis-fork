@@ -452,11 +452,9 @@ test("loadFeaturesForDatasetWellReferences() for physical data set", function(){
 	testLoadFeaturesForDatasetWellReferences(listFeatureVectorPhysicalDatasets);
 });
 
-/* FAILS
 test("loadFeaturesForDatasetWellReferences() for container data set", function(){
 	testLoadFeaturesForDatasetWellReferences(listFeatureVectorContainerDatasets);
 });
-*/
 
 var testLoadFeatures = function(listFeatureVectorDatasetsFunction){
 	createFacadeAndLogin(function(facade){
