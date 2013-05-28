@@ -21,6 +21,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -36,17 +47,6 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
-
-import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
 /**
  * @author Izabela Adamczyk
@@ -100,12 +100,18 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
     protected El span;
 
     public DropDownList(final IViewContext<?> viewContext, String idSuffix, String labelDictCode,
-            String displayField, String chooseSuffix, String nothingFoundSuffix)
+            String displayField, String chooseSuffix, String nothingFoundSuffix, boolean twinTriggerEnabled)
     {
         this(idSuffix, displayField, viewContext.getMessage(labelDictCode), viewContext.getMessage(
                 Dict.COMBO_BOX_CHOOSE, chooseSuffix), viewContext.getMessage(Dict.COMBO_BOX_EMPTY,
                 nothingFoundSuffix), viewContext
-                .getMessage(Dict.COMBO_BOX_EXPECTED_VALUE_FROM_THE_LIST), true, viewContext, true);
+                .getMessage(Dict.COMBO_BOX_EXPECTED_VALUE_FROM_THE_LIST), true, viewContext, true, twinTriggerEnabled);
+    }
+
+    public DropDownList(final IViewContext<?> viewContext, String idSuffix, String labelDictCode,
+            String displayField, String chooseSuffix, String nothingFoundSuffix)
+    {
+        this(viewContext, idSuffix, labelDictCode, displayField, chooseSuffix, nothingFoundSuffix, false);
     }
 
     public DropDownList(String idSuffix, String displayField, String label, String chooseMsg,
@@ -246,9 +252,8 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
     }
 
     /**
-     * Refreshes the whole store of the combobox. If the previously chosen value is no longer
-     * present in the store, it will be changed to empty. Otherwise the previous selection will be
-     * preserved.
+     * Refreshes the whole store of the combobox. If the previously chosen value is no longer present in the store, it will be changed to empty.
+     * Otherwise the previous selection will be preserved.
      */
     public void refreshStore()
     {
@@ -473,8 +478,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
 
     /**
      * @return true if anything has been selected. <br>
-     *         Note that the result can be different from tryGetSelected() != null if there are null
-     *         values in the model.
+     *         Note that the result can be different from tryGetSelected() != null if there are null values in the model.
      */
     protected boolean isAnythingSelected()
     {

@@ -19,10 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabu
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -36,6 +32,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+
+import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * A {@link ComboBox} extension for selecting a {@link Vocabulary}.
@@ -52,9 +55,20 @@ public class VocabularySelectionWidget extends DropDownList<BaseModelData, Vocab
     public VocabularySelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, PREFIX, Dict.VOCABULARY, ModelDataPropertyNames.CODE, viewContext
-                .getMessage(Dict.VOCABULARY), viewContext.getMessage(Dict.VOCABULARY));
+                .getMessage(Dict.VOCABULARY), viewContext.getMessage(Dict.VOCABULARY), true);
         this.viewContext = viewContext;
         setWidth(100);
+
+        this.addListener(Events.TwinTriggerClick, new AddVocabularyListener());
+    }
+
+    private class AddVocabularyListener implements Listener<BaseEvent>
+    {
+        public void handleEvent(BaseEvent be)
+        {
+            AddVocabularyDialog dialog = new AddVocabularyDialog(viewContext, null);
+            dialog.show();
+        };
     }
 
     //
@@ -125,7 +139,6 @@ public class VocabularySelectionWidget extends DropDownList<BaseModelData, Vocab
     @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY) };
+        return new DatabaseModificationKind[]  { DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY) };
     }
 }
