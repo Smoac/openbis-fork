@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.openbis.knime.file;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.apache.commons.lang.StringUtils;
 import org.knime.core.data.uri.URIContent;
@@ -33,11 +35,15 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 
+import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTOBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeModel;
 import ch.systemsx.cisd.openbis.knime.common.IOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.knime.common.Util;
@@ -130,15 +136,66 @@ public class DataSetRegistrationNodeModel extends AbstractOpenBisNodeModel
             builder.setDataSetOwnerIdentifier(owner.trim());
         } else
         {
-            builder.setDataSetOwnerIdentifier(peekFlowVariableString(Util.VARIABLE_PREFIX + ownerType.name()));
+            String variableName = Util.VARIABLE_PREFIX + ownerType.name();
+            try
+            {
+                builder.setDataSetOwnerIdentifier(getStringFlowVariable(variableName));
+            } catch (NoSuchElementException ex)
+            {
+                throw new IllegalArgumentException("Owner " + ownerType.toString().toLowerCase() 
+                        + " hasn't been specified. Also flow variable '"
+                        + variableName + "' is undefined.");
+            }
         }
         builder.setFile(file);
         NewDataSetMetadataDTO dataSetMetadata = builder.getDataSetMetadata();
         dataSetMetadata.setDataSetTypeOrNull(dataSetType.getCode());
         dataSetMetadata.setProperties(properties);
+        NewDataSetDTO dataSetDTO = builder.asNewDataSetDTO();
+
         IOpenbisServiceFacade facade = serviceFacadeFactory.createFacade(url, userID, password);
-        facade.putDataSet(builder.asNewDataSetDTO(), file);
+        checkOwner(dataSetDTO, facade);
+        facade.putDataSet(dataSetDTO, file);
         return new PortObject[] {};
+    }
+
+    private void checkOwner(NewDataSetDTO dataSetDTO, IOpenbisServiceFacade facade)
+    {
+        String identifier = dataSetDTO.getDataSetOwner().getIdentifier();
+        DataSetOwnerType type = dataSetDTO.getDataSetOwner().getType();
+        try
+        {
+            switch (type)
+            {
+                case EXPERIMENT:
+                    List<Experiment> experiments = facade.getExperiments(Collections.singletonList(identifier));
+                    if (experiments.isEmpty())
+                    {
+                        throw new IllegalArgumentException("Unknown experiment.");
+                    }
+                    break;
+                case SAMPLE:
+                    List<Sample> samples = facade.getSamples(Collections.singletonList(identifier));
+                    if (samples.isEmpty())
+                    {
+                        throw new IllegalArgumentException("Unknown sample.");
+                    } else if (samples.get(0).getExperimentIdentifierOrNull() == null)
+                    {
+                        throw new IllegalArgumentException("Not directly linked to an experiment.");
+                    }
+                    break;
+                case DATA_SET:
+                    DataSet dataSet = facade.getDataSet(identifier);
+                    if (dataSet == null)
+                    {
+                        throw new IllegalArgumentException("Unknown data set.");
+                    }
+            }
+        } catch (Exception ex)
+        {
+            throw new IllegalArgumentException("Error for data set owner of type " + type.toString().toLowerCase() + " '"  
+                    + identifier +"': " + ex.getMessage(), ex);
+        }
     }
     
     private File getFirstFile(PortObject[] inObjects)

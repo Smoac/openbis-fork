@@ -42,11 +42,6 @@ import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment.ExperimentInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
@@ -283,8 +278,8 @@ public class ChooserTreeModelTest extends AssertJUnit
         Object root = chooser.getRoot();
         Object space1 = chooser.getChild(root, 0);
         RecordingMatcher<TreeModelEvent> matcher = prepareTreeStructureChanged(1);
-        Sample s2 = sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_2);
-        Sample s1 = sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_1);
+        Sample s2 = TestUtils.sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_2);
+        Sample s1 = TestUtils.sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_1);
         prepareSearchForSamples(s2, s1);
         
         chooser.expandNode(createPath(chooser, space1), nodeAction);
@@ -421,7 +416,7 @@ public class ChooserTreeModelTest extends AssertJUnit
         assertEquals(null, nodeAction.handledException);
         Object exp1 = sampleChooserModel.getChild(project11, 0);
         assertEquals(EXP_1, exp1.toString());
-        Sample sample = sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_1);
+        Sample sample = TestUtils.sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_1);
         prepareSearchForSamples(sample);
         
         sampleChooserModel.expandNode(createPath(sampleChooserModel, exp1), nodeAction);
@@ -465,9 +460,9 @@ public class ChooserTreeModelTest extends AssertJUnit
         assertEquals(null, nodeAction.handledException);
         Object exp1 = dataSetChooserModel.getChild(project11, 0);
         assertEquals(EXP_1, exp1.toString());
-        Sample sample = sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_1);
+        Sample sample = TestUtils.sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_1);
         prepareSearchForSamples(sample);
-        DataSet dataSet = dataSet("DS-1");
+        DataSet dataSet = TestUtils.dataSet("DS-1");
         prepareSearchForDataSets(dataSet);
         
         dataSetChooserModel.expandNode(createPath(dataSetChooserModel, exp1), nodeAction);
@@ -522,8 +517,8 @@ public class ChooserTreeModelTest extends AssertJUnit
         assertEquals(null, nodeAction.handledException);
         Object exp1 = sampleChooserModel.getChild(project11, 0);
         assertEquals(EXP_1, exp1.toString());
-        prepareSearchForSamples(sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_2),
-                sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_1));
+        prepareSearchForSamples(TestUtils.sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_2),
+                TestUtils.sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_1));
         TreePath path = createPath(sampleChooserModel, exp1);
         sampleChooserModel.expandNode(path, nodeAction);
         assertEquals(null, nodeAction.handledException);
@@ -549,18 +544,18 @@ public class ChooserTreeModelTest extends AssertJUnit
         sampleChooserModel.expandNode(createPath(sampleChooserModel, project11), nodeAction);
         assertEquals(null, nodeAction.handledException);
         Object exp1 = sampleChooserModel.getChild(project11, 0);
-        prepareSearchForSamples(sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_1));
+        prepareSearchForSamples(TestUtils.sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_1));
         sampleChooserModel.expandNode(createPath(sampleChooserModel, exp1), nodeAction);
         assertEquals(null, nodeAction.handledException);
         Object sample1 = sampleChooserModel.getChild(exp1, 0);
         String experimentIdentifier = "/" + SPACE_1 + "/" + P_1 + "/" + EXP_1;
         Sample childSampleWithExperiment =
-                sample(NON_LISTABLE_SAMPLE_TYPE, SPACE_2, "CHILD_WE", experimentIdentifier);
-        Sample childSampleWithoutExperiment = sample(NON_LISTABLE_SAMPLE_TYPE, SPACE_2, "CHILD_WOE");
+                TestUtils.sample(NON_LISTABLE_SAMPLE_TYPE, SPACE_2, "CHILD_WE", experimentIdentifier);
+        Sample childSampleWithoutExperiment = TestUtils.sample(NON_LISTABLE_SAMPLE_TYPE, SPACE_2, "CHILD_WOE");
         prepareSearchForSamplesWithChildren(childSampleWithExperiment, childSampleWithoutExperiment);
-        Sample containedSampleWithoutExperiment = sample(LISTABLE_SAMPLE_TYPE, SPACE_1, "CONT_WOE");
+        Sample containedSampleWithoutExperiment = TestUtils.sample(LISTABLE_SAMPLE_TYPE, SPACE_1, "CONT_WOE");
         Sample containedSampleWithExperiment =
-                sample(LISTABLE_SAMPLE_TYPE, SPACE_1, "CONT_WE", experimentIdentifier);
+                TestUtils.sample(LISTABLE_SAMPLE_TYPE, SPACE_1, "CONT_WE", experimentIdentifier);
         prepareSearchForSamples(containedSampleWithExperiment, containedSampleWithoutExperiment);
 
         sampleChooserModel.expandNode(createPath(sampleChooserModel, sample1), nodeAction);
@@ -621,18 +616,18 @@ public class ChooserTreeModelTest extends AssertJUnit
         dataSetChooserModel.expandNode(createPath(dataSetChooserModel, project11), nodeAction);
         assertEquals(null, nodeAction.handledException);
         Object exp1 = dataSetChooserModel.getChild(project11, 0);
-        prepareSearchForSamples(sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_1));
+        prepareSearchForSamples(TestUtils.sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_1));
         prepareSearchForDataSets();
         dataSetChooserModel.expandNode(createPath(dataSetChooserModel, exp1), nodeAction);
         assertEquals(null, nodeAction.handledException);
         Object sample1 = dataSetChooserModel.getChild(exp1, 0);
         String experimentIdentifier = "/" + SPACE_1 + "/" + P_1 + "/" + EXP_1;
         prepareSearchForSamplesWithChildren();
-        Sample containedSampleWithoutExperiment = sample(LISTABLE_SAMPLE_TYPE, SPACE_1, "CONT_WOE");
+        Sample containedSampleWithoutExperiment = TestUtils.sample(LISTABLE_SAMPLE_TYPE, SPACE_1, "CONT_WOE");
         Sample containedSampleWithExperiment =
-                sample(LISTABLE_SAMPLE_TYPE, SPACE_1, "CONT_WE", experimentIdentifier);
+                TestUtils.sample(LISTABLE_SAMPLE_TYPE, SPACE_1, "CONT_WE", experimentIdentifier);
         prepareSearchForSamples(containedSampleWithExperiment, containedSampleWithoutExperiment);
-        DataSet dataSet = dataSet("DS1");
+        DataSet dataSet = TestUtils.dataSet("DS1");
         prepareSearchForDataSets(dataSet);
         
         dataSetChooserModel.expandNode(createPath(dataSetChooserModel, sample1), nodeAction);
@@ -708,13 +703,13 @@ public class ChooserTreeModelTest extends AssertJUnit
         assertEquals(null, nodeAction.handledException);
         Object exp1 = sampleChooserModel.getChild(project11, 0);
         assertEquals(EXP_1, exp1.toString());
-        prepareSearchForSamples(sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_2));
+        prepareSearchForSamples(TestUtils.sample(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_2));
         sampleChooserModel.expandNode(createPath(sampleChooserModel, exp1), nodeAction);
         assertEquals(null, nodeAction.handledException);
         Object sample1 = sampleChooserModel.getChild(exp1, 0);
         String experimentIdentifier = "/" + SPACE_1 + "/" + P_1 + "/" + EXP_1;
-        Sample s1 = sample(LISTABLE_SAMPLE_TYPE, SPACE_2, SAMPLE_1, experimentIdentifier);
-        Sample s2 = sample(LISTABLE_SAMPLE_TYPE, SPACE_2, SAMPLE_2, experimentIdentifier);
+        Sample s1 = TestUtils.sample(LISTABLE_SAMPLE_TYPE, SPACE_2, SAMPLE_1, experimentIdentifier);
+        Sample s2 = TestUtils.sample(LISTABLE_SAMPLE_TYPE, SPACE_2, SAMPLE_2, experimentIdentifier);
         prepareSearchForSamplesWithChildren(s2, s1);
         prepareSearchForSamples();
         TreePath path = createPath(sampleChooserModel, sample1);
@@ -780,8 +775,8 @@ public class ChooserTreeModelTest extends AssertJUnit
                 {
                     Project project = getWrappedObject(projectObject);
                     one(service).listExperiments(SESSION_TOKEN, Arrays.asList(project), null);
-                    will(returnValue(Arrays.asList(experiment(project, EXP_2),
-                            experiment(project, EXP_1))));
+                    will(returnValue(Arrays.asList(TestUtils.experiment(project, EXP_2),
+                            TestUtils.experiment(project, EXP_1))));
                 }
             });
     }
@@ -799,64 +794,13 @@ public class ChooserTreeModelTest extends AssertJUnit
         return matcher;
     }
     
-    private DataSet dataSet(String code)
-    {
-        DataSetInitializer initializer = new DataSetInitializer();
-        initializer.setDataSetTypeCode("DT");
-        initializer.setCode(code);
-        initializer.setRegistrationDetails(new EntityRegistrationDetails(
-                new EntityRegistrationDetailsInitializer()));
-        return new DataSet(initializer);
-    }
-    
     private Sample sampleWithChildren(Sample...children)
     {
         SampleInitializer initializer =
-                createSampleInitializer(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_2, null);
+                TestUtils.createSampleInitializer(LISTABLE_SAMPLE_TYPE, SPACE_1, SAMPLE_2, null);
         initializer.setRetrievedFetchOptions(EnumSet.of(SampleFetchOption.CHILDREN));
         initializer.setChildren(Arrays.asList(children));
         return new Sample(initializer);
-    }
-    
-    private Sample sample(String sampleTypeCode, String spaceCode, String sampleCode)
-    {
-        return sample(sampleTypeCode, spaceCode, sampleCode, null);
-    }
-    
-    private Sample sample(String sampleTypeCode, String spaceCode, String sampleCode,
-            String experimentIdentifierOrNull)
-    {
-        return new Sample(createSampleInitializer(sampleTypeCode, spaceCode, sampleCode,
-                experimentIdentifierOrNull));
-    }
-
-    private SampleInitializer createSampleInitializer(String sampleTypeCode, String spaceCode,
-            String sampleCode, String experimentIdentifierOrNull)
-    {
-        SampleInitializer initializer = new SampleInitializer();
-        initializer.setSampleTypeCode(sampleTypeCode);
-        initializer.setSampleTypeId(new Long(sampleTypeCode.hashCode()));
-        initializer.setCode(sampleCode);
-        initializer.setIdentifier("/" + spaceCode + "/" + sampleCode);
-        initializer.setPermId("PERM-" + initializer.getIdentifier());
-        initializer.setId((long) initializer.getIdentifier().hashCode());
-        initializer.setExperimentIdentifierOrNull(experimentIdentifierOrNull);
-        initializer.setRegistrationDetails(new EntityRegistrationDetails(
-                new EntityRegistrationDetailsInitializer()));
-        return initializer;
-    }
-    
-    private Experiment experiment(Project project, String experimentCode)
-    {
-        ExperimentInitializer initializer = new ExperimentInitializer();
-        initializer.setCode(experimentCode);
-        initializer.setExperimentTypeCode("ET");
-        initializer.setIdentifier(project.getIdentifier() + "/" + experimentCode);
-        initializer.setPermId("PERM-" + initializer.getIdentifier());
-        initializer.setId((long) initializer.getIdentifier().hashCode());
-        initializer.setRegistrationDetails(new EntityRegistrationDetails(
-                new EntityRegistrationDetailsInitializer()));
-        return new Experiment(initializer);
     }
     
     private IChooserTreeNode<?> getTreeNode(Object node)

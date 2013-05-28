@@ -251,6 +251,7 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
                 public void itemStateChanged(ItemEvent event)
                 {
                     setOwnerToolTip();
+                    ownerField.setText("");
                 }
             });
         addField(fields, "Owner type", ownerTypeComboBox)

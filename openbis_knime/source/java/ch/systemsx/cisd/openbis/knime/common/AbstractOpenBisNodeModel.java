@@ -135,5 +135,10 @@ public abstract class AbstractOpenBisNodeModel extends NodeModel
     {
         return FacadeFactory.create(url, userID, password);
     }
+
+    protected String getStringFlowVariable(String variableName)
+    {
+        return peekFlowVariableString(variableName);
+    }
     
 }
