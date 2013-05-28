@@ -26,6 +26,7 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.workflow.Credentials;
 import org.knime.core.node.workflow.ICredentials;
 
+import ch.systemsx.cisd.openbis.knime.common.AbstractTestNodeDialog;
 import ch.systemsx.cisd.openbis.knime.common.ParameterBindings;
 
 /**
@@ -42,7 +43,7 @@ public class TestAggregatedDataImportNodeDialog extends AbstractTestNodeDialog
     }
 
     @Override
-    NodeDialogPane create() throws NotConfigurableException
+    public NodeDialogPane create() throws NotConfigurableException
     {
         return new AggregatedDataFileImportNodeDialog()
             {

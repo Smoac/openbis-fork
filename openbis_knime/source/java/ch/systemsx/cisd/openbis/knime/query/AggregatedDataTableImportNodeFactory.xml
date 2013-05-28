@@ -3,10 +3,11 @@
 <knimeNode icon="../common/openbis.png" type="Source">
     <name>openBIS Aggregation Service Report Reader</name>
     
-    <shortDescription>openBIS query node</shortDescription>
+    <shortDescription>Provides the result table form an invocation of a special openBIS aggregation services.</shortDescription>
     
     <fullDescription>
-        <intro>Data source node to run a parameterized aggregation service on openBIS.  
+        <intro>This node invokes a special openBIS aggregation services which creates from some input 
+        parameters a table.  
         <p> 
         For more details see <a href="https://wiki-bsse.ethz.ch/display/openBISDoc1304/openBIS+KNIME+Nodes">openBIS KNIME Nodes</a>.
         </p>

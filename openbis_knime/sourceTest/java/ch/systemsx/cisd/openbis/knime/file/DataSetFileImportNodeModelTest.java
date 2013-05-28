@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitial
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeModel;
+import ch.systemsx.cisd.openbis.knime.common.IOpenbisServiceFacadeFactory;
 
 /**
  * @author Franz-Josef Elmer
@@ -73,9 +74,9 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         private final Map<String, String> flowVariables = new TreeMap<String, String>();
         private final Map<String, ICredentials> credentialsMap = new HashMap<String, ICredentials>();
         
-        public Model(IDataSetProvider dataSetProvider)
+        public Model(IOpenbisServiceFacadeFactory factory)
         {
-            super(dataSetProvider);
+            super(factory);
         }
 
         @Override
@@ -126,8 +127,8 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
 
     private Mockery context;
 
-    private IDataSetProvider dataSetProvider;
-
+    private IOpenbisServiceFacadeFactory facadeFactory;
+    
     private Model model;
 
     private NodeSettingsRO nodeSettingsRO;
@@ -143,13 +144,12 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
     private ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet metadata;
     
     private DataSet dataSet;
-    
     @BeforeMethod
     public void beforeMethod()
     {
         LogInitializer.init();
         context = new Mockery();
-        dataSetProvider = context.mock(IDataSetProvider.class);
+        facadeFactory = context.mock(IOpenbisServiceFacadeFactory.class);
         nodeSettingsRO = context.mock(NodeSettingsRO.class);
         nodeSettingsWO = context.mock(NodeSettingsWO.class);
         dataSetDss = context.mock(IDataSetDss.class);
@@ -163,7 +163,7 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         dataSetInitializer.setExperimentIdentifier("/A/B/C");
         dataSetInitializer.setSampleIdentifierOrNull("/A/B");
         metadata = new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet(dataSetInitializer);
-        model = new Model(dataSetProvider);
+        model = new Model(facadeFactory);
         model.addCredentials(CREDENTIALS_NAME, new Credentials(CREDENTIALS_NAME, USER2, MY_PASSWORD2));
         dataSet = new DataSet(facade, dssComponent, metadata, dataSetDss);
         context.checking(new Expectations()
@@ -347,11 +347,13 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(dataSetProvider).getDataSet(URL, USER, MY_PASSWORD, DATA_SET_CODE);
-                    will(returnValue(dataSet));
+                    one(facadeFactory).createFacade(URL, USER, MY_PASSWORD);
+                    will(returnValue(facade));
                     
                     one(dataSetDss).getFile(filePath);
                     will(returnValue(inputStream));
+                    
+                    one(facade).logout();
                 }
             });
     }

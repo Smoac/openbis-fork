@@ -3,10 +3,10 @@
 <knimeNode icon="../common/openbis.png" type="Source">
     <name>openBIS Data Set Registration</name>
     
-    <shortDescription>Register a bunch of files as a data set on an openBIS instance</shortDescription>
+    <shortDescription>Registers a file as a data set on an openBIS instance.</shortDescription>
     
     <fullDescription>
-        <intro>The URI input port specifies the locations of the files to be registered. 
+        <intro>The URI input port specifies the location of the file to be registered. 
         The owner of the freshly registered data set is specified by a variable.  
         <p> 
         For more details see <a href="https://wiki-bsse.ethz.ch/display/openBISDoc1304/openBIS+KNIME+Nodes">openBIS KNIME Nodes</a>.

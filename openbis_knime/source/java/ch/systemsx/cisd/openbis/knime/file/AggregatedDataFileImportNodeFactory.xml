@@ -3,11 +3,11 @@
 <knimeNode icon="../common/openbis.png" type="Source">
     <name>openBIS Aggregated Data File Importer</name>
     
-    <shortDescription>Importing a data file from special openBIS aggregation services</shortDescription>
+    <shortDescription>Imports a data file from special openBIS aggregation services.</shortDescription>
     
     <fullDescription>
-        <intro>This node invokes an openBIS aggregation services which is specialized 
-        to create from some input parameter a file which is delivered to the node at execution time.
+        <intro>This data source node invokes a special openBIS aggregation services which creates from some input 
+        parameters a file which is delivered to the node at execution time.
         <p> 
         For more details see <a href="https://wiki-bsse.ethz.ch/display/openBISDoc1304/openBIS+KNIME+Nodes">openBIS KNIME Nodes</a>.
         </p>

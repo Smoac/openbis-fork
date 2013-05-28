@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.knime.file;
+package ch.systemsx.cisd.openbis.knime.common;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -86,7 +86,7 @@ public abstract class AbstractTestNodeDialog
         frame.setVisible(true);
     }
 
-    abstract NodeDialogPane create() throws NotConfigurableException;
+    public abstract NodeDialogPane create() throws NotConfigurableException;
     
     private static final class NodeManager
     {

@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.openbis.knime.query;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -171,17 +173,29 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
 
     private List<DataSet> loadDataSets(ReportDescription description, IQueryApiFacade facade)
     {
-        List<String> dataSetTypes = description.getDataSetTypes();
-        IGeneralInformationService service = facade.getGeneralInformationService();
-        SearchCriteria searchCriteria = new SearchCriteria();
-        searchCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
-        for (String dataSetType : dataSetTypes)
+        JPanel panel = getPanel();
+        Cursor cursor = panel.getCursor();
+        try
         {
-            MatchClause clause =
-                    MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, dataSetType);
-            searchCriteria.addMatchClause(clause);
+            panel.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+            List<String> dataSetTypes = description.getDataSetTypes();
+            IGeneralInformationService service = facade.getGeneralInformationService();
+            List<DataSet> allDataSets = new ArrayList<DataSet>();
+            for (String dataSetType : dataSetTypes)
+            {
+                SearchCriteria searchCriteria = new SearchCriteria();
+                searchCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
+                MatchClause clause =
+                        MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, dataSetType);
+                searchCriteria.addMatchClause(clause);
+                List<DataSet> dataSets = service.searchForDataSets(facade.getSessionToken(), searchCriteria);
+                logger.info(dataSets.size() + " data sets of type " + dataSetType);
+                allDataSets.addAll(dataSets);
+            }
+            return allDataSets;
+        } finally
+        {
+            panel.setCursor(cursor);
         }
-        List<DataSet> dataSets = service.searchForDataSets(facade.getSessionToken(), searchCriteria);
-        return dataSets;
     }
 }

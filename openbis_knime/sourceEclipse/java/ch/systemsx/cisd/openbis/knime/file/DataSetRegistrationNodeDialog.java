@@ -315,7 +315,8 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
     protected void updateQueryForm(IQueryApiFacade queryFacade)
     {
         dataSetTypeComboBox.removeAllItems();
-        List<DataSetType> dataSetTypes = createOpenbisFacade().listDataSetTypes();
+        String sessionToken = queryFacade.getSessionToken();
+        List<DataSetType> dataSetTypes = createOpenbisFacade(sessionToken).listDataSetTypes();
         for (DataSetType dataSetType : dataSetTypes)
         {
             dataSetTypeComboBox.addItem(new DataSetTypeAdapter(dataSetType));

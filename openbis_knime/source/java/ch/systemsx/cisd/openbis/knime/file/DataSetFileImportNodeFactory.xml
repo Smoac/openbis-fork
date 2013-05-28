@@ -3,7 +3,7 @@
 <knimeNode icon="../common/openbis.png" type="Source">
     <name>openBIS Data Set File Importer</name>
     
-    <shortDescription>Importing a file from a selected data set of an openBIS instance</shortDescription>
+    <shortDescription>Imports a file from a selected data set of an openBIS instance.</shortDescription>
     
     <fullDescription>
         <intro>A selected file of a data set is imported and stored locally. 

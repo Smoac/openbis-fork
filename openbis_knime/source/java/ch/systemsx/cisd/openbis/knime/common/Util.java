@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -43,6 +45,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -213,7 +218,25 @@ public class Util
             List<DataSet> dataSets, boolean singleSelection)
     {
         JTable table = new JTable(createTableModel(dataSets));
-        table.setPreferredScrollableViewportSize(new Dimension(600, 400));
+        table.setPreferredScrollableViewportSize(new Dimension(900, 500));
+        JTableHeader tableHeader = table.getTableHeader();
+        final TableColumnModel columnModel = tableHeader.getColumnModel();
+        final TableCellRenderer renderer = tableHeader.getDefaultRenderer();
+        tableHeader.setDefaultRenderer(new TableCellRenderer()
+            {
+                @Override
+                public Component getTableCellRendererComponent(JTable t, Object value, boolean isSelected, 
+                        boolean hasFocus, int row, int column)
+                {
+                    Component component = renderer.getTableCellRendererComponent(t, value, isSelected, hasFocus, row, column);
+                    if (component instanceof JComponent)
+                    {
+                        String title = columnModel.getColumn(column).getHeaderValue().toString();
+                        ((JComponent) component).setToolTipText(title);
+                    }
+                    return component;
+                }
+            });
         TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(table.getModel());
         table.setRowSorter(sorter);
         ListSelectionModel selectionModel = table.getSelectionModel();
@@ -233,12 +256,19 @@ public class Util
         JTextField filterField = createFilterField(sorter);
         filterPanel.add(filterField, BorderLayout.CENTER);
         panel.add(filterPanel, BorderLayout.SOUTH);
-        JOptionPane.showMessageDialog(parentComponent, panel);
-        int[] selectedRows = table.getSelectedRows();
+        JOptionPane optionPane = new JOptionPane(panel, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+        JDialog dialog = optionPane.createDialog(parentComponent, "Data Sets");
+        dialog.setResizable(true);
+        dialog.setVisible(true);
         List<DataSet> result = new ArrayList<DataSet>();
-        for (int rowIndex : selectedRows)
+        Object value = optionPane.getValue();
+        if (new Integer(JOptionPane.OK_OPTION).equals(value))
         {
-            result.add(dataSets.get(sorter.convertRowIndexToModel(rowIndex)));
+            int[] selectedRows = table.getSelectedRows();
+            for (int rowIndex : selectedRows)
+            {
+                result.add(dataSets.get(sorter.convertRowIndexToModel(rowIndex)));
+            }
         }
         return result;
     }

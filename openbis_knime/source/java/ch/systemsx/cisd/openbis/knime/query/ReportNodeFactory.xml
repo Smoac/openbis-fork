@@ -3,10 +3,10 @@
 <knimeNode icon="../common/openbis.png" type="Source">
     <name>openBIS Report Reader</name>
     
-    <shortDescription>openBIS report node</shortDescription>
+    <shortDescription>Provides the result table form an invocation of an openBIS reporting plugin.</shortDescription>
     
     <fullDescription>
-        <intro>Data source node to run a data set report on openBIS.  
+        <intro>This data source node invokes a reporting plugin on an openBIS Application Server.  
         <p> 
         For more details see <a href="https://wiki-bsse.ethz.ch/display/openBISDoc1304/openBIS+KNIME+Nodes">openBIS KNIME Nodes</a>.
         </p>

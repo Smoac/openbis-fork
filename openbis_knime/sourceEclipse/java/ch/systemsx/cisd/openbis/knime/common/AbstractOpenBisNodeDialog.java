@@ -299,6 +299,27 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
             }).start();
     }
 
+    @Override
+    public void onCancel()
+    {
+        logoutAndRemoveAllFacades();
+    }
+
+    @Override
+    public void onClose()
+    {
+        logoutAndRemoveAllFacades();
+    }
+
+    private void logoutAndRemoveAllFacades()
+    {
+        for (IQueryApiFacade facade : facades.values())
+        {
+            facade.logout();
+        }
+        facades.clear();
+    }
+
     protected IQueryApiFacade createFacade()
     {
         try
@@ -331,25 +352,15 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
         }
     }
 
-    protected IOpenbisServiceFacade createOpenbisFacade()
+    protected IOpenbisServiceFacade createOpenbisFacade(String sessionToken)
     {
-        JPanel panel = getPanel();
-        Cursor cursor = panel.getCursor();
         try
         {
-            String url = getUrl();
-            ICredentials credentials = getCredentials();
-            String userID = credentials.getLogin();
-            String password = credentials.getPassword();
-            panel.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-            return serviceFacadeFactory.createFacade(url, userID, password);
+            return serviceFacadeFactory.createFacade(getUrl(), sessionToken);
         } catch (RuntimeException ex)
         {
             showException(ex);
             throw ex;
-        } finally
-        {
-            panel.setCursor(cursor);
         }
     }
 

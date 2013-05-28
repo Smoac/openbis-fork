@@ -39,8 +39,8 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
-import org.knime.core.node.workflow.ICredentials;
 
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.knime.common.AbstractDescriptionBasedNodeDialog;
@@ -64,12 +64,10 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
     private JTextComponent filePathField;
     private JTextComponent downloadsPathField;
     private JCheckBox reuseCheckBox;
-    private final IDataSetProvider dataSetProvider;
 
-    DataSetFileImportNodeDialog(IDataSetProvider dataSetProvider)
+    DataSetFileImportNodeDialog()
     {
         super("Data Set File Importer Settings");
-        this.dataSetProvider = dataSetProvider;
     }
 
     @Override
@@ -204,15 +202,12 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
         {
             return;
         }
-        String url = getUrl();
-        ICredentials credentials = getCredentials();
-        String userID = credentials.getLogin();
-        String password = credentials.getPassword();
 
+        IOpenbisServiceFacade openbisFacade = createOpenbisFacade(createFacade().getSessionToken());
         try
         {
             ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet dataSet =
-                    dataSetProvider.getDataSet(url, userID, password, dataSetCode);
+                    openbisFacade.getDataSet(dataSetCode);
             if (dataSet == null)
             {
                 JOptionPane.showMessageDialog(getPanel(), "Unknown data set: " + dataSetCode);

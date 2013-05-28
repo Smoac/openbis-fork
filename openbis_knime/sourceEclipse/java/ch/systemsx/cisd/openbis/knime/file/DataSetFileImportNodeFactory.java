@@ -20,6 +20,9 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
+import ch.systemsx.cisd.openbis.knime.common.IOpenbisServiceFacadeFactory;
+import ch.systemsx.cisd.openbis.knime.common.OpenbisServiceFacadeFactory;
+
 /**
  * Factory for {@link DataSetFileImportNodeDialog} and {@link DataSetFileImportNodeModel}.
  * 
@@ -27,18 +30,18 @@ import org.knime.core.node.NodeView;
  */
 public class DataSetFileImportNodeFactory extends NodeFactory<DataSetFileImportNodeModel>
 {
-    private final IDataSetProvider dataSetProvider = new DataSetProvider();
+    private final IOpenbisServiceFacadeFactory factory = new OpenbisServiceFacadeFactory();
 
     @Override
     protected NodeDialogPane createNodeDialogPane()
     {
-        return new DataSetFileImportNodeDialog(dataSetProvider);
+        return new DataSetFileImportNodeDialog();
     }
 
     @Override
     public DataSetFileImportNodeModel createNodeModel()
     {
-        return new DataSetFileImportNodeModel(dataSetProvider);
+        return new DataSetFileImportNodeModel(factory);
     }
 
     @Override

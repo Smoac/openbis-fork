@@ -153,10 +153,20 @@ public class DataSetRegistrationNodeModel extends AbstractOpenBisNodeModel
         dataSetMetadata.setProperties(properties);
         NewDataSetDTO dataSetDTO = builder.asNewDataSetDTO();
 
-        IOpenbisServiceFacade facade = serviceFacadeFactory.createFacade(url, userID, password);
-        checkOwner(dataSetDTO, facade);
-        facade.putDataSet(dataSetDTO, file);
-        return new PortObject[] {};
+        IOpenbisServiceFacade facade = null;
+        try
+        {
+            facade = serviceFacadeFactory.createFacade(url, userID, password);
+            checkOwner(dataSetDTO, facade);
+            facade.putDataSet(dataSetDTO, file);
+            return new PortObject[] {};
+        } finally
+        {
+            if (facade != null)
+            {
+                facade.logout();
+            }
+        }
     }
 
     private void checkOwner(NewDataSetDTO dataSetDTO, IOpenbisServiceFacade facade)

@@ -156,7 +156,7 @@ public class EntityChooser
         JPanel treePanel = new JPanel(new BorderLayout());
         treePanel.add(new JScrollPane(tree), BorderLayout.CENTER);
         final JOptionPane optionPane = new JOptionPane(treePanel, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
-        optionPane.setSize(600, 800);
+        optionPane.setSize(800, 800);
         tree.addMouseListener(new MouseAdapter()
             {
                 @Override

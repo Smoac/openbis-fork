@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.knime.file;
+package ch.systemsx.cisd.openbis.knime.query;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,34 +27,35 @@ import org.knime.core.node.workflow.Credentials;
 import org.knime.core.node.workflow.ICredentials;
 
 import ch.systemsx.cisd.openbis.knime.common.AbstractTestNodeDialog;
-import ch.systemsx.cisd.openbis.knime.common.OpenbisServiceFacadeFactory;
 
 /**
- * Stand alone application for testing {@link DataSetRegistrationNodeDialog}.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public class TestDataSetRegistrationNodeDialog extends AbstractTestNodeDialog
+public class TestReportNodeDialog extends AbstractTestNodeDialog
 {
     
     public static void main(String[] args) throws NotConfigurableException
     {
-        AbstractTestNodeDialog.createAndShow(new TestDataSetRegistrationNodeDialog());
+        AbstractTestNodeDialog.createAndShow(new TestReportNodeDialog());
     }
 
     @Override
     public NodeDialogPane create() throws NotConfigurableException
     {
-        return new DataSetRegistrationNodeDialog(new OpenbisServiceFacadeFactory())
+        return new ReportNodeDialog()
             {
                 {
                     NodeSettings settings = createSettings();
+                    settings.addStringArray(ReportNodeModel.DATA_SET_CODES_KEY, new String[0]);
                     loadSettingsFrom(settings, (PortObjectSpec[]) null);
                 }
+
                 @Override
                 protected String[] getUrls()
                 {
-                    return new String[] {"http://localhost:8888"};
+                    return new String[] { "http://localhost:8888" };
                 }
 
                 @Override
@@ -69,5 +70,7 @@ public class TestDataSetRegistrationNodeDialog extends AbstractTestNodeDialog
                     return new Credentials("_", "test", "a");
                 }
             };
+
     }
+
 }
