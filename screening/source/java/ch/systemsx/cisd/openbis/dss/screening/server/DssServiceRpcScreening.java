@@ -596,7 +596,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         int i = 0;
         for (ImgAnalysisDatasetDTO adto : dataSets)
         {
-            containerIds[i++] = adto.getContainerId();
+            containerIds[i++] = adto.getPlateId();
         }
 
         List<ImgContainerDTO> containers = getDAO().listContainersByIds(containerIds);
@@ -670,7 +670,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             List<String> featureNames)
     {
         WellFeatureCollection<FeatureTableRow> features =
-                FeatureVectorLoader.fetchWellFeatures(datasetWellReferences, featureNames, dao,
+                FeatureVectorLoader.fetchWellFeatures(datasetWellReferences, featureNames, getDAO(),
                         FeatureVectorLoaderMetadataProviderFactory
                                 .createMetadataProviderFromFeatureVectors(getOpenBISService(),
                                         datasetWellReferences));

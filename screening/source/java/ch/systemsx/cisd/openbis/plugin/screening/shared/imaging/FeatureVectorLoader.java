@@ -75,11 +75,13 @@ public class FeatureVectorLoader
     {
         private ImgAnalysisDatasetDTO dataSet;
 
+        private String datasetContainerCode;
+
         private Map<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> featureDefToValuesMap;
 
         private FeatureVocabularyTermsMap featureDefToVocabularyTerms;
 
-        private ImgContainerDTO container;
+        private ImgContainerDTO plate;
     }
 
     public static interface IMetadataProvider
@@ -321,15 +323,27 @@ public class FeatureVectorLoader
     {
         List<String> allCodes = new LinkedList<String>(datasetCodes);
 
+        HashMap<String, String> containedToContainer = new HashMap<String, String>();
+
         if (metadataProviderOrNull != null)
         {
             for (String code : datasetCodes)
             {
-                allCodes.addAll(metadataProviderOrNull.tryGetContainedDatasets(code));
+                List<String> containedDataSetIds = metadataProviderOrNull.tryGetContainedDatasets(code);
+                for (String contained : containedDataSetIds)
+                {
+                    containedToContainer.put(contained, code);
+                }
+                allCodes.addAll(containedDataSetIds);
             }
         }
 
-        return dao.listAnalysisDatasetsByPermId(allCodes.toArray(new String[0]));
+        List<ImgAnalysisDatasetDTO> list = dao.listAnalysisDatasetsByPermId(allCodes.toArray(new String[0]));
+        for (ImgAnalysisDatasetDTO imgAnalysisDatasetDTO : list)
+        {
+            imgAnalysisDatasetDTO.setDataSetContainerId(containedToContainer.get(imgAnalysisDatasetDTO.getPermId()));
+        }
+        return list;
     }
 
     /**
@@ -354,7 +368,7 @@ public class FeatureVectorLoader
             DatasetFeaturesBundle bundle = new DatasetFeaturesBundle();
             bundle.featureDefToValuesMap = lister.getFeatureValues(dataset);
             bundle.dataSet = dataset;
-            bundle.container = lister.getContainer(dataset);
+            bundle.plate = lister.getContainer(dataset);
             bundle.featureDefToVocabularyTerms =
                     createFeatureIdToVocabularyTermsMap(dataset,
                             bundle.featureDefToValuesMap.keySet(), lister);
@@ -392,7 +406,7 @@ public class FeatureVectorLoader
         // values for all datasets and requested features
         private final GroupByMap</* feature def id */Long, ImgFeatureValuesDTO> featureValuesMap;
 
-        private final TableMap<Long/* container id */, ImgContainerDTO> containersByIdMap;
+        private final TableMap<Long/* plate id */, ImgContainerDTO> containersByIdMap;
 
         /**
          * @datasets datasets in which we are interested
@@ -477,7 +491,7 @@ public class FeatureVectorLoader
 
         public ImgContainerDTO getContainer(ImgAnalysisDatasetDTO dataset)
         {
-            return containersByIdMap.getOrDie(dataset.getContainerId());
+            return containersByIdMap.getOrDie(dataset.getPlateId());
         }
 
         public Map<String, ImgFeatureDefDTO> getFeatureCodeToDefMap(ImgAnalysisDatasetDTO dataset)
@@ -552,7 +566,7 @@ public class FeatureVectorLoader
             int i = 0;
             for (ImgAnalysisDatasetDTO dataset : datasets)
             {
-                ids[i++] = dataset.getContainerId();
+                ids[i++] = dataset.getPlateId();
             }
             return ids;
         }
@@ -599,19 +613,18 @@ public class FeatureVectorLoader
     }
 
     /**
-     * Returns all features for previously loaded datasets. Features for all plate wells are
-     * returned.
+     * Returns all features for previously loaded datasets. Features for all plate wells are returned.
      */
     List<FeatureTableRow> createFeatureTableRows()
     {
         List<FeatureTableRow> rows = new ArrayList<FeatureTableRow>();
         for (DatasetFeaturesBundle bundle : bundles)
         {
-            ImgContainerDTO container = bundle.container;
-            SampleIdentifier identifier = tryGetSampleIdentifier(container);
-            for (int rowIndex = 1; rowIndex <= container.getNumberOfRows(); rowIndex++)
+            ImgContainerDTO plate = bundle.plate;
+            SampleIdentifier identifier = tryGetSampleIdentifier(plate);
+            for (int rowIndex = 1; rowIndex <= plate.getNumberOfRows(); rowIndex++)
             {
-                for (int colIndex = 1; colIndex <= container.getNumberOfColumns(); colIndex++)
+                for (int colIndex = 1; colIndex <= plate.getNumberOfColumns(); colIndex++)
                 {
                     final FeatureTableRow row =
                             createFeatureTableRow(bundle, identifier, null, new WellPosition(
@@ -682,8 +695,8 @@ public class FeatureVectorLoader
         {
             String dataSetCode = reference.getDatasetCode();
             DatasetFeaturesBundle bundle = getDatasetFeaturesBundleOrDie(bundleMap, dataSetCode);
-            ImgContainerDTO container = bundle.container;
-            SampleIdentifier identifier = tryGetSampleIdentifier(container);
+            ImgContainerDTO plate = bundle.plate;
+            SampleIdentifier identifier = tryGetSampleIdentifier(plate);
             final FeatureTableRow row =
                     createFeatureTableRow(bundle, identifier, reference,
                             reference.getWellPosition());
@@ -710,6 +723,10 @@ public class FeatureVectorLoader
         for (DatasetFeaturesBundle bundle : bundles)
         {
             map.put(bundle.dataSet.getPermId(), bundle);
+            if (bundle.dataSet.getDataSetContainerId() != null)
+            {
+                map.put(bundle.dataSet.getDataSetContainerId(), bundle);
+            }
         }
         return map;
     }
@@ -738,7 +755,7 @@ public class FeatureVectorLoader
         FeatureValue[] valueArray =
                 createFeatureValueArray(bundle.featureDefToValuesMap,
                         bundle.featureDefToVocabularyTerms, wellLocation);
-        return new FeatureVectorValues(permId, wellLocation, bundle.container.getPermId(),
+        return new FeatureVectorValues(permId, wellLocation, bundle.plate.getPermId(),
                 getCodeAndLabelArray(), valueArray);
     }
 
