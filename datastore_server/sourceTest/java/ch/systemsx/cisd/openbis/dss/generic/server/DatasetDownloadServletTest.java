@@ -182,6 +182,15 @@ public class DatasetDownloadServletTest
         EXAMPLE_DATA_SET_FOLDER.mkdirs();
         FileUtilities.writeToFile(EXAMPLE_FILE, EXAMPLE_FILE_CONTENT);
         EXAMPLE_DATA_SET_SUB_FOLDER.mkdir();
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(httpSession).setAttribute(with("openbis-session-id"), with(any(Object.class)));
+                    allowing(httpSession).getAttribute(with("openbis-session-id"));
+                    will(returnValue(EXAMPLE_SESSION_ID));
+                }
+            });
+
     }
 
     @AfterMethod
