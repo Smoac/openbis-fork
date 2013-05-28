@@ -81,7 +81,13 @@ public abstract class AbstractParameterDescriptionBasedNodeDialog<D extends Seri
                 @Override
                 public void itemStateChanged(ItemEvent e)
                 {
-                    updateParametersPanel((D) e.getItem());
+                    try
+                    {
+                        updateParametersPanel((D) e.getItem());
+                    } catch (Throwable ex)
+                    {
+                        showException(ex);
+                    }
                 }
             });
         JPanel querySelectionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));

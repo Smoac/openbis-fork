@@ -30,6 +30,7 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -48,6 +49,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -253,7 +255,12 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
             builder.append("...\n\nSee KNIME log for the complete error message.");
             message = builder.toString();
         }
-        JOptionPane.showMessageDialog(getPanel(), message, "Error", JOptionPane.ERROR_MESSAGE);
+        JPanel panel = getPanel();
+        Window windowAncestor = SwingUtilities.getWindowAncestor(panel);
+        if (windowAncestor != null)
+        {
+            JOptionPane.showMessageDialog(panel, message, "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     protected abstract void defineQueryForm(JPanel queryPanel);

@@ -365,7 +365,7 @@ public class Util
         }
         if (rootException != null)
         {
-            throw rootException;
+            throw new RuntimeException(rootException);
         }
     }
 
