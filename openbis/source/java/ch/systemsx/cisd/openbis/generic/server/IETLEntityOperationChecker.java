@@ -122,7 +122,7 @@ public interface IETLEntityOperationChecker
             List<SampleUpdatesDTO> spaceSamples);
 
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+        { RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @Capability("CREATE_DATA_SETS_VIA_DSS")
     public void assertDataSetCreationAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = NewExternalDataPredicate.class)
