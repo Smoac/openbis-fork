@@ -17,11 +17,14 @@
 package ch.systemsx.cisd.openbis.knime.file;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.knime.core.data.uri.URIContent;
@@ -137,6 +140,23 @@ public class DataSetRegistrationNodeModel extends AbstractOpenBisNodeModel
         settings.addString(OWNER_TYPE_KEY, (ownerType == null ? DataSetOwnerType.EXPERIMENT
                 : ownerType).name());
         settings.addString(OWNER_KEY, owner);
+        if (properties != null)
+        {
+            List<String> propertyTypeCodes = new ArrayList<String>(properties.size());
+            List<String> propertyValues = new ArrayList<String>(properties.size());
+            Set<Entry<String, String>> entrySet = properties.entrySet();
+            for (Entry<String, String> entry : entrySet)
+            {
+                String value = entry.getValue();
+                if (StringUtils.isNotBlank(value))
+                {
+                    propertyTypeCodes.add(entry.getKey());
+                    propertyValues.add(value);
+                }
+            }
+            settings.addStringArray(PROPERTY_TYPE_CODES_KEY, propertyTypeCodes.toArray(new String[0]));
+            settings.addStringArray(PROPERTY_VALUES_KEY, propertyValues.toArray(new String[0]));
+        }
     }
 
     @Override

@@ -331,6 +331,12 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
     @Override
     protected void updateQueryForm(IQueryApiFacade queryFacade)
     {
+        DataSetTypeAdapter dataSetTypeAdapter = null;
+        Object selectedItem = dataSetTypeComboBox.getSelectedItem();
+        if (selectedItem instanceof DataSetTypeAdapter)
+        {
+            dataSetTypeAdapter = (DataSetTypeAdapter) selectedItem;
+        }
         dataSetTypeComboBox.removeAllItems();
         String sessionToken = queryFacade.getSessionToken();
         List<DataSetType> dataSetTypes = createOpenbisFacade(sessionToken).listDataSetTypes();
@@ -349,8 +355,26 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
             });
         if (dataSetTypes.isEmpty() == false)
         {
-            dataSetTypeComboBox.setSelectedIndex(0);
-            changeDataSetType(dataSetTypes.get(0), new HashMap<String, String>());
+            int index = 0;
+            if (dataSetTypeAdapter != null)
+            {
+                String dataSetTypeCode = dataSetTypeAdapter.getDataSetType().getCode();
+                for (int i = 0, n = dataSetTypeComboBox.getItemCount(); i < n; i++)
+                {
+                    Object item = dataSetTypeComboBox.getItemAt(i);
+                    if (item instanceof DataSetTypeAdapter)
+                    {
+                        DataSetTypeAdapter dAdapter = (DataSetTypeAdapter) item;
+                        if (dAdapter.getDataSetType().getCode().equals(dataSetTypeCode))
+                        {
+                            index = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            dataSetTypeComboBox.setSelectedIndex(index);
+            changeDataSetType(dataSetTypes.get(index), new HashMap<String, String>());
         }
     }
     

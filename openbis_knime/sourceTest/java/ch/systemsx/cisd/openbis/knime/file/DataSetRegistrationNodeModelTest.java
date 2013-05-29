@@ -29,6 +29,7 @@ import org.knime.core.data.uri.URIContent;
 import org.knime.core.data.uri.URIPortObject;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.flowvariable.FlowVariablePortObject;
 import org.knime.core.node.port.image.ImagePortObject;
@@ -97,8 +98,10 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
     private IQueryApiFacade queryFacade;
     private MockDataSetRegistrationNodeModel model;
     private NodeSettingsRO nodeSettingsRO;
+    private NodeSettingsWO nodeSettingsWO;
     private File file;
     private Map<String, String> flowVariables;
+    private DataSetType dataSetType;
 
     @BeforeMethod
     public void beforeMethod() throws Exception
@@ -110,9 +113,10 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
         serviceFacade = context.mock(IOpenbisServiceFacade.class);
         queryFacade = context.mock(IQueryApiFacade.class);
         nodeSettingsRO = context.mock(NodeSettingsRO.class);
+        nodeSettingsWO = context.mock(NodeSettingsWO.class);
         DataSetTypeInitializer dataSetTypeInitializer = new DataSetTypeInitializer();
         dataSetTypeInitializer.setCode("MY_TYPE");
-        DataSetType dataSetType = new DataSetType(dataSetTypeInitializer);
+        dataSetType = new DataSetType(dataSetTypeInitializer);
         final byte[] bytes = Util.serializeDescription(dataSetType);
         context.checking(new Expectations()
             {
@@ -139,6 +143,30 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
         logRecorder.reset();
         // To following line of code should also be called at the end of each test method.
         // Otherwise one do not known which test failed.
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testSaveAdditionalSettingsTo() throws Exception
+    {
+        prepareFileVariableOwnerAndType(DataSetOwnerType.SAMPLE, "/SPACE/SAMPLE1", "fname");
+        preparePropertyTypeCodes("Name");
+        preparePropertyValues("Albert");
+        model.loadAdditionalValidatedSettingsFrom(nodeSettingsRO);
+        context.checking(new Expectations()
+            {
+                {
+                    one(nodeSettingsWO).addString(DataSetRegistrationNodeModel.FILE_VARIABLE_KEY, "fname");
+                    one(nodeSettingsWO).addString(DataSetRegistrationNodeModel.OWNER_TYPE_KEY, DataSetOwnerType.SAMPLE.name());
+                    one(nodeSettingsWO).addString(DataSetRegistrationNodeModel.OWNER_KEY, "/SPACE/SAMPLE1");
+                    one(nodeSettingsWO).addByteArray(DataSetRegistrationNodeModel.DATA_SET_TYPE_KEY, Util.serializeDescription(dataSetType));
+                    one(nodeSettingsWO).addStringArray(DataSetRegistrationNodeModel.PROPERTY_TYPE_CODES_KEY, "Name");
+                    one(nodeSettingsWO).addStringArray(DataSetRegistrationNodeModel.PROPERTY_VALUES_KEY, "Albert");
+                }
+            });
+        
+        model.saveAdditionalSettingsTo(nodeSettingsWO);
+        
         context.assertIsSatisfied();
     }
     
