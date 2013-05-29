@@ -62,10 +62,10 @@ public class AddVocabularyDialog extends AbstractRegistrationDialog
 
         vocabularyRegistrationForm.getBody().setStyleAttribute("background-color", "transparent");
         vocabularyRegistrationForm.getFormPanel().getBody().setStyleAttribute("background-color", "transparent");
-        int innerWidth = AbstractRegistrationForm.DEFAULT_LABEL_WIDTH + AbstractRegistrationForm.DEFAULT_FIELD_WIDTH + 111;
+        int innerWidth = AbstractRegistrationForm.DEFAULT_LABEL_WIDTH + AbstractRegistrationForm.DEFAULT_FIELD_WIDTH + 20;
         int innerHeight = 400;
         vocabularyRegistrationForm.getFormPanel().setSize(innerWidth, innerHeight);
-        this.setSize(innerWidth - 30, innerHeight + 80);
+        this.setSize(innerWidth + 45, innerHeight + 100);
         this.center();
     }
 
