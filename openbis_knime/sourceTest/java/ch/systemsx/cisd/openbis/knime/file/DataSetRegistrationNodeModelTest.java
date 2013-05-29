@@ -30,12 +30,14 @@ import org.knime.core.data.uri.URIPortObject;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.flowvariable.FlowVariablePortObject;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
@@ -128,6 +130,7 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
         flowVariables = new HashMap<String, String>();
         model = new MockDataSetRegistrationNodeModel(queryFacade, facadeFactory, flowVariables);
         file = new File(workingDirectory, "hello.txt");
+        FileUtilities.writeToFile(file, "hello");
     }
 
     @AfterMethod
@@ -176,7 +179,7 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
-            assertEquals("Expecting an URI port instead of " + ImagePortObject.class.getName() + ".", ex.getMessage());
+            assertEquals("Invalid port: " + ImagePortObject.class.getName() + ".", ex.getMessage());
         }
         
         assertEquals("", logRecorder.getLogContent());
@@ -199,6 +202,28 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
         } catch (IllegalArgumentException ex)
         {
             assertEquals("Expecting at least on URI in input port.", ex.getMessage());
+        }
+        
+        assertEquals("", logRecorder.getLogContent());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testExecuteWithUnspecifiedFileVariable() throws Exception
+    {
+        prepareOwnerAndType(DataSetOwnerType.SAMPLE, "/SPACE/SAMPLE1");
+        preparePropertyTypeCodes();
+        preparePropertyValues();
+        model.loadAdditionalValidatedSettingsFrom(nodeSettingsRO);
+        logRecorder.resetLogContent();
+        
+        try
+        {
+            model.execute(new PortObject[] {FlowVariablePortObject.INSTANCE}, null);
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Unspecified file variable.", ex.getMessage());
         }
         
         assertEquals("", logRecorder.getLogContent());
@@ -258,7 +283,8 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
         model.execute(new PortObject[] {new URIPortObject(Arrays.asList(content, content2))}, null);
         
         assertEquals("NewDataSetDTO[NewDataSetMetadataDTO[data set type=MY_TYPE,property GREETINGS=HI],"
-                + "NewDataSetDTO.DataSetOwner[Experiment,/SPACE/PROJECT/EXPERIMENT1],[]]",
+                + "NewDataSetDTO.DataSetOwner[Experiment,/SPACE/PROJECT/EXPERIMENT1]," 
+                + "[FileInfoDssDTO[hello.txt,hello.txt,5]]]",
                 dataSetMatcher.recordedObject().toString());
         assertEquals(file.getAbsolutePath(), fileMatcher.recordedObject().getAbsolutePath());
         assertEquals("WARN  " + MockDataSetRegistrationNodeModel.class.getName() + " - 2 URIs instead of only one: ["
@@ -348,7 +374,39 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
         model.execute(new PortObject[] {new URIPortObject(Arrays.asList(content))}, null);
         
         assertEquals("NewDataSetDTO[NewDataSetMetadataDTO[data set type=MY_TYPE],"
-                + "NewDataSetDTO.DataSetOwner[Sample,/SPACE/SAMPLE1],[]]",
+                + "NewDataSetDTO.DataSetOwner[Sample,/SPACE/SAMPLE1],[FileInfoDssDTO[hello.txt,hello.txt,5]]]",
+                dataSetMatcher.recordedObject().toString());
+        assertEquals(file.getAbsolutePath(), fileMatcher.recordedObject().getAbsolutePath());
+        assertEquals("INFO  " + MockDataSetRegistrationNodeModel.class.getName() + " - data set file: "
+                + file.getAbsolutePath(), logRecorder.getLogContent());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testExecuteForSampleOwnerForFileFromFlowVariable() throws Exception
+    {
+        flowVariables.put("file-name", file.getAbsolutePath());
+        prepareFileVariableOwnerAndType(DataSetOwnerType.SAMPLE, "/SPACE/SAMPLE1", "file-name");
+        preparePropertyTypeCodes();
+        preparePropertyValues();
+        model.loadAdditionalValidatedSettingsFrom(nodeSettingsRO);
+        final RecordingMatcher<NewDataSetDTO> dataSetMatcher = new RecordingMatcher<NewDataSetDTO>();
+        final RecordingMatcher<File> fileMatcher = new RecordingMatcher<File>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(serviceFacade).getSamples(Arrays.asList("/SPACE/SAMPLE1"));
+                    will(returnValue(Arrays.asList(TestUtils.sample("T", "S", "S", "/S/P/E"))));
+
+                    one(serviceFacade).putDataSet(with(dataSetMatcher), with(fileMatcher));
+                }
+            });
+        logRecorder.resetLogContent();
+        
+        model.execute(new PortObject[] {FlowVariablePortObject.INSTANCE}, null);
+        
+        assertEquals("NewDataSetDTO[NewDataSetMetadataDTO[data set type=MY_TYPE],"
+                + "NewDataSetDTO.DataSetOwner[Sample,/SPACE/SAMPLE1],[FileInfoDssDTO[hello.txt,hello.txt,5]]]",
                 dataSetMatcher.recordedObject().toString());
         assertEquals(file.getAbsolutePath(), fileMatcher.recordedObject().getAbsolutePath());
         assertEquals("INFO  " + MockDataSetRegistrationNodeModel.class.getName() + " - data set file: "
@@ -408,7 +466,7 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
         model.execute(new PortObject[] {new URIPortObject(Arrays.asList(content))}, null);
         
         assertEquals("NewDataSetDTO[NewDataSetMetadataDTO[data set type=MY_TYPE],"
-                + "NewDataSetDTO.DataSetOwner[Data Set,DS1],[]]",
+                + "NewDataSetDTO.DataSetOwner[Data Set,DS1],[FileInfoDssDTO[hello.txt,hello.txt,5]]]",
                 dataSetMatcher.recordedObject().toString());
         assertEquals(file.getAbsolutePath(), fileMatcher.recordedObject().getAbsolutePath());
         assertEquals("INFO  " + MockDataSetRegistrationNodeModel.class.getName() + " - data set file: "
@@ -463,7 +521,7 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
         model.execute(new PortObject[] {new URIPortObject(Arrays.asList(content))}, null);
         
         assertEquals("NewDataSetDTO[NewDataSetMetadataDTO[data set type=MY_TYPE],"
-                + "NewDataSetDTO.DataSetOwner[Data Set,DS1],[]]",
+                + "NewDataSetDTO.DataSetOwner[Data Set,DS1],[FileInfoDssDTO[hello.txt,hello.txt,5]]]",
                 dataSetMatcher.recordedObject().toString());
         assertEquals(file.getAbsolutePath(), fileMatcher.recordedObject().getAbsolutePath());
         assertEquals("INFO  " + MockDataSetRegistrationNodeModel.class.getName() + " - data set file: "
@@ -471,7 +529,13 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
     
-    private void prepareOwnerAndType(final DataSetOwnerType ownerType, final String owner) throws InvalidSettingsException
+    private void prepareOwnerAndType(DataSetOwnerType ownerType, String owner) throws InvalidSettingsException
+    {
+        prepareFileVariableOwnerAndType(ownerType, owner, null);
+    }
+    
+    private void prepareFileVariableOwnerAndType(final DataSetOwnerType ownerType, final String owner, 
+            final String fileVariable) throws InvalidSettingsException
     {
         context.checking(new Expectations()
             {
@@ -481,6 +545,9 @@ public class DataSetRegistrationNodeModelTest extends AbstractFileSystemTestCase
                     
                     one(nodeSettingsRO).getString(DataSetRegistrationNodeModel.OWNER_KEY);
                     will(returnValue(owner));
+                    
+                    one(nodeSettingsRO).getString(DataSetRegistrationNodeModel.FILE_VARIABLE_KEY, null);
+                    will(returnValue(fileVariable));
                 }
             });
     }

@@ -24,6 +24,7 @@ import org.knime.core.node.NodeSettings;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.workflow.Credentials;
+import org.knime.core.node.workflow.FlowVariable;
 import org.knime.core.node.workflow.ICredentials;
 
 import ch.systemsx.cisd.openbis.knime.common.AbstractTestNodeDialog;
@@ -67,6 +68,20 @@ public class TestDataSetRegistrationNodeDialog extends AbstractTestNodeDialog
                 protected ICredentials getCredentials()
                 {
                     return new Credentials("_", "test", "a");
+                }
+
+                @Override
+                protected boolean withFileVariable()
+                {
+                    return true;
+                }
+
+                @Override
+                protected Collection<FlowVariable> getFlowVariables()
+                {
+                    return Arrays.asList(new FlowVariable("answer", 42), 
+                            new FlowVariable("fname", "here/and/there"), 
+                            new FlowVariable("file-name", "this/and/that"));
                 }
             };
     }

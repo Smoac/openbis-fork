@@ -25,6 +25,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,9 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.util.FlowVariableListCellRenderer;
+import org.knime.core.node.workflow.FlowVariable;
+import org.knime.core.node.workflow.FlowVariable.Type;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
@@ -57,8 +61,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyTypeGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator;
 import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeDialog;
-import ch.systemsx.cisd.openbis.knime.common.IOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.knime.common.EntityChooser;
+import ch.systemsx.cisd.openbis.knime.common.IOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.knime.common.Util;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 
@@ -229,6 +233,7 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
     
     private JComboBox ownerTypeComboBox;
     private JTextField ownerField;
+    private JComboBox fileVariableComboBox;
     private JComboBox dataSetTypeComboBox;
     private Map<String, JComponent> propertyFieldRepository = new HashMap<String, JComponent>();
     private Map<String, JComponent> propertyFields = new HashMap<String, JComponent>();
@@ -274,9 +279,21 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
                 .setToolTipText("Owner is the experiment/sample/data set the new data set will directly be linked to.");
         dataSetTypeComboBox = new JComboBox();
         addField(fields, "Data Set Type", dataSetTypeComboBox);
+        if (withFileVariable())
+        {
+            fileVariableComboBox = new JComboBox();
+            fileVariableComboBox.setRenderer(new FlowVariableListCellRenderer());
+            addField(fields, "File Variable", fileVariableComboBox)
+                    .setToolTipText("The flow variable storing the location of the file to be registered.");
+        }
         propertiesLabel = new JSeparator();
         fields.add(propertiesLabel, createLast());
         queryPanel.add(fields, BorderLayout.NORTH);
+    }
+    
+    protected boolean withFileVariable()
+    {
+        return false;
     }
     
     private void setOwnerToolTip()
@@ -401,6 +418,22 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
         ownerTypeComboBox.setSelectedItem(DataSetOwnerType.valueOf(settings.getString(
                 DataSetRegistrationNodeModel.OWNER_TYPE_KEY, DataSetOwnerType.EXPERIMENT.name())));
         ownerField.setText(settings.getString(DataSetRegistrationNodeModel.OWNER_KEY, ""));
+        if (fileVariableComboBox != null)
+        {
+            fileVariableComboBox.removeAllItems();
+            String fileVariable = settings.getString(DataSetRegistrationNodeModel.FILE_VARIABLE_KEY, "");
+            for (FlowVariable flowVariable : getFlowVariables())
+            {
+                if (flowVariable.getType().equals(Type.STRING))
+                {
+                    fileVariableComboBox.addItem(flowVariable);
+                    if (flowVariable.getName().equals(fileVariable))
+                    {
+                        fileVariableComboBox.setSelectedItem(flowVariable);
+                    }
+                }
+            }
+        }
         byte[] bytes = settings.getByteArray(DataSetRegistrationNodeModel.DATA_SET_TYPE_KEY, null);
         DataSetType dataSetType = Util.deserializeDescription(bytes);
         if (dataSetType != null && dataSetTypeComboBox.getItemCount() == 0)
@@ -416,6 +449,11 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
             }
         }
     }
+
+    protected Collection<FlowVariable> getFlowVariables()
+    {
+        return getAvailableFlowVariables().values();
+    }
     
     @Override
     protected void saveAdditionalSettingsTo(NodeSettingsWO settings)
@@ -425,6 +463,15 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
         settings.addString(DataSetRegistrationNodeModel.OWNER_TYPE_KEY,
                 getSelectedOwnerType().name());
         settings.addString(DataSetRegistrationNodeModel.OWNER_KEY, ownerField.getText());
+        if (fileVariableComboBox != null)
+        {
+            Object selectedItem = fileVariableComboBox.getSelectedItem();
+            if (selectedItem instanceof FlowVariable)
+            {
+                FlowVariable flowVariable = (FlowVariable) selectedItem;
+                settings.addString(DataSetRegistrationNodeModel.FILE_VARIABLE_KEY, flowVariable.getName());
+            }
+        }
         DataSetTypeAdapter dataSetTypeAdapter =
                 (DataSetTypeAdapter) dataSetTypeComboBox.getSelectedItem();
         if (dataSetTypeAdapter == null)

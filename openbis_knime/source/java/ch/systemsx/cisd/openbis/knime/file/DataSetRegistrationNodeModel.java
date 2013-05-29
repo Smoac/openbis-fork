@@ -34,6 +34,8 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
+import org.knime.core.node.port.flowvariable.FlowVariablePortObject;
+import org.knime.core.node.workflow.FlowVariable;
 
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
@@ -49,7 +51,7 @@ import ch.systemsx.cisd.openbis.knime.common.IOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.knime.common.Util;
 
 /**
- * {@link NodeModel} for registration of a file as a new data set.
+ * {@link NodeModel} for registration of a file as a new data set. The file path is expected as an {@link URIPortObject}.
  *
  * @author Franz-Josef Elmer
  */
@@ -58,18 +60,26 @@ public class DataSetRegistrationNodeModel extends AbstractOpenBisNodeModel
     static final String DATA_SET_TYPE_KEY = "data-set-type";
     static final String OWNER_TYPE_KEY = "owner-type";
     static final String OWNER_KEY = "owner";
+    static final String FILE_VARIABLE_KEY = "file-variable";
     static final String PROPERTY_TYPE_CODES_KEY = "property-type-codes";
     static final String PROPERTY_VALUES_KEY = "property-values";
     
     private final IOpenbisServiceFacadeFactory serviceFacadeFactory;
     private DataSetOwnerType ownerType;
     private String owner;
+    private String fileVariable;
     private Map<String, String> properties;
     private DataSetType dataSetType;
 
     public DataSetRegistrationNodeModel(IOpenbisServiceFacadeFactory serviceFacadeFactory)
     {
-        super(new PortType[] {new PortType(URIPortObject.class) },  new PortType[] {});
+        this(URIPortObject.class, serviceFacadeFactory);
+    }
+    
+    protected DataSetRegistrationNodeModel(Class<? extends PortObject> portObjectClass, 
+            IOpenbisServiceFacadeFactory serviceFacadeFactory)
+    {
+        super(new PortType[] {new PortType(portObjectClass) },  new PortType[] {});
         this.serviceFacadeFactory = serviceFacadeFactory;
     }
     
@@ -87,6 +97,7 @@ public class DataSetRegistrationNodeModel extends AbstractOpenBisNodeModel
         dataSetType = (DataSetType) Util.deserializeDescription(bytes);
         ownerType = DataSetOwnerType.valueOf(settings.getString(OWNER_TYPE_KEY));
         owner = settings.getString(OWNER_KEY);
+        fileVariable = settings.getString(FILE_VARIABLE_KEY, null);
         properties = getProperties(settings);
     }
 
@@ -115,6 +126,10 @@ public class DataSetRegistrationNodeModel extends AbstractOpenBisNodeModel
     @Override
     protected void saveAdditionalSettingsTo(NodeSettingsWO settings)
     {
+        if (fileVariable != null)
+        {
+            settings.addString(FILE_VARIABLE_KEY, fileVariable);
+        }
         if (dataSetType != null)
         {
             settings.addByteArray(DATA_SET_TYPE_KEY, Util.serializeDescription(dataSetType));
@@ -215,20 +230,40 @@ public class DataSetRegistrationNodeModel extends AbstractOpenBisNodeModel
             throw new IllegalArgumentException("Expecting exactly one port instead of " + inObjects.length + ".");
         }
         PortObject portObject = inObjects[0];
-        if (portObject instanceof URIPortObject == false)
+        File file;
+        if (portObject instanceof URIPortObject)
         {
-            throw new IllegalArgumentException("Expecting an URI port instead of " + portObject.getClass().getName() + ".");
-        }
-        List<URIContent> uriContents = ((URIPortObject) portObject).getURIContents();
-        if (uriContents.isEmpty())
+            List<URIContent> uriContents = ((URIPortObject) portObject).getURIContents();
+            if (uriContents.isEmpty())
+            {
+                throw new IllegalArgumentException("Expecting at least on URI in input port.");
+            }
+            if (uriContents.size() > 1)
+            {
+                logger.warn(uriContents.size() + " URIs instead of only one: " + uriContents);
+            }
+            file = new File(uriContents.get(0).getURI());
+        } else if (portObject instanceof FlowVariablePortObject)
         {
-            throw new IllegalArgumentException("Expecting at least on URI in input port.");
-        }
-        if (uriContents.size() > 1)
+            if (StringUtils.isBlank(fileVariable))
+            {
+                throw new IllegalArgumentException("Unspecified file variable.");
+            }
+            file = new File(getStringFlowVariable(fileVariable));
+        } else
         {
-            logger.warn(uriContents.size() + " URIs instead of only one: " + uriContents);
+            throw new IllegalArgumentException("Invalid port: " + portObject.getClass().getName() + ".");
         }
-        return new File(uriContents.get(0).getURI());
+        if (file.exists() == false)
+        {
+            throw new IllegalArgumentException("File does not exist: " + file);
+        }
+        return file;
+    }
+    
+    protected Map<String, FlowVariable> getFlowVariables()
+    {
+        return getAvailableFlowVariables();
     }
 
 }
