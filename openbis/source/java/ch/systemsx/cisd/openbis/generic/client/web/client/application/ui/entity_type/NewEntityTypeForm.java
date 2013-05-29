@@ -91,7 +91,7 @@ public class NewEntityTypeForm extends ContentPanel
         this.componentProvider = componentProvider;
 
         // Main panel
-        setLayout(new BorderLayout());
+        this.setLayout(new BorderLayout());
         this.setHeaderVisible(false);
         this.setBorders(false);
         this.setBodyBorder(false);
@@ -125,12 +125,13 @@ public class NewEntityTypeForm extends ContentPanel
         {
             initEditEntity();
         }
-        dialogForm.setHeaderVisible(false);
+        dialogForm.setHeaderVisible(true);
+        dialogForm.setHeading("Entity Type Information:");
         dialogForm.setBorders(false);
         dialogForm.setBodyBorder(false);
         dialogForm.setLabelWidth(180);
 
-        add(dialogForm, BorderLayoutDataFactory.create(LayoutRegion.NORTH, 350));
+        add(dialogForm, BorderLayoutDataFactory.create(LayoutRegion.NORTH, 370));
 
         // Central panel
         PropertyTypeAssignmentGrid grid = (PropertyTypeAssignmentGrid) PropertyTypeAssignmentGrid.create(
@@ -139,14 +140,37 @@ public class NewEntityTypeForm extends ContentPanel
                 newTypeWithAssigments,
                 entityToEdit != null
                 ).getComponent();
+        grid.setLayoutOnChange(true);
 
-        final Component centerPanel = grid;
-        centerPanel.setStyleAttribute("padding", "10px");
-        add(centerPanel, BorderLayoutDataFactory.create(LayoutRegion.CENTER, 170));
+        ContentPanel gridPanel = new ContentPanel();
+        gridPanel.setLayout(new BorderLayout());
+        gridPanel.setLayoutOnChange(true);
+        gridPanel.setHeaderVisible(true);
+        gridPanel.setHeading("Assigned Property Types:");
+        gridPanel.setBorders(false);
+        gridPanel.setBodyBorder(false);
+        gridPanel.add(grid, BorderLayoutDataFactory.create(LayoutRegion.CENTER, 170));
+
+        add(gridPanel, BorderLayoutDataFactory.create(LayoutRegion.CENTER, 170));
 
         // Bottom panel
-        final FormPanel bottomPanel = getSaveButton();
-        add(bottomPanel, BorderLayoutDataFactory.create(LayoutRegion.SOUTH, 70));
+        ContentPanel bottomPanel = new ContentPanel();
+        bottomPanel.setLayout(new BorderLayout());
+        bottomPanel.setLayoutOnChange(false);
+        bottomPanel.setHeaderVisible(false);
+        bottomPanel.setBorders(false);
+        bottomPanel.setBodyBorder(false);
+
+        ButtonBar buttonBar = new ButtonBar();
+        buttonBar.setMinButtonWidth(100);
+        buttonBar.setAlignment(HorizontalAlignment.RIGHT);
+
+        final Component button = getSaveButton();
+        button.setStyleAttribute("padding-right", "10px");
+        buttonBar.add(button);
+        bottomPanel.add(buttonBar, BorderLayoutDataFactory.create(LayoutRegion.EAST, 120));
+
+        add(bottomPanel, BorderLayoutDataFactory.create(LayoutRegion.SOUTH, 30));
 
         layout();
     }
@@ -307,18 +331,8 @@ public class NewEntityTypeForm extends ContentPanel
         }
     }
 
-    private FormPanel getSaveButton()
+    private Button getSaveButton()
     {
-        final FormPanel formWithButtons = new FormPanel();
-        formWithButtons.setHeaderVisible(false);
-        formWithButtons.setBorders(false);
-        formWithButtons.setBodyBorder(false);
-
-        ButtonBar buttonBar = new ButtonBar();
-        buttonBar.setMinButtonWidth(100);
-        buttonBar.setAlignment(HorizontalAlignment.RIGHT);
-        formWithButtons.add(buttonBar);
-
         final Button save = new Button("Save", new SelectionListener<ButtonEvent>()
             {
                 @Override
@@ -345,11 +359,7 @@ public class NewEntityTypeForm extends ContentPanel
                     }
                 }
             });
-        save.setWidth("100px");
-        save.setHeight("20px");
-        buttonBar.add(save);
-
-        return formWithButtons;
+        return save;
     }
 
     //
