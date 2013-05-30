@@ -516,15 +516,28 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                     addField(showRawValuesCheckBox);
 
                     // default value needs to be specified only if currently property is optional
-                    if (originalIsMandatory == false)
+                    if (originalIsMandatory)
                     {
+                        String originalRawValue = null;
+                        if (newETNewPTAssigments != null)
+                        {
+                            for (NewPTNewAssigment assigment : newETNewPTAssigments.getAssigments())
+                            {
+                                if (assigment.getAssignment().getPropertyTypeCode().equals(propertyTypeCode))
+                                {
+                                    originalRawValue = assigment.getAssignment().getDefaultValue();
+                                }
+                            }
+                        }
+
                         defaultValueField = PropertyFieldFactory.createField(
                                 etpt.getPropertyType(),
                                 false,
                                 viewContext.getMessage(Dict.DEFAULT_UPDATE_VALUE),
                                 "default_value_field",
-                                null,
+                                originalRawValue,
                                 viewContext).get();
+
                         defaultValueField.setToolTip(viewContext.getMessage(Dict.DEFAULT_UPDATE_VALUE_TOOLTIP));
                         addField(defaultValueField);
 
