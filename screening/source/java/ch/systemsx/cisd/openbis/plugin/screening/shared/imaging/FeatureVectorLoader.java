@@ -491,7 +491,7 @@ public class FeatureVectorLoader
 
         public ImgContainerDTO getContainer(ImgAnalysisDatasetDTO dataset)
         {
-            return containersByIdMap.getOrDie(dataset.getPlateId());
+            return containersByIdMap.getOrDie(dataset.getContainerId());
         }
 
         public Map<String, ImgFeatureDefDTO> getFeatureCodeToDefMap(ImgAnalysisDatasetDTO dataset)
@@ -566,7 +566,7 @@ public class FeatureVectorLoader
             int i = 0;
             for (ImgAnalysisDatasetDTO dataset : datasets)
             {
-                ids[i++] = dataset.getPlateId();
+                ids[i++] = dataset.getContainerId();
             }
             return ids;
         }

@@ -596,7 +596,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         int i = 0;
         for (ImgAnalysisDatasetDTO adto : dataSets)
         {
-            containerIds[i++] = adto.getPlateId();
+            containerIds[i++] = adto.getContainerId();
         }
 
         List<ImgContainerDTO> containers = getDAO().listContainersByIds(containerIds);

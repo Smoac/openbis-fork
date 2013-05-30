@@ -27,7 +27,7 @@ public class ImgAnalysisDatasetDTO extends AbstractImgIdentifiable
     private String permId;
 
     @ResultColumn("CONT_ID")
-    private Long plateId;
+    private Long containerId;
 
     // The field that is not (yet) in database, but is useful to have here.
     private String dataSetContainerId;
@@ -42,7 +42,7 @@ public class ImgAnalysisDatasetDTO extends AbstractImgIdentifiable
     public ImgAnalysisDatasetDTO(String permId, Long plateId)
     {
         this.permId = permId;
-        this.plateId = plateId;
+        this.containerId = plateId;
     }
 
     public String getPermId()
@@ -56,14 +56,14 @@ public class ImgAnalysisDatasetDTO extends AbstractImgIdentifiable
     }
 
     /** can be null */
-    public Long getPlateId()
+    public Long getContainerId()
     {
-        return plateId;
+        return containerId;
     }
 
-    public void setPlateId(Long plateId)
+    public void setContainerId(Long plateId)
     {
-        this.plateId = plateId;
+        this.containerId = plateId;
     }
 
     public String getDataSetContainerId()
