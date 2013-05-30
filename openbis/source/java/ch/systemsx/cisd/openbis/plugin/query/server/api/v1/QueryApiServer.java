@@ -183,6 +183,14 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
     }
 
     @Override
+    public QueryTableModel createReportFromDataSets(String sessionToken, String serviceKey,
+            List<String> dataSetCodes)
+    {
+        return translate(commonServer.createReportFromDatasets(sessionToken, serviceKey,
+                dataSetCodes));
+    }
+
+    @Override
     public List<AggregationServiceDescription> listAggregationServices(String sessionToken)
     {
         checkSession(sessionToken);
@@ -235,7 +243,7 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
     @Override
     public int getMinorVersion()
     {
-        return 5;
+        return 6;
     }
 
     private QueryTableModel translate(TableModel result)

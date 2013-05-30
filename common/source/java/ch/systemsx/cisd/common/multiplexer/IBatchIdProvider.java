@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.screening.shared.api.internal;
-
-import java.util.List;
-
-import ch.systemsx.cisd.common.multiplexer.BatchesResults;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
+package ch.systemsx.cisd.common.multiplexer;
 
 /**
  * @author pkupczyk
  */
-public interface IDssServiceRpcScreeningMultiplexer
+public interface IBatchIdProvider<O, I>
 {
 
-    public <O extends IDatasetIdentifier, R> BatchesResults<R> process(
-            final List<? extends O> objects,
-            final IDssServiceRpcScreeningBatchHandler<O, R> batchHandler);
+    public I getBatchId(O object);
+
 }

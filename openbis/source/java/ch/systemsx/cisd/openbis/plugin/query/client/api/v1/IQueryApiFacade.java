@@ -66,6 +66,15 @@ public interface IQueryApiFacade
             List<String> dataSetCodes);
 
     /**
+     * Creates for the specified data sets and specified report key a report. It groups the data
+     * sets by a data store and creates a report for each group of objects on appropriate data store
+     * server. Results from the data stores are combined and returned as a result of this method.
+     * Available report keys can be obtained by {@link #listTableReportDescriptions()}.
+     */
+    @Retry
+    public QueryTableModel createReportFromDataSets(String reportKey, List<String> dataSetCodes);
+
+    /**
      * Returns a remote access to the {@link IGeneralInformationService}.
      */
     @Retry

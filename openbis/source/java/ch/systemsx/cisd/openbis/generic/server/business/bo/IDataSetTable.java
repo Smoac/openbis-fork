@@ -132,6 +132,14 @@ public interface IDataSetTable
             List<String> datasetCodes);
 
     /**
+     * Creates a report from specified datasets using the specified datastore service. It groups the
+     * data sets by a data store and creates a report for each group of objects on appropriate data
+     * store server. Results from the data stores are combined and returned as a result of this
+     * method.
+     */
+    TableModel createReportFromDatasets(String datastoreServiceKey, List<String> datasetCodes);
+
+    /**
      * Schedules processing of specified datasets with specified parameter bindings using the
      * specified datastore service.
      * 

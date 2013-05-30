@@ -22,7 +22,7 @@ import java.util.Arrays;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.DssServiceRpcScreeningBatchResults;
+import ch.systemsx.cisd.common.multiplexer.BatchesResults;
 
 /**
  * @author pkupczyk
@@ -33,10 +33,9 @@ public class DssServiceRpcScreeningBatchResultsTest extends AssertJUnit
     @Test
     public void testNullResults()
     {
-        DssServiceRpcScreeningBatchResults<String> results =
-                new DssServiceRpcScreeningBatchResults<String>();
-        results.addDataStoreResults("dss1", null);
-        results.addDataStoreResults("dss2", null);
+        BatchesResults<String> results = new BatchesResults<String>();
+        results.addBatchResults(null);
+        results.addBatchResults(null);
 
         assertTrue(results.withDuplicates().isEmpty());
         assertTrue(results.withoutDuplicates().isEmpty());
@@ -45,10 +44,9 @@ public class DssServiceRpcScreeningBatchResultsTest extends AssertJUnit
     @Test
     public void testEmptyResults()
     {
-        DssServiceRpcScreeningBatchResults<String> results =
-                new DssServiceRpcScreeningBatchResults<String>();
-        results.addDataStoreResults("dss1", new ArrayList<String>());
-        results.addDataStoreResults("dss2", new ArrayList<String>());
+        BatchesResults<String> results = new BatchesResults<String>();
+        results.addBatchResults(new ArrayList<String>());
+        results.addBatchResults(new ArrayList<String>());
 
         assertTrue(results.withDuplicates().isEmpty());
         assertTrue(results.withoutDuplicates().isEmpty());
@@ -57,10 +55,9 @@ public class DssServiceRpcScreeningBatchResultsTest extends AssertJUnit
     @Test
     public void testNotEmptyResults()
     {
-        DssServiceRpcScreeningBatchResults<String> results =
-                new DssServiceRpcScreeningBatchResults<String>();
-        results.addDataStoreResults("dss1", Arrays.asList("a", "c", "e"));
-        results.addDataStoreResults("dss2", Arrays.asList("c", "d"));
+        BatchesResults<String> results = new BatchesResults<String>();
+        results.addBatchResults(Arrays.asList("a", "c", "e"));
+        results.addBatchResults(Arrays.asList("c", "d"));
 
         assertEquals(Arrays.asList("a", "c", "e", "c", "d"), results.withDuplicates());
         assertEquals(Arrays.asList("a", "c", "e", "d"), results.withoutDuplicates());

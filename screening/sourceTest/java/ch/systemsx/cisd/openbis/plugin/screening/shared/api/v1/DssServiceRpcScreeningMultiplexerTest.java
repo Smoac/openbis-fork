@@ -33,11 +33,12 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.concurrent.MessageChannelBuilder;
+import ch.systemsx.cisd.common.multiplexer.IMultiplexer;
+import ch.systemsx.cisd.common.multiplexer.ThreadPoolMultiplexer;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.DssServiceRpcScreeningHolder;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.DssServiceRpcScreeningMultiplexer;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.IDssServiceRpcScreeningBatchHandler;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.IDssServiceRpcScreeningFactory;
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.IDssServiceRpcScreeningMultiplexer;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
@@ -76,7 +77,9 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
 
     private MessageChannel channel2;
 
-    private IDssServiceRpcScreeningMultiplexer multiplexer;
+    private IMultiplexer multiplexer;
+
+    private DssServiceRpcScreeningMultiplexer dssMultiplexer;
 
     @SuppressWarnings("unchecked")
     @BeforeMethod
@@ -103,7 +106,8 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
         channel1 = new MessageChannelBuilder(1000).getChannel();
         channel2 = new MessageChannelBuilder(1000).getChannel();
 
-        multiplexer = new DssServiceRpcScreeningMultiplexer(serviceFactory);
+        multiplexer = new ThreadPoolMultiplexer("dss-screening-multiplexer-test");
+        dssMultiplexer = new DssServiceRpcScreeningMultiplexer(multiplexer, serviceFactory);
     }
 
     @AfterMethod
@@ -216,7 +220,7 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
     @Test
     public void testWithNullReferenceLists()
     {
-        List<String> results = multiplexer.process(null, batchHandler).withDuplicates();
+        List<String> results = dssMultiplexer.process(null, batchHandler).withDuplicates();
         assertTrue(results.isEmpty());
     }
 
@@ -224,7 +228,7 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
     public void testWithEmptyReferenceLists()
     {
         List<String> results =
-                multiplexer.process(new ArrayList<IDatasetIdentifier>(), batchHandler)
+                dssMultiplexer.process(new ArrayList<IDatasetIdentifier>(), batchHandler)
                         .withDuplicates();
         assertTrue(results.isEmpty());
     }
@@ -331,7 +335,7 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
                 }
             });
 
-        return multiplexer.process(allDatasets, batchHandler).withDuplicates();
+        return dssMultiplexer.process(allDatasets, batchHandler).withDuplicates();
     }
 
 }

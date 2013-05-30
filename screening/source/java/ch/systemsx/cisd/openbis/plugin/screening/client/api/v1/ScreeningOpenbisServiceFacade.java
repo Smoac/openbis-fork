@@ -28,6 +28,8 @@ import ch.systemsx.cisd.common.api.retry.RetryProxyFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
+import ch.systemsx.cisd.common.multiplexer.IMultiplexer;
+import ch.systemsx.cisd.common.multiplexer.ThreadPoolMultiplexer;
 import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
@@ -280,7 +282,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 }
             };
 
-        dssMultiplexer = new DssServiceRpcScreeningMultiplexer(dssServiceCache);
+        IMultiplexer multiplexer = new ThreadPoolMultiplexer("screening-facade-multiplexer");
+        dssMultiplexer = new DssServiceRpcScreeningMultiplexer(multiplexer, dssServiceCache);
     }
 
     /**

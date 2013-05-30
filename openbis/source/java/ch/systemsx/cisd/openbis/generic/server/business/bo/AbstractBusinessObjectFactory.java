@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import javax.annotation.Resource;
 
+import ch.systemsx.cisd.common.multiplexer.IMultiplexer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
@@ -52,6 +53,8 @@ public abstract class AbstractBusinessObjectFactory
 
     private final IEntityResolverQuery entityResolver;
 
+    private IMultiplexer multiplexer;
+
     protected AbstractBusinessObjectFactory()
     {
         this.entityResolver = EntityResolverQueryFactory.create();
@@ -61,7 +64,8 @@ public abstract class AbstractBusinessObjectFactory
             IDataStoreServiceFactory dssFactory, IRelationshipService relationshipService,
             IEntityOperationChecker entityOperationChecker,
             IServiceConversationClientManagerLocal conversationClient,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            IMultiplexer multiplexer)
     {
         this();
         this.daoFactory = daoFactory;
@@ -70,6 +74,7 @@ public abstract class AbstractBusinessObjectFactory
         this.entityOperationChecker = entityOperationChecker;
         this.conversationClient = conversationClient;
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
+        this.multiplexer = multiplexer;
     }
 
     protected final IDAOFactory getDaoFactory()
@@ -108,6 +113,11 @@ public abstract class AbstractBusinessObjectFactory
     public IEntityResolverQuery getEntityResolver()
     {
         return entityResolver;
+    }
+
+    protected IMultiplexer getMultiplexer()
+    {
+        return multiplexer;
     }
 
 }

@@ -14,19 +14,36 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.screening.shared.api.internal;
+package ch.systemsx.cisd.common.multiplexer;
 
 import java.util.List;
 
 /**
  * @author pkupczyk
  */
-public interface IDssServiceRpcScreeningBatchResults<T>
+public class Batch<O, I> implements IBatch<O, I>
 {
 
-    public List<T> withDuplicates();
+    private I id;
 
-    public List<T> withoutDuplicates();
+    private List<O> objects;
 
-    public List<T> withoutDuplicatesPreservingOrder();
+    public Batch(I id, List<O> objects)
+    {
+        this.id = id;
+        this.objects = objects;
+    }
+
+    @Override
+    public I getId()
+    {
+        return id;
+    }
+
+    @Override
+    public List<O> getObjects()
+    {
+        return objects;
+    }
+
 }

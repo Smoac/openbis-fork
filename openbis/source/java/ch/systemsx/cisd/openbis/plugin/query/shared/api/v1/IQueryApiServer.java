@@ -95,6 +95,19 @@ public interface IQueryApiServer extends IRpcService
             String serviceKey, List<String> dataSetCodes);
 
     /**
+     * Creates for the specified data sets a report. It groups the data sets by a data store and
+     * creates a report for each group of objects on appropriate data store server. Results from the
+     * data stores are combined and returned as a result of this method. Available report keys can
+     * be obtained by {@link #listTableReportDescriptions(String)}.
+     * 
+     * @param serviceKey Key of the data store service.
+     * @since 1.6
+     */
+    @Transactional(readOnly = true)
+    public QueryTableModel createReportFromDataSets(String sessionToken, String serviceKey,
+            List<String> dataSetCodes);
+
+    /**
      * Returns metadata for all aggregation and ingestion services.
      * 
      * @since 1.3

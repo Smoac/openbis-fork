@@ -14,27 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.screening.shared.api.internal;
+package ch.systemsx.cisd.common.multiplexer;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
  * @author pkupczyk
  */
-public class DssServiceRpcScreeningBatchResults<T> implements
-        IDssServiceRpcScreeningBatchResults<T>
+public class BatchesResults<T> implements IBatchesResults<T>
 {
 
-    private Map<String, List<T>> dssResultsMap = new LinkedHashMap<String, List<T>>();
+    private List<List<T>> batchesResults = new ArrayList<List<T>>();
 
-    public void addDataStoreResults(String dssUrl, List<T> dssResults)
+    public void addBatchResults(List<T> results)
     {
-        dssResultsMap.put(dssUrl, dssResults);
+        batchesResults.add(results);
     }
 
     @Override
@@ -42,11 +39,11 @@ public class DssServiceRpcScreeningBatchResults<T> implements
     {
         List<T> results = new ArrayList<T>();
 
-        for (List<T> dssResults : dssResultsMap.values())
+        for (List<T> batchResults : batchesResults)
         {
-            if (dssResults != null)
+            if (batchResults != null)
             {
-                results.addAll(dssResults);
+                results.addAll(batchResults);
             }
         }
 
@@ -58,11 +55,11 @@ public class DssServiceRpcScreeningBatchResults<T> implements
     {
         Set<T> results = new LinkedHashSet<T>();
 
-        for (List<T> dssResults : dssResultsMap.values())
+        for (List<T> batchResults : batchesResults)
         {
-            if (dssResults != null)
+            if (batchResults != null)
             {
-                results.addAll(dssResults);
+                results.addAll(batchResults);
             }
         }
 
@@ -74,15 +71,15 @@ public class DssServiceRpcScreeningBatchResults<T> implements
     {
         List<T> results = new ArrayList<T>();
 
-        for (List<T> dssResults : dssResultsMap.values())
+        for (List<T> batchResults : batchesResults)
         {
-            if (dssResults != null)
+            if (batchResults != null)
             {
-                for (T result : dssResults)
+                for (T batchResult : batchResults)
                 {
-                    if (results.contains(result) == false)
+                    if (results.contains(batchResult) == false)
                     {
-                        results.add(result);
+                        results.add(batchResult);
                     }
                 }
             }

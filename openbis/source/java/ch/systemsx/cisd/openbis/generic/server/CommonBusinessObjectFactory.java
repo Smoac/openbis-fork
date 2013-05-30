@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import ch.systemsx.cisd.common.multiplexer.IMultiplexer;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
@@ -102,10 +103,11 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
             IRelationshipService relationshipService,
             IEntityOperationChecker entityOperationChecker,
             IServiceConversationClientManagerLocal conversationClient,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            IMultiplexer multiplexer)
     {
         super(daoFactory, dssFactory, relationshipService, entityOperationChecker,
-                conversationClient, managedPropertyEvaluatorFactory);
+                conversationClient, managedPropertyEvaluatorFactory, multiplexer);
     }
 
     @Override
@@ -192,7 +194,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     {
         return new DataSetTable(getDaoFactory(), getDSSFactory(), session,
                 getRelationshipService(), getConversationClient(),
-                getManagedPropertyEvaluatorFactory());
+                getManagedPropertyEvaluatorFactory(), getMultiplexer());
     }
 
     @Override

@@ -41,6 +41,11 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.multiplexer.BatchesResults;
+import ch.systemsx.cisd.common.multiplexer.IBatch;
+import ch.systemsx.cisd.common.multiplexer.IBatchHandler;
+import ch.systemsx.cisd.common.multiplexer.IBatchIdProvider;
+import ch.systemsx.cisd.common.multiplexer.IMultiplexer;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
@@ -52,10 +57,10 @@ import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -195,16 +200,20 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
 
     private final IDataStoreServiceFactory dssFactory;
 
+    private final IMultiplexer multiplexer;
+
     private List<DataPE> dataSets;
 
     public DataSetTable(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
             Session session, IRelationshipService relationshipService,
             IServiceConversationClientManagerLocal conversationClient,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            IMultiplexer multiplexer)
     {
         super(daoFactory, session, relationshipService, conversationClient,
                 managedPropertyEvaluatorFactory);
         this.dssFactory = dssFactory;
+        this.multiplexer = multiplexer;
     }
 
     //
@@ -531,6 +540,53 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         String userSessionToken = session.getSessionToken();
         return service.createReportFromDatasets(sessionToken, userSessionToken,
                 datastoreServiceKey, locations, tryGetLoggedUserId(), tryGetLoggedUserEmail());
+    }
+
+    @Override
+    public TableModel createReportFromDatasets(final String datastoreServiceKey,
+            final List<String> datasetCodes)
+    {
+        List<DatasetDescription> locations = loadAvailableDatasetDescriptions(datasetCodes);
+
+        IBatchIdProvider<DatasetDescription, String> batchIdProvider =
+                new IBatchIdProvider<DatasetDescription, String>()
+                    {
+                        @Override
+                        public String getBatchId(DatasetDescription object)
+                        {
+                            return object.getDataStoreCode();
+                        }
+                    };
+
+        IBatchHandler<DatasetDescription, String, TableModel> batchHandler =
+                new IBatchHandler<DatasetDescription, String, TableModel>()
+                    {
+                        @Override
+                        public List<TableModel> handleBatch(IBatch<DatasetDescription, String> batch)
+                        {
+                            DataStorePE dataStore = findDataStore(batch.getId());
+                            String sessionToken = session.getSessionToken();
+                            String storeSessionToken = dataStore.getSessionToken();
+
+                            IDataStoreService service =
+                                    getConversationClient().getDataStoreService(
+                                            dataStore.getRemoteUrl(), sessionToken);
+
+                            TableModel tableModel =
+                                    service.createReportFromDatasets(storeSessionToken,
+                                            sessionToken, datastoreServiceKey, batch.getObjects(),
+                                            tryGetLoggedUserId(), tryGetLoggedUserEmail());
+
+                            return Collections.singletonList(tableModel);
+                        }
+                    };
+
+        BatchesResults<TableModel> batchesResults =
+                multiplexer.process(locations, batchIdProvider, batchHandler);
+        List<TableModel> tableModels = batchesResults.withDuplicates();
+
+        // TODO combine results
+        return tableModels.get(0);
     }
 
     private List<DatasetDescription> loadAvailableDatasetDescriptions(List<String> dataSetCodes)
