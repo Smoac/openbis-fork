@@ -1171,7 +1171,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(materialTable).getMaterials();
                     will(returnValue(Arrays.asList(material)));
 
-                    one(entityOperationChecker).assertExperimentCreationAllowed(userSession,
+                    allowing(entityOperationChecker).assertExperimentCreationAllowed(userSession,
                             Collections.<NewExperiment> emptyList());
 
                     List<NewSample> sampleList = Arrays.asList(newSample);
