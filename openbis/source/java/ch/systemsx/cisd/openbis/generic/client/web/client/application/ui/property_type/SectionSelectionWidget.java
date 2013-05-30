@@ -41,7 +41,7 @@ public final class SectionSelectionWidget extends SimpleComboBox<String>
 {
     public static SectionSelectionWidget create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            List<EntityTypePropertyType<?>> etpts)
+            List<? extends EntityTypePropertyType<?>> etpts)
     {
         final Set<String> sections = new LinkedHashSet<String>(); // linked set preserves order
         for (EntityTypePropertyType<?> currentETPT : etpts)

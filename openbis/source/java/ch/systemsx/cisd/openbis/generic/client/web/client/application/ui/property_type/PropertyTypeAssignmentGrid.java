@@ -461,15 +461,14 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                                             initFields(etpts);
                                         } else
                                         {
-                                            List dirtyfix = newTypeWithAssigments.getEntity().getAssignedPropertyTypes();
-                                            initFields(dirtyfix);
+                                            initFields(newTypeWithAssigments.getEntity().getAssignedPropertyTypes());
                                         }
                                         isLoaded = true;
                                     }
                                 });
                 }
 
-                private void initFields(List<EntityTypePropertyType<?>> etpts)
+                private void initFields(List<? extends EntityTypePropertyType<?>> etpts)
                 {
                     // Code Field
                     if (newETNewPTAssigments != null && newETNewPTAssigments.isNewPropertyType(etpt.getPropertyType().getCode()))
@@ -559,13 +558,13 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
                 }
 
                 private SectionSelectionWidget createSectionSelectionWidget(
-                        List<EntityTypePropertyType<?>> etpts)
+                        List<? extends EntityTypePropertyType<?>> etpts)
                 {
                     return SectionSelectionWidget.create(viewContext, etpts);
                 }
 
                 private EntityTypePropertyTypeSelectionWidget createETPTSelectionWidget(
-                        List<EntityTypePropertyType<?>> allETPTs)
+                        List<? extends EntityTypePropertyType<?>> allETPTs)
                 {
                     // create a new list of items from all etpts assigned to entity type
                     final List<EntityTypePropertyType<?>> etpts = new ArrayList<EntityTypePropertyType<?>>();
