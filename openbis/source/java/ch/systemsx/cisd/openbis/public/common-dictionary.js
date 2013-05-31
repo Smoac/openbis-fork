@@ -395,7 +395,7 @@ var common = {
   vocabulary_show_available_terms_in_choosers: "Show available terms in choosers",
   missing_vocabulary_terms: "Missing vocabulary term.",
   section_tooltip: "The name of the section in which the assigned property should appear in entity registration and edition forms.",
-  default_value: "Migration Value (for existing entities)",
+  default_value: "Initial Value (for existing entities)",
   default_value_tooltip: "The value of the assigned property for all currently existing entities.",
   entity_type_assignments: "{0} Type Assignment{1}",
   xml_schema: "XML Schema",
