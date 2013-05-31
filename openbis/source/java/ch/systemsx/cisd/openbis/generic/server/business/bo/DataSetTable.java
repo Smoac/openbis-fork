@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -505,6 +506,61 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         parameterBindings.put(Constants.USER_PARAMETER, session.tryGetPerson().getUserId());
         service.processDatasets(sessionToken, userSessionToken, datastoreServiceKey, locations,
                 parameterBindings, tryGetLoggedUserId(), tryGetLoggedUserEmail());
+    }
+
+    @Override
+    public void processDatasets(final String datastoreServiceKey, final List<String> datasetCodes, final Map<String, String> parameterBindings)
+    {
+
+        final List<DatasetDescription> locations = loadAvailableDatasetDescriptions(datasetCodes);
+
+        IBatchIdProvider<DatasetDescription, String> batchIdProvider =
+                new IBatchIdProvider<DatasetDescription, String>()
+                    {
+                        @Override
+                        public String getBatchId(DatasetDescription object)
+                        {
+                            return object.getDataStoreCode();
+                        }
+                    };
+
+        IBatchHandler<DatasetDescription, String, Void> batchHandler =
+                new BatchHandlerAbstract<DatasetDescription, String, Void>()
+                    {
+                        @Override
+                        public void validateBatch(IBatch<DatasetDescription, String> batch)
+                        {
+                            DataStorePE dataStore = findDataStore(batch.getId());
+                            Set<DataStoreServicePE> services = dataStore.getServices();
+
+                            for (DataStoreServicePE service : services)
+                            {
+                                if (service.getKey().equals(datastoreServiceKey) && service.getKind().equals(DataStoreServiceKind.PROCESSING))
+                                {
+                                    return;
+                                }
+                            }
+
+                            throw new UserFailureException("Data store '" + batch.getId() + "' does not have '" + datastoreServiceKey
+                                    + "' processing plugin configured.");
+                        }
+
+                        @Override
+                        public List<Void> processBatch(IBatch<DatasetDescription, String> batch)
+                        {
+                            DataStorePE dataStore = findDataStore(batch.getId());
+                            String sessionToken = dataStore.getSessionToken();
+                            String userSessionToken = session.getSessionToken();
+                            IDataStoreService service = tryGetDataStoreService(dataStore);
+                            parameterBindings.put(Constants.USER_PARAMETER, session.tryGetPerson().getUserId());
+                            service.processDatasets(sessionToken, userSessionToken, datastoreServiceKey, batch.getObjects(),
+                                    parameterBindings, tryGetLoggedUserId(), tryGetLoggedUserEmail());
+                            return Collections.emptyList();
+                        }
+                    };
+
+        multiplexer.process(locations, batchIdProvider, batchHandler);
+
     }
 
     private String tryGetLoggedUserEmail()

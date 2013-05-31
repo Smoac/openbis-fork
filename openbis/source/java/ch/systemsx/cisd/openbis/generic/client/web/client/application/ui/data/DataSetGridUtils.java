@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -127,9 +130,21 @@ public class DataSetGridUtils
         {
             if (result.isEmpty() == false)
             {
+                List<DatastoreServiceDescription> filtered = new ArrayList<DatastoreServiceDescription>();
+                Set<String> keys = new HashSet<String>();
+
+                for (DatastoreServiceDescription desc : result)
+                {
+                    if (keys.contains(desc.getKey()) == false)
+                    {
+                        filtered.add(desc);
+                        keys.add(desc.getKey());
+                    }
+                }
+
                 DataSetProcessingMenu menu =
                         new DataSetProcessingMenu(viewContext.getCommonViewContext(),
-                                browser.getSelectedAndDisplayedItemsAction(), result);
+                                browser.getSelectedAndDisplayedItemsAction(), filtered);
                 action.addProcessingPlugins(menu);
             }
         }

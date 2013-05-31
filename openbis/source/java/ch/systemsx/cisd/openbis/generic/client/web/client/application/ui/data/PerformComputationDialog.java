@@ -37,10 +37,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 class PerformComputationDialog extends AbstractDataConfirmationDialog<ComputationData>
 {
@@ -115,19 +115,9 @@ class PerformComputationDialog extends AbstractDataConfirmationDialog<Computatio
                     msgIntroduction, computationName);
         } else
         {
-            if (isSingleDatastore())
-            {
-                return viewContext.getMessage(
-                        Dict.PERFORM_COMPUTATION_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE,
-                        computationName, size);
-            } else
-            {
-                final String msgIntroduction =
-                        viewContext.getMessage(Dict.DATASETS_FROM_DIFFERENT_STORES_SELECTED);
-                return viewContext.getMessage(
-                        Dict.PERFORM_COMPUTATION_ON_ALL_DATASETS_MSG_TEMPLATE, msgIntroduction,
-                        computationName);
-            }
+            return viewContext.getMessage(
+                    Dict.PERFORM_COMPUTATION_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE,
+                    computationName, size);
         }
     }
 

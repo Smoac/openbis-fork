@@ -3189,8 +3189,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Session session = getSession(sessionToken);
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
         Map<String, String> parameterBindings = new HashMap<String, String>();
-        dataSetTable.processDatasets(serviceDescription.getKey(),
-                serviceDescription.getDatastoreCode(), datasetCodes, parameterBindings);
+        dataSetTable.processDatasets(serviceDescription.getKey(), datasetCodes, parameterBindings);
     }
 
     @Override
