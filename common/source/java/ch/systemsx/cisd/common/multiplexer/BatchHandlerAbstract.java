@@ -16,14 +16,15 @@
 
 package ch.systemsx.cisd.common.multiplexer;
 
-import java.util.List;
-
 /**
  * @author pkupczyk
  */
-public interface IBatchHandler<O, I, R>
+public abstract class BatchHandlerAbstract<O, I, R> implements IBatchHandler<O, I, R>
 {
-    public void validateBatch(IBatch<O, I> batch);
 
-    public List<R> processBatch(IBatch<O, I> batch);
+    @Override
+    public void validateBatch(IBatch<O, I> batch)
+    {
+    }
+
 }

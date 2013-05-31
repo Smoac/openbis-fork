@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.screening.shared.api.internal;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.common.multiplexer.BatchHandlerAbstract;
 import ch.systemsx.cisd.common.multiplexer.BatchesResults;
 import ch.systemsx.cisd.common.multiplexer.IBatch;
 import ch.systemsx.cisd.common.multiplexer.IBatchHandler;
@@ -65,10 +66,10 @@ public class DssServiceRpcScreeningMultiplexer implements IDssServiceRpcScreenin
                 }
             };
 
-        IBatchHandler<O, String, R> batchHandler = new IBatchHandler<O, String, R>()
+        IBatchHandler<O, String, R> batchHandler = new BatchHandlerAbstract<O, String, R>()
             {
                 @Override
-                public List<R> handleBatch(IBatch<O, String> batch)
+                public List<R> processBatch(IBatch<O, String> batch)
                 {
                     DssServiceRpcScreeningHolder dssService =
                             dssServiceFactory.createDssService(batch.getId());

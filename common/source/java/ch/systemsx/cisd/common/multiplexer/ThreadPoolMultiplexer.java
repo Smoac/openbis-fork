@@ -44,7 +44,8 @@ public class ThreadPoolMultiplexer implements IMultiplexer
             final IBatchIdProvider<O, I> batchIdProvider, final IBatchHandler<O, I, R> batchHandler)
     {
         List<IBatch<O, I>> batches = createBatches(objects, batchIdProvider);
-        List<ITerminableFuture<List<R>>> futures = handleBatches(batches, batchHandler);
+        validateBatches(batches, batchHandler);
+        List<ITerminableFuture<List<R>>> futures = submitBatches(batches, batchHandler);
         return gatherResults(futures);
     }
 
@@ -94,7 +95,16 @@ public class ThreadPoolMultiplexer implements IMultiplexer
         return batchIdToObjectsMap;
     }
 
-    private <O, I, R> List<ITerminableFuture<List<R>>> handleBatches(
+    private <O, I, R> void validateBatches(
+            final List<IBatch<O, I>> batches, final IBatchHandler<O, I, R> batchHandler)
+    {
+        for (final IBatch<O, I> batch : batches)
+        {
+            batchHandler.validateBatch(batch);
+        }
+    }
+
+    private <O, I, R> List<ITerminableFuture<List<R>>> submitBatches(
             final List<IBatch<O, I>> batches, final IBatchHandler<O, I, R> batchHandler)
     {
         List<ITerminableFuture<List<R>>> futures = new ArrayList<ITerminableFuture<List<R>>>();
@@ -110,7 +120,7 @@ public class ThreadPoolMultiplexer implements IMultiplexer
                             public List<R> call(IStoppableExecutor<List<R>> stoppableExecutor)
                                     throws Exception
                             {
-                                return batchHandler.handleBatch(batch);
+                                return batchHandler.processBatch(batch);
                             }
 
                             @Override

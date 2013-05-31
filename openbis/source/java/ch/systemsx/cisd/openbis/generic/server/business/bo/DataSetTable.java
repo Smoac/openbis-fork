@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.multiplexer.BatchHandlerAbstract;
 import ch.systemsx.cisd.common.multiplexer.BatchesResults;
 import ch.systemsx.cisd.common.multiplexer.IBatch;
 import ch.systemsx.cisd.common.multiplexer.IBatchHandler;
@@ -56,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEve
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
@@ -68,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -559,10 +562,28 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                     };
 
         IBatchHandler<DatasetDescription, String, TableModel> batchHandler =
-                new IBatchHandler<DatasetDescription, String, TableModel>()
+                new BatchHandlerAbstract<DatasetDescription, String, TableModel>()
                     {
                         @Override
-                        public List<TableModel> handleBatch(IBatch<DatasetDescription, String> batch)
+                        public void validateBatch(IBatch<DatasetDescription, String> batch)
+                        {
+                            DataStorePE dataStore = findDataStore(batch.getId());
+                            Set<DataStoreServicePE> services = dataStore.getServices();
+
+                            for (DataStoreServicePE service : services)
+                            {
+                                if (service.getKey().equals(datastoreServiceKey) && service.isTableReport())
+                                {
+                                    return;
+                                }
+                            }
+
+                            throw new UserFailureException("Data store '" + batch.getId() + "' does not have '" + datastoreServiceKey
+                                    + "' report configured.");
+                        }
+
+                        @Override
+                        public List<TableModel> processBatch(IBatch<DatasetDescription, String> batch)
                         {
                             DataStorePE dataStore = findDataStore(batch.getId());
                             String sessionToken = session.getSessionToken();
@@ -583,10 +604,13 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
 
         BatchesResults<TableModel> batchesResults =
                 multiplexer.process(locations, batchIdProvider, batchHandler);
-        List<TableModel> tableModels = batchesResults.withDuplicates();
 
-        // TODO combine results
-        return tableModels.get(0);
+        TableModelAppender tableModelAppender = new TableModelAppender();
+        for (TableModel tableModel : batchesResults.withDuplicates())
+        {
+            tableModelAppender.append(tableModel);
+        }
+        return tableModelAppender.toTableModel();
     }
 
     private List<DatasetDescription> loadAvailableDatasetDescriptions(List<String> dataSetCodes)

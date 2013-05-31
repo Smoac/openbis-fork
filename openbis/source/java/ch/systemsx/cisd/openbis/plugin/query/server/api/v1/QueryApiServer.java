@@ -146,12 +146,7 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
         {
             for (DataStoreServicePE service : dataStore.getServices())
             {
-                boolean reportingService = service.getKind() == DataStoreServiceKind.QUERIES;
-                ReportingPluginType reportingPluginType = service.getReportingPluginTypeOrNull();
-                boolean tableReport =
-                        reportingPluginType != null
-                                && reportingPluginType == ReportingPluginType.TABLE_MODEL;
-                if (reportingService && tableReport)
+                if (service.isTableReport())
                 {
                     ReportDescription info = new ReportDescription();
                     info.setKey(service.getKey());
