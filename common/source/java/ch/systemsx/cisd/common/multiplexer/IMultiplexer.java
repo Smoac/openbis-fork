@@ -24,7 +24,7 @@ import java.util.List;
 public interface IMultiplexer
 {
 
-    public <O, I, R> BatchesResults<R> process(final List<? extends O> objects,
+    public <O, I, R> BatchesResults<I, R> process(final List<? extends O> objects,
             final IBatchIdProvider<O, I> batchIdProvider, final IBatchHandler<O, I, R> batchHandler);
 
 }

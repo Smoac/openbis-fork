@@ -53,7 +53,7 @@ public class DssServiceRpcScreeningMultiplexer implements IDssServiceRpcScreenin
     }
 
     @Override
-    public <O extends IDatasetIdentifier, R> BatchesResults<R> process(
+    public <O extends IDatasetIdentifier, R> BatchesResults<String, R> process(
             final List<? extends O> objects,
             final IDssServiceRpcScreeningBatchHandler<O, R> screeningBatchHandler)
     {

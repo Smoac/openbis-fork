@@ -17,33 +17,40 @@
 package ch.systemsx.cisd.common.multiplexer;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author pkupczyk
  */
-public class BatchesResults<T> implements IBatchesResults<T>
+public class BatchesResults<I, R> implements IBatchesResults<I, R>
 {
 
-    private List<List<T>> batchesResults = new ArrayList<List<T>>();
+    private List<IBatchResults<I, R>> batchesResults = new ArrayList<IBatchResults<I, R>>();
 
-    public void addBatchResults(List<T> results)
+    public void addBatchResults(IBatchResults<I, R> batchResults)
     {
-        batchesResults.add(results);
+        if (batchResults != null)
+        {
+            batchesResults.add(batchResults);
+        }
     }
 
     @Override
-    public List<T> withDuplicates()
+    public List<IBatchResults<I, R>> getBatchResults()
     {
-        List<T> results = new ArrayList<T>();
+        return batchesResults;
+    }
 
-        for (List<T> batchResults : batchesResults)
+    @Override
+    public List<R> getMergedBatchResultsWithDuplicates()
+    {
+        List<R> results = new ArrayList<R>();
+
+        for (IBatchResults<I, R> batchResults : batchesResults)
         {
-            if (batchResults != null)
+            if (batchResults.getResults() != null)
             {
-                results.addAll(batchResults);
+                results.addAll(batchResults.getResults());
             }
         }
 
@@ -51,31 +58,15 @@ public class BatchesResults<T> implements IBatchesResults<T>
     }
 
     @Override
-    public List<T> withoutDuplicates()
+    public List<R> getMergedBatchResultsWithoutDuplicates()
     {
-        Set<T> results = new LinkedHashSet<T>();
+        List<R> results = new ArrayList<R>();
 
-        for (List<T> batchResults : batchesResults)
+        for (IBatchResults<I, R> batchResults : batchesResults)
         {
-            if (batchResults != null)
+            if (batchResults.getResults() != null)
             {
-                results.addAll(batchResults);
-            }
-        }
-
-        return new ArrayList<T>(results);
-    }
-
-    @Override
-    public List<T> withoutDuplicatesPreservingOrder()
-    {
-        List<T> results = new ArrayList<T>();
-
-        for (List<T> batchResults : batchesResults)
-        {
-            if (batchResults != null)
-            {
-                for (T batchResult : batchResults)
+                for (R batchResult : batchResults.getResults())
                 {
                     if (results.contains(batchResult) == false)
                     {

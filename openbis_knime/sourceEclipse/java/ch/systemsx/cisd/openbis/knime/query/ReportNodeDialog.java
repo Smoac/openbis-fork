@@ -24,7 +24,9 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -51,13 +53,12 @@ import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportDescription>
 {
     private static final String DELIMITER = ", ";
+
     private JTextComponent dataSetCodeFields;
 
     ReportNodeDialog()
@@ -93,17 +94,37 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
     protected List<ReportDescription> getSortedDescriptions(IQueryApiFacade facade)
     {
         List<ReportDescription> descriptions = facade.listTableReportDescriptions();
-        Collections.sort(descriptions, new Comparator<ReportDescription>()
+
+        if (descriptions != null)
+        {
+            Set<String> keys = new HashSet<String>();
+            List<ReportDescription> uniqueDescriptions = new ArrayList<ReportDescription>();
+
+            for (ReportDescription description : descriptions)
             {
-                @Override
-                public int compare(ReportDescription o1, ReportDescription o2)
+                if (keys.contains(description.getKey()) == false)
                 {
-                    return o1.getLabel().compareTo(o2.getLabel());
+                    uniqueDescriptions.add(description);
+                    keys.add(description.getKey());
                 }
-            });
-        return descriptions;
+            }
+
+            Collections.sort(uniqueDescriptions, new Comparator<ReportDescription>()
+                {
+                    @Override
+                    public int compare(ReportDescription o1, ReportDescription o2)
+                    {
+                        return o1.getLabel().compareToIgnoreCase(o2.getLabel());
+                    }
+                });
+
+            return uniqueDescriptions;
+        } else
+        {
+            return Collections.emptyList();
+        }
     }
-    
+
     @Override
     protected String getDescriptionKey()
     {
@@ -196,6 +217,6 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
             logger.info(dataSets.size() + " data sets of type " + dataSetType);
             allDataSets.addAll(dataSets);
         }
-        return allDataSets;
+        return allDataSets;        
     }
 }

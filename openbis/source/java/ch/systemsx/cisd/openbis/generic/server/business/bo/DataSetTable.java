@@ -42,10 +42,11 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.multiplexer.BatchHandlerAbstract;
-import ch.systemsx.cisd.common.multiplexer.BatchesResults;
 import ch.systemsx.cisd.common.multiplexer.IBatch;
 import ch.systemsx.cisd.common.multiplexer.IBatchHandler;
 import ch.systemsx.cisd.common.multiplexer.IBatchIdProvider;
+import ch.systemsx.cisd.common.multiplexer.IBatchResults;
+import ch.systemsx.cisd.common.multiplexer.IBatchesResults;
 import ch.systemsx.cisd.common.multiplexer.IMultiplexer;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
@@ -58,6 +59,8 @@ import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithDifferentColumnCountException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithDifferentColumnTypesException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
@@ -658,13 +661,26 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                         }
                     };
 
-        BatchesResults<TableModel> batchesResults =
+        IBatchesResults<String, TableModel> batchesResults =
                 multiplexer.process(locations, batchIdProvider, batchHandler);
 
         TableModelAppender tableModelAppender = new TableModelAppender();
-        for (TableModel tableModel : batchesResults.withDuplicates())
+        for (IBatchResults<String, TableModel> batchResults : batchesResults.getBatchResults())
         {
-            tableModelAppender.append(tableModel);
+            try
+            {
+                tableModelAppender.append(batchResults.getResults().get(0));
+            } catch (TableModelWithDifferentColumnCountException e)
+            {
+                throw new UserFailureException("Could not merge reports from multiple data stores because '" + batchResults.getBatchId()
+                        + "' data store returned a table with an incorrect number of columns (expected: " + e.getExpectedColumnCount()
+                        + ", got: " + e.getAppendedColumnCount() + ")");
+            } catch (TableModelWithDifferentColumnTypesException e)
+            {
+                throw new UserFailureException("Could not merge reports from multiple data stores because '" + batchResults.getBatchId()
+                        + "' data store returned a table with incorrect types of columns (expected: " + e.getExpectedColumnTypes()
+                        + ", got: " + e.getAppendedColumnTypes() + ")");
+            }
         }
         return tableModelAppender.toTableModel();
     }

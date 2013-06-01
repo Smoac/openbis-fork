@@ -21,13 +21,29 @@ import java.util.List;
 /**
  * @author pkupczyk
  */
-public interface IBatchesResults<I, R>
+public class BatchResults<I, R> implements IBatchResults<I, R>
 {
 
-    public List<IBatchResults<I, R>> getBatchResults();
+    private I batchId;
 
-    public List<R> getMergedBatchResultsWithDuplicates();
+    private List<R> results;
 
-    public List<R> getMergedBatchResultsWithoutDuplicates();
+    public BatchResults(I batchId, List<R> results)
+    {
+        this.batchId = batchId;
+        this.results = results;
+    }
+
+    @Override
+    public I getBatchId()
+    {
+        return batchId;
+    }
+
+    @Override
+    public List<R> getResults()
+    {
+        return results;
+    }
 
 }

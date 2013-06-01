@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.knime.common;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
@@ -59,10 +61,22 @@ public abstract class AbstractAggregatedDataImportNodeDialog
             });
         List<AggregatedDataImportDescription> descriptions =
                 new ArrayList<AggregatedDataImportDescription>();
+        Set<String> dssCodes = new HashSet<String>();
+
         for (AggregationServiceDescription aggregationServiceDescription : services)
         {
             addDescription(descriptions, aggregationServiceDescription);
+            dssCodes.add(aggregationServiceDescription.getDataStoreCode());
         }
+
+        if (dssCodes.size() > 1)
+        {
+            for (AggregatedDataImportDescription description : descriptions)
+            {
+                description.setShowFullDescription(true);
+            }
+        }
+
         return descriptions;
     }
 

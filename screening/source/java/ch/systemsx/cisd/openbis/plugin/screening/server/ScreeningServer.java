@@ -764,7 +764,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                         }
                     };
 
-        return getDssMultiplexer().process(featureDatasets, handler).withoutDuplicates();
+        return getDssMultiplexer().process(featureDatasets, handler).getMergedBatchResultsWithoutDuplicates();
     }
 
     @Override
@@ -787,7 +787,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                         }
                     };
 
-        return getDssMultiplexer().process(featureDatasets, handler).withoutDuplicates();
+        return getDssMultiplexer().process(featureDatasets, handler).getMergedBatchResultsWithoutDuplicates();
     }
 
     @Override
@@ -811,7 +811,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                         }
                     };
 
-        return getDssMultiplexer().process(featureDatasets, handler).withDuplicates();
+        return getDssMultiplexer().process(featureDatasets, handler).getMergedBatchResultsWithDuplicates();
     }
 
     @Override
@@ -836,7 +836,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                         }
                     };
 
-        return getDssMultiplexer().process(datasetWellReferences, handler).withDuplicates();
+        return getDssMultiplexer().process(datasetWellReferences, handler).getMergedBatchResultsWithDuplicates();
     }
 
     @Override
@@ -858,7 +858,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                         }
                     };
 
-        return getDssMultiplexer().process(imageReferences, handler).withDuplicates();
+        return getDssMultiplexer().process(imageReferences, handler).getMergedBatchResultsWithDuplicates();
     }
 
     @Override
@@ -880,7 +880,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                         }
                     };
 
-        return getDssMultiplexer().process(imageReferences, handler).withDuplicates();
+        return getDssMultiplexer().process(imageReferences, handler).getMergedBatchResultsWithDuplicates();
     }
 
     @Override
@@ -902,7 +902,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                         }
                     };
 
-        return getDssMultiplexer().process(imageReferences, handler).withDuplicates();
+        return getDssMultiplexer().process(imageReferences, handler).getMergedBatchResultsWithDuplicates();
     }
 
     @Override
@@ -924,7 +924,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                         }
                     };
 
-        return getDssMultiplexer().process(imageReferences, handler).withDuplicates();
+        return getDssMultiplexer().process(imageReferences, handler).getMergedBatchResultsWithDuplicates();
     }
 
     @Override
@@ -944,7 +944,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                         }
                     };
 
-        return getDssMultiplexer().process(imageReferences, handler).withDuplicates();
+        return getDssMultiplexer().process(imageReferences, handler).getMergedBatchResultsWithDuplicates();
     }
 
     @Override
@@ -964,7 +964,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                         }
                     };
 
-        return getDssMultiplexer().process(imageReferences, handler).withDuplicates();
+        return getDssMultiplexer().process(imageReferences, handler).getMergedBatchResultsWithDuplicates();
     }
 
     @Override
@@ -985,7 +985,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                         }
                     };
 
-        return getDssMultiplexer().process(imageReferences, handler).withDuplicates();
+        return getDssMultiplexer().process(imageReferences, handler).getMergedBatchResultsWithDuplicates();
     }
 
     @Override
@@ -1006,7 +1006,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                         }
                     };
 
-        return getDssMultiplexer().process(imageDatasets, handler).withDuplicates();
+        return getDssMultiplexer().process(imageDatasets, handler).getMergedBatchResultsWithDuplicates();
     }
 
     @Override
@@ -1027,7 +1027,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                         }
                     };
 
-        return getDssMultiplexer().process(imageDatasets, handler).withDuplicates();
+        return getDssMultiplexer().process(imageDatasets, handler).getMergedBatchResultsWithDuplicates();
     }
 
     @Override
@@ -1047,7 +1047,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                         }
                     };
 
-        return getDssMultiplexer().process(imageReferences, handler).withDuplicates();
+        return getDssMultiplexer().process(imageReferences, handler).getMergedBatchResultsWithDuplicates();
     }
 
     private IDssServiceRpcScreeningMultiplexer getDssMultiplexer()

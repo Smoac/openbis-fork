@@ -21,13 +21,11 @@ import java.util.List;
 /**
  * @author pkupczyk
  */
-public interface IBatchesResults<I, R>
+public interface IBatchResults<I, R>
 {
 
-    public List<IBatchResults<I, R>> getBatchResults();
+    public I getBatchId();
 
-    public List<R> getMergedBatchResultsWithDuplicates();
-
-    public List<R> getMergedBatchResultsWithoutDuplicates();
+    public List<R> getResults();
 
 }

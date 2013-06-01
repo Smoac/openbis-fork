@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdent
 public interface IDssServiceRpcScreeningMultiplexer
 {
 
-    public <O extends IDatasetIdentifier, R> BatchesResults<R> process(
+    public <O extends IDatasetIdentifier, R> BatchesResults<String, R> process(
             final List<? extends O> objects,
             final IDssServiceRpcScreeningBatchHandler<O, R> batchHandler);
 }

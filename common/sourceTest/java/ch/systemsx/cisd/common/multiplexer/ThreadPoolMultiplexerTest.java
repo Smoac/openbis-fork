@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1;
+package ch.systemsx.cisd.common.multiplexer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,45 +33,38 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.concurrent.MessageChannelBuilder;
-import ch.systemsx.cisd.common.multiplexer.IMultiplexer;
-import ch.systemsx.cisd.common.multiplexer.ThreadPoolMultiplexer;
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.DssServiceRpcScreeningHolder;
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.DssServiceRpcScreeningMultiplexer;
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.IDssServiceRpcScreeningBatchHandler;
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.IDssServiceRpcScreeningFactory;
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 
 /**
  * @author pkupczyk
  */
-public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
+public class ThreadPoolMultiplexerTest extends AssertJUnit
 {
+
+    private static final Integer BATCH_1_ID = 1;
+
+    private static final Integer BATCH_2_ID = 2;
+
+    private static final String BATCH_1_OBJECT_PREFIX = "BATCH_1";
+
+    private static final String BATCH_2_OBJECT_PREFIX = "BATCH_2";
+
+    private static final String BATCH_1_OBJECT_1 = BATCH_1_OBJECT_PREFIX + "_OBJECT_1";
+
+    private static final String BATCH_1_OBJECT_2 = BATCH_1_OBJECT_PREFIX + "_OBJECT_2";
+
+    private static final String BATCH_2_OBJECT_1 = BATCH_2_OBJECT_PREFIX + "_OBJECT_1";
+
+    private static final Long BATCH_1_RESULT_1 = 11L;
+
+    private static final Long BATCH_1_RESULT_2 = 12L;
+
+    private static final Long BATCH_2_RESULT_1 = 21L;
 
     private Mockery context;
 
-    private String dataStore1Url;
+    private IBatchIdProvider<String, Integer> batchIdProvider;
 
-    private String dataStore2Url;
-
-    private IDssServiceRpcScreening dataStore1Service;
-
-    private IDssServiceRpcScreening dataStore2Service;
-
-    private DssServiceRpcScreeningHolder dataStore1Holder;
-
-    private DssServiceRpcScreeningHolder dataStore2Holder;
-
-    private IDatasetIdentifier dataStore1DataSet1;
-
-    private IDatasetIdentifier dataStore1DataSet2;
-
-    private IDatasetIdentifier dataStore2DataSet1;
-
-    private IDssServiceRpcScreeningFactory serviceFactory;
-
-    private IDssServiceRpcScreeningBatchHandler<IDatasetIdentifier, String> batchHandler;
+    private IBatchHandler<String, Integer, String> batchHandler;
 
     private MessageChannel channel1;
 
@@ -79,35 +72,35 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
 
     private IMultiplexer multiplexer;
 
-    private DssServiceRpcScreeningMultiplexer dssMultiplexer;
-
     @SuppressWarnings("unchecked")
     @BeforeMethod
     public void beforeMethod()
     {
         context = new Mockery();
 
-        dataStore1Url = "datastore1:1111";
-        dataStore2Url = "datastore2:2222";
-
-        dataStore1Service = context.mock(IDssServiceRpcScreening.class, "dataStore1Service");
-        dataStore2Service = context.mock(IDssServiceRpcScreening.class, "dataStore2Service");
-
-        dataStore1Holder = new DssServiceRpcScreeningHolder(dataStore1Url, dataStore1Service);
-        dataStore2Holder = new DssServiceRpcScreeningHolder(dataStore2Url, dataStore2Service);
-
-        dataStore1DataSet1 = new DatasetIdentifier("DATA_STORE_1_DATA_SET_1", dataStore1Url);
-        dataStore1DataSet2 = new DatasetIdentifier("DATA_STORE_1_DATA_SET_2", dataStore1Url);
-        dataStore2DataSet1 = new DatasetIdentifier("DATA_STORE_2_DATA_SET_1", dataStore2Url);
-
-        serviceFactory = context.mock(IDssServiceRpcScreeningFactory.class);
-        batchHandler = context.mock(IDssServiceRpcScreeningBatchHandler.class);
+        batchIdProvider = new IBatchIdProvider<String, Integer>()
+            {
+                @Override
+                public Integer getBatchId(String object)
+                {
+                    if (object.startsWith(BATCH_1_OBJECT_PREFIX))
+                    {
+                        return BATCH_1_ID;
+                    } else if (object.startsWith(BATCH_2_OBJECT_PREFIX))
+                    {
+                        return BATCH_2_ID;
+                    } else
+                    {
+                        throw new IllegalArgumentException("Unknown object: " + object);
+                    }
+                }
+            };
+        batchHandler = context.mock(IBatchHandler.class);
 
         channel1 = new MessageChannelBuilder(1000).getChannel();
         channel2 = new MessageChannelBuilder(1000).getChannel();
 
-        multiplexer = new ThreadPoolMultiplexer("dss-screening-multiplexer-test");
-        dssMultiplexer = new DssServiceRpcScreeningMultiplexer(multiplexer, serviceFactory);
+        multiplexer = new ThreadPoolMultiplexer("multiplexer-test");
     }
 
     @AfterMethod
@@ -116,22 +109,22 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    private List<IDatasetIdentifier> getAllDataSets()
+    private List<String> getAllObjects()
     {
-        return Arrays.asList(dataStore1DataSet1, dataStore1DataSet2, dataStore2DataSet1);
+        return Arrays.asList(BATCH_1_OBJECT_1, BATCH_1_OBJECT_2, BATCH_2_OBJECT_1);
     }
 
-    private List<IDatasetIdentifier> getDataStore1DataSets()
+    private List<String> getBatch1Objects()
     {
-        return Arrays.asList(dataStore1DataSet1, dataStore1DataSet2);
+        return Arrays.asList(BATCH_1_OBJECT_1, BATCH_1_OBJECT_2);
     }
 
-    private List<IDatasetIdentifier> getDataStore2DataSets()
+    private List<String> getBatch2Objects()
     {
-        return Arrays.asList(dataStore2DataSet1);
+        return Arrays.asList(BATCH_2_OBJECT_1);
     }
 
-    private Action getDataStore1ResultsAction()
+    private Action getBatch1ResultsAction()
     {
         return new CustomAction("action")
             {
@@ -139,20 +132,20 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
                 @Override
                 public Object invoke(Invocation invocation) throws Throwable
                 {
-                    return Arrays.asList("DATA_STORE_1_RESULT_1", "DATA_STORE_1_RESULT_2");
+                    return Arrays.asList(BATCH_1_RESULT_1, BATCH_1_RESULT_2);
                 }
 
             };
     }
 
-    private Action getDataStore2ResultsAction()
+    private Action getBatch2ResultsAction()
     {
         return new CustomAction("action")
             {
                 @Override
                 public Object invoke(Invocation invocation) throws Throwable
                 {
-                    return Arrays.asList("DATA_STORE_2_RESULT_1");
+                    return Arrays.asList(BATCH_2_RESULT_1);
                 }
             };
     }
@@ -206,21 +199,21 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
             };
     }
 
-    private void assertDataStore1Results(List<String> results)
+    private void assertBatch1Results(List<String> results)
     {
-        assertEquals(Arrays.asList("DATA_STORE_1_RESULT_1", "DATA_STORE_1_RESULT_2"), results);
+        assertEquals(Arrays.asList(BATCH_1_RESULT_1, BATCH_1_RESULT_2), results);
     }
 
     private void assertAllResults(List<String> results)
     {
-        assertEquals(Arrays.asList("DATA_STORE_1_RESULT_1", "DATA_STORE_1_RESULT_2",
-                "DATA_STORE_2_RESULT_1"), results);
+        assertEquals(Arrays.asList(BATCH_1_RESULT_1, BATCH_1_RESULT_2,
+                BATCH_2_RESULT_1), results);
     }
 
     @Test
     public void testWithNullReferenceLists()
     {
-        List<String> results = dssMultiplexer.process(null, batchHandler).getMergedBatchResultsWithDuplicates();
+        List<String> results = multiplexer.process(null, batchIdProvider, batchHandler).getMergedBatchResultsWithDuplicates();
         assertTrue(results.isEmpty());
     }
 
@@ -228,7 +221,7 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
     public void testWithEmptyReferenceLists()
     {
         List<String> results =
-                dssMultiplexer.process(new ArrayList<IDatasetIdentifier>(), batchHandler)
+                multiplexer.process(new ArrayList<String>(), batchIdProvider, batchHandler)
                         .getMergedBatchResultsWithDuplicates();
         assertTrue(results.isEmpty());
     }
@@ -237,9 +230,9 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
     public void testWithNullReferences()
     {
         List<String> results =
-                test(Arrays.asList(null, dataStore1DataSet1, null, dataStore1DataSet2,
-                        dataStore2DataSet1), getDataStore1DataSets(), getDataStore2DataSets(),
-                        getDataStore1ResultsAction(), getDataStore2ResultsAction());
+                test(Arrays.asList(null, BATCH_1_OBJECT_1, null, BATCH_1_OBJECT_2,
+                        BATCH_2_OBJECT_1), getBatch1Objects(), getBatch2Objects(),
+                        getBatch1ResultsAction(), getBatch2ResultsAction());
         assertAllResults(results);
     }
 
@@ -247,8 +240,8 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
     public void testWithNotEmptyResults()
     {
         List<String> results =
-                test(getAllDataSets(), getDataStore1DataSets(), getDataStore2DataSets(),
-                        getDataStore1ResultsAction(), getDataStore2ResultsAction());
+                test(getAllObjects(), getBatch1Objects(), getBatch2Objects(),
+                        getBatch1ResultsAction(), getBatch2ResultsAction());
         assertAllResults(results);
     }
 
@@ -256,18 +249,18 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
     public void testWithEmptyResult()
     {
         List<String> results =
-                test(getAllDataSets(), getDataStore1DataSets(), getDataStore2DataSets(),
-                        getDataStore1ResultsAction(), getEmptyResultsAction());
-        assertDataStore1Results(results);
+                test(getAllObjects(), getBatch1Objects(), getBatch2Objects(),
+                        getBatch1ResultsAction(), getEmptyResultsAction());
+        assertBatch1Results(results);
     }
 
     @Test
     public void testWithNullResult()
     {
         List<String> results =
-                test(getAllDataSets(), getDataStore1DataSets(), getDataStore2DataSets(),
-                        getDataStore1ResultsAction(), getNullResultsAction());
-        assertDataStore1Results(results);
+                test(getAllObjects(), getBatch1Objects(), getBatch2Objects(),
+                        getBatch1ResultsAction(), getNullResultsAction());
+        assertBatch1Results(results);
     }
 
     @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "MULTIPLEXER_EXCEPTION")
@@ -276,7 +269,7 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
         long startTime = System.currentTimeMillis();
         try
         {
-            test(getAllDataSets(), getDataStore1DataSets(), getDataStore2DataSets(),
+            test(getAllObjects(), getBatch1Objects(), getBatch2Objects(),
                     getExceptionAction(), getSleepAction(500));
         } finally
         {
@@ -285,21 +278,21 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
         }
     }
 
-    private List<String> test(final List<IDatasetIdentifier> allDatasets,
-            final List<IDatasetIdentifier> dataStore1Datasets,
-            final List<IDatasetIdentifier> dataStore2Datasets, final Action dataStore1Action,
-            final Action dataStore2Action)
+    private List<String> test(final List<String> allObjects,
+            final List<String> batch1Objects,
+            final List<String> batch2Objects, final Action batch1Action,
+            final Action batch2Action)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(serviceFactory).createDssService(dataStore1Url);
-                    will(returnValue(dataStore1Holder));
+                    IBatch<String, Integer> batch1 = new Batch<String, Integer>(batch1Objects, BATCH_1_ID);
+                    IBatch<String, Integer> batch2 = new Batch<String, Integer>(batch2Objects, BATCH_2_ID);
 
-                    one(serviceFactory).createDssService(dataStore2Url);
-                    will(returnValue(dataStore2Holder));
+                    one(batchHandler).validateBatch(with(batch1));
+                    one(batchHandler).validateBatch(with(batch2));
 
-                    one(batchHandler).handle(dataStore1Holder, dataStore1Datasets);
+                    one(batchHandler).processBatch(with(batch1));
                     will(new Action()
                         {
                             @Override
@@ -307,7 +300,7 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
                             {
                                 channel1.send("DATA_STORE_1_BATCH_START");
                                 channel2.assertNextMessage("DATA_STORE_2_BATCH_START");
-                                return dataStore1Action.invoke(invocation);
+                                return batch1Action.invoke(invocation);
                             }
 
                             @Override
@@ -316,7 +309,7 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
                             }
                         });
 
-                    one(batchHandler).handle(dataStore2Holder, dataStore2Datasets);
+                    one(batchHandler).processBatch(with(batch2));
                     will(new Action()
                         {
                             @Override
@@ -324,7 +317,7 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
                             {
                                 channel2.send("DATA_STORE_2_BATCH_START");
                                 channel1.assertNextMessage("DATA_STORE_1_BATCH_START");
-                                return dataStore2Action.invoke(invocation);
+                                return batch2Action.invoke(invocation);
                             }
 
                             @Override
@@ -335,7 +328,7 @@ public class DssServiceRpcScreeningMultiplexerTest extends AssertJUnit
                 }
             });
 
-        return dssMultiplexer.process(allDatasets, batchHandler).getMergedBatchResultsWithDuplicates();
+        return multiplexer.process(allObjects, batchIdProvider, batchHandler).getMergedBatchResultsWithDuplicates();
     }
 
 }

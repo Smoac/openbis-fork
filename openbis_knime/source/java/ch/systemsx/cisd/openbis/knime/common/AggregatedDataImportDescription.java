@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServic
 
 /**
  * Wrapper of {@link AggregationServiceDescription}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class AggregatedDataImportDescription implements Serializable
@@ -33,9 +33,9 @@ public class AggregatedDataImportDescription implements Serializable
     public static final String FILE_PREFIX = PREFIX + "file-";
 
     public static final String AGGREGATION_DESCRIPTION_KEY = "aggregation-description";
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * Adds specified description to descriptions list if its service key starts with 'knime-'.
      */
@@ -69,16 +69,31 @@ public class AggregatedDataImportDescription implements Serializable
 
     private final String name;
 
+    private final String dataStoreCode;
+
+    private boolean showFullDescription;
+
     private AggregatedDataImportDescription(
             AggregationServiceDescription aggregationServiceDescription, String keyPrefix)
     {
         this.aggregationServiceDescription = aggregationServiceDescription;
         name = aggregationServiceDescription.getServiceKey().substring(keyPrefix.length());
+        dataStoreCode = aggregationServiceDescription.getDataStoreCode();
     }
-    
+
     public AggregationServiceDescription getAggregationServiceDescription()
     {
         return aggregationServiceDescription;
+    }
+
+    public boolean isShowFullDescription()
+    {
+        return showFullDescription;
+    }
+
+    public void setShowFullDescription(boolean showFullDescription)
+    {
+        this.showFullDescription = showFullDescription;
     }
 
     /**
@@ -87,8 +102,13 @@ public class AggregatedDataImportDescription implements Serializable
     @Override
     public String toString()
     {
-        return name;
+        if (isShowFullDescription())
+        {
+            return name + " (" + dataStoreCode + ")";
+        } else
+        {
+            return name;
+        }
     }
-    
-    
+
 }

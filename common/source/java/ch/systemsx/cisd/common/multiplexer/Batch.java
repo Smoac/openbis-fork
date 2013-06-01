@@ -18,20 +18,29 @@ package ch.systemsx.cisd.common.multiplexer;
 
 import java.util.List;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 /**
  * @author pkupczyk
  */
 public class Batch<O, I> implements IBatch<O, I>
 {
 
-    private I id;
-
     private List<O> objects;
 
-    public Batch(I id, List<O> objects)
+    private I id;
+
+    public Batch(List<O> objects, I id)
     {
-        this.id = id;
         this.objects = objects;
+        this.id = id;
+    }
+
+    @Override
+    public List<O> getObjects()
+    {
+        return objects;
     }
 
     @Override
@@ -41,9 +50,15 @@ public class Batch<O, I> implements IBatch<O, I>
     }
 
     @Override
-    public List<O> getObjects()
+    public int hashCode()
     {
-        return objects;
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 
 }

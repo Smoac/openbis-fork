@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.multiplexer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,12 +41,12 @@ public class ThreadPoolMultiplexer implements IMultiplexer
     }
 
     @Override
-    public <O, I, R> BatchesResults<R> process(final List<? extends O> objects,
+    public <O, I, R> BatchesResults<I, R> process(final List<? extends O> objects,
             final IBatchIdProvider<O, I> batchIdProvider, final IBatchHandler<O, I, R> batchHandler)
     {
         List<IBatch<O, I>> batches = createBatches(objects, batchIdProvider);
         validateBatches(batches, batchHandler);
-        List<ITerminableFuture<List<R>>> futures = submitBatches(batches, batchHandler);
+        Map<IBatch<O, I>, ITerminableFuture<List<R>>> futures = submitBatches(batches, batchHandler);
         return gatherResults(futures);
     }
 
@@ -58,8 +59,7 @@ public class ThreadPoolMultiplexer implements IMultiplexer
         for (Map.Entry<I, List<O>> batchIdToObjectsMapEntry : batchIdToObjectsMap.entrySet())
         {
             IBatch<O, I> batch =
-                    new Batch<O, I>(batchIdToObjectsMapEntry.getKey(),
-                            batchIdToObjectsMapEntry.getValue());
+                    new Batch<O, I>(batchIdToObjectsMapEntry.getValue(), batchIdToObjectsMapEntry.getKey());
             batches.add(batch);
         }
 
@@ -104,10 +104,10 @@ public class ThreadPoolMultiplexer implements IMultiplexer
         }
     }
 
-    private <O, I, R> List<ITerminableFuture<List<R>>> submitBatches(
+    private <O, I, R> Map<IBatch<O, I>, ITerminableFuture<List<R>>> submitBatches(
             final List<IBatch<O, I>> batches, final IBatchHandler<O, I, R> batchHandler)
     {
-        List<ITerminableFuture<List<R>>> futures = new ArrayList<ITerminableFuture<List<R>>>();
+        Map<IBatch<O, I>, ITerminableFuture<List<R>>> futures = new LinkedHashMap<IBatch<O, I>, ITerminableFuture<List<R>>>();
 
         final long startTime = System.currentTimeMillis();
 
@@ -129,29 +129,32 @@ public class ThreadPoolMultiplexer implements IMultiplexer
                                 return batch.getId() + "(" + startTime + ")";
                             }
                         });
-            futures.add(future);
+            futures.put(batch, future);
         }
 
         return futures;
     }
 
-    private <R> BatchesResults<R> gatherResults(final List<ITerminableFuture<List<R>>> futures)
+    private <O, I, R> BatchesResults<I, R> gatherResults(final Map<IBatch<O, I>, ITerminableFuture<List<R>>> futuresMap)
     {
-        BatchesResults<R> batchesResults = new BatchesResults<R>();
+        BatchesResults<I, R> batchesResults = new BatchesResults<I, R>();
 
         try
         {
-            for (ITerminableFuture<List<R>> future : futures)
+            for (Map.Entry<IBatch<O, I>, ITerminableFuture<List<R>>> futureMapEntry : futuresMap.entrySet())
             {
+                IBatch<O, I> batch = futureMapEntry.getKey();
+                ITerminableFuture<List<R>> future = futureMapEntry.getValue();
+
                 List<R> results = ConcurrencyUtilities.tryGetResult(future, -1);
                 if (results != null)
                 {
-                    batchesResults.addBatchResults(results);
+                    batchesResults.addBatchResults(new BatchResults<I, R>(batch.getId(), results));
                 }
             }
         } catch (RuntimeException e)
         {
-            for (ITerminableFuture<List<R>> future : futures)
+            for (ITerminableFuture<List<R>> future : futuresMap.values())
             {
                 future.cancel(true);
             }
