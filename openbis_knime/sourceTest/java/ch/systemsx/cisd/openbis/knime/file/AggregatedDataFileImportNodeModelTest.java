@@ -47,19 +47,18 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.translator.QueryTableModelTranslator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class AggregatedDataFileImportNodeModelTest extends AbstractFileSystemTestCase
 {
     private static final String SESSION_TOKEN = "session";
-    
+
     private static final String DATA_STORE_CODE = "DS";
-    
+
     private static final class MockAggregatedDataFileImportNodeModel extends AggregatedDataFileImportNodeModel
     {
         private final IQueryApiFacade facade;
+
         private final File sysTempDir;
 
         MockAggregatedDataFileImportNodeModel(IQueryApiFacade facade, File sysTempDir)
@@ -67,7 +66,7 @@ public class AggregatedDataFileImportNodeModelTest extends AbstractFileSystemTes
             this.facade = facade;
             this.sysTempDir = sysTempDir;
         }
-        
+
         @Override
         protected File getSystemTempDir()
         {
@@ -82,14 +81,21 @@ public class AggregatedDataFileImportNodeModelTest extends AbstractFileSystemTes
     }
 
     private BufferedAppender logRecorder;
+
     private Mockery context;
+
     private IQueryApiFacade facade;
+
     private IGeneralInformationService service;
+
     private File tempDir;
+
     private MockAggregatedDataFileImportNodeModel model;
+
     private NodeSettingsRO nodeSettingsRO;
+
     private AggregationServiceDescription description;
-    
+
     @BeforeMethod
     public void setUpModel() throws Exception
     {
@@ -110,13 +116,13 @@ public class AggregatedDataFileImportNodeModelTest extends AbstractFileSystemTes
                 {
                     allowing(nodeSettingsRO).getByteArray(AggregatedDataImportDescription.AGGREGATION_DESCRIPTION_KEY);
                     will(returnValue(bytes));
-                    
+
                     allowing(nodeSettingsRO).getStringArray(ParameterBindings.PARAMETER_KEYS_KEY);
                     allowing(nodeSettingsRO).getStringArray(ParameterBindings.PARAMETER_VALUES_KEY);
-                    
+
                     allowing(facade).getSessionToken();
                     will(returnValue(SESSION_TOKEN));
-                    
+
                     allowing(facade).getGeneralInformationService();
                     will(returnValue(service));
                 }
@@ -135,12 +141,11 @@ public class AggregatedDataFileImportNodeModelTest extends AbstractFileSystemTes
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecute() throws Exception
     {
-        final RecordingMatcher<AggregationServiceDescription> descriptionRecorder 
-                = new RecordingMatcher<AggregationServiceDescription>();
+        final RecordingMatcher<AggregationServiceDescription> descriptionRecorder = new RecordingMatcher<AggregationServiceDescription>();
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
         builder.addHeader(Constants.FILE_NAME_COLUMN);
         builder.addRow().setCell(Constants.FILE_NAME_COLUMN, "report.txt");
@@ -152,7 +157,7 @@ public class AggregatedDataFileImportNodeModelTest extends AbstractFileSystemTes
                     will(returnValue(tableModel));
 
                     one(facade).logout();
-                    
+
                     one(service).listDataStores(SESSION_TOKEN);
                     DataStore dataStore = new DataStore(DATA_STORE_CODE, "file://" + workingDirectory.getAbsolutePath(), "");
                     will(returnValue(Arrays.asList(dataStore)));
@@ -160,10 +165,10 @@ public class AggregatedDataFileImportNodeModelTest extends AbstractFileSystemTes
             });
         model.loadAdditionalValidatedSettingsFrom(nodeSettingsRO);
         logRecorder.resetLogContent();
-        
+
         model.execute(null, null);
-        
-        assertEquals("AggregationServiceDescription [dataStoreCode=DS, serviceKey=knime-as, type=null]", 
+
+        assertEquals("AggregationServiceDescription [dataStoreCode=DS, serviceKey=knime-as, label=null, type=null]",
                 descriptionRecorder.recordedObject().toString());
         assertEquals("hello world", FileUtilities.loadToString(new File(tempDir, "knime-openbis-session/report.txt")).trim());
         assertEquals("INFO  " + MockAggregatedDataFileImportNodeModel.class.getName()
