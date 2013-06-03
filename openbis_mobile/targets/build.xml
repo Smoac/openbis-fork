@@ -1,0 +1,42 @@
+<project name="OpenBIS Mobile" default="jar" basedir=".">
+
+	<property name="only.filename" value="openbis_mobile.jar" />
+
+	<property name="src.dir" value="../source" />
+	<property name="build.dir" value="ant/classes" />
+	<property name="dist.dir" value="dist" />
+	
+	<!-- remove all previously generated files from the build directory -->
+	<target name="clean" depends="">
+		<delete dir="${build.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+
+	<!-- create all required directories, init timestamp -->
+	<target name="prepare" depends="clean">
+		<tstamp />
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${dist.dir}" />
+	</target> 
+
+	<!-- Compile all sources to the build.dir -->
+	<target name="compile" depends="prepare">
+		<javac srcdir="${src.dir}" destdir="${build.dir}" deprecation="off" optimize="off" debug="true">
+				<classpath>
+					<fileset dir="../../libraries/">
+						<include name="cisd-base/cisd-base.jar" />
+						<include name="jackson/jackson-core.jar" />
+						<include name="jackson/jackson-databind.jar" />
+					</fileset>
+					<pathelement path="../../openbis/targets/ant/classes" />
+					<pathelement path="../../openbis_api/targets/ant/classes" />
+					<pathelement path="../../datastore_server/targets/ant/classes" />
+    			</classpath>
+		</javac>
+	</target>
+
+	<!-- Creating the only jar -->
+	<target name="jar" depends="compile">
+		<jar jarfile="${dist.dir}/${only.filename}" update="false" basedir="${build.dir}" includes="**" />
+	</target>
+</project>
