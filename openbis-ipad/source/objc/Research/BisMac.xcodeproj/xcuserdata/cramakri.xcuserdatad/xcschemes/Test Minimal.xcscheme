@@ -78,7 +78,25 @@
                   Identifier = "CISDOBLiveConnectionTest">
                </Test>
                <Test
-                  Identifier = "CISDOBIpadServiceTest">
+                  Identifier = "CISDOBIpadServiceManagerTest">
+               </Test>
+               <Test
+                  Identifier = "CISDOBIpadServiceTest/testDetails">
+               </Test>
+               <Test
+                  Identifier = "CISDOBIpadServiceTest/testDrill">
+               </Test>
+               <Test
+                  Identifier = "CISDOBIpadServiceTest/testEmptySearch">
+               </Test>
+               <Test
+                  Identifier = "CISDOBIpadServiceTest/testListNavigationalEntities">
+               </Test>
+               <Test
+                  Identifier = "CISDOBIpadServiceTest/testListRootEntities">
+               </Test>
+               <Test
+                  Identifier = "CISDOBIpadServiceTest/testSearchWithNilDomain">
                </Test>
             </SkippedTests>
          </TestableReference>

@@ -345,11 +345,11 @@ static BOOL IsPermIdTarget(NSString *permId)
 }
 
 
-- (void)performSearch:(NSString *)searchText
+- (void)performSearch:(NSString *)searchText domain:(id)searchDomain
 {
     CISDOBAsyncCall *call;
     [self assertBeforeSearch];
-    call = [self.serviceManager searchForText: searchText];
+    call = [self.serviceManager searchForText: searchText domain: searchDomain];
     [self configureAndRunCallSynchronously: call];
     STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
     [self assertAfterSearch];
@@ -401,10 +401,10 @@ static BOOL IsPermIdTarget(NSString *permId)
     [self checkFindingChildren];
 }
 
-- (void)testSearch
+- (void)testSearchWithNilDomain
 {
     [self performLogin];
-    [self performSearch: @"5-hydroxytryptamine 3"];
+    [self performSearch: @"5-hydroxytryptamine 3" domain: nil];
 }
 
 - (void)testInvalidSessionToken

@@ -408,7 +408,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     return managerCall;
 }
 
-- (CISDOBAsyncCall *)searchForText:(NSString *)searchText
+- (CISDOBAsyncCall *)searchForText:(NSString *)searchText domain:(id)searchDomain
 {
     CISDOBAsyncCall *call = [self.service searchForText: searchText domain: nil];
     CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call];

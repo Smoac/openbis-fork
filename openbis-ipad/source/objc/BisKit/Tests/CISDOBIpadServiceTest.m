@@ -221,7 +221,8 @@
     CISDOBAsyncCall *call;
     call = [_service loginUser: GetDefaultUserName() password: GetDefaultUserPassword()];
     [self configureAndRunCallSynchronously: call];
-    call = [_service searchForText:@"5-hydroxytryptamine 3" domain: @"GLOBAL"];
+    STAssertNotNil(_service.clientPreferences.defaultSearchDomain, @"The server should have returned a default search domain");
+    call = [_service searchForText:@"5-hydroxytryptamine 3" domain: _service.clientPreferences.defaultSearchDomain];
     [self configureAndRunCallSynchronously: call];
     
     STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");

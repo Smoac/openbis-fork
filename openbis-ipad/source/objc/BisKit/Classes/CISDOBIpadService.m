@@ -57,6 +57,19 @@ static id OpenBisTableRowValueAtIndex(NSArray *rowData, NSUInteger index)
     return [[rowData objectAtIndex: index] objectForKey: @"value"];
 }
 
+id ObjectFromJsonData(NSString *jsonDataString, NSError **error)
+{
+    if (nil == jsonDataString) return nil;
+    NSData *jsonData = [jsonDataString dataUsingEncoding: NSUTF8StringEncoding];
+    if (!jsonData) {
+        NSLog(@"Could not convert json string (%@) to UTF-8", jsonDataString);
+        // Do not treat this as an error -- just log it
+        return nil;
+    }
+
+    return [NSJSONSerialization JSONObjectWithData: jsonData options: 0 error: error];
+}
+
 
 @implementation CISDOBIpadService
 
@@ -344,6 +357,22 @@ static id OpenBisTableRowValueAtIndex(NSArray *rowData, NSUInteger index)
     
     // The default value is once every hour
     return 60. * 60.;
+}
+
+- (NSArray *)searchDomains
+{
+    NSString *searchDomainsString = [_preferences objectForKey: @"SEARCH_DOMAINS"];
+    NSError *error = nil;
+    NSArray *searchDomains = ObjectFromJsonData(searchDomainsString, &error);
+   // The default value is an empty array
+    return (nil != searchDomains) ? searchDomains : [NSArray array];
+}
+
+- (NSDictionary *)defaultSearchDomain
+{
+    NSArray *searchDomains = self.searchDomains;
+    if ([searchDomains count] > 0) return [searchDomains objectAtIndex: 0];
+    return nil;
 }
 
 @end

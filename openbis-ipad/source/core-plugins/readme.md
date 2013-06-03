@@ -226,7 +226,7 @@ The communication model between the iPad and the service has been designed to tr
 Perferences
 -----------
 
-The request for pereferences returns information used to configure the client. This information includes the following:
+The CLIENT_PREFS request returns information used to configure the client. This information includes the following:
 
 <table>
 	<thead>
@@ -239,18 +239,16 @@ The request for pereferences returns information used to configure the client. T
 	</thead>
 	<tbody>
 		<tr>
-			<td>CLIENT_PREFS</td>
-			<td>None</td>
-			<td>Return values for the client preferences.</td>
-			<td>Used to initialize client behavior</td>
-			<td>KEY, VALUE</td>
+			<td>ROOT_SET_REFRESH_INTERVAL</td>
+			<td>Number</td>
+			<td>The number of seconds the client should wait between calls for the root set</td>
+			<td>Used to throttle client/server request frequency</td>
 		</tr>
 		<tr>
-			<td>NAVIGATION</td>
-			<td>None</td>
-			<td>Return the top-level categories used for navigation.</td>
-			<td>Used to initialize the top level of the navigation view.</td>
-			<td>PERM_ID, REFCON, CATEGORY, SUMMARY_HEADER, SUMMARY, ROOT_LEVEL</td>
+			<td>SEARCH_DOMAINS</td>
+			<td>Array of Dictionary</td>
+			<td>The domains that can used in searches. The dictionary for a domain should include the keys "key" and "label". The label is displayed in the UI. The domains are displayed in the order sent by the server. The first value in the array is the default search domain on the client. If there is a global domain, that should be the first one.</td>
+			<td>Used to support searching in specific domains. Example include "GLOBAL", that is search everywhere, "BARCODE", which searches just for values that can be barcodes, etc.</td>
 		</tr>		
 		<tr>
 			<td>ROOT</td>

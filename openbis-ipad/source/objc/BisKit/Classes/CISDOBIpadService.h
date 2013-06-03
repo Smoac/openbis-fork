@@ -31,6 +31,9 @@ enum CISOBIpadServiceErrorCode {
     kCISOBIpadServiceError_NoIpadServiceAvailable = 1,
 };
 
+///! Utility method convert a JSON string to objects. Returns nil if the string is nil.
+id ObjectFromJsonData(NSString *jsonDataString, NSError **error);
+
 /**
  * \brief A facade for accessing openBIS iPad UI module.
  *

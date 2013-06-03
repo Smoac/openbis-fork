@@ -24,20 +24,6 @@
 #import "CISDOBIpadEntity.h"
 #import "CISDOBIpadService.h"
 
-///! Convert a JSON string to objects. Returns nil if the string is nil.
-id ObjectFromJsonData(NSString *jsonDataString, NSError **error)
-{
-    if (nil == jsonDataString) return nil;
-    NSData *jsonData = [jsonDataString dataUsingEncoding: NSUTF8StringEncoding];
-    if (!jsonData) {
-        NSLog(@"Could not convert json string (%@) to UTF-8", jsonDataString);
-        // Do not treat this as an error -- just log it
-        return nil;
-    }
-
-    return [NSJSONSerialization JSONObjectWithData: jsonData options: 0 error: error];
-}
-
 
 @implementation CISDOBIpadEntity
 
