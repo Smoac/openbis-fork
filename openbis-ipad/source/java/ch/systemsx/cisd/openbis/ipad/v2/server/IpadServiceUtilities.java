@@ -17,10 +17,13 @@
 package ch.systemsx.cisd.openbis.ipad.v2.server;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -78,4 +81,28 @@ public class IpadServiceUtilities
         return null;
     }
 
+    /**
+     * Group a collection of samples into groups by type.
+     * 
+     * @return An object that provides access to the samples for a particular type.
+     */
+    public static SamplesByType groupSamplesByType(List<ISampleImmutable> allSamples)
+    {
+        HashMap<String, List<ISampleImmutable>> samplesByType = new HashMap<String, List<ISampleImmutable>>();
+        for (ISampleImmutable sample : allSamples)
+        {
+            String sampleType = sample.getSampleType();
+            List<ISampleImmutable> samples = samplesByType.get(sampleType);
+            if (null == samples)
+            {
+                samples = new ArrayList<ISampleImmutable>();
+                samples.add(sample);
+                samplesByType.put(sampleType, samples);
+            } else
+            {
+                samples.add(sample);
+            }
+        }
+        return new SamplesByType(samplesByType);
+    }
 }

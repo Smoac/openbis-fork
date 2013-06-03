@@ -122,45 +122,19 @@ class RequestHandler(IRequestHandler):
 		self.add_data_rows()
 
 	def sort_samples_by_type(self, allSamples):
-
-		self.oligos = []
-		self.antibodies = []
-		self.chemicals = []
-		self.protocols = []
-		self.medias = []
-		self.pcrs = []
-		self.buffers = []
-		self.plasmids = []
-		self.yeasts = []
-		self.bacterias = []
-		self.enzymes = []
-		self.westernBlottings = []
-
-		for sample in allSamples:
-			if 'OLIGO' == sample.getSampleType():
-				self.oligos.append(sample)
-			elif 'ANTIBODY' == sample.getSampleType():
-				self.antibodies.append(sample)
-			elif 'CHEMICAL' == sample.getSampleType():
-				self.chemicals.append(sample)
-			elif 'GENERAL_PROTOCOL' == sample.getSampleType():
-				self.protocols.append(sample)
-			elif 'MEDIA' == sample.getSampleType():
-				self.medias.append(sample)
-			elif 'PCR' == sample.getSampleType():
-				self.pcrs.append(sample)
-			elif 'SOLUTIONS_BUFFERS' == sample.getSampleType():
-				self.buffers.append(sample)
-			elif 'PLASMID' == sample.getSampleType():
-				self.plasmids.append(sample)
-			elif 'YEAST' == sample.getSampleType():
-				self.yeasts.append(sample)
-			elif 'BACTERIA' == sample.getSampleType():
-				self.bacterias.append(sample)
-			elif 'ENZYME' == sample.getSampleType():
-				self.enzymes.append(sample)
-			elif 'WESTERN_BLOTTING' == sample.getSampleType():
-				self.westernBlottings.append(sample)
+		samplesByType = IpadServiceUtilities.groupSamplesByType(allSamples)
+		self.oligos = samplesByType.getSamples('OLIGO')
+		self.antibodies = samplesByType.getSamples('ANTIBODY')
+		self.chemicals = samplesByType.getSamples('CHEMICAL')
+		self.protocols = samplesByType.getSamples('GENERAL_PROTOCOL')
+		self.medias = samplesByType.getSamples('MEDIA')
+		self.pcrs = samplesByType.getSamples('PCR')
+		self.buffers = samplesByType.getSamples('SOLUTIONS_BUFFERS')
+		self.plasmids = samplesByType.getSamples('PLASMID')
+		self.yeasts = samplesByType.getSamples('YEAST')
+		self.bacterias = samplesByType.getSamples('BACTERIA')
+		self.enzymes = samplesByType.getSamples('ENZYME')
+		self.westernBlottings = samplesByType.getSamples('WESTERN_BLOTTING')
 
 	def processRequest(self):
 		self.process_request()
