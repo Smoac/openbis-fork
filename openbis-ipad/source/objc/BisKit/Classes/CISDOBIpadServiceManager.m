@@ -410,7 +410,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 
 - (CISDOBAsyncCall *)searchForText:(NSString *)searchText
 {
-    CISDOBAsyncCall *call = [self.service searchForText: searchText];
+    CISDOBAsyncCall *call = [self.service searchForText: searchText domain: nil];
     CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call];
     
     managerCall.willCallNotificationName = CISDOBIpadServiceWillSearchForEntitiesNotification;

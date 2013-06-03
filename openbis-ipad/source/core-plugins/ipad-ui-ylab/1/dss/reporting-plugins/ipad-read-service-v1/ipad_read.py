@@ -121,75 +121,8 @@ class RequestHandler(IRequestHandler):
 		self.retrieve_data()
 		self.add_data_rows()
 
-	def sort_samples_by_type(self, allSamples):
-		samplesByType = IpadServiceUtilities.groupSamplesByType(allSamples)
-		self.oligos = samplesByType.getSamples('OLIGO')
-		self.antibodies = samplesByType.getSamples('ANTIBODY')
-		self.chemicals = samplesByType.getSamples('CHEMICAL')
-		self.protocols = samplesByType.getSamples('GENERAL_PROTOCOL')
-		self.medias = samplesByType.getSamples('MEDIA')
-		self.pcrs = samplesByType.getSamples('PCR')
-		self.buffers = samplesByType.getSamples('SOLUTIONS_BUFFERS')
-		self.plasmids = samplesByType.getSamples('PLASMID')
-		self.yeasts = samplesByType.getSamples('YEAST')
-		self.bacterias = samplesByType.getSamples('BACTERIA')
-		self.enzymes = samplesByType.getSamples('ENZYME')
-		self.westernBlottings = samplesByType.getSamples('WESTERN_BLOTTING')
-
 	def processRequest(self):
 		self.process_request()
-
-class ClientPreferencesRequestHandler(object):
-	"""Abstract superclass for the handlers for CLIENT_PREFS request.
-
-	This request has a slightly different structure, since it does not return entities.
-
-	Subclasses should override the preferences_dict method to return the preferences dictionary. The superclass
-	implements this method with the default values for the standard keys.
-	"""
-
-	def __init__(self, parameters, builder):
-		self.parameters = parameters
-		self.builder = builder
-		self.headers = ['KEY', 'VALUE']
-
-	def preferences_dict(self):
-		"""The dictionary containing the value for the client preferences. 
-
-		Subclasses may override if they want to change any of the values. The best way to override is to call
-		default_preferences_dict then modify/extend the resulting dictionary"""
-		return self.default_preferences_dict()
-
-	def default_preferences_dict(self):
-		"""The dictionary containing the standard keys and and default values for those keys"""
-		prefs = { 
-			# The refresh interval is a value in seconds
-			'ROOT_SET_REFRESH_INTERVAL' : 60 * 30 
-		}
-		return prefs
-
-	def add_data_rows(self):
-		"""Take the information from the preferences dict and put it into the table."""
-		prefs = self.preferences_dict()
-		for key in prefs:
-			row = self.builder.addRow()
-			row.setCell('KEY', key)
-			row.setCell('VALUE', prefs[key])
-
-	def add_headers(self):
-		"""Configure the headers for this request.
-
-		For preference request, the headers are 
-			KEY : The key of the preference.
-			VALUE : The value of the preference.
-		"""
-		for header in self.headers:
-			self.builder.addHeader(header)
-
-	def process_request(self):
-		"""Execute the steps necessary to process the request."""
-		self.add_headers()
-		self.add_data_rows()
 
 class AllDataRequestHandler(RequestHandler):
 	"""Abstract Handler for the ALLDATA request."""
@@ -612,6 +545,21 @@ class YeastLabRootRequestHandler(RootRequestHandler):
 		if sample_type in nav_perm_ids:
 			self.add_nav_layer_and_data_rows(nav_layer, rows)
 
+	def sort_samples_by_type(self, allSamples):
+		samplesByType = IpadServiceUtilities.groupSamplesByType(allSamples)
+		self.oligos = samplesByType.getSamples('OLIGO')
+		self.antibodies = samplesByType.getSamples('ANTIBODY')
+		self.chemicals = samplesByType.getSamples('CHEMICAL')
+		self.protocols = samplesByType.getSamples('GENERAL_PROTOCOL')
+		self.medias = samplesByType.getSamples('MEDIA')
+		self.pcrs = samplesByType.getSamples('PCR')
+		self.buffers = samplesByType.getSamples('SOLUTIONS_BUFFERS')
+		self.plasmids = samplesByType.getSamples('PLASMID')
+		self.yeasts = samplesByType.getSamples('YEAST')
+		self.bacterias = samplesByType.getSamples('BACTERIA')
+		self.enzymes = samplesByType.getSamples('ENZYME')
+		self.westernBlottings = samplesByType.getSamples('WESTERN_BLOTTING')			
+
 	def retrieve_data(self):
 		all_samples_sc = SearchCriteria()
 		all_samples_sc.setOperator(SearchCriteria.SearchOperator.MATCH_ANY_CLAUSES)
@@ -692,6 +640,21 @@ class YeastLabDrillRequestHandler(DrillRequestHandler):
 
 class YeastLabDetailRequestHandler(DetailRequestHandler):
 	"""Handler for the DETAIL request."""
+
+	def sort_samples_by_type(self, allSamples):
+		samplesByType = IpadServiceUtilities.groupSamplesByType(allSamples)
+		self.oligos = samplesByType.getSamples('OLIGO')
+		self.antibodies = samplesByType.getSamples('ANTIBODY')
+		self.chemicals = samplesByType.getSamples('CHEMICAL')
+		self.protocols = samplesByType.getSamples('GENERAL_PROTOCOL')
+		self.medias = samplesByType.getSamples('MEDIA')
+		self.pcrs = samplesByType.getSamples('PCR')
+		self.buffers = samplesByType.getSamples('SOLUTIONS_BUFFERS')
+		self.plasmids = samplesByType.getSamples('PLASMID')
+		self.yeasts = samplesByType.getSamples('YEAST')
+		self.bacterias = samplesByType.getSamples('BACTERIA')
+		self.enzymes = samplesByType.getSamples('ENZYME')
+		self.westernBlottings = samplesByType.getSamples('WESTERN_BLOTTING')	
 
 	def retrieve_data(self):
 		# Get the data and add a row for each data item

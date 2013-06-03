@@ -102,7 +102,7 @@ The iPad data model tracks information for displaying and navigating between ent
 		</tr>
 <!--
 		<tr>
-			<td>IMAGE_URL (deprecated)</td>
+			<td>IMAGE_URL (deprecated: use IMAGES instead)</td>
 			<td>A url for an image associated with this entity. If None or empty, no image is shown.</td>
 			<td>Shown in detail views.</td>
 			<td>An image from the DSS. An external image.</td>
@@ -214,14 +214,74 @@ The communication model between the iPad and the service has been designed to tr
 		</tr>
 		<tr>
 			<td>SEARCH</td>
-			<td>searchtext : String</td>
-			<td>Return a list of entities that match the specified search string</td>
+			<td>{searchtext : String, searchdomain : Map}</td>
+			<td>Return a list of entities that match the specified search string. The search is restricted to the searchdomain, which is either null or one of the domains specified in the preferences.</td>
 			<td>Used to search for matching entities on the server. This returns information necessary to navigate the results (same as DRILL).</td>
 			<td>PERM_ID, REFCON, CATEGORY, SUMMARY_HEADER, SUMMARY, CHILDREN</td>
 		</tr>		
 	</tbody>
 </table>
 
+
+Perferences
+-----------
+
+The request for pereferences returns information used to configure the client. This information includes the following:
+
+<table>
+	<thead>
+		<tr>
+			<th>Key</th>
+			<th>Value Type</th>
+			<th>Description</th>
+			<th>Use</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>CLIENT_PREFS</td>
+			<td>None</td>
+			<td>Return values for the client preferences.</td>
+			<td>Used to initialize client behavior</td>
+			<td>KEY, VALUE</td>
+		</tr>
+		<tr>
+			<td>NAVIGATION</td>
+			<td>None</td>
+			<td>Return the top-level categories used for navigation.</td>
+			<td>Used to initialize the top level of the navigation view.</td>
+			<td>PERM_ID, REFCON, CATEGORY, SUMMARY_HEADER, SUMMARY, ROOT_LEVEL</td>
+		</tr>		
+		<tr>
+			<td>ROOT</td>
+			<td>entities : List of {"PERM_ID" : String, REFCON : String}</td>
+			<td>Return root entities for the specified navigational entities</td>
+			<td>Used to track which entities should be constantly available on the iPad.</td>
+			<td>PERM_ID, REFCON, CATEGORY, SUMMARY_HEADER, SUMMARY, CHILDREN, ROOT_LEVEL</td>
+		</tr>
+		<tr>
+			<td>DRILL</td>
+			<td>entities : List of {"PERM_ID" : String, REFCON : String}</td>
+			<td>Return navigational information for the specified entities.</td>
+			<td>Used to navigate. The result should at least include data for children of children to permit efficient navigation on the iPad.</td>
+			<td>PERM_ID, REFCON, CATEGORY, SUMMARY_HEADER, SUMMARY, CHILDREN</td>
+		</tr>
+		<tr>
+			<td>DETAIL</td>
+			<td>entities : List of {"PERM_ID" : String, REFCON : String}</td>
+			<td>Return detail information for the specified entities.</td>
+			<td>Used to display the entity in the detail view. This should return all information necessary to show the entity.</td>
+			<td>PERM_ID, REFCON, SUMMARY_HEADER, SUMMARY, IDENTIFIER, IMAGES, PROPERTIES</td>
+		</tr>
+		<tr>
+			<td>SEARCH</td>
+			<td>{searchtext : String, searchdomain : Map}</td>
+			<td>Return a list of entities that match the specified search string. The search is restricted to the searchdomain, which is either null or one of the domains specified in the preferences.</td>
+			<td>Used to search for matching entities on the server. This returns information necessary to navigate the results (same as DRILL).</td>
+			<td>PERM_ID, REFCON, CATEGORY, SUMMARY_HEADER, SUMMARY, CHILDREN</td>
+		</tr>		
+	</tbody>
+</table>
 
 
 

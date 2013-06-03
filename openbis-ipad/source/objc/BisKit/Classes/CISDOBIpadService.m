@@ -225,12 +225,13 @@ static id OpenBisTableRowValueAtIndex(NSArray *rowData, NSUInteger index)
     return [self detailsForEntities: permIds refcons: refcons];
 }
 
-- (CISDOBAsyncCall *)searchForText:(NSString *)searchText
+- (CISDOBAsyncCall *)searchForText:(NSString *)searchText domain:(id)searchDomain
 {
     NSDictionary *parameters =
         [NSDictionary dictionaryWithObjectsAndKeys:
             @"SEARCH", @"requestKey",
-            searchText, @"searchtext", nil];
+            searchText, @"searchtext",
+            searchDomain, @"searchdomain", nil];
     return [self createIpadServiceCallWithParameters: parameters];
 }
 

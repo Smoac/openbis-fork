@@ -405,8 +405,6 @@ static BOOL IsPermIdTarget(NSString *permId)
 {
     [self performLogin];
     [self performSearch: @"5-hydroxytryptamine 3"];
-    [self performRootLevelCall];
-    
 }
 
 - (void)testInvalidSessionToken

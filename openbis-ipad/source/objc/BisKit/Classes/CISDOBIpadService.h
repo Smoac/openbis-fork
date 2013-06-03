@@ -74,8 +74,8 @@ enum CISOBIpadServiceErrorCode {
 //! A convenience version of detailsForEntities:refcons: for one entity.
 - (CISDOBAsyncCall *)detailsForEntityWithPermId:(NSString *)permId refcon:(id)refcon;
 
-//! Search for entities matching the searchText. The success block will be invoked with a collection of CISDOBIpadRawEntity objects.
-- (CISDOBAsyncCall *)searchForText:(NSString *)searchText;
+//! Search for entities matching the searchText in the given searchDomain. The searchDomain may be nil. The success block will be invoked with a collection of CISDOBIpadRawEntity objects.
+- (CISDOBAsyncCall *)searchForText:(NSString *)searchText domain:(id)searchDomain;
 
 // Utility Methods
 
@@ -118,6 +118,10 @@ enum CISOBIpadServiceErrorCode {
 }
 
 @property(readonly) NSTimeInterval rootSetRefreshInterval;   //<! The min interval (in seconds) to wait between refreshes of the root data set.
+
+@property(readonly) NSArray *searchDomains; //<! The collection of search domains. Each search domain is a dictionary with keys: "key" and "label". The collection may be empty.
+
+@property(readonly) NSDictionary *defaultSearchDomain; //<! The default search domain. This is either the first one in the search domains collection or nil if the collection is empty.
 
 @property(readonly) NSDictionary *preferences; //<! Used to access the raw preferences dictionary. The recommended way to get preferences is with the above accessors.
 
