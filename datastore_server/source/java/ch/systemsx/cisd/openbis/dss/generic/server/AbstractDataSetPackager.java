@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
+import java.util.zip.CRC32;
 
+import ch.systemsx.cisd.common.io.IOUtilities;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
@@ -49,8 +51,16 @@ public abstract class AbstractDataSetPackager
     /**
      * Adds an entry with specified entry path and last modification date filled with data from
      * specified input stream.
+     * 
+     * @param size Number of bytes.
+     * @param checksum Checksum. Can be 0 if {@link #isChecksumNeeded()} return <code>false</code>.
      */
-    public abstract void addEntry(String entryPath, long lastModified, InputStream in);
+    public abstract void addEntry(String entryPath, long lastModified, long size, long checksum, InputStream in);
+    
+    /**
+     * Returns <code>true</code> if the checksum is needed.
+     */
+    protected abstract boolean isChecksumNeeded();
     
     /**
      * Closes the package.
@@ -61,8 +71,15 @@ public abstract class AbstractDataSetPackager
     {
         try
         {
-            addEntry(rootPath + META_DATA_FILE_NAME, System.currentTimeMillis(),
-                    new ByteArrayInputStream(MetaDataBuilder.createMetaData(externalData).getBytes()));
+            byte[] bytes = MetaDataBuilder.createMetaData(externalData).getBytes();
+            CRC32 checksumCalculator = new CRC32();
+            for (byte b : bytes)
+            {
+                checksumCalculator.update(0xff & b);
+            }
+            Long checksum = checksumCalculator.getValue();
+            addEntry(rootPath + META_DATA_FILE_NAME, System.currentTimeMillis(), new Long(bytes.length), checksum,
+                    new ByteArrayInputStream(bytes));
         } catch (Exception ex)
         {
             throw new RuntimeException(
@@ -111,7 +128,20 @@ public abstract class AbstractDataSetPackager
             }
         } else
         {
-            addEntry(newRootPath + node.getRelativePath(), node.getLastModified(),
+            long size = node.getFileLength();
+            long checksum = 0;
+            if (isChecksumNeeded())
+            {
+                boolean checksumCRC32Precalculated = node.isChecksumCRC32Precalculated();
+                if (checksumCRC32Precalculated)
+                {
+                    checksum = node.getChecksumCRC32();
+                } else 
+                {
+                    checksum = IOUtilities.getChecksumCRC32(node.getInputStream());
+                }
+            }
+            addEntry(newRootPath + node.getRelativePath(), node.getLastModified(), size, checksum,
                     node.getInputStream());
         }
     }

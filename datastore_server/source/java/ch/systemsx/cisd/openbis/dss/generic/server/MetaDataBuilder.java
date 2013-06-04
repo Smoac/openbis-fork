@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -86,10 +87,10 @@ public class MetaDataBuilder
         builder.dataSetProperties(dataSet.getProperties());
     
         StringBuilder stringBuilder = new StringBuilder();
-        List<AbstractExternalData> parents = new ArrayList<AbstractExternalData>(dataSet.getParents());
-        Collections.sort(parents, DATA_SET_COMPARATOR);
+        List<AbstractExternalData> parents = getParents(dataSet);
         if (parents.isEmpty() == false)
         {
+            Collections.sort(parents, DATA_SET_COMPARATOR);
             for (AbstractExternalData parent : parents)
             {
                 if (stringBuilder.length() > 0)
@@ -121,6 +122,12 @@ public class MetaDataBuilder
         builder.experiment("registrator", experiment.getRegistrator());
         builder.experimentProperties(experiment.getProperties());
         return builder.getRenderedMetaData();
+    }
+
+    private static List<AbstractExternalData> getParents(AbstractExternalData dataSet)
+    {
+        Collection<AbstractExternalData> parents = dataSet.getParents();
+        return parents == null ? new ArrayList<AbstractExternalData>() : new ArrayList<AbstractExternalData>(parents);
     }
 
     private final StringBuilder builder = new StringBuilder();

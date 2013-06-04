@@ -51,29 +51,42 @@ public class ZipDataSetPackager extends AbstractDataSetPackager
     }
 
     @Override
-    public void addEntry(String entryPath, long lastModified, InputStream in)
+    protected boolean isChecksumNeeded()
     {
+        return compress == false;
+    }
+    
+    @Override
+    public void addEntry(String entryPath, long lastModified, long size, long checksum, InputStream in)
+    {
+        ZipOutputStream zos = getZipOutputStream();
         try
         {
             ZipEntry zipEntry = new ZipEntry(entryPath.replace('\\', '/'));
             zipEntry.setTime(lastModified);
             zipEntry.setMethod(compress ? ZipEntry.DEFLATED : ZipEntry.STORED);
-            getZipOutputStream().putNextEntry(zipEntry);
+            if (compress == false)
+            {
+                zipEntry.setSize(size);
+                zipEntry.setCompressedSize(size);
+                zipEntry.setCrc(0xffffffffL & checksum);
+            }
+            zos.putNextEntry(zipEntry);
             int len;
             byte[] buffer = new byte[1024];
             while ((len = in.read(buffer)) > 0)
             {
-                getZipOutputStream().write(buffer, 0, len);
+                zos.write(buffer, 0, len);
             }
         } catch (IOException ex)
         {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            throw new RuntimeException("Error while adding entry " + entryPath, ex);
         } finally
         {
             IOUtils.closeQuietly(in);
             try
             {
-                getZipOutputStream().closeEntry();
+                zos.closeEntry();
             } catch (IOException ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
