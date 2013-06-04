@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchOperator;
 import ch.systemsx.cisd.openbis.knime.common.AbstractDescriptionBasedNodeDialog;
-import ch.systemsx.cisd.openbis.knime.common.Util;
+import ch.systemsx.cisd.openbis.knime.common.GUIUtil;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
@@ -179,7 +179,7 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
         {
             panel.setCursor(new Cursor(Cursor.WAIT_CURSOR));
             List<DataSet> dataSets = loadDataSets(description, facade);
-            List<DataSet> selectedDataSets = Util.getSelectedDataSets(getPanel(), cursor, dataSets, false);
+            List<DataSet> selectedDataSets = GUIUtil.getSelectedDataSets(getPanel(), cursor, dataSets, false);
             if (selectedDataSets.isEmpty())
             {
                 return;

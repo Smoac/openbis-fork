@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: openBIS KNIME Nodes
 Bundle-SymbolicName: ch.systemsx.cisd.openbis.knime;singleton:=true
-Bundle-Version: 13.5.0.qualifier
+Bundle-Version: 13.6.0.qualifier
 Bundle-Vendor: CISD ETH Zürich
 Require-Bundle: org.knime.workbench.core,
  org.knime.base,

@@ -180,6 +180,7 @@ public class EntityChooser
             });
         String title = StringUtils.capitalize(entityType.toString().toLowerCase()) + " Chooser";
         final JDialog dialog = optionPane.createDialog(component, title);
+        dialog.setResizable(true);
         optionPane.addPropertyChangeListener(new PropertyChangeListener()
             {
                 @Override
