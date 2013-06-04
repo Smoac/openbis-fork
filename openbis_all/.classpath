@@ -20,10 +20,9 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/openbis_api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/openbis_standard_technologies"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sanofi"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/integration-tests"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/js-test"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ui-test"/>
-
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/openbis_mobile"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
