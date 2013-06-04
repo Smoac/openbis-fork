@@ -16,13 +16,14 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker;
 
@@ -36,14 +37,16 @@ import de.schlichtherle.util.zip.ZipOutputStream;
  */
 public class ZipDataSetPackager extends AbstractDataSetPackager
 {
-    private final ZipOutputStream zipOutputStream;
+    private final File zipFile;
     private final boolean compress;
+    
+    private ZipOutputStream zipOutputStream;
 
-    protected ZipDataSetPackager(ZipOutputStream zipOutputStream, boolean compress, ISimpleLogger logger, 
+    public ZipDataSetPackager(File zipFile, boolean compress,  
             IHierarchicalContentProvider contentProvider, DataSetExistenceChecker dataSetExistenceChecker)
     {
-        super(logger, contentProvider, dataSetExistenceChecker);
-        this.zipOutputStream = zipOutputStream;
+        super(contentProvider, dataSetExistenceChecker);
+        this.zipFile = zipFile;
         this.compress = compress;
     }
 
@@ -55,12 +58,12 @@ public class ZipDataSetPackager extends AbstractDataSetPackager
             ZipEntry zipEntry = new ZipEntry(entryPath.replace('\\', '/'));
             zipEntry.setTime(lastModified);
             zipEntry.setMethod(compress ? ZipEntry.DEFLATED : ZipEntry.STORED);
-            zipOutputStream.putNextEntry(zipEntry);
+            getZipOutputStream().putNextEntry(zipEntry);
             int len;
             byte[] buffer = new byte[1024];
             while ((len = in.read(buffer)) > 0)
             {
-                zipOutputStream.write(buffer, 0, len);
+                getZipOutputStream().write(buffer, 0, len);
             }
         } catch (IOException ex)
         {
@@ -70,12 +73,45 @@ public class ZipDataSetPackager extends AbstractDataSetPackager
             IOUtils.closeQuietly(in);
             try
             {
-                zipOutputStream.closeEntry();
+                getZipOutputStream().closeEntry();
             } catch (IOException ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
         }
+    }
+
+    @Override
+    public void close()
+    {
+        if (zipOutputStream != null)
+        {
+            try
+            {
+                zipOutputStream.close();
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+    }
+    
+    private ZipOutputStream getZipOutputStream()
+    {
+        if (zipOutputStream == null)
+        {
+            FileOutputStream outputStream = null;
+            try
+            {
+                outputStream = new FileOutputStream(zipFile);
+                zipOutputStream = new ZipOutputStream(outputStream);
+            } catch (Exception ex)
+            {
+                IOUtils.closeQuietly(outputStream);
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+        return zipOutputStream;
     }
 
 }

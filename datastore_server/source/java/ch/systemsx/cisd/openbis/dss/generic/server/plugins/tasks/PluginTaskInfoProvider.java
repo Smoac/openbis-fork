@@ -126,6 +126,7 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
     {
         processingPlugins.check(true);
         reportingPlugins.check(false);
+        archiverTaskFactory.check(storeRoot);
     }
 
     @Override

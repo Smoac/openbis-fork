@@ -28,6 +28,8 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
@@ -134,6 +136,19 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         public abstract Status execute(IDataSetFileOperationsManager manager,
                 IDatasetLocation dataSet);
     }
+    
+    private static final IDataSetFileOperationsManager createFileOperationsManager(Properties properties)
+    {
+        SectionProperties sectionProperties =
+                PropertyParametersUtil.extractSingleSectionProperties(properties, "distributed", false);
+        Properties props = sectionProperties.getProperties();
+        if (props.isEmpty())
+        {
+            return new DataSetFileOperationsManager(properties,
+                    new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory());
+        }
+        return new DistributedPackagingDataSetFileOperationsManager(props);
+    }
 
     private transient IDataSetFileOperationsManager fileOperationsManager;
 
@@ -143,8 +158,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
 
     public RsyncArchiver(Properties properties, File storeRoot)
     {
-        this(properties, storeRoot, new DataSetFileOperationsManager(properties,
-                new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory()));
+        this(properties, storeRoot, createFileOperationsManager(properties));
     }
 
     @Private RsyncArchiver(Properties properties, File storeRoot,
@@ -201,11 +215,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                                         .asHierarchicalContent(temp, null);
                     } else
                     {
-                        archivedContent =
-                                new DefaultFileBasedHierarchicalContentFactory()
-                                        .asHierarchicalContent(
-                                                fileOperationsManager.getDestinationFile(dataset),
-                                                null);
+                        archivedContent = fileOperationsManager.getAsHierarchicalContent(dataset);
                     }
 
                     IHierarchicalContentNode root = content.getRootNode();

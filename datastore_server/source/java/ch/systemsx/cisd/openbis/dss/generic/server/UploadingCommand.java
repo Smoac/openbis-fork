@@ -17,9 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +31,6 @@ import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
-import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -51,8 +47,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
-
-import de.schlichtherle.util.zip.ZipOutputStream;
 
 /**
  * A command which zips the given data sets and uploads the ZIP file to CIFEX.
@@ -278,24 +272,24 @@ class UploadingCommand implements IDataSetCommand
 
     private boolean fillZipFile(IDataSetDirectoryProvider dataSetDirectoryProvider, File zipFile)
     {
-        OutputStream outputStream = null;
-        ZipOutputStream zipOutputStream = null;
+        AbstractDataSetPackager packager = null;
+        DataSetExistenceChecker dataSetExistenceChecker =
+                new DataSetExistenceChecker(dataSetDirectoryProvider,
+                        TimingParameters.create(new Properties()));
         try
         {
-            outputStream = new FileOutputStream(zipFile);
-            zipOutputStream = new ZipOutputStream(outputStream);
-            DataSetExistenceChecker dataSetExistenceChecker =
-                    new DataSetExistenceChecker(dataSetDirectoryProvider,
-                            TimingParameters.create(new Properties()));
-            Log4jSimpleLogger logger = new Log4jSimpleLogger(notificationLog);
-            ZipDataSetPackager packager = new ZipDataSetPackager(zipOutputStream, true, 
-                    logger, getHierarchicalContentProvider(), dataSetExistenceChecker);
+            packager = new ZipDataSetPackager(zipFile, true, 
+                    getHierarchicalContentProvider(), dataSetExistenceChecker);
             for (AbstractExternalData externalData : dataSets)
             {
                 String newRootPath = createRootPath(externalData) + "/";
-                boolean success = packager.addDataSetTo(newRootPath, externalData);
-                if (success == false)
+                try
                 {
+                    
+                    packager.addDataSetTo(newRootPath, externalData);
+                } catch (RuntimeException ex)
+                {
+                    notificationLog.error(ex.getMessage(), ex);
                     return false;
                 }
             }
@@ -306,14 +300,14 @@ class UploadingCommand implements IDataSetCommand
             return false;
         } finally
         {
-            if (zipOutputStream != null)
+            if (packager != null)
             {
                 try
                 {
-                    zipOutputStream.close();
-                } catch (IOException ex)
+                    packager.close();
+                } catch (Exception ex)
                 {
-                    notificationLog.error("Couldn't close zip file", ex);
+                    notificationLog.error("Couldn't close package", ex);
                 }
             }
         }
@@ -340,8 +334,7 @@ class UploadingCommand implements IDataSetCommand
     private void sendEMail(String message)
     {
         final IMailClient mailClient = new MailClient(mailClientParameters);
-        mailClient
-                .sendMessage("[Data Set Server] Uploading failed", message, null, null, userEMail);
+        mailClient.sendMessage("[Data Set Server] Uploading failed", message, null, null, userEMail);
     }
 
     @Override

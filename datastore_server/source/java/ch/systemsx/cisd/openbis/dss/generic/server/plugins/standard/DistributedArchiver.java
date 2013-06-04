@@ -21,13 +21,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.time.TimingParameters;
+import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
+import ch.systemsx.cisd.openbis.dss.generic.server.ZipDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * 
@@ -38,21 +48,91 @@ public class DistributedArchiver extends AbstractArchiverProcessingPlugin
 {
     private static final long serialVersionUID = 1L;
     
+    private final boolean compress;
+    
+    private File destination;
+    
     public DistributedArchiver(Properties properties, File storeRoot)
     {
         super(properties, storeRoot, null, null);
+        destination = new File(properties.getProperty("destination"));
+        compress = PropertyUtils.getBoolean(properties, "compress", true);
+        destination.mkdirs();
     }
     
     @Override
     protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets, ArchiverTaskContext context)
     {
-        List<String> dataSetCodes = new ArrayList<String>();
+        List<AbstractExternalData> dataSets = getDataSetMetaData(datasets);
+        IHierarchicalContentProvider contentProvider = context.getHierarchicalContentProvider();
+        IDataSetDirectoryProvider directoryProvider = context.getDirectoryProvider();
+        IShareIdManager shareIdManager = directoryProvider.getShareIdManager();
+        DataSetExistenceChecker dataSetExistenceChecker =
+                new DataSetExistenceChecker(directoryProvider, TimingParameters.create(new Properties()));
+        DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
+        for (AbstractExternalData dataSet : dataSets)
+        {
+            Status status = Status.OK;
+            String dataSetCode = dataSet.getCode();
+            File file = new File(getArchive(dataSet), dataSetCode + ".zip");
+            shareIdManager.lock(dataSetCode);
+            AbstractDataSetPackager dataSetPackager = null;
+            try
+            {
+                dataSetPackager = createPackager(file, contentProvider, dataSetExistenceChecker);
+                dataSetPackager.addDataSetTo("", dataSet);
+            } catch (Exception ex)
+            {
+                status = Status.createError(ex.toString());
+                operationLog.error("Couldn't create package file: " + file, ex);
+            } finally
+            {
+                if (dataSetPackager != null)
+                {
+                    try
+                    {
+                        dataSetPackager.close();
+                    } catch (Exception ex)
+                    {
+                        status = Status.createError("Couldn't close package file: " + file + ": " + ex);
+                    }
+                }
+                shareIdManager.releaseLock(dataSetCode);
+                operationLog.info("Data set " + dataSetCode + " archived: " + file);
+            }
+            statuses.addResult(dataSetCode, status, Operation.ARCHIVE);
+        }
+        return statuses;
+    }
+
+    private AbstractDataSetPackager createPackager(File file, IHierarchicalContentProvider contentProvider,
+            DataSetExistenceChecker dataSetExistenceChecker)
+    {
+        return new ZipDataSetPackager(file, compress, contentProvider, dataSetExistenceChecker);
+    }
+
+    private List<AbstractExternalData> getDataSetMetaData(List<DatasetDescription> datasets)
+    {
+        IEncapsulatedOpenBISService service = getService();
+        List<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
         for (DatasetDescription datasetDescription : datasets)
         {
-            dataSetCodes.add(datasetDescription.getDataSetCode());
+            AbstractExternalData dataSet = service.tryGetDataSet(datasetDescription.getDataSetCode());
+            String experimentIdentifier = datasetDescription.getExperimentIdentifier();
+            dataSet.setExperiment(service.tryGetExperiment(ExperimentIdentifierFactory.parse(experimentIdentifier)));
+            String sampleIdentifier = datasetDescription.getSampleIdentifier();
+            if (sampleIdentifier != null)
+            {
+                dataSet.setSample(service.tryGetSampleWithExperiment(SampleIdentifierFactory.parse(sampleIdentifier)));
+            }
+            dataSets.add(dataSet);
         }
-        List<AbstractExternalData> dataSets = getService().listDataSetsByCode(dataSetCodes);
-        return null;
+        return dataSets;
+    }
+    
+    private File getArchive(AbstractExternalData dataSet)
+    {
+        return destination;
     }
 
     @Override
@@ -72,15 +152,13 @@ public class DistributedArchiver extends AbstractArchiverProcessingPlugin
     @Override
     protected BooleanStatus isDataSetSynchronizedWithArchive(DatasetDescription dataset, ArchiverTaskContext context)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return BooleanStatus.createFalse();
     }
 
     @Override
     protected BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return BooleanStatus.createFalse();
     }
     
 }

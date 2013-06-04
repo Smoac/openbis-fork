@@ -20,8 +20,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
 
-import ch.systemsx.cisd.common.logging.ISimpleLogger;
-import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
@@ -38,36 +36,41 @@ public abstract class AbstractDataSetPackager
 {
     public static final String META_DATA_FILE_NAME = "meta-data.tsv";
     
-    private final ISimpleLogger logger;
     private final IHierarchicalContentProvider contentProvider;
     private final DataSetExistenceChecker dataSetExistenceChecker;
 
-    protected AbstractDataSetPackager(ISimpleLogger logger, IHierarchicalContentProvider contentProvider, 
+    protected AbstractDataSetPackager(IHierarchicalContentProvider contentProvider, 
             DataSetExistenceChecker dataSetExistenceChecker)
     {
-        this.logger = logger;
         this.contentProvider = contentProvider;
         this.dataSetExistenceChecker = dataSetExistenceChecker;
     }
+
+    /**
+     * Adds an entry with specified entry path and last modification date filled with data from
+     * specified input stream.
+     */
+    public abstract void addEntry(String entryPath, long lastModified, InputStream in);
     
-    public boolean addDataSetTo(String rootPath, AbstractExternalData externalData)
+    /**
+     * Closes the package.
+     */
+    public abstract void close();
+    
+    public void addDataSetTo(String rootPath, AbstractExternalData externalData)
     {
         try
         {
-            addEntry(rootPath + META_DATA_FILE_NAME,
-                    System.currentTimeMillis(),
+            addEntry(rootPath + META_DATA_FILE_NAME, System.currentTimeMillis(),
                     new ByteArrayInputStream(MetaDataBuilder.createMetaData(externalData).getBytes()));
         } catch (Exception ex)
         {
-            logger.log(LogLevel.ERROR,
-                    "Couldn't add meta data for data set '" + externalData.getCode()
-                            + "' to zip file.", ex);
-            return false;
+            throw new RuntimeException(
+                    "Couldn't package meta data for data set '" + externalData.getCode() + "'.", ex);
         }
-        if (dataSetExistenceChecker.dataSetExists(DataSetTranslator
-                .translateToDescription(externalData)) == false)
+        if (dataSetExistenceChecker.dataSetExists(DataSetTranslator.translateToDescription(externalData)) == false)
         {
-            return handleNonExistingDataSet(externalData, null);
+            throw handleNonExistingDataSet(externalData, null);
         }
         IHierarchicalContent root = null;
         try
@@ -75,17 +78,14 @@ public abstract class AbstractDataSetPackager
             root = contentProvider.asContent(externalData.getCode());
         } catch (Exception ex)
         {
-            return handleNonExistingDataSet(externalData, ex);
+            throw handleNonExistingDataSet(externalData, ex);
         }
         try
         {
             addTo(rootPath, root.getRootNode());
-            return true;
         } catch (Exception ex)
         {
-            logger.log(LogLevel.ERROR, "Couldn't add data set '" + externalData.getCode()
-                    + "' to zip file.", ex);
-            return false;
+            throw new RuntimeException("Couldn't package data set '" + externalData.getCode() + "'.", ex);
         } finally
         {
             if (root != null)
@@ -95,10 +95,9 @@ public abstract class AbstractDataSetPackager
         }
     }
     
-    private boolean handleNonExistingDataSet(AbstractExternalData externalData, Exception ex)
+    private RuntimeException handleNonExistingDataSet(AbstractExternalData externalData, Exception ex)
     {
-        logger.log(LogLevel.ERROR, "Data set " + externalData.getCode() + " does not exist.", ex);
-        return false;
+        return new RuntimeException("Data set '" + externalData.getCode() + "' does not exist.", ex);
     }
 
     private void addTo(String newRootPath, IHierarchicalContentNode node)
@@ -116,6 +115,4 @@ public abstract class AbstractDataSetPackager
                     node.getInputStream());
         }
     }
-    
-    public abstract void addEntry(String entryPath, long lastModified, InputStream in);
 }
