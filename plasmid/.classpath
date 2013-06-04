@@ -17,6 +17,6 @@
 	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/openbis-ipad"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/openbis_mobile"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
