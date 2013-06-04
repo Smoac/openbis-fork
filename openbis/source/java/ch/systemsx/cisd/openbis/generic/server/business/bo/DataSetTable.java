@@ -60,7 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithDifferentColumnCountException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithDifferentColumnTypesException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithIncompatibleColumnTypesException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
@@ -675,10 +675,10 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                 throw new UserFailureException("Could not merge reports from multiple data stores because '" + batchResults.getBatchId()
                         + "' data store returned a table with an incorrect number of columns (expected: " + e.getExpectedColumnCount()
                         + ", got: " + e.getAppendedColumnCount() + ")");
-            } catch (TableModelWithDifferentColumnTypesException e)
+            } catch (TableModelWithIncompatibleColumnTypesException e)
             {
                 throw new UserFailureException("Could not merge reports from multiple data stores because '" + batchResults.getBatchId()
-                        + "' data store returned a table with incorrect types of columns (expected: " + e.getExpectedColumnTypes()
+                        + "' data store returned a table with incompatible types of columns (expected: " + e.getExpectedColumnTypes()
                         + ", got: " + e.getAppendedColumnTypes() + ")");
             }
         }

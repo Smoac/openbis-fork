@@ -81,8 +81,7 @@ public class SimpleTableModelBuilder
     /**
      * Adds header with specified title and default column width 150.
      * 
-     * @throws UserFailureException if non-unique header titles are not allowed and a header with
-     *             same title has already been added.
+     * @throws UserFailureException if non-unique header titles are not allowed and a header with same title has already been added.
      */
     public void addHeader(String title)
     {
@@ -92,8 +91,7 @@ public class SimpleTableModelBuilder
     /**
      * Adds header with specified title, specified code and default column width 150.
      * 
-     * @throws UserFailureException if non-unique header titles are not allowed and a header with
-     *             same title has already been added.
+     * @throws UserFailureException if non-unique header titles are not allowed and a header with same title has already been added.
      */
     public void addHeader(String title, String code)
     {
@@ -103,8 +101,7 @@ public class SimpleTableModelBuilder
     /**
      * Adds header with specified title and specified default column width.
      * 
-     * @throws UserFailureException if non-unique header titles are not allowed and a header with
-     *             same title has already been added.
+     * @throws UserFailureException if non-unique header titles are not allowed and a header with same title has already been added.
      */
     public void addHeader(String title, int defaultColumnWidth)
     {
@@ -114,8 +111,7 @@ public class SimpleTableModelBuilder
     /**
      * Adds header with specified title, specified code and specified default column width.
      * 
-     * @throws UserFailureException if non-unique header titles are not allowed and a header with
-     *             same title has already been added.
+     * @throws UserFailureException if non-unique header titles are not allowed and a header with same title has already been added.
      */
     private void addHeader(String title, String code, int defaultColumnWidth)
     {
@@ -223,7 +219,7 @@ public class SimpleTableModelBuilder
         TableModelColumnHeader header = headers.get(index);
         DataTypeCode headerDataType = header.getDataType();
         DataTypeCode dataType = getDataTypeCodeFor(value);
-        if (StringUtils.isBlank(value.toString()) == false)
+        if (value != null && StringUtils.isBlank(value.toString()) == false)
         {
             DataTypeCode compatibleDataType =
                     DataTypeUtils.getCompatibleDataType(headerDataType, dataType);

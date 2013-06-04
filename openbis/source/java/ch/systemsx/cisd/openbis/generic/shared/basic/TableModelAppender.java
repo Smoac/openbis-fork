@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -83,14 +84,27 @@ public class TableModelAppender
             expectedTypes.add(expectedHeader.getDataType());
         }
 
-        for (TableModelColumnHeader appendedHeader : tableModel.getHeader())
+        if (tableModel.getHeader() != null)
         {
-            appendedTypes.add(appendedHeader.getDataType());
+            for (TableModelColumnHeader appendedHeader : tableModel.getHeader())
+            {
+                appendedTypes.add(appendedHeader.getDataType());
+            }
         }
 
-        if (expectedTypes.equals(appendedTypes) == false)
+        Iterator<DataTypeCode> expectedTypeIter = expectedTypes.iterator();
+        Iterator<DataTypeCode> appendedTypeIter = appendedTypes.iterator();
+
+        while (expectedTypeIter.hasNext() && appendedTypeIter.hasNext())
         {
-            throw new TableModelWithDifferentColumnTypesException(expectedTypes, appendedTypes);
+            DataTypeCode expectedType = expectedTypeIter.next();
+            DataTypeCode appendedType = appendedTypeIter.next();
+
+            if (expectedType != null && appendedType != null
+                    && expectedType.equals(appendedType) == false)
+            {
+                throw new TableModelWithIncompatibleColumnTypesException(expectedTypes, appendedTypes);
+            }
         }
     }
 
@@ -133,7 +147,7 @@ public class TableModelAppender
 
     }
 
-    public static class TableModelWithDifferentColumnTypesException extends IllegalTableModelException
+    public static class TableModelWithIncompatibleColumnTypesException extends IllegalTableModelException
     {
 
         private static final long serialVersionUID = 1L;
@@ -142,7 +156,7 @@ public class TableModelAppender
 
         private List<DataTypeCode> appendedColumnTypes;
 
-        public TableModelWithDifferentColumnTypesException(List<DataTypeCode> expectedColumnTypes, List<DataTypeCode> appendedColumnTypes)
+        public TableModelWithIncompatibleColumnTypesException(List<DataTypeCode> expectedColumnTypes, List<DataTypeCode> appendedColumnTypes)
         {
             this.expectedColumnTypes = expectedColumnTypes;
             this.appendedColumnTypes = appendedColumnTypes;

@@ -24,7 +24,7 @@ import junit.framework.Assert;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithDifferentColumnCountException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithDifferentColumnTypesException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithIncompatibleColumnTypesException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
@@ -112,7 +112,35 @@ public class TableModelAppenderTest
     }
 
     @Test
-    public void testAppendWithDifferentTypesOfColumns()
+    public void testAppendWithCompatibleTypesOfColumns()
+    {
+        SimpleTableModelBuilder builder1 = new SimpleTableModelBuilder();
+        builder1.addHeader("column1");
+        builder1.addHeader("column2");
+        builder1.addRow(Arrays.asList(SimpleTableModelBuilder.asText("row1_column1"), SimpleTableModelBuilder.asText("row1_column2")));
+        builder1.addRow(Arrays.asList(SimpleTableModelBuilder.asText("row2_column1"), SimpleTableModelBuilder.asText("row2_column2")));
+
+        SimpleTableModelBuilder builder2 = new SimpleTableModelBuilder();
+        builder2.addHeader("column1");
+        builder2.addHeader("column2");
+        builder2.addRow(Arrays.asList(null, SimpleTableModelBuilder.asText("row3_column2")));
+
+        TableModelAppender appender = new TableModelAppender();
+        appender.append(builder1.getTableModel());
+        appender.append(builder2.getTableModel());
+        TableModel result = appender.toTableModel();
+
+        Assert.assertEquals(2, result.getHeader().size());
+        Assert.assertEquals(3, result.getRows().size());
+
+        assertHeaders(result, "column1", "column2");
+        assertRow(result, 0, "row1_column1", "row1_column2");
+        assertRow(result, 1, "row2_column1", "row2_column2");
+        assertRow(result, 2, null, "row3_column2");
+    }
+
+    @Test
+    public void testAppendWithIncompatibleTypesOfColumns()
     {
         SimpleTableModelBuilder builder1 = new SimpleTableModelBuilder();
         builder1.addHeader("column1");
@@ -131,7 +159,7 @@ public class TableModelAppenderTest
             appender.append(builder1.getTableModel());
             appender.append(builder2.getTableModel());
             Assert.fail();
-        } catch (TableModelWithDifferentColumnTypesException e)
+        } catch (TableModelWithIncompatibleColumnTypesException e)
         {
             Assert.assertEquals(Arrays.asList(DataTypeCode.VARCHAR, DataTypeCode.VARCHAR), e.getExpectedColumnTypes());
             Assert.assertEquals(Arrays.asList(DataTypeCode.VARCHAR, DataTypeCode.INTEGER), e.getAppendedColumnTypes());
@@ -155,7 +183,7 @@ public class TableModelAppenderTest
         for (ISerializableComparable value : row.getValues())
         {
             StringTableCell cell = (StringTableCell) value;
-            Assert.assertEquals(rowValues[columnIndex++], cell.toString());
+            Assert.assertEquals(rowValues[columnIndex++], cell != null ? cell.toString() : null);
         }
     }
 }
