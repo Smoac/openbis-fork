@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.common.multiplexer;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +68,7 @@ public class ThreadPoolMultiplexer implements IMultiplexer
     public static <O, I, R> Map<I, List<O>> createBatchIdToObjectsMap(
             final List<? extends O> objects, final IBatchIdProvider<O, I> batchIdProvider)
     {
-        Map<I, List<O>> batchIdToObjectsMap = new HashMap<I, List<O>>();
+        Map<I, List<O>> batchIdToObjectsMap = new LinkedHashMap<I, List<O>>();
 
         if (objects != null)
         {
