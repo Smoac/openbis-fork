@@ -232,6 +232,8 @@ def writeExcel(myoptions, configDict, service, piName, piDict,
   
   for lane in listofLanes:
     singleSampleColumns = uniqueColumn()
+    
+    sampleCodeForInvoicing = []
  
     for code in listOfCodeList[lane-1]:
       logger.info ('Processing: ' + code)
@@ -298,6 +300,7 @@ def writeExcel(myoptions, configDict, service, piName, piDict,
       
       if (sampleProperties[SAMPLETYPE] == configDict['libraryTypeName']):
         newRow = openbisRow()
+        sampleCodeForInvoicing.append(code)
         
         newRow.code = code
         newRow.externalSampleName = getValueOrEmptyString(newRow.externalSampleName, sampleProperties)
@@ -342,6 +345,8 @@ def writeExcel(myoptions, configDict, service, piName, piDict,
 
   wb.write(fileOut);
   fileOut.close();
+  
+  return sampleCodeForInvoicing
 
 def sanitizeString(myString):
   myString = myString.replace(u'ä', 'ae')
@@ -587,15 +592,22 @@ def main():
   piDict, flowCellProperties, spaceDict, invoiceDict, listOfCodeList, listOfPropertyDicts =\
              getFLowcellData(service, configDict, flowcellName, logger)
 
+  piSampleCodeDict = {}
+
   for piName in piDict:
     # create an Excel file for each PI
-    writeExcel(myoptions, configDict, service, piName, piDict,
+    sampleCodeForInvoicing = writeExcel(myoptions, configDict, service, piName, piDict,
                spaceDict[piName], flowCellProperties, flowcellName, logger,
                listOfCodeList, listOfPropertyDicts, format)
+    
+    piSampleCodeDict[piName] = sampleCodeForInvoicing
   
   for invoicePi in invoiceDict: 
-    print (magicString + invoicePi)
-
+    tmpString = magicString + invoicePi
+    for samplecode in  piSampleCodeDict[invoicePi]:
+      tmpString = tmpString + '#' + samplecode
+    print tmpString
+  
   service.logout()
 
 if __name__ == "__main__":
