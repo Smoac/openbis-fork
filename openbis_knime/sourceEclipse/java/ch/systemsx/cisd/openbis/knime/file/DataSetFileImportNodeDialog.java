@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.knime.common.AbstractDescriptionBasedNodeDialog;
+import ch.systemsx.cisd.openbis.knime.common.DefaultAsyncNodeAction;
 import ch.systemsx.cisd.openbis.knime.common.EntityChooser;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
@@ -180,10 +181,9 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
     {
         try
         {
-            String ownerOrNull =
-                    new EntityChooser(getPanel(), DataSetOwnerType.DATA_SET, true,
-                            facade.getSessionToken(), facade.getGeneralInformationService())
-                            .getOwnerOrNull();
+            String ownerOrNull = new EntityChooser(getPanel(), DataSetOwnerType.DATA_SET, true,
+                    facade.getSessionToken(), facade.getGeneralInformationService(),
+                    new DefaultAsyncNodeAction(this)).getOwnerOrNull();
             if (ownerOrNull != null)
             {
                 dataSetCodeField.setText(ownerOrNull);

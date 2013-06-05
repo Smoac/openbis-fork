@@ -45,10 +45,13 @@ class EntityField implements IField
 
     private final JTextField ownerField;
 
-    EntityField(DataSetOwnerType entityType, IQueryApiFacadeProvider facadeProvider)
+    private final IAsyncNodeAction asyncNodeAction;
+
+    EntityField(DataSetOwnerType entityType, IQueryApiFacadeProvider facadeProvider, IAsyncNodeAction asyncNodeAction)
     {
         this.ownerType = entityType;
         this.facadeProvider = facadeProvider;
+        this.asyncNodeAction = asyncNodeAction;
         textFieldWithButton = new JPanel(new BorderLayout());
         ownerField = new JTextField(20);
         textFieldWithButton.add(ownerField, BorderLayout.CENTER);
@@ -88,7 +91,7 @@ class EntityField implements IField
         String sessionToken = facade.getSessionToken();
         IGeneralInformationService service = facade.getGeneralInformationService();
         String ownerOrNull =
-                new EntityChooser(ownerField, ownerType, false, sessionToken, service).getOwnerOrNull();
+                new EntityChooser(ownerField, ownerType, false, sessionToken, service, asyncNodeAction).getOwnerOrNull();
         if (ownerOrNull != null)
         {
             ownerField.setText(ownerOrNull);

@@ -81,12 +81,15 @@ public abstract class AbstractParameterDescriptionBasedNodeDialog<D extends Seri
                 @Override
                 public void itemStateChanged(ItemEvent e)
                 {
-                    try
+                    if (e.getStateChange() == ItemEvent.SELECTED)
                     {
-                        updateParametersPanel((D) e.getItem());
-                    } catch (Throwable ex)
-                    {
-                        showException(ex);
+                        try
+                        {
+                            updateParametersPanel((D) e.getItem());
+                        } catch (Throwable ex)
+                        {
+                            showException(ex);
+                        }
                     }
                 }
             });
@@ -103,32 +106,44 @@ public abstract class AbstractParameterDescriptionBasedNodeDialog<D extends Seri
         queryPanel.add(northPanel, BorderLayout.CENTER);
     }
 
-    private void updateParametersPanel(D description)
+    private void updateParametersPanel(final D description)
     {
-        List<FieldDescription> fieldDescriptions = getFieldDescriptions(description);
-        parametersPanel.removeAll();
-        parameterFields.clear();
-        parametersPanel.getParent().setVisible(fieldDescriptions.isEmpty() == false);
-        for (FieldDescription fieldDescription : fieldDescriptions)
-        {
-            String name = fieldDescription.getName();
-            IField field = parameterFields.get(name);
-            if (field == null)
+        new ActionExecutor().executeAsync(new ILoadingBuildingAction<List<FieldDescription>>()
             {
-                String fieldParameters = fieldDescription.getFieldParameters();
-                FieldType fieldType = fieldDescription.getFieldType();
-                field = createField(fieldType, fieldParameters);
-                parameterFields.put(name, field);
-            }
-            String value = parameterBindings.tryToGetBinding(name);
-            if (value != null)
-            {
-                field.setValue(value);
-            }
-            addField(parametersPanel, name, field.getComponent());
-        }
-        parametersPanel.invalidate();
-        parametersPanel.getParent().validate();
+                @Override
+                public List<FieldDescription> load()
+                {
+                    return getFieldDescriptions(description);
+                }
+
+                @Override
+                public void build(List<FieldDescription> fieldDescriptions)
+                {
+                    parametersPanel.removeAll();
+                    parameterFields.clear();
+                    parametersPanel.getParent().setVisible(fieldDescriptions.isEmpty() == false);
+                    for (FieldDescription fieldDescription : fieldDescriptions)
+                    {
+                        String name = fieldDescription.getName();
+                        IField field = parameterFields.get(name);
+                        if (field == null)
+                        {
+                            String fieldParameters = fieldDescription.getFieldParameters();
+                            FieldType fieldType = fieldDescription.getFieldType();
+                            field = createField(fieldType, fieldParameters);
+                            parameterFields.put(name, field);
+                        }
+                        String value = parameterBindings.tryToGetBinding(name);
+                        if (value != null)
+                        {
+                            field.setValue(value);
+                        }
+                        addField(parametersPanel, name, field.getComponent());
+                    }
+                    parametersPanel.invalidate();
+                    parametersPanel.getParent().getParent().validate();
+                }
+            }, new DefaultAsyncNodeAction(this));
     }
 
     private IField createField(FieldType fieldType, String fieldParameters)
@@ -141,13 +156,19 @@ public abstract class AbstractParameterDescriptionBasedNodeDialog<D extends Seri
                     return createFacade();
                 }
             };
+        IAsyncNodeAction asyncNodeAction = new DefaultAsyncNodeAction(this);
         switch (fieldType)
         {
-            case VOCABULARY: return new VocabularyField(fieldParameters);
-            case EXPERIMENT: return new EntityField(DataSetOwnerType.EXPERIMENT, facadeProvider);
-            case SAMPLE: return new EntityField(DataSetOwnerType.SAMPLE, facadeProvider);
-            case DATA_SET: return new EntityField(DataSetOwnerType.DATA_SET, facadeProvider);
-            default: return new TextField();
+            case VOCABULARY:
+                return new VocabularyField(fieldParameters);
+            case EXPERIMENT:
+                return new EntityField(DataSetOwnerType.EXPERIMENT, facadeProvider, asyncNodeAction);
+            case SAMPLE:
+                return new EntityField(DataSetOwnerType.SAMPLE, facadeProvider, asyncNodeAction);
+            case DATA_SET:
+                return new EntityField(DataSetOwnerType.DATA_SET, facadeProvider, asyncNodeAction);
+            default:
+                return new TextField();
         }
     }
     

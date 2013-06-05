@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.knime.common;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -130,17 +129,19 @@ public class EntityChooser
     private final IGeneralInformationService service;
     private final Component component;
     private final String sessionToken;
+    private final IAsyncNodeAction asyncNodeAction;
     
     private String entityIdentifier;
 
     public EntityChooser(Component component, DataSetOwnerType entityType, boolean ownerEntity, String sessionToken,
-            IGeneralInformationService service)
+            IGeneralInformationService service, IAsyncNodeAction asyncNodeAction)
     {
         this.component = component;
         this.entityType = entityType;
         this.ownerEntity = ownerEntity;
         this.sessionToken = sessionToken;
         this.service = service;
+        this.asyncNodeAction = asyncNodeAction;
     }
     
     public String getOwnerOrNull()
@@ -215,21 +216,7 @@ public class EntityChooser
                 @Override
                 public void treeExpanded(TreeExpansionEvent event)
                 {
-                    chooserTreeModel.expandNode(event.getPath(), new IAsyncNodeAction()
-                        {
-                            @Override
-                            public void handleException(Throwable throwable)
-                            {
-                                throwable.printStackTrace();
-                                JOptionPane.showMessageDialog(tree, throwable.toString());
-                            }
-                            
-                            @Override
-                            public void execute(Runnable runnable)
-                            {
-                                EventQueue.invokeLater(runnable);
-                            }
-                        });
+                    chooserTreeModel.expandNode(event.getPath(), asyncNodeAction);
                 }
                 
                 @Override

@@ -54,12 +54,6 @@ public class ChooserTreeModel extends DefaultTreeModel
 
     private static final long serialVersionUID = 1L;
 
-    private static interface ILoadingBuildingAction<T>
-    {
-        public T load();
-        public void build(T data);
-    }
-    
     private static final class RootNode implements IChooserTreeNode<String>
     {
         static final RootNode ROOT = new RootNode();
@@ -658,28 +652,14 @@ public class ChooserTreeModel extends DefaultTreeModel
     private <T> void executeAsync(final ILoadingBuildingAction<T> loadingBuildingAction,
             final IAsyncNodeAction action)
     {
-        execute(new Runnable()
+        new ActionExecutor()
             {
                 @Override
-                public void run()
+                protected void execute(Runnable runnable)
                 {
-                    try
-                    {
-                        final T data = loadingBuildingAction.load();
-                        action.execute(new Runnable()
-                            {
-                                @Override
-                                public void run()
-                                {
-                                    loadingBuildingAction.build(data);
-                                }
-                            });
-                    } catch (Throwable ex)
-                    {
-                        action.handleException(ex);
-                    }
+                    ChooserTreeModel.this.execute(runnable);
                 }
-            });
+            }.executeAsync(loadingBuildingAction, action);
     }
 
     void execute(Runnable runnable)

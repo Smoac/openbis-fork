@@ -73,7 +73,7 @@ import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
+public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane implements IOpenBisNode
 {
     private static final class Key
     {
@@ -189,6 +189,12 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
     }
 
     @Override
+    public void logError(Throwable throwable)
+    {
+        logger.error(throwable.toString(), throwable);
+    }
+
+    @Override
     protected final void loadSettingsFrom(NodeSettingsRO settings, PortObjectSpec[] specs)
             throws NotConfigurableException
     {
@@ -241,7 +247,7 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
 
     protected void showException(Throwable throwable)
     {
-        logger.error("Exception", throwable);
+        logger.error(throwable.toString(), throwable);
         final String message = createMessage(throwable);
         final JPanel panel = getPanel();
         Window windowAncestor = SwingUtilities.getWindowAncestor(panel);
