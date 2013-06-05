@@ -401,10 +401,16 @@ static BOOL IsPermIdTarget(NSString *permId)
     [self checkFindingChildren];
 }
 
-- (void)testSearchWithNilDomain
+- (void)testSearc
 {
     [self performLogin];
     [self performSearch: @"5-hydroxytryptamine 3" domain: nil];
+}
+
+- (void)testSearchWithNilDomain
+{
+    [self performLogin];
+    [self performSearch: @"5-hydroxytryptamine 3" domain: _serviceManager.service.clientPreferences.defaultSearchDomain];
 }
 
 - (void)testInvalidSessionToken
