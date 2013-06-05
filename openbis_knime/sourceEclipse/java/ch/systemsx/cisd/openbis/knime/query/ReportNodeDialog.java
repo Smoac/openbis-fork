@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchOperator;
 import ch.systemsx.cisd.openbis.knime.common.AbstractDescriptionBasedNodeDialog;
 import ch.systemsx.cisd.openbis.knime.common.GUIUtil;
+import ch.systemsx.cisd.openbis.knime.common.IQueryFacadeAction;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
@@ -80,7 +81,14 @@ public class ReportNodeDialog extends AbstractDescriptionBasedNodeDialog<ReportD
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    chooseDataSet(createFacade());
+                    performAction(new IQueryFacadeAction()
+                    {
+                        @Override
+                        public void execute(IQueryApiFacade queryFacade)
+                        {
+                            chooseDataSet(queryFacade);
+                        }
+                    });
                 }
             });
         textFieldWithButton.add(button, BorderLayout.EAST);

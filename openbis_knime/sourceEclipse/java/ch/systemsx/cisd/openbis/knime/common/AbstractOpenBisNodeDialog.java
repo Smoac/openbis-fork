@@ -294,28 +294,14 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane implement
     
     private void connectServer()
     {
-        new Thread(new Runnable()
+        performAction(new IQueryFacadeAction()
             {
                 @Override
-                public void run()
+                public void execute(IQueryApiFacade queryFacade)
                 {
-                    final IQueryApiFacade queryFacade = createFacade();
-                    EventQueue.invokeLater(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                try
-                                {
-                                    updateQueryForm(queryFacade);
-                                } catch (Throwable ex)
-                                {
-                                    showException(ex);
-                                }
-                            }
-                        });
+                    updateQueryForm(queryFacade);
                 }
-            }).start();
+            });
     }
 
     @Override
@@ -337,6 +323,30 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane implement
             facade.logout();
         }
         facades.clear();
+    }
+    
+    protected void performAction(final IQueryFacadeAction action)
+    {
+        performAction(new ILoadingBuildingAction<IQueryApiFacade>()
+            {
+                @Override
+                public IQueryApiFacade load()
+                {
+                    return createFacade();
+                }
+
+                @Override
+                public void build(IQueryApiFacade facade)
+                {
+                    action.execute(facade);
+                }
+            });
+    }
+
+    protected <T> void performAction(ILoadingBuildingAction<T> loadingBuildingAction)
+    {
+        new ActionExecutor().executeAsync(loadingBuildingAction, 
+                new DefaultAsyncNodeAction(AbstractOpenBisNodeDialog.this));
     }
 
     protected IQueryApiFacade createFacade()

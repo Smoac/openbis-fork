@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeDialog;
 import ch.systemsx.cisd.openbis.knime.common.DefaultAsyncNodeAction;
 import ch.systemsx.cisd.openbis.knime.common.EntityChooser;
 import ch.systemsx.cisd.openbis.knime.common.IOpenbisServiceFacadeFactory;
+import ch.systemsx.cisd.openbis.knime.common.IQueryFacadeAction;
 import ch.systemsx.cisd.openbis.knime.common.Util;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 
@@ -272,7 +273,14 @@ public class DataSetRegistrationNodeDialog extends AbstractOpenBisNodeDialog
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    chooseOwner(createFacade());
+                    performAction(new IQueryFacadeAction()
+                        {
+                            @Override
+                            public void execute(IQueryApiFacade queryFacade)
+                            {
+                                chooseOwner(queryFacade);
+                            }
+                        });
                 }
             });
         textFieldWithButton.add(button, BorderLayout.EAST);

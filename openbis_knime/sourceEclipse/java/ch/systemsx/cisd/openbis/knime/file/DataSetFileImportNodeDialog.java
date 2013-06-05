@@ -40,12 +40,15 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.port.PortObjectSpec;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.knime.common.AbstractDescriptionBasedNodeDialog;
 import ch.systemsx.cisd.openbis.knime.common.DefaultAsyncNodeAction;
 import ch.systemsx.cisd.openbis.knime.common.EntityChooser;
+import ch.systemsx.cisd.openbis.knime.common.ILoadingBuildingAction;
+import ch.systemsx.cisd.openbis.knime.common.IQueryFacadeAction;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
@@ -80,7 +83,14 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    chooseDataSet(createFacade());
+                    performAction(new IQueryFacadeAction()
+                        {
+                            @Override
+                            public void execute(IQueryApiFacade queryFacade)
+                            {
+                                chooseDataSet(queryFacade);
+                            }
+                        });
                 }
             }, panel);
         filePathField = createTextFieldWithButton("File", new ActionListener()
@@ -197,40 +207,41 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
     
     private void chooseDataSetFile()
     {
-        String dataSetCode = dataSetCodeField.getText();
+        final String dataSetCode = dataSetCodeField.getText();
         if (isBlank(dataSetCode))
         {
             return;
         }
 
-        IOpenbisServiceFacade openbisFacade = createOpenbisFacade(createFacade().getSessionToken());
-        try
-        {
-            ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet dataSet =
-                    openbisFacade.getDataSet(dataSetCode);
-            if (dataSet == null)
+        performAction(new ILoadingBuildingAction<FileInfoDssDTO[]>()
             {
-                JOptionPane.showMessageDialog(getPanel(), "Unknown data set: " + dataSetCode);
-                return;
-            }
-            FileInfoDssDTO[] files = dataSet.listFiles("", true);
-            FileChooser fileChooser = new FileChooser(dataSetCode, files);
-            int result = JOptionPane.showOptionDialog(getPanel(), fileChooser, "Data Set File Chooser", 
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
-            FileInfoDssDTO fileInfo = fileChooser.getSelectedFileInfoOrNull();
-            if (fileInfo != null && fileInfo.getPathInListing() != null
-                    && fileInfo.isDirectory() == false && result == JOptionPane.OK_OPTION)
-            {
-                filePathField.setText(fileInfo.getPathInDataSet());
-            }
-        } catch (RuntimeException e)
-        {
-            showException(e);
-            throw e;
-        } catch (Throwable t)
-        {
-            showException(t);
-        }
+                @Override
+                public FileInfoDssDTO[] load()
+                {
+                    IOpenbisServiceFacade openbisFacade = createOpenbisFacade(createFacade().getSessionToken());
+                        ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet dataSet =
+                                openbisFacade.getDataSet(dataSetCode);
+                        if (dataSet == null)
+                        {
+                            throw new UserFailureException("Unknown data set: " + dataSetCode);
+                        }
+                        return dataSet.listFiles("", true);
+                }
+                
+                @Override
+                public void build(FileInfoDssDTO[] files)
+                {
+                    FileChooser fileChooser = new FileChooser(dataSetCode, files);
+                    int result = JOptionPane.showOptionDialog(getPanel(), fileChooser, "Data Set File Chooser", 
+                            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+                    FileInfoDssDTO fileInfo = fileChooser.getSelectedFileInfoOrNull();
+                    if (fileInfo != null && fileInfo.getPathInListing() != null
+                            && fileInfo.isDirectory() == false && result == JOptionPane.OK_OPTION)
+                    {
+                        filePathField.setText(fileInfo.getPathInDataSet());
+                    }
+                }
+            });
     }
 
     private void chooseTempFolder()
