@@ -109,7 +109,6 @@ public abstract class AbstractParameterDescriptionBasedNodeDialog<D extends Seri
         parametersPanel.removeAll();
         parameterFields.clear();
         parametersPanel.getParent().setVisible(fieldDescriptions.isEmpty() == false);
-        IQueryApiFacade facade = createFacade();
         for (FieldDescription fieldDescription : fieldDescriptions)
         {
             String name = fieldDescription.getName();
@@ -118,7 +117,7 @@ public abstract class AbstractParameterDescriptionBasedNodeDialog<D extends Seri
             {
                 String fieldParameters = fieldDescription.getFieldParameters();
                 FieldType fieldType = fieldDescription.getFieldType();
-                field = createField(fieldType, fieldParameters, facade);
+                field = createField(fieldType, fieldParameters);
                 parameterFields.put(name, field);
             }
             String value = parameterBindings.tryToGetBinding(name);
@@ -132,14 +131,22 @@ public abstract class AbstractParameterDescriptionBasedNodeDialog<D extends Seri
         parametersPanel.getParent().validate();
     }
 
-    private IField createField(FieldType fieldType, String fieldParameters, IQueryApiFacade facade)
+    private IField createField(FieldType fieldType, String fieldParameters)
     {
+        IQueryApiFacadeProvider facadeProvider = new IQueryApiFacadeProvider()
+            {
+                @Override
+                public IQueryApiFacade getQueryFacade()
+                {
+                    return createFacade();
+                }
+            };
         switch (fieldType)
         {
             case VOCABULARY: return new VocabularyField(fieldParameters);
-            case EXPERIMENT: return new EntityField(DataSetOwnerType.EXPERIMENT, facade);
-            case SAMPLE: return new EntityField(DataSetOwnerType.SAMPLE, facade);
-            case DATA_SET: return new EntityField(DataSetOwnerType.DATA_SET, facade);
+            case EXPERIMENT: return new EntityField(DataSetOwnerType.EXPERIMENT, facadeProvider);
+            case SAMPLE: return new EntityField(DataSetOwnerType.SAMPLE, facadeProvider);
+            case DATA_SET: return new EntityField(DataSetOwnerType.DATA_SET, facadeProvider);
             default: return new TextField();
         }
     }

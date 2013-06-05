@@ -39,16 +39,16 @@ class EntityField implements IField
 {
     private final DataSetOwnerType ownerType;
     
-    private final IQueryApiFacade facade;
+    private final IQueryApiFacadeProvider facadeProvider;
     
     private final JPanel textFieldWithButton;
 
     private final JTextField ownerField;
 
-    EntityField(DataSetOwnerType entityType, IQueryApiFacade facade)
+    EntityField(DataSetOwnerType entityType, IQueryApiFacadeProvider facadeProvider)
     {
         this.ownerType = entityType;
-        this.facade = facade;
+        this.facadeProvider = facadeProvider;
         textFieldWithButton = new JPanel(new BorderLayout());
         ownerField = new JTextField(20);
         textFieldWithButton.add(ownerField, BorderLayout.CENTER);
@@ -84,6 +84,7 @@ class EntityField implements IField
 
     private void chooseOwner()
     {
+        IQueryApiFacade facade = facadeProvider.getQueryFacade();
         String sessionToken = facade.getSessionToken();
         IGeneralInformationService service = facade.getGeneralInformationService();
         String ownerOrNull =

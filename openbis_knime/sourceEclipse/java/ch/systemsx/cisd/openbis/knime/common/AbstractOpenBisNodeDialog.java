@@ -242,25 +242,38 @@ public abstract class AbstractOpenBisNodeDialog extends NodeDialogPane
     protected void showException(Throwable throwable)
     {
         logger.error("Exception", throwable);
+        final String message = createMessage(throwable);
+        final JPanel panel = getPanel();
+        Window windowAncestor = SwingUtilities.getWindowAncestor(panel);
+        if (windowAncestor != null && windowAncestor.isVisible())
+        {
+            EventQueue.invokeLater(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        JOptionPane.showMessageDialog(panel, message, "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+        }
+    }
+
+    private String createMessage(Throwable throwable)
+    {
         String message = throwable.toString();
         String[] lines = message.split("\n");
         int maxNumberOfLines = 10;
-        if (lines.length > maxNumberOfLines)
+        if (lines.length < maxNumberOfLines)
         {
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < maxNumberOfLines; i++)
-            {
-                builder.append(lines[i]).append('\n');
-            }
-            builder.append("...\n\nSee KNIME log for the complete error message.");
-            message = builder.toString();
+            return message;
         }
-        JPanel panel = getPanel();
-        Window windowAncestor = SwingUtilities.getWindowAncestor(panel);
-        if (windowAncestor != null)
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < maxNumberOfLines; i++)
         {
-            JOptionPane.showMessageDialog(panel, message, "Error", JOptionPane.ERROR_MESSAGE);
+            builder.append(lines[i]).append('\n');
         }
+        builder.append("...\n\nSee KNIME log for the complete error message.");
+        return builder.toString();
     }
 
     protected abstract void defineQueryForm(JPanel queryPanel);
