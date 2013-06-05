@@ -24,6 +24,7 @@ import junit.framework.Assert;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithDifferentColumnCountException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithDifferentColumnIdsException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithIncompatibleColumnTypesException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -40,14 +41,14 @@ public class TableModelAppenderTest
 {
 
     @Test(expectedExceptions = IllegalArgumentException.class)
-    public void testAppendNull()
+    public void testAppendNullModel()
     {
         TableModelAppender appender = new TableModelAppender();
         appender.append(null);
     }
 
     @Test
-    public void testAppendEmpty()
+    public void testAppendEmptyModel()
     {
         TableModelAppender appender = new TableModelAppender();
         appender.append(new TableModel(Collections.<TableModelColumnHeader> emptyList(), Collections.<TableModelRow> emptyList()));
@@ -58,7 +59,7 @@ public class TableModelAppenderTest
     }
 
     @Test
-    public void testAppendWithSameColumns()
+    public void testAppendModelWithSameColumns()
     {
         SimpleTableModelBuilder builder1 = new SimpleTableModelBuilder();
         builder1.addHeader("column1");
@@ -86,7 +87,7 @@ public class TableModelAppenderTest
     }
 
     @Test
-    public void testAppendWithDifferentNumberOfColumns()
+    public void testAppendModelWithDifferentNumberOfColumns()
     {
         SimpleTableModelBuilder builder1 = new SimpleTableModelBuilder();
         builder1.addHeader("column1");
@@ -112,7 +113,7 @@ public class TableModelAppenderTest
     }
 
     @Test
-    public void testAppendWithCompatibleTypesOfColumns()
+    public void testAppendModelWithSameIdsAndCompatibleTypesOfColumns()
     {
         SimpleTableModelBuilder builder1 = new SimpleTableModelBuilder();
         builder1.addHeader("column1");
@@ -140,7 +141,7 @@ public class TableModelAppenderTest
     }
 
     @Test
-    public void testAppendWithIncompatibleTypesOfColumns()
+    public void testAppendModelWithSameIdsAndIncompatibleTypesOfColumns()
     {
         SimpleTableModelBuilder builder1 = new SimpleTableModelBuilder();
         builder1.addHeader("column1");
@@ -163,6 +164,33 @@ public class TableModelAppenderTest
         {
             Assert.assertEquals(Arrays.asList(DataTypeCode.VARCHAR, DataTypeCode.VARCHAR), e.getExpectedColumnTypes());
             Assert.assertEquals(Arrays.asList(DataTypeCode.VARCHAR, DataTypeCode.INTEGER), e.getAppendedColumnTypes());
+        }
+    }
+
+    @Test
+    public void testAppendModelWithDifferentIdsOfColumns()
+    {
+        SimpleTableModelBuilder builder1 = new SimpleTableModelBuilder();
+        builder1.addHeader("column1");
+        builder1.addHeader("column2");
+        builder1.addFullRow("row1_column1", "row1_column2");
+        builder1.addFullRow("row2_column1", "row2_column2");
+
+        SimpleTableModelBuilder builder2 = new SimpleTableModelBuilder();
+        builder2.addHeader("column1");
+        builder2.addHeader("column2a");
+        builder2.addFullRow("row3_column1", "row3_column2a");
+
+        try
+        {
+            TableModelAppender appender = new TableModelAppender();
+            appender.append(builder1.getTableModel());
+            appender.append(builder2.getTableModel());
+            Assert.fail();
+        } catch (TableModelWithDifferentColumnIdsException e)
+        {
+            Assert.assertEquals(Arrays.asList("column1", "column2"), e.getExpectedColumnIds());
+            Assert.assertEquals(Arrays.asList("column1", "column2a"), e.getAppendedColumnIds());
         }
     }
 

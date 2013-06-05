@@ -58,6 +58,7 @@ public class TableModelAppender
         } else
         {
             checkColumnCount(tableModel);
+            checkColumnIds(tableModel);
             checkColumnTypes(tableModel);
             rows.addAll(tableModel.getRows());
         }
@@ -71,6 +72,30 @@ public class TableModelAppender
         if (expectedCount != appendedCount)
         {
             throw new TableModelWithDifferentColumnCountException(expectedCount, appendedCount);
+        }
+    }
+
+    private void checkColumnIds(TableModel tableModel)
+    {
+        List<String> expectedIds = new ArrayList<String>();
+        List<String> appendedIds = new ArrayList<String>();
+
+        for (TableModelColumnHeader expectedHeader : headers)
+        {
+            expectedIds.add(expectedHeader.getId());
+        }
+
+        if (tableModel.getHeader() != null)
+        {
+            for (TableModelColumnHeader appendedHeader : tableModel.getHeader())
+            {
+                appendedIds.add(appendedHeader.getId());
+            }
+        }
+
+        if (expectedIds.equals(appendedIds) == false)
+        {
+            throw new TableModelWithDifferentColumnIdsException(expectedIds, appendedIds);
         }
     }
 
@@ -143,6 +168,33 @@ public class TableModelAppender
         public int getAppendedColumnCount()
         {
             return appendedColumnCount;
+        }
+
+    }
+
+    public static class TableModelWithDifferentColumnIdsException extends IllegalTableModelException
+    {
+
+        private static final long serialVersionUID = 1L;
+
+        private List<String> expectedColumnIds;
+
+        private List<String> appendedColumnIds;
+
+        public TableModelWithDifferentColumnIdsException(List<String> expectedColumnIds, List<String> appendedColumnIds)
+        {
+            this.expectedColumnIds = expectedColumnIds;
+            this.appendedColumnIds = appendedColumnIds;
+        }
+
+        public List<String> getExpectedColumnIds()
+        {
+            return expectedColumnIds;
+        }
+
+        public List<String> getAppendedColumnIds()
+        {
+            return appendedColumnIds;
         }
 
     }
