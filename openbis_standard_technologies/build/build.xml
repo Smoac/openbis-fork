@@ -31,13 +31,23 @@
 		</antcall>
 		<antcall target="screening.screening-api"/>
 		<mkdir dir="${dist.datastore_server.lib}" />
+		
 		<antcall target="dist-upload-gui">
 			<param name="variant" value="" />
 		</antcall>
 		<antcall target="datastore_server.add-dss-dist-libs"/>
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<antcall target="make-dss-jar"/>
-		
+
+		<!-- metabolomics jars -->
+		<ant dir="../rtd_yeastx/build" target="jar" useNativeBasedir="true"/>
+		<copy file="../rtd_yeastx/targets/dist/datastore_server-plugin.jar" tofile="${dist.datastore_server.lib}/datastore_server_metabolomics.jar"/>
+		<copy todir="${dist.datastore_server.lib}">
+			<fileset dir="${lib}/jfreechart" >
+				<include name="*.jar"/>
+			</fileset>
+		</copy>
+
 		<!-- illumina ngs -->
 		<antcall target="deep_sequencing_unit.make-dss-plugin-jar"/>
 		<move file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin-illumina-ngs.jar" />
@@ -53,7 +63,7 @@
       <param name="project-path" value="../rtd_phosphonetx/" />
       <param name="plugin-kind" value="dss" />
 		</antcall>
-		
+
 		<!-- screening -->
 		<antcall target="screening.make-dss-plugin-jar"/>
     <move file="${plugin-jar.file}" tofile="${dist.datastore_server.lib}/datastore_server_plugin-screening.jar" />
@@ -73,8 +83,7 @@
 
 	<target name="war" depends="rtd_phosphonetx.war, screening.war">
 	</target>
-
-
+	
 	<!--
         // Compiles the javascript using GWT compiler.
   -->
