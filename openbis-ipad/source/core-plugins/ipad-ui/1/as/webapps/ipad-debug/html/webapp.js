@@ -52,8 +52,8 @@ IpadModel.prototype.selectNormalEntity = function(permId, refcon, d) {
 	}	
 }
 
-IpadModel.prototype.setSearchText = function(searchText) {
-	searchForText(searchText);
+IpadModel.prototype.setSearchText = function(searchText, searchDomain) {
+	searchForText(searchText, searchDomain);
 }
 
 /// The model that manages state and implements the operations
@@ -151,7 +151,6 @@ function displayCallInProgress(node)
 	node.append("p").text("Getting data...");
 }
 
-
 function displayClientPreferences(data) { displayResults(clientPrefs, data) }
 function displayNavigation(data) { displayResults(navigation, data) }
 function displayRoot(data) { displayResults(root, data) }
@@ -162,11 +161,16 @@ function displaySearchResults(data) { displayResults(searchresults, data) }
 /**
  * Request the client perferences and show them in the page.
  */
+function clientPreferencesCallback(data) {
+	displayClientPreferences(data);
+	updateSearchDomains(data);
+}
+
 function listClientPreferences()
 {
 	var parameters = {requestKey : 'CLIENT_PREFS'};
 	displayCallInProgress(clientPrefs);
-	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, displayClientPreferences);
+	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, clientPreferencesCallback);
 }
 
 /**
@@ -209,9 +213,9 @@ function detailsForEntity(permId, refcon)
 	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, displayDetail);
 }
 
-function searchForText(searchText)
+function searchForText(searchText, searchDomain)
 {
-	var parameters = {requestKey : 'SEARCH', searchtext: searchText};
+	var parameters = {requestKey : 'SEARCH', searchtext: searchText, searchdomain: searchDomain};
 
 	displayCallInProgress(searchresults);
 	openbisServer.createReportFromAggregationService("DSS1", "ipad-read-service-v1", parameters, displaySearchResults);
@@ -233,14 +237,32 @@ function searchTab()
     $('#activate-search').parent().addClass("active");
 }
 
+
+function getClientPreferencesAsMap(data) {
+	var clientPrefsMap = {};
+	for(var rowIndex = 0; rowIndex < data.result.rows.length; rowIndex++) {
+		var row = data.result.rows[rowIndex];
+		clientPrefsMap[row[0].value] = [row[1].value];
+	}
+	return clientPrefsMap;
+}
+
+function updateSearchDomains(data) {
+	var clientPrefs = getClientPreferencesAsMap(data);
+	var domains = $.parseJSON(clientPrefs['SEARCH_DOMAINS'][0]);
+	for(var domainIndex = 0; domainIndex < domains.length; domainIndex++) {
+			$('#searchdomains').append(new Option(domains[domainIndex].label, domains[domainIndex].key, true, true));
+	}
+}
+
 function configureTabs()
 {
 	$('#activate-search').click(searchTab);
 	$('#activate-home').click(homeTab);	
-	
 	$('#search-form').submit(function() {
-		model.setSearchText($.trim($('#searchtext').val()));
+		model.setSearchText($.trim($('#searchtext').val()), $('#search-domains-select').val());
 	});
+	
 }
 
 function enterApp(data)
