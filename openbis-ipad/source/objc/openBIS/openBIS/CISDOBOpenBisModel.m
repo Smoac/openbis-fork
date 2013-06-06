@@ -25,6 +25,7 @@
 #import "CISDOBAppDelegate.h"
 #import "CISDOBIpadServiceManager.h"
 #import "CISDOBIpadServiceManagerInternal.h"
+#import "CISDOBIpadService.h"
 #import "CISDOBAsyncCall.h"
 
 @implementation CISDOBOpenBisModel
@@ -56,6 +57,25 @@
 - (NSManagedObjectContext *)managedObjectContext { return self.appDelegate.managedObjectContext; }
 - (BOOL)isOnline { return self.appDelegate.online; }
 - (BOOL)isRootModel { return self.parentModel == nil; }
+
+- (NSArray *)searchScopeTitles
+{
+    NSMutableArray *titles = [NSMutableArray array];
+    // The search scopes are the search domains + a special scope called filter
+    NSString *filterScope = @"Filter";
+    
+    // Search is only possible if we are online
+    if (self.isOnline) {
+        NSArray *searchDomains = self.serviceManager.service.clientPreferences.searchDomains;
+        for (NSDictionary *domain in searchDomains) {
+            NSString *label = [domain objectForKey: @"label"];
+            [titles addObject: label];
+        }
+    }
+    [titles addObject: filterScope];
+    
+    return titles;
+}
 
 #pragma mark - Model
 - (NSInteger)numberOfSections

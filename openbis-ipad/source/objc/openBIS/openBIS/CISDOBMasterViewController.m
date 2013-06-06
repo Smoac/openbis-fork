@@ -261,6 +261,17 @@
     return [self.filterState searchDisplayController: controller shouldReloadTableForSearchString: searchString];
 }
 
+- (void)searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
+{
+    controller.searchBar.scopeButtonTitles = [self scopeButtonTitles];
+    controller.searchBar.showsScopeBar = YES;
+}
+
+- (void)searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
+{
+    controller.searchBar.showsScopeBar = NO;
+}
+
 #pragma mark - Server Communication
 - (void)didConnectServiceManager:(CISDOBIpadServiceManager *)serviceManager
 {
@@ -282,6 +293,11 @@
     self.openBisModel = [[CISDOBOpenBisModel alloc] initWithParentModel: parent.openBisModel];
     // The title of the drill-down is the parent's title
     self.title = parent.openBisModel.selectedObject.summaryHeader;
+}
+
+- (NSArray *)scopeButtonTitles
+{
+    return self.openBisModel.searchScopeTitles;
 }
 
 @end

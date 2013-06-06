@@ -41,6 +41,7 @@
 @property (readonly) CISDOBIpadServiceManager *serviceManager;
 @property (strong, nonatomic) CISDOBIpadEntity *selectedObject;
 @property (readonly, getter=isOnline) BOOL  online;
+@property (readonly) NSArray *searchScopeTitles;
 
 // Initialize
 - (id)initWithParentModel:(CISDOBOpenBisModel *)parentModel; //!< The designated initializer
