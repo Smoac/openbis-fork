@@ -54,6 +54,7 @@ dependencies {
 		'eclipse:jetty-util:8.1.8.v20121106',
 		'hibernate:hibernate-validator:4.2.0.Final',
 		'eclipse:jetty-deploy:8.1.8.v20121106',
+		'truezip:truezip:6.8.1',
 		'apache:poi-ooxml:3.8-20120326'
 		
 	runtime (project(':common')) {
