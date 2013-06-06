@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="source/java"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/openbis"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/screening"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/deep_sequencing_unit"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/rtd_phosphonetx"/>  
+	<classpathentry combineaccessrules="false" kind="src" path="/ui-test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/jna-3.4.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/gwt2.4/gwt-dev.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/selenium-java.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/apache-mime4j-0.6.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/bsh-1.3.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/cglib-nodep-2.1_3.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/commons-codec-1.6.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/commons-exec-1.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/commons-io-2.0.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/commons-jxpath-1.3.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/cssparser-0.9.5.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/guava-12.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/hamcrest-core-1.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/hamcrest-library-1.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/htmlunit-2.9.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/htmlunit-core-js-2.9.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/httpclient-4.1.3.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/httpcore-4.1.3.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/httpmime-4.1.3.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/ini4j-0.5.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/jcommander-1.13.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/jna-platform-3.4.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/json-20080701.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/junit-dep-4.10.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/nekohtml-1.9.15.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/netty-3.2.7.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/operadriver-0.14.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/protobuf-java-2.4.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/sac-1.3.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/serializer-2.7.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/testng-6.0.1-nobsh-noguice.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/webbit-0.4.8-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/xalan-2.7.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/xercesImpl-2.9.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/selenium/lib/xml-apis-1.3.04.jar"/>
+	<classpathentry kind="output" path="targets/classes"/>
+</classpath>

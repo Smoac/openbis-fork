@@ -40,6 +40,9 @@ public class TopBar
     @Locate("import_menu")
     private Button importMenu;
 
+    @Locate("openbis_top-menu_MODULES")
+    private Button utilitiesMenu;
+
     @Locate("trash-button")
     private Button trash;
 
@@ -75,6 +78,11 @@ public class TopBar
     public void importMenu()
     {
         importMenu.click();
+    }
+
+    public void utilitiesMenu()
+    {
+        utilitiesMenu.click();
     }
 
     public String getUserName()

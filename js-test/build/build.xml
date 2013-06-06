@@ -1,0 +1,220 @@
+<project name="js-test" default="run-tests" basedir="..">
+	<import file="../../build_resources/ant/build-common.xml" />
+
+	<project-classpath name="ecp" classes="${classes}" />
+
+	<!--
+		Parameters:
+		* js-test.project.name
+	-->
+	<target name="prepare-gwt" depends="compile">
+		<subant target="prepare-firefox-gwt">
+			<property name="compile.bypass" value="true"/>
+			<fileset dir="../${js-test.project.name}/build" includes="build.xml" />
+		</subant>
+	</target>
+
+	<!--
+		Parameters:
+		* js-test.project.name
+	-->
+	<target name="compile-javascript" depends="prepare-gwt">
+		<subant target="compile-firefox-javascript">
+			<property name="compile.bypass" value="true"/>
+			<fileset dir="../${js-test.project.name}/build" includes="build.xml" />
+		</subant>
+	</target>
+
+	<!--
+		Parameters:
+		* js-test.project.name
+		* js-test.webapp.name
+		* js-test.suite.name
+	-->
+	<target name="create-webapp" depends="prepare-gwt, compile-javascript">
+
+		<delete includeemptydirs="yes" removeNotFollowedSymlinks="true" failonerror="true">
+			<fileset dir="servers/${js-test.suite.name}/openBIS-server/targets"
+			         followsymlinks="no"
+			         erroronmissingdir="false" />
+		</delete>
+
+		<mkdir dir="servers/${js-test.suite.name}/openBIS-server/targets/www/${js-test.webapp.name}/WEB-INF" />
+
+		<copy todir="servers/${js-test.suite.name}/openBIS-server/targets/www/${js-test.webapp.name}">
+			<fileset dir="../${js-test.project.name}/targets/dist/webapp">
+				<exclude name="${js-test.webapp.name}" />
+			</fileset>
+		</copy>
+
+		<copy todir="servers/${js-test.suite.name}/openBIS-server/targets/www/${js-test.webapp.name}/WEB-INF">
+			<fileset dir="../${js-test.project.name}/targets/www/WEB-INF" />
+		</copy>
+
+	</target>
+
+	<!--
+		Parameters:
+		* js-test.suite.name
+		* js-test.suite.class
+	-->
+	<target name="run-webapp" depends="_plain-compile-sources">
+		<java classname="${js-test.suite.class}"
+		      dir="servers/${js-test.suite.name}/openBIS-server"
+		      fork="true">
+			<jvmarg value="-ea" />
+			<jvmarg value="-Xmx2048M" />
+			<jvmarg value="-XX:MaxPermSize=512m" />
+			<jvmarg value="-Xdebug" />
+			<jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=20010" />
+			<jvmarg value="-Dorg.mortbay.util.FileResource.checkAliases=false" />
+			<jvmarg value="-Dch.systemsx.cisd.openbis.test.TestDatabase.clean=true" />
+			<classpath>
+				<pathelement path="servers/${js-test.suite.name}/openBIS-server/etc" />
+				<pathelement path="${ecp}" />
+			</classpath>
+		</java>
+	</target>
+
+	<target name="create-webapp-common">
+		<antcall target="create-webapp">
+			<param name="js-test.project.name" value="screening" />
+			<param name="js-test.webapp.name" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
+			<param name="js-test.suite.name" value="common" />
+		</antcall>
+	</target>
+
+	<target name="create-webapp-dsu">
+		<antcall target="create-webapp">
+			<param name="js-test.project.name" value="openbis" />
+			<param name="js-test.webapp.name" value="ch.systemsx.cisd.openbis.OpenBIS" />
+			<param name="js-test.suite.name" value="dsu" />
+		</antcall>
+	</target>
+
+	<target name="create-webapp-novartis">
+		<antcall target="create-webapp">
+			<param name="js-test.project.name" value="openbis" />
+			<param name="js-test.webapp.name" value="ch.systemsx.cisd.openbis.OpenBIS" />
+			<param name="js-test.suite.name" value="novartis" />
+		</antcall>
+	</target>
+
+	<target name="create-webapp-basynthec">
+		<antcall target="create-webapp">
+			<param name="js-test.project.name" value="openbis" />
+			<param name="js-test.webapp.name" value="ch.systemsx.cisd.openbis.OpenBIS" />
+			<param name="js-test.suite.name" value="basynthec" />
+		</antcall>
+	</target>
+
+	<target name="create-webapp-yeastlab">
+		<antcall target="create-webapp">
+			<param name="js-test.project.name" value="openbis" />
+			<param name="js-test.webapp.name" value="ch.systemsx.cisd.openbis.OpenBIS" />
+			<param name="js-test.suite.name" value="yeastlab" />
+		</antcall>
+	</target>
+
+	<target name="run-webapp-common">
+		<antcall target="run-webapp">
+			<param name="js-test.suite.name" value="common" />
+			<param name="js-test.suite.class"
+			       value="ch.systemsx.cisd.openbis.jstest.suite.common.JsTestCommon" />
+		</antcall>
+	</target>
+
+	<target name="run-webapp-dsu">
+		<antcall target="run-webapp">
+			<param name="js-test.suite.name" value="dsu" />
+			<param name="js-test.suite.class"
+			       value="ch.systemsx.cisd.openbis.jstest.suite.dsu.JsTestDsu" />
+		</antcall>
+	</target>
+
+	<target name="run-webapp-novartis">
+		<antcall target="run-webapp">
+			<param name="js-test.suite.name" value="novartis" />
+			<param name="js-test.suite.class"
+			       value="ch.systemsx.cisd.openbis.jstest.suite.novartis.JsTestNovartis" />
+		</antcall>
+	</target>
+
+	<target name="run-webapp-basynthec">
+		<antcall target="run-webapp">
+			<param name="js-test.suite.name" value="basynthec" />
+			<param name="js-test.suite.class"
+			       value="ch.systemsx.cisd.openbis.jstest.suite.basynthec.JsTestBasynthec" />
+		</antcall>
+	</target>
+
+	<target name="run-webapp-yeastlab">
+		<antcall target="run-webapp">
+			<param name="js-test.suite.name" value="yeastlab" />
+			<param name="js-test.suite.class"
+			       value="ch.systemsx.cisd.openbis.jstest.suite.yeastlab.JsTestYeastlab" />
+		</antcall>
+	</target>
+
+	<target name="run-automated-tests-on-new-server" depends="_plain-compile-sources">
+		<delete dir="${output.test}" />
+		<testng workingDir="servers/common/openBIS-server"
+		        outputdir="${output.test}"
+		        failureproperty="tests.failed">
+			<xmlfileset dir="source/java" includes="tests.xml" />
+			<jvmarg value="-ea" />
+			<jvmarg value="-Xmx2048M" />
+			<jvmarg value="-XX:MaxPermSize=512m" />
+			<jvmarg value="-Xdebug" />
+			<jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=20010" />
+			<jvmarg value="-Dorg.mortbay.util.FileResource.checkAliases=false" />
+			<jvmarg value="-Dui-test.start-page=http://localhost:20000/openbis" />
+			<classpath>
+				<pathelement path="servers/common/openBIS-server/etc" />
+				<pathelement path="${ecp}" />
+			</classpath>
+		</testng>
+
+		<junitreport todir="${output.test}">
+			<fileset dir="${output.test}">
+				<include name="*/*.xml" />
+				<exclude name="old/**/*.xml" />
+			</fileset>
+			<report format="noframes" todir="${output.test}" />
+		</junitreport>
+
+		<fail if="${tests.failed}" />
+	</target>
+
+	<target name="run-automated-tests-on-existing-server" depends="_plain-compile-sources">
+		<delete dir="${output.test}" />
+		<testng workingDir="servers/common/openBIS-server"
+		        outputdir="${output.test}"
+		        failureproperty="tests.failed">
+			<xmlfileset dir="source/java" includes="tests.xml" />
+			<jvmarg value="-ea" />
+			<jvmarg value="-Xmx2048M" />
+			<jvmarg value="-XX:MaxPermSize=512m" />
+			<jvmarg value="-Dui-test.as-url=http://localhost:20000" />
+			<jvmarg value="-Dui-test.dss-url=http://localhost:20001" />
+			<jvmarg value="-Dui-test.dss-url2=http://localhost:20002" />
+			<jvmarg value="-Dui-test.start-page=http://localhost:20000/openbis" />
+			<classpath>
+				<pathelement path="${ecp}" />
+			</classpath>
+		</testng>
+
+		<junitreport todir="${output.test}">
+			<fileset dir="${output.test}">
+				<include name="*/*.xml" />
+				<exclude name="old/**/*.xml" />
+			</fileset>
+			<report format="noframes" todir="${output.test}" />
+		</junitreport>
+
+		<fail if="${tests.failed}" />
+	</target>
+
+	<target name="ci" depends="create-webapp-common, run-automated-tests-on-new-server" />
+
+</project>
