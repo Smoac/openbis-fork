@@ -1744,7 +1744,7 @@ data_set_type_FASTQ_GZ.setDeletionDisallowed(False)
 data_set_type_ILLUMINA_HISEQ_OUTPUT = tr.getOrCreateNewDataSetType('ILLUMINA_HISEQ_OUTPUT')
 data_set_type_ILLUMINA_HISEQ_OUTPUT.setDescription('HiSeq2000 Output')
 data_set_type_ILLUMINA_HISEQ_OUTPUT.setDataSetKind('PHYSICAL')
-data_set_type_ILLUMINA_HISEQ_OUTPUT.setMainDataSetPattern(None)
+data_set_type_ILLUMINA_HISEQ_OUTPUT.setMainDataSetPattern('original/.*/Data/Status.htm')
 data_set_type_ILLUMINA_HISEQ_OUTPUT.setMainDataSetPath(None)
 data_set_type_ILLUMINA_HISEQ_OUTPUT.setDeletionDisallowed(False)
 
