@@ -24,10 +24,13 @@ import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.hcs.Location;
+import ch.systemsx.cisd.openbis.generic.client.web.server.WebClientConfigurationProvider;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
@@ -50,6 +53,24 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoa
  */
 public class ScreeningUtils
 {
+    public static String labelTextPropertyName;
+
+    private static String getLabelTextPropertyName()
+    {
+        if (labelTextPropertyName == null)
+        {
+            WebClientConfigurationProvider provider =
+                    (WebClientConfigurationProvider) CommonServiceProvider.tryToGetBean(ResourceNames.WEB_CLIENT_CONFIGURATION_PROVIDER);
+
+            labelTextPropertyName = provider.getWebClientConfiguration().getPropertyOrNull(ScreeningConstants.TECHNOLOGY_NAME, "data-set-label-text");
+            if (labelTextPropertyName == null)
+            {
+                labelTextPropertyName = "";
+            }
+        }
+        return labelTextPropertyName;
+    }
+
     public static WellLocation tryCreateLocationFromMatrixCoordinate(String wellCode)
     {
         Location loc = Location.tryCreateLocationFromTransposedMatrixCoordinate(wellCode);
@@ -71,10 +92,12 @@ public class ScreeningUtils
         Experiment experiment =
                 ExperimentTranslator.translate(dataset.getExperiment(), baseIndexURL, null,
                         managedPropertyEvaluatorFactory);
-        String analysisProcedureOrNull =
-                EntityHelper.tryFindPropertyValue(dataset, ScreeningConstants.ANALYSIS_PROCEDURE);
+        String analysisProcedureOrNull = EntityHelper.tryFindPropertyValue(dataset, ScreeningConstants.ANALYSIS_PROCEDURE);
+
+        String labelText = EntityHelper.tryFindPropertyValue(dataset, getLabelTextPropertyName());
+
         return createDatasetReference(dataset.getId(), dataset.getCode(), analysisProcedureOrNull,
-                dataStore, dataTypeCode, dataset.getRegistrationDate(), fileTypeCode, experiment);
+                dataStore, dataTypeCode, dataset.getRegistrationDate(), fileTypeCode, experiment, labelText);
     }
 
     public static DatasetReference createDatasetReference(AbstractExternalData dataset)
@@ -83,10 +106,10 @@ public class ScreeningUtils
         String dataTypeCode = dataset.getDataSetType().getCode();
         String fileTypeCode = tryGetFileTypeCode(dataset);
         Experiment experiment = dataset.getExperiment();
-        String analysisProcedureOrNull =
-                EntityHelper.tryFindPropertyValue(dataset, ScreeningConstants.ANALYSIS_PROCEDURE);
+        String analysisProcedureOrNull = EntityHelper.tryFindPropertyValue(dataset, ScreeningConstants.ANALYSIS_PROCEDURE);
+        String labelText = EntityHelper.tryFindPropertyValue(dataset, getLabelTextPropertyName());
         return createDatasetReference(dataset.getId(), dataset.getCode(), analysisProcedureOrNull,
-                dataStore, dataTypeCode, dataset.getRegistrationDate(), fileTypeCode, experiment);
+                dataStore, dataTypeCode, dataset.getRegistrationDate(), fileTypeCode, experiment, labelText);
     }
 
     private static String tryGetFileTypeCode(AbstractExternalData abstractDataSet)
@@ -106,11 +129,11 @@ public class ScreeningUtils
 
     private static DatasetReference createDatasetReference(long datasetId, String datasetCode,
             String analysisProcedureOrNull, DataStore dataStore, String dataTypeCode,
-            Date registrationDate, String fileTypeCode, Experiment experiment)
+            Date registrationDate, String fileTypeCode, Experiment experiment, String labelText)
     {
         return new DatasetReference(datasetId, datasetCode, dataTypeCode, registrationDate,
                 fileTypeCode, dataStore.getCode(), dataStore.getHostUrl(), experiment.getPermId(),
-                experiment.getIdentifier(), analysisProcedureOrNull);
+                experiment.getIdentifier(), analysisProcedureOrNull, labelText);
     }
 
     public static <T extends DataPE> List<T> filterImageAnalysisDatasetsPE(List<T> datasets)

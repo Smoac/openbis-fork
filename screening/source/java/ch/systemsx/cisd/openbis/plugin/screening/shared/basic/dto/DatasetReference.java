@@ -53,6 +53,8 @@ public class DatasetReference implements Serializable, IEntityInformationHolderW
 
     private String analysisProcedure;
 
+    private String labelText;
+
     // GWT only
     @SuppressWarnings("unused")
     private DatasetReference()
@@ -61,7 +63,7 @@ public class DatasetReference implements Serializable, IEntityInformationHolderW
 
     public DatasetReference(long id, String code, String typeCode, Date registrationDate,
             String fileTypeCode, String datastoreCode, String datastoreHostUrl,
-            String experimentPermId, String experimentIdentifier, String analysisProcedure)
+            String experimentPermId, String experimentIdentifier, String analysisProcedure, String labelText)
     {
         this.id = id;
         this.datasetCode = code;
@@ -73,6 +75,7 @@ public class DatasetReference implements Serializable, IEntityInformationHolderW
         this.experimentPermId = experimentPermId;
         this.experimentIdentifier = experimentIdentifier;
         this.analysisProcedure = analysisProcedure;
+        this.labelText = labelText;
     }
 
     @Override
@@ -138,5 +141,10 @@ public class DatasetReference implements Serializable, IEntityInformationHolderW
     public String getAnalysisProcedure()
     {
         return analysisProcedure;
+    }
+
+    public String getLabelText()
+    {
+        return labelText;
     }
 }

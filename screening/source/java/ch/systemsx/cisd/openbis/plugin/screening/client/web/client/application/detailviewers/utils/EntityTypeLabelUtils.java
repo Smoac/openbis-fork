@@ -112,7 +112,10 @@ public class EntityTypeLabelUtils
                         + datasetReference.getFileTypeCode() + ")" : "";
         String analysisProcedureRendered =
                 StringUtils.isBlank(analysisProcedure) ? "" : analysisProcedure + ", ";
-        return typeLabel + fileType + ", " + analysisProcedureRendered + registrationDate
+
+        String additionalLabelPart = datasetReference.getLabelText() == null ? "" : (datasetReference.getLabelText() + ", ");
+
+        return typeLabel + fileType + ", " + additionalLabelPart + analysisProcedureRendered + registrationDate
                 + (withDatasetCode ? ", " + datasetReference.getCode() : "");
     }
 
