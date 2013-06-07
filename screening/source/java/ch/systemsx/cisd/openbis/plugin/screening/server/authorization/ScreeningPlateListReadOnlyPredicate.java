@@ -54,7 +54,7 @@ public class ScreeningPlateListReadOnlyPredicate extends
     private final ISampleToSpaceQuery sampleToSpaceQuery = QueryTool
             .getManagedQuery(ISampleToSpaceQuery.class);
 
-    interface ISampleToSpaceQuery extends BaseQuery
+    public interface ISampleToSpaceQuery extends BaseQuery
     {
         @Select(sql = "select distinct space_id from samples where perm_id = any(?{1})", parameterBindings =
             { StringArrayMapper.class })
