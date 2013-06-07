@@ -25,8 +25,8 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 
 /**
- * A utility class for working with the directory structure of the "log-registrations" directory
- * which stores log information about data set registrations.
+ * A utility class for working with the directory structure of the "log-registrations" directory which stores log information about data set
+ * registrations.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

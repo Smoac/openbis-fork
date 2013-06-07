@@ -47,8 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 
 /**
  * Services offered by the Data Store server to the public.<br>
- * A <i>Persistence Entity</i> which represents an entry in
- * {@link TableNames#DATA_STORE_SERVICES_TABLE}.
+ * A <i>Persistence Entity</i> which represents an entry in {@link TableNames#DATA_STORE_SERVICES_TABLE}.
  * 
  * @author Tomasz Pylak
  */
@@ -175,5 +174,11 @@ public class DataStoreServicePE implements Serializable
     {
         assert dataStore != null;
         dataStore.addService(this);
+    }
+
+    @Transient
+    public boolean isTableReport()
+    {
+        return DataStoreServiceKind.QUERIES.equals(getKind()) && ReportingPluginType.TABLE_MODEL.equals(getReportingPluginTypeOrNull());
     }
 }

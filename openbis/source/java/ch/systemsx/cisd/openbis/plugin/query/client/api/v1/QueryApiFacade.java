@@ -98,6 +98,12 @@ class QueryApiFacade implements IQueryApiFacade
     }
 
     @Override
+    public QueryTableModel createReportFromDataSets(String reportKey, List<String> dataSetCodes)
+    {
+        return service.createReportFromDataSets(sessionToken, reportKey, dataSetCodes);
+    }
+
+    @Override
     public List<AggregationServiceDescription> listAggregationServices()
     {
         checkMinimalServerVersion(1, 3);
@@ -105,10 +111,13 @@ class QueryApiFacade implements IQueryApiFacade
     }
 
     @Override
-    public QueryTableModel createReportFromAggregationService(AggregationServiceDescription serviceDescription, Map<String, Object> parameters)
+    public QueryTableModel createReportFromAggregationService(
+            AggregationServiceDescription serviceDescription, Map<String, Object> parameters)
     {
         checkMinimalServerVersion(1, 3);
-        return service.createReportFromAggregationService(sessionToken, serviceDescription.getDataStoreCode(), serviceDescription.getServiceKey(), parameters);
+        return service.createReportFromAggregationService(sessionToken,
+                serviceDescription.getDataStoreCode(), serviceDescription.getServiceKey(),
+                parameters);
     }
 
     /**

@@ -36,10 +36,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 public interface IDataSetTable
 {
     /**
-     * Loads data sets specified by their codes. Data set codes will be ignored if no {@link DataPE}
-     * could be found. Properties will be loaded too depending on <var>withProperties</var> value.
-     * Optionally if <var>lockForUpdate</var> is <var>true</var> all updates to loaded data sets
-     * from other transactions will be blocked until current transaction is finished.
+     * Loads data sets specified by their codes. Data set codes will be ignored if no {@link DataPE} could be found. Properties will be loaded too
+     * depending on <var>withProperties</var> value. Optionally if <var>lockForUpdate</var> is <var>true</var> all updates to loaded data sets from
+     * other transactions will be blocked until current transaction is finished.
      */
     void loadByDataSetCodes(List<String> dataSetCodes, boolean withProperties, boolean lockForUpdate);
 
@@ -54,8 +53,7 @@ public interface IDataSetTable
     void loadBySampleTechId(final TechId sampleId);
 
     /**
-     * Loads data sets which are linked to the sample with given <var>sampleId</var>. Datasets
-     * doesn't include relationships or properties.
+     * Loads data sets which are linked to the sample with given <var>sampleId</var>. Datasets doesn't include relationships or properties.
      */
     void loadBySampleTechIdWithoutRelationships(final TechId sampleId);
 
@@ -97,11 +95,10 @@ public interface IDataSetTable
     String uploadLoadedDataSetsToCIFEX(DataSetUploadContext uploadContext);
 
     /**
-     * Schedules archiving of loaded data sets. Only available data sets that are not locked will be
-     * archived.
+     * Schedules archiving of loaded data sets. Only available data sets that are not locked will be archived.
      * 
-     * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from
-     *            the data store after a successful archiving operation.
+     * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from the data store after a successful archiving
+     *            operation.
      * @return number of data sets scheduled for archiving.
      */
     int archiveDatasets(boolean removeFromDataStore);
@@ -132,8 +129,13 @@ public interface IDataSetTable
             List<String> datasetCodes);
 
     /**
-     * Schedules processing of specified datasets with specified parameter bindings using the
-     * specified datastore service.
+     * Creates a report from specified datasets using the specified datastore service. It groups the data sets by a data store and creates a report
+     * for each group of objects on appropriate data store server. Results from the data stores are combined and returned as a result of this method.
+     */
+    TableModel createReportFromDatasets(String datastoreServiceKey, List<String> datasetCodes);
+
+    /**
+     * Schedules processing of specified datasets with specified parameter bindings using the specified datastore service.
      * 
      * @param parameterBindings Should be a map where additional entries can be added.
      */
@@ -141,14 +143,20 @@ public interface IDataSetTable
             List<String> datasetCodes, Map<String, String> parameterBindings);
 
     /**
+     * Schedules processing of specified datasets with specified parameter bindings using all datastore services.
+     * 
+     * @param parameterBindings Should be a map where additional entries can be added.
+     */
+    void processDatasets(String datastoreServiceKey, List<String> datasetCodes, Map<String, String> parameterBindings);
+
+    /**
      * Loads data sets that belong to chosen data store.
      */
     public void loadByDataStore(DataStorePE dataStore);
 
     /**
-     * This method should be invoked before a series of update() method calls. It checks the data
-     * before the update can be started. For instance, it verifies versions of objects for
-     * Optimistic Locking.
+     * This method should be invoked before a series of update() method calls. It checks the data before the update can be started. For instance, it
+     * verifies versions of objects for Optimistic Locking.
      */
     public void checkBeforeUpdate(List<DataSetBatchUpdatesDTO> updates);
 
@@ -162,8 +170,7 @@ public interface IDataSetTable
     LinkModel retrieveLinkFromDataSet(String key, String datastoreCode, String dataSetCode);
 
     /**
-     * Execute the aggregation service from a service that supports
-     * IReportingPluginTask#createAggregationReport method.
+     * Execute the aggregation service from a service that supports IReportingPluginTask#createAggregationReport method.
      */
     TableModel createReportFromAggregationService(String key, String datastoreCode,
             Map<String, Object> parameters);

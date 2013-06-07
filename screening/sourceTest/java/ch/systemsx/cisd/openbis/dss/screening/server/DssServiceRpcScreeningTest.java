@@ -76,6 +76,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtilTest;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
@@ -283,6 +284,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     {
         prepareAssetDataSetsAreAccessible();
         prepareLockDataSet("ds1", DATASET_CODE2);
+        prepareListDatasets("ds1", DATASET_CODE2);
 
         long[] dataSetIDs = new long[]
             { 1, 2 };
@@ -307,6 +309,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     {
         prepareAssetDataSetsAreAccessible();
         prepareLockDataSet("ds1", DATASET_CODE2);
+        prepareListDatasets("ds1", DATASET_CODE2);
 
         long[] dataSetIDs = new long[]
             { 1, 2 };
@@ -1108,6 +1111,23 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                 {
                     one(shareIdManager).lock(Arrays.asList(dataSetCodes));
                     one(shareIdManager).releaseLocks();
+                }
+            });
+    }
+
+    private void prepareListDatasets(final String... dataSetCodes)
+    {
+        final ContainerDataSet containerDataset = new ContainerDataSet();
+        containerDataset.setCode("ds1");
+
+        final PhysicalDataSet physicalDataset = new PhysicalDataSet();
+        physicalDataset.setCode("ds2");
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).listDataSetsByCode(Arrays.asList("ds1", "ds2"));
+                    will(returnValue(Arrays.asList(containerDataset, physicalDataset)));
                 }
             });
     }

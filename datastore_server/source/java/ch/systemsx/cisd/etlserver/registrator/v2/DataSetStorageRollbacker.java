@@ -117,14 +117,13 @@ public class DataSetStorageRollbacker
     }
 
     /**
-     * Do the specified rollback actions and return the new location of the incomingDataSetFile or
-     * null if it was deleted.
+     * Do the specified rollback actions and return the new location of the incomingDataSetFile or null if it was deleted.
      * 
      * @param dssRegistrationLog The logger to log the rollback actions to.
      */
     public File doRollback(DssRegistrationLogger dssRegistrationLog)
     {
-        dssRegistrationLog.log(getErrorMessageForLog());
+        dssRegistrationLog.info(operationLog, getErrorMessageForLog());
 
         // delete pre-staging copy always - even if not deleting the real incoming directory
         if (incomingDataSetFile.isLogicalFileSpecified())
@@ -144,11 +143,11 @@ public class DataSetStorageRollbacker
             StringBuilder moveMessage = new StringBuilder();
             moveMessage.append("File has been moved to ");
             moveMessage.append(newLocation.getAbsolutePath());
-            dssRegistrationLog.log(moveMessage.toString());
+            dssRegistrationLog.info(operationLog, moveMessage.toString());
             return newLocation;
         } else if (unstoreAction == UnstoreDataAction.DELETE)
         {
-            dssRegistrationLog.log("File has been deleted.");
+            dssRegistrationLog.info(operationLog, "File has been deleted.");
 
             FileUtilities.deleteRecursively(incomingDataSetFile.getRealIncomingFile(),
                     new Log4jSimpleLogger(operationLog));
@@ -158,7 +157,7 @@ public class DataSetStorageRollbacker
         StringBuilder untouchedMessage = new StringBuilder();
         untouchedMessage.append("File has been left untouched ");
         untouchedMessage.append(incomingDataSetFile.getRealIncomingFile().getAbsolutePath());
-        dssRegistrationLog.log(untouchedMessage.toString());
+        dssRegistrationLog.info(operationLog, untouchedMessage.toString());
         return incomingDataSetFile.getRealIncomingFile();
     }
 

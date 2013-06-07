@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.screening.shared.api.internal;
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.multiplexer.BatchesResults;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 
 /**
@@ -26,8 +27,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdent
 public interface IDssServiceRpcScreeningMultiplexer
 {
 
-    public <R extends IDatasetIdentifier, V> DssServiceRpcScreeningBatchResults<V> process(
-            final List<? extends R> references,
-            final IDssServiceRpcScreeningBatchHandler<R, V> batchHandler);
-
+    public <O extends IDatasetIdentifier, R> BatchesResults<String, R> process(
+            final List<? extends O> objects,
+            final IDssServiceRpcScreeningBatchHandler<O, R> batchHandler);
 }

@@ -30,15 +30,17 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription
 
 /**
  * Node model for report reader node.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ReportNodeModel extends AbstractOpenBisNodeTableModel
 {
     static final String REPORT_DESCRIPTION_KEY = "report-description";
+
     static final String DATA_SET_CODES_KEY = "data-set-codes";
-    
+
     private ReportDescription reportDescription;
+
     private String[] dataSetCodes;
 
     @Override
@@ -60,7 +62,7 @@ public class ReportNodeModel extends AbstractOpenBisNodeTableModel
     @Override
     protected QueryTableModel getData(IQueryApiFacade facade)
     {
-        return facade.createReportFromDataSets(reportDescription, Arrays.asList(dataSetCodes));
+        return facade.createReportFromDataSets(reportDescription.getKey(), Arrays.asList(dataSetCodes));
     }
 
 }

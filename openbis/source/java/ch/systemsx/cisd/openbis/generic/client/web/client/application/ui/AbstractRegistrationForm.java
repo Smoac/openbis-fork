@@ -19,6 +19,24 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ICallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithCloseConfirmation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations.IConfirmation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations.IConfirmationChain;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint.DirtyChangeEvent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
+
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -38,23 +56,6 @@ import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.core.client.JavaScriptException;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithCloseConfirmation;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations.IConfirmation;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations.IConfirmationChain;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint.DirtyChangeEvent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 
 /**
  * An <i>abstract</i> registration form.
@@ -113,17 +114,31 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
 
     private boolean dirtyCheckEnabled = true;
 
+    protected final boolean isPopUp;
+
     protected AbstractRegistrationForm(final IMessageProvider messageProvider, final String id)
     {
-        this(messageProvider, id, DEFAULT_LABEL_WIDTH, DEFAULT_FIELD_WIDTH);
+        this(messageProvider, id, DEFAULT_LABEL_WIDTH, DEFAULT_FIELD_WIDTH, false);
     }
 
     protected AbstractRegistrationForm(final IMessageProvider messageProvider, final String id,
             final int labelWidth, final int fieldWidth)
     {
+        this(messageProvider, id, labelWidth, fieldWidth, false);
+    }
+
+    protected AbstractRegistrationForm(final IMessageProvider messageProvider, final String id, final boolean isPopUp)
+    {
+        this(messageProvider, id, DEFAULT_LABEL_WIDTH, DEFAULT_FIELD_WIDTH, isPopUp);
+    }
+
+    protected AbstractRegistrationForm(final IMessageProvider messageProvider, final String id,
+            final int labelWidth, final int fieldWidth, final boolean isPopUp)
+    {
         this.messageProvider = messageProvider;
         this.labelWidth = labelWidth;
         this.fieldWidth = fieldWidth;
+        this.isPopUp = isPopUp;
         setHeaderVisible(false);
         setLayout(new FlowLayout(5));
         setBodyBorder(false);
@@ -131,10 +146,23 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
         setScrollMode(Scroll.AUTO);
         setId(id);
         add(infoBox = createInfoBox(messageProvider));
+        if (isPopUp)
+        {
+            infoBox.setVisible(false);
+        }
         add(loadingInfo = createLoadingInfo());
         add(WidgetUtils.inRow(formPanel = createFormPanel(), rightPanel = createAdditionalPanel()));
+        if (isPopUp)
+        {
+            rightPanel.setVisible(false);
+        }
         formPanel.setId("registration-panel-" + id);
         add(unsavedChangesInfo = createUnsavedChangesInfo());
+    }
+
+    public FormPanel getFormPanel()
+    {
+        return formPanel;
     }
 
     private LayoutContainer createAdditionalPanel()
@@ -342,9 +370,13 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
                 }
             });
 
-        panel.addButton(resetButton);
-        panel.addButton(revertButton);
-        panel.addButton(saveButton);
+        if (false == isPopUp)
+        {
+            panel.addButton(resetButton);
+            panel.addButton(revertButton);
+            panel.addButton(saveButton);
+        }
+
         return panel;
     }
 
@@ -417,6 +449,12 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
         protected AbstractRegistrationCallback(final IViewContext<?> viewContext)
         {
             super(viewContext, new InfoBoxCallbackListener<T>(infoBox));
+            setUploadEnabled(false);
+        }
+
+        protected AbstractRegistrationCallback(final IViewContext<?> viewContext, final ICallbackListener<T> listener)
+        {
+            super(viewContext, listener);
             setUploadEnabled(false);
         }
 

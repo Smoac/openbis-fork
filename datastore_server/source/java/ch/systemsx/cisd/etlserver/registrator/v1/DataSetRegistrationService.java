@@ -209,7 +209,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         if (false == stillExists)
         {
             dssRegistrationLog
-                    .log("Incoming file ["
+                    .info(operationLog, "Incoming file ["
                             + incomingDataSetFile.getRealIncomingFile()
                             + "] was deleted outside of openBIS after processing started. The data had already been registered in the database.");
 
@@ -228,9 +228,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     }
 
     /**
-     * Call this method at the end of registration to make sure the clean action was executed even
-     * if neither commit nor abort happened. This method calls
-     * <code>globalCleanAfterwardsAction</code> action with <code>succeeded<code> parameter false.
+     * Call this method at the end of registration to make sure the clean action was executed even if neither commit nor abort happened. This method
+     * calls <code>globalCleanAfterwardsAction</code> action with <code>succeeded<code> parameter false.
      */
     public void cleanAfterRegistrationIfNecessary()
     {
@@ -300,8 +299,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     }
 
     /**
-     * Create a storage algorithm for storing an individual data set. This is internally used by
-     * transactions. Other clients may find it useful as well.
+     * Create a storage algorithm for storing an individual data set. This is internally used by transactions. Other clients may find it useful as
+     * well.
      */
     public DataSetStorageAlgorithm<T> createStorageAlgorithm(File dataSetFile,
             DataSetRegistrationDetails<? extends T> dataSetDetails)
@@ -313,10 +312,9 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     }
 
     /**
-     * Create a storage algorithm for storing an individual data set, bypassing the detection of
-     * whether the data set's owner is in the db. This is used if the owner will be registered in
-     * the same transaction. This is internally used by transactions. Other clients may find it
-     * useful as well.
+     * Create a storage algorithm for storing an individual data set, bypassing the detection of whether the data set's owner is in the db. This is
+     * used if the owner will be registered in the same transaction. This is internally used by transactions. Other clients may find it useful as
+     * well.
      */
     public DataSetStorageAlgorithm<T> createStorageAlgorithmWithIdentifiedStrategy(
             File dataSetFile, DataSetRegistrationDetails<? extends T> dataSetDetails)
@@ -396,8 +394,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     }
 
     /**
-     * Return the list of errors that were encountered. If didErrorsArise is false, this list will
-     * be empty, otherwise there will be at least one element.
+     * Return the list of errors that were encountered. If didErrorsArise is false, this list will be empty, otherwise there will be at least one
+     * element.
      */
     public List<Throwable> getEncounteredErrors()
     {

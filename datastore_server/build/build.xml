@@ -238,6 +238,7 @@
     <copy file="${lib}/cisd-jhdf5/hdf5-macosx-intel.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/cisd-jhdf5/hdf5-windows-intel.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/cifex/cifex.jar" todir="${dist.datastore_server.lib}" />
+    <copy file="${lib}/openbis-apis/knime/openbis-knime-server.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/activation/activation.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/mail/mail.jar" todir="${dist.datastore_server.lib}" />
     <copy file="${lib}/log4j/log4j.jar" todir="${dist.datastore_server.lib}" />

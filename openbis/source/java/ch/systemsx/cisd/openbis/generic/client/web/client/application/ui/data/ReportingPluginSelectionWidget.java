@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -91,6 +94,21 @@ public class ReportingPluginSelectionWidget extends
     {
         List<DatastoreServiceDescriptionModel> models =
                 DatastoreServiceDescriptionModel.convert(result, null);
+
+        Set<String> foundKeys = new HashSet<String>();
+
+        Iterator<DatastoreServiceDescriptionModel> iter = models.iterator();
+        while (iter.hasNext())
+        {
+            DatastoreServiceDescriptionModel model = iter.next();
+            if (foundKeys.contains(model.getBaseObject().getKey()))
+            {
+                iter.remove();
+            } else
+            {
+                foundKeys.add(model.getBaseObject().getKey());
+            }
+        }
 
         models.add(0, METADATA_MODEL);
 

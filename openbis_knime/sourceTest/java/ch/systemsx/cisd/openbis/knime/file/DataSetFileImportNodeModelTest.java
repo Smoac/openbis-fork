@@ -19,8 +19,11 @@ package ch.systemsx.cisd.openbis.knime.file;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -33,17 +36,24 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.workflow.Credentials;
+import org.knime.core.node.workflow.ICredentials;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeModel;
+import ch.systemsx.cisd.openbis.knime.common.IOpenbisServiceFacadeFactory;
 
 /**
  * @author Franz-Josef Elmer
@@ -53,14 +63,20 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
     private static final String FILE_PATH = "document.txt";
     private static final String DATA_SET_CODE = "DS-42";
     private static final String MY_PASSWORD = "my-password";
+    private static final String MY_PASSWORD2 = "my-password2";
+    private static final String CREDENTIALS_NAME = "my-credentials";
     private static final String USER = "albert";
+    private static final String USER2 = "isaac";
     private static final String URL = "https://open.bis";
 
     private static final class Model extends DataSetFileImportNodeModel
     {
-        public Model(IDataSetProvider dataSetProvider)
+        private final Map<String, String> flowVariables = new TreeMap<String, String>();
+        private final Map<String, ICredentials> credentialsMap = new HashMap<String, ICredentials>();
+        
+        public Model(IOpenbisServiceFacadeFactory factory)
         {
-            super(dataSetProvider);
+            super(factory);
         }
 
         @Override
@@ -75,12 +91,44 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         {
             super.saveSettingsTo(settings);
         }
+
+        @Override
+        protected void addFlowVariable(String name, String value)
+        {
+            flowVariables.put(name, value);
+        }
+        
+        void addCredentials(String name, ICredentials credentials)
+        {
+            credentialsMap.put(name, credentials);
+        }
+
+        @Override
+        protected ICredentials getCredentials(String name)
+        {
+            return credentialsMap.get(name);
+        }
+        
+        String getUrl()
+        {
+            return url;
+        }
+        
+        String getUserId()
+        {
+            return userID;
+        }
+        
+        String getPassword()
+        {
+            return password;
+        }
     }
 
     private Mockery context;
 
-    private IDataSetProvider dataSetProvider;
-
+    private IOpenbisServiceFacadeFactory facadeFactory;
+    
     private Model model;
 
     private NodeSettingsRO nodeSettingsRO;
@@ -94,16 +142,40 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
     private IDataSetDss dataSetDss;
 
     private ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet metadata;
-
+    
+    private DataSet dataSet;
     @BeforeMethod
     public void beforeMethod()
     {
+        LogInitializer.init();
         context = new Mockery();
-        dataSetProvider = context.mock(IDataSetProvider.class);
+        facadeFactory = context.mock(IOpenbisServiceFacadeFactory.class);
         nodeSettingsRO = context.mock(NodeSettingsRO.class);
         nodeSettingsWO = context.mock(NodeSettingsWO.class);
         dataSetDss = context.mock(IDataSetDss.class);
-        model = new Model(dataSetProvider);
+        facade = context.mock(IOpenbisServiceFacade.class);
+        DataSetInitializer dataSetInitializer = new DataSetInitializer();
+        dataSetInitializer.setCode(DATA_SET_CODE);
+        dataSetInitializer.setDataSetTypeCode("MY-TYPE");
+        EntityRegistrationDetailsInitializer regDetailsInit =
+                new EntityRegistrationDetailsInitializer();
+        dataSetInitializer.setRegistrationDetails(new EntityRegistrationDetails(regDetailsInit));
+        dataSetInitializer.setExperimentIdentifier("/A/B/C");
+        dataSetInitializer.setSampleIdentifierOrNull("/A/B");
+        metadata = new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet(dataSetInitializer);
+        model = new Model(facadeFactory);
+        model.addCredentials(CREDENTIALS_NAME, new Credentials(CREDENTIALS_NAME, USER2, MY_PASSWORD2));
+        dataSet = new DataSet(facade, dssComponent, metadata, dataSetDss);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dataSetDss).getCode();
+                    will(returnValue(DATA_SET_CODE));
+                    
+                    allowing(facade).getDataSet(DATA_SET_CODE);
+                    will(returnValue(dataSet));
+                }
+            });
     }
 
     @AfterMethod
@@ -115,11 +187,10 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testLoadingAndSavingSettings() throws InvalidSettingsException
+    public void testLoadingAndSavingSettingsWithCredentials() throws InvalidSettingsException
     {
         prepareLoadSaveStringSetting(AbstractOpenBisNodeModel.URL_KEY, URL);
-        prepareLoadSaveStringSetting(AbstractOpenBisNodeModel.USER_KEY, USER);
-        prepareLoadSaveStringSetting(AbstractOpenBisNodeModel.PASSWORD_KEY, MY_PASSWORD, "");
+        prepareLoadSaveStringSetting(AbstractOpenBisNodeModel.CREDENTIALS_KEY, CREDENTIALS_NAME, "");
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.DATA_SET_CODE_KEY, DATA_SET_CODE);
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.FILE_PATH_KEY, FILE_PATH);
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.DOWNLOADS_PATH_KEY, workingDirectory.getAbsolutePath());
@@ -136,6 +207,38 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         model.loadValidatedSettingsFrom(nodeSettingsRO);
         model.saveSettingsTo(nodeSettingsWO);
 
+        assertEquals(URL, model.getUrl());
+        assertEquals(USER2, model.getUserId());
+        assertEquals(MY_PASSWORD2, model.getPassword());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testLoadingAndSavingSettingsWithUserAndPassword() throws InvalidSettingsException
+    {
+        prepareLoadSaveStringSetting(AbstractOpenBisNodeModel.URL_KEY, URL);
+        prepareLoadSaveStringSetting(AbstractOpenBisNodeModel.CREDENTIALS_KEY, "", "");
+        prepareLoadSaveStringSetting(AbstractOpenBisNodeModel.USER_KEY, USER);
+        prepareLoadSaveStringSetting(AbstractOpenBisNodeModel.PASSWORD_KEY, MY_PASSWORD, "");
+        prepareLoadSaveStringSetting(DataSetFileImportNodeModel.DATA_SET_CODE_KEY, DATA_SET_CODE);
+        prepareLoadSaveStringSetting(DataSetFileImportNodeModel.FILE_PATH_KEY, FILE_PATH);
+        prepareLoadSaveStringSetting(DataSetFileImportNodeModel.DOWNLOADS_PATH_KEY, workingDirectory.getAbsolutePath());
+        context.checking(new Expectations()
+            {
+                {
+                    one(nodeSettingsRO).getBoolean(DataSetFileImportNodeModel.REUSE_FILE, false);
+                    will(returnValue(true));
+
+                    one(nodeSettingsWO).addBoolean(DataSetFileImportNodeModel.REUSE_FILE, true);
+                }
+            });
+        
+        model.loadValidatedSettingsFrom(nodeSettingsRO);
+        model.saveSettingsTo(nodeSettingsWO);
+        
+        assertEquals(URL, model.getUrl());
+        assertEquals(USER, model.getUserId());
+        assertEquals(MY_PASSWORD, model.getPassword());
         context.assertIsSatisfied();
     }
     
@@ -192,6 +295,8 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         assertEquals(file.toURI().toString(), uriContents.get(0).getURI().toString());
         assertEquals(1, uriContents.size());
         assertEquals(1, portObjects.length);
+        assertEquals("{openbis.DATA_SET=DS-42, openbis.EXPERIMENT=/A/B/C, openbis.SAMPLE=/A/B}",
+                model.flowVariables.toString());
         context.assertIsSatisfied();
     }
     
@@ -212,7 +317,7 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         }
         String exampleContent = builder.toString();
         prepareGetDataSetFile(FILE_PATH, new ByteArrayInputStream(exampleContent.getBytes()));
-        
+
         PortObject[] portObjects = model.execute(null, null);
         
         assertEquals(exampleContent, FileUtilities.loadToString(file).trim());
@@ -242,11 +347,13 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(dataSetProvider).getDataSet(URL, USER, MY_PASSWORD, DATA_SET_CODE);
-                    will(returnValue(new DataSet(facade, dssComponent, metadata, dataSetDss)));
+                    one(facadeFactory).createFacade(URL, USER, MY_PASSWORD);
+                    will(returnValue(facade));
                     
                     one(dataSetDss).getFile(filePath);
                     will(returnValue(inputStream));
+                    
+                    one(facade).logout();
                 }
             });
     }

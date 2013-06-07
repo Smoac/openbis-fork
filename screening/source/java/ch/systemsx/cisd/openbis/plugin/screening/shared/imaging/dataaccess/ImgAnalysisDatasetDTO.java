@@ -29,6 +29,9 @@ public class ImgAnalysisDatasetDTO extends AbstractImgIdentifiable
     @ResultColumn("CONT_ID")
     private Long containerId;
 
+    // The field that is not (yet) in database, but is useful to have here.
+    private String dataSetContainerId;
+
     @SuppressWarnings("unused")
     private ImgAnalysisDatasetDTO()
     {
@@ -36,10 +39,10 @@ public class ImgAnalysisDatasetDTO extends AbstractImgIdentifiable
     }
 
     // feature vector dataset
-    public ImgAnalysisDatasetDTO(String permId, Long containerId)
+    public ImgAnalysisDatasetDTO(String permId, Long plateId)
     {
         this.permId = permId;
-        this.containerId = containerId;
+        this.containerId = plateId;
     }
 
     public String getPermId()
@@ -58,8 +61,19 @@ public class ImgAnalysisDatasetDTO extends AbstractImgIdentifiable
         return containerId;
     }
 
-    public void setContainerId(Long containerId)
+    public void setContainerId(Long plateId)
     {
-        this.containerId = containerId;
+        this.containerId = plateId;
     }
+
+    public String getDataSetContainerId()
+    {
+        return dataSetContainerId;
+    }
+
+    public void setDataSetContainerId(String dataSetContainerId)
+    {
+        this.dataSetContainerId = dataSetContainerId;
+    }
+
 }

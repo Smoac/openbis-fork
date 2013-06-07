@@ -2070,11 +2070,14 @@ public final class CommonClientService extends AbstractClientService implements
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
     {
         final String sessionToken = getSessionToken();
+
+        DatastoreServiceDescription desc =
+                DatastoreServiceDescription.reporting(serviceDescription.getKey(), serviceDescription.getLabel(),
+                        serviceDescription.getDatasetTypeCodes(), null, serviceDescription.tryReportingPluginType());
         List<String> datasetCodes =
-                extractDatasetCodes(displayedOrSelectedDatasetCriteria, serviceDescription);
+                extractDatasetCodes(displayedOrSelectedDatasetCriteria, desc);
         final TableModel tableModel =
-                commonServer.createReportFromDatasets(sessionToken, serviceDescription,
-                        datasetCodes);
+                commonServer.createReportFromDatasets(sessionToken, desc.getKey(), datasetCodes);
         String resultSetKey = saveReportInCache(tableModel);
         return new TableModelReference(resultSetKey, tableModel.getHeader());
     }
@@ -2224,7 +2227,8 @@ public final class CommonClientService extends AbstractClientService implements
             if (datasetTypeCodesMap.contains(datasetTypeCode))
             {
                 String datasetDatastoreCode = dataset.getDataStore().getCode();
-                if (datasetDatastoreCode.equals(serviceDatastoreCode))
+
+                if (serviceDatastoreCode == null || datasetDatastoreCode.equals(serviceDatastoreCode))
                 {
                     result.add(row);
                 }
@@ -2238,9 +2242,14 @@ public final class CommonClientService extends AbstractClientService implements
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
     {
         final String sessionToken = getSessionToken();
+
+        DatastoreServiceDescription desc =
+                DatastoreServiceDescription.processing(serviceDescription.getKey(), serviceDescription.getLabel(),
+                        serviceDescription.getDatasetTypeCodes(), null);
+
         List<String> datasetCodes =
-                extractDatasetCodes(displayedOrSelectedDatasetCriteria, serviceDescription);
-        commonServer.processDatasets(sessionToken, serviceDescription, datasetCodes);
+                extractDatasetCodes(displayedOrSelectedDatasetCriteria, desc);
+        commonServer.processDatasets(sessionToken, desc, datasetCodes);
     }
 
     @Override

@@ -139,6 +139,7 @@
         <constructor-arg ref="entity-operation-checker" />
         <constructor-arg ref="service-conversation-client-manager" />
         <constructor-arg ref="managed-property-evaluator-factory" />
+        <constructor-arg ref="multiplexer" />
     </bean>
 
     <bean id="last-modification-state"
@@ -375,4 +376,12 @@
     <plugins:component-scan base-package="ch.systemsx.cisd.openbis" annotation-config="false">
         <plugins:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
     </plugins:component-scan>
+    
+    
+    <!-- Mutiplexer -->
+    
+    <bean id="multiplexer" class="ch.systemsx.cisd.common.multiplexer.ThreadPoolMultiplexer">
+        <constructor-arg value="mutiplexer-thread-pool" />
+    </bean>
+    
 </beans>

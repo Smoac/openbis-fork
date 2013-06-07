@@ -49,8 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**
- * Superclass for dataset download servlets. Provides functionality to deliver content of files and
- * images, does not deal with browsing directories.
+ * Superclass for dataset download servlets. Provides functionality to deliver content of files and images, does not deal with browsing directories.
  * 
  * @author Tomasz Pylak
  */
@@ -128,8 +127,7 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
     }
 
     /**
-     * Do any additional initialization using information from the properties passed in. Subclasses
-     * may override.
+     * Do any additional initialization using information from the properties passed in. Subclasses may override.
      */
     protected synchronized void doSpecificInitialization(Enumeration<String> parameterNames,
             ServletConfig servletConfig)
@@ -159,6 +157,7 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
         if (session == null)
         {
             session = request.getSession(true);
+            session.setAttribute("openbis-session-id", sessionIdOrNull);
             ConfigParameters configParameters = applicationContext.getConfigParameters();
             session.setMaxInactiveInterval(configParameters.getSessionTimeout());
 
@@ -169,7 +168,8 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
             appendServletSessionTimeout(sb);
             operationLog.info(sb.toString());
         }
-        if (applicationContext.getSessionTokenCache().isValidSessionToken(sessionIdOrNull) == false)
+
+        if (applicationContext.getSessionTokenCache().isValidSessionToken(session.getAttribute("openbis-session-id").toString()) == false)
         {
             return null;
         }

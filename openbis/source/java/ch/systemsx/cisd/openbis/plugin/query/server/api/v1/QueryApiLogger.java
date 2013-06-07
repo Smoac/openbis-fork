@@ -79,6 +79,15 @@ class QueryApiLogger extends AbstractServerLogger implements IQueryApiServer
     }
 
     @Override
+    public QueryTableModel createReportFromDataSets(String sessionToken, String serviceKey,
+            List<String> dataSetCodes)
+    {
+        logAccess(sessionToken, "create_report_from_data_sets", "SERVICE(%s) DATA_SETS(%s)",
+                serviceKey, dataSetCodes);
+        return null;
+    }
+
+    @Override
     public int getMajorVersion()
     {
         return 1;
@@ -98,7 +107,8 @@ class QueryApiLogger extends AbstractServerLogger implements IQueryApiServer
     }
 
     @Override
-    public QueryTableModel createReportFromAggregationService(String sessionToken, String dataStoreCode, String serviceKey, Map<String, Object> parameters)
+    public QueryTableModel createReportFromAggregationService(String sessionToken,
+            String dataStoreCode, String serviceKey, Map<String, Object> parameters)
     {
         logAccess(sessionToken, "create_report_from_aggregation_service",
                 "DATA_STORE(%s) SERVICE(%s) PARAMETERS(%s)", dataStoreCode, serviceKey, parameters);

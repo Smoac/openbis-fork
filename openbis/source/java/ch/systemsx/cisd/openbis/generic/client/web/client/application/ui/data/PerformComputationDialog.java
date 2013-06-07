@@ -37,10 +37,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 
 class PerformComputationDialog extends AbstractDataConfirmationDialog<ComputationData>
 {
@@ -57,9 +56,6 @@ class PerformComputationDialog extends AbstractDataConfirmationDialog<Computatio
 
     private List<String> selectedDataSetTypeCodes;
 
-    // not null only if all selected datasets come from the same datastore
-    private final DataStore dataStoreOrNull;
-
     private final SelectedOrAllDataSetsRadioProvider radioProvider;
 
     private final DatastoreServiceDescription pluginTask;
@@ -74,7 +70,6 @@ class PerformComputationDialog extends AbstractDataConfirmationDialog<Computatio
         this.pluginTask = data.getService();
         this.radioProvider = new SelectedOrAllDataSetsRadioProvider(data);
 
-        this.dataStoreOrNull = tryGetSingleDatastore(data);
         setWidth(DIALOG_WIDTH);
 
         DialogWithOnlineHelpUtils.addHelpButton(viewContext, this, createHelpPageIdentifier());
@@ -115,19 +110,9 @@ class PerformComputationDialog extends AbstractDataConfirmationDialog<Computatio
                     msgIntroduction, computationName);
         } else
         {
-            if (isSingleDatastore())
-            {
-                return viewContext.getMessage(
-                        Dict.PERFORM_COMPUTATION_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE,
-                        computationName, size);
-            } else
-            {
-                final String msgIntroduction =
-                        viewContext.getMessage(Dict.DATASETS_FROM_DIFFERENT_STORES_SELECTED);
-                return viewContext.getMessage(
-                        Dict.PERFORM_COMPUTATION_ON_ALL_DATASETS_MSG_TEMPLATE, msgIntroduction,
-                        computationName);
-            }
+            return viewContext.getMessage(
+                    Dict.PERFORM_COMPUTATION_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE,
+                    computationName, size);
         }
     }
 
@@ -176,7 +161,7 @@ class PerformComputationDialog extends AbstractDataConfirmationDialog<Computatio
         formPanel.setLabelWidth(LABEL_WIDTH);
         formPanel.setFieldWidth(FIELD_WIDTH);
 
-        if (data.getSelectedDataSets().size() > 0 && isSingleDatastore())
+        if (data.getSelectedDataSets().size() > 0)
         {
             formPanel.add(createComputationDataSetsRadio());
             selectedDataSetTypesText = formPanel.addText(createSelectedDataSetTypeText());
@@ -222,35 +207,6 @@ class PerformComputationDialog extends AbstractDataConfirmationDialog<Computatio
     {
         boolean showSelectedDataSetTypes = getComputeOnSelected();
         selectedDataSetTypesText.setVisible(showSelectedDataSetTypes);
-    }
-
-    private boolean isSingleDatastore()
-    {
-        return dataStoreOrNull != null;
-    }
-
-    private static DataStore tryGetSingleDatastore(ComputationData data)
-    {
-        return tryGetSingleDatastore(data.getSelectedDataSets());
-    }
-
-    // if all datasets come from one datastore, that datastore is returned. Otherwise returns
-    // null.
-    private static DataStore tryGetSingleDatastore(List<AbstractExternalData> datasets)
-    {
-        if (datasets.size() == 0)
-        {
-            return null;
-        }
-        DataStore store = datasets.get(0).getDataStore();
-        for (AbstractExternalData dataset : datasets)
-        {
-            if (store.equals(dataset.getDataStore()) == false)
-            {
-                return null;
-            }
-        }
-        return store;
     }
 
     private HelpPageIdentifier createHelpPageIdentifier()

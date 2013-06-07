@@ -88,8 +88,7 @@ public class JavaTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
     }
 
     /**
-     * V2 registration framework -- do not put files that are scheduled for recovery into the faulty
-     * paths.
+     * V2 registration framework -- do not put files that are scheduled for recovery into the faulty paths.
      */
     @Override
     public boolean shouldNotAddToFaultyPathsOrNull(File file)
@@ -102,7 +101,7 @@ public class JavaTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
     protected void handleDataSet(DataSetFile dataSetFile, DataSetRegistrationService<T> service)
             throws Throwable
     {
-        waitUntilApplicationIsReady(dataSetFile);
+        waitUntilApplicationIsReady(service, dataSetFile);
 
         IJavaDataSetRegistrationDropboxV2 v2Programm = getV2DropboxProgram(service);
 
@@ -114,6 +113,7 @@ public class JavaTopLevelDataSetHandlerV2<T extends DataSetInformation> extends
         {
             // in case when there is no retry function defined we just call the process and don't
             // try to catch any kind of exceptions
+            service.getDssRegistrationLog().info(operationLog, "Start processing");
             v2Programm.process(wrapTransaction(service.transaction()));
         }
     }

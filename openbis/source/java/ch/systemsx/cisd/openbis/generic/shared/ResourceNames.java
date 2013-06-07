@@ -81,4 +81,6 @@ public final class ResourceNames
     public final static String SERVICE_CONVERSATION_SERVER_MANAGER =
             "service-conversation-server-manager";
 
+    public final static String MULTIPLEXER = "multiplexer";
+
 }

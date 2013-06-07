@@ -123,7 +123,7 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
             {
                 person.getPersonDisplaySettings().setId(person.getId());
             }
-            template.update(person.getPersonDisplaySettings());
+            template.merge(person.getPersonDisplaySettings()); // cannot be update - look below
         }
         template.merge(person); // WORKAROUND update cannot be used - see LMS-1603
         template.flush();

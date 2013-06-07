@@ -41,6 +41,13 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.multiplexer.BatchHandlerAbstract;
+import ch.systemsx.cisd.common.multiplexer.IBatch;
+import ch.systemsx.cisd.common.multiplexer.IBatchHandler;
+import ch.systemsx.cisd.common.multiplexer.IBatchIdProvider;
+import ch.systemsx.cisd.common.multiplexer.IBatchResults;
+import ch.systemsx.cisd.common.multiplexer.IBatchesResults;
+import ch.systemsx.cisd.common.multiplexer.IMultiplexer;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
@@ -51,11 +58,16 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEve
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithDifferentColumnCountException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithDifferentColumnIdsException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithIncompatibleColumnTypesException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -63,6 +75,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -195,16 +208,20 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
 
     private final IDataStoreServiceFactory dssFactory;
 
+    private final IMultiplexer multiplexer;
+
     private List<DataPE> dataSets;
 
     public DataSetTable(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
             Session session, IRelationshipService relationshipService,
             IServiceConversationClientManagerLocal conversationClient,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            IMultiplexer multiplexer)
     {
         super(daoFactory, session, relationshipService, conversationClient,
                 managedPropertyEvaluatorFactory);
         this.dssFactory = dssFactory;
+        this.multiplexer = multiplexer;
     }
 
     //
@@ -495,6 +512,61 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                 parameterBindings, tryGetLoggedUserId(), tryGetLoggedUserEmail());
     }
 
+    @Override
+    public void processDatasets(final String datastoreServiceKey, final List<String> datasetCodes, final Map<String, String> parameterBindings)
+    {
+
+        final List<DatasetDescription> locations = loadAvailableDatasetDescriptions(datasetCodes);
+
+        IBatchIdProvider<DatasetDescription, String> batchIdProvider =
+                new IBatchIdProvider<DatasetDescription, String>()
+                    {
+                        @Override
+                        public String getBatchId(DatasetDescription object)
+                        {
+                            return object.getDataStoreCode();
+                        }
+                    };
+
+        IBatchHandler<DatasetDescription, String, Void> batchHandler =
+                new BatchHandlerAbstract<DatasetDescription, String, Void>()
+                    {
+                        @Override
+                        public void validateBatch(IBatch<DatasetDescription, String> batch)
+                        {
+                            DataStorePE dataStore = findDataStore(batch.getId());
+                            Set<DataStoreServicePE> services = dataStore.getServices();
+
+                            for (DataStoreServicePE service : services)
+                            {
+                                if (service.getKey().equals(datastoreServiceKey) && service.getKind().equals(DataStoreServiceKind.PROCESSING))
+                                {
+                                    return;
+                                }
+                            }
+
+                            throw new UserFailureException("Data store '" + batch.getId() + "' does not have '" + datastoreServiceKey
+                                    + "' processing plugin configured.");
+                        }
+
+                        @Override
+                        public List<Void> processBatch(IBatch<DatasetDescription, String> batch)
+                        {
+                            DataStorePE dataStore = findDataStore(batch.getId());
+                            String sessionToken = dataStore.getSessionToken();
+                            String userSessionToken = session.getSessionToken();
+                            IDataStoreService service = tryGetDataStoreService(dataStore);
+                            parameterBindings.put(Constants.USER_PARAMETER, session.tryGetPerson().getUserId());
+                            service.processDatasets(sessionToken, userSessionToken, datastoreServiceKey, batch.getObjects(),
+                                    parameterBindings, tryGetLoggedUserId(), tryGetLoggedUserEmail());
+                            return Collections.emptyList();
+                        }
+                    };
+
+        multiplexer.process(locations, batchIdProvider, batchHandler);
+
+    }
+
     private String tryGetLoggedUserEmail()
     {
         return session.tryGetPerson() == null ? null : session.tryGetPerson().getEmail();
@@ -531,6 +603,92 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         String userSessionToken = session.getSessionToken();
         return service.createReportFromDatasets(sessionToken, userSessionToken,
                 datastoreServiceKey, locations, tryGetLoggedUserId(), tryGetLoggedUserEmail());
+    }
+
+    @Override
+    public TableModel createReportFromDatasets(final String datastoreServiceKey,
+            final List<String> datasetCodes)
+    {
+        List<DatasetDescription> locations = loadAvailableDatasetDescriptions(datasetCodes);
+
+        IBatchIdProvider<DatasetDescription, String> batchIdProvider =
+                new IBatchIdProvider<DatasetDescription, String>()
+                    {
+                        @Override
+                        public String getBatchId(DatasetDescription object)
+                        {
+                            return object.getDataStoreCode();
+                        }
+                    };
+
+        IBatchHandler<DatasetDescription, String, TableModel> batchHandler =
+                new BatchHandlerAbstract<DatasetDescription, String, TableModel>()
+                    {
+                        @Override
+                        public void validateBatch(IBatch<DatasetDescription, String> batch)
+                        {
+                            DataStorePE dataStore = findDataStore(batch.getId());
+                            Set<DataStoreServicePE> services = dataStore.getServices();
+
+                            for (DataStoreServicePE service : services)
+                            {
+                                if (service.getKey().equals(datastoreServiceKey) && service.isTableReport())
+                                {
+                                    return;
+                                }
+                            }
+
+                            throw new UserFailureException("Data store '" + batch.getId() + "' does not have '" + datastoreServiceKey
+                                    + "' report configured.");
+                        }
+
+                        @Override
+                        public List<TableModel> processBatch(IBatch<DatasetDescription, String> batch)
+                        {
+                            DataStorePE dataStore = findDataStore(batch.getId());
+                            String sessionToken = session.getSessionToken();
+                            String storeSessionToken = dataStore.getSessionToken();
+
+                            IDataStoreService service =
+                                    getConversationClient().getDataStoreService(
+                                            dataStore.getRemoteUrl(), sessionToken);
+
+                            TableModel tableModel =
+                                    service.createReportFromDatasets(storeSessionToken,
+                                            sessionToken, datastoreServiceKey, batch.getObjects(),
+                                            tryGetLoggedUserId(), tryGetLoggedUserEmail());
+
+                            return Collections.singletonList(tableModel);
+                        }
+                    };
+
+        IBatchesResults<String, TableModel> batchesResults =
+                multiplexer.process(locations, batchIdProvider, batchHandler);
+
+        TableModelAppender tableModelAppender = new TableModelAppender();
+        for (IBatchResults<String, TableModel> batchResults : batchesResults.getBatchResults())
+        {
+            try
+            {
+                tableModelAppender.append(batchResults.getResults().get(0));
+            } catch (TableModelWithDifferentColumnCountException e)
+            {
+                throw new UserFailureException("Could not merge reports from multiple data stores because '" + batchResults.getBatchId()
+                        + "' data store returned a table with an incorrect number of columns (expected: " + e.getExpectedColumnCount()
+                        + ", got: " + e.getAppendedColumnCount() + ")");
+            } catch (TableModelWithDifferentColumnIdsException e)
+            {
+                throw new UserFailureException("Could not merge reports from multiple data stores because '" + batchResults.getBatchId()
+                        + "' data store returned a table with different column ids (expected: " + e.getExpectedColumnIds()
+                        + ", got: " + e.getAppendedColumnIds() + ")");
+            } catch (TableModelWithIncompatibleColumnTypesException e)
+            {
+                throw new UserFailureException("Could not merge reports from multiple data stores because '" + batchResults.getBatchId()
+                        + "' data store returned a table with incompatible types of columns (expected: " + e.getExpectedColumnTypes()
+                        + ", got: " + e.getAppendedColumnTypes() + ")");
+            }
+        }
+        return tableModelAppender.toTableModel();
     }
 
     private List<DatasetDescription> loadAvailableDatasetDescriptions(List<String> dataSetCodes)

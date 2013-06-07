@@ -94,11 +94,11 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     //
     // Cosmetics
     //
-    private static final int FORM_WIDTH = 700;
+    private static final int FORM_WIDTH = 600;
 
-    private static final int LABEL_WIDTH = 100;
+    private static final int LABEL_WIDTH = 150;
 
-    private static final int FIELD_WIDTH = 600;
+    private static final int FIELD_WIDTH = 400;
 
     private Label loading;
 
@@ -148,6 +148,8 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     private EntityType entity;
 
     private EntityKind entityKind;
+
+    private boolean isExitingEntity;
 
     private static final String PREFIX = "property-type-assignment_";
 
@@ -211,12 +213,13 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     //
     public AddPropertyTypeDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback, EntityKind entityKind,
-            String entityCode, InMemoryGridAddCallback inMemoryGridCallback, EntityType inMemoryEntityType)
+            String entityCode, InMemoryGridAddCallback inMemoryGridCallback, EntityType inMemoryEntityType, boolean isExitingEntity)
     {
         super(viewContext, viewContext.getMessage(Dict.PROPERTY_TYPE_REGISTRATION), postRegistrationCallback);
         this.viewContext = viewContext;
         this.inMemoryGridCallback = inMemoryGridCallback;
         this.entityKind = entityKind;
+        this.isExitingEntity = isExitingEntity;
 
         setWidth(FORM_WIDTH);
         getFormPanel().setFieldWidth(FIELD_WIDTH);
@@ -308,7 +311,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         this.getFormPanel().layout();
         this.layout();
 
-        this.setSize(800, 650);
+        this.setSize(FORM_WIDTH, 650);
         this.center();
     }
 
@@ -489,8 +492,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                 propertyType = propertyTypeSelectionWidget.tryGetSelectedPropertyType();
             }
 
-            inMemoryGridCallback.callback(isExixtingPropertyType, propertyType, assignment);
-            this.close();
+            inMemoryGridCallback.callback(isExixtingPropertyType, propertyType, assignment, this);
         }
     }
 
@@ -751,8 +753,17 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         {
             mandatoryCheckbox = new CheckBoxField(viewContext.getMessage(Dict.MANDATORY), false);
             mandatoryCheckbox.setId(createChildId(MANDATORY_CHECKBOX_ID_SUFFIX));
-            mandatoryCheckbox.setFireChangeEventOnSetValue(false);
             mandatoryCheckbox.setValue(false);
+            mandatoryCheckbox.addListener(Events.Change, new Listener<BaseEvent>()
+                {
+                    @Override
+                    public void handleEvent(BaseEvent be)
+                    {
+                        // Show init value if necessary
+                        updatePropertyTypeRelatedFields();
+                    }
+                });
+
             FieldUtil.setVisibility(isScriptable() == false, mandatoryCheckbox);
         }
         return mandatoryCheckbox;
@@ -762,8 +773,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
     {
         if (null == shownInEditViewCheckBox)
         {
-            shownInEditViewCheckBox =
-                    new CheckBoxField(viewContext.getMessage(Dict.IS_SHOWN_IN_EDIT_VIEW), false);
+            shownInEditViewCheckBox = new CheckBoxField(viewContext.getMessage(Dict.IS_SHOWN_IN_EDIT_VIEW), false);
             shownInEditViewCheckBox.setValue(true);
             shownInEditViewCheckBox.setVisible(false);
             shownInEditViewCheckBox.addListener(Events.Change, new Listener<BaseEvent>()
@@ -824,8 +834,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
             propertyType = this.createPropertyType();
         }
 
-        // Is necessary to manage the case where the vocabulary is not set because there is no
-        // vocabularies on the system to avoid a null pointer
+        // Is necessary to manage the case where the vocabulary is not set to avoid a null pointer
         if (propertyType != null && propertyType.getDataType() != null
                 && propertyType.getDataType().getCode() != DataTypeCode.CONTROLLEDVOCABULARY
                 ||
@@ -833,20 +842,23 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                 && propertyType.getDataType().getCode() == DataTypeCode.CONTROLLEDVOCABULARY
                 && propertyType.getVocabulary() != null)
         {
-            String fieldId = createChildId(DEFAULT_VALUE_ID_PART);
-            DatabaseModificationAwareField<?> fieldHolder =
-                    PropertyFieldFactory.createField(propertyType,
-                            false,
-                            viewContext.getMessage(Dict.DEFAULT_VALUE),
-                            fieldId,
-                            null,
-                            viewContext);
-            GWTUtils.setToolTip(fieldHolder.get(), viewContext
-                    .getMessage(Dict.DEFAULT_VALUE_TOOLTIP));
-            defaultValueField = fieldHolder;
-            defaultValueField.get().show();
-            FieldUtil.setVisibility(isScriptable() == false, defaultValueField.get());
-            this.addField(defaultValueField.get());
+            if (isExitingEntity && getMandatoryCheckbox().getValue())
+            {
+                String fieldId = createChildId(DEFAULT_VALUE_ID_PART);
+                DatabaseModificationAwareField<?> fieldHolder =
+                        PropertyFieldFactory.createField(propertyType,
+                                false,
+                                viewContext.getMessage(Dict.DEFAULT_VALUE),
+                                fieldId,
+                                null,
+                                viewContext);
+                GWTUtils.setToolTip(fieldHolder.get(), viewContext
+                        .getMessage(Dict.DEFAULT_VALUE_TOOLTIP));
+                defaultValueField = fieldHolder;
+                defaultValueField.get().show();
+                FieldUtil.setVisibility(isScriptable() == false, defaultValueField.get());
+                this.addField(defaultValueField.get());
+            }
         }
         updateEntityTypePropertyTypeRelatedFields();
     }
@@ -882,31 +894,41 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
         if (propertyType != null && entityType != null && propertyType.getDataType() != null)
         {
             final List<EntityTypePropertyType<?>> etpts = new ArrayList<EntityTypePropertyType<?>>(entityType.getAssignedPropertyTypes());
-            sectionSelectionWidget = SectionSelectionWidget.create(viewContext, etpts);
-            this.addField(sectionSelectionWidget);
-            etptSelectionWidget = createETPTSelectionWidget(etpts);
-            this.addField(etptSelectionWidget);
+            this.addField(getSectionSelectionWidget(etpts));
+            this.addField(getETPTSelectionWidget(etpts));
         }
 
         fixLayout();
     }
 
+    private EntityTypePropertyTypeSelectionWidget getETPTSelectionWidget(final List<EntityTypePropertyType<?>> etpts)
+    {
+        if (etptSelectionWidget == null)
+        {
+            etptSelectionWidget = createETPTSelectionWidget(etpts);
+        }
+        return etptSelectionWidget;
+    }
+
+    private SectionSelectionWidget getSectionSelectionWidget(final List<EntityTypePropertyType<?>> etpts)
+    {
+        if (sectionSelectionWidget == null)
+        {
+            sectionSelectionWidget = SectionSelectionWidget.create(viewContext, etpts);
+        }
+        return sectionSelectionWidget;
+    }
+
     private void hideEntityTypePropertyTypeRelatedFields()
     {
-        if (sectionSelectionWidget != null
-                && this.getFormPanel().getFields().contains(sectionSelectionWidget))
+        if (sectionSelectionWidget != null && this.getFormPanel().getFields().contains(sectionSelectionWidget))
         {
-            sectionSelectionWidget.hide();
             this.removeField(sectionSelectionWidget);
-            sectionSelectionWidget = null;
         }
 
-        if (etptSelectionWidget != null
-                && this.getFormPanel().getFields().contains(etptSelectionWidget))
+        if (etptSelectionWidget != null && this.getFormPanel().getFields().contains(etptSelectionWidget))
         {
-            etptSelectionWidget.hide();
             this.removeField(etptSelectionWidget);
-            etptSelectionWidget = null;
         }
     }
 
@@ -1205,7 +1227,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                         updatePropertyTypeRelatedFields();
                     }
                 };
-            vocabularySelectionWidget.addListener(Events.Change, vocabularyListener);
+            vocabularySelectionWidget.addListener(Events.SelectionChange, vocabularyListener);
             FieldUtil.markAsMandatory(vocabularySelectionWidget);
         }
         return vocabularySelectionWidget;
@@ -1227,7 +1249,7 @@ public class AddPropertyTypeDialog extends AbstractRegistrationDialog
                         updatePropertyTypeRelatedFields();
                     }
                 };
-            materialTypeSelectionWidget.addListener(Events.Change, materialListener);
+            materialTypeSelectionWidget.addListener(Events.SelectionChange, materialListener);
             FieldUtil.markAsMandatory(materialTypeSelectionWidget);
         }
         return materialTypeSelectionWidget;

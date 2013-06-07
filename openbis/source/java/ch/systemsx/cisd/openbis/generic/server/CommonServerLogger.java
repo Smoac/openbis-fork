@@ -1222,6 +1222,15 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
+    public TableModel createReportFromDatasets(String sessionToken, String serviceKey,
+            List<String> datasetCodes)
+    {
+        logAccess(sessionToken, "createReportFromDatasets", "SERVICE(%s), DATASETS(%s)",
+                serviceKey, abbreviate(datasetCodes));
+        return null;
+    }
+
+    @Override
     public void processDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription, List<String> datasetCodes)
     {

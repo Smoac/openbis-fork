@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.jython.PythonInterpreter;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.ITopLevelDataSetRegistratorDelegate;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
@@ -31,6 +35,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation> extends
         JythonTopLevelDataSetHandlerV2.JythonDataSetRegistrationService<T>
 {
+    static private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            JythonDataSetRegistrationServiceV2.class);
 
     public JythonDataSetRegistrationServiceV2(
             AbstractProgrammableTopLevelDataSetHandler<T> registrator,
@@ -94,6 +100,6 @@ public class JythonDataSetRegistrationServiceV2<T extends DataSetInformation> ex
             logMessage.append("\t");
             logMessage.append(error.toString());
         }
-        dssRegistrationLog.log(logMessage.toString());
+        dssRegistrationLog.info(operationLog, logMessage.toString());
     }
 }

@@ -1178,14 +1178,14 @@ public final class ComponentProvider
             };
     }
 
-    public AbstractTabItemFactory getPropertyTypeAssignmentBrowser(final EntityType entity)
+    public AbstractTabItemFactory getPropertyTypeAssignmentBrowser(final EntityType entity, final boolean isEntityTypeEdit)
     {
         return new AbstractTabItemFactory()
             {
                 @Override
                 public ITabItem create()
                 {
-                    IDisposableComponent component = PropertyTypeAssignmentGrid.create(viewContext, entity, null);
+                    IDisposableComponent component = PropertyTypeAssignmentGrid.create(viewContext, entity, null, isEntityTypeEdit);
                     return createTab(getTabTitle(), component);
                 }
 
@@ -1366,7 +1366,7 @@ public final class ComponentProvider
 
     public AbstractTabItemFactory getSampleTypeBrowser()
     {
-    	final ComponentProvider componentProvider = this;
+        final ComponentProvider componentProvider = this;
         return new AbstractTabItemFactory()
             {
                 @Override
@@ -1405,7 +1405,7 @@ public final class ComponentProvider
 
     public AbstractTabItemFactory getMaterialTypeBrowser()
     {
-		final ComponentProvider componentProvider = this;
+        final ComponentProvider componentProvider = this;
         return new AbstractTabItemFactory()
             {
                 @Override
@@ -1444,7 +1444,7 @@ public final class ComponentProvider
 
     public AbstractTabItemFactory getNewEntityTypeForm(final EntityKind kind, final EntityType type)
     {
-    	final ComponentProvider componentProvider = this;
+        final ComponentProvider componentProvider = this;
         return new AbstractTabItemFactory()
             {
                 @Override
@@ -1489,7 +1489,7 @@ public final class ComponentProvider
 
     public AbstractTabItemFactory getExperimentTypeBrowser()
     {
-    	final ComponentProvider componentProvider = this;
+        final ComponentProvider componentProvider = this;
         return new AbstractTabItemFactory()
             {
                 @Override
@@ -1528,7 +1528,7 @@ public final class ComponentProvider
 
     public AbstractTabItemFactory getDataSetTypeBrowser()
     {
-    	final ComponentProvider componentProvider = this;
+        final ComponentProvider componentProvider = this;
         return new AbstractTabItemFactory()
             {
                 @Override

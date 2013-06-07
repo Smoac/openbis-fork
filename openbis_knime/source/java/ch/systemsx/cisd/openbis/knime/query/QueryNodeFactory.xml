@@ -3,10 +3,13 @@
 <knimeNode icon="../common/openbis.png" type="Source">
     <name>openBIS Query Reader</name>
     
-    <shortDescription>openBIS query node</shortDescription>
+    <shortDescription>Provides the result table form an invocation of a parameterized SQL Query on an openBIS instance.</shortDescription>
     
     <fullDescription>
-        <intro>Data source node to run a parameterized SQL query on openBIS Application Server  
+        <intro>This data source node invokes a parameterized SQL query on an openBIS Application Server. 
+        <p> 
+        For more details see <a href="https://wiki-bsse.ethz.ch/display/openBISDoc1304/openBIS+KNIME+Nodes">openBIS KNIME Nodes</a>.
+        </p>
         </intro>
     </fullDescription>
     

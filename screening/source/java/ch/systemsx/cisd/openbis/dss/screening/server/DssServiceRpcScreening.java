@@ -74,6 +74,7 @@ import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeNormalizer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.AbstractFormatSelectionCriterion;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
@@ -195,7 +196,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public List<String> listAvailableFeatureCodes(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
-        List<ImgFeatureDefDTO> featureDefinitions = getFeatureDefinitions(featureDatasets);
+        List<ImgFeatureDefDTO> featureDefinitions =
+                getFeatureDefinitionsWithContained(featureDatasets);
 
         // add only new feature names
         List<String> result = new ArrayList<String>(); // keep the order
@@ -214,7 +216,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public List<FeatureInformation> listAvailableFeatures(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
-        List<ImgFeatureDefDTO> featureDefinitions = getFeatureDefinitions(featureDatasets);
+        List<ImgFeatureDefDTO> featureDefinitions =
+                getFeatureDefinitionsWithContained(featureDatasets);
 
         // add only new feature names
         List<FeatureInformation> result = new ArrayList<FeatureInformation>(); // keep the order
@@ -667,7 +670,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             List<String> featureNames)
     {
         WellFeatureCollection<FeatureTableRow> features =
-                FeatureVectorLoader.fetchWellFeatures(datasetWellReferences, featureNames, dao,
+                FeatureVectorLoader.fetchWellFeatures(datasetWellReferences, featureNames, getDAO(),
                         FeatureVectorLoaderMetadataProviderFactory
                                 .createMetadataProviderFromFeatureVectors(getOpenBISService(),
                                         datasetWellReferences));
@@ -1788,6 +1791,33 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     {
         List<ImgAnalysisDatasetDTO> dataSets = getAnalysisDatasets(featureDatasets);
         return getDAO().listFeatureDefsByDataSetIds(extractIds(dataSets));
+    }
+
+    private List<ImgFeatureDefDTO> getFeatureDefinitionsWithContained(
+            List<? extends IDatasetIdentifier> featureDatasets)
+    {
+        IMetadataProvider metadataProvider =
+                FeatureVectorLoaderMetadataProviderFactory
+                        .createMetadataProviderFromFeatureVectors(getOpenBISService(),
+                                featureDatasets);
+
+        List<IDatasetIdentifier> featureDatasetsWithContained = new ArrayList<IDatasetIdentifier>();
+
+        for (IDatasetIdentifier featureDataset : featureDatasets)
+        {
+            featureDatasetsWithContained.add(featureDataset);
+
+            List<String> containedCodes =
+                    metadataProvider.tryGetContainedDatasets(featureDataset.getDatasetCode());
+
+            for (String containedCode : containedCodes)
+            {
+                featureDatasetsWithContained.add(new DatasetIdentifier(containedCode,
+                        featureDataset.getDatastoreServerUrl()));
+            }
+        }
+
+        return getFeatureDefinitions(featureDatasetsWithContained);
     }
 
     private IImagingReadonlyQueryDAO getDAO()

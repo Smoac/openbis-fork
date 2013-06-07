@@ -16,17 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ICallbackListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.AddVocabularyDialog.VocabularyPopUpCallbackListener;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 
 /**
  * Form allowing to register new vocabularies.
@@ -47,9 +49,18 @@ public final class VocabularyRegistrationForm extends AbstractRegistrationForm
 
     protected final VocabularyRegistrationFieldSet vocabularyRegistrationFieldSet;
 
+    private final VocabularyPopUpCallbackListener dialogCallback;
+
     public VocabularyRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, ID);
+        this(viewContext, false, null);
+    }
+
+    public VocabularyRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext, final boolean isPopUp,
+            VocabularyPopUpCallbackListener dialogCallback)
+    {
+        super(viewContext, ID, isPopUp);
+        this.dialogCallback = dialogCallback;
         setResetButtonVisible(true);
         this.viewContext = viewContext;
         termsSessionKey = ID + "_terms";
@@ -64,11 +75,18 @@ public final class VocabularyRegistrationForm extends AbstractRegistrationForm
     protected final void submitValidForm()
     {
         final NewVocabulary vocabulary = vocabularyRegistrationFieldSet.createVocabulary();
-        viewContext.getService().registerVocabulary(termsSessionKey, vocabulary,
-                new VocabularyRegistrationCallback(viewContext, vocabulary));
+        VocabularyRegistrationCallback asyncCallback;
+        if (isPopUp)
+        {
+            asyncCallback = new VocabularyRegistrationCallback(viewContext, vocabulary, dialogCallback);
+        } else
+        {
+            asyncCallback = new VocabularyRegistrationCallback(viewContext, vocabulary);
+        }
+        viewContext.getService().registerVocabulary(termsSessionKey, vocabulary, asyncCallback);
     }
 
-    private final class VocabularyRegistrationCallback extends
+    final class VocabularyRegistrationCallback extends
             AbstractRegistrationForm.AbstractRegistrationCallback<Void>
     {
         private final Vocabulary vocabulary;
@@ -77,6 +95,13 @@ public final class VocabularyRegistrationForm extends AbstractRegistrationForm
                 final Vocabulary vocabulary)
         {
             super(viewContext);
+            this.vocabulary = vocabulary;
+        }
+
+        VocabularyRegistrationCallback(final IViewContext<?> viewContext,
+                final Vocabulary vocabulary, final ICallbackListener<Void> listener)
+        {
+            super(viewContext, listener);
             this.vocabulary = vocabulary;
         }
 

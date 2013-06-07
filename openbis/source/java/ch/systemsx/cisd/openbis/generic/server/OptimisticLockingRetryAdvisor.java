@@ -97,8 +97,8 @@ public class OptimisticLockingRetryAdvisor extends DefaultPointcutAdvisor
                     boolean retry = i < NUMBER_OF_TRIES - 1;
                     if (retry)
                     {
-                        operationLog.warn("Retry after the " + (i + 1) + ". failed invocation of "
-                                + invocation.getMethod() + ". Reason: " + ex, ex);
+                        operationLog.info("Retry after the " + (i + 1) + ". failed invocation of "
+                                + invocation.getMethod());
                         try
                         {
                             Thread.sleep((int) (Math.random() * MAX_WAITING_TIME_FOR_RETRY));

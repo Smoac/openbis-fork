@@ -45,6 +45,7 @@ import ch.systemsx.cisd.etlserver.registrator.api.v2.JythonTopLevelDataSetHandle
 import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.AbstractTransactionState;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor;
+import ch.systemsx.cisd.etlserver.registrator.monitor.DssRegistrationHealthMonitor.DssRegistrationHealthState;
 import ch.systemsx.cisd.etlserver.registrator.recovery.AbstractRecoveryState;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStoragePrecommitRecoveryState;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryInfo;
@@ -88,6 +89,8 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
     protected void executeProcessFunctionWithRetries(IJavaDataSetRegistrationDropboxV2 v2Programm,
             JythonDataSetRegistrationServiceV2<T> service, DataSetFile incomingDataSetFile)
     {
+        DssRegistrationLogger logger = service.getDssRegistrationLog();
+
         DistinctExceptionsCollection errors = new DistinctExceptionsCollection();
 
         // create initial transaction
@@ -95,32 +98,34 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
 
         while (true)
         {
-            waitUntilApplicationIsReady(incomingDataSetFile);
+            waitUntilApplicationIsReady(service, incomingDataSetFile);
 
             Exception problem;
             try
             {
+                logger.info(operationLog, "Start processing");
                 v2Programm.process(wrapTransaction(service.getTransaction()));
                 // if function succeeded - than we are happy
                 return;
             } catch (Exception ex)
             {
                 problem = ex;
-                operationLog
-                        .info("Exception occured during jython script processing. Will check if can retry.",
-                                ex);
+
+                logger.info(
+                        operationLog
+                        , "Exception occured during jython script processing. Will check if can retry.",
+                        ex);
             }
 
             int errorCount = errors.add(problem);
 
             if (errorCount > processMaxRetryCount)
             {
-                operationLog
-                        .error("The jython script processing has failed too many times. Rolling back.");
+                logger.error(operationLog, "The jython script processing has failed too many times. Rolling back.");
                 throw CheckedExceptionTunnel.wrapIfNecessary(problem);
             } else
             {
-                operationLog.debug("The same error happened for the " + errorCount
+                logger.info(operationLog, "The same error happened for the " + errorCount
                         + " time (max allowed is " + processMaxRetryCount + ")");
             }
 
@@ -134,14 +139,13 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
                         v2Programm.shouldRetryProcessing(registrationContext, problem);
             } catch (Exception ex)
             {
-                operationLog.error("The retry function has failed. Rolling back.", ex);
+                logger.error(operationLog, "The retry function has failed. Rolling back.", ex);
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
 
             if (false == retryFunctionResult)
             {
-                operationLog
-                        .error("The should_retry_processing function returned false. Will not retry.");
+                logger.error(operationLog, "The should_retry_processing function returned false. Will not retry.");
                 throw CheckedExceptionTunnel.wrapIfNecessary(problem);
             }
 
@@ -168,11 +172,15 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
         return v2transaction;
     }
 
-    protected void waitUntilApplicationIsReady(DataSetFile incomingDataSetFile)
+    protected void waitUntilApplicationIsReady(DataSetRegistrationService<T> service, DataSetFile incomingDataSetFile)
     {
-        while (false == DssRegistrationHealthMonitor.getInstance().isApplicationReady(
-                incomingDataSetFile.getRealIncomingFile().getParentFile()))
+        DssRegistrationHealthState healthState;
+
+        while ((healthState = DssRegistrationHealthMonitor.getInstance().checkHealthState(
+                incomingDataSetFile.getRealIncomingFile().getParentFile())).isUnavailable())
         {
+            service.getDssRegistrationLog().info(operationLog,
+                    "Cannot process unless filesystems and application server are available. Reason: " + healthState);
             waitTheRetryPeriod(10);
             // do nothing. just repeat until the application is ready
         }
@@ -302,7 +310,7 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
                                         recoveryMarkerFile.getName() + ".ERROR");
                         state.getFileOperations().move(recoveryMarkerFile, errorRecoveryMarkerFile);
 
-                        logger.log("Recovery failed. Giving up.");
+                        logger.info(operationLog, "Recovery failed. Giving up.");
                         logger.registerFailure();
 
                     } else
@@ -537,9 +545,8 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
                 // implemented like this to avoid dependency to jmock in production
                 throw (Error) error;
             }
-            operationLog.error("Uncaught error during recovery", error);
+            logger.error(operationLog, "Uncaught error during recovery", error);
             // in this case we should ignore, and run the recovery again after some time
-            logger.log(error, "Uncaught error during recovery");
         }
 
         cleanAfterwardsAction.execute(registrationSuccessful);
@@ -648,8 +655,7 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
         }
 
         /**
-         * This method does not belong to the IPrePostRegistrationHook interface. Is called directly
-         * by recovery.
+         * This method does not belong to the IPrePostRegistrationHook interface. Is called directly by recovery.
          */
         public void executePostStorage(DataSetRegistrationContext.IHolder registrationContextHolder)
         {

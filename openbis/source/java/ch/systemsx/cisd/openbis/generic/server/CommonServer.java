@@ -3159,6 +3159,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public TableModel createReportFromDatasets(String sessionToken, String serviceKey,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
+            List<String> datasetCodes)
+    {
+        Session session = getSession(sessionToken);
+        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        return dataSetTable.createReportFromDatasets(serviceKey, datasetCodes);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public TableModel createReportFromAggregationService(String sessionToken,
             DatastoreServiceDescription serviceDescription, Map<String, Object> parameters)
     {
@@ -3178,8 +3189,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Session session = getSession(sessionToken);
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
         Map<String, String> parameterBindings = new HashMap<String, String>();
-        dataSetTable.processDatasets(serviceDescription.getKey(),
-                serviceDescription.getDatastoreCode(), datasetCodes, parameterBindings);
+        dataSetTable.processDatasets(serviceDescription.getKey(), datasetCodes, parameterBindings);
     }
 
     @Override

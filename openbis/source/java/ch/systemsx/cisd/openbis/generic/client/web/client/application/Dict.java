@@ -19,9 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 /**
  * Contains keys of the localized messages.
  * <p>
- * Use these constants instead of accessing messages with hard coded keys! Consider extending this
- * class for plugin specific keys. Currently this class contains message keys of the <i>common</i>
- * and <i>generic</i> technology.
+ * Use these constants instead of accessing messages with hard coded keys! Consider extending this class for plugin specific keys. Currently this
+ * class contains message keys of the <i>common</i> and <i>generic</i> technology.
  * </p>
  * 
  * @author Tomasz Pylak
@@ -1385,6 +1384,8 @@ public abstract class Dict
     public static final String ASSIGN_GROUP_NEW = "assign_group_new";
 
     public static final String ASSIGN_GROUP_PROPERTY = "assign_group_property";
+
+    public static final String VOCABULARY_REGISTRATION_POPUP_WARNING = "vocabulary_registration_popup_warning";
 
     // Material Viewer
 

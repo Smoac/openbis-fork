@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.screening.shared.api.internal;
 
-import ch.rinn.restrictions.Private; 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 

@@ -16,18 +16,16 @@
 
 package ch.systemsx.cisd.openbis.dss.screening.shared.api.internal;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
-import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
-import ch.systemsx.cisd.common.concurrent.ITerminableFuture;
-import ch.systemsx.cisd.common.concurrent.TerminableCallable.INamedCallable;
-import ch.systemsx.cisd.common.concurrent.TerminableCallable.IStoppableExecutor;
+import ch.systemsx.cisd.common.multiplexer.BatchHandlerAbstract;
+import ch.systemsx.cisd.common.multiplexer.BatchesResults;
+import ch.systemsx.cisd.common.multiplexer.IBatch;
+import ch.systemsx.cisd.common.multiplexer.IBatchHandler;
+import ch.systemsx.cisd.common.multiplexer.IBatchIdProvider;
+import ch.systemsx.cisd.common.multiplexer.IMultiplexer;
+import ch.systemsx.cisd.common.multiplexer.ThreadPoolMultiplexer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 
 /**
@@ -35,135 +33,67 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdent
  */
 public class DssServiceRpcScreeningMultiplexer implements IDssServiceRpcScreeningMultiplexer
 {
+    private final IMultiplexer multiplexer;
+
     private final IDssServiceRpcScreeningFactory dssServiceFactory;
 
-    private final NamingThreadPoolExecutor executor;
-
-    public DssServiceRpcScreeningMultiplexer(IDssServiceRpcScreeningFactory dssServiceFactory)
+    public DssServiceRpcScreeningMultiplexer(IMultiplexer multiplexer,
+            IDssServiceRpcScreeningFactory dssServiceFactory)
     {
+        if (multiplexer == null)
+        {
+            throw new IllegalArgumentException("Multiplexer cannot be null");
+        }
         if (dssServiceFactory == null)
         {
             throw new IllegalArgumentException("Dss service factory cannot be null");
         }
+        this.multiplexer = multiplexer;
         this.dssServiceFactory = dssServiceFactory;
-        this.executor = new NamingThreadPoolExecutor("Dss service screening multiplexer").daemonize();
     }
 
     @Override
-    public <R extends IDatasetIdentifier, V> DssServiceRpcScreeningBatchResults<V> process(
-            final List<? extends R> references,
-            final IDssServiceRpcScreeningBatchHandler<R, V> batchHandler)
+    public <O extends IDatasetIdentifier, R> BatchesResults<String, R> process(
+            final List<? extends O> objects,
+            final IDssServiceRpcScreeningBatchHandler<O, R> screeningBatchHandler)
     {
-        Map<String, List<R>> referencesPerDataStore = getReferencesPerDataStore(cast(references));
+        IBatchIdProvider<O, String> batchIdProvider = new IBatchIdProvider<O, String>()
+            {
+                @Override
+                public String getBatchId(O object)
+                {
+                    return object.getDatastoreServerUrl();
+                }
+            };
 
-        Map<String, ITerminableFuture<List<V>>> futuresPerDataStore =
-                submitReferencesToDataStores(referencesPerDataStore, batchHandler);
+        IBatchHandler<O, String, R> batchHandler = new BatchHandlerAbstract<O, String, R>()
+            {
+                @Override
+                public List<R> processBatch(IBatch<O, String> batch)
+                {
+                    DssServiceRpcScreeningHolder dssService =
+                            dssServiceFactory.createDssService(batch.getId());
+                    return screeningBatchHandler.handle(dssService, batch.getObjects());
+                }
+            };
 
-        return gatherResultsFromDataStores(futuresPerDataStore);
+        return multiplexer.process(objects, batchIdProvider, batchHandler);
     }
 
-    public static <R extends IDatasetIdentifier> Map<String, List<R>> getReferencesPerDataStore(
-            final List<R> references)
+    public static Map<String, List<IDatasetIdentifier>> getReferencesPerDataStore(
+            List<IDatasetIdentifier> dataSetIdentifiers)
     {
-        HashMap<String, List<R>> referencesPerDataStore = new HashMap<String, List<R>>();
-
-        if (references != null)
-        {
-            for (R reference : references)
-            {
-                if (reference != null)
-                {
-                    String dataStoreUrl = reference.getDatastoreServerUrl();
-                    if (dataStoreUrl != null)
+        IBatchIdProvider<IDatasetIdentifier, String> batchIdProvider =
+                new IBatchIdProvider<IDatasetIdentifier, String>()
                     {
-                        List<R> dataStoreReferences = referencesPerDataStore.get(dataStoreUrl);
-                        if (dataStoreReferences == null)
+                        @Override
+                        public String getBatchId(IDatasetIdentifier object)
                         {
-                            dataStoreReferences = new ArrayList<R>();
-                            referencesPerDataStore.put(dataStoreUrl, dataStoreReferences);
+                            return object.getDatastoreServerUrl();
                         }
-                        dataStoreReferences.add(reference);
-                    }
-                }
-            }
-        }
+                    };
 
-        return referencesPerDataStore;
-    }
-
-    private <R extends IDatasetIdentifier, V> Map<String, ITerminableFuture<List<V>>> submitReferencesToDataStores(
-            final Map<String, List<R>> referencesPerDataStore,
-            final IDssServiceRpcScreeningBatchHandler<R, V> batchHandler)
-    {
-        Map<String, ITerminableFuture<List<V>>> futuresPerDataStore =
-                new LinkedHashMap<String, ITerminableFuture<List<V>>>();
-        final long submitTime = System.currentTimeMillis();
-
-        for (Entry<String, List<R>> referencePerDataStore : referencesPerDataStore.entrySet())
-        {
-            final String dataStoreUrl = referencePerDataStore.getKey();
-            final List<R> dataStoreReferences = referencePerDataStore.getValue();
-
-            ITerminableFuture<List<V>> dataStoreFuture =
-                    ConcurrencyUtilities.submit(executor, new INamedCallable<List<V>>()
-                        {
-                            @Override
-                            public List<V> call(IStoppableExecutor<List<V>> stoppableExecutor)
-                                    throws Exception
-                            {
-                                final DssServiceRpcScreeningHolder dataStoreServiceHolder =
-                                        dssServiceFactory.createDssService(dataStoreUrl);
-                                return batchHandler.handle(dataStoreServiceHolder,
-                                        dataStoreReferences);
-                            }
-
-                            @Override
-                            public String getCallableName()
-                            {
-                                return dataStoreUrl + "(" + submitTime + ")";
-                            }
-                        });
-            futuresPerDataStore.put(dataStoreUrl, dataStoreFuture);
-        }
-
-        return futuresPerDataStore;
-    }
-
-    private <V> DssServiceRpcScreeningBatchResults<V> gatherResultsFromDataStores(
-            final Map<String, ITerminableFuture<List<V>>> futuresPerDataStore)
-    {
-        DssServiceRpcScreeningBatchResults<V> results = new DssServiceRpcScreeningBatchResults<V>();
-
-        try
-        {
-            for (Map.Entry<String, ITerminableFuture<List<V>>> futurePerDataStore : futuresPerDataStore
-                    .entrySet())
-            {
-                String dataStoreUrl = futurePerDataStore.getKey();
-                ITerminableFuture<List<V>> dataStoreFuture = futurePerDataStore.getValue();
-
-                List<V> dataStoreResults = ConcurrencyUtilities.tryGetResult(dataStoreFuture, -1);
-                if (dataStoreResults != null)
-                {
-                    results.addDataStoreResults(dataStoreUrl, dataStoreResults);
-                }
-            }
-        } catch (RuntimeException e)
-        {
-            for (ITerminableFuture<List<V>> dataStoreFuture : futuresPerDataStore.values())
-            {
-                dataStoreFuture.cancel(true);
-            }
-            throw e;
-        }
-
-        return results;
-    }
-
-    @SuppressWarnings("unchecked")
-    private <R extends IDatasetIdentifier> List<R> cast(List<? extends R> references)
-    {
-        return (List<R>) references;
+        return ThreadPoolMultiplexer.createBatchIdToObjectsMap(dataSetIdentifiers, batchIdProvider);
     }
 
 }

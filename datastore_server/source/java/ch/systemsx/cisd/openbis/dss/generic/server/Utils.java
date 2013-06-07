@@ -23,15 +23,13 @@ import org.apache.commons.io.FilenameUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class Utils
 {
 
     public static final String SESSION_ID_PARAM = "sessionID";
-    
+
     static final String BINARY_CONTENT_TYPE = "binary";
 
     static final String PLAIN_TEXT_CONTENT_TYPE = "text/plain";
@@ -46,8 +44,10 @@ public class Utils
         MIMETYPES.addMimeTypes("image/svg+xml svg");
         MIMETYPES.addMimeTypes("video/webm webm");
         MIMETYPES.addMimeTypes("video/mp4 mp4");
+        MIMETYPES.addMimeTypes("text/css css");
+        MIMETYPES.addMimeTypes("text/javascript js");
     }
-    
+
     static String createUrlParameterForSessionId(String prefix, String sessionIdOrNull)
     {
         return sessionIdOrNull == null ? "" : prefix + Utils.SESSION_ID_PARAM + "="
@@ -58,7 +58,7 @@ public class Utils
     {
         return getMimeType(fileNode.getName(), plainTextMode);
     }
-    
+
     static String getMimeType(String fileName, boolean plainTextMode)
     {
         if (plainTextMode)

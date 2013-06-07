@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -29,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
@@ -52,9 +56,30 @@ public class VocabularySelectionWidget extends DropDownList<BaseModelData, Vocab
     public VocabularySelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, PREFIX, Dict.VOCABULARY, ModelDataPropertyNames.CODE, viewContext
-                .getMessage(Dict.VOCABULARY), viewContext.getMessage(Dict.VOCABULARY));
+                .getMessage(Dict.VOCABULARY), viewContext.getMessage(Dict.VOCABULARY), true);
         this.viewContext = viewContext;
         setWidth(100);
+
+        this.addListener(Events.TwinTriggerClick, new AddVocabularyListener());
+    }
+
+    private class AddVocabularyListener implements Listener<BaseEvent>
+    {
+        @Override
+        public void handleEvent(BaseEvent be)
+        {
+            IDelegatedAction postRegistrationCallback = new IDelegatedAction()
+                {
+                    @Override
+                    public void execute()
+                    {
+                        refreshStore();
+                    }
+                };
+
+            AddVocabularyDialog dialog = new AddVocabularyDialog(viewContext, postRegistrationCallback);
+            dialog.show();
+        }
     }
 
     //
@@ -125,7 +150,6 @@ public class VocabularySelectionWidget extends DropDownList<BaseModelData, Vocab
     @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY) };
+        return new DatabaseModificationKind[] { DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY) };
     }
 }

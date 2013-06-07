@@ -13,7 +13,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,6 +28,8 @@ import ch.systemsx.cisd.common.api.retry.RetryProxyFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
+import ch.systemsx.cisd.common.multiplexer.IMultiplexer;
+import ch.systemsx.cisd.common.multiplexer.ThreadPoolMultiplexer;
 import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
@@ -55,7 +56,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.SearchOperator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.IDataSetFilter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
@@ -143,8 +143,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     private final IOpenbisServiceFacade openbisServiceFacade;
 
     /**
-     * Creates a service facade which communicates with the openBIS server at the specified URL.
-     * Authenticates the user.
+     * Creates a service facade which communicates with the openBIS server at the specified URL. Authenticates the user.
      * 
      * @return null if the user could not be authenticated.
      */
@@ -172,8 +171,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     /**
-     * Creates a service facade which communicates with the openBIS server at the specified URL for
-     * an authenticated user.
+     * Creates a service facade which communicates with the openBIS server at the specified URL for an authenticated user.
      * 
      * @param sessionToken The session token for the authenticated user
      * @param serverUrl The URL for the openBIS application server
@@ -282,7 +280,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 }
             };
 
-        dssMultiplexer = new DssServiceRpcScreeningMultiplexer(dssServiceCache);
+        IMultiplexer multiplexer = new ThreadPoolMultiplexer("screening-facade-multiplexer");
+        dssMultiplexer = new DssServiceRpcScreeningMultiplexer(multiplexer, dssServiceCache);
     }
 
     /**
@@ -309,8 +308,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     /**
-     * Return the list of all visible plates assigned to any experiment, along with their
-     * hierarchical context (space, project, experiment).
+     * Return the list of all visible plates assigned to any experiment, along with their hierarchical context (space, project, experiment).
      */
     @Override
     public List<Plate> listPlates()
@@ -414,8 +412,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     /**
-     * For a given set of plates provides the list of all connected data sets containing feature
-     * vectors.
+     * For a given set of plates provides the list of all connected data sets containing feature vectors.
      */
     @Override
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
@@ -504,9 +501,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     /**
-     * For the given <var>experimentIdentifier</var> find all plate locations that are connected to
-     * the specified <var>materialIdentifier</var>. If <code>findDatasets == true</code>, find also
-     * the connected image and image analysis data sets for the relevant plates.
+     * For the given <var>experimentIdentifier</var> find all plate locations that are connected to the specified <var>materialIdentifier</var>. If
+     * <code>findDatasets == true</code>, find also the connected image and image analysis data sets for the relevant plates.
      */
     @Override
     public List<PlateWellReferenceWithDatasets> listPlateWells(
@@ -520,9 +516,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     /**
-     * For the given <var>materialIdentifier</var> find all plate locations that are connected to
-     * it. If <code>findDatasets == true</code>, find also the connected image and image analysis
-     * data sets for the relevant plates.
+     * For the given <var>materialIdentifier</var> find all plate locations that are connected to it. If <code>findDatasets == true</code>, find also
+     * the connected image and image analysis data sets for the relevant plates.
      */
     @Override
     public List<PlateWellReferenceWithDatasets> listPlateWells(
@@ -563,8 +558,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * Get proxies to the data sets owned by specified well.
      * 
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      */
     @Override
     public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier,
@@ -593,8 +587,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * Get proxies to the data sets owned by specified plate.
      * 
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      */
     @Override
     public List<IDataSetDss> getDataSets(PlateIdentifier plateIdentifier,
@@ -746,12 +739,10 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * 
      * @param wellIdentifier Identifier of a well that should become owner of the new data set
      * @param dataSetFile A file or folder containing the data
-     * @param dataSetMetadataOrNull The optional metadata overriding server defaults for the new
-     *            data set
+     * @param dataSetMetadataOrNull The optional metadata overriding server defaults for the new data set
      * @return A proxy to the newly added data set
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      * @throws IOException when accessing the data set file or folder fails
      */
     @Override
@@ -836,8 +827,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     /**
-     * Converts a given list of dataset codes to dataset identifiers which can be used in other API
-     * calls.
+     * Converts a given list of dataset codes to dataset identifiers which can be used in other API calls.
      */
     @Override
     public List<IDatasetIdentifier> getDatasetIdentifiers(List<String> datasetCodes)
@@ -854,17 +844,13 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     /**
-     * For a given set of feature vector data sets provides the list of all available features. This
-     * is just the code of the feature. If for different data sets different sets of features are
-     * available, provides the union of the feature names of all data sets.
+     * For a given set of feature vector data sets provides the list of all available features. This is just the code of the feature. If for different
+     * data sets different sets of features are available, provides the union of the feature names of all data sets.
      */
     @Override
     public List<String> listAvailableFeatureCodes(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
-        List<? extends IFeatureVectorDatasetIdentifier> identifiersIncludingContained =
-                listFeatureDatasetsIncludingContained(featureDatasets);
-
         IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, String> handler =
                 new IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, String>()
                     {
@@ -881,7 +867,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     };
 
-        return dssMultiplexer.process(identifiersIncludingContained, handler).withoutDuplicates();
+        return dssMultiplexer.process(featureDatasets, handler).getMergedBatchResultsWithoutDuplicates();
     }
 
     @Override
@@ -903,7 +889,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                     };
 
         return dssMultiplexer.process(Collections.singletonList(featureDataset), handler)
-                .withoutDuplicatesPreservingOrder();
+                .getMergedBatchResultsWithoutDuplicates();
     }
 
     @Override
@@ -926,22 +912,18 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                     };
 
         return dssMultiplexer.process(Collections.singletonList(featureDataset), handler)
-                .withoutDuplicatesPreservingOrder();
+                .getMergedBatchResultsWithoutDuplicates();
     }
 
     /**
-     * For a given set of feature vector data sets provide the list of all available features. This
-     * contains the code, label and description of the feature. If for different data sets different
-     * sets of features are available, provide the union of the features of all data sets. Only
+     * For a given set of feature vector data sets provide the list of all available features. This contains the code, label and description of the
+     * feature. If for different data sets different sets of features are available, provide the union of the features of all data sets. Only
      * available when all data store services have minor version 9 or newer.
      */
     @Override
     public List<FeatureInformation> listAvailableFeatures(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
-        List<? extends IFeatureVectorDatasetIdentifier> identifiersIncludingContained =
-                listFeatureDatasetsIncludingContained(featureDatasets);
-
         IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, FeatureInformation> handler =
                 new IDssServiceRpcScreeningBatchHandler<IFeatureVectorDatasetIdentifier, FeatureInformation>()
                     {
@@ -977,73 +959,15 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     };
 
-        return dssMultiplexer.process(
-                identifiersIncludingContained == null ? featureDatasets
-                        : identifiersIncludingContained, handler)
-                .withoutDuplicatesPreservingOrder();
-    }
-
-    protected List<? extends IFeatureVectorDatasetIdentifier> listFeatureDatasetsIncludingContained(
-            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
-    {
-        List<DataSet> containedDataSets = getContainedDataSets(featureDatasets);
-
-        List<IFeatureVectorDatasetIdentifier> identifiersIncludingContained = null;
-
-        if (containedDataSets.size() == 0)
-        {
-            return featureDatasets;
-        } else
-        {
-            String host = featureDatasets.get(0).getDatastoreServerUrl();
-
-            identifiersIncludingContained = new LinkedList<IFeatureVectorDatasetIdentifier>();
-            identifiersIncludingContained.addAll(featureDatasets);
-            for (DataSet contained : containedDataSets)
-            {
-                IFeatureVectorDatasetIdentifier containedIdentifier =
-                        new FeatureVectorDatasetReference(contained.getCode(),
-                                contained.getDataSetTypeCode(), host, null, null, null, null, null,
-                                null);
-                identifiersIncludingContained.add(containedIdentifier);
-            }
-            return identifiersIncludingContained;
-        }
-    }
-
-    private SearchSubCriteria getContainerSearchCriteria(String containerCode)
-    {
-        SearchCriteria searchSubCriteria = new SearchCriteria();
-        searchSubCriteria.addMatchClause(MatchClause.createAttributeMatch(
-                MatchClauseAttribute.CODE, containerCode));
-        return SearchSubCriteria.createDataSetContainerCriteria(searchSubCriteria);
-    }
-
-    protected List<DataSet> getContainedDataSets(
-            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
-    {
-        SearchCriteria searchCriteria = new SearchCriteria();
-        for (IFeatureVectorDatasetIdentifier id : featureDatasets)
-        {
-            String containerId = id.getDatasetCode();
-            searchCriteria.addSubCriteria(getContainerSearchCriteria(containerId));
-        }
-        searchCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
-
-        List<DataSet> containedDataSets =
-                generalInformationService.searchForDataSets(sessionToken, searchCriteria);
-        return containedDataSets;
+        return dssMultiplexer.process(featureDatasets, handler).getMergedBatchResultsWithoutDuplicates();
     }
 
     /**
-     * For a given set of plates and a set of features (given by their code), provide all the
-     * feature vectors.
+     * For a given set of plates and a set of features (given by their code), provide all the feature vectors.
      * 
      * @param plates The plates to get the feature vectors for
-     * @param featureCodesOrNull The codes of the features to load, or <code>null</code>, if all
-     *            available features should be loaded.
-     * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
-     *         <var>featureDatasets</var>.
+     * @param featureCodesOrNull The codes of the features to load, or <code>null</code>, if all available features should be loaded.
+     * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the <var>featureDatasets</var>.
      */
     @Override
     public List<FeatureVectorDataset> loadFeaturesForPlates(List<? extends PlateIdentifier> plates,
@@ -1063,14 +987,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     /**
-     * For a given set of data sets and a set of features (given by their code), provide all the
-     * feature vectors.
+     * For a given set of data sets and a set of features (given by their code), provide all the feature vectors.
      * 
      * @param featureDatasets The data sets to get the feature vectors for
-     * @param featureCodesOrNull The codes of the features to load, or <code>null</code>, if all
-     *            available features should be loaded.
-     * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
-     *         <var>featureDatasets</var>.
+     * @param featureCodesOrNull The codes of the features to load, or <code>null</code>, if all available features should be loaded.
+     * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the <var>featureDatasets</var>.
      */
     @Override
     public List<FeatureVectorDataset> loadFeatures(
@@ -1096,7 +1017,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     };
 
-        return dssMultiplexer.process(featureDatasets, handler).withDuplicates();
+        return dssMultiplexer.process(featureDatasets, handler).getMergedBatchResultsWithDuplicates();
     }
 
     @Override
@@ -1150,7 +1071,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     };
 
-        return dssMultiplexer.process(datasetWellReferences, handler).withDuplicates();
+        return dssMultiplexer.process(datasetWellReferences, handler).getMergedBatchResultsWithDuplicates();
     }
 
     private boolean isEmpty(final List<String> featureCodeOrNull)
@@ -1224,8 +1145,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     /**
-     * An interface to provide mapping between image references and output streams where the images
-     * should be saved.
+     * An interface to provide mapping between image references and output streams where the images should be saved.
      */
     public static interface IImageOutputStreamProvider
     {
@@ -1335,19 +1255,16 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     /**
-     * Saves images for a given list of image references (given by data set code, well position,
-     * channel and tile) in the provided output streams. Output streams will not be closed
-     * automatically.<br/>
+     * Saves images for a given list of image references (given by data set code, well position, channel and tile) in the provided output streams.
+     * Output streams will not be closed automatically.<br/>
      * <p>
-     * If there is an image reference specified which is not referring to the existing image on the
-     * server, nothing will be written to the output stream returned by the output streams provider.
-     * No exception will be thrown.
+     * If there is an image reference specified which is not referring to the existing image on the server, nothing will be written to the output
+     * stream returned by the output streams provider. No exception will be thrown.
      * </p>
      * The images will be converted to PNG format before being shipped.<br/>
      * The number of image references has to be the same as the number of files.
      * 
-     * @throws IOException when reading images from the server or writing them to the output streams
-     *             fails
+     * @throws IOException when reading images from the server or writing them to the output streams fails
      */
     @Override
     public void loadImages(List<PlateImageReference> imageReferences,
@@ -1357,20 +1274,17 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     /**
-     * Saves images for a given list of image references (given by data set code, well position,
-     * channel and tile) in the provided output streams. Output streams will not be closed
-     * automatically.<br/>
+     * Saves images for a given list of image references (given by data set code, well position, channel and tile) in the provided output streams.
+     * Output streams will not be closed automatically.<br/>
      * <p>
-     * If there is an image reference specified which is not referring to the existing image on the
-     * server, nothing will be written to the output stream returned by the output streams provider.
-     * No exception will be thrown.
+     * If there is an image reference specified which is not referring to the existing image on the server, nothing will be written to the output
+     * stream returned by the output streams provider. No exception will be thrown.
      * </p>
-     * If <code>convertToPng==true</code>, the images will be converted to PNG format before being
-     * shipped, otherwise they will be shipped in the format that they are stored on the server.<br/>
+     * If <code>convertToPng==true</code>, the images will be converted to PNG format before being shipped, otherwise they will be shipped in the
+     * format that they are stored on the server.<br/>
      * The number of image references has to be the same as the number of files.
      * 
-     * @throws IOException when reading images from the server or writing them to the output streams
-     *             fails
+     * @throws IOException when reading images from the server or writing them to the output streams fails
      */
     @Override
     public void loadImages(final List<PlateImageReference> imageReferences,
@@ -1894,7 +1808,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         }
                     };
 
-        return dssMultiplexer.process(imageDatasets, handler).withDuplicates();
+        return dssMultiplexer.process(imageDatasets, handler).getMergedBatchResultsWithDuplicates();
     }
 
     @Override

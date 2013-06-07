@@ -1128,6 +1128,10 @@ public interface ICommonServer extends IServer
             DatastoreServiceDescription serviceDescription, List<String> datasetCodes);
 
     @Transactional(readOnly = true)
+    public TableModel createReportFromDatasets(String sessionToken, String serviceKey,
+            List<String> datasetCodes);
+
+    @Transactional(readOnly = true)
     public TableModel createReportFromAggregationService(String sessionToken,
             DatastoreServiceDescription serviceDescription, Map<String, Object> parameters);
 

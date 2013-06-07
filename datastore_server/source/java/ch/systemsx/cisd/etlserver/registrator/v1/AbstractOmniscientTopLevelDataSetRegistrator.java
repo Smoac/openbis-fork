@@ -68,8 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
 /**
- * Abstract superclass for data set handlers that manage the entire data set registration process
- * themselves.
+ * Abstract superclass for data set handlers that manage the entire data set registration process themselves.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -186,8 +185,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     /**
      * The clean-up action after registration.
      * <p>
-     * If registration succeeded, the originalInboxFile is deleted. If registration failed, the
-     * hardlink copy is deleted, leaving the orignalInboxFile.
+     * If registration succeeded, the originalInboxFile is deleted. If registration failed, the hardlink copy is deleted, leaving the
+     * orignalInboxFile.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -329,8 +328,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     /**
      * A file has arrived in the drop box. Handle it.
      * <p>
-     * Setup necessary for data set handling is done, then the handleDataSet method (a subclass
-     * responsibility) is invoked.
+     * Setup necessary for data set handling is done, then the handleDataSet method (a subclass responsibility) is invoked.
      */
     @Override
     public final void handle(final File incomingDataSetFileOrIsFinishedFile)
@@ -378,13 +376,16 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                     DataSetRegistrationPreStagingBehavior.USE_ORIGINAL), markerFileCleanupAction);
         } else
         {
-            // If we should the prestaging phase, we make a hardlink copy in prestaging area
+            // If we use the prestaging phase, we make a hardlink copy in prestaging area
+            operationLog.info("Make hardlink copy of " + incomingDataSetFile);
             File copyOfIncoming = tryCopyIncomingFileToPreStaging(incomingDataSetFile);
             if (null == copyOfIncoming)
             {
                 // Nothing to do
                 return;
             }
+
+            operationLog.info("Hardlink copy is ready is a pre staging area. " + copyOfIncoming);
 
             DataSetFile dsf = new DataSetFile(incomingDataSetFile, copyOfIncoming);
 
@@ -488,11 +489,9 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     }
 
     /**
-     * Not all instances of PyExceptions are serializable, because they keep references to
-     * non-serializable objects e.g. java.lang.reflect.Method.
+     * Not all instances of PyExceptions are serializable, because they keep references to non-serializable objects e.g. java.lang.reflect.Method.
      * <p>
-     * Subclasses may need to override if they encounter other kinds of exceptions that cannot
-     * happen in this generic context.
+     * Subclasses may need to override if they encounter other kinds of exceptions that cannot happen in this generic context.
      */
     protected Throwable asSerializableException(Throwable throwable)
     {
@@ -509,8 +508,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     }
 
     /**
-     * Set up the infrastructure and forward control to subclasses. Clients can query the service
-     * for information about what happened.
+     * Set up the infrastructure and forward control to subclasses. Clients can query the service for information about what happened.
      */
     private DataSetRegistrationService<T> handle(DataSetFile incomingDataSetFile,
             DataSetInformation callerDataSetInformationOrNull,
@@ -565,8 +563,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     }
 
     /**
-     * Validation errors were found in the incoming data set file, display them. Subclasses may
-     * override.
+     * Validation errors were found in the incoming data set file, display them. Subclasses may override.
      */
     protected void handleValidationErrors(List<ValidationError> validationErrors,
             DataSetFile incomingDataSetFile, DataSetRegistrationService<T> service)
@@ -592,8 +589,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                         incomingDataSetFile, null, null, ErrorType.INVALID_DATA_SET);
         sb.append(rollbacker.getErrorMessageForLog());
         String logMessage = sb.toString();
-        operationLog.info(logMessage);
-        service.getDssRegistrationLog().log(logMessage);
+        service.getDssRegistrationLog().info(operationLog, logMessage);
         rollbacker.doRollback(service.getDssRegistrationLog());
         service.getDssRegistrationLog().registerFailure();
     }
@@ -681,8 +677,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     }
 
     /**
-     * Rollback a failure that occurs outside of any *particular* data set registration, but with
-     * the whole processing of the incoming folder itself.
+     * Rollback a failure that occurs outside of any *particular* data set registration, but with the whole processing of the incoming folder itself.
      * <p>
      * Subclasses may override, but should call super.
      */
@@ -705,7 +700,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             ITopLevelDataSetRegistratorDelegate delegate)
     {
         @SuppressWarnings(
-            { "unchecked", "rawtypes" })
+        { "unchecked", "rawtypes" })
         DataSetRegistrationService<T> service =
                 new DataSetRegistrationService(this, incomingDataSetFile,
                         new DefaultDataSetRegistrationDetailsFactory(getRegistratorState(),

@@ -36,7 +36,11 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DataSet;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.knime.common.AbstractOpenBisNodeModel;
+import ch.systemsx.cisd.openbis.knime.common.IOpenbisServiceFacadeFactory;
+import ch.systemsx.cisd.openbis.knime.common.Util;
 
 /**
  * Node model for importing a file/folder from Data Store Server.
@@ -53,8 +57,8 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
 
     static final String REUSE_FILE = "reuse-file";
 
-    private final IDataSetProvider dataSetProvider;
-
+    private final IOpenbisServiceFacadeFactory serviceFacadeFactory;
+    
     private String dataSetCode = "";
 
     private String filePath = "";
@@ -63,11 +67,12 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
 
     private boolean reuseFile;
 
-    public DataSetFileImportNodeModel(IDataSetProvider dataSetProvider)
+
+    public DataSetFileImportNodeModel(IOpenbisServiceFacadeFactory serviceFacadeFactory)
     {
         super(new PortType[] {}, new PortType[]
             { new PortType(URIPortObject.class) });
-        this.dataSetProvider = dataSetProvider;
+        this.serviceFacadeFactory = serviceFacadeFactory;
     }
 
     @Override
@@ -115,9 +120,16 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
     {
         InputStream in = null;
         OutputStream out = null;
+        IOpenbisServiceFacade facade = null;
         try
         {
-            DataSet dataSet = dataSetProvider.getDataSet(url, userID, password, dataSetCode);
+            facade = serviceFacadeFactory.createFacade(url, userID, password);
+            DataSet dataSet = facade.getDataSet(dataSetCode);
+            if (dataSet == null)
+            {
+                throw new IllegalArgumentException("Unknown data set '" + dataSetCode + "'.");
+            }
+            pushDataSetMetaDataToVariables(dataSet);
             in = dataSet.getFile(filePath);
             file.getParentFile().mkdirs();
             out = new FileOutputStream(file);
@@ -137,13 +149,35 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
             {
                 in.close();
             }
+            if (facade != null)
+            {
+                facade.logout();
+            }
         }
+    }
+    
+    private void pushDataSetMetaDataToVariables(DataSet dataSet)
+    {
+        addFlowVariable(Util.VARIABLE_PREFIX + DataSetOwnerType.DATA_SET.name(),
+                dataSet.getCode());
+        addFlowVariable(Util.VARIABLE_PREFIX + DataSetOwnerType.EXPERIMENT.name(),
+                dataSet.getExperimentIdentifier());
+        String sampleIdentifierOrNull = dataSet.getSampleIdentifierOrNull();
+        if (sampleIdentifierOrNull != null)
+        {
+            addFlowVariable(Util.VARIABLE_PREFIX + DataSetOwnerType.SAMPLE.name(),
+                    sampleIdentifierOrNull);
+        }
+    }
+    
+    protected void addFlowVariable(String name, String value)
+    {
+        pushFlowVariableString(name, value);
     }
 
     private String createType()
     {
-        String contentType = MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(filePath);
-        return contentType;
+        return MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(filePath);
     }
 
 }

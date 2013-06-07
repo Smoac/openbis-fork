@@ -17,13 +17,15 @@
 package ch.systemsx.cisd.openbis.plugin.query.shared.translator;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
@@ -62,6 +64,7 @@ public class QueryTableModelTranslator
         }
         QueryTableModel tableModel = new QueryTableModel(translatedHeaders);
         List<TableModelRow> rows = result.getRows();
+        SimpleDateFormat format = new SimpleDateFormat(BasicConstant.CANONICAL_DATE_FORMAT_PATTERN);
         for (TableModelRow row : rows)
         {
             List<ISerializableComparable> values = row.getValues();
@@ -76,9 +79,12 @@ public class QueryTableModelTranslator
                 } else if (value instanceof DoubleTableCell)
                 {
                     translatedValue = ((DoubleTableCell) value).getNumber();
-                } else if (value instanceof StringTableCell)
+                } else if (value instanceof DateTableCell)
                 {
-                    translatedValue = ((StringTableCell) value).toString();
+                    translatedValue = format.format(((DateTableCell) value).getDateTime());
+                } else if (value != null)
+                {
+                    translatedValue = value.toString();
                 }
                 translatedValues[i] = translatedValue;
             }

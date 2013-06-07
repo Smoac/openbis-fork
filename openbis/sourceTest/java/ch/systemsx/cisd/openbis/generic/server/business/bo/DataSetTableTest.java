@@ -39,6 +39,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.multiplexer.IMultiplexer;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEventBuilder;
@@ -46,10 +47,10 @@ import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -96,10 +97,13 @@ public final class DataSetTableTest extends AbstractBOTest
 
     private IDataStoreService dataStoreServiceConversational3;
 
+    private IMultiplexer multiplexer;
+
     private final DataSetTable createDataSetTable()
     {
         return new DataSetTable(daoFactory, dssFactory, ManagerTestTool.EXAMPLE_SESSION,
-                relationshipService, conversationClient, managedPropertyEvaluatorFactory);
+                relationshipService, conversationClient, managedPropertyEvaluatorFactory,
+                multiplexer);
     }
 
     @BeforeMethod
@@ -114,6 +118,7 @@ public final class DataSetTableTest extends AbstractBOTest
         dataStoreService1 = context.mock(IDataStoreService.class, "dataStoreService1");
         dataStoreService2 = context.mock(IDataStoreService.class, "dataStoreService2");
         dataStoreService3 = context.mock(IDataStoreService.class, "dataStoreService3");
+        multiplexer = context.mock(IMultiplexer.class);
 
         dataStoreServiceConversational1 =
                 context.mock(IDataStoreService.class, "dataStoreServiceConversational1");
@@ -380,7 +385,8 @@ public final class DataSetTableTest extends AbstractBOTest
                                     @Override
                                     public boolean matches(Object item)
                                     {
-                                        List<AbstractExternalData> list = (List<AbstractExternalData>) item;
+                                        List<AbstractExternalData> list =
+                                                (List<AbstractExternalData>) item;
                                         if (list.size() != 1)
                                         {
                                             return false;

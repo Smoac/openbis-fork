@@ -146,12 +146,7 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
         {
             for (DataStoreServicePE service : dataStore.getServices())
             {
-                boolean reportingService = service.getKind() == DataStoreServiceKind.QUERIES;
-                ReportingPluginType reportingPluginType = service.getReportingPluginTypeOrNull();
-                boolean tableReport =
-                        reportingPluginType != null
-                                && reportingPluginType == ReportingPluginType.TABLE_MODEL;
-                if (reportingService && tableReport)
+                if (service.isTableReport())
                 {
                     ReportDescription info = new ReportDescription();
                     info.setKey(service.getKey());
@@ -179,6 +174,14 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
                 DatastoreServiceDescription.reporting(serviceKey, "", new String[0], dataStoreCode,
                         null);
         return translate(commonServer.createReportFromDatasets(sessionToken, description,
+                dataSetCodes));
+    }
+
+    @Override
+    public QueryTableModel createReportFromDataSets(String sessionToken, String serviceKey,
+            List<String> dataSetCodes)
+    {
+        return translate(commonServer.createReportFromDatasets(sessionToken, serviceKey,
                 dataSetCodes));
     }
 
@@ -235,7 +238,7 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
     @Override
     public int getMinorVersion()
     {
-        return 5;
+        return 6;
     }
 
     private QueryTableModel translate(TableModel result)
