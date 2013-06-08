@@ -34,7 +34,7 @@ public class WrongDatasetFormatException extends IllegalArgumentException
     WrongDatasetFormatException(String datasetCode, String expectedType,
             String foundType)
     {
-        super(String.format("Dataset '%s [type expected: %s, type found: %s]", datasetCode,
+        super(String.format("Dataset '%s' [type expected: %s, type found: %s]", datasetCode,
                 expectedType, foundType));
         this.datasetCode = datasetCode;
         this.expectedFormat = expectedType;
