@@ -17,17 +17,24 @@
 package ch.ethz.cisd.hcscld;
 
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
 
 import ch.ethz.cisd.hcscld.CellLevelBaseWritableDataset.IObjectNamespaceBasedFlushable;
 import ch.ethz.cisd.hcscld.CellLevelBaseWritableDataset.ObjectNamespaceContainer;
+import ch.systemsx.cisd.base.mdarray.MDAbstractArray;
+import ch.systemsx.cisd.base.mdarray.MDByteArray;
+import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
 import ch.systemsx.cisd.base.mdarray.MDFloatArray;
 import ch.systemsx.cisd.base.mdarray.MDIntArray;
+import ch.systemsx.cisd.base.mdarray.MDLongArray;
+import ch.systemsx.cisd.base.mdarray.MDShortArray;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
 import ch.systemsx.cisd.hdf5.HDF5CompoundType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationValue;
+import ch.systemsx.cisd.hdf5.HDF5EnumerationValueMDArray;
 import ch.systemsx.cisd.hdf5.HDF5FloatStorageFeatures;
 import ch.systemsx.cisd.hdf5.HDF5IntStorageFeatures;
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
@@ -223,6 +230,46 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                 featureValues.length);
         switch (featureGroup.getDataType())
         {
+            case BOOL:
+                base.writer.bool().writeBitFieldArray(
+                        fg.getObjectPath(id),
+                        toBoolArray(featureValues),
+                        HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
+                                .getStorageFeatures(featureValues.length
+                                        * fg.getType().getRecordSize())));
+                break;
+            case INT8:
+                base.writer.int8().writeMDArray(
+                        fg.getObjectPath(id),
+                        toByteArray(featureValues),
+                        HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
+                                .getStorageFeatures(featureValues.length
+                                        * fg.getType().getRecordSize())));
+                break;
+            case INT16:
+                base.writer.int16().writeMDArray(
+                        fg.getObjectPath(id),
+                        toShortArray(featureValues),
+                        HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
+                                .getStorageFeatures(featureValues.length
+                                        * fg.getType().getRecordSize())));
+                break;
+            case INT32:
+                base.writer.int32().writeMDArray(
+                        fg.getObjectPath(id),
+                        toIntArray(featureValues),
+                        HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
+                                .getStorageFeatures(featureValues.length
+                                        * fg.getType().getRecordSize())));
+                break;
+            case INT64:
+                base.writer.int64().writeMDArray(
+                        fg.getObjectPath(id),
+                        toLongArray(featureValues),
+                        HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
+                                .getStorageFeatures(featureValues.length
+                                        * fg.getType().getRecordSize())));
+                break;
             case FLOAT32:
                 base.writer.float32().writeMDArray(
                         fg.getObjectPath(id),
@@ -231,10 +278,18 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                                 .getStorageFeatures(featureValues.length
                                         * fg.getType().getRecordSize())));
                 break;
-            case INT32:
-                base.writer.int32().writeMDArray(
+            case FLOAT64:
+                base.writer.float64().writeMDArray(
                         fg.getObjectPath(id),
-                        toIntArray(featureValues),
+                        toDoubleArray(featureValues),
+                        HDF5FloatStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
+                                .getStorageFeatures(featureValues.length
+                                        * fg.getType().getRecordSize())));
+                break;
+            case ENUM:
+                base.writer.enumeration().writeMDArray(
+                        fg.getObjectPath(id),
+                        toEnumArray(((IEnumTypeProvider) fg).tryGetEnumType(), featureValues),
                         HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
                                 .getStorageFeatures(featureValues.length
                                         * fg.getType().getRecordSize())));
@@ -269,6 +324,24 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         return result;
     }
 
+    private MDDoubleArray toDoubleArray(Object[][] featureValues)
+    {
+        final MDDoubleArray result = new MDDoubleArray(new int[]
+            { featureValues.length, (featureValues.length > 0) ? featureValues[0].length : 0 });
+        int idxObj = 0;
+        for (Object[] vector : featureValues)
+        {
+            int idxFeature = 0;
+            for (Object value : vector)
+            {
+                result.set(((Number) value).doubleValue(), idxObj, idxFeature);
+                ++idxFeature;
+            }
+            ++idxObj;
+        }
+        return result;
+    }
+
     private MDIntArray toIntArray(Object[][] featureValues)
     {
         final MDIntArray result = new MDIntArray(new int[]
@@ -285,6 +358,175 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
             ++idxObj;
         }
         return result;
+    }
+
+    private MDLongArray toLongArray(Object[][] featureValues)
+    {
+        final MDLongArray result = new MDLongArray(new int[]
+            { featureValues.length, (featureValues.length > 0) ? featureValues[0].length : 0 });
+        int idxObj = 0;
+        for (Object[] vector : featureValues)
+        {
+            int idxFeature = 0;
+            for (Object value : vector)
+            {
+                result.set(((Number) value).longValue(), idxObj, idxFeature);
+                ++idxFeature;
+            }
+            ++idxObj;
+        }
+        return result;
+    }
+
+    private MDShortArray toShortArray(Object[][] featureValues)
+    {
+        final MDShortArray result = new MDShortArray(new int[]
+            { featureValues.length, (featureValues.length > 0) ? featureValues[0].length : 0 });
+        int idxObj = 0;
+        for (Object[] vector : featureValues)
+        {
+            int idxFeature = 0;
+            for (Object value : vector)
+            {
+                result.set(((Number) value).shortValue(), idxObj, idxFeature);
+                ++idxFeature;
+            }
+            ++idxObj;
+        }
+        return result;
+    }
+
+    private MDByteArray toByteArray(Object[][] featureValues)
+    {
+        final MDByteArray result = new MDByteArray(new int[]
+            { featureValues.length, (featureValues.length > 0) ? featureValues[0].length : 0 });
+        int idxObj = 0;
+        for (Object[] vector : featureValues)
+        {
+            int idxFeature = 0;
+            for (Object value : vector)
+            {
+                result.set(((Number) value).byteValue(), idxObj, idxFeature);
+                ++idxFeature;
+            }
+            ++idxObj;
+        }
+        return result;
+    }
+
+    private BitSet[] toBoolArray(Object[][] featureValues)
+    {
+        final BitSet[] result = new BitSet[featureValues.length];
+        int idxObj = 0;
+        for (Object[] vector : featureValues)
+        {
+            int idxFeature = 0;
+            result[idxObj] = new BitSet();
+            for (Object value : vector)
+            {
+                result[idxObj].set(idxFeature, (Boolean) value);
+                ++idxFeature;
+            }
+            ++idxObj;
+        }
+        return result;
+    }
+
+    private HDF5EnumerationValueMDArray toEnumArray(HDF5EnumerationType type,
+            Object[][] featureValues)
+    {
+        final MDAbstractArray<?> result;
+        switch (type.getStorageForm())
+        {
+            case BYTE:
+            {
+                final MDByteArray array =
+                        new MDByteArray(new int[]
+                            { featureValues.length,
+                                    (featureValues.length > 0) ? featureValues[0].length : 0 });
+                int idxObj = 0;
+                for (Object[] vector : featureValues)
+                {
+                    int idxFeature = 0;
+                    for (Object value : vector)
+                    {
+                        final Number val =
+                                (value instanceof Number) ? (Number) value : type
+                                        .tryGetIndexForValue(value.toString());
+                        if (val == null)
+                        {
+                            throw new IllegalArgumentException("Illegal enum alternative '"
+                                    + value.toString() + "'.");
+                        }
+                        array.set(val.byteValue(), idxObj, idxFeature);
+                        ++idxFeature;
+                    }
+                    ++idxObj;
+                }
+                result = array;
+                break;
+            }
+            case SHORT:
+            {
+                final MDShortArray array =
+                        new MDShortArray(new int[]
+                            { featureValues.length,
+                                    (featureValues.length > 0) ? featureValues[0].length : 0 });
+                int idxObj = 0;
+                for (Object[] vector : featureValues)
+                {
+                    int idxFeature = 0;
+                    for (Object value : vector)
+                    {
+                        final Number val =
+                                (value instanceof Number) ? (Number) value : type
+                                        .tryGetIndexForValue(value.toString());
+                        if (val == null)
+                        {
+                            throw new IllegalArgumentException("Illegal enum alternative '"
+                                    + value.toString() + "'.");
+                        }
+                        array.set(val.shortValue(), idxObj, idxFeature);
+                        ++idxFeature;
+                    }
+                    ++idxObj;
+                }
+                result = array;
+                break;
+            }
+            case INT:
+            {
+                final MDIntArray array =
+                        new MDIntArray(new int[]
+                            { featureValues.length,
+                                    (featureValues.length > 0) ? featureValues[0].length : 0 });
+                int idxObj = 0;
+                for (Object[] vector : featureValues)
+                {
+                    int idxFeature = 0;
+                    for (Object value : vector)
+                    {
+                        final Number val =
+                                (value instanceof Number) ? (Number) value : type
+                                        .tryGetIndexForValue(value.toString());
+                        if (val == null)
+                        {
+                            throw new IllegalArgumentException("Illegal enum alternative '"
+                                    + value.toString() + "'.");
+                        }
+                        array.set(val.intValue(), idxObj, idxFeature);
+                        ++idxFeature;
+                    }
+                    ++idxObj;
+                }
+                result = array;
+                break;
+            }
+            default:
+                throw new IllegalArgumentException("Unsupported storage form "
+                        + type.getStorageForm() + ".");
+        }
+        return new HDF5EnumerationValueMDArray(type, result);
     }
 
     @Override

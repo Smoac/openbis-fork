@@ -32,15 +32,15 @@ public class Feature
      */
     public enum FeatureDataType
     {
-        BOOL(FeatureGroupDataType.COMPOUND), 
-        INT8(FeatureGroupDataType.INT32), 
-        INT16(FeatureGroupDataType.INT32), 
+        BOOL(FeatureGroupDataType.BOOL), 
+        INT8(FeatureGroupDataType.INT8), 
+        INT16(FeatureGroupDataType.INT16), 
         INT32(FeatureGroupDataType.INT32), 
-        INT64(FeatureGroupDataType.COMPOUND), 
+        INT64(FeatureGroupDataType.INT64), 
         FLOAT32(FeatureGroupDataType.FLOAT32), 
-        FLOAT64(FeatureGroupDataType.COMPOUND), 
+        FLOAT64(FeatureGroupDataType.FLOAT64), 
         STRING(FeatureGroupDataType.COMPOUND), 
-        ENUM(FeatureGroupDataType.COMPOUND), 
+        ENUM(FeatureGroupDataType.ENUM), 
         OTHER(FeatureGroupDataType.COMPOUND);
         
         private final FeatureGroupDataType optimalGroupType;

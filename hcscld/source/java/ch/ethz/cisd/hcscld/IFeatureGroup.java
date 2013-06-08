@@ -25,8 +25,11 @@ import java.util.List;
  */
 public interface IFeatureGroup extends Iterable<ImageId>
 {
-    public enum FeatureGroupDataType { COMPOUND, FLOAT32, INT32 }
-    
+    public enum FeatureGroupDataType
+    {
+        COMPOUND, BOOL, INT8, INT16, INT32, INT64, FLOAT32, FLOAT64, ENUM
+    }
+
     /**
      * Returns the identifier of this feature group.
      */

@@ -18,6 +18,7 @@ package ch.ethz.cisd.hcscld;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,14 +29,21 @@ import java.util.NoSuchElementException;
 
 import ch.ethz.cisd.hcscld.IFeatureGroup.FeatureGroupDataType;
 import ch.ethz.cisd.hcscld.ImageRunner.IExistChecker;
+import ch.systemsx.cisd.base.mdarray.MDAbstractArray;
+import ch.systemsx.cisd.base.mdarray.MDByteArray;
+import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
 import ch.systemsx.cisd.base.mdarray.MDFloatArray;
 import ch.systemsx.cisd.base.mdarray.MDIntArray;
+import ch.systemsx.cisd.base.mdarray.MDLongArray;
+import ch.systemsx.cisd.base.mdarray.MDShortArray;
 import ch.systemsx.cisd.hdf5.CompoundElement;
 import ch.systemsx.cisd.hdf5.CompoundType;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMemberInformation;
 import ch.systemsx.cisd.hdf5.HDF5CompoundType;
+import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationValue;
+import ch.systemsx.cisd.hdf5.HDF5EnumerationValueMDArray;
 import ch.systemsx.cisd.hdf5.IHDF5Reader;
 
 /**
@@ -45,7 +53,7 @@ import ch.systemsx.cisd.hdf5.IHDF5Reader;
  */
 class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeatureDataset
 {
-    static final String FORMAT_TYPE = "CompoundArray";
+    static final String FORMAT_TYPE = "CompoundArrayOrPrimitiveMatrix";
 
     static final int CURRENT_FORMAT_VERSION_NUMBER = 1;
 
@@ -135,7 +143,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
     /**
      * A feature group implementation.
      */
-    class FeatureGroup implements IFeatureGroup
+    class FeatureGroup implements IFeatureGroup, IEnumTypeProvider
     {
         private final HDF5CompoundType<Object[]> type;
 
@@ -277,6 +285,31 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             }
             return commonType == null ? FeatureGroupDataType.COMPOUND : commonType;
         }
+
+        //
+        //
+        // IEnumTypeProvider
+
+        @Override
+        public HDF5EnumerationType tryGetEnumType()
+        {
+            if (type.getEnumTypeMap().size() == 1)
+            {
+                return null;
+            } else
+            {
+                final HDF5EnumerationType eType = type.getEnumTypeMap().values().iterator().next();
+                // Check that all map entries are the same type.
+                for (HDF5EnumerationType enumType : type.getEnumTypeMap().values())
+                {
+                    if (enumType.equals(eType) == false)
+                    {
+                        return null;
+                    }
+                }
+                return eType;
+            }
+        }
     }
 
     class NamespaceFeatureGroup extends FeatureGroup
@@ -415,6 +448,42 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
     {
         switch (featureGroup.getDataType())
         {
+            case BOOL:
+            {
+                final BitSet[] array =
+                        reader.bool().readBitFieldArray(
+                                ((FeatureGroup) featureGroup).getObjectPath(id));
+                return toObjectArray(array);
+
+            }
+            case INT8:
+            {
+                final MDByteArray array =
+                        reader.int8().readMDArray(((FeatureGroup) featureGroup).getObjectPath(id));
+                return toObjectArray(array);
+
+            }
+            case INT16:
+            {
+                final MDShortArray array =
+                        reader.int16().readMDArray(((FeatureGroup) featureGroup).getObjectPath(id));
+                return toObjectArray(array);
+
+            }
+            case INT32:
+            {
+                final MDIntArray array =
+                        reader.int32().readMDArray(((FeatureGroup) featureGroup).getObjectPath(id));
+                return toObjectArray(array);
+
+            }
+            case INT64:
+            {
+                final MDLongArray array =
+                        reader.int64().readMDArray(((FeatureGroup) featureGroup).getObjectPath(id));
+                return toObjectArray(array);
+
+            }
             case FLOAT32:
             {
                 final MDFloatArray array =
@@ -422,13 +491,19 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                                 ((FeatureGroup) featureGroup).getObjectPath(id));
                 return toObjectArray(array);
             }
-            case INT32:
+            case FLOAT64:
             {
-                final MDIntArray array =
-                        reader.int32().readMDArray(
+                final MDDoubleArray array =
+                        reader.float64().readMDArray(
                                 ((FeatureGroup) featureGroup).getObjectPath(id));
                 return toObjectArray(array);
-
+            }
+            case ENUM:
+            {
+                final HDF5EnumerationValueMDArray array =
+                        reader.enumeration().readMDArray(
+                                ((FeatureGroup) featureGroup).getObjectPath(id));
+                return toObjectArray(array);
             }
             case COMPOUND:
             default:
@@ -438,12 +513,13 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             }
         }
     }
-    
-    private Object[][] toObjectArray(MDFloatArray array)
+
+    private Object[][] toObjectArray(HDF5EnumerationValueMDArray array)
     {
         if (array.rank() != 2)
         {
-            throw new WrongDataTypeException("Expected a float array of rank 2, found rank " + array.rank() + ".");
+            throw new WrongDataTypeException("Expected a float array of rank 2, found rank "
+                    + array.rank() + ".");
         }
         final int dimObjects = array.dimensions()[0];
         final int dimFeatures = array.dimensions()[1];
@@ -452,17 +528,18 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         {
             for (int j = 0; j < dimFeatures; ++j)
             {
-                result[i][j] = array.get(i, j);
+                result[i][j] = array.getValue(i, j);
             }
         }
         return result;
     }
 
-    private Object[][] toObjectArray(MDIntArray array)
+    private Object[][] toObjectArray(MDAbstractArray<?> array)
     {
         if (array.rank() != 2)
         {
-            throw new WrongDataTypeException("Expected a float array of rank 2, found rank " + array.rank() + ".");
+            throw new WrongDataTypeException("Expected a float array of rank 2, found rank "
+                    + array.rank() + ".");
         }
         final int dimObjects = array.dimensions()[0];
         final int dimFeatures = array.dimensions()[1];
@@ -471,7 +548,22 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         {
             for (int j = 0; j < dimFeatures; ++j)
             {
-                result[i][j] = array.get(i, j);
+                result[i][j] = array.getAsObject(i, j);
+            }
+        }
+        return result;
+    }
+
+    private Object[][] toObjectArray(BitSet[] array)
+    {
+        final int dimObjects = array.length;
+        final int dimFeatures = (dimObjects > 0) ? array[0].length() : 0;
+        final Object[][] result = new Object[dimObjects][dimFeatures];
+        for (int i = 0; i < dimObjects; ++i)
+        {
+            for (int j = 0; j < dimFeatures; ++j)
+            {
+                result[i][j] = array[i].get(j);
             }
         }
         return result;
