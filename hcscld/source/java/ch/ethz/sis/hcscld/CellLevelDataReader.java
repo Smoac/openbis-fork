@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2011-2013 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ class CellLevelDataReader implements ICellLevelDataReader
         }
     }
 
-    static final FormatDescriptor CURRENT_FORMAT_DESCRIPTOR = new FormatDescriptor("CISD-HCSCLD",
+    static final FormatDescriptor CURRENT_FORMAT_DESCRIPTOR = new FormatDescriptor("SIS-HCSCLD",
             1, 0);
 
     private final IHDF5Reader reader;
