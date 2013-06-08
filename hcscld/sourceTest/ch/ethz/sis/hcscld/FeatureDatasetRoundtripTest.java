@@ -140,12 +140,24 @@ public class FeatureDatasetRoundtripTest
                         .createFeatureGroup("main");
         if (idOrNull != null)
         {
-            wds.writeFeatures(idOrNull, fg, createStandardFloat32Value(idOrNull));
+            if (enforceCompoundStorage)
+            {
+                wds.writeFeatures(idOrNull, fg, createStandardFloat32ValueAsObject(idOrNull));
+            } else
+            {
+                wds.writeFeatures(idOrNull, fg, createStandardFloat32Value(idOrNull));
+            }
         } else
         {
             for (ImageId id : wds.getImageQuantityStructure())
             {
-                wds.writeFeatures(id, fg, createStandardFloat32Value(id));
+                if (enforceCompoundStorage)
+                {
+                    wds.writeFeatures(id, fg, createStandardFloat32ValueAsObject(id));
+                } else
+                {
+                    wds.writeFeatures(id, fg, createStandardFloat32Value(id));
+                }
             }
         }
         writer.close();
@@ -286,7 +298,23 @@ public class FeatureDatasetRoundtripTest
                 { id.getRow() + 9, 9 + id.getColumn() / 10f, "A" } };
     }
 
-    private Object[][] createStandardFloat32Value(ImageId id)
+    private float[][] createStandardFloat32Value(ImageId id)
+    {
+        return new float[][]
+            {
+                { id.getRow(), 0 + id.getColumn() / 10f, 1e0f },
+                { id.getRow() + 1, 1 + id.getColumn() / 10f, 1e1f },
+                { id.getRow() + 2, 2 + id.getColumn() / 10f, 1e2f },
+                { id.getRow() + 3, 3 + id.getColumn() / 10f, 1e3f },
+                { id.getRow() + 4, 4 + id.getColumn() / 10f, 1e4f },
+                { id.getRow() + 5, 5 + id.getColumn() / 10f, 1e5f },
+                { id.getRow() + 6, 6 + id.getColumn() / 10f, 1e6f },
+                { id.getRow() + 7, 7 + id.getColumn() / 10f, 1e7f },
+                { id.getRow() + 8, 8 + id.getColumn() / 10f, 1e8f },
+                { id.getRow() + 9, 9 + id.getColumn() / 10f, 1e9f } };
+    }
+
+    private Object[][] createStandardFloat32ValueAsObject(ImageId id)
     {
         return new Object[][]
             {
@@ -318,9 +346,9 @@ public class FeatureDatasetRoundtripTest
                 { id.getRow() + 9, 9 + id.getColumn(), 4 } };
     }
 
-    private Object[][] createStandardEnumValue(ImageId id)
+    private State[][] createStandardEnumValue(ImageId id)
     {
-        return new Object[][]
+        return new State[][]
             {
                 { State.A, State.B, State.C },
                 { State.C, State.B, State.A },
@@ -557,7 +585,7 @@ public class FeatureDatasetRoundtripTest
     public void testFloat32FeatureGroupEnforceCompoundStorage()
     {
         final String dsCode = "123";
-        final File f = new File(workingDirectory, "float32FeatureGroupEnforeCompoundStorage.cld");
+        final File f = new File(workingDirectory, "float32FeatureGroupEnforceCompoundStorage.cld");
         f.delete();
         f.deleteOnExit();
         createMainFloat32FeatureGroupDataset(f, dsCode, null, true);

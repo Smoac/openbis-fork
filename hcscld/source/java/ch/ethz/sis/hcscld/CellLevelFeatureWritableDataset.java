@@ -40,6 +40,7 @@ import ch.systemsx.cisd.hdf5.HDF5FloatStorageFeatures;
 import ch.systemsx.cisd.hdf5.HDF5IntStorageFeatures;
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
+import ch.systemsx.cisd.hdf5.ReflectionUtils;
 
 /**
  * A writable dataset for cell-level features.
@@ -306,26 +307,304 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                         CellLevelBaseWritableDataset.getStorageFeatures(featureValues.length
                                 * fg.getType().getRecordSize()));
                 break;
-
         }
     }
 
-    private MDFloatArray toFloatArray(Object[][] featureValues)
+    @Override
+    public void writeFeatures(ImageId id, IFeatureGroup featureGroup, MDFloatArray featureValues)
     {
-        final MDFloatArray result = new MDFloatArray(new int[]
-            { featureValues.length, (featureValues.length > 0) ? featureValues[0].length : 0 });
-        int idxObj = 0;
-        for (Object[] vector : featureValues)
+        if (featureValues.rank() != 2)
         {
-            int idxFeature = 0;
-            for (Object value : vector)
-            {
-                result.set(((Number) value).floatValue(), idxObj, idxFeature);
-                ++idxFeature;
-            }
-            ++idxObj;
+            throw new IllegalArgumentException(
+                    "Expected multi-dimensional array of rank 2, found rank "
+                            + featureValues.rank());
         }
-        return result;
+        final FeatureGroup fg = (FeatureGroup) featureGroup;
+        fg.getNamespace().checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
+                featureValues.size(0));
+        if (fg.getDataType() != FeatureGroupDataType.FLOAT32)
+        {
+            throw new WrongFeatureGroupStorageTypeException(datasetCode, fg.getId(),
+                    FeatureGroupDataType.FLOAT32, fg.getDataType());
+        }
+        base.writer.float32().writeMDArray(
+                fg.getObjectPath(id),
+                featureValues,
+                HDF5FloatStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
+                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSize())));
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, IFeatureGroup featureGroup, float[][] featureValues)
+    {
+        writeFeatures(id, featureGroup, new MDFloatArray(featureValues));
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, IFeatureGroup featureGroup, MDDoubleArray featureValues)
+    {
+        if (featureValues.rank() != 2)
+        {
+            throw new IllegalArgumentException(
+                    "Expected multi-dimensional array of rank 2, found rank "
+                            + featureValues.rank());
+        }
+        final FeatureGroup fg = (FeatureGroup) featureGroup;
+        fg.getNamespace().checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
+                featureValues.size(0));
+        if (fg.getDataType() != FeatureGroupDataType.FLOAT64)
+        {
+            throw new WrongFeatureGroupStorageTypeException(datasetCode, fg.getId(),
+                    FeatureGroupDataType.FLOAT64, fg.getDataType());
+        }
+        base.writer.float64().writeMDArray(
+                fg.getObjectPath(id),
+                featureValues,
+                HDF5FloatStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
+                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSize())));
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, IFeatureGroup featureGroup, double[][] featureValues)
+    {
+        writeFeatures(id, featureGroup, new MDDoubleArray(featureValues));
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, IFeatureGroup featureGroup, BitSet[] featureValues)
+    {
+        final FeatureGroup fg = (FeatureGroup) featureGroup;
+        fg.getNamespace().checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
+                featureValues.length);
+        if (fg.getDataType() != FeatureGroupDataType.BOOL)
+        {
+            throw new WrongFeatureGroupStorageTypeException(datasetCode, fg.getId(),
+                    FeatureGroupDataType.BOOL, fg.getDataType());
+        }
+        base.writer.bool().writeBitFieldArray(
+                fg.getObjectPath(id),
+                featureValues,
+                HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
+                        .getStorageFeatures(featureValues.length * fg.getType().getRecordSize())));
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, IFeatureGroup featureGroup, MDByteArray featureValues)
+    {
+        if (featureValues.rank() != 2)
+        {
+            throw new IllegalArgumentException(
+                    "Expected multi-dimensional array of rank 2, found rank "
+                            + featureValues.rank());
+        }
+        final FeatureGroup fg = (FeatureGroup) featureGroup;
+        fg.getNamespace().checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
+                featureValues.size(0));
+        if (fg.getDataType() != FeatureGroupDataType.INT8)
+        {
+            throw new WrongFeatureGroupStorageTypeException(datasetCode, fg.getId(),
+                    FeatureGroupDataType.INT8, fg.getDataType());
+        }
+        base.writer.int8().writeMDArray(
+                fg.getObjectPath(id),
+                featureValues,
+                HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
+                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSize())));
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, IFeatureGroup featureGroup, byte[][] featureValues)
+    {
+        writeFeatures(id, featureGroup, new MDByteArray(featureValues));
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, IFeatureGroup featureGroup, MDShortArray featureValues)
+    {
+        if (featureValues.rank() != 2)
+        {
+            throw new IllegalArgumentException(
+                    "Expected multi-dimensional array of rank 2, found rank "
+                            + featureValues.rank());
+        }
+        final FeatureGroup fg = (FeatureGroup) featureGroup;
+        fg.getNamespace().checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
+                featureValues.size(0));
+        if (fg.getDataType() != FeatureGroupDataType.INT16)
+        {
+            throw new WrongFeatureGroupStorageTypeException(datasetCode, fg.getId(),
+                    FeatureGroupDataType.INT16, fg.getDataType());
+        }
+        base.writer.int16().writeMDArray(
+                fg.getObjectPath(id),
+                featureValues,
+                HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
+                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSize())));
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, IFeatureGroup featureGroup, short[][] featureValues)
+    {
+        writeFeatures(id, featureGroup, new MDShortArray(featureValues));
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, IFeatureGroup featureGroup, MDIntArray featureValues)
+    {
+        if (featureValues.rank() != 2)
+        {
+            throw new IllegalArgumentException(
+                    "Expected multi-dimensional array of rank 2, found rank "
+                            + featureValues.rank());
+        }
+        final FeatureGroup fg = (FeatureGroup) featureGroup;
+        fg.getNamespace().checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
+                featureValues.size(0));
+        if (fg.getDataType() != FeatureGroupDataType.INT32)
+        {
+            throw new WrongFeatureGroupStorageTypeException(datasetCode, fg.getId(),
+                    FeatureGroupDataType.INT32, fg.getDataType());
+        }
+        base.writer.int32().writeMDArray(
+                fg.getObjectPath(id),
+                featureValues,
+                HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
+                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSize())));
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, IFeatureGroup featureGroup, int[][] featureValues)
+    {
+        writeFeatures(id, featureGroup, new MDIntArray(featureValues));
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, IFeatureGroup featureGroup, MDLongArray featureValues)
+    {
+        if (featureValues.rank() != 2)
+        {
+            throw new IllegalArgumentException(
+                    "Expected multi-dimensional array of rank 2, found rank "
+                            + featureValues.rank());
+        }
+        final FeatureGroup fg = (FeatureGroup) featureGroup;
+        fg.getNamespace().checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
+                featureValues.size(0));
+        if (fg.getDataType() != FeatureGroupDataType.INT64)
+        {
+            throw new WrongFeatureGroupStorageTypeException(datasetCode, fg.getId(),
+                    FeatureGroupDataType.INT64, fg.getDataType());
+        }
+        base.writer.int64().writeMDArray(
+                fg.getObjectPath(id),
+                featureValues,
+                HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
+                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSize())));
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, IFeatureGroup featureGroup, long[][] featureValues)
+    {
+        writeFeatures(id, featureGroup, new MDLongArray(featureValues));
+    }
+
+    @Override
+    public <T extends Enum<T>> void writeFeatures(ImageId id, IFeatureGroup featureGroup,
+            T[][] featureValues)
+    {
+        final HDF5EnumerationType enumType = ((IEnumTypeProvider) featureGroup).tryGetEnumType();
+        @SuppressWarnings("unchecked")
+        Class<? extends Enum<?>> enumClazz =
+                (Class<? extends Enum<?>>) featureValues.getClass().getComponentType()
+                        .getComponentType();
+        final List<String> enumOptions = Arrays.asList(ReflectionUtils.getEnumOptions(enumClazz));
+        if (enumType.getValues().equals(enumOptions) == false)
+        {
+            throw new IllegalArgumentException("Inconsistent enum options.");
+        }
+        writeFeatures(id, featureGroup, toArray(enumType, featureValues));
+    }
+
+    private <T extends Enum<T>> HDF5EnumerationValueMDArray toArray(HDF5EnumerationType enumType,
+            T[][] featureValues)
+    {
+        final HDF5EnumerationValueMDArray featureValueArray;
+        switch (enumType.getStorageForm())
+        {
+            case BYTE:
+            {
+                final MDByteArray ordinals = new MDByteArray(new int[]
+                    { featureValues.length, featureValues[0].length });
+                int idx = 0;
+                for (T[] fvv : featureValues)
+                {
+                    for (T fv : fvv)
+                    {
+                        ordinals.set((byte) fv.ordinal(), idx++);
+                    }
+                }
+                featureValueArray = new HDF5EnumerationValueMDArray(enumType, ordinals);
+                break;
+            }
+            case SHORT:
+            {
+                final MDShortArray ordinals = new MDShortArray(new int[]
+                    { featureValues.length, featureValues[0].length });
+                int idx = 0;
+                for (T[] fvv : featureValues)
+                {
+                    for (T fv : fvv)
+                    {
+                        ordinals.set((short) fv.ordinal(), idx++);
+                    }
+                }
+                featureValueArray = new HDF5EnumerationValueMDArray(enumType, ordinals);
+                break;
+            }
+            case INT:
+            {
+                final MDIntArray ordinals = new MDIntArray(new int[]
+                    { featureValues.length, featureValues[0].length });
+                int idx = 0;
+                for (T[] fvv : featureValues)
+                {
+                    for (T fv : fvv)
+                    {
+                        ordinals.set(fv.ordinal(), idx++);
+                    }
+                }
+                featureValueArray = new HDF5EnumerationValueMDArray(enumType, ordinals);
+                break;
+            }
+            default:
+                throw new Error("Illegal storage form.");
+        }
+        return featureValueArray;
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, IFeatureGroup featureGroup,
+            HDF5EnumerationValueMDArray featureValues)
+    {
+        if (featureValues.rank() != 2)
+        {
+            throw new IllegalArgumentException(
+                    "Expected multi-dimensional array of rank 2, found rank "
+                            + featureValues.rank());
+        }
+        final FeatureGroup fg = (FeatureGroup) featureGroup;
+        fg.getNamespace().checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
+                featureValues.size(0));
+        if (fg.getDataType() != FeatureGroupDataType.ENUM)
+        {
+            throw new WrongFeatureGroupStorageTypeException(datasetCode, fg.getId(),
+                    FeatureGroupDataType.ENUM, fg.getDataType());
+        }
+        base.writer.enumeration().writeMDArray(
+                fg.getObjectPath(id),
+                featureValues,
+                HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
+                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSize())));
     }
 
     private MDDoubleArray toDoubleArray(Object[][] featureValues)
@@ -339,6 +618,24 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
             for (Object value : vector)
             {
                 result.set(((Number) value).doubleValue(), idxObj, idxFeature);
+                ++idxFeature;
+            }
+            ++idxObj;
+        }
+        return result;
+    }
+
+    private MDFloatArray toFloatArray(Object[][] featureValues)
+    {
+        final MDFloatArray result = new MDFloatArray(new int[]
+            { featureValues.length, (featureValues.length > 0) ? featureValues[0].length : 0 });
+        int idxObj = 0;
+        for (Object[] vector : featureValues)
+        {
+            int idxFeature = 0;
+            for (Object value : vector)
+            {
+                result.set(((Number) value).floatValue(), idxObj, idxFeature);
                 ++idxFeature;
             }
             ++idxObj;
@@ -537,15 +834,112 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     public void writeFeatures(ImageId id, Object[][] featureValues)
     {
         checkDefaultFeatureGroup();
-        final FeatureGroup fg = getFirstFeatureGroup();
-        fg.getNamespace().checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
-                featureValues.length);
-        base.writer.compound().writeArray(
-                fg.getObjectPath(id),
-                fg.getType(),
-                featureValues,
-                CellLevelBaseWritableDataset.getStorageFeatures(featureValues.length
-                        * fg.getType().getRecordSize()));
+        writeFeatures(id, getFirstFeatureGroup(), featureValues);
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, MDFloatArray featureValues)
+    {
+        checkDefaultFeatureGroup();
+        writeFeatures(id, getFirstFeatureGroup(), featureValues);
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, float[][] featureValues)
+    {
+        checkDefaultFeatureGroup();
+        writeFeatures(id, getFirstFeatureGroup(), featureValues);
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, BitSet[] featureValues)
+    {
+        checkDefaultFeatureGroup();
+        writeFeatures(id, getFirstFeatureGroup(), featureValues);
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, MDDoubleArray featureValues)
+    {
+        checkDefaultFeatureGroup();
+        writeFeatures(id, getFirstFeatureGroup(), featureValues);
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, double[][] featureValues)
+    {
+        checkDefaultFeatureGroup();
+        writeFeatures(id, getFirstFeatureGroup(), featureValues);
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, MDByteArray featureValues)
+    {
+        checkDefaultFeatureGroup();
+        writeFeatures(id, getFirstFeatureGroup(), featureValues);
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, byte[][] featureValues)
+    {
+        checkDefaultFeatureGroup();
+        writeFeatures(id, getFirstFeatureGroup(), featureValues);
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, MDShortArray featureValues)
+    {
+        checkDefaultFeatureGroup();
+        writeFeatures(id, getFirstFeatureGroup(), featureValues);
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, short[][] featureValues)
+    {
+        checkDefaultFeatureGroup();
+        writeFeatures(id, getFirstFeatureGroup(), featureValues);
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, MDIntArray featureValues)
+    {
+        checkDefaultFeatureGroup();
+        writeFeatures(id, getFirstFeatureGroup(), featureValues);
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, int[][] featureValues)
+    {
+        checkDefaultFeatureGroup();
+        writeFeatures(id, getFirstFeatureGroup(), featureValues);
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, MDLongArray featureValues)
+    {
+        checkDefaultFeatureGroup();
+        writeFeatures(id, getFirstFeatureGroup(), featureValues);
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, long[][] featureValues)
+    {
+        checkDefaultFeatureGroup();
+        writeFeatures(id, getFirstFeatureGroup(), featureValues);
+    }
+
+    @Override
+    public void writeFeatures(ImageId id, HDF5EnumerationValueMDArray featureValues)
+    {
+        checkDefaultFeatureGroup();
+        writeFeatures(id, getFirstFeatureGroup(), featureValues);
+    }
+
+    @Override
+    public <T extends Enum<T>> void writeFeatures(ImageId id, T[][] featureValues)
+    {
+        checkDefaultFeatureGroup();
+        writeFeatures(id, getFirstFeatureGroup(), featureValues);
     }
 
     private void checkDefaultFeatureGroup() throws IllegalStateException
