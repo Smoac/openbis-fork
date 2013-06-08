@@ -44,6 +44,8 @@ class FeaturesDefinition implements IFeaturesDefinition
 
     private final List<Feature> memberDefinitions;
 
+    private boolean enforceCompoundStorageDataType;
+
     FeaturesDefinition(CellLevelFeatureWritableDataset dataset, ObjectNamespace namespace)
     {
         this.datasetOrNull = dataset;
@@ -109,6 +111,22 @@ class FeaturesDefinition implements IFeaturesDefinition
     {
         return HDF5CompoundMemberMapping.addHints(
                 members.toArray(new HDF5CompoundMemberMapping[members.size()]), hintsOrNull);
+    }
+
+    @Override
+    public FeaturesDefinition enforceCompoundGroupStorageType()
+    {
+        checkDataset();
+        this.enforceCompoundStorageDataType = true;
+        return this;
+    }
+    
+    @Override
+    public FeaturesDefinition enforceCompoundGroupStorageType(boolean enforceCompoundGroupStorage)
+    {
+        checkDataset();
+        this.enforceCompoundStorageDataType = enforceCompoundGroupStorage;
+        return this;
     }
 
     @Override
@@ -209,8 +227,8 @@ class FeaturesDefinition implements IFeaturesDefinition
     {
         checkDataset();
         checkNamespace();
-        datasetOrNull.addFeatureGroupInternal(
-                CellLevelFeatureDataset.DEFAULT_FEATURE_GROUP_NAME, this);
+        datasetOrNull.addFeatureGroupInternal(CellLevelFeatureDataset.DEFAULT_FEATURE_GROUP_NAME,
+                this);
     }
 
     @Override
@@ -230,6 +248,11 @@ class FeaturesDefinition implements IFeaturesDefinition
     ObjectNamespace getNamespace()
     {
         return namespace;
+    }
+
+    boolean isEnforceCompoundStorageDataType()
+    {
+        return enforceCompoundStorageDataType;
     }
 
     private void checkDataset()

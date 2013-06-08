@@ -23,6 +23,7 @@ import java.util.List;
 
 import ch.ethz.sis.hcscld.CellLevelBaseWritableDataset.IObjectNamespaceBasedFlushable;
 import ch.ethz.sis.hcscld.CellLevelBaseWritableDataset.ObjectNamespaceContainer;
+import ch.ethz.sis.hcscld.IFeatureGroup.FeatureGroupDataType;
 import ch.systemsx.cisd.base.mdarray.MDAbstractArray;
 import ch.systemsx.cisd.base.mdarray.MDByteArray;
 import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
@@ -217,7 +218,10 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         final HDF5CompoundType<Object[]> type =
                 base.writer.compound().getType(getFeatureGroupTypePath(idUpperCase),
                         Object[].class, features.getMembers(hintsOrNull));
-        final FeatureGroup featureGroup = new FeatureGroup(id, features.getNamespace(), type);
+        final FeatureGroup featureGroup =
+                new FeatureGroup(id, features.getNamespace(), type,
+                        features.isEnforceCompoundStorageDataType() ? FeatureGroupDataType.COMPOUND
+                                : null);
         addFeatureGroupToInternalList(idUpperCase, featureGroup);
         return featureGroup;
     }

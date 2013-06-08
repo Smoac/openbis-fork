@@ -114,6 +114,19 @@ public interface IFeaturesDefinition
     public IFeaturesDefinition addEnumFeature(String name, Class<? extends Enum<?>> enumClass);
 
     /**
+     * Enforces that this feature group will be stored as a compound.
+     */
+    public FeaturesDefinition enforceCompoundGroupStorageType();
+
+    /**
+     * Chooses whether to enforce that this feature group will be stored as a compound.
+     * 
+     * @param enforceCompoundGroupStorage if <code>true</code>, enforces that this feature group
+     *            will be stored as a compound. Otherwise use the optimal group storage type.
+     */
+    public FeaturesDefinition enforceCompoundGroupStorageType(boolean enforceCompoundGroupStorage);
+
+    /**
      * Creates the default feature group with these feature definitions.
      * <p>
      * <i>This method and {@link #createFeatureGroup(String)} are mutual exclusive on a dataset.</i>

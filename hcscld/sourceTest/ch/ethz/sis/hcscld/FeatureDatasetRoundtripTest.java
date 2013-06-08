@@ -47,6 +47,7 @@ import ch.ethz.sis.hcscld.WrongNumberOfSegmentedObjectsException;
 import ch.ethz.sis.hcscld.WrongSequenceTypeException;
 import ch.ethz.sis.hcscld.CellLevelFeatureDataset.FeatureGroupDescriptor;
 import ch.ethz.sis.hcscld.Feature.FeatureDataType;
+import ch.ethz.sis.hcscld.IFeatureGroup.FeatureGroupDataType;
 import ch.ethz.sis.hcscld.ImageQuantityStructure.SequenceType;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMemberMapping;
 import ch.systemsx.cisd.hdf5.HDF5CompoundType;
@@ -122,13 +123,21 @@ public class FeatureDatasetRoundtripTest
 
     private void createMainFloat32FeatureGroupDataset(File file, String dsCode, ImageId idOrNull)
     {
+        createMainFloat32FeatureGroupDataset(file, dsCode, idOrNull, false);
+    }
+
+    private void createMainFloat32FeatureGroupDataset(File file, String dsCode, ImageId idOrNull,
+            boolean enforceCompoundStorage)
+    {
         ICellLevelDataWriter writer = CellLevelDataFactory.open(file);
         ICellLevelFeatureWritableDataset wds =
                 writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
         ObjectNamespace namespace = wds.addObjectNamespace("main");
         IFeatureGroup fg =
                 wds.createFeaturesDefinition(namespace).addFloat32Feature("a")
-                        .addFloat32Feature("b").addFloat32Feature("c").createFeatureGroup("main");
+                        .addFloat32Feature("b").addFloat32Feature("c")
+                        .enforceCompoundGroupStorageType(enforceCompoundStorage)
+                        .createFeatureGroup("main");
         if (idOrNull != null)
         {
             wds.writeFeatures(idOrNull, fg, createStandardFloat32Value(idOrNull));
@@ -399,6 +408,7 @@ public class FeatureDatasetRoundtripTest
         final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
         for (CellLevelFeatures clf : ds.getValues())
         {
+            assertEquals(FeatureGroupDataType.COMPOUND, clf.getFeatureGroup().getDataType());
             assertEquals("DEFAULT", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("one", "two", "three"), clf.getFeatureGroup()
                     .getFeatureNames());
@@ -466,6 +476,7 @@ public class FeatureDatasetRoundtripTest
                 Arrays.asList(ds.tryGetCustomSequenceAnnotation()));
         for (CellLevelFeatures clf : ds.getValues())
         {
+            assertEquals(FeatureGroupDataType.COMPOUND, clf.getFeatureGroup().getDataType());
             assertEquals("DEFAULT", clf.getFeatureGroup().getId());
             assertEquals("CELL", clf.getFeatureGroup().getNamespace().getId());
             assertEquals(Arrays.asList("one", "two", "three"), clf.getFeatureGroup()
@@ -498,6 +509,7 @@ public class FeatureDatasetRoundtripTest
         assertTrue(System.currentTimeMillis() - ds.getCreationDate().getTime() < 100);
         for (CellLevelFeatures clf : ds.getValues())
         {
+            assertEquals(FeatureGroupDataType.COMPOUND, clf.getFeatureGroup().getDataType());
             assertEquals("All", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("one", "two", "three"), clf.getFeatureGroup()
                     .getFeatureNames());
@@ -526,6 +538,35 @@ public class FeatureDatasetRoundtripTest
         assertTrue(System.currentTimeMillis() - ds.getCreationDate().getTime() < 100);
         for (CellLevelFeatures clf : ds.getValues())
         {
+            assertEquals(FeatureGroupDataType.FLOAT32, clf.getFeatureGroup().getDataType());
+            assertEquals("All", clf.getFeatureGroup().getId());
+            assertEquals(Arrays.asList("a", "b", "c"), clf.getFeatureGroup().getFeatureNames());
+            assertEquals(10, clf.getValues().length);
+            for (int i = 0; i < clf.getValues().length; ++i)
+            {
+                assertEquals(3, clf.getValues()[i].length);
+                assertEquals((float) (clf.getImageId().getRow() + i), clf.getValues()[i][0]);
+                assertEquals(i + clf.getImageId().getColumn() / 10f, clf.getValues()[i][1]);
+                assertEquals((float) Math.pow(10.0, i), clf.getValues()[i][2]);
+            }
+        }
+        reader.close();
+    }
+
+    @Test
+    public void testFloat32FeatureGroupEnforceCompoundStorage()
+    {
+        final String dsCode = "123";
+        final File f = new File(workingDirectory, "float32FeatureGroupEnforeCompoundStorage.cld");
+        f.delete();
+        f.deleteOnExit();
+        createMainFloat32FeatureGroupDataset(f, dsCode, null, true);
+        final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
+        final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
+        assertTrue(System.currentTimeMillis() - ds.getCreationDate().getTime() < 100);
+        for (CellLevelFeatures clf : ds.getValues())
+        {
+            assertEquals(FeatureGroupDataType.COMPOUND, clf.getFeatureGroup().getDataType());
             assertEquals("All", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("a", "b", "c"), clf.getFeatureGroup().getFeatureNames());
             assertEquals(10, clf.getValues().length);
@@ -553,6 +594,7 @@ public class FeatureDatasetRoundtripTest
         assertTrue(System.currentTimeMillis() - ds.getCreationDate().getTime() < 100);
         for (CellLevelFeatures clf : ds.getValues())
         {
+            assertEquals(FeatureGroupDataType.INT32, clf.getFeatureGroup().getDataType());
             assertEquals("All", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("a", "b", "c"), clf.getFeatureGroup().getFeatureNames());
             assertEquals(10, clf.getValues().length);
@@ -580,6 +622,7 @@ public class FeatureDatasetRoundtripTest
         assertTrue(System.currentTimeMillis() - ds.getCreationDate().getTime() < 100);
         for (CellLevelFeatures clf : ds.getValues())
         {
+            assertEquals(FeatureGroupDataType.ENUM, clf.getFeatureGroup().getDataType());
             assertEquals("All", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("a", "b", "c"), clf.getFeatureGroup().getFeatureNames());
             assertEquals(4, clf.getValues().length);
@@ -608,6 +651,7 @@ public class FeatureDatasetRoundtripTest
         assertTrue(System.currentTimeMillis() - ds.getCreationDate().getTime() < 100);
         for (CellLevelFeatures clf : ds.getValues())
         {
+            assertEquals(FeatureGroupDataType.BOOL, clf.getFeatureGroup().getDataType());
             assertEquals("All", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("a", "b", "c"), clf.getFeatureGroup().getFeatureNames());
             assertEquals(4, clf.getValues().length);
@@ -686,6 +730,7 @@ public class FeatureDatasetRoundtripTest
         final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
         for (CellLevelFeatures clf : ds.getValues())
         {
+            assertEquals(FeatureGroupDataType.COMPOUND, clf.getFeatureGroup().getDataType());
             assertEquals("All", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("one", "two", "three", "ok", "comment"), clf
                     .getFeatureGroup().getFeatureNames());
@@ -710,6 +755,7 @@ public class FeatureDatasetRoundtripTest
 
         for (CellLevelFeatures clf : ds.getValues(ds.getFeatureGroup("main")))
         {
+            assertEquals(FeatureGroupDataType.COMPOUND, clf.getFeatureGroup().getDataType());
             assertEquals("Main", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("one", "two", "three"), clf.getFeatureGroup()
                     .getFeatureNames());
@@ -730,6 +776,7 @@ public class FeatureDatasetRoundtripTest
 
         for (CellLevelFeatures clf : ds.getValues(ds.getFeatureGroup("quality")))
         {
+            assertEquals(FeatureGroupDataType.COMPOUND, clf.getFeatureGroup().getDataType());
             assertEquals("Quality", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("ok", "comment"), clf.getFeatureGroup().getFeatureNames());
             assertEquals(Arrays.asList(new Feature("ok", FeatureDataType.BOOL), new Feature(
@@ -760,6 +807,7 @@ public class FeatureDatasetRoundtripTest
         for (CellLevelFeatures clf : ds.getValues(ds.getObjectNamespace("cell_a")))
         {
             ++count;
+            assertEquals(FeatureGroupDataType.COMPOUND, clf.getFeatureGroup().getDataType());
             assertEquals("All", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("one", "two", "three"), clf.getFeatureGroup()
                     .getFeatureNames());

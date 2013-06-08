@@ -56,7 +56,7 @@ public interface IFeatureGroup extends Iterable<ImageId>
     public ObjectNamespace getNamespace();
 
     /**
-     * Returns the (optimal) data type for this feature group.
+     * Returns the data type for this feature group.
      */
     public FeatureGroupDataType getDataType();
 

@@ -155,6 +155,8 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
 
         private final List<String> featureNames;
 
+        private final FeatureGroupDataType groupDataType;
+
         final ObjectNamespace namespace;
 
         FeatureGroup(String id, ObjectNamespace namespace)
@@ -171,6 +173,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             }
             this.featureNames = new ArrayList<String>(numberOfFeatures);
             this.features = new ArrayList<Feature>(numberOfFeatures);
+            FeatureGroupDataType dataType = null;
             for (FeatureGroup fg : featureGroups.values())
             {
                 if (namespace.equals(fg.getNamespace()) == false)
@@ -179,11 +182,28 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                 }
                 featureNames.addAll(fg.getFeatureNames());
                 features.addAll(fg.getFeatures());
+                if (dataType == null)
+                {
+                    dataType = fg.getDataType();
+                } else
+                {
+                    if (dataType != fg.getDataType())
+                    {
+                        dataType = FeatureGroupDataType.COMPOUND;
+                    }
+                }
             }
+            this.groupDataType = (dataType == null) ? FeatureGroupDataType.COMPOUND : dataType;
         }
 
         FeatureGroup(String idfeatureGroupId, ObjectNamespace namespace,
                 HDF5CompoundType<Object[]> type)
+        {
+            this(idfeatureGroupId, namespace, type, null);
+        }
+
+        FeatureGroup(String idfeatureGroupId, ObjectNamespace namespace,
+                HDF5CompoundType<Object[]> type, FeatureGroupDataType groupDataTypeOrNull)
         {
             this.id = idfeatureGroupId;
             this.idUpperCase = id.toUpperCase();
@@ -200,6 +220,9 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                 memberNameArray[i] = members.get(i).getName();
             }
             this.featureNames = Arrays.asList(memberNameArray);
+            this.groupDataType =
+                    (groupDataTypeOrNull == null) ? getOptimalGroupDataType(features)
+                            : groupDataTypeOrNull;
         }
 
         @Override
@@ -269,21 +292,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         @Override
         public FeatureGroupDataType getDataType()
         {
-            FeatureGroupDataType commonType = null;
-            for (Feature f : features)
-            {
-                if (commonType == null)
-                {
-                    commonType = f.getType().getOptimalGroupType();
-                } else
-                {
-                    if (commonType != f.getType().getOptimalGroupType())
-                    {
-                        commonType = FeatureGroupDataType.COMPOUND;
-                    }
-                }
-            }
-            return commonType == null ? FeatureGroupDataType.COMPOUND : commonType;
+            return groupDataType;
         }
 
         //
@@ -310,6 +319,25 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                 return eType;
             }
         }
+    }
+
+    static FeatureGroupDataType getOptimalGroupDataType(final List<Feature> features)
+    {
+        FeatureGroupDataType commonType = null;
+        for (Feature f : features)
+        {
+            if (commonType == null)
+            {
+                commonType = f.getType().getOptimalGroupType();
+            } else
+            {
+                if (commonType != f.getType().getOptimalGroupType())
+                {
+                    commonType = FeatureGroupDataType.COMPOUND;
+                }
+            }
+        }
+        return commonType == null ? FeatureGroupDataType.COMPOUND : commonType;
     }
 
     class NamespaceFeatureGroup extends FeatureGroup
@@ -392,7 +420,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                     reader.compound().getNamedType(getFeatureGroupTypePath(fgd.getId()),
                             Object[].class, hintsOrNull);
             result.put(fgd.getId().toUpperCase(), new FeatureGroup(fgd.getId(),
-                    getObjectNamespace(fgd.getNamespaceId()), type));
+                    getObjectNamespace(fgd.getNamespaceId()), type, fgd.dataType));
         }
         return result;
     }
