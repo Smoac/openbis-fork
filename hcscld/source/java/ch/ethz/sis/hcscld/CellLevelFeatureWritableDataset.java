@@ -195,7 +195,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
 
     IFeatureGroup addFeatureGroup(final String id, final IFeaturesDefinition features)
     {
-        if (id.equals(DEFAULT_FEATURE_GROUP_NAME))
+        if (id.equalsIgnoreCase(DEFAULT_FEATURE_GROUP_NAME))
         {
             throw new IllegalArgumentException("Feature group name '" + DEFAULT_FEATURE_GROUP_NAME
                     + "' is reserved.");
