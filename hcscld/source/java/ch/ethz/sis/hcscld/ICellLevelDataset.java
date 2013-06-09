@@ -38,7 +38,7 @@ public interface ICellLevelDataset
      * Returns the date (including time) of creation of this dataset.
      */
     public Date getCreationDate();
-    
+
     /**
      * Returns the image quantity structure (number of wells, fields and length of sequence).
      */
@@ -76,7 +76,7 @@ public interface ICellLevelDataset
      *             {@link CellLevelDatasetType#SEGMENTATION}.
      */
     public ICellLevelSegmentationDataset toSegmentationDataset() throws WrongDatasetTypeException;
-    
+
     public ICellLevelTrackingDataset toTrackingDataset() throws WrongDatasetTypeException;
 
     /**
@@ -95,6 +95,9 @@ public interface ICellLevelDataset
 
     /**
      * Returns all object types defined for this dataset.
+     * <p>
+     * <i>Note that the returned collection may be empty if no object types have been defined for
+     * this data set.</i>
      */
     public Collection<ObjectType> getObjectTypes();
 
@@ -149,7 +152,7 @@ public interface ICellLevelDataset
      * Returns the plate barcode.
      * 
      * @return The plate barcode, or <code>null</code>, if no plate barcode has been set for this
-     *          dataset.
+     *         dataset.
      */
     public String tryGetPlateBarcode();
 
@@ -157,7 +160,7 @@ public interface ICellLevelDataset
      * Returns the dataset code of the parent dataset.
      * 
      * @return The dataset code of the parent dataset, or <code>null</code>, if no parent dataset
-     *          code has been set for this dataset.
+     *         code has been set for this dataset.
      */
     public String tryGetParentDatasetCode();
 
