@@ -578,6 +578,19 @@ public class FeatureDatasetRoundtripTest
                 assertEquals((float) Math.pow(10.0, i), clf.getValues()[i][2]);
             }
         }
+        assertTrue(Arrays.equals(new Object[]
+            { 1f, 0.2f, 1f }, ds.getValues(new ImageId(1, 2, 3), 0)));
+        assertTrue(Arrays.equals(new Object[]
+            { 2f, 1.2f, 10f }, ds.getValues(new ImageId(1, 2, 3), 1)));
+        assertTrue(Arrays.equals(new Object[]
+            { 3f, 2.2f, 100f }, ds.getValues(new ImageId(1, 2, 3), 2)));
+        assertTrue(Arrays.equals(
+                new Object[]
+                    { 10f, 9.2f, 1e9f },
+                ds.getValues(
+                        new ImageId(1, 2, 3),
+                        ds.getNumberOfSegmentedObjects(new ImageId(1, 2, 3),
+                                ds.getObjectNamespace("MAIN")) - 1)));
         reader.close();
     }
 
