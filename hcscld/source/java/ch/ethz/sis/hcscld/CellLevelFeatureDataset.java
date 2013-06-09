@@ -475,7 +475,8 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         final FeatureGroup featureGroup = featureGroups.values().iterator().next();
         final String objectPath = featureGroup.getObjectPath(imageId);
         final HDF5DataSetInformation info = reader.object().getDataSetInformation(objectPath);
-        // Bitfields are stored the other way round: 1. dimension is features, 2. dimensions is objects.
+        // Bitfields are stored the other way round: 1. dimension is features, 2. dimensions is
+        // objects.
         final long numberOfObjects =
                 (info.getTypeInformation().getDataClass() == HDF5DataClass.BITFIELD) ? info
                         .getDimensions()[1] : info.getDimensions()[0];
@@ -571,6 +572,406 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                         ((FeatureGroup) featureGroup).getObjectPath(id),
                         ((FeatureGroup) featureGroup).getType(), 1, cellId)[0];
             }
+        }
+    }
+
+    @Override
+    public MDFloatArray getFloatValues(ImageId id, IFeatureGroup featureGroup)
+    {
+        if (featureGroup.getDataType() != FeatureGroupDataType.FLOAT32)
+        {
+            throw new IllegalArgumentException("Feature Group " + featureGroup.getId()
+                    + " is of storage data type " + featureGroup.getDataType());
+        }
+        return reader.float32().readMDArray(((FeatureGroup) featureGroup).getObjectPath(id));
+    }
+
+    @Override
+    public MDByteArray getByteValues(ImageId id, IFeatureGroup featureGroup)
+    {
+        if (featureGroup.getDataType() != FeatureGroupDataType.INT8)
+        {
+            throw new IllegalArgumentException("Feature Group " + featureGroup.getId()
+                    + " is of storage data type " + featureGroup.getDataType());
+        }
+        return reader.int8().readMDArray(((FeatureGroup) featureGroup).getObjectPath(id));
+    }
+
+    @Override
+    public MDShortArray getShortValues(ImageId id, IFeatureGroup featureGroup)
+    {
+        if (featureGroup.getDataType() != FeatureGroupDataType.INT16)
+        {
+            throw new IllegalArgumentException("Feature Group " + featureGroup.getId()
+                    + " is of storage data type " + featureGroup.getDataType());
+        }
+        return reader.int16().readMDArray(((FeatureGroup) featureGroup).getObjectPath(id));
+    }
+
+    @Override
+    public MDIntArray getIntValues(ImageId id, IFeatureGroup featureGroup)
+    {
+        if (featureGroup.getDataType() != FeatureGroupDataType.INT32)
+        {
+            throw new IllegalArgumentException("Feature Group " + featureGroup.getId()
+                    + " is of storage data type " + featureGroup.getDataType());
+        }
+        return reader.int32().readMDArray(((FeatureGroup) featureGroup).getObjectPath(id));
+    }
+
+    @Override
+    public MDLongArray getLongValues(ImageId id, IFeatureGroup featureGroup)
+    {
+        if (featureGroup.getDataType() != FeatureGroupDataType.INT64)
+        {
+            throw new IllegalArgumentException("Feature Group " + featureGroup.getId()
+                    + " is of storage data type " + featureGroup.getDataType());
+        }
+        return reader.int64().readMDArray(((FeatureGroup) featureGroup).getObjectPath(id));
+    }
+
+    @Override
+    public MDDoubleArray getDoubleValues(ImageId id, IFeatureGroup featureGroup)
+    {
+        if (featureGroup.getDataType() != FeatureGroupDataType.FLOAT64)
+        {
+            throw new IllegalArgumentException("Feature Group " + featureGroup.getId()
+                    + " is of storage data type " + featureGroup.getDataType());
+        }
+        return reader.float64().readMDArray(((FeatureGroup) featureGroup).getObjectPath(id));
+    }
+
+    @Override
+    public BitSet[] getBoolValues(ImageId id, IFeatureGroup featureGroup)
+    {
+        if (featureGroup.getDataType() != FeatureGroupDataType.BOOL)
+        {
+            throw new IllegalArgumentException("Feature Group " + featureGroup.getId()
+                    + " is of storage data type " + featureGroup.getDataType());
+        }
+        return reader.bool().readBitFieldArray(((FeatureGroup) featureGroup).getObjectPath(id));
+    }
+
+    @Override
+    public HDF5EnumerationValueMDArray getEnumValues(ImageId id, IFeatureGroup featureGroup)
+    {
+        if (featureGroup.getDataType() != FeatureGroupDataType.ENUM)
+        {
+            throw new IllegalArgumentException("Feature Group " + featureGroup.getId()
+                    + " is of storage data type " + featureGroup.getDataType());
+        }
+        return reader.enumeration().readMDArray(((FeatureGroup) featureGroup).getObjectPath(id));
+    }
+
+    @Override
+    public MDByteArray getByteValues(ImageId id, ObjectNamespace namespace)
+    {
+        MDByteArray result = null;
+        int featureOffset = 0;
+        final int numberOfFeatures = totalNumberOfFeatures.get(namespace);
+        for (FeatureGroup fg : featureGroups.values())
+        {
+            if (namespace.equals(fg.getNamespace()) == false)
+            {
+                continue;
+            }
+            final int numberOfFeaturesInGroup = fg.getNumberOfFeatures();
+            if (fg.hasWellFieldValues(id) == false)
+            {
+                featureOffset += numberOfFeaturesInGroup;
+                continue;
+            }
+            final MDByteArray groupValues = getByteValues(id, fg);
+            if (result == null)
+            {
+                result = new MDByteArray(new int[]
+                    { groupValues.size(0), numberOfFeatures });
+                if (result.size() == 0)
+                {
+                    break;
+                }
+            }
+            for (int i = 0; i < result.size(0); ++i)
+            {
+                System.arraycopy(groupValues.getAsFlatArray(), groupValues.computeIndex(i, 0),
+                        result.getAsFlatArray(), result.computeIndex(i, featureOffset),
+                        numberOfFeaturesInGroup);
+            }
+            featureOffset += numberOfFeaturesInGroup;
+        }
+        return result;
+    }
+
+    @Override
+    public MDShortArray getShortValues(ImageId id, ObjectNamespace namespace)
+    {
+        MDShortArray result = null;
+        int featureOffset = 0;
+        final int numberOfFeatures = totalNumberOfFeatures.get(namespace);
+        for (FeatureGroup fg : featureGroups.values())
+        {
+            if (namespace.equals(fg.getNamespace()) == false)
+            {
+                continue;
+            }
+            final int numberOfFeaturesInGroup = fg.getNumberOfFeatures();
+            if (fg.hasWellFieldValues(id) == false)
+            {
+                featureOffset += numberOfFeaturesInGroup;
+                continue;
+            }
+            final MDShortArray groupValues = getShortValues(id, fg);
+            if (result == null)
+            {
+                result = new MDShortArray(new int[]
+                    { groupValues.size(0), numberOfFeatures });
+                if (result.size() == 0)
+                {
+                    break;
+                }
+            }
+            for (int i = 0; i < result.size(0); ++i)
+            {
+                System.arraycopy(groupValues.getAsFlatArray(), groupValues.computeIndex(i, 0),
+                        result.getAsFlatArray(), result.computeIndex(i, featureOffset),
+                        numberOfFeaturesInGroup);
+            }
+            featureOffset += numberOfFeaturesInGroup;
+        }
+        return result;
+    }
+
+    @Override
+    public MDIntArray getIntValues(ImageId id, ObjectNamespace namespace)
+    {
+        MDIntArray result = null;
+        int featureOffset = 0;
+        final int numberOfFeatures = totalNumberOfFeatures.get(namespace);
+        for (FeatureGroup fg : featureGroups.values())
+        {
+            if (namespace.equals(fg.getNamespace()) == false)
+            {
+                continue;
+            }
+            final int numberOfFeaturesInGroup = fg.getNumberOfFeatures();
+            if (fg.hasWellFieldValues(id) == false)
+            {
+                featureOffset += numberOfFeaturesInGroup;
+                continue;
+            }
+            final MDIntArray groupValues = getIntValues(id, fg);
+            if (result == null)
+            {
+                result = new MDIntArray(new int[]
+                    { groupValues.size(0), numberOfFeatures });
+                if (result.size() == 0)
+                {
+                    break;
+                }
+            }
+            for (int i = 0; i < result.size(0); ++i)
+            {
+                System.arraycopy(groupValues.getAsFlatArray(), groupValues.computeIndex(i, 0),
+                        result.getAsFlatArray(), result.computeIndex(i, featureOffset),
+                        numberOfFeaturesInGroup);
+            }
+            featureOffset += numberOfFeaturesInGroup;
+        }
+        return result;
+    }
+
+    @Override
+    public MDLongArray getLongValues(ImageId id, ObjectNamespace namespace)
+    {
+        MDLongArray result = null;
+        int featureOffset = 0;
+        final int numberOfFeatures = totalNumberOfFeatures.get(namespace);
+        for (FeatureGroup fg : featureGroups.values())
+        {
+            if (namespace.equals(fg.getNamespace()) == false)
+            {
+                continue;
+            }
+            final int numberOfFeaturesInGroup = fg.getNumberOfFeatures();
+            if (fg.hasWellFieldValues(id) == false)
+            {
+                featureOffset += numberOfFeaturesInGroup;
+                continue;
+            }
+            final MDLongArray groupValues = getLongValues(id, fg);
+            if (result == null)
+            {
+                result = new MDLongArray(new int[]
+                    { groupValues.size(0), numberOfFeatures });
+                if (result.size() == 0)
+                {
+                    break;
+                }
+            }
+            for (int i = 0; i < result.size(0); ++i)
+            {
+                System.arraycopy(groupValues.getAsFlatArray(), groupValues.computeIndex(i, 0),
+                        result.getAsFlatArray(), result.computeIndex(i, featureOffset),
+                        numberOfFeaturesInGroup);
+            }
+            featureOffset += numberOfFeaturesInGroup;
+        }
+        return result;
+    }
+
+    @Override
+    public MDFloatArray getFloatValues(ImageId id, ObjectNamespace namespace)
+    {
+        MDFloatArray result = null;
+        int featureOffset = 0;
+        final int numberOfFeatures = totalNumberOfFeatures.get(namespace);
+        for (FeatureGroup fg : featureGroups.values())
+        {
+            if (namespace.equals(fg.getNamespace()) == false)
+            {
+                continue;
+            }
+            final int numberOfFeaturesInGroup = fg.getNumberOfFeatures();
+            if (fg.hasWellFieldValues(id) == false)
+            {
+                featureOffset += numberOfFeaturesInGroup;
+                continue;
+            }
+            final MDFloatArray groupValues = getFloatValues(id, fg);
+            if (result == null)
+            {
+                result = new MDFloatArray(new int[]
+                    { groupValues.size(0), numberOfFeatures });
+                if (result.size() == 0)
+                {
+                    break;
+                }
+            }
+            for (int i = 0; i < result.size(0); ++i)
+            {
+                System.arraycopy(groupValues.getAsFlatArray(), groupValues.computeIndex(i, 0),
+                        result.getAsFlatArray(), result.computeIndex(i, featureOffset),
+                        numberOfFeaturesInGroup);
+            }
+            featureOffset += numberOfFeaturesInGroup;
+        }
+        return result;
+    }
+
+    @Override
+    public MDDoubleArray getDoubleValues(ImageId id, ObjectNamespace namespace)
+    {
+        MDDoubleArray result = null;
+        int featureOffset = 0;
+        final int numberOfFeatures = totalNumberOfFeatures.get(namespace);
+        for (FeatureGroup fg : featureGroups.values())
+        {
+            if (namespace.equals(fg.getNamespace()) == false)
+            {
+                continue;
+            }
+            final int numberOfFeaturesInGroup = fg.getNumberOfFeatures();
+            if (fg.hasWellFieldValues(id) == false)
+            {
+                featureOffset += numberOfFeaturesInGroup;
+                continue;
+            }
+            final MDDoubleArray groupValues = getDoubleValues(id, fg);
+            if (result == null)
+            {
+                result = new MDDoubleArray(new int[]
+                    { groupValues.size(0), numberOfFeatures });
+                if (result.size() == 0)
+                {
+                    break;
+                }
+            }
+            for (int i = 0; i < result.size(0); ++i)
+            {
+                System.arraycopy(groupValues.getAsFlatArray(), groupValues.computeIndex(i, 0),
+                        result.getAsFlatArray(), result.computeIndex(i, featureOffset),
+                        numberOfFeaturesInGroup);
+            }
+            featureOffset += numberOfFeaturesInGroup;
+        }
+        return result;
+    }
+
+    @Override
+    public MDByteArray getByteValues(ImageId id)
+    {
+        final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
+        if (namespaceOrNull == null)
+        {
+            return new MDByteArray(new int[2]);
+        } else
+        {
+            return getByteValues(id, namespaceOrNull);
+        }
+    }
+
+    @Override
+    public MDShortArray getShortValues(ImageId id)
+    {
+        final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
+        if (namespaceOrNull == null)
+        {
+            return new MDShortArray(new int[2]);
+        } else
+        {
+            return getShortValues(id, namespaceOrNull);
+        }
+    }
+
+    @Override
+    public MDIntArray getIntValues(ImageId id)
+    {
+        final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
+        if (namespaceOrNull == null)
+        {
+            return new MDIntArray(new int[2]);
+        } else
+        {
+            return getIntValues(id, namespaceOrNull);
+        }
+    }
+
+    @Override
+    public MDLongArray getLongValues(ImageId id)
+    {
+        final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
+        if (namespaceOrNull == null)
+        {
+            return new MDLongArray(new int[2]);
+        } else
+        {
+            return getLongValues(id, namespaceOrNull);
+        }
+    }
+
+    @Override
+    public MDFloatArray getFloatValues(ImageId id)
+    {
+        final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
+        if (namespaceOrNull == null)
+        {
+            return new MDFloatArray(new int[2]);
+        } else
+        {
+            return getFloatValues(id, namespaceOrNull);
+        }
+    }
+
+    @Override
+    public MDDoubleArray getDoubleValues(ImageId id)
+    {
+        final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
+        if (namespaceOrNull == null)
+        {
+            return new MDDoubleArray(new int[2]);
+        } else
+        {
+            return getDoubleValues(id, namespaceOrNull);
         }
     }
 

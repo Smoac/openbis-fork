@@ -16,7 +16,16 @@
 
 package ch.ethz.sis.hcscld;
 
+import java.util.BitSet;
 import java.util.List;
+
+import ch.systemsx.cisd.base.mdarray.MDByteArray;
+import ch.systemsx.cisd.base.mdarray.MDDoubleArray;
+import ch.systemsx.cisd.base.mdarray.MDFloatArray;
+import ch.systemsx.cisd.base.mdarray.MDIntArray;
+import ch.systemsx.cisd.base.mdarray.MDLongArray;
+import ch.systemsx.cisd.base.mdarray.MDShortArray;
+import ch.systemsx.cisd.hdf5.HDF5EnumerationValueMDArray;
 
 /**
  * An interface for feature datasets on the cell level.
@@ -41,7 +50,7 @@ public interface ICellLevelFeatureDataset extends ICellLevelDataset
      * Returns the number of segmented objects for the given image and object namespace.
      */
     public int getNumberOfSegmentedObjects(ImageId imageId, ObjectNamespace namespace);
-    
+
     /**
      * Returns all feature values for the given <var>cellId</var> of field <var>id</var>.
      */
@@ -118,4 +127,164 @@ public interface ICellLevelFeatureDataset extends ICellLevelDataset
      */
     public Iterable<CellLevelFeatures> getValues(IFeatureGroup featureGroup);
 
+    /**
+     * Returns the feature values as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If the <var>featureGroup</var> is not of storage data type
+     *             <code>INT8</code>.
+     */
+    public MDByteArray getByteValues(ImageId id, IFeatureGroup featureGroup);
+
+    /**
+     * Returns the feature values as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If the <var>featureGroup</var> is not of storage data type
+     *             <code>INT16</code>.
+     */
+    public MDShortArray getShortValues(ImageId id, IFeatureGroup featureGroup);
+
+    /**
+     * Returns the feature values as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If the <var>featureGroup</var> is not of storage data type
+     *             <code>INT32</code>.
+     */
+    public MDIntArray getIntValues(ImageId id, IFeatureGroup featureGroup);
+
+    /**
+     * Returns the feature values as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If the <var>featureGroup</var> is not of storage data type
+     *             <code>INT64</code>.
+     */
+    public MDLongArray getLongValues(ImageId id, IFeatureGroup featureGroup);
+
+    /**
+     * Returns the feature values as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If the <var>featureGroup</var> is not of storage data type
+     *             <code>FLOAT32</code>.
+     */
+    public MDFloatArray getFloatValues(ImageId id, IFeatureGroup featureGroup);
+
+    /**
+     * Returns the feature values as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If the <var>featureGroup</var> is not of storage data type
+     *             <code>FLOAT64</code>.
+     */
+    public MDDoubleArray getDoubleValues(ImageId id, IFeatureGroup featureGroup);
+
+    /**
+     * Returns the feature values as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If the <var>featureGroup</var> is not of storage data type
+     *             <code>BOOL</code>.
+     */
+    public BitSet[] getBoolValues(ImageId id, IFeatureGroup featureGroup);
+
+    /**
+     * Returns the feature values as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If the <var>featureGroup</var> is not of storage data type
+     *             <code>ENUM</code>.
+     */
+    public HDF5EnumerationValueMDArray getEnumValues(ImageId id, IFeatureGroup featureGroup);
+
+    /**
+     * Returns the feature values of all feature groups of the <var>namespace</var> as an array of
+     * primitive values.
+     * 
+     * @throws IllegalArgumentException If one of the feature groups is not of storage data type
+     *             <code>INT8</code>.
+     */
+    public MDByteArray getByteValues(ImageId id, ObjectNamespace namespace);
+
+    /**
+     * Returns the feature values of all feature groups of the <var>namespace</var> as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If one of the feature groups is not of storage data type
+     *             <code>INT16</code>.
+     */
+    public MDShortArray getShortValues(ImageId id, ObjectNamespace namespace);
+
+    /**
+     * Returns the feature values of all feature groups of the <var>namespace</var> as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If one of the feature groups is not of storage data type
+     *             <code>INT32</code>.
+     */
+    public MDIntArray getIntValues(ImageId id, ObjectNamespace namespace);
+
+    /**
+     * Returns the feature values of all feature groups of the <var>namespace</var> as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If one of the feature groups is not of storage data type
+     *             <code>INT64</code>.
+     */
+    public MDLongArray getLongValues(ImageId id, ObjectNamespace namespace);
+
+    /**
+     * Returns the feature values of all feature groups of the <var>namespace</var> as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If one of the feature groups is not of storage data type
+     *             <code>FLOAT32</code>.
+     */
+    public MDFloatArray getFloatValues(ImageId id, ObjectNamespace namespace);
+
+    /**
+     * Returns the feature values of all feature groups of the <var>namespace</var> as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If one of the feature groups is not of storage data type
+     *             <code>FLOAT64</code>.
+     */
+    public MDDoubleArray getDoubleValues(ImageId id, ObjectNamespace namespace);
+
+    /**
+     * Returns the feature values of all feature groups as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If one of the feature groups is not of storage data type
+     *             <code>INT8</code>.
+     */
+    public MDByteArray getByteValues(ImageId id);
+
+    /**
+     * Returns the feature values of all feature groups as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If one of the feature groups is not of storage data type
+     *             <code>INT16</code>.
+     */
+    public MDShortArray getShortValues(ImageId id);
+
+    /**
+     * Returns the feature values of all feature groups as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If one of the feature groups is not of storage data type
+     *             <code>INT32</code>.
+     */
+    public MDIntArray getIntValues(ImageId id);
+
+    /**
+     * Returns the feature values of all feature groups as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If one of the feature groups is not of storage data type
+     *             <code>INT64</code>.
+     */
+    public MDLongArray getLongValues(ImageId id);
+
+    /**
+     * Returns the feature values of all feature groups as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If one of the feature groups is not of storage data type
+     *             <code>FLOAT32</code>.
+     */
+    public MDFloatArray getFloatValues(ImageId id);
+
+    /**
+     * Returns the feature values of all feature groups as an array of primitive values.
+     * 
+     * @throws IllegalArgumentException If one of the feature groups is not of storage data type
+     *             <code>FLOAT64</code>.
+     */
+    public MDDoubleArray getDoubleValues(ImageId id);
 }

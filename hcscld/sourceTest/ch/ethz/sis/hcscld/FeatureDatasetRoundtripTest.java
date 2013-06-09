@@ -163,6 +163,30 @@ public class FeatureDatasetRoundtripTest
         writer.close();
     }
 
+    private void createTwoFeatureFloat32GroupsSameNamespaceDataset(File file, String dsCode)
+    {
+        ICellLevelDataWriter writer = CellLevelDataFactory.open(file);
+        ICellLevelFeatureWritableDataset wds =
+                writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
+        ObjectNamespace namespace = wds.addObjectNamespace("cell");
+        IFeatureGroup fg1 =
+                wds.createFeaturesDefinition(namespace).addFloat32Feature("one")
+                        .addFloat32Feature("two")
+                        .addFloat32Feature("three")
+                        .createFeatureGroup("One");
+        IFeatureGroup fg2 =
+                wds.createFeaturesDefinition(namespace).addFloat32Feature("four")
+                .addFloat32Feature("five")
+                .addFloat32Feature("six")
+                .createFeatureGroup("Two");
+        for (ImageId id : wds.getImageQuantityStructure())
+        {
+            wds.writeFeatures(id, fg1, createFloat32OneValues(id));
+            wds.writeFeatures(id, fg2, createFloat32TwoValues(id));
+        }
+        writer.close();
+    }
+
     private void createMainInt32FeatureGroupDataset(File file, String dsCode, ImageId idOrNull)
     {
         ICellLevelDataWriter writer = CellLevelDataFactory.open(file);
@@ -328,6 +352,38 @@ public class FeatureDatasetRoundtripTest
                 { id.getRow() + 7, 7 + id.getColumn() / 10f, 1e7f },
                 { id.getRow() + 8, 8 + id.getColumn() / 10f, 1e8f },
                 { id.getRow() + 9, 9 + id.getColumn() / 10f, 1e9f } };
+    }
+
+    private Object[][] createFloat32OneValues(ImageId id)
+    {
+        return new Object[][]
+            {
+                { id.getRow(), 0 + id.getColumn() / 10f, 1e0f },
+                { id.getRow() + 1, 1 + id.getColumn() / 10f, 1e1f },
+                { id.getRow() + 2, 2 + id.getColumn() / 10f, 1e2f },
+                { id.getRow() + 3, 3 + id.getColumn() / 10f, 1e3f },
+                { id.getRow() + 4, 4 + id.getColumn() / 10f, 1e4f },
+                { id.getRow() + 5, 5 + id.getColumn() / 10f, 1e5f },
+                { id.getRow() + 6, 6 + id.getColumn() / 10f, 1e6f },
+                { id.getRow() + 7, 7 + id.getColumn() / 10f, 1e7f },
+                { id.getRow() + 8, 8 + id.getColumn() / 10f, 1e8f },
+                { id.getRow() + 9, 9 + id.getColumn() / 10f, 1e9f } };
+    }
+
+    private Object[][] createFloat32TwoValues(ImageId id)
+    {
+        return new Object[][]
+            {
+                { 2 * id.getRow(), 0 + id.getColumn() / 10f, 2e0f },
+                { 2 * id.getRow() + 1, 1 + id.getColumn() / 10f, 2e1f },
+                { 2 * id.getRow() + 2, 2 + id.getColumn() / 10f, 2e2f },
+                { 2 * id.getRow() + 3, 3 + id.getColumn() / 10f, 2e3f },
+                { 2 * id.getRow() + 4, 4 + id.getColumn() / 10f, 2e4f },
+                { 2 * id.getRow() + 5, 5 + id.getColumn() / 10f, 2e5f },
+                { 2 * id.getRow() + 6, 6 + id.getColumn() / 10f, 2e6f },
+                { 2 * id.getRow() + 7, 7 + id.getColumn() / 10f, 2e7f },
+                { 2 * id.getRow() + 8, 8 + id.getColumn() / 10f, 2e8f },
+                { 2 * id.getRow() + 9, 9 + id.getColumn() / 10f, 2e9f } };
     }
 
     private Object[][] createStandardInt32Value(ImageId id)
@@ -578,6 +634,14 @@ public class FeatureDatasetRoundtripTest
                 assertEquals((float) Math.pow(10.0, i), clf.getValues()[i][2]);
             }
         }
+        final float[][] vals = ds.getFloatValues(new ImageId(1, 2, 3), ds.getFeatureGroup("MAIN")).toMatrix();
+        for (int i = 0; i < vals.length; ++i)
+        {
+            assertEquals(3, vals[i].length);
+            assertEquals((float) (1 + i), vals[i][0]);
+            assertEquals(i + 2 / 10f, vals[i][1]);
+            assertEquals((float) Math.pow(10.0, i), vals[i][2]);
+        }
         assertTrue(Arrays.equals(new Object[]
             { 1f, 0.2f, 1f }, ds.getValues(new ImageId(1, 2, 3), 0)));
         assertTrue(Arrays.equals(new Object[]
@@ -591,6 +655,31 @@ public class FeatureDatasetRoundtripTest
                         new ImageId(1, 2, 3),
                         ds.getNumberOfSegmentedObjects(new ImageId(1, 2, 3),
                                 ds.getObjectNamespace("MAIN")) - 1)));
+        reader.close();
+    }
+
+    @Test
+    public void testFloat32TwoFeatureGroups()
+    {
+        final String dsCode = "123";
+        final File f = new File(workingDirectory, "float32TwoFeatureGroups.cld");
+        f.delete();
+        f.deleteOnExit();
+        createTwoFeatureFloat32GroupsSameNamespaceDataset(f, dsCode);
+        final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
+        final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
+        assertTrue(System.currentTimeMillis() - ds.getCreationDate().getTime() < 100);
+        final float[][] vals = ds.getFloatValues(new ImageId(1, 2, 3), ds.getObjectNamespace("CELL")).toMatrix();
+        for (int i = 0; i < vals.length; ++i)
+        {
+            assertEquals(6, vals[i].length);
+            assertEquals((float) (1 + i), vals[i][0]);
+            assertEquals(i + 2 / 10f, vals[i][1]);
+            assertEquals((float) Math.pow(10.0, i), vals[i][2]);
+            assertEquals((float) (2 + i), vals[i][3]);
+            assertEquals(i + 2 / 10f, vals[i][4]);
+            assertEquals((float) (2f*Math.pow(10.0, i)), vals[i][5]);
+        }
         reader.close();
     }
 
