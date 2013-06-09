@@ -51,6 +51,12 @@ public interface IFeatureGroup extends Iterable<ImageId>
     public List<Feature> getFeatures();
 
     /**
+     * Return the index of <var>featureName</var>, or -1, if this feature group has no feature of
+     * this name.
+     */
+    public int getFeatureIndex(String featureName);
+
+    /**
      * Returns the namespace that has been used to compute the features of this feature group.
      */
     public ObjectNamespace getNamespace();

@@ -156,6 +156,8 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         private final List<Feature> features;
 
         private final List<String> featureNames;
+        
+        private final Map<String, Integer> featureIndices;
 
         private final FeatureGroupDataType groupDataType;
 
@@ -195,6 +197,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                     }
                 }
             }
+            this.featureIndices = computeFeatureIndices(featureNames);
             this.groupDataType = (dataType == null) ? FeatureGroupDataType.COMPOUND : dataType;
         }
 
@@ -222,9 +225,21 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                 memberNameArray[i] = members.get(i).getName();
             }
             this.featureNames = Arrays.asList(memberNameArray);
+            this.featureIndices = computeFeatureIndices(featureNames);
             this.groupDataType =
                     (groupDataTypeOrNull == null) ? getOptimalGroupDataType(features)
                             : groupDataTypeOrNull;
+        }
+
+        private Map<String, Integer> computeFeatureIndices(final List<String> names)
+        {
+            final Map<String, Integer> map = new HashMap<String, Integer>(names.size());
+            int idx = 0;
+            for (String featureName : names)
+            {
+                map.put(featureName, idx++);
+            }
+            return map;
         }
 
         @Override
@@ -320,6 +335,13 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                 }
                 return eType;
             }
+        }
+
+        @Override
+        public int getFeatureIndex(String featureName)
+        {
+            final Integer idx = featureIndices.get(featureName);
+            return (idx == null) ? -1 : idx;
         }
     }
 

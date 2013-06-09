@@ -816,6 +816,10 @@ public class FeatureDatasetRoundtripTest
             assertEquals(FeatureGroupDataType.BOOL, clf.getFeatureGroup().getDataType());
             assertEquals("All", clf.getFeatureGroup().getId());
             assertEquals(Arrays.asList("a", "b", "c"), clf.getFeatureGroup().getFeatureNames());
+            assertEquals(0, clf.getFeatureGroup().getFeatureIndex("a"));
+            assertEquals(1, clf.getFeatureGroup().getFeatureIndex("b"));
+            assertEquals(2, clf.getFeatureGroup().getFeatureIndex("c"));
+            assertEquals(-1, clf.getFeatureGroup().getFeatureIndex("d"));
             assertEquals(4, clf.getValues().length);
             assertTrue(Arrays.equals(clf.getValues()[0], new Object[]
                 { true, true, true }));
