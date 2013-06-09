@@ -41,6 +41,8 @@ import ch.systemsx.cisd.hdf5.CompoundType;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMemberInformation;
 import ch.systemsx.cisd.hdf5.HDF5CompoundType;
+import ch.systemsx.cisd.hdf5.HDF5DataClass;
+import ch.systemsx.cisd.hdf5.HDF5DataSetInformation;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationValue;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationValueMDArray;
@@ -464,11 +466,112 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
     }
 
     @Override
+    public int getNumberOfSegmentedObjects(ImageId imageId, ObjectNamespace namespace)
+    {
+        if (featureGroups.isEmpty())
+        {
+            return 0;
+        }
+        final FeatureGroup featureGroup = featureGroups.values().iterator().next();
+        final String objectPath = featureGroup.getObjectPath(imageId);
+        final HDF5DataSetInformation info = reader.object().getDataSetInformation(objectPath);
+        // Bitfields are stored the other way round: 1. dimension is features, 2. dimensions is objects.
+        final long numberOfObjects =
+                (info.getTypeInformation().getDataClass() == HDF5DataClass.BITFIELD) ? info
+                        .getDimensions()[1] : info.getDimensions()[0];
+        final int numberOfObjectsInt = (int) numberOfObjects;
+        if (numberOfObjects != numberOfObjectsInt)
+        {
+            throw new IllegalStateException(
+                    "Number of segmented objects needs to be a int32 value, but is "
+                            + numberOfObjects);
+        }
+        return numberOfObjectsInt;
+    }
+
+    @Override
     public Object[] getValues(ImageId id, IFeatureGroup featureGroup, int cellId)
     {
-        return reader.compound().readArrayBlockWithOffset(
-                ((FeatureGroup) featureGroup).getObjectPath(id),
-                ((FeatureGroup) featureGroup).getType(), 1, cellId)[0];
+        switch (featureGroup.getDataType())
+        {
+            case BOOL:
+            {
+                final BitSet[] array =
+                        reader.bool().readBitFieldArrayBlockWithOffset(
+                                ((FeatureGroup) featureGroup).getObjectPath(id), 1, cellId);
+                return toObjectArray(array, featureGroup.getNumberOfFeatures())[0];
+            }
+            case INT8:
+            {
+                final MDByteArray array =
+                        reader.int8().readMDArrayBlockWithOffset(
+                                ((FeatureGroup) featureGroup).getObjectPath(id), new int[]
+                                    { 1, featureGroup.getNumberOfFeatures() }, new long[]
+                                    { cellId, 0 });
+                return toObjectArray(array)[0];
+            }
+            case INT16:
+            {
+                final MDShortArray array =
+                        reader.int16().readMDArrayBlockWithOffset(
+                                ((FeatureGroup) featureGroup).getObjectPath(id), new int[]
+                                    { 1, featureGroup.getNumberOfFeatures() }, new long[]
+                                    { cellId, 0 });
+                return toObjectArray(array)[0];
+            }
+            case INT32:
+            {
+                final MDIntArray array =
+                        reader.int32().readMDArrayBlockWithOffset(
+                                ((FeatureGroup) featureGroup).getObjectPath(id), new int[]
+                                    { 1, featureGroup.getNumberOfFeatures() }, new long[]
+                                    { cellId, 0 });
+                return toObjectArray(array)[0];
+            }
+            case INT64:
+            {
+                final MDLongArray array =
+                        reader.int64().readMDArrayBlockWithOffset(
+                                ((FeatureGroup) featureGroup).getObjectPath(id), new int[]
+                                    { 1, featureGroup.getNumberOfFeatures() }, new long[]
+                                    { cellId, 0 });
+                return toObjectArray(array)[0];
+            }
+            case FLOAT32:
+            {
+                final MDFloatArray array =
+                        reader.float32().readMDArrayBlockWithOffset(
+                                ((FeatureGroup) featureGroup).getObjectPath(id), new int[]
+                                    { 1, featureGroup.getNumberOfFeatures() }, new long[]
+                                    { cellId, 0 });
+                return toObjectArray(array)[0];
+            }
+            case FLOAT64:
+            {
+                final MDDoubleArray array =
+                        reader.float64().readMDArrayBlockWithOffset(
+                                ((FeatureGroup) featureGroup).getObjectPath(id), new int[]
+                                    { 1, featureGroup.getNumberOfFeatures() }, new long[]
+                                    { cellId, 0 });
+                return toObjectArray(array)[0];
+            }
+            case ENUM:
+            {
+                final HDF5EnumerationValueMDArray array =
+                        reader.enumeration().readMDArrayBlockWithOffset(
+                                ((FeatureGroup) featureGroup).getObjectPath(id), new int[]
+                                    { 1, featureGroup.getNumberOfFeatures() }, new long[]
+                                    { cellId, 0 });
+                return toObjectArray(array)[0];
+            }
+            case COMPOUND:
+            default:
+            {
+                return reader.compound().readArrayBlockWithOffset(
+                        ((FeatureGroup) featureGroup).getObjectPath(id),
+                        ((FeatureGroup) featureGroup).getType(), 1, cellId)[0];
+            }
+        }
     }
 
     @Override
@@ -481,36 +584,31 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                 final BitSet[] array =
                         reader.bool().readBitFieldArray(
                                 ((FeatureGroup) featureGroup).getObjectPath(id));
-                return toObjectArray(array);
-
+                return toObjectArray(array, featureGroup.getNumberOfFeatures());
             }
             case INT8:
             {
                 final MDByteArray array =
                         reader.int8().readMDArray(((FeatureGroup) featureGroup).getObjectPath(id));
                 return toObjectArray(array);
-
             }
             case INT16:
             {
                 final MDShortArray array =
                         reader.int16().readMDArray(((FeatureGroup) featureGroup).getObjectPath(id));
                 return toObjectArray(array);
-
             }
             case INT32:
             {
                 final MDIntArray array =
                         reader.int32().readMDArray(((FeatureGroup) featureGroup).getObjectPath(id));
                 return toObjectArray(array);
-
             }
             case INT64:
             {
                 final MDLongArray array =
                         reader.int64().readMDArray(((FeatureGroup) featureGroup).getObjectPath(id));
                 return toObjectArray(array);
-
             }
             case FLOAT32:
             {
@@ -582,10 +680,9 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         return result;
     }
 
-    private Object[][] toObjectArray(BitSet[] array)
+    private Object[][] toObjectArray(BitSet[] array, int dimFeatures)
     {
         final int dimObjects = array.length;
-        final int dimFeatures = (dimObjects > 0) ? array[0].length() : 0;
         final Object[][] result = new Object[dimObjects][dimFeatures];
         for (int i = 0; i < dimObjects; ++i)
         {

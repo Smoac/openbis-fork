@@ -38,6 +38,11 @@ public interface ICellLevelFeatureDataset extends ICellLevelDataset
     public IFeatureGroup getFeatureGroup(String id) throws IllegalArgumentException;
 
     /**
+     * Returns the number of segmented objects for the given image and object namespace.
+     */
+    public int getNumberOfSegmentedObjects(ImageId imageId, ObjectNamespace namespace);
+    
+    /**
      * Returns all feature values for the given <var>cellId</var> of field <var>id</var>.
      */
     public Object[] getValues(ImageId id, ObjectNamespace namespace, int cellId);

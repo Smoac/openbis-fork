@@ -634,6 +634,24 @@ public class FeatureDatasetRoundtripTest
                 assertEquals(-5 + i, clf.getValues()[i][2]);
             }
         }
+        assertTrue(ds.getObjectTypes().isEmpty());
+        assertEquals(1, ds.getObjectNamespaces().size());
+        assertEquals(10,
+                ds.getNumberOfSegmentedObjects(new ImageId(1, 2, 3), ds.getObjectNamespace("MAIN")));
+        assertEquals("MAIN", ds.getObjectNamespaces().iterator().next().getId());
+        assertTrue(Arrays.equals(new Object[]
+            { 1, 2, -5 }, ds.getValues(new ImageId(1, 2, 3), 0)));
+        assertTrue(Arrays.equals(new Object[]
+            { 2, 3, -4 }, ds.getValues(new ImageId(1, 2, 3), 1)));
+        assertTrue(Arrays.equals(new Object[]
+            { 3, 4, -3 }, ds.getValues(new ImageId(1, 2, 3), 2)));
+        assertTrue(Arrays.equals(
+                new Object[]
+                    { 10, 11, 4 },
+                ds.getValues(
+                        new ImageId(1, 2, 3),
+                        ds.getNumberOfSegmentedObjects(new ImageId(1, 2, 3),
+                                ds.getObjectNamespace("MAIN")) - 1)));
         reader.close();
     }
 
@@ -662,7 +680,21 @@ public class FeatureDatasetRoundtripTest
                 { "A", "C", "B" }));
             assertTrue(Arrays.equals(clf.getValues()[3], new Object[]
                 { "B", "B", "B" }));
+            assertEquals(4,
+                    ds.getNumberOfSegmentedObjects(clf.getImageId(), ds.getObjectNamespace("MAIN")));
         }
+        Object[] vals = ds.getValues(new ImageId(1, 2, 3), 0);
+        assertTrue(Arrays.equals(new Object[]
+            { "A", "B", "C" }, vals));
+        vals = ds.getValues(new ImageId(1, 2, 3), 1);
+        assertTrue(Arrays.equals(new Object[]
+            { "C", "B", "A" }, vals));
+        vals = ds.getValues(new ImageId(1, 2, 3), 2);
+        assertTrue(Arrays.equals(new Object[]
+            { "A", "C", "B" }, vals));
+        vals = ds.getValues(new ImageId(1, 2, 3), 3);
+        assertTrue(Arrays.equals(new Object[]
+            { "B", "B", "B" }, vals));
         reader.close();
     }
 
@@ -691,7 +723,21 @@ public class FeatureDatasetRoundtripTest
                 { true, false, true }));
             assertTrue(Arrays.equals(clf.getValues()[3], new Object[]
                 { false, true, false }));
+            assertEquals(4,
+                    ds.getNumberOfSegmentedObjects(clf.getImageId(), ds.getObjectNamespace("MAIN")));
         }
+        Object[] vals = ds.getValues(new ImageId(1, 2, 3), 0);
+        assertTrue(Arrays.toString(vals), Arrays.equals(new Object[]
+            { true, true, true }, vals));
+        vals = ds.getValues(new ImageId(1, 2, 3), 1);
+        assertTrue(Arrays.toString(vals), Arrays.equals(new Object[]
+            { false, false, false }, vals));
+        vals = ds.getValues(new ImageId(1, 2, 3), 2);
+        assertTrue(Arrays.toString(vals), Arrays.equals(new Object[]
+            { true, false, true }, vals));
+        vals = ds.getValues(new ImageId(1, 2, 3), 3);
+        assertTrue(Arrays.toString(vals), Arrays.equals(new Object[]
+            { false, true, false }, vals));
         reader.close();
     }
 

@@ -31,6 +31,11 @@ public interface ICellLevelSegmentationDataset extends ICellLevelDataset
     public ImageGeometry getImageGeometry();
 
     /**
+     * Returns the number of segmented objects for the given image and object objectType.
+     */
+    public int getNumberOfSegmentedObjects(ImageId imageId, ObjectType objectType);
+    
+    /**
      * Returns the segmented object with given <var>objectId</var> in the given <var>wellId</var>.
      * 
      * @param wellId The well id to read the the object from.

@@ -99,6 +99,19 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
     }
 
     @Override
+    public int getNumberOfSegmentedObjects(ImageId imageId, ObjectType objectType)
+    {
+        final String objectPath = getObjectPath(imageId, INDEX_PREFIX, objectType.getId());
+        final long numberOfObjects = reader.object().getDataSetInformation(objectPath).getDimensions()[0];
+        final int numberOfObjectsInt = (int) numberOfObjects;
+        if (numberOfObjects != numberOfObjectsInt)
+        {
+            throw new IllegalStateException("Number of segmented objects needs to be a int32 value, but is " + numberOfObjects);
+        }
+        return numberOfObjectsInt;
+    }
+
+    @Override
     public SegmentedObject getObject(ImageId wellId, ObjectType objectType, int objectId,
             boolean withEdge)
     {

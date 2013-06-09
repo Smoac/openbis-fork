@@ -102,6 +102,7 @@ public class SegmentationDatasetRoundtripTest
         assertEquals(1, objectTypes.size());
         assertEquals("CELL", type.getId());
         assertEquals("789", type.getDatasetCode());
+        assertEquals(3, rds.getNumberOfSegmentedObjects(new ImageId(1, 2, 3), type));
         assertEquals("segmentationOneObjectType.cld", type.getFile().getName());
         assertEquals(Collections.singleton(type), type.getCompanions());
         assertEquals(new ImageQuantityStructure(2, 3, 4), rds.getImageQuantityStructure());
