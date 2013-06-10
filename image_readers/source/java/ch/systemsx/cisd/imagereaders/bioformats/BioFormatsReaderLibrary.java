@@ -69,6 +69,7 @@ public class BioFormatsReaderLibrary implements IImageReaderLibrary
         }
         final IFormatReader formatReaderOrNull =
                 BioFormatsImageUtils.tryToCreateReaderByName(readerNameToUse);
+        formatReaderOrNull.setGroupFiles(false);
         return tryAdaptFormatReader(formatReaderOrNull, singleImagePerFile);
     }
 
