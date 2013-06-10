@@ -33,6 +33,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.shared.util.EodSqlUtils;
 
 /**
  * A default {@link IFullTextIndexer} which knows how to perform an efficient full text index.
@@ -51,8 +52,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
     private static String ID_PROPERTY_NAME = "id";
 
     /**
-     * It is critical that <code>batchSize</code> matches
-     * <code>hibernate.search.worker.batch_size</code>.
+     * It is critical that <code>batchSize</code> matches <code>hibernate.search.worker.batch_size</code>.
      * <p>
      * Default value (meaning <i>unspecified</i>) is <code>0</code>.
      * </p>
@@ -87,6 +87,9 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         try
         {
             transaction = fullTextSession.beginTransaction();
+
+            EodSqlUtils.setManagedConnection(transaction);
+
             final List<Long> ids = getAllIds(fullTextSession, clazz);
             final int idsSize = ids.size();
             operationLog.info(String.format("... got %d '%s' ids...", idsSize,
@@ -113,6 +116,9 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
             {
                 transaction.rollback();
             }
+        } finally
+        {
+            EodSqlUtils.clearManagedConnection();
         }
     }
 
@@ -128,6 +134,9 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         try
         {
             transaction = fullTextSession.beginTransaction();
+
+            EodSqlUtils.setManagedConnection(transaction);
+
             final int maxIndex = ids.size();
             int index = 0;
 
@@ -154,6 +163,9 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
             {
                 transaction.rollback();
             }
+        } finally
+        {
+            EodSqlUtils.clearManagedConnection();
         }
     }
 
@@ -169,6 +181,9 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         try
         {
             transaction = fullTextSession.beginTransaction();
+
+            EodSqlUtils.setManagedConnection(transaction);
+
             for (Long id : ids)
             {
                 fullTextSession.purge(clazz, id);
@@ -185,6 +200,9 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
             {
                 transaction.rollback();
             }
+        } finally
+        {
+            EodSqlUtils.clearManagedConnection();
         }
     }
 
