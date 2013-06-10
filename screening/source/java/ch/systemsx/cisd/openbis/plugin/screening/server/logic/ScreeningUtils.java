@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.hcs.Location;
-import ch.systemsx.cisd.openbis.generic.client.web.server.WebClientConfigurationProvider;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.server.WebClientConfigurationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
