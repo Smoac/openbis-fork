@@ -5,9 +5,12 @@ def validate_data(time_series_data, errors):
   dataLines = time_series_data.getRawDataLines()
   lineCount = 0
   for line in dataLines:
-    # The header needs to be GeneLocus
+    # The fist header needs to be GeneLocus or Spot-ID
     if lineCount is 0:
-      if line[0] != "GeneLocus":
+      first_col = line[0]
+      is_gene_locus = first_col == "GeneLocus"
+      is_spot_id = first_col == "Spot-ID"
+      if not (is_gene_locus or is_spot_id):
         errors.append(createFileValidationError("The first data column must be 'GeneLocus'"))
         break
       lineCount = lineCount + 1
@@ -23,10 +26,11 @@ def validate_data(time_series_data, errors):
       continue
 
     # The compound id should be one of these forms
-    gene_locus = line[0]
-    if not gene_locus_regex.match(gene_locus):
-      errors.append(createFileValidationError("Line " + str(lineCount + 1) + ", column 1 must be of the format 'BSU#', 'BSU_misc_RNA_#', 'VMG_#_#', or 'VMG_#_#_c' (instead of " + gene_locus + ")."))
-    lineCount = lineCount + 1
+    if is_gene_locus:
+      gene_locus = line[0]
+      if not gene_locus_regex.match(gene_locus):
+        errors.append(createFileValidationError("Line " + str(lineCount + 1) + ", column 1 must be of the format 'BSU#', 'BSU_misc_RNA_#', 'VMG_#_#', or 'VMG_#_#_c' (instead of " + gene_locus + ")."))
+      lineCount = lineCount + 1
     
 def validate_metadata(time_series_data, errors):
   metadata = time_series_data.getMetadataMap()
