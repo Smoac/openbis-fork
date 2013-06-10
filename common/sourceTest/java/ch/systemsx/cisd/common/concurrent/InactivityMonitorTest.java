@@ -147,10 +147,6 @@ public class InactivityMonitorTest
         {
             monitorUnderTest.stop();
         }
-        // To following lines of code should also be called at the end of each test method.
-        // Otherwise one do not known which test failed.
-        exceptionHandler.checkAndRethrowException();
-        context.assertIsSatisfied();
     }
 
     @Test(retryAnalyzer = Retry10.class)
