@@ -152,7 +152,6 @@ public class InactivityMonitorTest
     @Test(retryAnalyzer = Retry10.class)
     public void testHappyCase() throws Throwable
     {
-        System.out.println("InactivityMonitor - testHappyCase - Retry");
         context.checking(new Expectations()
             {
                 {
@@ -172,7 +171,6 @@ public class InactivityMonitorTest
     @Test(retryAnalyzer = Retry10.class)
     public void testInactivity() throws Throwable
     {
-        System.out.println("InactivityMonitor - testInactivity - Retry");
         final String descriptionOfInactivity = "DESCRIPTION";
         context.checking(new Expectations()
             {
@@ -197,7 +195,6 @@ public class InactivityMonitorTest
     @Test(groups = "slow", retryAnalyzer = Retry10.class)
     public void testInactivityMultipleTimes() throws Throwable
     {
-        System.out.println("InactivityMonitor - testInactivityMultipleTimes - Retry");
         // Wait for system to become quiet to get more accurate measurement.
         ConcurrencyUtilities.sleep(300L);
         final String descriptionOfInactivity = "DESCRIPTION";
