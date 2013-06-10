@@ -46,9 +46,11 @@ def convert_data_to_tsv(tr, dataset, location):
   tsv = open(tsvFileName, 'w')
   for line in timeSeriesData.getRawDataLines():
     for i in range(0, len(line) - 1):
-      tsv.write(line[i])
-      tsv.write("\t")
-    tsv.write(line[len(line) - 1])
+      if (line[i]):
+        tsv.write(line[i])
+        tsv.write("\t")
+    if (line[len(line) - 1]):
+      tsv.write(line[len(line) - 1])
     tsv.write("\n")
   tsv.close()
   
