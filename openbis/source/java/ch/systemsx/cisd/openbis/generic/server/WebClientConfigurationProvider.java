@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server;
+package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -92,7 +92,7 @@ public class WebClientConfigurationProvider
     private static final String CREATABLE_DATA_SET_TYPES_BLACKLIST =
             "creatable-data-set-types-blacklist";
 
-    static final String TECHNOLOGIES = "technologies";
+    public static final String TECHNOLOGIES = "technologies";
 
     private WebClientConfiguration webClientConfiguration = new WebClientConfiguration();
 
