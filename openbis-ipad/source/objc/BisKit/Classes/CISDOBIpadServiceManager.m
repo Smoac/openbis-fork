@@ -295,7 +295,9 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     _username = user;
     _password = password;
     CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call];
-    call.success = ^(id result) { [managerCall notifySuccess: result]; };
+    
+    __weak CISDOBIpadServiceManager *weakSelf = self;
+    call.success = ^(id result) { weakSelf.online = YES; [managerCall notifySuccess: result]; };
     managerCall.willCallNotificationName = CISDOBIpadServiceWillLoginNotification;
     managerCall.didCallNotificationName = CISDOBIpadServiceDidLoginNotification;
     return managerCall;
