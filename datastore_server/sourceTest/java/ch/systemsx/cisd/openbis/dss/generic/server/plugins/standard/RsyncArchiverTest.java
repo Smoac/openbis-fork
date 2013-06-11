@@ -109,35 +109,35 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
         }
     }
 
-    private BufferedAppender logRecorder;
+    protected BufferedAppender logRecorder;
 
-    private Mockery context;
+    protected Mockery context;
 
     private IDataSetFileOperationsManager fileOperationsManager;
 
     private RsyncArchiver archiver;
 
-    private IDataSetDirectoryProvider dataSetDirectoryProvider;
+    protected IDataSetDirectoryProvider dataSetDirectoryProvider;
 
     private IUnarchivingPreparation unarchivingPreparation;
 
-    private ArchiverTaskContext archiverTaskContext;
+    protected ArchiverTaskContext archiverTaskContext;
 
-    private IDataSetStatusUpdater statusUpdater;
+    protected IDataSetStatusUpdater statusUpdater;
 
-    private Properties properties;
+    protected Properties properties;
 
     private BeanFactory beanFactory;
 
     private IConfigProvider configProvider;
 
-    private IEncapsulatedOpenBISService service;
+    protected IEncapsulatedOpenBISService service;
 
-    private IShareIdManager shareIdManager;
+    protected IShareIdManager shareIdManager;
 
-    private File store;
+    protected File store;
 
-    private File share1;
+    protected File share1;
 
     private File share2;
 

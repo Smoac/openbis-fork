@@ -93,6 +93,34 @@ public class ZipDataSetPackager extends AbstractDataSetPackager
             }
         }
     }
+    
+    @Override
+    public void addDirectoryEntry(String entryPath)
+    {
+        ZipOutputStream zos = getZipOutputStream();
+        try
+        {
+            String path = entryPath.replace('\\', '/');
+            if (path.endsWith("/") == false)
+            {
+                path += "/";
+            }
+            ZipEntry zipEntry = new ZipEntry(path);
+            zos.putNextEntry(zipEntry);
+        } catch (IOException ex)
+        {
+            throw new RuntimeException("Error while adding entry " + entryPath, ex);
+        } finally
+        {
+            try
+            {
+                zos.closeEntry();
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+    }
 
     @Override
     public void close()

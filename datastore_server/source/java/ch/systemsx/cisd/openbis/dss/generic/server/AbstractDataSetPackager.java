@@ -57,6 +57,8 @@ public abstract class AbstractDataSetPackager
      */
     public abstract void addEntry(String entryPath, long lastModified, long size, long checksum, InputStream in);
     
+    public abstract void addDirectoryEntry(String entryPath);
+    
     /**
      * Returns <code>true</code> if the checksum is needed.
      */
@@ -119,12 +121,19 @@ public abstract class AbstractDataSetPackager
 
     private void addTo(String newRootPath, IHierarchicalContentNode node)
     {
+        String entryPath = newRootPath + node.getRelativePath();
         if (node.isDirectory())
         {
             List<IHierarchicalContentNode> childNodes = node.getChildNodes();
-            for (IHierarchicalContentNode childNode : childNodes)
+            if (childNodes.isEmpty())
             {
-                addTo(newRootPath, childNode);
+                addDirectoryEntry(entryPath);
+            } else
+            {
+                for (IHierarchicalContentNode childNode : childNodes)
+                {
+                    addTo(newRootPath, childNode);
+                }
             }
         } else
         {
@@ -141,8 +150,7 @@ public abstract class AbstractDataSetPackager
                     checksum = IOUtilities.getChecksumCRC32(node.getInputStream());
                 }
             }
-            addEntry(newRootPath + node.getRelativePath(), node.getLastModified(), size, checksum,
-                    node.getInputStream());
+            addEntry(entryPath, node.getLastModified(), size, checksum, node.getInputStream());
         }
     }
 }

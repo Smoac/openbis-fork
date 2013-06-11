@@ -90,7 +90,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
             }
         };
         
-    private Map<String, File> spaceArchiveFolderMapping = new HashMap<String, File>(); 
+    private Map<String, File> archiveFolderMapping = new HashMap<String, File>(); 
 
     private boolean compress;
     
@@ -128,7 +128,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
         if (mappingFilePath != null)
         {
             boolean createArchives = PropertyUtils.getBoolean(properties, CREATE_ARCHIVES_KEY, false);
-            spaceArchiveFolderMapping = new SpaceAttributeMappingManager(mappingFilePath, createArchives).getFoldersMap();
+            archiveFolderMapping = new SpaceAttributeMappingManager(mappingFilePath, createArchives).getFoldersMap();
         }
     }
 
@@ -249,7 +249,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
         {
             return archiveFile;
         }
-        Collection<File> folders = spaceArchiveFolderMapping.values();
+        Collection<File> folders = archiveFolderMapping.values();
         for (File folder : folders)
         {
             archiveFile = getArchiveFile(folder, datasetLocation, false);
@@ -306,17 +306,13 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
     
     private File getArchiveFile(DatasetDescription datasetDescription)
     {
-        return getArchiveFile(datasetDescription.getSpaceCode(), datasetDescription, true);
-    }
-
-    private File getArchiveFile(String spaceCode, IDatasetLocation datasetLocation, boolean forWriting)
-    {
-        File folder = spaceArchiveFolderMapping.get(spaceCode);
+        String spaceCode = datasetDescription.getSpaceCode();
+        File folder = archiveFolderMapping.get("/" + spaceCode);
         if (folder == null)
         {
             folder = defaultFolder;
         }
-        return getArchiveFile(folder, datasetLocation, forWriting);
+        return getArchiveFile(folder, datasetDescription, true);
     }
 
     private File getArchiveFile(File baseFolder, IDatasetLocation datasetLocation, boolean forWriting)

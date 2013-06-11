@@ -108,6 +108,7 @@ public class ZipDataSetPackagerTest extends AbstractFileSystemTestCase
         subFolder.mkdirs();
         FileUtilities.writeToFile(new File(rootFolder, "read.me"), "Don't read me!");
         FileUtilities.writeToFile(new File(subFolder, "change-log.txt"), "nothing changed");
+        new File(rootFolder, "empty-folder").mkdir();
     }
     
     @AfterMethod
