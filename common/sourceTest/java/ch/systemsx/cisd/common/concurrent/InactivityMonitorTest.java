@@ -25,9 +25,9 @@ import org.jmock.lib.action.CustomAction;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.tests.Retry10;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IInactivityObserver;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.test.StoringUncaughtExceptionHandler;
  * 
  * @author Bernd Rinn
  */
+@Listeners(TestReportCleaner.class)
 public class InactivityMonitorTest
 {
     private final static long INACTIVITY_THRESHOLD_MILLIS = 20L;
@@ -149,7 +150,7 @@ public class InactivityMonitorTest
         }
     }
 
-    @Test(retryAnalyzer = Retry10.class)
+    @Test(retryAnalyzer = RetryTen.class)
     public void testHappyCase() throws Throwable
     {
         context.checking(new Expectations()
@@ -168,7 +169,7 @@ public class InactivityMonitorTest
         context.assertIsSatisfied();
     }
 
-    @Test(retryAnalyzer = Retry10.class)
+    @Test(retryAnalyzer = RetryTen.class)
     public void testInactivity() throws Throwable
     {
         final String descriptionOfInactivity = "DESCRIPTION";
@@ -192,7 +193,7 @@ public class InactivityMonitorTest
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "slow", retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", retryAnalyzer = RetryTen.class)
     public void testInactivityMultipleTimes() throws Throwable
     {
         // Wait for system to become quiet to get more accurate measurement.
@@ -211,8 +212,7 @@ public class InactivityMonitorTest
                             with(equal(descriptionOfInactivity)));
                 }
             });
-        monitorUnderTest =
-                new InactivityMonitor(sensor, observer, INACTIVITY_THRESHOLD_MILLIS, false);
+        monitorUnderTest = new InactivityMonitor(sensor, observer, INACTIVITY_THRESHOLD_MILLIS, false);
         ConcurrencyUtilities.sleep(TIME_TO_WAIT_MILLIS);
         monitorUnderTest.stop();
         exceptionHandler.checkAndRethrowException();
