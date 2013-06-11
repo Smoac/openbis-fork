@@ -90,7 +90,8 @@
 
 - (BOOL)isSearchSupported
 {
-    return self.isOnline && [self.searchScopeTitles count] > 0;
+    // Search scope titles always include "Filter"
+    return self.isOnline && [self.searchScopeTitles count] > 1;
 }
 
 - (BOOL)isSelectedSearchScopeIndexSearch
