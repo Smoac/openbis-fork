@@ -44,6 +44,7 @@
     
     self.parentModel = parentModel;
     _selectedObject = nil;
+    self.selectedSearchScopeIndex = 0;
     
     if (self.parentModel) {
         self.appDelegate = parentModel.appDelegate;
@@ -77,15 +78,25 @@
     return titles;
 }
 
+- (id)selectedSearchDomain
+{
+    NSArray *searchDomains = self.serviceManager.service.clientPreferences.searchDomains;
+    NSInteger selectedIndex = self.selectedSearchScopeIndex;
+    // Return nil if the the selected search scope is filter
+    if (selectedIndex < 0 || selectedIndex >= [searchDomains count]) return nil;
+    
+    return [searchDomains objectAtIndex: selectedIndex];
+}
+
 - (BOOL)isSearchSupported
 {
     return self.isOnline && [self.searchScopeTitles count] > 0;
 }
 
-- (BOOL)isSearchSearchScopeAtIndex:(NSInteger)searchScopeIndex
+- (BOOL)isSelectedSearchScopeIndexSearch
 {
     // The last search scope is the filter
-    return (searchScopeIndex < [self.searchScopeTitles count] - 1);
+    return (self.selectedSearchScopeIndex < [self.searchScopeTitles count] - 1);
 }
 
 #pragma mark - Model
@@ -256,6 +267,23 @@
         localSuccess(_selectedObject);
     };
     [call start];
+}
+
+- (void)searchServerOnSuccess:(SuccessBlock)success
+{
+    // Call the server to get the search results
+    CISDOBAsyncCall *call = [self.serviceManager searchForText: self.searchString domain: self.selectedSearchDomain];
+    // Assign this to a local var to get the compiler to copy it
+    SuccessBlock localSuccess = success;
+    __weak CISDOBOpenBisModel *weakSelf = self;
+    call.success = ^(NSArray *result) {
+        // The result is a collection of raw entities, so we need to pull out the permIds to find full objects and call the success block with the full objects
+        NSMutableArray *permIds = [NSMutableArray array];
+        for (CISDOBIpadRawEntity *rawEntity in result) [permIds addObject: rawEntity.permId];
+        NSArray *fullObjects = [weakSelf. serviceManager entitiesByPermId: permIds error: nil];
+        localSuccess(fullObjects);
+    };
+    [call start];    
 }
 
 #pragma mark - Fetched results controller

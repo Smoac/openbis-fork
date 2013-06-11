@@ -45,8 +45,10 @@
 // Search
 @property (strong, nonatomic) NSString *searchString;
 @property (readonly) NSArray *searchScopeTitles;
+@property (nonatomic) NSInteger selectedSearchScopeIndex;
+@property (readonly) id selectedSearchDomain; //!< Return the selected search scope domain or nil if the selected domain is filter
 - (BOOL)isSearchSupported;
-- (BOOL)isSearchSearchScopeAtIndex:(NSInteger)searchScopeIndex; //!< Return YES if the searchScopeIndex refers to a search, false if it refers to filter
+- (BOOL)isSelectedSearchScopeIndexSearch; //!< Return YES if the searchScopeIndex refers to a search, false if it refers to filter
 
 // Initialize
 - (id)initWithParentModel:(CISDOBOpenBisModel *)parentModel; //!< The designated initializer
@@ -83,6 +85,9 @@
 
 //! Get the data from the selected object necessary for navigation from the server and invoke the success block when the data is here
 - (void)syncSelectedObjectForNavigationOnSuccess:(SuccessBlock)success;
+
+//! Invoke the server-side search and call the success block with an array of ipad entity objects when the data is here
+- (void)searchServerOnSuccess:(SuccessBlock)success;
 
 
 @end

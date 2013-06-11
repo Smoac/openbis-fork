@@ -266,7 +266,8 @@
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchScope:(NSInteger)searchOption
 {
     CISDOBTableDisplayState *oldDisplayState = self.searchFilterState;
-    self.searchFilterState = [self.openBisModel isSearchSearchScopeAtIndex: searchOption] ? self.searchState : self.filterState;
+    self.openBisModel.selectedSearchScopeIndex = searchOption;
+    self.searchFilterState = [self.openBisModel isSelectedSearchScopeIndexSearch] ? self.searchState : self.filterState;
     return (oldDisplayState != self.searchFilterState) ?
         [self.searchFilterState searchDisplayController: controller shouldReloadTableForSearchString: self.openBisModel.searchString] :
         YES;
@@ -485,14 +486,14 @@
 
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
 {
-    // TODO: Call server to get list of results
-    NSArray *fullResult = [self.openBisModel.fetchedResultsController fetchedObjects];
-    
-    NSPredicate *filterPredicate =
-        [self.filterTemplate predicateWithSubstitutionVariables:
-            [NSDictionary dictionaryWithObject: searchString forKey: @"SEARCH_STRING"]];
-    self.filteredResults = [fullResult filteredArrayUsingPredicate: filterPredicate];
-    return YES;
+    __weak CISDOBTableSearchState *weakSelf = self;
+    [self.openBisModel searchServerOnSuccess: ^(id result) {
+        weakSelf.filteredResults = result;
+        [controller.searchResultsTableView reloadData];
+    }];
+
+    // Do not refresh the table yet, wait until the server returns
+    return NO;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
