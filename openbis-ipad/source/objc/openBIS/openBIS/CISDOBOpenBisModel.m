@@ -77,6 +77,17 @@
     return titles;
 }
 
+- (BOOL)isSearchSupported
+{
+    return self.isOnline && [self.searchScopeTitles count] > 0;
+}
+
+- (BOOL)isSearchSearchScopeAtIndex:(NSInteger)searchScopeIndex
+{
+    // The last search scope is the filter
+    return (searchScopeIndex < [self.searchScopeTitles count] - 1);
+}
+
 #pragma mark - Model
 - (NSInteger)numberOfSections
 {

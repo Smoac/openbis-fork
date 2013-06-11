@@ -58,7 +58,8 @@
     self.detailViewController = (CISDOBDetailViewController *)[[self.splitViewController.viewControllers lastObject] topViewController];
     self.browseState = [[CISDOBTableBrowseState alloc] initWithController: self];
     self.filterState = [[CISDOBTableFilterState alloc] initWithController: self];
-    
+    self.searchState = [[CISDOBTableSearchState alloc] initWithController: self];
+    self.searchFilterState = self.filterState;
 }
 
 - (IBAction)refreshFromServer:(id)sender
@@ -87,7 +88,7 @@
 
 - (CISDOBTableDisplayState *)displayStateForTable:(UITableView *)tableView
 {
-    return (tableView == self.browseTableView) ? self.browseState : self.filterState;
+    return (tableView == self.browseTableView) ? self.browseState : self.searchFilterState;
 }
 
 - (void)refreshTable
@@ -258,7 +259,13 @@
 #pragma mark - UISearchDisplayDelegate
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
 {
-    return [self.filterState searchDisplayController: controller shouldReloadTableForSearchString: searchString];
+    return [self.searchFilterState searchDisplayController: controller shouldReloadTableForSearchString: searchString];
+}
+
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchScope:(NSInteger)searchOption
+{
+    self.searchFilterState = [self.openBisModel isSearchSearchScopeAtIndex: searchOption] ? self.searchState : self.filterState;
+    return YES;
 }
 
 - (void)searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
@@ -278,6 +285,8 @@
     [self.openBisModel syncRootEntities: ^(id result) {
         [self refreshTable];
     }];
+    
+    self.searchFilterState = [self.openBisModel isSearchSupported] ? self.searchState : self.filterState;
 }
 
 
@@ -321,6 +330,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath { return nil; }
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section { return nil; }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath { }
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString { return NO; }
 
 @end
 
@@ -401,7 +411,7 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    return @"Results";
+    return @"Filter Results";
 }
 
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
@@ -421,5 +431,70 @@
     [self.controller selectionDidChangeForModel];
 }
 
+@end
+
+@implementation CISDOBTableSearchState
+
+- (id)initWithController:(CISDOBMasterViewController *)controller
+{
+    if (!(self = [super initWithController: controller])) return nil;
+    
+    NSPredicate *filterTemplate = [NSPredicate predicateWithFormat: @"SELF.refconJson contains[cd] $SEARCH_STRING OR SELF.summary contains[cd] $SEARCH_STRING  OR SELF.summaryHeader contains[cd] $SEARCH_STRING"];
+    self.filterTemplate = filterTemplate;
+    
+    return self;
+}
+
+- (CISDOBIpadEntity *)entityAtIndexPath:(NSIndexPath *)indexPath
+{
+    return [self.filteredResults objectAtIndex: [indexPath indexAtPosition: 1]];
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return (self.filteredResults) ? [self.filteredResults count] : 0;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSString *cellId = @"SearchCell";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier: cellId];
+    if (!cell) {
+        cell = [[UITableViewCell alloc] initWithStyle: UITableViewCellStyleSubtitle reuseIdentifier: cellId];
+    }
+    
+    CISDOBIpadEntity *entity = [self entityAtIndexPath: indexPath];
+    [self.controller configureCell: cell forEntity: entity];
+    return cell;
+}
+
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    return @"Search Results";
+}
+
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
+{
+    // TODO: Call server to get list of results
+    NSArray *fullResult = [self.openBisModel.fetchedResultsController fetchedObjects];
+    
+    NSPredicate *filterPredicate =
+        [self.filterTemplate predicateWithSubstitutionVariables:
+            [NSDictionary dictionaryWithObject: searchString forKey: @"SEARCH_STRING"]];
+    self.filteredResults = [fullResult filteredArrayUsingPredicate: filterPredicate];
+    return YES;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    self.openBisModel.selectedObject = [self entityAtIndexPath: indexPath];
+    [self.controller selectionDidChangeForModel];
+}
 
 @end

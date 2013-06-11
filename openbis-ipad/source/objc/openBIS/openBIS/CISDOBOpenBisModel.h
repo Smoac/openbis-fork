@@ -42,6 +42,8 @@
 @property (strong, nonatomic) CISDOBIpadEntity *selectedObject;
 @property (readonly, getter=isOnline) BOOL  online;
 @property (readonly) NSArray *searchScopeTitles;
+- (BOOL)isSearchSupported;
+- (BOOL)isSearchSearchScopeAtIndex:(NSInteger)searchScopeIndex; //!< Return YES if the searchScopeIndex refers to a search, false if it refers to filter
 
 // Initialize
 - (id)initWithParentModel:(CISDOBOpenBisModel *)parentModel; //!< The designated initializer

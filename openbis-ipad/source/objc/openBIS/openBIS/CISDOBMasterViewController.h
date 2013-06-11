@@ -24,7 +24,7 @@
 #import <UIKit/UIKit.h>
 
 @class CISDOBDetailViewController, CISDOBOpenBisModel, CISDOBIpadServiceManager;
-@class CISDOBTableBrowseState, CISDOBTableFilterState, CISDOBTableDisplayState;
+@class CISDOBTableBrowseState, CISDOBTableFilterState, CISDOBTableDisplayState, CISDOBTableSearchState;
 
 #import <CoreData/CoreData.h>
 
@@ -34,6 +34,10 @@
 @property (strong, nonatomic) CISDOBOpenBisModel *openBisModel;
 @property (strong, nonatomic) CISDOBTableBrowseState *browseState;
 @property (strong, nonatomic) CISDOBTableFilterState *filterState;
+@property (strong, nonatomic) CISDOBTableSearchState *searchState;
+
+// The state for the current searching or filtering mode.
+@property (strong, nonatomic) CISDOBTableDisplayState *searchFilterState;
 
 @property (weak, nonatomic) IBOutlet UITableView *browseTableView;
 
@@ -64,6 +68,9 @@
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
 
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString;
+
+
 @end
 
 /**
@@ -78,6 +85,17 @@
  *  \brief The state that handles results for filtering.
  */
 @interface CISDOBTableFilterState : CISDOBTableDisplayState
+
+@property (strong, nonatomic) NSArray *filteredResults;
+@property (strong, nonatomic) NSPredicate *filterTemplate;
+
+@end
+
+
+/**
+ *  \brief The state that handles results for search.
+ */
+@interface CISDOBTableSearchState : CISDOBTableDisplayState
 
 @property (strong, nonatomic) NSArray *filteredResults;
 @property (strong, nonatomic) NSPredicate *filterTemplate;
