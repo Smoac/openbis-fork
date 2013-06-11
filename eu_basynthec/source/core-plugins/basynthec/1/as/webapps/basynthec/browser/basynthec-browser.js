@@ -553,6 +553,11 @@ AppModel.prototype.initializeOd600WithPhenotypesAndPredictionsModel = function(c
 		
 		for(strainName in model.dataSetsByStrain){
 			var strainData = strainDataMap[strainName];
+			
+			if(!strainData){
+				continue;
+			}
+			
 			var strainDatasets = model.dataSetsByStrain[strainName];
 			strainData.phenotypeMap = {};
 			if (strainData.hasPhenotypes) {
