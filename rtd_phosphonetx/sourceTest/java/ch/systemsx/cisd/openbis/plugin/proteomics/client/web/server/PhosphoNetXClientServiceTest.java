@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDat
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
-import ch.systemsx.cisd.openbis.generic.server.WebClientConfigurationProvider;
+import ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
