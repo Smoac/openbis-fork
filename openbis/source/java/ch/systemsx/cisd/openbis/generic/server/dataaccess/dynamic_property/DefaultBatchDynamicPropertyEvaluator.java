@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.util.EodSqlUtils;
 
 /**
  * A default {@link IBatchDynamicPropertyEvaluator}.
@@ -115,6 +116,9 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
         try
         {
             transaction = hibernateSession.beginTransaction();
+
+            EodSqlUtils.setManagedConnection(transaction);
+
             final IDynamicPropertyEvaluator evaluator = createEvaluator(hibernateSession);
             // we evaluate properties of entities in batches loading them in groups restricted by
             // id: [ ids[index], ids[min(index+batchSize, maxIndex))] )
@@ -154,6 +158,9 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
             {
                 transaction.rollback();
             }
+        } finally
+        {
+            EodSqlUtils.clearManagedConnection();
         }
         return new ArrayList<Long>();
     }
@@ -170,6 +177,9 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
         try
         {
             transaction = hibernateSession.beginTransaction();
+
+            EodSqlUtils.setManagedConnection(transaction);
+
             final IDynamicPropertyEvaluator evaluator = createEvaluator(hibernateSession);
             List<Long> dynamicIds = new ArrayList<Long>(ids);
             retainDynamicIds(hibernateSession, clazz, dynamicIds);
@@ -202,6 +212,9 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
             {
                 transaction.rollback();
             }
+        } finally
+        {
+            EodSqlUtils.clearManagedConnection();
         }
         return new ArrayList<Long>();
     }
@@ -214,8 +227,7 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
     /**
      * Evaluates properties of specified entities.
      * <p>
-     * After evaluation the properties are flushed to DB and session is cleared for better
-     * performance and memory management.
+     * After evaluation the properties are flushed to DB and session is cleared for better performance and memory management.
      */
     private static final <T extends IEntityInformationWithPropertiesHolder> void evaluateProperties(
             Session session, IDynamicPropertyEvaluator evaluator, final List<T> entities)
@@ -274,8 +286,8 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
     }
 
     /**
-     * Retains only those elements in the <code>ids</code> list that are ids of entities of given
-     * class that have a dynamic property (connected with one of specified scripts).
+     * Retains only those elements in the <code>ids</code> list that are ids of entities of given class that have a dynamic property (connected with
+     * one of specified scripts).
      */
     private static <T extends IEntityInformationWithPropertiesHolder> void retainDynamicIds(
             final Session hibernateSession, final Class<T> clazz, final List<Long> ids)
