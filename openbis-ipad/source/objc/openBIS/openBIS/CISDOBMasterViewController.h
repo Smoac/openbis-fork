@@ -40,6 +40,7 @@
 @property (strong, nonatomic) CISDOBTableDisplayState *searchFilterState;
 
 @property (weak, nonatomic) IBOutlet UITableView *browseTableView;
+@property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
 
 - (IBAction)refreshFromServer:(id)sender;
 

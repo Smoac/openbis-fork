@@ -410,11 +410,16 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="activityIndicator" destination="jMd-uS-QNW" id="LGD-lr-cR5"/>
                         <outlet property="browseTableView" destination="20" id="lPH-EN-X8X"/>
                         <outlet property="searchDisplayController" destination="DJu-Ev-v3F" id="4kh-TV-kFh"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="23" sceneMemberID="firstResponder"/>
+                <activityIndicatorView opaque="NO" contentMode="scaleToFill" style="gray" id="jMd-uS-QNW">
+                    <rect key="frame" x="0.0" y="0.0" width="20" height="20"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                </activityIndicatorView>
                 <searchDisplayController searchResultsTitle="Filter Results" id="DJu-Ev-v3F">
                     <connections>
                         <outlet property="delegate" destination="19" id="cs4-GT-BbY"/>
@@ -502,6 +507,7 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
             <source key="sourceIdentifier" type="project" relativePath="./Classes/CISDOBMasterViewController.h"/>
             <relationships>
                 <relationship kind="action" name="refreshFromServer:"/>
+                <relationship kind="outlet" name="activityIndicator" candidateClass="UIActivityIndicatorView"/>
                 <relationship kind="outlet" name="browseTableView" candidateClass="UITableView"/>
             </relationships>
         </class>

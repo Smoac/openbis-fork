@@ -104,6 +104,21 @@
     }
 }
 
+- (void)showActivityIndicatorOnView:(UIView *)view
+{
+    self.activityIndicator.center = view.center;
+    [self.activityIndicator startAnimating];
+    [view addSubview: self.activityIndicator];
+}
+
+- (void)removeActivityIndicatorFromView:(UIView *)view
+{
+    // Could check that the activity indicator is on the view, but not currently implemented
+    [self.activityIndicator stopAnimating];
+    [self.activityIndicator removeFromSuperview];
+}
+
+
 #pragma mark - Table View
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -486,11 +501,15 @@
 
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
 {
+    [self.controller showActivityIndicatorOnView: controller.searchResultsTableView];
+    
     __weak CISDOBTableSearchState *weakSelf = self;
     [self.openBisModel searchServerOnSuccess: ^(id result) {
+        [weakSelf.controller removeActivityIndicatorFromView: controller.searchResultsTableView];
         weakSelf.filteredResults = result;
         [controller.searchResultsTableView reloadData];
     }];
+
 
     // Do not refresh the table yet, wait until the server returns
     return NO;
