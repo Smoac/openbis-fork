@@ -25,9 +25,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.systemsx.cisd.common.string.Template;
-import ch.systemsx.cisd.openbis.generic.server.WebClientConfigurationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetTypeFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 

@@ -19,11 +19,14 @@ package ch.systemsx.cisd.openbis;
 import java.util.Arrays;
 import java.util.List;
 
+import org.testng.annotations.Test;
+
 import ch.systemsx.cisd.common.test.AbstractDependencyCheckingTestCase;
 
 /**
  * @author Franz-Josef Elmer
  */
+@Test
 public class DependencyCheckingTest extends AbstractDependencyCheckingTestCase
 {
 

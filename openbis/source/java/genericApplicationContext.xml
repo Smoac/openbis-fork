@@ -176,7 +176,7 @@
     </bean>
 
 		<bean id="web-client-configuration-provider"
-        class="ch.systemsx.cisd.openbis.generic.server.WebClientConfigurationProvider">
+        class="ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider">
         <constructor-arg value="${web-client-configuration-file}" />
     </bean>
 
