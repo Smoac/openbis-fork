@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.common.concurrent;
+package ch.systemsx.cisd.common.test;
 
 import org.testng.ITestResult;
 import org.testng.util.RetryAnalyzerCount;
