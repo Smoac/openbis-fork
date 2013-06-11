@@ -259,13 +259,17 @@
 #pragma mark - UISearchDisplayDelegate
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
 {
+    self.openBisModel.searchString = searchString;
     return [self.searchFilterState searchDisplayController: controller shouldReloadTableForSearchString: searchString];
 }
 
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchScope:(NSInteger)searchOption
 {
+    CISDOBTableDisplayState *oldDisplayState = self.searchFilterState;
     self.searchFilterState = [self.openBisModel isSearchSearchScopeAtIndex: searchOption] ? self.searchState : self.filterState;
-    return YES;
+    return (oldDisplayState != self.searchFilterState) ?
+        [self.searchFilterState searchDisplayController: controller shouldReloadTableForSearchString: self.openBisModel.searchString] :
+        YES;
 }
 
 - (void)searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
