@@ -120,6 +120,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
@@ -170,6 +171,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
@@ -223,6 +225,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypePropertyTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
@@ -438,7 +441,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Experiment> listExperiments(String sessionToken,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             List<ExperimentIdentifier> experimentIdentifiers,
@@ -485,7 +488,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Experiment> listExperimentsForProjects(String sessionToken,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             List<ProjectIdentifier> projectIdentifiers,
@@ -539,7 +542,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public Experiment tryGetExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class)
             ExperimentIdentifier experimentIdentifier) throws UserFailureException
@@ -566,7 +569,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> listSamples(final String sessionToken,
             @AuthorizationGuard(guardClass = ListSampleCriteriaPredicate.class)
@@ -738,7 +741,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<AbstractExternalData> listDataSetsByExperimentID(final String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
             final TechId experimentID) throws UserFailureException
@@ -753,7 +756,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<AbstractExternalData> listDataSetsBySampleID(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class)
             final TechId sampleId, final boolean showOnlyDirectlyConnected)
@@ -769,7 +772,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<AbstractExternalData> listDataSetsByCode(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
             List<String> dataSetCodes) throws UserFailureException
@@ -781,7 +784,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(value =
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     @ReturnValueFilter(validatorClass = ProjectValidator.class)
     public List<Project> listProjects(String sessionToken)
     {
@@ -793,7 +796,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(value =
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Experiment> listExperiments(String sessionToken,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             ProjectIdentifier projectIdentifier)
@@ -815,7 +818,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public IEntityProperty[] tryGetPropertiesOfTopSample(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             final SampleIdentifier sampleIdentifier) throws UserFailureException
@@ -840,7 +843,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public IEntityProperty[] tryGetPropertiesOfSample(String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class)
             SampleIdentifier sampleIdentifier) throws UserFailureException
@@ -1073,7 +1076,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(value =
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public IDatasetLocationNode tryGetDataSetLocation(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
             String dataSetCode) throws UserFailureException
@@ -1088,7 +1091,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(value =
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public AbstractExternalData tryGetLocalDataSet(String sessionToken, String dataSetCode,
             String dataStore) throws UserFailureException
     {
@@ -1102,7 +1105,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(value =
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public AbstractExternalData tryGetDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
             String dataSetCode) throws UserFailureException
@@ -1158,7 +1161,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public void checkDataSetCollectionAccess(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
             List<String> dataSetCodes)
@@ -1179,7 +1182,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Sample> listSamplesByCriteria(final String sessionToken,
             @AuthorizationGuard(guardClass = ListSamplesByPropertyPredicate.class)
             final ListSamplesByPropertyCriteria criteria) throws UserFailureException
@@ -1508,7 +1511,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(value =
-        { RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_ETL_SERVER })
     public Space tryGetSpace(String sessionToken,
             @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class)
             SpaceIdentifier spaceIdentifier)
@@ -1532,7 +1535,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(value =
-        { RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_ETL_SERVER })
     public Project tryGetProject(String sessionToken,
             @AuthorizationGuard(guardClass = ExistingSpaceIdentifierPredicate.class)
             ProjectIdentifier projectIdentifier)
@@ -2065,8 +2068,8 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     /**
-     * Splits the samples using the grouping dag into groups, that can be executed in batches one
-     * after another, that samples in later batches depend only on the samples from earlier batches
+     * Splits the samples using the grouping dag into groups, that can be executed in batches one after another, that samples in later batches depend
+     * only on the samples from earlier batches
      */
     private List<List<NewSample>> splitIntoDependencyGroups(List<NewSample> newSamples)
     {
@@ -2176,8 +2179,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     /**
-     * This method topologically sorts the data sets to be created and creates them in the necessary
-     * order
+     * This method topologically sorts the data sets to be created and creates them in the necessary order
      */
     private long createDataSets(Session session, AtomicEntityOperationDetails operationDetails,
             IServiceConversationProgressListener progress, boolean authorize)
@@ -2424,7 +2426,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(value =
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Material> listMaterials(String sessionToken, ListMaterialCriteria criteria,
             boolean withProperties)
     {
@@ -2588,7 +2590,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<? extends EntityTypePropertyType<?>> listPropertyDefinitionsForType(
             String sessionToken, String code, EntityKind entityKind)
     {
@@ -2717,6 +2719,42 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         Collection<MetaprojectPE> metaprojectPEs =
                 metaprojectDAO.listMetaprojectsForEntity(owner, entity);
         return MetaprojectTranslator.translate(metaprojectPEs);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<AuthorizationGroup> listAuthorizationGroups(String sessionToken)
+    {
+        // see ch.systemsx.cisd.openbis.generic.server.CommonServer.listAuthorizationGroups(String)
+        checkSession(sessionToken);
+        final List<AuthorizationGroupPE> authorizationGroups =
+                getDAOFactory().getAuthorizationGroupDAO().list();
+        Collections.sort(authorizationGroups);
+        return AuthorizationGroupTranslator.translate(authorizationGroups);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<AuthorizationGroup> listAuthorizationGroupsForUser(String sessionToken, String userId)
+    {
+        checkSession(sessionToken);
+        final List<AuthorizationGroupPE> allAuthorizationGroups =
+                getDAOFactory().getAuthorizationGroupDAO().list();
+        ArrayList<AuthorizationGroupPE> authorizationGroups = new ArrayList<AuthorizationGroupPE>();
+        for (AuthorizationGroupPE authorizationGroup : allAuthorizationGroups)
+        {
+            Set<PersonPE> persons = authorizationGroup.getPersons();
+            for (PersonPE person : persons)
+            {
+                if (userId.equals(person.getUserId()))
+                {
+                    authorizationGroups.add(authorizationGroup);
+                }
+            }
+        }
+
+        Collections.sort(authorizationGroups);
+        return AuthorizationGroupTranslator.translate(authorizationGroups);
     }
 
 }
