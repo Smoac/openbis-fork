@@ -81,40 +81,6 @@ def uploadToConfluenceAndPrintPageText(version):
   printWiki("* [Documentation|^CISDDoc-{0}.html.zip]".format(version))
   printWiki()
 
-def uploadToConfluenceMetabolomicsAndPrintPageText(version):
-  global wikiText
-  wikiText = ""
-  printVersion(version, 2)
-  printWiki()
-  printWiki("h5. openBIS for Metabolomics")
-  printWiki()
-  processFile("Application Server (AS)", "openBIS-server", version)
-  processFile("Data Store Server (DSS)", "datastore_server_metabolomics", version)
-  printWiki()
-
-def createMetabolomicsDssDist(version):
-  # find the files we want to work with
-  datastore_server = findFile("datastore_server" + "-" + version)
-  yeastx_plugin = findFile("datastore_server_plugin-yeastx" + "-" + version)
-
-	# cd to the tmp directory so the paths remain consistent -- do this after findFile, since that assumes a particular path
-  current_dir = os.getcwd()
-  os.chdir(DOWNLOAD_FOLDER)
-
-  # unzip the yeastx plugin and set up the dir structure
-  datastore_dir =  "datastore_server/"
-  subprocess.call(["unzip", str(yeastx_plugin)])
-  
-  # update the datastore_server zip
-  version_string = datastore_server[len("datastore_server"):len(datastore_server)]
-  metabolomics_zip = "datastore_server_metabolomics" + version_string
-  shutil.copy(str(datastore_server), metabolomics_zip)
-  file_to_update = datastore_dir + "lib/datastore_server_plugin-yeastx.jar"
-  subprocess.call(["zip", "-u", metabolomics_zip, file_to_update])
-
-  # return to the original dir
-  os.chdir(current_dir)
-
 
 def findFile(filePattern):
   for file in os.listdir(DOWNLOAD_FOLDER):
@@ -134,13 +100,4 @@ Example command: {0} 13.04.0
     print " Paste the following text on the Sprint Releases page in confluence "
     print " Link: https://wiki-bsse.ethz.ch/display/bis/Production+Releases    "
     print "===================================================================="
-    print wikiText
-    
-    # Agios wants to access the yeastX version from this page
-    createMetabolomicsDssDist(version)
-    uploadToConfluenceMetabolomicsAndPrintPageText(version)
-    print "========================================================================="
-    print " Paste the following text on the openBIS Metabolomics page in confluence "
-    print " Link: https://wiki-bsse.ethz.ch/display/bis/Production+Releases         "
-    print "========================================================================="
     print wikiText
