@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,10 +32,10 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -72,8 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 
 /**
- * System tests for
- * {@link IServiceForDataStoreServer#performEntityOperations(String, AtomicEntityOperationDetails)}
+ * System tests for {@link IServiceForDataStoreServer#performEntityOperations(String, AtomicEntityOperationDetails)}
  * 
  * @author Franz-Josef Elmer
  */
@@ -85,6 +86,10 @@ public class EntityOperationTest extends SystemTestCase
     private static final String SPACE_ETL_SERVER_FOR_A = PREFIX + "S_ETL_A";
 
     private static final String SPACE_ETL_SERVER_FOR_B = PREFIX + "S_ETL_B";
+
+    private static final String SIMPLE_USER = PREFIX + "SIMPLE";
+
+    private static final String AUTHORIZATION_GROUP = PREFIX + "GROUP";
 
     private static final String INSTANCE_ETL_SERVER = PREFIX + "I_ETL";
 
@@ -312,6 +317,10 @@ public class EntityOperationTest extends SystemTestCase
         assignSpaceRole(registerPerson(SPACE_ETL_SERVER_FOR_B), RoleCode.ETL_SERVER, SPACE_B);
         assignInstanceRole(registerPerson(INSTANCE_ADMIN), RoleCode.ADMIN);
         assignInstanceRole(registerPerson(INSTANCE_ETL_SERVER), RoleCode.ETL_SERVER);
+
+        String simpleUser = registerPerson(SIMPLE_USER);
+        String authorizationGroup = registerAuthorizationGroupWithUsers(AUTHORIZATION_GROUP, Arrays.asList(simpleUser));
+        assignSpaceRoleToGroup(authorizationGroup, RoleCode.USER, SPACE_A);
     }
 
     @Test
@@ -328,7 +337,7 @@ public class EntityOperationTest extends SystemTestCase
     }
 
     @Test(expectedExceptions =
-        { AuthorizationFailureException.class })
+    { AuthorizationFailureException.class })
     public void testCreateSpaceAsInstanceAdminButLoginAsSpaceETLServerFails()
     {
         String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
@@ -370,7 +379,7 @@ public class EntityOperationTest extends SystemTestCase
     }
 
     @Test(expectedExceptions =
-        { AuthorizationFailureException.class })
+    { AuthorizationFailureException.class })
     public void testCreateMaterialAsInstanceAdminButLoginAsSpaceETLServerFails()
     {
         String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
@@ -871,6 +880,22 @@ public class EntityOperationTest extends SystemTestCase
 
         performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
                 + SPACE_ETL_SERVER_FOR_B + "' does not have enough privileges.\".");
+    }
+
+    @Test
+    public void testListAuthorizationGroups()
+    {
+        String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
+        List<AuthorizationGroup> result = etlService.listAuthorizationGroups(sessionToken);
+        assertEquals("listAuthorizationGroups should return a list with one group, not " + result, 1, result.size());
+    }
+
+    @Test
+    public void testListAuthorizationGroupsForUser()
+    {
+        String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
+        List<AuthorizationGroup> result = etlService.listAuthorizationGroupsForUser(sessionToken, SIMPLE_USER);
+        assertEquals("listAuthorizationGroupsForUser(" + SIMPLE_USER + ") should return a list with one group, not " + result, 1, result.size());
     }
 
     private void performFailungEntityOperations(String sessionToken,

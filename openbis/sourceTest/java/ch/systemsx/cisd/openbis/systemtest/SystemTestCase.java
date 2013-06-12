@@ -48,6 +48,8 @@ import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -55,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -267,6 +270,34 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     {
         commonServer.registerSpaceRole(systemSessionToken, roleCode, spaceIdentifier,
                 Grantee.createPerson(userID));
+    }
+
+    protected void assignSpaceRoleToGroup(String groupCode, RoleCode roleCode, SpaceIdentifier spaceIdentifier)
+    {
+        commonServer.registerSpaceRole(systemSessionToken, roleCode, spaceIdentifier, Grantee.createAuthorizationGroup(groupCode));
+    }
+
+    protected String registerAuthorizationGroupWithUsers(String groupName, List<String> userIds)
+    {
+        NewAuthorizationGroup newGroup = new NewAuthorizationGroup();
+        newGroup.setCode(groupName);
+        newGroup.setDescription(groupName);
+        commonServer.registerAuthorizationGroup(systemSessionToken, newGroup);
+
+        List<AuthorizationGroup> groups = commonServer.listAuthorizationGroups(systemSessionToken);
+        AuthorizationGroup group = null;
+        for (AuthorizationGroup groupCandidate : groups)
+        {
+            if (groupCandidate.getCode().equals(groupName))
+            {
+                group = groupCandidate;
+                break;
+            }
+        }
+
+        commonServer.addPersonsToAuthorizationGroup(systemSessionToken, TechId.create(group), userIds);
+
+        return groupName;
     }
 
     /**
