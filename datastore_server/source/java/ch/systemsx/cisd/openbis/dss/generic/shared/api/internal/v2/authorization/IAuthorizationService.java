@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.authorizatio
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IAuthorizationGroupImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
@@ -35,5 +36,9 @@ public interface IAuthorizationService
 
     List<IExperimentImmutable> filterToVisibleExperiments(String user,
             List<IExperimentImmutable> experiments);
+
+    List<IAuthorizationGroupImmutable> listAuthorizationGroups();
+
+    List<IAuthorizationGroupImmutable> listAuthorizationGroupsForUser(String userId);
 
 }

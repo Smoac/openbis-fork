@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
@@ -59,8 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * This interface is very similar to {@link IServiceForDataStoreServer} but <code>sessionToken</code> has been
- * removed from most methods.
+ * This interface is very similar to {@link IServiceForDataStoreServer} but <code>sessionToken</code> has been removed from most methods.
  * 
  * @see IServiceForDataStoreServer
  * @author Christian Ribeaud
@@ -77,8 +77,7 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     public IEncapsulatedBasicOpenBISService getBasicFilteredOpenBISService(String userName);
 
     /**
-     * Tries to get the data set location for the specified data set code, using the ETL server's
-     * session token.
+     * Tries to get the data set location for the specified data set code, using the ETL server's session token.
      */
     @ManagedAuthentication
     public IDatasetLocationNode tryGetDataSetLocation(final String dataSetCode)
@@ -171,8 +170,7 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     /**
      * Lists all data sets of the specified sample ID.
      * 
-     * @param showOnlyDirectlyConnected If <code>true</code> only directly connected data sets are
-     *            returned.
+     * @param showOnlyDirectlyConnected If <code>true</code> only directly connected data sets are returned.
      */
     @ManagedAuthentication
     public List<AbstractExternalData> listDataSetsBySampleID(long sampleID,
@@ -228,25 +226,21 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
             final NewExternalData data) throws UserFailureException;
 
     /**
-     * Tries to return the properties of the top sample of the sample with given
-     * <var>sampleIdentifier</var>. The top sample is the root of the sample relationship graph of
-     * this sample. If a sample has multiple parents or no parents at all, it is considered its own
-     * top sample.
+     * Tries to return the properties of the top sample of the sample with given <var>sampleIdentifier</var>. The top sample is the root of the sample
+     * relationship graph of this sample. If a sample has multiple parents or no parents at all, it is considered its own top sample.
      * 
-     * @return <code>null</code> if no appropriated sample is found. Returns an empty array if a
-     *         sample is found with no properties.
+     * @return <code>null</code> if no appropriated sample is found. Returns an empty array if a sample is found with no properties.
      */
     @ManagedAuthentication
     public IEntityProperty[] tryGetPropertiesOfTopSample(final SampleIdentifier sampleIdentifier)
             throws UserFailureException;
 
     /**
-     * Tries to return the properties of the sample with given <var>sampleIdentifier</var>.. If
-     * sample has no top sample, its own properties are returned.
+     * Tries to return the properties of the sample with given <var>sampleIdentifier</var>.. If sample has no top sample, its own properties are
+     * returned.
      * 
      * @param sampleIdentifier an identifier which uniquely identifies the sample.
-     * @return <code>null</code> if no appropriated sample found. Returns an empty array if a a
-     *         sample found with no properties.
+     * @return <code>null</code> if no appropriated sample found. Returns an empty array if a a sample found with no properties.
      */
     @ManagedAuthentication
     public IEntityProperty[] tryGetPropertiesOfSample(final SampleIdentifier sampleIdentifier)
@@ -262,23 +256,21 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     public List<DataSetShareId> listDataSetShareIds() throws UserFailureException;
 
     /**
-     * Returns informations about all physical data sets which belong to the calling data store
-     * server.
+     * Returns informations about all physical data sets which belong to the calling data store server.
      */
     @ManagedAuthentication
     public List<SimpleDataSetInformationDTO> listPhysicalDataSets() throws UserFailureException;
 
     /**
-     * Returns informations about the <var>chunkSize</var> oldest physical data sets which belong to
-     * the calling data store server.
+     * Returns informations about the <var>chunkSize</var> oldest physical data sets which belong to the calling data store server.
      */
     @ManagedAuthentication
     public List<SimpleDataSetInformationDTO> listOldestPhysicalDataSets(int chunkSize)
             throws UserFailureException;
 
     /**
-     * Returns informations about the <var>chunkSize</var> oldest physical data sets newer than
-     * <var>newerThan</var> which belong to the calling data store server.
+     * Returns informations about the <var>chunkSize</var> oldest physical data sets newer than <var>newerThan</var> which belong to the calling data
+     * store server.
      */
     @ManagedAuthentication
     public List<SimpleDataSetInformationDTO> listOldestPhysicalDataSets(Date youngerThan,
@@ -290,15 +282,13 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
             throws UserFailureException;
 
     /**
-     * Creates and returns a new permanent ID that can be used to identify experiments, samples or
-     * datasets.
+     * Creates and returns a new permanent ID that can be used to identify experiments, samples or datasets.
      */
     @ManagedAuthentication
     public String createPermId();
 
     /**
-     * Creates and returns a list new permanent IDs that can be used to identify experiments,
-     * samples or datasets.
+     * Creates and returns a list new permanent IDs that can be used to identify experiments, samples or datasets.
      */
     @ManagedAuthentication
     public List<String> createPermIds(int n);
@@ -328,11 +318,9 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     public DatabaseInstance getHomeDatabaseInstance();
 
     /**
-     * List data sets deleted after the last seen deletion event. If event id is null all deleted
-     * datasets will be returned.
+     * List data sets deleted after the last seen deletion event. If event id is null all deleted datasets will be returned.
      * 
-     * @param maxDeletionDateOrNull when specified only lists data sets that have been deleted
-     *            before it.
+     * @param maxDeletionDateOrNull when specified only lists data sets that have been deleted before it.
      */
     @ManagedAuthentication
     public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull,
@@ -371,16 +359,14 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     public void unarchiveDataSets(List<String> dataSetCodes) throws UserFailureException;
 
     /**
-     * See
-     * {@link IServiceForDataStoreServer#updateDataSetStatuses(String, List, DataSetArchivingStatus, boolean)}
+     * See {@link IServiceForDataStoreServer#updateDataSetStatuses(String, List, DataSetArchivingStatus, boolean)}
      */
     @ManagedAuthentication
     public void updateDataSetStatuses(List<String> codes, DataSetArchivingStatus newStatus,
             boolean presentInArchive) throws UserFailureException;
 
     /**
-     * See
-     * {@link IServiceForDataStoreServer#updateDataSetStatuses(String, List, DataSetArchivingStatus, boolean)}
+     * See {@link IServiceForDataStoreServer#updateDataSetStatuses(String, List, DataSetArchivingStatus, boolean)}
      */
     @ManagedAuthentication
     public boolean compareAndSetDataSetStatus(String dataSetCode, DataSetArchivingStatus oldStatus,
@@ -406,15 +392,13 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     public void checkSession(String sessionToken);
 
     /**
-     * Return a list of users who could be considered administrators. See
-     * {@link IServiceForDataStoreServer#listAdministrators(String)}
+     * Return a list of users who could be considered administrators. See {@link IServiceForDataStoreServer#listAdministrators(String)}
      */
     @ManagedAuthentication
     public List<Person> listAdministrators();
 
     /**
-     * Return the user that matches this username or email. See
-     * {@link IServiceForDataStoreServer#tryPersonWithUserIdOrEmail(String, String)}
+     * Return the user that matches this username or email. See {@link IServiceForDataStoreServer#tryPersonWithUserIdOrEmail(String, String)}
      */
     @ManagedAuthentication
     public Person tryPersonWithUserIdOrEmail(String useridOrEmail);
@@ -526,5 +510,17 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     @ManagedAuthentication
     public ExternalDataManagementSystem tryGetExternalDataManagementSystem(
             String externalDataManagementSystemCode);
+
+    /**
+     * Return the authorization groups in openBIS
+     */
+    @ManagedAuthentication
+    public List<AuthorizationGroup> listAuthorizationGroups();
+
+    /**
+     * Return the authorization groups in openBIS for a particular user
+     */
+    @ManagedAuthentication
+    public List<AuthorizationGroup> listAuthorizationGroupsForUser(String userId);
 
 }
