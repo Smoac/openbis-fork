@@ -24,12 +24,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IAuthorizationGroupImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IRoleAssignmentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IUserImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.authorization.IAuthorizationService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 
 /**
  * @author Jakub Straszewski
@@ -141,5 +143,18 @@ public class AuthorizationService implements IAuthorizationService
             users.add(new UserImmutable(person));
         }
         return users;
+    }
+
+    @Override
+    public List<IRoleAssignmentImmutable> listRoleAssignments()
+    {
+        ArrayList<IRoleAssignmentImmutable> roleAssignments = new ArrayList<IRoleAssignmentImmutable>();
+
+        List<RoleAssignment> roleAssignmentDtos = openBisService.listRoleAssignments();
+        for (RoleAssignment roleAssignment : roleAssignmentDtos)
+        {
+            roleAssignments.add(new RoleAssignmentImmutable(roleAssignment));
+        }
+        return roleAssignments;
     }
 }

@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -960,5 +961,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public List<Person> listUsersForAuthorizationGroup(TechId authorizationGroupId)
     {
         return service.listUsersForAuthorizationGroup(session.getSessionToken(), authorizationGroupId);
+    }
+
+    @Override
+    public List<RoleAssignment> listRoleAssignments()
+    {
+        return service.listRoleAssignments(session.getSessionToken());
     }
 }

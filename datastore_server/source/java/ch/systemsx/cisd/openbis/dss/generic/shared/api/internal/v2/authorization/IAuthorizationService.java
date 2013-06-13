@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IAuthorizationGroupImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IRoleAssignmentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IUserImmutable;
 
@@ -44,4 +45,5 @@ public interface IAuthorizationService
 
     List<IUserImmutable> listUsersForAuthorizationGroup(IAuthorizationGroupImmutable authorizationGroup);
 
+    List<IRoleAssignmentImmutable> listRoleAssignments();
 }

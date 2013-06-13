@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
@@ -522,11 +523,17 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      */
     @ManagedAuthentication
     public List<AuthorizationGroup> listAuthorizationGroupsForUser(String userId);
-    
+
     /**
      * Return the users in a particular authorization group
      */
     @ManagedAuthentication
     public List<Person> listUsersForAuthorizationGroup(TechId authorizationGroupId);
+
+    /**
+     * Return all role assignments in the database
+     */
+    @ManagedAuthentication
+    public List<RoleAssignment> listRoleAssignments();
 
 }
