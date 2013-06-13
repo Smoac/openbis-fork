@@ -216,6 +216,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpaceRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
@@ -1688,6 +1689,10 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                     updateMetaprojects(sessionForEntityOperation, operationDetails,
                             progressListener, authorize);
 
+            long spaceRolesAssigned = assignSpaceRoles(sessionForEntityOperation, operationDetails, progressListener, authorize);
+
+            long spaceRolesRevoked = revokeSpaceRoles(sessionForEntityOperation, operationDetails, progressListener, authorize);
+
             // If the id is not null, the caller wants to persist the fact that the operation was
             // invoked and completed;
             // if the id is null, the caller does not care.
@@ -1699,7 +1704,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             return new AtomicEntityOperationResult(spacesCreated, projectsCreated, projectsUpdated,
                     materialsCreated, materialsUpdates, experimentsCreated, experimentsUpdates,
                     samplesCreated, samplesUpdated, dataSetsCreated, dataSetsUpdated,
-                    metaprojectsCreated, metaprojectsUpdates, vocabulariesUpdated);
+                    metaprojectsCreated, metaprojectsUpdates, vocabulariesUpdated, spaceRolesAssigned, spaceRolesRevoked);
         } finally
         {
             EntityOperationsInProgress.getInstance().removeRegistrationPending(registrationId);
@@ -1879,6 +1884,104 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         metaprojectBO.removeMaterials(update.getRemovedMaterials());
 
         metaprojectBO.save();
+    }
+
+    private long assignSpaceRoles(Session session, AtomicEntityOperationDetails operationDetails,
+            IServiceConversationProgressListener progressListener, boolean authorize)
+    {
+        // see also ch.systemsx.cisd.openbis.generic.server.CommonServer.registerSpaceRole(String, RoleCode, SpaceIdentifier, Grantee)
+        List<SpaceRoleAssignment> spaceRoleAssignments = operationDetails.getSpaceRoleAssignments();
+        int index = 0;
+        int assignmentCount = 0;
+        for (SpaceRoleAssignment assignment : spaceRoleAssignments)
+        {
+            assignmentCount += assignment.getGrantees().size();
+        }
+
+        if (assignmentCount < 1)
+        {
+            return assignmentCount;
+        }
+
+        final IRoleAssignmentTable table = businessObjectFactory.createRoleAssignmentTable(session);
+
+        for (SpaceRoleAssignment assignment : spaceRoleAssignments)
+        {
+            RoleCode roleCode = assignment.getRoleCode();
+            SpaceIdentifier space = assignment.getSpaceIdentifier();
+            for (Grantee grantee : assignment.getGrantees())
+            {
+                final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
+                newRoleAssignment.setGrantee(grantee);
+                newRoleAssignment.setSpaceIdentifier(space);
+                newRoleAssignment.setRole(roleCode);
+
+                table.add(newRoleAssignment);
+                progressListener.update("assignSpaceRole", assignmentCount, ++index);
+            }
+        }
+
+        table.save();
+        return index;
+    }
+
+    private long revokeSpaceRoles(Session session, AtomicEntityOperationDetails operationDetails,
+            IServiceConversationProgressListener progressListener, boolean authorize)
+    {
+        // see also ch.systemsx.cisd.openbis.generic.server.CommonServer.deleteSpaceRole(String, RoleCode, SpaceIdentifier, Grantee)
+        // Did not refactor the above method to share code for fear of making merges to the release branch difficult
+        List<SpaceRoleAssignment> spaceRoleRevocations = operationDetails.getSpaceRoleRevocations();
+        int index = 0;
+        int assignmentCount = 0;
+        for (SpaceRoleAssignment assignment : spaceRoleRevocations)
+        {
+            assignmentCount += assignment.getGrantees().size();
+        }
+
+        if (assignmentCount < 1)
+        {
+            return assignmentCount;
+        }
+
+        for (SpaceRoleAssignment assignment : spaceRoleRevocations)
+        {
+            RoleCode roleCode = assignment.getRoleCode();
+            SpaceIdentifier space = assignment.getSpaceIdentifier();
+            for (Grantee grantee : assignment.getGrantees())
+            {
+                final RoleAssignmentPE roleAssignment =
+                        getDAOFactory().getRoleAssignmentDAO().tryFindSpaceRoleAssignment(roleCode,
+                                space.getSpaceCode(), grantee);
+                if (roleAssignment == null)
+                {
+                    throw new UserFailureException("Given space role does not exist.");
+                }
+                final PersonPE personPE = session.tryGetPerson();
+                if (roleAssignment.getPerson() != null && roleAssignment.getPerson().equals(personPE)
+                        && roleAssignment.getRole().equals(RoleCode.ADMIN))
+                {
+                    boolean isInstanceAdmin = false;
+                    for (final RoleAssignmentPE roleAssigment : personPE.getRoleAssignments())
+                    {
+                        if (roleAssigment.getDatabaseInstance() != null
+                                && roleAssigment.getRole().equals(RoleCode.ADMIN))
+                        {
+                            isInstanceAdmin = true;
+                        }
+                    }
+                    if (isInstanceAdmin == false)
+                    {
+                        throw new UserFailureException(
+                                "For safety reason you cannot give away your own space admin power. "
+                                        + "Ask instance admin to do that for you.");
+                    }
+                }
+                getDAOFactory().getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
+                progressListener.update("revokeSpaceRole", assignmentCount, ++index);
+            }
+        }
+
+        return index;
     }
 
     private long createMetaprojects(Session session, AtomicEntityOperationDetails operationDetails,
