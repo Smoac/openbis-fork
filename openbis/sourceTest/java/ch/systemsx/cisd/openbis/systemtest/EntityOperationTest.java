@@ -382,6 +382,8 @@ public class EntityOperationTest extends SystemTestCase
 
         String sessionToken = authenticateAs(INSTANCE_ADMIN);
         String spaceCode = "TEST_SPACE_WITH_ROLES";
+
+        // Create a space and assign roles to it
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().space(spaceCode)
                         .assignRoleToSpace(RoleCode.ADMIN, spaceCode, Arrays.asList(SPACE_ETL_SERVER_FOR_A), Arrays.asList(AUTHORIZATION_GROUP))
@@ -396,8 +398,18 @@ public class EntityOperationTest extends SystemTestCase
         List<RoleAssignment> afterRoleAssignments = etlService.listRoleAssignments(sessionToken);
         assertEquals(2, afterRoleAssignments.size() - beforeRoleAssignments.size());
 
-        // TODO Revoke a role assignment
+        // Revoke the role assignments
+        eo =
+                new EntityOperationBuilder()
+                        .revokeRoleFromSpace(RoleCode.ADMIN, spaceCode, Arrays.asList(SPACE_ETL_SERVER_FOR_A), Arrays.asList(AUTHORIZATION_GROUP))
+                        .create();
 
+        result = etlService.performEntityOperations(sessionToken, eo);
+        assertEquals(0, result.getSpacesCreatedCount());
+        assertEquals(0, result.getSpaceRolesAssignedCount());
+        assertEquals(2, result.getSpaceRolesRevokedCount());
+        List<RoleAssignment> afterRoleRevocations = etlService.listRoleAssignments(sessionToken);
+        assertEquals(afterRoleRevocations.size(), beforeRoleAssignments.size());
     }
 
     @Test(expectedExceptions =
