@@ -17,9 +17,9 @@
 package ch.systemsx.cisd.openbis.dss.etl.jython.v2;
 
 import java.io.File;
+import java.util.List;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
-
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchServic
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISpaceImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.authorization.IAuthorizationService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 
 /**
  * @author Jakub Straszewski
@@ -403,5 +404,19 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     public IDataSet createNewFeatureListDataSet(FeatureListDataConfig config)
     {
         return transaction.createNewFeatureListDataSet(config);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void assignRoleToSpace(RoleCode role, ISpaceImmutable space, List<String> userIds, List<String> groupCodes)
+    {
+        transaction.assignRoleToSpace(role, space, userIds, groupCodes);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void revokeRoleFromSpace(RoleCode role, ISpaceImmutable space, List<String> userIds, List<String> groupCodes)
+    {
+        transaction.revokeRoleFromSpace(role, space, userIds, groupCodes);
     }
 }
