@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -791,4 +792,10 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     public List<Person> listUsersForAuthorizationGroup(String sessionToken, TechId authorizationGroupId);
+
+    /**
+     * Return all role assignments in the database
+     */
+    @Transactional(readOnly = true)
+    public List<RoleAssignment> listRoleAssignments(String sessionToken);
 }

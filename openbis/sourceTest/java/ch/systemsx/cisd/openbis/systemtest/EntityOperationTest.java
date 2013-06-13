@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -910,6 +911,14 @@ public class EntityOperationTest extends SystemTestCase
         Person user = users.get(0);
         assertEquals("The user " + SIMPLE_USER + " should be in the group " + AUTHORIZATION_GROUP + ", not " + user.getUserId(), SIMPLE_USER,
                 user.getUserId());
+    }
+
+    @Test
+    public void testListRoleAssignments()
+    {
+        String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
+        List<RoleAssignment> roleAssignments = etlService.listRoleAssignments(sessionToken);
+        assertEquals("There should be 14 role assignments", 14, roleAssignments.size());
     }
 
     private void performFailungEntityOperations(String sessionToken,

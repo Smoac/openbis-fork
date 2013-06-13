@@ -160,6 +160,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -242,6 +243,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypePropertyTy
 import ch.systemsx.cisd.openbis.generic.shared.translator.MetaprojectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.RoleAssignmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypePropertyTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
@@ -2759,12 +2761,23 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<Person> listUsersForAuthorizationGroup(String sessionToken, TechId authorizationGroupId)
     {
         final Session session = getSession(sessionToken);
         IAuthorizationGroupBO bo = businessObjectFactory.createAuthorizationGroupBO(session);
         bo.loadByTechId(authorizationGroupId);
         return PersonTranslator.translate(bo.getAuthorizationGroup().getPersons());
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<RoleAssignment> listRoleAssignments(String sessionToken)
+    {
+        checkSession(sessionToken);
+        final List<RoleAssignmentPE> roles =
+                getDAOFactory().getRoleAssignmentDAO().listRoleAssignments();
+        return RoleAssignmentTranslator.translate(roles);
     }
 
 }
