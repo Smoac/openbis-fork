@@ -80,6 +80,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClie
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationServerManagerLocal;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityCodeGenerator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityObjectIdHelper;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
@@ -2755,6 +2756,15 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
         Collections.sort(authorizationGroups);
         return AuthorizationGroupTranslator.translate(authorizationGroups);
+    }
+
+    @Override
+    public List<Person> listUsersForAuthorizationGroup(String sessionToken, TechId authorizationGroupId)
+    {
+        final Session session = getSession(sessionToken);
+        IAuthorizationGroupBO bo = businessObjectFactory.createAuthorizationGroupBO(session);
+        bo.loadByTechId(authorizationGroupId);
+        return PersonTranslator.translate(bo.getAuthorizationGroup().getPersons());
     }
 
 }

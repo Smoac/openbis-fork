@@ -785,4 +785,10 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     public List<AuthorizationGroup> listAuthorizationGroupsForUser(String sessionToken, String userId);
+
+    /**
+     * Return the users in a particular authorization group
+     */
+    @Transactional(readOnly = true)
+    public List<Person> listUsersForAuthorizationGroup(String sessionToken, TechId authorizationGroupId);
 }

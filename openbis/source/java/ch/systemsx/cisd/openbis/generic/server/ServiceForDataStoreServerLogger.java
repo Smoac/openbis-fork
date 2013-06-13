@@ -810,4 +810,12 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
                 userId);
         return null;
     }
+
+    @Override
+    public List<Person> listUsersForAuthorizationGroup(String sessionToken, TechId authorizationGroupId)
+    {
+        logAccess(Level.DEBUG, sessionToken, "listUsersForAuthorizationGroup", "AUTHORIZATION_GROUP_ID(%s)",
+                authorizationGroupId);
+        return null;
+    }
 }

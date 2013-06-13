@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
@@ -896,6 +897,19 @@ public class EntityOperationTest extends SystemTestCase
         String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
         List<AuthorizationGroup> result = etlService.listAuthorizationGroupsForUser(sessionToken, SIMPLE_USER);
         assertEquals("listAuthorizationGroupsForUser(" + SIMPLE_USER + ") should return a list with one group, not " + result, 1, result.size());
+    }
+
+    @Test
+    public void testListUsersForAuthorizationGroup()
+    {
+        String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
+        List<AuthorizationGroup> authorizationGroups = etlService.listAuthorizationGroups(sessionToken);
+        AuthorizationGroup group = authorizationGroups.get(0);
+        List<Person> users = etlService.listUsersForAuthorizationGroup(sessionToken, TechId.create(group));
+        assertEquals("Authorization group " + group.getCode() + " should have only 1 user, not : " + users, 1, users.size());
+        Person user = users.get(0);
+        assertEquals("The user " + SIMPLE_USER + " should be in the group " + AUTHORIZATION_GROUP + ", not " + user.getUserId(), SIMPLE_USER,
+                user.getUserId());
     }
 
     private void performFailungEntityOperations(String sessionToken,
