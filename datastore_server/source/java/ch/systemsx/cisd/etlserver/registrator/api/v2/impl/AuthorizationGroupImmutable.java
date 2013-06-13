@@ -17,12 +17,13 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v2.impl;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IAuthorizationGroupImmutable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class AuthorizationGroupImmutable implements IAuthorizationGroupImmutable
+public class AuthorizationGroupImmutable implements IAuthorizationGroupImmutable, IIdHolder
 {
 
     private final AuthorizationGroup authorizationGroup;
@@ -40,5 +41,11 @@ public class AuthorizationGroupImmutable implements IAuthorizationGroupImmutable
     public String getDescription()
     {
         return authorizationGroup.getDescription();
+    }
+
+    public Long getId()
+    {
+
+        return authorizationGroup.getId();
     }
 }

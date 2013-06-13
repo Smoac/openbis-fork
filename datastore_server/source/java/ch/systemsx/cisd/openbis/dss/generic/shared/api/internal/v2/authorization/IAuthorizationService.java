@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IAuthorizatio
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IUserImmutable;
 
 /**
  * @author Jakub Straszewski
@@ -40,5 +41,7 @@ public interface IAuthorizationService
     List<IAuthorizationGroupImmutable> listAuthorizationGroups();
 
     List<IAuthorizationGroupImmutable> listAuthorizationGroupsForUser(String userId);
+
+    List<IUserImmutable> listUsersForAuthorizationGroup(IAuthorizationGroupImmutable authorizationGroup);
 
 }

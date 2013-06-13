@@ -522,5 +522,11 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      */
     @ManagedAuthentication
     public List<AuthorizationGroup> listAuthorizationGroupsForUser(String userId);
+    
+    /**
+     * Return the users in a particular authorization group
+     */
+    @ManagedAuthentication
+    public List<Person> listUsersForAuthorizationGroup(TechId authorizationGroupId);
 
 }

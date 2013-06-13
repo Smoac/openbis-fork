@@ -955,4 +955,10 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         return service.listAuthorizationGroupsForUser(session.getSessionToken(), userId);
     }
+
+    @Override
+    public List<Person> listUsersForAuthorizationGroup(TechId authorizationGroupId)
+    {
+        return service.listUsersForAuthorizationGroup(session.getSessionToken(), authorizationGroupId);
+    }
 }
