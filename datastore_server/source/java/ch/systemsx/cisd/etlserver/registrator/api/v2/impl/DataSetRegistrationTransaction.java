@@ -78,6 +78,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInform
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 
 /**
@@ -791,5 +792,17 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     public TopLevelDataSetRegistratorGlobalState getGlobalState()
     {
         return registrationService.getRegistratorContext().getGlobalState();
+    }
+
+    @Override
+    public void assignRoleToSpace(RoleCode role, ISpaceImmutable space, List<String> userIds, List<String> groupCodes)
+    {
+        getStateAsLiveState().assignRoleToSpace(role, space, userIds, groupCodes);
+    }
+
+    @Override
+    public void revokeRoleFromSpace(RoleCode role, ISpaceImmutable space, List<String> userIds, List<String> groupCodes)
+    {
+        getStateAsLiveState().revokeRoleFromSpace(role, space, userIds, groupCodes);
     }
 }

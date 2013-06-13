@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
 import java.io.File;
+import java.util.List;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
 
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchServic
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISpaceImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IVocabularyImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.authorization.IAuthorizationService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 
 /**
  * @author Jakub Straszewski
@@ -347,6 +349,18 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
             String externalDataManagementSystemCode)
     {
         return transaction.getExternalDataManagementSystem(externalDataManagementSystemCode);
+    }
+
+    @Override
+    public void assignRoleToSpace(RoleCode role, ISpaceImmutable space, List<String> userIds, List<String> groupCodes)
+    {
+        transaction.assignRoleToSpace(role, space, userIds, groupCodes);
+    }
+
+    @Override
+    public void revokeRoleFromSpace(RoleCode role, ISpaceImmutable space, List<String> userIds, List<String> groupCodes)
+    {
+        transaction.revokeRoleFromSpace(role, space, userIds, groupCodes);
     }
 
 }

@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpaceRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 
 public class DefaultEntityOperationService<T extends DataSetInformation> implements
@@ -95,6 +96,8 @@ public class DefaultEntityOperationService<T extends DataSetInformation> impleme
         List<NewMetaproject> metaprojectRegistrations = details.getMetaprojectRegistrations();
         List<MetaprojectUpdatesDTO> metaprojectUpdates = details.getMetaprojectUpdates();
         List<VocabularyUpdatesDTO> vocabularyUpdates = details.getVocabularyUpdates();
+        List<SpaceRoleAssignment> spaceRoleAssignments = details.getSpaceRoleAssignments();
+        List<SpaceRoleAssignment> spaceRoleRevocations = details.getSpaceRoleRevocations();
 
         List<NewExternalData> dataSetRegistrations = new ArrayList<NewExternalData>();
         for (DataSetRegistrationInformation<?> dsRegistration : details.getDataSetRegistrations())
@@ -108,7 +111,7 @@ public class DefaultEntityOperationService<T extends DataSetInformation> impleme
                 projectRegistrations, projectUpdates, experimentRegistrations, experimentUpdates,
                 sampleUpdates, sampleRegistrations, materialRegistrations, materialUpdates,
                 dataSetRegistrations, dataSetUpdates, metaprojectRegistrations, metaprojectUpdates,
-                vocabularyUpdates);
+                vocabularyUpdates, spaceRoleAssignments, spaceRoleRevocations);
     }
 
 }

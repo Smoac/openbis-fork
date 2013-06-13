@@ -35,11 +35,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpaceRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 
 /**
- * An object that captures the state for performing the registration of one or many openBIS entities
- * atomically.
+ * An object that captures the state for performing the registration of one or many openBIS entities atomically.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -56,7 +56,7 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
     private final List<NewSpace> spaceRegistrations;
 
     private final List<NewProject> projectRegistrations;
-    
+
     private final List<ProjectUpdatesDTO> projectUpdates;
 
     private final List<ExperimentUpdatesDTO> experimentUpdates;
@@ -81,6 +81,10 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
 
     private final List<VocabularyUpdatesDTO> vocabularyUpdates;
 
+    private final List<SpaceRoleAssignment> spaceRoleAssignments;
+
+    private final List<SpaceRoleAssignment> spaceRoleRevocations;
+
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
             List<NewSpace> spaceRegistrations, List<ProjectUpdatesDTO> projectUpdates,
             List<NewProject> projectRegistrations, List<ExperimentUpdatesDTO> experimentUpdates,
@@ -92,7 +96,9 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
             List<DataSetBatchUpdatesDTO> dataSetUpdates,
             List<NewMetaproject> metaprojectRegistrations,
             List<MetaprojectUpdatesDTO> metaprojectUpdates,
-            List<VocabularyUpdatesDTO> vocabularyUpdates)
+            List<VocabularyUpdatesDTO> vocabularyUpdates,
+            List<SpaceRoleAssignment> spaceRoleAssignments,
+            List<SpaceRoleAssignment> spaceRoleRevocations)
     {
         this.registrationId = registrationId;
         this.userIdOrNull = userIdOrNull;
@@ -111,6 +117,8 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
         this.metaprojectRegistrations = new ArrayList<NewMetaproject>(metaprojectRegistrations);
         this.metaprojectUpdates = new ArrayList<MetaprojectUpdatesDTO>(metaprojectUpdates);
         this.vocabularyUpdates = new ArrayList<VocabularyUpdatesDTO>(vocabularyUpdates);
+        this.spaceRoleAssignments = new ArrayList<SpaceRoleAssignment>(spaceRoleAssignments);
+        this.spaceRoleRevocations = new ArrayList<SpaceRoleAssignment>(spaceRoleRevocations);
     }
 
     public TechId getRegistrationId()
@@ -191,6 +199,16 @@ public class AtomicEntityOperationDetails<T extends DataSetInformation> implemen
     public List<VocabularyUpdatesDTO> getVocabularyUpdates()
     {
         return vocabularyUpdates;
+    }
+
+    public List<SpaceRoleAssignment> getSpaceRoleAssignments()
+    {
+        return spaceRoleAssignments;
+    }
+
+    public List<SpaceRoleAssignment> getSpaceRoleRevocations()
+    {
+        return spaceRoleRevocations;
     }
 
 }

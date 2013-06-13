@@ -19,13 +19,13 @@ package ch.systemsx.cisd.etlserver.registrator.api.v1.impl;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
-
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
@@ -38,8 +38,8 @@ import ch.systemsx.cisd.etlserver.registrator.api.impl.MkdirsCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.MoveFileCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.NewFileCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.RollbackStack;
-import ch.systemsx.cisd.etlserver.registrator.api.impl.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.RollbackStack.IRollbackStackDelegate;
+import ch.systemsx.cisd.etlserver.registrator.api.impl.SecondaryTransactionFailure;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSet;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IDataSetUpdatable;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.IExperiment;
@@ -64,8 +64,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDeta
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -81,6 +81,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpaceRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -1098,6 +1099,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             List<NewMetaproject> metaprojectRegistrations = convertMetaprojectsToBeRegistered();
             List<MetaprojectUpdatesDTO> metaprojectUpdates = convertMetaprojectsToBeUpdated();
             List<VocabularyUpdatesDTO> vocabularyUpdates = covertVocabulariesToBeUpdated();
+            List<SpaceRoleAssignment> emptyAssignments = Collections.emptyList();
 
             AtomicEntityOperationDetails<T> registrationDetails =
                     new AtomicEntityOperationDetails<T>(registrationId, getUserId(),
@@ -1105,7 +1107,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                             experimentUpdates, experimentRegistrations, sampleUpdates,
                             sampleRegistrations, materialRegistrations, materialUpdates,
                             dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
-                            metaprojectUpdates, vocabularyUpdates);
+                            metaprojectUpdates, vocabularyUpdates, emptyAssignments, emptyAssignments);
             return registrationDetails;
         }
 

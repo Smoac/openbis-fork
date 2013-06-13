@@ -61,12 +61,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentIm
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IMaterialImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IProjectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISpaceImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -74,6 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
@@ -82,6 +85,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpaceRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -89,6 +93,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Abstract superclass for the states a DataSetRegistrationTransaction can be in.
@@ -205,6 +210,10 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         private final Map<String, SampleType> cachedSampleTypes = new HashMap<String, SampleType>();
 
         private final PermIdCache permIdCache = new PermIdCache();
+
+        private final List<SpaceRoleAssignment> spaceRoleAssignments = new ArrayList<SpaceRoleAssignment>();
+
+        private final List<SpaceRoleAssignment> spaceRoleRevocations = new ArrayList<SpaceRoleAssignment>();
 
         private String userIdOrNull = null;
 
@@ -958,6 +967,36 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             return query;
         }
 
+        public void assignRoleToSpace(RoleCode role, ISpaceImmutable space, List<String> userIds, List<String> groupCodes)
+        {
+            SpaceRoleAssignment assignment = createSpaceRoleAssignment(role, space, userIds, groupCodes);
+            spaceRoleAssignments.add(assignment);
+        }
+
+        private SpaceRoleAssignment createSpaceRoleAssignment(RoleCode role, ISpaceImmutable space, List<String> userIds, List<String> groupCodes)
+        {
+            SpaceRoleAssignment assignment = new SpaceRoleAssignment();
+            assignment.setRoleCode(role);
+            assignment.setSpaceIdentifier(new SpaceIdentifier(space.getSpaceCode()));
+            ArrayList<Grantee> grantees = new ArrayList<Grantee>();
+            for (String userId : userIds)
+            {
+                grantees.add(Grantee.createPerson(userId));
+            }
+            for (String code : groupCodes)
+            {
+                grantees.add(Grantee.createAuthorizationGroup(code));
+            }
+            assignment.setGrantees(grantees);
+            return assignment;
+        }
+
+        public void revokeRoleFromSpace(RoleCode role, ISpaceImmutable space, List<String> userIds, List<String> groupCodes)
+        {
+            SpaceRoleAssignment assignment = createSpaceRoleAssignment(role, space, userIds, groupCodes);
+            spaceRoleRevocations.add(assignment);
+        }
+
         public void deleteFile(String src)
         {
             throw new NotImplementedException();
@@ -1116,7 +1155,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                             experimentUpdates, experimentRegistrations, sampleUpdates,
                             sampleRegistrations, materialRegistrations, materialUpdates,
                             dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
-                            metaprojectUpdates, vocabularyUpdates);
+                            metaprojectUpdates, vocabularyUpdates, spaceRoleAssignments, spaceRoleRevocations);
             return registrationDetails;
         }
 
