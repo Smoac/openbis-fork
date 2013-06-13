@@ -979,13 +979,19 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             assignment.setRoleCode(role);
             assignment.setSpaceIdentifier(new SpaceIdentifier(space.getSpaceCode()));
             ArrayList<Grantee> grantees = new ArrayList<Grantee>();
-            for (String userId : userIds)
+            if (null != userIds)
             {
-                grantees.add(Grantee.createPerson(userId));
+                for (String userId : userIds)
+                {
+                    grantees.add(Grantee.createPerson(userId));
+                }
             }
-            for (String code : groupCodes)
+            if (null != groupCodes)
             {
-                grantees.add(Grantee.createAuthorizationGroup(code));
+                for (String code : groupCodes)
+                {
+                    grantees.add(Grantee.createAuthorizationGroup(code));
+                }
             }
             assignment.setGrantees(grantees);
             return assignment;
