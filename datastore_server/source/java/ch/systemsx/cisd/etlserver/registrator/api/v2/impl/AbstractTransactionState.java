@@ -139,12 +139,10 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         private static int fileSystemAvailablityPollingWaitTimeMs = 10 * 1000;
 
         /**
-         * These two variables determine together how long the rollback mechanism waits for a file
-         * system that has become unavailable and how often it checks for the file system to become
-         * available.
+         * These two variables determine together how long the rollback mechanism waits for a file system that has become unavailable and how often it
+         * checks for the file system to become available.
          * <p>
-         * The duration the rollback mechanism will wait before giving up equals waitTimeMS *
-         * waitCount;
+         * The duration the rollback mechanism will wait before giving up equals waitTimeMS * waitCount;
          * <p>
          * Made public for testing.
          */
@@ -907,9 +905,8 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         /**
          * Recursively add folder creation commands to the rollback stack as necessary.
          * <p>
-         * Discussion: The operation needs to be recursive so that on a rollback, children will have
-         * been deleted before the parent gets deleted. This is required because the folder must be
-         * empty for delete to succeed.
+         * Discussion: The operation needs to be recursive so that on a rollback, children will have been deleted before the parent gets deleted. This
+         * is required because the folder must be empty for delete to succeed.
          */
         private void mkdirsIfNeeded(File dstFolder)
         {
@@ -1089,8 +1086,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         }
 
         /**
-         * Rollback any commands that have been executed. Rollback is done in the reverse order of
-         * execution.
+         * Rollback any commands that have been executed. Rollback is done in the reverse order of execution.
          */
         public void rollback()
         {
@@ -1112,8 +1108,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         }
 
         /**
-         * Generate a data set code for the registration details. Just calls openBisService to get a
-         * data set code by default.
+         * Generate a data set code for the registration details. Just calls openBisService to get a data set code by default.
          * 
          * @return A data set code
          */
@@ -1373,8 +1368,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
     }
 
     /**
-     * Rollback stack delegate that checks whether the given filesystem is accessible before letting
-     * the rollback continue.
+     * Rollback stack delegate that checks whether the given filesystem is accessible before letting the rollback continue.
      */
     public static class LiveTransactionRollbackDelegate implements IRollbackStackDelegate
     {
