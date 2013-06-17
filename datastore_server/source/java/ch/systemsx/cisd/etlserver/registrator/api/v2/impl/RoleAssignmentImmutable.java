@@ -21,6 +21,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IRoleAssignme
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISpaceImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IUserImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -35,19 +37,28 @@ public class RoleAssignmentImmutable implements IRoleAssignmentImmutable
         this.roleAssignment = roleAssignment;
     }
 
+    @Override
     public IAuthorizationGroupImmutable getAuthorizationGroup()
     {
-        return new AuthorizationGroupImmutable(roleAssignment.getAuthorizationGroup());
+        return roleAssignment.getAuthorizationGroup() != null ? new AuthorizationGroupImmutable(roleAssignment.getAuthorizationGroup()) : null;
     }
 
+    @Override
     public IUserImmutable getUser()
     {
-        return new UserImmutable(roleAssignment.getPerson());
+        return roleAssignment.getPerson() != null ? new UserImmutable(roleAssignment.getPerson()) : null;
     }
 
+    @Override
     public ISpaceImmutable getSpace()
     {
-        return new SpaceImmutable(roleAssignment.getSpace());
+        return roleAssignment.getSpace() != null ? new SpaceImmutable(roleAssignment.getSpace()) : null;
+    }
+
+    @Override
+    public RoleWithHierarchy getRoleSetCode()
+    {
+        return roleAssignment.getRoleSetCode();
     }
 
 }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**
  * An interface for role assignments from the database that should not be altered.
@@ -24,9 +25,24 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2;
  */
 public interface IRoleAssignmentImmutable
 {
+
+    /**
+     * @return The authorization group or null if there is none for this assignment
+     */
     public IAuthorizationGroupImmutable getAuthorizationGroup();
 
+    /**
+     * @return The user or null if there is none for this assignment
+     */
     public IUserImmutable getUser();
 
+    /**
+     * @return The space or null if there is none for this assignment
+     */
     public ISpaceImmutable getSpace();
+
+    /**
+     * @return The role code.
+     */
+    public RoleWithHierarchy getRoleSetCode();
 }
