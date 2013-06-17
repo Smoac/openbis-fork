@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
@@ -27,8 +28,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class SpaceRoleAssignment
+public class SpaceRoleAssignment implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private RoleCode roleCode;
 
     private SpaceIdentifier spaceIdentifier;
