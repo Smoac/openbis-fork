@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -222,7 +221,18 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
         
         void handle(BasicZipFile zipFile, ZipEntry zipEntry)
         {
-            linkNode(new ZipContentNode(zipFile, zipEntry));
+            if (zipEntry.isDirectory())
+            {
+                String name = zipEntry.getName();
+                if (name.endsWith("/"))
+                {
+                    name = name.substring(0, name.length() - 1);
+                }
+                linkNode(new ZipContainerNode(name));
+            } else
+            {
+                linkNode(new ZipContentNode(zipFile, zipEntry));
+            }
         }
 
         private void linkNode(IHierarchicalContentNode contentNode)

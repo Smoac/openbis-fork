@@ -57,10 +57,11 @@ public class ZipBasedHierarchicalContentTest extends AbstractFileSystemTestCase
         File alpha = new File(dataRoot, "alpha");
         File beta = new File(alpha, "beta");
         beta.mkdirs();
+        new File(alpha, "empty-dir").mkdir();
         FileUtilities.writeToFile(new File(beta, "hello.txt"), "hello world!");
         FileUtilities.writeToFile(new File(alpha, "read.me"), "don't read me!");
         FileUtilities.writeToFile(new File(dataRoot, "change-log.txt"), "nothing really changed.");
-        File zipFile = new File("data.zip");
+        File zipFile = new File(workingDirectory, "data.zip");
         zip(zipFile, dataRoot);
         
         IHierarchicalContent content = new ZipBasedHierarchicalContent(zipFile);
@@ -71,11 +72,12 @@ public class ZipBasedHierarchicalContentTest extends AbstractFileSystemTestCase
         assertDirectoryNode("alpha", "alpha", childNodes.get(0));
         List<IHierarchicalContentNode> grandChildNodes = childNodes.get(0).getChildNodes();
         assertDirectoryNode("alpha/beta", "beta", grandChildNodes.get(0));
+        assertDirectoryNode("alpha/empty-dir", "empty-dir", grandChildNodes.get(1));
         List<IHierarchicalContentNode> grandGrandChildNodes = grandChildNodes.get(0).getChildNodes();
         assertFileNode("alpha/beta/hello.txt", "hello.txt", "hello world!", grandGrandChildNodes.get(0));
         assertEquals(1, grandGrandChildNodes.size());
-        assertFileNode("alpha/read.me", "read.me", "don't read me!", grandChildNodes.get(1));
-        assertEquals(2, grandChildNodes.size());
+        assertFileNode("alpha/read.me", "read.me", "don't read me!", grandChildNodes.get(2));
+        assertEquals(3, grandChildNodes.size());
         assertFileNode("change-log.txt", "change-log.txt", "nothing really changed.", childNodes.get(1));
         assertEquals(2, childNodes.size());
     }
@@ -155,10 +157,36 @@ public class ZipBasedHierarchicalContentTest extends AbstractFileSystemTestCase
         } else if (file.isDirectory())
         {
             File[] files = file.listFiles();
-            Arrays.sort(files);
-            for (File childFile : files)
+            if (files.length == 0)
             {
-                zip(zipOutputStream, rootFile, childFile);
+                try
+                {
+                    String path = FileUtilities.getRelativeFilePath(rootFile, file).replace('\\', '/');
+                    if (path.endsWith("/") == false)
+                    {
+                        path += "/";
+                    }
+                    zipOutputStream.putNextEntry(new ZipEntry(path));
+                } catch (IOException ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                } finally
+                {
+                    try
+                    {
+                        zipOutputStream.closeEntry();
+                    } catch (IOException ex)
+                    {
+                        throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                    }
+                }
+            } else
+            {
+                Arrays.sort(files);
+                for (File childFile : files)
+                {
+                    zip(zipOutputStream, rootFile, childFile);
+                }
             }
         }
     }
