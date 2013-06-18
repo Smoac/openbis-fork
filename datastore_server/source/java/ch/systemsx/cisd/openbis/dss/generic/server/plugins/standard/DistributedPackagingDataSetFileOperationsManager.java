@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
@@ -91,20 +89,24 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
             }
         };
         
-    private Map<String, File> archiveFolderMapping = new HashMap<String, File>(); 
-
     private boolean compress;
     
     private File defaultFolder;
 
     private boolean withSharding;
 
+    private String mappingFilePathOrNull;
+    
+    private boolean createArchives;
+    
     private transient IEncapsulatedOpenBISService service;
     
     private transient IHierarchicalContentProvider contentProvider;
     
     private transient IDataSetDirectoryProvider directoryProvider;
-    
+
+    private transient IdentifierAttributeMappingManager archiveFolderMapping;
+
     public DistributedPackagingDataSetFileOperationsManager(Properties properties)
     {
         this(properties, null, null, null);
@@ -125,12 +127,8 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
             throw new ConfigurationFailureException("Default archive folder '" + defaultFolder.getPath() 
                     + "' doesn't exist or is not a folder.");
         }
-        String mappingFilePath = properties.getProperty(MAPPING_FILE_KEY);
-        if (mappingFilePath != null)
-        {
-            boolean createArchives = PropertyUtils.getBoolean(properties, CREATE_ARCHIVES_KEY, false);
-            archiveFolderMapping = new SpaceAttributeMappingManager(mappingFilePath, createArchives).getFoldersMap();
-        }
+        mappingFilePathOrNull = properties.getProperty(MAPPING_FILE_KEY);
+        createArchives = PropertyUtils.getBoolean(properties, CREATE_ARCHIVES_KEY, false);
     }
 
     @Override
@@ -260,7 +258,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
         {
             return archiveFile;
         }
-        Collection<File> folders = archiveFolderMapping.values();
+        Collection<File> folders = getArchiveFolderMapping().getAllFolders();
         for (File folder : folders)
         {
             archiveFile = getArchiveFile(folder, datasetLocation, false);
@@ -342,12 +340,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
     
     private File getArchiveFile(DatasetDescription datasetDescription)
     {
-        String spaceCode = datasetDescription.getSpaceCode();
-        File folder = archiveFolderMapping.get("/" + spaceCode);
-        if (folder == null)
-        {
-            folder = defaultFolder;
-        }
+        File folder = getArchiveFolderMapping().getArchiveFolder(datasetDescription, defaultFolder);
         return getArchiveFile(folder, datasetDescription, true);
     }
 
@@ -401,6 +394,15 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
             directoryProvider = ServiceProvider.getDataStoreService().getDataSetDirectoryProvider();
         }
         return directoryProvider;
+    }
+    
+    private IdentifierAttributeMappingManager getArchiveFolderMapping()
+    {
+        if (archiveFolderMapping == null)
+        {
+            archiveFolderMapping = new IdentifierAttributeMappingManager(mappingFilePathOrNull, createArchives);
+        }
+        return archiveFolderMapping;
     }
     
 }
