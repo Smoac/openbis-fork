@@ -61,9 +61,6 @@ public class CreateSpacesFromDssSystemTest extends SystemTestCase
         IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
         assertSpace(openBISService);
         assertRole(openBISService);
-
-        Thread.sleep(1000);
-
     }
 
     private void assertSpace(IEncapsulatedOpenBISService openBISService)
