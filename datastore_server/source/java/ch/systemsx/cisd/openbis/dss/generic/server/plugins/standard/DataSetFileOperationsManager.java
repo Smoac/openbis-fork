@@ -88,7 +88,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
     @Private
     static final long DEFAULT_TIMEOUT_SECONDS = 15;
 
-    @Private static final String FOLDER_OF_AS_DELETED_MARKED_DATA_SETS = "DELETED";
+    static final String FOLDER_OF_AS_DELETED_MARKED_DATA_SETS = "DELETED";
 
     private final IDataSetFileOperationsExecutor executor;
 

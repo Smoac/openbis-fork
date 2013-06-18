@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -190,21 +191,31 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
             {
                 ZipEntry entry = entries.nextElement();
                 File outputFile = new File(originalData, entry.getName());
-                if (entry.isDirectory() == false
-                        && AbstractDataSetPackager.META_DATA_FILE_NAME.equals(entry.getName()) == false)
-                {
-                    outputFile.getParentFile().mkdirs();
-                    InputStream inputStream = new BufferedInputStream(zipFile.getInputStream(entry));
-                    fileOutputStream = new FileOutputStream(outputFile);
-                    BufferedOutputStream outputStream = new BufferedOutputStream(fileOutputStream);
-                    try
+                if (entry.isDirectory() == false                        )
+                { 
+                    if (AbstractDataSetPackager.META_DATA_FILE_NAME.equals(entry.getName()) == false)
                     {
-                        IOUtils.copyLarge(inputStream, outputStream);
-                    } finally
-                    {
-                        IOUtils.closeQuietly(inputStream);
-                        IOUtils.closeQuietly(outputStream);
+                        outputFile.getParentFile().mkdirs();
+                        InputStream inputStream = new BufferedInputStream(zipFile.getInputStream(entry));
+                        fileOutputStream = new FileOutputStream(outputFile);
+                        BufferedOutputStream outputStream = new BufferedOutputStream(fileOutputStream);
+                        try
+                        {
+                            IOUtils.copyLarge(inputStream, outputStream);
+                        } finally
+                        {
+                            IOUtils.closeQuietly(inputStream);
+                            IOUtils.closeQuietly(outputStream);
+                        }
                     }
+                } else
+                {
+                    if (outputFile.isFile())
+                    {
+                        throw new EnvironmentFailureException("Could not extract directory '" + outputFile 
+                                + "' because it exists already as a plain file.");
+                    }
+                    outputFile.mkdirs();
                 }
             }
             operationLog.info("Data set '" + datasetDescription.getDataSetCode() + "' unzipped from archive '"
@@ -264,7 +275,32 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
     @Override
     public Status markAsDeleted(IDatasetLocation dataset)
     {
-        return Status.OK;
+        File archiveFile = tryFindArchiveFile(dataset);
+        if (archiveFile == null)
+        {
+            operationLog.warn("Archive file for data set '" + dataset.getDataSetCode() + "' no konger exists.");
+            return Status.OK;
+        }
+        String relPath = (withSharding ? dataset.getDataSetLocation() + "/" : "") + createPackageFileName(dataset);
+        String path = archiveFile.getPath();
+        int index = path.lastIndexOf(relPath);
+        File archiveFolder = new File(path.substring(0, index));
+        File folderOfMarkers = new File(archiveFolder, DataSetFileOperationsManager.FOLDER_OF_AS_DELETED_MARKED_DATA_SETS);
+        folderOfMarkers.mkdirs();
+        File markerFile = new File(folderOfMarkers, dataset.getDataSetCode());
+        try
+        {
+            if (markerFile.createNewFile() == false)
+            {
+                throw new IOException("Marker file already exists.");
+            }
+            return Status.OK;
+        } catch (IOException ex)
+        {
+            String message = "Couldn't create marker file '" + markerFile + "': " + ex;
+            operationLog.error(message, ex);
+            return Status.createError(message);
+        }
     }
 
     @Override
@@ -317,6 +353,17 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
 
     private File getArchiveFile(File baseFolder, IDatasetLocation datasetLocation, boolean forWriting)
     {
+        File folder = getArchiveFolder(baseFolder, datasetLocation, forWriting);
+        return new File(folder, createPackageFileName(datasetLocation));
+    }
+
+    private String createPackageFileName(IDatasetLocation datasetLocation)
+    {
+        return datasetLocation.getDataSetCode() + ".zip";
+    }
+
+    private File getArchiveFolder(File baseFolder, IDatasetLocation datasetLocation, boolean forWriting)
+    {
         File folder = baseFolder;
         if (withSharding)
         {
@@ -326,7 +373,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
                 folder.mkdirs();
             }
         }
-        return new File(folder, datasetLocation.getDataSetCode() + ".zip");
+        return folder;
     }
 
     private IEncapsulatedOpenBISService getService()
