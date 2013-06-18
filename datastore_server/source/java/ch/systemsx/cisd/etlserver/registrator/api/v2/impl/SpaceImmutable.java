@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver.registrator.api.v2.impl;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISpaceImmutable;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * @author Kaloyan Enimanev
@@ -75,4 +76,9 @@ public class SpaceImmutable implements ISpaceImmutable
         return space;
     }
 
+    @Override
+    public String getIdentifier()
+    {
+        return space.getIdentifier();
+    }
 }

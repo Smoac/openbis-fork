@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Queue;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
-
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
@@ -93,7 +92,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifierFactory;
 
 /**
  * Abstract superclass for the states a DataSetRegistrationTransaction can be in.
@@ -974,7 +973,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         {
             SpaceRoleAssignment assignment = new SpaceRoleAssignment();
             assignment.setRoleCode(role);
-            assignment.setSpaceIdentifier(new SpaceIdentifier(space.getSpaceCode()));
+            assignment.setSpaceIdentifier(new SpaceIdentifierFactory(space.getSpaceCode()).createIdentifier());
             ArrayList<Grantee> grantees = new ArrayList<Grantee>();
             if (null != userIds)
             {

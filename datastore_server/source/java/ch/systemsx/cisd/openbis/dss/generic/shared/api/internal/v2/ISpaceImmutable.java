@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2;
 
+
 /**
  * An interface for spaces from the database that should not be altered.
  * 
@@ -39,5 +40,9 @@ public interface ISpaceImmutable
      */
     boolean isExistingSpace();
 
+    /**
+     * Return the identifier for this space.
+     */
+    String getIdentifier();
 
 }
