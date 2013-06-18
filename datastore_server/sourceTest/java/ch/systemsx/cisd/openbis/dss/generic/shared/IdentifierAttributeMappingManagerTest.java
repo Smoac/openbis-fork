@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
+package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -251,6 +251,7 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
         FileUtilities.writeToFile(mappingFile, "Identifier\tShare ID\tArchive Folder\n"
                 + "/S1/P1/E2\t2, 1,3\t\n"
                 + "/S1/P2\t1,3\t\n"
+                + "/S1\t\t\n"
                 + "/S1\t2,3\t\n"
                 + "/S2\t4,5\t");
         IdentifierAttributeMappingManager mappingManager = new IdentifierAttributeMappingManager(mappingFile.getPath(), false);

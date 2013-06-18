@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
+package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -205,21 +205,26 @@ public class IdentifierAttributeMappingManager
         String projectCode = dataSetDescription.getProjectCode();
         String experimentCode = dataSetDescription.getExperimentCode();
         Attributes attributes = tryGetExperimentAttributes(spaceCode, projectCode, experimentCode);
-        if (attributes != null && attributes.getArchiveFolder() != null)
+        if (hasArchiveFolder(attributes))
         {
             return attributes.getArchiveFolder();
         }
         attributes = tryGetProjectAttributes(spaceCode, projectCode);
-        if (attributes != null && attributes.getArchiveFolder() != null)
+        if (hasArchiveFolder(attributes))
         {
             return attributes.getArchiveFolder();
         }
         attributes = tryGetSpaceAttributes(spaceCode);
-        if (attributes != null && attributes.getArchiveFolder() != null)
+        if (hasArchiveFolder(attributes))
         {
             return attributes.getArchiveFolder();
         }
         return defaultFolder;
+    }
+
+    private boolean hasArchiveFolder(Attributes attributes)
+    {
+        return attributes != null && attributes.getArchiveFolder() != null;
     }
     
     public List<String> getShareIds(SimpleDataSetInformationDTO dataSet)
@@ -228,21 +233,31 @@ public class IdentifierAttributeMappingManager
         String projectCode = dataSet.getProjectCode();
         String experimentCode = dataSet.getExperimentCode();
         Attributes attributes = tryGetExperimentAttributes(spaceCode, projectCode, experimentCode);
-        if (attributes != null && attributes.getShareIds() != null)
+        if (hasShareIds(attributes))
         {
             return attributes.getShareIds();
         }
         attributes = tryGetProjectAttributes(spaceCode, projectCode);
-        if (attributes != null && attributes.getShareIds() != null)
+        if (hasShareIds(attributes))
         {
             return attributes.getShareIds();
         }
         attributes = tryGetSpaceAttributes(spaceCode);
-        if (attributes != null && attributes.getShareIds() != null)
+        if (hasShareIds(attributes))
         {
             return attributes.getShareIds();
         }
         return Collections.emptyList();
+    }
+
+    private boolean hasShareIds(Attributes attributes)
+    {
+        if (attributes == null)
+        {
+            return false;
+        }
+        List<String> shareIds = attributes.getShareIds();
+        return shareIds != null && shareIds.isEmpty() == false;
     }
     
     private Attributes tryGetExperimentAttributes(String spaceCode, String projectCode, String experimentCode)

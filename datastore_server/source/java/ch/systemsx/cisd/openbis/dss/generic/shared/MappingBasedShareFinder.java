@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IdentifierAttributeMappingManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
