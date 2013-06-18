@@ -290,13 +290,12 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public final void testSampleIsNotRegistered()
+    public final void testWithOnlySampleIdentifier()
     {
         final File incomingDataSetPath = createIncomingDataSetPath();
         final DataSetInformation dataSetInfo = IdentifiedDataStrategyTest.createDataSetInfo();
         final Sample baseSample = createSampleWithExperiment();
         dataSetInfo.setExperimentIdentifier(null);
-        dataSetInfo.setSample(baseSample);
         final Person person = new Person();
         final String email = "john.doe@freemail.org";
         person.setEmail(email);
@@ -318,7 +317,48 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
                                     new ExperimentIdentifier(baseSample.getExperiment())))),
                             with(any(String.class)), with(equal(replyTo)), with(equal(nullFrom)),
                             with(equal(new String[]
-                                { email })));
+                            { email })));
+                }
+            });
+
+        final IDataStoreStrategy dataStoreStrategy =
+                dataStrategyStore.getDataStoreStrategy(dataSetInfo, incomingDataSetPath);
+
+        assertEquals(dataStoreStrategy.getKey(), DataStoreStrategyKey.INVALID);
+        final String logContent = logRecorder.getLogContent();
+        assertEquals("Unexpected log content: " + logContent, true,
+                logContent.startsWith("ERROR OPERATION.DataStrategyStore"));
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testSampleIsNotRegistered()
+    {
+        final File incomingDataSetPath = createIncomingDataSetPath();
+        final DataSetInformation dataSetInfo = IdentifiedDataStrategyTest.createDataSetInfo();
+        final Sample baseSample = createSampleWithExperiment();
+        dataSetInfo.setExperimentIdentifier(null);
+        dataSetInfo.setSample(baseSample);
+        final Person person = new Person();
+        final String email = "john.doe@freemail.org";
+        person.setEmail(email);
+        baseSample.getExperiment().setRegistrator(person);
+        context.checking(new Expectations()
+            {
+                {
+                    one(limsService).tryGetPropertiesOfSample(
+                            dataSetInfo.getSampleIdentifier());
+                    will(returnValue(null));
+
+                    String replyTo = null;
+                    From nullFrom = null;
+                    one(mailClient).sendMessage(
+                            with(equal(String.format(DataStrategyStore.SUBJECT_FORMAT,
+                                    new ExperimentIdentifier(baseSample.getExperiment())))),
+                            with(any(String.class)), with(equal(replyTo)), with(equal(nullFrom)),
+                            with(equal(new String[]
+                            { email })));
                 }
             });
 

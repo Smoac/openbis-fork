@@ -1072,12 +1072,12 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                 if (experimentsToBeRegistered.contains(experiment)
                         || samplesToBeRegistered.contains(sample))
                 {
-                    // Sample/Experiment exists
+                    // Sample/Experiment does not exist and will be created.
                     algorithms.add(registrationService
                             .createStorageAlgorithmWithIdentifiedStrategy(contents, details));
                 } else
                 {
-                    // The experiment/sample does not yet exist
+                    // The experiment/sample already exists
                     algorithms.add(registrationService.createStorageAlgorithm(contents, details));
                 }
             }
