@@ -973,7 +973,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         {
             SpaceRoleAssignment assignment = new SpaceRoleAssignment();
             assignment.setRoleCode(role);
-            assignment.setSpaceIdentifier(new SpaceIdentifierFactory(space.getSpaceCode()).createIdentifier());
+            assignment.setSpaceIdentifier(new SpaceIdentifierFactory(space.getIdentifier()).createIdentifier());
             ArrayList<Grantee> grantees = new ArrayList<Grantee>();
             if (null != userIds)
             {
