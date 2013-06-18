@@ -92,11 +92,18 @@ public class DefaultFullTextIndexerTest extends AssertJUnit
 
         indexer.doFullTextIndex(session, SamplePE.class);
 
-        assertEquals("INFO  OPERATION.DefaultFullTextIndexer - ... got 0 'SamplePE' ids...\n"
-                + "INFO  OPERATION.DefaultFullTextIndexer - "
-                + "'SamplePE' index complete. 0 entities have been indexed.",
+        assertEquals(
+                getEodSqlUtilsWarnString()
+                        + "INFO  OPERATION.DefaultFullTextIndexer - ... got 0 'SamplePE' ids...\n"
+                        + "INFO  OPERATION.DefaultFullTextIndexer - "
+                        + "'SamplePE' index complete. 0 entities have been indexed.",
                 logRecorder.getLogContent());
         context.assertIsSatisfied();
+    }
+
+    private String getEodSqlUtilsWarnString()
+    {
+        return "WARN  TRACKING.EodSqlUtils - Attempt to create an EodSql managed transaction with an underlying transaction that has no JDBC context: transaction\n";
     }
 
     @Test
@@ -110,7 +117,7 @@ public class DefaultFullTextIndexerTest extends AssertJUnit
 
         indexer.doFullTextIndex(session, SamplePE.class);
 
-        assertEquals("INFO  OPERATION.DefaultFullTextIndexer - ... got 1 'SamplePE' ids...\n"
+        assertEquals(getEodSqlUtilsWarnString() + "INFO  OPERATION.DefaultFullTextIndexer - ... got 1 'SamplePE' ids...\n"
                 + "INFO  OPERATION.DefaultFullTextIndexer - "
                 + "1/1 SamplePEs have been indexed...\n"
                 + "INFO  OPERATION.DefaultFullTextIndexer - "
@@ -130,7 +137,7 @@ public class DefaultFullTextIndexerTest extends AssertJUnit
 
         indexer.doFullTextIndex(session, SamplePE.class);
 
-        assertEquals("INFO  OPERATION.DefaultFullTextIndexer - ... got 2 'SamplePE' ids...\n"
+        assertEquals(getEodSqlUtilsWarnString() + "INFO  OPERATION.DefaultFullTextIndexer - ... got 2 'SamplePE' ids...\n"
                 + "INFO  OPERATION.DefaultFullTextIndexer - "
                 + "2/2 SamplePEs have been indexed...\n"
                 + "INFO  OPERATION.DefaultFullTextIndexer - "
@@ -152,7 +159,7 @@ public class DefaultFullTextIndexerTest extends AssertJUnit
 
         indexer.doFullTextIndex(session, SamplePE.class);
 
-        assertEquals("INFO  OPERATION.DefaultFullTextIndexer - ... got 3 'SamplePE' ids...\n"
+        assertEquals(getEodSqlUtilsWarnString() + "INFO  OPERATION.DefaultFullTextIndexer - ... got 3 'SamplePE' ids...\n"
                 + "INFO  OPERATION.DefaultFullTextIndexer - "
                 + "2/3 SamplePEs have been indexed...\n"
                 + "INFO  OPERATION.DefaultFullTextIndexer - "
@@ -176,7 +183,7 @@ public class DefaultFullTextIndexerTest extends AssertJUnit
 
         indexer.doFullTextIndex(session, SamplePE.class);
 
-        assertEquals("INFO  OPERATION.DefaultFullTextIndexer - ... got 4 'SamplePE' ids...\n"
+        assertEquals(getEodSqlUtilsWarnString() + "INFO  OPERATION.DefaultFullTextIndexer - ... got 4 'SamplePE' ids...\n"
                 + "INFO  OPERATION.DefaultFullTextIndexer - "
                 + "2/4 SamplePEs have been indexed...\n"
                 + "INFO  OPERATION.DefaultFullTextIndexer - "
