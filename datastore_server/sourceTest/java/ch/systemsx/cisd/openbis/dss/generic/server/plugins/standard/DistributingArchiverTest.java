@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.Abstr
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -46,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataStoreBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PersonBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -81,6 +83,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
     @BeforeMethod
     public void prepareTestData(Method method)
     {
+        wait(1); // Without waiting sometimes the meta data from a previous test is extracted from zip file.
         ds1InStore = new File(share1, LOCATION);
         File subfolder = new File(ds1InStore, "original/my-data/subfolder");
         subfolder.mkdirs();
@@ -102,10 +105,13 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
     public void testArchivingFlatToDefaultArchive()
     {
         DistributingArchiver archiver = createArchiver();
-        Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").property("E-PROP", "42").getExperiment();
+        Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E")
+                .registrator(new PersonBuilder().name("Albert", "Einstein").getPerson())
+                .property("E-PROP", "42").getExperiment();
+        experiment.setRegistrationDate(new Date(98765));
         PhysicalDataSet ds1 =
-                new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION)
-                        .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).fileFormat("ABC")
+                new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION).fileFormat("ABC")
+                        .registrationDate(new Date(12345)).store(new DataStoreBuilder(DATA_STORE_CODE).getStore())
                         .experiment(experiment).getDataSet();
         DatasetDescription dsd1 = DataSetTranslator.translateToDescription(ds1);
         prepareGetShareId();
@@ -141,8 +147,8 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
                 + "experiment\tproject_code\tP\n"
                 + "experiment\texperiment_code\tE1\n"
                 + "experiment\texperiment_type_code\tMY-E\n"
-                + "experiment\tregistration_timestamp\t\n"
-                + "experiment\tregistrator\t\n"
+                + "experiment\tregistration_timestamp\t1970-01-01 01:01:38 +0100\n"
+                + "experiment\tregistrator\tAlbert Einstein\n"
                 + "experiment\tE-PROP\t42\n", archivedDataSetFile, AbstractDataSetPackager.META_DATA_FILE_NAME, true);
         assertZipContent("Hello world!", archivedDataSetFile, "original/my-data/subfolder/hello.txt", true);
         assertZipContent("Nothing to read!", archivedDataSetFile, "original/my-data/read-me.txt", true);
@@ -301,7 +307,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
                     will(returnValue(DATA_STORE_CODE));
                 }
             });
-
+        
         processingStatus = archiver.unarchive(Arrays.asList(dsd1), archiverTaskContext);
         
         File archivedDataSetFile = new File(defaultArchive, ds1.getDataSetCode() + ".zip");
@@ -380,12 +386,12 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         FileUtilities.deleteRecursively(ds1InStore);     // delete in store
         prepareUpdateStatus(DataSetArchivingStatus.AVAILABLE, true);
         context.checking(new Expectations()
-        {
             {
-                one(configProvider).getDataStoreCode();
-                will(returnValue(DATA_STORE_CODE));
-            }
-        });
+                {
+                    one(configProvider).getDataStoreCode();
+                    will(returnValue(DATA_STORE_CODE));
+                }
+            });
         
         processingStatus = archiver.unarchive(Arrays.asList(dsd1), archiverTaskContext);
         
@@ -787,6 +793,17 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         DistributingArchiver archiver = new DistributingArchiver(properties, store);
         archiver.statusUpdater = statusUpdater;
         return archiver;
+    }
+    
+    private void wait(int seconds)
+    {
+        try
+        {
+            Thread.sleep(seconds * 1000L);
+        } catch (InterruptedException ex)
+        {
+            // ignored
+        }
     }
 
 }
