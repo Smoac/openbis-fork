@@ -47,7 +47,6 @@ abstract public class AbstractFileDownloadServlet extends AbstractServlet
             response.setContentLength(fileContent.getContent().length);
             response.setHeader("Content-Disposition",
                     "attachment; filename=\"" + fileContent.getFileName() + "\"");
-            response.setHeader("Cache-Control", "no-cache");
             final ServletOutputStream outputStream = response.getOutputStream();
             outputStream.write(fileContent.getContent());
             outputStream.flush();
