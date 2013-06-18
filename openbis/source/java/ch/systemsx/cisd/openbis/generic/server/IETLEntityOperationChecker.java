@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewProjec
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SampleUpdatesCollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
@@ -134,4 +135,11 @@ public interface IETLEntityOperationChecker
     public void assertDataSetUpdateAllowed(IAuthSession session,
             @AuthorizationGuard(guardClass = DataSetUpdatesCollectionPredicate.class)
             List<DataSetBatchUpdatesDTO> dataSets);
+
+    @RolesAllowed(
+    { RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.INSTANCE_ETL_SERVER })
+    @Capability("ASSIGN_ROLE_TO_SPACE_VIA_DSS")
+    public void assertSpaceRoleAssignmentAllowed(IAuthSession session,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            SpaceIdentifier space);
 }

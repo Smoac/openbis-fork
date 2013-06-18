@@ -1770,6 +1770,11 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         }
     }
 
+    protected void checkSpaceRoleAssignmentAllowed(Session session, SpaceIdentifier space)
+    {
+        entityOperationChecker.assertSpaceRoleAssignmentAllowed(session, space);
+    }
+
     private long updateVocabularies(Session session, AtomicEntityOperationDetails operationDetails,
             IServiceConversationProgressListener progress, boolean authorize)
     {
@@ -1909,6 +1914,10 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         {
             RoleCode roleCode = assignment.getRoleCode();
             SpaceIdentifier space = assignment.getSpaceIdentifier();
+            if (authorize)
+            {
+                checkSpaceRoleAssignmentAllowed(session, space);
+            }
             for (Grantee grantee : assignment.getGrantees())
             {
                 final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
