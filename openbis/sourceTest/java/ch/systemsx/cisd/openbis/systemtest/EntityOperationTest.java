@@ -17,10 +17,12 @@
 package ch.systemsx.cisd.openbis.systemtest;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -75,6 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 
 /**
@@ -92,6 +95,8 @@ public class EntityOperationTest extends SystemTestCase
     private static final String SPACE_ETL_SERVER_FOR_B = PREFIX + "S_ETL_B";
 
     private static final String SIMPLE_USER = PREFIX + "SIMPLE";
+
+    private static final String SPACE_ADMIN_USER = PREFIX + "SPACE";
 
     private static final String AUTHORIZATION_GROUP = PREFIX + "GROUP";
 
@@ -322,11 +327,11 @@ public class EntityOperationTest extends SystemTestCase
             return this;
         }
 
-        private SpaceRoleAssignment createSpaceRoleAssignment(RoleCode roleCode, String spaceCode, List<String> userIds, List<String> groupCodes)
+        private SpaceRoleAssignment createSpaceRoleAssignment(RoleCode roleCode, String spaceIdentifier, List<String> userIds, List<String> groupCodes)
         {
             SpaceRoleAssignment assignment = new SpaceRoleAssignment();
             assignment.setRoleCode(roleCode);
-            assignment.setSpaceIdentifier(new SpaceIdentifier(spaceCode));
+            assignment.setSpaceIdentifier(new SpaceIdentifierFactory(spaceIdentifier).createIdentifier());
             ArrayList<Grantee> grantees = new ArrayList<Grantee>();
             for (String userId : userIds)
             {
@@ -355,6 +360,7 @@ public class EntityOperationTest extends SystemTestCase
     {
         assignSpaceRole(registerPerson(SPACE_ETL_SERVER_FOR_A), RoleCode.ETL_SERVER, SPACE_A);
         assignSpaceRole(registerPerson(SPACE_ETL_SERVER_FOR_B), RoleCode.ETL_SERVER, SPACE_B);
+        assignSpaceRole(registerPerson(SPACE_ADMIN_USER), RoleCode.ADMIN, SPACE_A);
         assignInstanceRole(registerPerson(INSTANCE_ADMIN), RoleCode.ADMIN);
         assignInstanceRole(registerPerson(INSTANCE_ETL_SERVER), RoleCode.ETL_SERVER);
 
@@ -382,11 +388,13 @@ public class EntityOperationTest extends SystemTestCase
 
         String sessionToken = authenticateAs(INSTANCE_ADMIN);
         String spaceCode = "TEST_SPACE_WITH_ROLES";
+        String spaceIdentifier = "/TEST_SPACE_WITH_ROLES";
 
         // Create a space and assign roles to it
         AtomicEntityOperationDetails eo =
-                new EntityOperationBuilder().space(spaceCode)
-                        .assignRoleToSpace(RoleCode.ADMIN, spaceCode, Arrays.asList(SPACE_ETL_SERVER_FOR_A), Arrays.asList(AUTHORIZATION_GROUP))
+                new EntityOperationBuilder()
+                        .space(spaceCode)
+                        .assignRoleToSpace(RoleCode.ADMIN, spaceIdentifier, Arrays.asList(SPACE_ETL_SERVER_FOR_A), Arrays.asList(AUTHORIZATION_GROUP))
                         .create();
 
         List<RoleAssignment> beforeRoleAssignments = etlService.listRoleAssignments(sessionToken);
@@ -401,7 +409,8 @@ public class EntityOperationTest extends SystemTestCase
         // Revoke the role assignments
         eo =
                 new EntityOperationBuilder()
-                        .revokeRoleFromSpace(RoleCode.ADMIN, spaceCode, Arrays.asList(SPACE_ETL_SERVER_FOR_A), Arrays.asList(AUTHORIZATION_GROUP))
+                        .revokeRoleFromSpace(RoleCode.ADMIN, spaceIdentifier, Arrays.asList(SPACE_ETL_SERVER_FOR_A),
+                                Arrays.asList(AUTHORIZATION_GROUP))
                         .create();
 
         result = etlService.performEntityOperations(sessionToken, eo);
@@ -410,6 +419,71 @@ public class EntityOperationTest extends SystemTestCase
         assertEquals(2, result.getSpaceRolesRevokedCount());
         List<RoleAssignment> afterRoleRevocations = etlService.listRoleAssignments(sessionToken);
         assertEquals(afterRoleRevocations.size(), beforeRoleAssignments.size());
+    }
+
+    @Test(expectedExceptions =
+    { AuthorizationFailureException.class })
+    public void testAssignSpaceRolesAsSpaceUserFails()
+    {
+
+        String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
+        String spaceIdentifier = SPACE_A.toString();
+
+        // Create a space and assign roles to it
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder()
+                        .user(SIMPLE_USER)
+                        .assignRoleToSpace(RoleCode.ADMIN, spaceIdentifier, Arrays.asList(SIMPLE_USER), Arrays.asList(AUTHORIZATION_GROUP))
+                        .create();
+
+        etlService.performEntityOperations(sessionToken, eo);
+    }
+
+    @Test
+    public void testAssignSpaceRolesAsSpaceAdminSucceedsOnOwnSpace()
+    {
+
+        String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
+        String spaceIdentifier = SPACE_A.toString();
+
+        List<String> groups = Collections.emptyList();
+
+        // Assign roles to a space I admin
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder()
+                        .user(SPACE_ADMIN_USER)
+                        .assignRoleToSpace(RoleCode.POWER_USER, spaceIdentifier, Arrays.asList(SIMPLE_USER), groups)
+                        .create();
+
+        List<RoleAssignment> beforeRoleAssignments = etlService.listRoleAssignments(sessionToken);
+        AtomicEntityOperationResult result = etlService.performEntityOperations(sessionToken, eo);
+        assertEquals(0, result.getSpacesCreatedCount());
+        assertEquals(1, result.getSpaceRolesAssignedCount());
+        assertEquals(0, result.getSpaceRolesRevokedCount());
+
+        List<RoleAssignment> afterRoleAssignments = etlService.listRoleAssignments(sessionToken);
+        assertEquals(1, afterRoleAssignments.size() - beforeRoleAssignments.size());
+
+    }
+
+    @Test(expectedExceptions =
+    { AuthorizationFailureException.class })
+    public void testAssignSpaceRolesAsSpaceAdminFailsOnOtherSpace()
+    {
+
+        String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
+        String spaceIdentifier = SPACE_B.toString();
+
+        List<String> groups = Collections.emptyList();
+
+        // Assign roles to a space I do not admin
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder()
+                        .user(SPACE_ADMIN_USER)
+                        .assignRoleToSpace(RoleCode.POWER_USER, spaceIdentifier, Arrays.asList(SIMPLE_USER), groups)
+                        .create();
+
+        etlService.performEntityOperations(sessionToken, eo);
     }
 
     @Test(expectedExceptions =
@@ -963,7 +1037,7 @@ public class EntityOperationTest extends SystemTestCase
     {
         String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
         List<AuthorizationGroup> result = etlService.listAuthorizationGroups(sessionToken);
-        assertEquals("listAuthorizationGroups should return a list with one group, not " + result, 1, result.size());
+        assertEquals("listAuthorizationGroups should return a list with two group, not " + result, 2, result.size());
     }
 
     @Test
@@ -979,7 +1053,20 @@ public class EntityOperationTest extends SystemTestCase
     {
         String sessionToken = authenticateAs(INSTANCE_ETL_SERVER);
         List<AuthorizationGroup> authorizationGroups = etlService.listAuthorizationGroups(sessionToken);
-        AuthorizationGroup group = authorizationGroups.get(0);
+
+        AuthorizationGroup group = null;
+        for (AuthorizationGroup aGroup : authorizationGroups)
+        {
+            if (AUTHORIZATION_GROUP.equals(aGroup.getCode()))
+            {
+                group = aGroup;
+            }
+        }
+        if (null == group)
+        {
+            assertNotNull("There should be an authorization gropu with code " + AUTHORIZATION_GROUP, group);
+            return;
+        }
         List<Person> users = etlService.listUsersForAuthorizationGroup(sessionToken, TechId.create(group));
         assertEquals("Authorization group " + group.getCode() + " should have only 1 user, not : " + users, 1, users.size());
         Person user = users.get(0);
