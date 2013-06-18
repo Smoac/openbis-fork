@@ -17,10 +17,13 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,6 +36,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -57,9 +61,21 @@ public class IdentifierAttributeMappingManager
     public IdentifierAttributeMappingManager(String mappingFilePathOrNull, boolean createArchives)
     {
         this.createArchives = createArchives;
-        mappingFileOrNull = StringUtils.isBlank(mappingFilePathOrNull) ? null : new File(mappingFilePathOrNull);
+        if (StringUtils.isBlank(mappingFilePathOrNull))
+        {
+            mappingFileOrNull = null;
+        }
+        else
+        {
+            mappingFileOrNull = new File(mappingFilePathOrNull);
+            if (mappingFileOrNull.exists() == false)
+            {
+                throw new IllegalArgumentException("Mapping file '" + mappingFileOrNull + "' does not exist.");
+            }
+            getAttributesMap(); // loads and validates mapping data
+        }
     }
-    
+
     private Map<String, Attributes> getAttributesMap()
     {
         if (mappingFileOrNull != null)
@@ -104,7 +120,8 @@ public class IdentifierAttributeMappingManager
                     shareID = null;
                 }
                 File archiveFolder = getArchiveFolder(identifier, row);
-                attributesMap.put(identifier, new Attributes(shareID, archiveFolder));
+                List<String> shareIds = getShareIds(identifier, row);
+                attributesMap.put(identifier, new Attributes(shareIds , archiveFolder));
             }
             operationLog.info("Mapping file '" + mappingFile + "' successfully loaded.");
         } catch (Exception ex)
@@ -119,13 +136,30 @@ public class IdentifierAttributeMappingManager
         }
     }
 
+    private List<String> getShareIds(String identifier, String[] row)
+    {
+        String idsAttribute = row[1];
+        List<String> ids = new ArrayList<String>();
+        if (StringUtils.isBlank(idsAttribute))
+        {
+            return ids;
+        }
+        String[] splittedIds = idsAttribute.split(",");
+        for (String id : splittedIds)
+        {
+            ids.add(id.trim());
+        }
+        return ids;
+    }
+
     private File getArchiveFolder(String identifier, String[] row)
     {
-        if (StringUtils.isBlank(row[2]))
+        String folderAttribute = row[2];
+        if (StringUtils.isBlank(folderAttribute))
         {
             return null;
         }
-        File folder = new File(row[2]);
+        File folder = new File(folderAttribute);
         if (createArchives)
         {
             if (folder.isFile())
@@ -167,17 +201,20 @@ public class IdentifierAttributeMappingManager
     
     public File getArchiveFolder(DatasetDescription dataSetDescription, File defaultFolder)
     {
-        Attributes attributes = tryGetExperimentAttributes(dataSetDescription);
+        String spaceCode = dataSetDescription.getSpaceCode();
+        String projectCode = dataSetDescription.getProjectCode();
+        String experimentCode = dataSetDescription.getExperimentCode();
+        Attributes attributes = tryGetExperimentAttributes(spaceCode, projectCode, experimentCode);
         if (attributes != null && attributes.getArchiveFolder() != null)
         {
             return attributes.getArchiveFolder();
         }
-        attributes = tryGetProjectAttributes(dataSetDescription);
+        attributes = tryGetProjectAttributes(spaceCode, projectCode);
         if (attributes != null && attributes.getArchiveFolder() != null)
         {
             return attributes.getArchiveFolder();
         }
-        attributes = tryGetSpaceAttributes(dataSetDescription);
+        attributes = tryGetSpaceAttributes(spaceCode);
         if (attributes != null && attributes.getArchiveFolder() != null)
         {
             return attributes.getArchiveFolder();
@@ -185,41 +222,66 @@ public class IdentifierAttributeMappingManager
         return defaultFolder;
     }
     
-    private Attributes tryGetExperimentAttributes(DatasetDescription dataSetDescription)
+    public List<String> getShareIds(SimpleDataSetInformationDTO dataSet)
     {
-        String spaceCode = dataSetDescription.getSpaceCode();
-        String projectCode = dataSetDescription.getProjectCode();
-        String experimentCode = dataSetDescription.getExperimentCode();
+        String spaceCode = dataSet.getSpaceCode();
+        String projectCode = dataSet.getProjectCode();
+        String experimentCode = dataSet.getExperimentCode();
+        Attributes attributes = tryGetExperimentAttributes(spaceCode, projectCode, experimentCode);
+        if (attributes != null && attributes.getShareIds() != null)
+        {
+            return attributes.getShareIds();
+        }
+        attributes = tryGetProjectAttributes(spaceCode, projectCode);
+        if (attributes != null && attributes.getShareIds() != null)
+        {
+            return attributes.getShareIds();
+        }
+        attributes = tryGetSpaceAttributes(spaceCode);
+        if (attributes != null && attributes.getShareIds() != null)
+        {
+            return attributes.getShareIds();
+        }
+        return Collections.emptyList();
+    }
+    
+    private Attributes tryGetExperimentAttributes(String spaceCode, String projectCode, String experimentCode)
+    {
         String identifier = new ExperimentIdentifier(null, spaceCode, projectCode, experimentCode).toString();
         return getAttributesMap().get(identifier);
     }
 
-    private Attributes tryGetProjectAttributes(DatasetDescription dataSetDescription)
+    private Attributes tryGetProjectAttributes(String spaceCode, String projectCode)
     {
-        String spaceCode = dataSetDescription.getSpaceCode();
-        String projectCode = dataSetDescription.getProjectCode();
         String identifier = new ProjectIdentifier(null, spaceCode, projectCode).toString();
         return getAttributesMap().get(identifier);
     }
     
-    private Attributes tryGetSpaceAttributes(DatasetDescription dataSetDescription)
+    private Attributes tryGetSpaceAttributes(String spaceCode)
     {
-        return getAttributesMap().get(new SpaceIdentifier(dataSetDescription.getSpaceCode()).toString());
+        return getAttributesMap().get(new SpaceIdentifier(spaceCode).toString());
     }
     
     private static final class Attributes
     {
         private final File archiveFolder;
+        private final List<String> shareIds;
 
-        Attributes(String shareID, File archiveFolder)
+        Attributes(List<String> shareIds, File archiveFolder)
         {
+            this.shareIds = shareIds;
             this.archiveFolder = archiveFolder;
         }
 
+        public List<String> getShareIds()
+        {
+            return shareIds;
+        }
+        
         public File getArchiveFolder()
         {
             return archiveFolder;
         }
-        
+
     }
 }

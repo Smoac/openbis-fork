@@ -129,6 +129,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
         }
         mappingFilePathOrNull = properties.getProperty(MAPPING_FILE_KEY);
         createArchives = PropertyUtils.getBoolean(properties, CREATE_ARCHIVES_KEY, false);
+        getArchiveFolderMapping(); // Loads and validates mapping file
     }
 
     @Override

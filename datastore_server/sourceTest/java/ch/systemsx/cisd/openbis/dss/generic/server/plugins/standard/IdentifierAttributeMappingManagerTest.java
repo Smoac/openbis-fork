@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,11 +27,15 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataStoreBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SimpleDataSetHelper;
 
 /**
  * 
@@ -41,17 +46,19 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
 {
     private File as1;
     private File as2;
-    private DatasetDescription dataSet;
+    private DatasetDescription dataSetDescription;
+    private PhysicalDataSet dataSet;
 
     @BeforeMethod
     public void prepareTestFiles()
     {
         as1 = new File(workingDirectory, "a-s1");
         as2 = new File(workingDirectory, "a-s2");
-        dataSet = DataSetTranslator.translateToDescription(new DataSetBuilder()
+        dataSet = new DataSetBuilder()
                 .code("DS1").store(new DataStoreBuilder("DSS").getStore()).type("MY-TYPE").fileFormat("ABC")
                 .experiment(new ExperimentBuilder().identifier("/S1/P1/E1").getExperiment())
-                .getDataSet());
+                .getDataSet();
+        dataSetDescription = DataSetTranslator.translateToDescription(dataSet);
     }
     
     @Test
@@ -84,7 +91,7 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
         as2.mkdirs();
         IdentifierAttributeMappingManager mappingManager = new IdentifierAttributeMappingManager(mappingFile.getPath(), false);
         
-        File archiveFolder = mappingManager.getArchiveFolder(dataSet, as2);
+        File archiveFolder = mappingManager.getArchiveFolder(dataSetDescription, as2);
         
         assertEquals(as1.getPath(), archiveFolder.getPath());
     }
@@ -101,7 +108,7 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
         as2.mkdirs();
         IdentifierAttributeMappingManager mappingManager = new IdentifierAttributeMappingManager(mappingFile.getPath(), false);
         
-        File archiveFolder = mappingManager.getArchiveFolder(dataSet, as2);
+        File archiveFolder = mappingManager.getArchiveFolder(dataSetDescription, as2);
         
         assertEquals(as1.getPath(), archiveFolder.getPath());
     }
@@ -115,7 +122,7 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
         as1.mkdirs();
         IdentifierAttributeMappingManager mappingManager = new IdentifierAttributeMappingManager(mappingFile.getPath(), false);
         
-        File archiveFolder = mappingManager.getArchiveFolder(dataSet, as2);
+        File archiveFolder = mappingManager.getArchiveFolder(dataSetDescription, as2);
         
         assertEquals(as1.getPath(), archiveFolder.getPath());
     }
@@ -126,11 +133,10 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
         File mappingFile = new File(workingDirectory, "mapping.txt");
         FileUtilities.writeToFile(mappingFile, "Identifier\tShare ID\tArchive Folder\n"
                 + "/S1\t2\t" + as1);
-        IdentifierAttributeMappingManager mappingManager = new IdentifierAttributeMappingManager(mappingFile.getPath(), false);
 
         try
         {
-            mappingManager.getArchiveFolder(dataSet, as2);
+            new IdentifierAttributeMappingManager(mappingFile.getPath(), false);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
@@ -147,7 +153,7 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
                 + "/S2\t4\t" + as2);
         IdentifierAttributeMappingManager mappingManager = new IdentifierAttributeMappingManager(mappingFile.getPath(), true);
         
-        File archiveFolder = mappingManager.getArchiveFolder(dataSet, as2);
+        File archiveFolder = mappingManager.getArchiveFolder(dataSetDescription, as2);
         
         assertEquals(as1.getPath(), archiveFolder.getPath());
     }
@@ -161,7 +167,7 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
                 + "/S2\t4\t" + as2);
         IdentifierAttributeMappingManager mappingManager = new IdentifierAttributeMappingManager(mappingFile.getPath(), true);
         
-        File archiveFolder = mappingManager.getArchiveFolder(dataSet, as2);
+        File archiveFolder = mappingManager.getArchiveFolder(dataSetDescription, as2);
         
         assertEquals(as2.getPath(), archiveFolder.getPath());
     }
@@ -174,7 +180,7 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
                 + "/S2\t4\t" + as2);
         IdentifierAttributeMappingManager mappingManager = new IdentifierAttributeMappingManager(mappingFile.getPath(), true);
         
-        File archiveFolder = mappingManager.getArchiveFolder(dataSet, as2);
+        File archiveFolder = mappingManager.getArchiveFolder(dataSetDescription, as2);
         
         assertEquals(as2.getPath(), archiveFolder.getPath());
     }
@@ -183,11 +189,15 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
     public void testGetArchiveFolderFromNonexistingMappingFile()
     {
         File mappingFile = new File(workingDirectory, "mapping.txt");
-        IdentifierAttributeMappingManager mappingManager = new IdentifierAttributeMappingManager(mappingFile.getPath(), false);
         
-        File archiveFolder = mappingManager.getArchiveFolder(dataSet, as2);
-        
-        assertEquals(as2.getPath(), archiveFolder.getPath());
+        try
+        {
+            new IdentifierAttributeMappingManager(mappingFile.getPath(), false);
+            fail("IllegalArgumentException expected.");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Mapping file '" + mappingFile + "' does not exist.", ex.getMessage());
+        }
     }
     
     @Test
@@ -195,9 +205,60 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
     {
         IdentifierAttributeMappingManager mappingManager = new IdentifierAttributeMappingManager(null, true);
         
-        File archiveFolder = mappingManager.getArchiveFolder(dataSet, as2);
+        File archiveFolder = mappingManager.getArchiveFolder(dataSetDescription, as2);
         
         assertEquals(as2.getPath(), archiveFolder.getPath());
+    }
+    
+    @Test
+    public void testGetShareIdsOnExperimentLevel()
+    {
+        File mappingFile = new File(workingDirectory, "mapping.txt");
+        FileUtilities.writeToFile(mappingFile, "Identifier\tShare ID\tArchive Folder\n"
+                + "/S1/P1/E1\t2, 1,3\t\n"
+                + "/S1/P1\t1,3\t\n"
+                + "/S1\t2,3\t\n"
+                + "/S2\t4,5\t");
+        IdentifierAttributeMappingManager mappingManager = new IdentifierAttributeMappingManager(mappingFile.getPath(), false);
+        SimpleDataSetInformationDTO ds = SimpleDataSetHelper.filterAndTranslate(Arrays.<AbstractExternalData>asList(dataSet)).get(0);
+   
+        List<String> shareIds = mappingManager.getShareIds(ds);
+        
+        assertEquals("[2, 1, 3]", shareIds.toString());
+    }
+    
+    @Test
+    public void testGetShareIdsOnProjectLevel()
+    {
+        File mappingFile = new File(workingDirectory, "mapping.txt");
+        FileUtilities.writeToFile(mappingFile, "Identifier\tShare ID\tArchive Folder\n"
+                + "/S1/P1/E2\t2, 1,3\t\n"
+                + "/S1/P1\t1,3\t\n"
+                + "/S1\t2,3\t\n"
+                + "/S2\t4,5\t");
+        IdentifierAttributeMappingManager mappingManager = new IdentifierAttributeMappingManager(mappingFile.getPath(), false);
+        SimpleDataSetInformationDTO ds = SimpleDataSetHelper.filterAndTranslate(Arrays.<AbstractExternalData>asList(dataSet)).get(0);
+        
+        List<String> shareIds = mappingManager.getShareIds(ds);
+        
+        assertEquals("[1, 3]", shareIds.toString());
+    }
+    
+    @Test
+    public void testGetShareIdsOnSpaceLevel()
+    {
+        File mappingFile = new File(workingDirectory, "mapping.txt");
+        FileUtilities.writeToFile(mappingFile, "Identifier\tShare ID\tArchive Folder\n"
+                + "/S1/P1/E2\t2, 1,3\t\n"
+                + "/S1/P2\t1,3\t\n"
+                + "/S1\t2,3\t\n"
+                + "/S2\t4,5\t");
+        IdentifierAttributeMappingManager mappingManager = new IdentifierAttributeMappingManager(mappingFile.getPath(), false);
+        SimpleDataSetInformationDTO ds = SimpleDataSetHelper.filterAndTranslate(Arrays.<AbstractExternalData>asList(dataSet)).get(0);
+        
+        List<String> shareIds = mappingManager.getShareIds(ds);
+        
+        assertEquals("[2, 3]", shareIds.toString());
     }
 
 }

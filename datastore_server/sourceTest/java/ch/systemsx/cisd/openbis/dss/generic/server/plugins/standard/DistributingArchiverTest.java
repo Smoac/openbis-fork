@@ -238,7 +238,8 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         ProcessingStatus processingStatus = archiver.archive(Arrays.asList(dsd1), archiverTaskContext, false);
         
         File archivedDataSetFile = new File(archive, ds1.getDataSetCode() + ".zip");
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        assertEquals("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile + "' successfully loaded.\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
                 + archivedDataSetFile, logRecorder.getLogContent());
@@ -397,7 +398,8 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         
         File archivedDataSetFile = new File(archive, LOCATION + "/" + ds1.getDataSetCode() + ".zip");
         String logContent = logRecorder.getLogContent().replaceFirst("in all shares in .*s", "in all shares in ? s");
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        assertEquals("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile + "' successfully loaded.\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
                 + archivedDataSetFile + "\n"
@@ -636,7 +638,8 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         ProcessingStatus processingStatus2 = archiver.deleteFromArchive(Arrays.asList(
                 new DatasetLocation(ds1.getCode(), ds1.getLocation(), DATA_STORE_CODE, "")));
         
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        assertEquals("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile + "' successfully loaded.\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
                 + archivedDataSetFile, logRecorder.getLogContent());
