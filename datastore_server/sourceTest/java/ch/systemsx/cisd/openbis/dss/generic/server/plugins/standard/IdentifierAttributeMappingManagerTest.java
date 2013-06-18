@@ -72,6 +72,41 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
     }
 
     @Test
+    public void testGetArchiveFolderFromExperimentMapping()
+    {
+        File mappingFile = new File(workingDirectory, "mapping.txt");
+        FileUtilities.writeToFile(mappingFile, "Identifier\tShare ID\tArchive Folder\n"
+                + "/S1/P1/E1\t2\t" + as1 + "\n"
+                + "/S1/P1/E2\t2\t" + as2 + "\n"
+                + "/S1/P1\t2\t" + as2 + "\n"
+                + "/S1\t2\t" + as2 + "\n");
+        as1.mkdirs();
+        as2.mkdirs();
+        IdentifierAttributeMappingManager mappingManager = new IdentifierAttributeMappingManager(mappingFile.getPath(), false);
+        
+        File archiveFolder = mappingManager.getArchiveFolder(dataSet, as2);
+        
+        assertEquals(as1.getPath(), archiveFolder.getPath());
+    }
+    
+    @Test
+    public void testGetArchiveFolderFromProjectMapping()
+    {
+        File mappingFile = new File(workingDirectory, "mapping.txt");
+        FileUtilities.writeToFile(mappingFile, "Identifier\tShare ID\tArchive Folder\n"
+                + "/S1/P1\t2\t" + as1 + "\n"
+                + "/S1/P2\t2\t" + as2 + "\n"
+                + "/S1\t2\t" + as2 + "\n");
+        as1.mkdirs();
+        as2.mkdirs();
+        IdentifierAttributeMappingManager mappingManager = new IdentifierAttributeMappingManager(mappingFile.getPath(), false);
+        
+        File archiveFolder = mappingManager.getArchiveFolder(dataSet, as2);
+        
+        assertEquals(as1.getPath(), archiveFolder.getPath());
+    }
+    
+    @Test
     public void testGetArchiveFolderFromSpaceMapping()
     {
         File mappingFile = new File(workingDirectory, "mapping.txt");

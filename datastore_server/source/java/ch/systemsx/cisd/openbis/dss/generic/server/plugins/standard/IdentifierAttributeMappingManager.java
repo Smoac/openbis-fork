@@ -25,22 +25,28 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import com.csvreader.CsvReader;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * Helper class to load and provided from mapping of space identifier to attributes. 
+ * Helper class to load and provided from mapping of space/project/experiment identifier to attributes. 
+ * If a mappings exist on experiment, project and space level the experiment mapping will be used if
+ * the experiment of the data set fits. Otherwise the project mapping is tried. 
  *
  * @author Franz-Josef Elmer
  */
 public class IdentifierAttributeMappingManager
 {
-    static final String MAPPING_FILE_KEY = "mapping-file";
-    static final String CREATE_ARCHIVES_KEY = MAPPING_FILE_KEY + ".create-archives";
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, IdentifierAttributeMappingManager.class);
     
     private final Map<String, Attributes> attributesMap = new HashMap<String, Attributes>();
     private final boolean createArchives;
@@ -100,6 +106,7 @@ public class IdentifierAttributeMappingManager
                 File archiveFolder = getArchiveFolder(identifier, row);
                 attributesMap.put(identifier, new Attributes(shareID, archiveFolder));
             }
+            operationLog.info("Mapping file '" + mappingFile + "' successfully loaded.");
         } catch (Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -160,13 +167,44 @@ public class IdentifierAttributeMappingManager
     
     public File getArchiveFolder(DatasetDescription dataSetDescription, File defaultFolder)
     {
-        String spaceIdentifier = new SpaceIdentifier(dataSetDescription.getSpaceCode()).toString();
-        Attributes attributes = getAttributesMap().get(spaceIdentifier);
+        Attributes attributes = tryGetExperimentAttributes(dataSetDescription);
+        if (attributes != null && attributes.getArchiveFolder() != null)
+        {
+            return attributes.getArchiveFolder();
+        }
+        attributes = tryGetProjectAttributes(dataSetDescription);
+        if (attributes != null && attributes.getArchiveFolder() != null)
+        {
+            return attributes.getArchiveFolder();
+        }
+        attributes = tryGetSpaceAttributes(dataSetDescription);
         if (attributes != null && attributes.getArchiveFolder() != null)
         {
             return attributes.getArchiveFolder();
         }
         return defaultFolder;
+    }
+    
+    private Attributes tryGetExperimentAttributes(DatasetDescription dataSetDescription)
+    {
+        String spaceCode = dataSetDescription.getSpaceCode();
+        String projectCode = dataSetDescription.getProjectCode();
+        String experimentCode = dataSetDescription.getExperimentCode();
+        String identifier = new ExperimentIdentifier(null, spaceCode, projectCode, experimentCode).toString();
+        return getAttributesMap().get(identifier);
+    }
+
+    private Attributes tryGetProjectAttributes(DatasetDescription dataSetDescription)
+    {
+        String spaceCode = dataSetDescription.getSpaceCode();
+        String projectCode = dataSetDescription.getProjectCode();
+        String identifier = new ProjectIdentifier(null, spaceCode, projectCode).toString();
+        return getAttributesMap().get(identifier);
+    }
+    
+    private Attributes tryGetSpaceAttributes(DatasetDescription dataSetDescription)
+    {
+        return getAttributesMap().get(new SpaceIdentifier(dataSetDescription.getSpaceCode()).toString());
     }
     
     private static final class Attributes
