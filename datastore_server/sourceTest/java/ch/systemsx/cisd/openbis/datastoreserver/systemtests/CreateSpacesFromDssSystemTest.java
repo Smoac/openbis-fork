@@ -25,10 +25,8 @@ import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.AuthorizationService;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.SearchService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IAuthorizationGroupImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IRoleAssignmentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISpaceImmutable;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IUserImmutable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**
