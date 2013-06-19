@@ -20,6 +20,7 @@ import java.io.File;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -72,7 +73,7 @@ public interface IDataSetFileOperationsManager
     public boolean isHosted();
 
     /**
-     * @return the dataset file in the destination location
+     * @return the dataset file in the destination location as a hierarchical content.
      */
-    public File getDestinationFile(DatasetDescription dataset);
+    public IHierarchicalContent getAsHierarchicalContent(DatasetDescription dataset);
 }

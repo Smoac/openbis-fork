@@ -35,6 +35,8 @@ import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandExecutor;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetFileOperationsExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.server.LocalDataSetFileOperationsExcecutor;
 import ch.systemsx.cisd.openbis.dss.generic.server.RemoteDataSetFileOperationsExecutor;
@@ -86,7 +88,7 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
     @Private
     static final long DEFAULT_TIMEOUT_SECONDS = 15;
 
-    @Private static final String FOLDER_OF_AS_DELETED_MARKED_DATA_SETS = "DELETED";
+    static final String FOLDER_OF_AS_DELETED_MARKED_DATA_SETS = "DELETED";
 
     private final IDataSetFileOperationsExecutor executor;
 
@@ -353,8 +355,10 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
     }
 
     @Override
-    public File getDestinationFile(DatasetDescription dataset)
+    public IHierarchicalContent getAsHierarchicalContent(DatasetDescription dataset)
     {
-        return new File(destination, dataset.getDataSetLocation());
+        return new DefaultFileBasedHierarchicalContentFactory()
+                .asHierarchicalContent(new File(destination, dataset.getDataSetLocation()), null);
     }
+
 }

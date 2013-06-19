@@ -17,9 +17,6 @@
 package ch.systemsx.cisd.openbis.common.io.hierarchical_content;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -34,7 +31,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
  * 
  * @author Piotr Buczek
  */
-class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
+class DefaultFileBasedHierarchicalContent extends AbstractHierarchicalContent
 {
     private final IHierarchicalContentFactory hierarchicalContentFactory;
 
@@ -130,46 +127,6 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
     }
 
     @Override
-    public List<IHierarchicalContentNode> listMatchingNodes(final String relativePathPattern)
-    {
-        final IHierarchicalContentNode startingNode = getRootNode();
-        final Pattern compiledPattern = Pattern.compile(relativePathPattern);
-        final IHierarchicalContentNodeFilter relativePathFilter =
-                new IHierarchicalContentNodeFilter()
-                    {
-                        @Override
-                        public boolean accept(IHierarchicalContentNode node)
-                        {
-                            return compiledPattern.matcher(node.getRelativePath()).matches();
-                        }
-                    };
-
-        List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
-        findMatchingNodes(startingNode, relativePathFilter, result);
-        return result;
-    }
-
-    @Override
-    public List<IHierarchicalContentNode> listMatchingNodes(final String startingPath,
-            final String fileNamePattern)
-    {
-        final IHierarchicalContentNode startingNode = getNode(startingPath);
-        final Pattern compiledPattern = Pattern.compile(fileNamePattern);
-        final IHierarchicalContentNodeFilter fileNameFilter = new IHierarchicalContentNodeFilter()
-            {
-                @Override
-                public boolean accept(IHierarchicalContentNode node)
-                {
-                    return compiledPattern.matcher(node.getName()).matches();
-                }
-            };
-
-        List<IHierarchicalContentNode> result = new ArrayList<IHierarchicalContentNode>();
-        findMatchingNodes(startingNode, fileNameFilter, result);
-        return result;
-    }
-
-    @Override
     public void close()
     {
         if (onCloseAction != null)
@@ -224,27 +181,6 @@ class DefaultFileBasedHierarchicalContent implements IHierarchicalContent
             return false;
         }
         return true;
-    }
-
-    /**
-     * Recursively browses hierarchical content looking for nodes accepted by given
-     * <code>filter</code> and adding them to <code>result</code> list.
-     */
-    private static void findMatchingNodes(IHierarchicalContentNode dirNode,
-            IHierarchicalContentNodeFilter filter, List<IHierarchicalContentNode> result)
-    {
-        assert dirNode.isDirectory() : "expected a directory node, got: " + dirNode;
-        for (IHierarchicalContentNode childNode : dirNode.getChildNodes())
-        {
-            if (filter.accept(childNode))
-            {
-                result.add(childNode);
-            }
-            if (childNode.isDirectory())
-            {
-                findMatchingNodes(childNode, filter, result);
-            }
-        }
     }
 
 }

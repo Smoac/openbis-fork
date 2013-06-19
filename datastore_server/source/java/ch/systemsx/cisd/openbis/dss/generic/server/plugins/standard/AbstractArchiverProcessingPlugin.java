@@ -541,7 +541,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return shareFinder;
     }
 
-    private IEncapsulatedOpenBISService getService()
+    protected IEncapsulatedOpenBISService getService()
     {
         if (service == null)
         {

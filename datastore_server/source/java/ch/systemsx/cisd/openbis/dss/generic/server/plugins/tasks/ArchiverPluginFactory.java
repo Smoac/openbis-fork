@@ -54,6 +54,18 @@ public class ArchiverPluginFactory
         this.archiverProperties = sectionProperties.getProperties();
     }
 
+    /**
+     * Checks creation of archiver plugin is possible for specified store.
+     */
+    public void check(File storeRoot)
+    {
+        if (isArchiverConfigured() == false)
+        {
+            return;
+        }
+        createInstance(storeRoot);
+    }
+
     public boolean isArchiverConfigured()
     {
         return className != null;

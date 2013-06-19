@@ -92,10 +92,10 @@ public class Log4jSimpleLogger implements ISimpleLogger
     {
         if (log4jOverridePriorityOrNull != null)
         {
-            log4jLogger.log(log4jOverridePriorityOrNull, message);
+            log4jLogger.log(log4jOverridePriorityOrNull, message, throwableOrNull);
         } else
         {
-            log4jLogger.log(toLog4jPriority(level), message, null);
+            log4jLogger.log(toLog4jPriority(level), message, throwableOrNull);
         }
     }
 

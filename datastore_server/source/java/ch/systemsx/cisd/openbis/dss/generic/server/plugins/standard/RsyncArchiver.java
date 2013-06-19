@@ -134,7 +134,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         public abstract Status execute(IDataSetFileOperationsManager manager,
                 IDatasetLocation dataSet);
     }
-
+    
     private transient IDataSetFileOperationsManager fileOperationsManager;
 
     private final DeleteAction deleteAction;
@@ -147,7 +147,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                 new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory()));
     }
 
-    @Private RsyncArchiver(Properties properties, File storeRoot,
+    protected RsyncArchiver(Properties properties, File storeRoot,
             IDataSetFileOperationsManager fileOperationsManager)
     {
         this(properties, storeRoot, fileOperationsManager, PropertyUtils.getBoolean(properties,
@@ -201,11 +201,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                                         .asHierarchicalContent(temp, null);
                     } else
                     {
-                        archivedContent =
-                                new DefaultFileBasedHierarchicalContentFactory()
-                                        .asHierarchicalContent(
-                                                fileOperationsManager.getDestinationFile(dataset),
-                                                null);
+                        archivedContent = fileOperationsManager.getAsHierarchicalContent(dataset);
                     }
 
                     IHierarchicalContentNode root = content.getRootNode();

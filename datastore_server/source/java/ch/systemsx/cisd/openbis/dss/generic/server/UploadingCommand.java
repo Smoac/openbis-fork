@@ -16,22 +16,12 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -48,25 +38,15 @@ import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.security.TokenGenerator;
 import ch.systemsx.cisd.common.time.TimingParameters;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
-import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
-
-import de.schlichtherle.util.zip.ZipEntry;
-import de.schlichtherle.util.zip.ZipOutputStream;
 
 /**
  * A command which zips the given data sets and uploads the ZIP file to CIFEX.
@@ -137,135 +117,6 @@ class UploadingCommand implements IDataSetCommand
             operationLog.warn(warningMessage);
         }
 
-    }
-
-    private static final class MetaDataBuilder
-    {
-        private static final String DATA_SET = "data_set";
-
-        private static final String SAMPLE = "sample";
-
-        private static final String EXPERIMENT = "experiment";
-
-        private static final char DELIM = '\t';
-
-        private static final DateFormat DATE_FORMAT_PATTERN = new SimpleDateFormat(
-                "yyyy-MM-dd HH:mm:ss Z");
-
-        private final StringBuilder builder = new StringBuilder();
-
-        void dataSetProperties(List<IEntityProperty> properties)
-        {
-            addProperties(DATA_SET, properties);
-        }
-
-        void sampleProperties(List<IEntityProperty> properties)
-        {
-            addProperties(SAMPLE, properties);
-        }
-
-        void experimentProperties(List<IEntityProperty> properties)
-        {
-            addProperties(EXPERIMENT, properties);
-        }
-
-        void addProperties(String category, List<IEntityProperty> properties)
-        {
-            for (IEntityProperty property : properties)
-            {
-                addRow(category, property.getPropertyType().getCode(), property.tryGetAsString());
-            }
-        }
-
-        void dataSet(String key, String value)
-        {
-            addRow(DATA_SET, key, value);
-        }
-
-        void dataSet(String key, Date date)
-        {
-            addRow(DATA_SET, key, date);
-        }
-
-        void dataSet(String key, boolean flag)
-        {
-            addRow(DATA_SET, key, flag);
-        }
-
-        void sample(String key, String value)
-        {
-            addRow(SAMPLE, key, value);
-        }
-
-        void sample(String key, Person person)
-        {
-            addRow(SAMPLE, key, person);
-        }
-
-        void sample(String key, Date date)
-        {
-            addRow(SAMPLE, key, date);
-        }
-
-        void experiment(String key, String value)
-        {
-            addRow(EXPERIMENT, key, value);
-        }
-
-        void experiment(String key, Person person)
-        {
-            addRow(EXPERIMENT, key, person);
-        }
-
-        void experiment(String key, Date date)
-        {
-            addRow(EXPERIMENT, key, date);
-        }
-
-        private void addRow(String category, String key, Person person)
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            if (person != null)
-            {
-                String firstName = person.getFirstName();
-                String lastName = person.getLastName();
-                if (firstName != null && lastName != null)
-                {
-                    stringBuilder.append(firstName).append(' ').append(lastName);
-                } else
-                {
-                    stringBuilder.append(person.getUserId());
-                }
-                String email = person.getEmail();
-                if (email != null)
-                {
-                    stringBuilder.append(" <").append(email).append(">");
-                }
-            }
-            addRow(category, key, stringBuilder.toString());
-        }
-
-        private void addRow(String category, String key, Date date)
-        {
-            addRow(category, key, date == null ? null : DATE_FORMAT_PATTERN.format(date));
-        }
-
-        private void addRow(String category, String key, boolean flag)
-        {
-            addRow(category, key, Boolean.valueOf(flag).toString().toUpperCase());
-        }
-
-        private void addRow(String category, String key, String value)
-        {
-            builder.append(category).append(DELIM).append(key).append(DELIM);
-            builder.append(value == null ? "" : value).append('\n');
-        }
-
-        @Override
-        public String toString()
-        {
-            return builder.toString();
-        }
     }
 
     private final ICIFEXRPCServiceFactory cifexServiceFactory;
@@ -421,84 +272,45 @@ class UploadingCommand implements IDataSetCommand
 
     private boolean fillZipFile(IDataSetDirectoryProvider dataSetDirectoryProvider, File zipFile)
     {
-        OutputStream outputStream = null;
-        ZipOutputStream zipOutputStream = null;
+        AbstractDataSetPackager packager = null;
+        DataSetExistenceChecker dataSetExistenceChecker =
+                new DataSetExistenceChecker(dataSetDirectoryProvider,
+                        TimingParameters.create(new Properties()));
         try
         {
-            outputStream = new FileOutputStream(zipFile);
-            zipOutputStream = new ZipOutputStream(outputStream);
-            DataSetExistenceChecker dataSetExistenceChecker =
-                    new DataSetExistenceChecker(dataSetDirectoryProvider,
-                            TimingParameters.create(new Properties()));
+            packager = new ZipDataSetPackager(zipFile, true, 
+                    getHierarchicalContentProvider(), dataSetExistenceChecker);
             for (AbstractExternalData externalData : dataSets)
             {
                 String newRootPath = createRootPath(externalData) + "/";
                 try
                 {
-                    addEntry(zipOutputStream, newRootPath + "meta-data.tsv",
-                            System.currentTimeMillis(),
-                            new ByteArrayInputStream(createMetaData(externalData).getBytes()));
-                } catch (IOException ex)
+                    
+                    packager.addDataSetTo(newRootPath, externalData);
+                } catch (RuntimeException ex)
                 {
-                    notificationLog.error(
-                            "Couldn't add meta date for data set '" + externalData.getCode()
-                                    + "' to zip file.", ex);
+                    notificationLog.error(ex.getMessage(), ex);
                     return false;
-                }
-                if (dataSetExistenceChecker.dataSetExists(DataSetTranslator
-                        .translateToDescription(externalData)) == false)
-                {
-                    return handleNonExistingDataSet(externalData, null);
-                }
-                IHierarchicalContent root = null;
-                try
-                {
-                    root = getHierarchicalContentProvider().asContent(externalData.getCode());
-                } catch (Exception ex)
-                {
-                    return handleNonExistingDataSet(externalData, ex);
-                }
-                try
-                {
-                    addTo(zipOutputStream, newRootPath, root.getRootNode());
-                } catch (IOException ex)
-                {
-                    notificationLog.error("Couldn't add data set '" + externalData.getCode()
-                            + "' to zip file.", ex);
-                    return false;
-                } finally
-                {
-                    if (root != null)
-                    {
-                        root.close();
-                    }
                 }
             }
             return true;
-        } catch (IOException ex)
+        } catch (Exception ex)
         {
             notificationLog.error("Couldn't create zip file for uploading", ex);
             return false;
         } finally
         {
-            if (zipOutputStream != null)
+            if (packager != null)
             {
                 try
                 {
-                    zipOutputStream.close();
-                } catch (IOException ex)
+                    packager.close();
+                } catch (Exception ex)
                 {
-                    notificationLog.error("Couldn't close zip file", ex);
+                    notificationLog.error("Couldn't close package", ex);
                 }
             }
         }
-    }
-
-    private boolean handleNonExistingDataSet(AbstractExternalData externalData, Exception ex)
-    {
-        notificationLog.error(
-                "Data set " + externalData.getCode() + " does not exist.", ex);
-        return false;
     }
 
     private IHierarchicalContentProvider getHierarchicalContentProvider()
@@ -510,76 +322,6 @@ class UploadingCommand implements IDataSetCommand
         return hierarchicalContentProvider;
     }
 
-    private void addTo(ZipOutputStream zipOutputStream, String newRootPath,
-            IHierarchicalContentNode node) throws IOException
-    {
-        if (node.isDirectory())
-        {
-            List<IHierarchicalContentNode> childNodes = node.getChildNodes();
-            for (IHierarchicalContentNode childNode : childNodes)
-            {
-                addTo(zipOutputStream, newRootPath, childNode);
-            }
-        } else
-        {
-            addEntry(zipOutputStream, newRootPath + node.getRelativePath(), node.getLastModified(),
-                    node.getInputStream());
-        }
-    }
-
-    private String createMetaData(AbstractExternalData dataSet)
-    {
-        MetaDataBuilder builder = new MetaDataBuilder();
-        builder.dataSet("code", dataSet.getCode());
-        builder.dataSet("production_timestamp", dataSet.getProductionDate());
-        builder.dataSet("producer_code", dataSet.getDataProducerCode());
-        builder.dataSet("data_set_type", dataSet.getDataSetType().getCode());
-        builder.dataSet("is_measured", dataSet.isDerived() == false);
-        if (dataSet.tryGetAsDataSet() != null)
-        {
-            final Boolean completeFlag = dataSet.tryGetAsDataSet().getComplete();
-            builder.dataSet("is_complete", BooleanOrUnknown.T.equals(completeFlag));
-        }
-        builder.dataSetProperties(dataSet.getProperties());
-
-        StringBuilder stringBuilder = new StringBuilder();
-        Collection<AbstractExternalData> parents = dataSet.getParents();
-        if (parents.isEmpty() == false)
-        {
-            for (AbstractExternalData parent : parents)
-            {
-                if (stringBuilder.length() > 0)
-                {
-                    stringBuilder.append(',');
-                }
-                stringBuilder.append(parent.getCode());
-            }
-        }
-        builder.dataSet("parent_codes", stringBuilder.toString());
-        Sample sample = dataSet.getSample();
-        if (sample != null)
-        {
-            builder.sample("type_code", sample.getSampleType().getCode());
-            builder.sample("code", sample.getCode());
-            Space space = sample.getSpace();
-            builder.sample("space_code", space == null ? "(shared)" : space.getCode());
-            // group->space
-            builder.sample("registration_timestamp", sample.getRegistrationDate());
-            builder.sample("registrator", sample.getRegistrator());
-            builder.sampleProperties(sample.getProperties());
-        }
-        Experiment experiment = dataSet.getExperiment();
-        Project project = experiment.getProject();
-        builder.experiment("space_code", project.getSpace().getCode());
-        builder.experiment("project_code", project.getCode());
-        builder.experiment("experiment_code", experiment.getCode());
-        builder.experiment("experiment_type_code", experiment.getExperimentType().getCode());
-        builder.experiment("registration_timestamp", experiment.getRegistrationDate());
-        builder.experiment("registrator", experiment.getRegistrator());
-        builder.experimentProperties(experiment.getProperties());
-        return builder.toString();
-    }
-
     private String createRootPath(AbstractExternalData dataSet)
     {
         Sample sample = dataSet.getSample();
@@ -589,33 +331,10 @@ class UploadingCommand implements IDataSetCommand
                 + "/" + (sample == null ? "" : sample.getCode() + "/") + dataSet.getCode();
     }
 
-    private void addEntry(ZipOutputStream zipOutputStream, String zipEntryPath, long lastModified,
-            InputStream in) throws IOException
-    {
-        try
-        {
-            ZipEntry zipEntry = new ZipEntry(zipEntryPath.replace('\\', '/'));
-            zipEntry.setTime(lastModified);
-            zipEntry.setMethod(ZipEntry.DEFLATED);
-            zipOutputStream.putNextEntry(zipEntry);
-            int len;
-            byte[] buffer = new byte[1024];
-            while ((len = in.read(buffer)) > 0)
-            {
-                zipOutputStream.write(buffer, 0, len);
-            }
-        } finally
-        {
-            IOUtils.closeQuietly(in);
-            zipOutputStream.closeEntry();
-        }
-    }
-
     private void sendEMail(String message)
     {
         final IMailClient mailClient = new MailClient(mailClientParameters);
-        mailClient
-                .sendMessage("[Data Set Server] Uploading failed", message, null, null, userEMail);
+        mailClient.sendMessage("[Data Set Server] Uploading failed", message, null, null, userEMail);
     }
 
     @Override

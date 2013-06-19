@@ -19,49 +19,22 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin.SHARE_FINDER_KEY;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
 
-import org.apache.log4j.Level;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.springframework.aop.TargetSource;
-import org.springframework.aop.framework.Advised;
-import org.springframework.beans.factory.BeanFactory;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.logging.BufferedAppender;
-import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetStatusUpdater;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IShareFinder;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IUnarchivingPreparation;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBuilder;
 
 /**
@@ -69,169 +42,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBu
  */
 @Friend(toClasses =
     { AbstractArchiverProcessingPlugin.class, RsyncArchiver.class })
-public class RsyncArchiverTest extends AbstractFileSystemTestCase
+public class RsyncArchiverTest extends AbstractArchiverTestCase
 {
     private static final String LOCATION = "location";
 
-    private static final String DATA_STORE_CODE = "dss1";
-
-    public static final class ShareFinder implements IShareFinder
-    {
-        private static Properties properties;
-
-        private static SimpleDataSetInformationDTO recordedDataSet;
-
-        private static List<Share> recordedShares;
-
-        private boolean alwaysReturnNull = false;
-
-        public ShareFinder(Properties properties)
-        {
-            ShareFinder.properties = properties;
-            if (properties.containsKey("alwaysReturnNull"))
-            {
-                this.alwaysReturnNull = true;
-            }
-        }
-
-        @Override
-        public Share tryToFindShare(SimpleDataSetInformationDTO dataSet, List<Share> shares)
-        {
-            ShareFinder.recordedDataSet = dataSet;
-            ShareFinder.recordedShares = shares;
-            if (shares.isEmpty() || alwaysReturnNull)
-            {
-                return null;
-            } else
-            {
-                return shares.get(0);
-            }
-        }
-    }
-
-    private BufferedAppender logRecorder;
-
-    private Mockery context;
-
-    private IDataSetFileOperationsManager fileOperationsManager;
-
     private RsyncArchiver archiver;
 
-    private IDataSetDirectoryProvider dataSetDirectoryProvider;
-
-    private IUnarchivingPreparation unarchivingPreparation;
-
-    private ArchiverTaskContext archiverTaskContext;
-
-    private IDataSetStatusUpdater statusUpdater;
-
-    private Properties properties;
-
-    private BeanFactory beanFactory;
-
-    private IConfigProvider configProvider;
-
-    private IEncapsulatedOpenBISService service;
-
-    private IShareIdManager shareIdManager;
-
-    private File store;
-
-    private File share1;
-
     private File share2;
-
-    private IDataStoreServiceInternal dataStoreService;
-
-    private IDataSetDeleter deleter;
-
-    private IHierarchicalContentProvider contentProvider;
-
+    
     @BeforeMethod
-    public void beforeMethod()
+    public void setUpRsyncArchiver()
     {
-        LogInitializer.init();
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
-        context = new Mockery();
-        fileOperationsManager = context.mock(IDataSetFileOperationsManager.class);
-        dataSetDirectoryProvider = context.mock(IDataSetDirectoryProvider.class);
-        contentProvider = context.mock(IHierarchicalContentProvider.class);
-        unarchivingPreparation = context.mock(IUnarchivingPreparation.class);
-        statusUpdater = context.mock(IDataSetStatusUpdater.class);
-        configProvider = context.mock(IConfigProvider.class);
-        service = context.mock(IEncapsulatedOpenBISService.class);
-        shareIdManager = context.mock(IShareIdManager.class);
-        deleter = context.mock(IDataSetDeleter.class);
-        final Advised adviced = context.mock(Advised.class);
-        final TargetSource targetSource = context.mock(TargetSource.class);
-        dataStoreService = context.mock(IDataStoreServiceInternal.class);
-        beanFactory = context.mock(BeanFactory.class);
-        ServiceProviderTestWrapper.setApplicationContext(beanFactory);
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(beanFactory).getBean("config-provider");
-                    will(returnValue(configProvider));
-
-                    allowing(beanFactory).getBean("openBIS-service");
-                    will(returnValue(service));
-
-                    allowing(beanFactory).getBean("share-id-manager");
-                    will(returnValue(shareIdManager));
-
-                    allowing(beanFactory).getBean("data-store-service");
-                    will(returnValue(adviced));
-
-                    allowing(adviced).getTargetSource();
-                    will(returnValue(targetSource));
-
-                    try
-                    {
-                        allowing(targetSource).getTarget();
-                        will(returnValue(dataStoreService));
-                    } catch (Exception ex)
-                    {
-                        // ignored
-                    }
-
-                    allowing(dataSetDirectoryProvider).getStoreRoot();
-                    will(returnValue(store));
-                }
-            });
-
-        IncomingShareIdProviderTestWrapper.setShareIds(Arrays.asList("1"));
-        store = new File(workingDirectory, "store");
-        store.mkdirs();
-        share1 = new File(store, "1");
-        share1.mkdir();
         File ds1 = new File(share1, LOCATION);
         ds1.mkdir();
         FileUtilities.writeToFile(new File(ds1, "ds1"), "hello world");
         share2 = new File(store, "2");
         share2.mkdir();
-        properties = new Properties();
         archiver = new RsyncArchiver(properties, store, fileOperationsManager);
         archiver.statusUpdater = statusUpdater;
-        archiverTaskContext = new ArchiverTaskContext(dataSetDirectoryProvider, contentProvider);
-    }
-
-    @AfterMethod
-    public void afterMethod(Method method)
-    {
-        System.out.println("======= Log content for " + method.getName() + "():");
-        System.out.println(logRecorder.getLogContent());
-        System.out.println("======================");
-        logRecorder.reset();
-        ServiceProviderTestWrapper.restoreApplicationContext();
-        IncomingShareIdProviderTestWrapper.restoreOriginalShareIds();
-        try
-        {
-            context.assertIsSatisfied();
-        } catch (Throwable t)
-        {
-            // assert expectations were met, including the name of the failed method
-            throw new Error(method.getName() + "() : ", t);
-        }
     }
 
     @Test
@@ -253,9 +81,6 @@ public class RsyncArchiverTest extends AbstractFileSystemTestCase
 
                     one(fileOperationsManager).isSynchronizedWithDestination(file, ds1);
                     will(returnValue(BooleanStatus.createTrue()));
-
-                    one(dataStoreService).getDataSetDeleter();
-                    will(returnValue(deleter));
 
                     one(deleter).scheduleDeletionOfDataSets(Arrays.asList(ds1),
                             TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT,

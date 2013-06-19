@@ -55,5 +55,6 @@
 	<classpathentry kind="lib" path="/libraries/jsonrpc4j/jsonrpc4j.jar" sourcepath="/libraries/jsonrpc4j/jsonrpc4j-sources.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/cisd-jhdf5-core.jar" sourcepath="/libraries/cisd-jhdf5/cisd-jhdf5-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/cisd-jhdf5-tools.jar"/>
+	<classpathentry kind="lib" path="/libraries/truezip/truezip.jar" sourcepath="/libraries/truezip/truezip_src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

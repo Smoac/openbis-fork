@@ -432,7 +432,19 @@ public class UploadingCommandTest extends AssertJUnit
         logRecorder.resetLogContent();
         command.execute(null, directoryProvider);
 
-        assertEquals("no emails expected", false, EMAILS.exists());
+        if (EMAILS.exists())
+        {
+            File[] files = EMAILS.listFiles();
+            if (files != null)
+            {
+                StringBuilder builder = new StringBuilder();
+                for (File file : files)
+                {
+                    builder.append("\ne-mail:").append(FileUtilities.loadToString(file).trim());
+                }
+                fail("Unexpected e-mail:" + builder);
+            }
+        }
         assertEquals(1, TMP.listFiles().length);
         checkZipFileContent(TMP.listFiles()[0]);
         assertEquals(INFO_UPLOAD_PREFIX
@@ -535,11 +547,10 @@ public class UploadingCommandTest extends AssertJUnit
         command.execute(null, directoryProvider);
 
         checkEmail("Couldn't create zip file");
-        assertEquals("WARN  OPERATION.DataSetExistenceChecker - Data set '2' no longer exists." 
-                + OSUtilities.LINE_SEPARATOR +
-        		"ERROR NOTIFY.UploadingCommand - Data set 2 does not exist."
-                + OSUtilities.LINE_SEPARATOR + INFO_MAIL_PREFIX
-                + "Sending message from 'a@bc.de' to recipients '[user@bc.de]'",
+        assertEquals("WARN  OPERATION.DataSetExistenceChecker - Data set '2' no longer exists." + OSUtilities.LINE_SEPARATOR
+                + "ERROR NOTIFY.UploadingCommand - Data set '2' does not exist." + OSUtilities.LINE_SEPARATOR
+                + "java.lang.RuntimeException: Data set '2' does not exist." + OSUtilities.LINE_SEPARATOR
+                + INFO_MAIL_PREFIX + "Sending message from 'a@bc.de' to recipients '[user@bc.de]'",
                 getNormalizedLogContent());
         context.assertIsSatisfied();
     }
