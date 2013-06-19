@@ -62,7 +62,8 @@ public class ScreeningUtils
             WebClientConfigurationProvider provider =
                     (WebClientConfigurationProvider) CommonServiceProvider.tryToGetBean(ResourceNames.WEB_CLIENT_CONFIGURATION_PROVIDER);
 
-            labelTextPropertyName = provider.getWebClientConfiguration().getPropertyOrNull(ScreeningConstants.TECHNOLOGY_NAME, "data-set-label-text");
+            labelTextPropertyName =
+                    provider.getWebClientConfiguration().getPropertyOrNull(ScreeningConstants.TECHNOLOGY_NAME, "data-set-label-property-code");
             if (labelTextPropertyName == null)
             {
                 labelTextPropertyName = "";
