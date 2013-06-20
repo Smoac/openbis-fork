@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Properties;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -75,6 +74,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
@@ -105,12 +105,12 @@ public class FtpServer implements FileSystemFactory, org.apache.sshd.server.File
     private SshServer sshServer;
 
     public FtpServer(IServiceForDataStoreServer openBisService, IGeneralInformationService generalInfoService,
-            UserManager userManager, Properties configProps) throws Exception
+            UserManager userManager) throws Exception
     {
         this.openBisService = openBisService;
         this.generalInfoService = generalInfoService;
         this.userManager = userManager;
-        this.config = new FtpServerConfig(configProps);
+        this.config = new FtpServerConfig(DssPropertyParametersUtil.loadServiceProperties());
         this.pathResolverRegistry = new FtpPathResolverRegistry(config);
 
         if (config.isStartServer())
