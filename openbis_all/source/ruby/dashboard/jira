@@ -390,7 +390,8 @@ DESCRIPTION
 	move 133 	Set the fix version to 133 for all issues that are connected to the BIS issues
 	move 133 SP-452	Set the fix version of SP-452 to 133
 	
-	fix-add BIS-111 13.04.1 	Add the fix version of 13.04.1 to the BIS-111
+	fix-add 13.04.1  BIS-111	Add the fix version of 13.04.1 to BIS-111
+	fix-add 13.04.1  BIS-111,BIS-112,BIS-113	Add the fix version of 13.04.1 to BIS-111, BIS-112, and BIS-113
 	
 	port1304 155 	returns a list of issues that need to be ported to the release branch
 	port1304 155 commit	returns a list of commits that need to be ported to the release branch	
@@ -1537,23 +1538,31 @@ end
 class FixVersionAdd < LoggedInCommand
   def initialize
     super
-    @issue_key = ARGV[1]
-    @fix_version = ARGV[2]
+    @fix_version = ARGV[1]
+    @issue_keys = ARGV[2]
+    @issue_keys = @issue_keys.split(",").collect { | each | each.strip() } if @issue_keys
+    @issue_keys = [] unless @issue_keys    
   end
   
   def description
-    return "fix-add #{@issue_key} #{@fix_version}"
+    return "fix-add #{@fix_version} #{@issue_keys.inspect}"
   end
   
   
   def run_logged_in
-    issue = JiraHelpers.issue(@issue_key)
-    return "fix [issue key] [fix version]" unless issue
-    return "#{issue.key} fix versions: #{issue.fix_versions}" unless @fix_version
-    ans = JiraHelpers.add_fix_version(issue, @fix_version)
-    puts ans
-    issue = JiraHelpers.issue(@issue_key)
-    return "#{issue.key} fix versions: #{issue.fix_versions}"
+    return "fix-add [fix version] [issue key]" unless @fix_version        
+    return "fix-add [fix version] [issue key]" if @issue_keys.empty?
+    @issue_keys.each do | issue_key |
+      issue = JiraHelpers.issue(issue_key)
+      unless issue.key
+        puts "Issue #{issue_key} unknown"
+        next
+      end
+      ans = JiraHelpers.add_fix_version(issue, @fix_version)
+      issue = JiraHelpers.issue(issue_key)
+      puts "#{issue.key} versions: #{issue.fix_versions}"
+    end
+    return "Updated #{@issue_keys.size} issues"
   end
 end
 
