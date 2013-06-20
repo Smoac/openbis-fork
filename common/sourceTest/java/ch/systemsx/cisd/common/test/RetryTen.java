@@ -4,7 +4,7 @@ import org.testng.ITestResult;
 import org.testng.util.RetryAnalyzerCount;
 
 /**
- * Retry10 extension to allow access the counter variable.
+ * Retry10 extension to allow access the counter variable. This class should be used with TestReportCleaner.
  * 
  * @author anttil & juanf
  */
