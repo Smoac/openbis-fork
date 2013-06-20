@@ -108,6 +108,10 @@ public class IdentifierAttributeMappingManager
             while (reader.readRecord())
             {
                 String[] row = reader.getValues();
+                if (isEmptyRow(row))
+                {
+                    continue;
+                }
                 if (row.length != 3)
                 {
                     throw new IllegalArgumentException("Invalid number of row elements in mapping file '"
@@ -134,6 +138,18 @@ public class IdentifierAttributeMappingManager
                 reader.close();
             }
         }
+    }
+
+    private boolean isEmptyRow(String[] row)
+    {
+        for (String cell : row)
+        {
+            if (cell.length() > 0)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     private List<String> getShareIds(String identifier, String[] row)
