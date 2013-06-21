@@ -33,21 +33,24 @@ import org.apache.log4j.Logger;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
-import ch.systemsx.cisd.base.tests.Retry10;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.io.CollectionIO;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.test.RetryTen;
+import ch.systemsx.cisd.common.test.TestReportCleaner;
 
 /**
  * Test cases for the {@link ProcessExecutionHelper}.
  * 
  * @author Bernd Rinn
  */
+@Listeners(TestReportCleaner.class)
 public class ProcessExecutionHelperTest
 {
 
@@ -129,7 +132,7 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+    { "requires_unix" })
     public void testExecutionOKWithoutTimeOut() throws Exception
     {
         final File dummyExec = createExecutable("dummyOKWithoutTimeOut.sh", 0);
@@ -140,7 +143,7 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+    { "requires_unix" })
     public void testExecutionFailedWithoutTimeOut() throws Exception
     {
         final File dummyExec = createExecutable("dummyFailingWithoutTimeOut.sh", 1);
@@ -151,7 +154,7 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix", "flaky" })
+    { "requires_unix", "flaky" })
     public void testExecutionOKWithTimeOut() throws Exception
     {
         final File dummyExec = createExecutable("dummyOKWithTimeOut.sh", 0);
@@ -162,7 +165,7 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+    { "requires_unix" })
     public void testExecutionOKSameThreadWithTimeOut() throws Exception
     {
         final File dummyExec = createExecutable("dummyOKSameThreadWithTimeOut.sh", 0);
@@ -174,7 +177,7 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix", "flaky" })
+    { "requires_unix", "flaky" })
     public void testExecutionEnvNoReplaceEnviron() throws Exception
     {
         final File dummyExec = createExecutable("printEnv.sh", "env");
@@ -198,32 +201,32 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-            { "requires_unix", "flaky" })
-        public void testExecutionEnvReplaceEnviron() throws Exception
+    { "requires_unix", "flaky" })
+    public void testExecutionEnvReplaceEnviron() throws Exception
+    {
+        final File dummyExec = createExecutable("printEnv.sh", "env");
+        final Map<String, String> env = new HashMap<String, String>();
+        env.put("bla", "blub");
+        final ProcessResult result =
+                ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()), env,
+                        true, operationLog, machineLog, WATCHDOG_WAIT_MILLIS,
+                        ProcessIOStrategy.DEFAULT_IO_STRATEGY, true);
+        assertTrue(result.isOK());
+        assertEquals(2, result.getOutput().size());
+        boolean found = false;
+        for (String ln : result.getOutput())
         {
-            final File dummyExec = createExecutable("printEnv.sh", "env");
-            final Map<String, String> env = new HashMap<String, String>();
-            env.put("bla", "blub");
-            final ProcessResult result =
-                    ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()), env,
-                            true, operationLog, machineLog, WATCHDOG_WAIT_MILLIS,
-                            ProcessIOStrategy.DEFAULT_IO_STRATEGY, true);
-            assertTrue(result.isOK());
-            assertEquals(2, result.getOutput().size());
-            boolean found = false;
-            for (String ln : result.getOutput())
+            if (ln.equals("bla=blub"))
             {
-                if (ln.equals("bla=blub"))
-                {
-                    found = true;
-                    break;
-                }
+                found = true;
+                break;
             }
-            assertTrue(found);
         }
+        assertTrue(found);
+    }
 
     @Test(groups =
-        { "requires_unix" })
+    { "requires_unix" })
     public void testExecutionFailedWithTimeOut() throws Exception
     {
         final File dummyExec = createExecutable("dummyFailingWithTimeOut.sh", 1);
@@ -234,7 +237,7 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix", "slow" })
+    { "requires_unix", "slow" })
     public void testSleepyExecutionOKWithTimeOut() throws Exception
     {
         final File dummyExec =
@@ -248,8 +251,8 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix", "slow" }, expectedExceptions =
-        { InterruptedExceptionUnchecked.class }, retryAnalyzer = Retry10.class)
+    { "requires_unix", "slow" }, expectedExceptions =
+    { InterruptedExceptionUnchecked.class }, retryAnalyzer = RetryTen.class)
     public void testSleepyExecutionGetsStopped() throws Exception
     {
         final Thread thisThread = Thread.currentThread();
@@ -276,8 +279,8 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix", "slow" }, expectedExceptions =
-        { InterruptedExceptionUnchecked.class })
+    { "requires_unix", "slow" }, expectedExceptions =
+    { InterruptedExceptionUnchecked.class })
     public void testSleepyExecutionGetsStoppedUsingRunUnblocking() throws Exception
     {
         final Thread thisThread = Thread.currentThread();
@@ -307,7 +310,7 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix", "slow" })
+    { "requires_unix", "slow" })
     public void testSleepyExecutionGetsInterrupted() throws Exception
     {
         final Thread thisThread = Thread.currentThread();
@@ -337,7 +340,7 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix", "slow" })
+    { "requires_unix", "slow" })
     public void testSleepyExecutionFailedWithTimeOut() throws Exception
     {
         final File dummyExec =
@@ -353,7 +356,7 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix", "slow" })
+    { "requires_unix", "slow" })
     public void testHangingExecLotsOfOutputOnStdOut() throws Exception
     {
         final File dummyExec = createExecutableEndlessLoop("iHang.sh");
@@ -368,7 +371,7 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix", "slow" })
+    { "requires_unix", "slow" })
     public void testTryExecutionReadProcessOutput() throws Exception
     {
         final String stdout1 = "This goes to stdout, 1";
@@ -395,7 +398,7 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix", "slow" })
+    { "requires_unix", "slow" })
     public void testTryExecutionReadProcessOutputDiscardStderr() throws Exception
     {
         final String stdout1 = "This goes to stdout, 1";
@@ -420,7 +423,7 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix", "slow" })
+    { "requires_unix", "slow" })
     public void testTryExecutionReadProcessOutputDiscardStdout() throws Exception
     {
         final String stdout1 = "This goes to stdout, 1";
@@ -446,7 +449,7 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix", "slow" })
+    { "requires_unix", "slow" })
     public void testTryExecutionReadProcessOutputDiscardStdoutSameThread() throws Exception
     {
         final String stdout1 = "This goes to stdout, 1";
@@ -472,7 +475,7 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix", "slow" })
+    { "requires_unix", "slow" })
     public void testTryExecutionReadBinaryProcessOutput() throws Exception
     {
         final String stdout1 = "This goes to stdout, 1";
@@ -500,7 +503,7 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix", "slow" })
+    { "requires_unix", "slow" })
     public void testTryExecutionReadBinaryProcessOutputSameThread() throws Exception
     {
         final String stdout1 = "This goes to stdout, 1";
@@ -528,7 +531,7 @@ public class ProcessExecutionHelperTest
     }
 
     @Test(groups =
-        { "requires_unix", "slow" })
+    { "requires_unix", "slow" })
     public void testHangingExecLotsOfBinaryOutputOnStdOut() throws Exception
     {
         final File dummyExec = createExecutableEndlessDevURandom("iHangOnUrandom.sh");
@@ -555,7 +558,7 @@ public class ProcessExecutionHelperTest
 
     @SuppressWarnings("null")
     @Test(groups =
-        { "requires_unix", "slow", "flaky" })
+    { "requires_unix", "slow", "flaky" })
     public void testSleepyExecutionWithTermination() throws Exception
     {
         final File dummyExec = createSleepingExecutable("sleep.sh", 2 * WATCHDOG_WAIT_MILLIS);

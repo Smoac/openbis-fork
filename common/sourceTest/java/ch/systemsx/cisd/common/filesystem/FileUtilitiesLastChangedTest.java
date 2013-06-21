@@ -24,19 +24,22 @@ import java.io.IOException;
 
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.base.tests.Retry10;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.test.RetryTen;
+import ch.systemsx.cisd.common.test.TestReportCleaner;
 
 /**
  * Test cases for the {@link FileUtilities#lastChanged(File)} method.
  * 
  * @author Bernd Rinn
  */
+@Listeners(TestReportCleaner.class)
 public class FileUtilitiesLastChangedTest
 {
 
@@ -47,19 +50,19 @@ public class FileUtilitiesLastChangedTest
     public Object[][] getDirectories()
     {
         return new Object[][]
-            {
-                        { ".fsLastChangedCheckerTestDirectory",
-                                ".fsLastChangedCheckerTestDirectory" },
-                        { ".fsLastChangedCheckerTestDirectory",
-                                ".fsLastChangedCheckerTestDirectory" + File.separator + "1" },
-                        {
-                                ".fsLastChangedCheckerTestDirectory",
-                                ".fsLastChangedCheckerTestDirectory" + File.separator + "1"
-                                        + File.separator + 2 },
-                        {
-                                ".fsLastChangedCheckerTestDirectory",
-                                ".fsLastChangedCheckerTestDirectory" + File.separator + "1"
-                                        + File.separator + 2 + File.separator + 3 } };
+        {
+                { ".fsLastChangedCheckerTestDirectory",
+                        ".fsLastChangedCheckerTestDirectory" },
+                { ".fsLastChangedCheckerTestDirectory",
+                        ".fsLastChangedCheckerTestDirectory" + File.separator + "1" },
+                {
+                        ".fsLastChangedCheckerTestDirectory",
+                        ".fsLastChangedCheckerTestDirectory" + File.separator + "1"
+                                + File.separator + 2 },
+                {
+                        ".fsLastChangedCheckerTestDirectory",
+                        ".fsLastChangedCheckerTestDirectory" + File.separator + "1"
+                                + File.separator + 2 + File.separator + 3 } };
     }
 
     private void restALittleBit()
@@ -82,7 +85,7 @@ public class FileUtilitiesLastChangedTest
     }
 
     @Test(groups =
-        { "slow" }, dataProvider = "testLastChanged")
+    { "slow" }, dataProvider = "testLastChanged")
     public void testLastChanged(String dirToCheck, String dirToCreate)
             throws UnknownLastChangedException
     {
@@ -137,7 +140,7 @@ public class FileUtilitiesLastChangedTest
         assertEquals(1000L, FileUtilities.lastChanged(dirA, true, 999L));
     }
 
-    @Test(retryAnalyzer = Retry10.class)
+    @Test(retryAnalyzer = RetryTen.class)
     public void testLastChangedRelative() throws IOException
     {
         final File dirA = new File(workingDirectory, "a-relative");
