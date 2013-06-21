@@ -28,20 +28,23 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.tests.Retry10;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
+import ch.systemsx.cisd.common.test.RetryTen;
+import ch.systemsx.cisd.common.test.TestReportCleaner;
 
 /**
  * Test cases for the {@link DefaultSessionManager}.
  * 
  * @author Bernd Rinn
  */
+@Listeners(TestReportCleaner.class)
 public class DefaultSessionManagerTest
 {
 
@@ -96,7 +99,7 @@ public class DefaultSessionManagerTest
     }
 
     @SuppressWarnings(
-        { "unchecked", "rawtypes" })
+    { "unchecked", "rawtypes" })
     private ISessionManager<BasicSession> createSessionManager(int sessionExpiration)
     {
         return new DefaultSessionManager(sessionFactory, prefixGenerator, authenticationService,
@@ -322,7 +325,7 @@ public class DefaultSessionManagerTest
         context.assertIsSatisfied();
     }
 
-    @Test(retryAnalyzer = Retry10.class)
+    @Test(retryAnalyzer = RetryTen.class)
     public void testSessionRemoval()
     {
         final String user = "bla";
