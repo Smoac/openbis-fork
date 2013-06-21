@@ -29,8 +29,8 @@ import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationSchedulerWithQueue;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -50,7 +50,7 @@ public class DynamicPropertyEvaluationMaintenanceTask implements IMaintenanceTas
 
     static
     {
-        entityClasses.add(ExternalDataPE.class);
+        entityClasses.add(DataPE.class);
         entityClasses.add(ExperimentPE.class);
         entityClasses.add(MaterialPE.class);
         entityClasses.add(SamplePE.class);
