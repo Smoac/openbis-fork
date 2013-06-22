@@ -39,7 +39,8 @@ public class SVNFileExporter implements ISVNFileExporter
     @Override
     public void export(String repositoryUrl, File targetDirectory) throws SVNException
     {
-        SVNUtilities.subversionCommand(logger, true, targetDirectory, "export", repositoryUrl);
+        SVNUtilities.subversionCommand(logger, true, targetDirectory, "export", "--force",
+                repositoryUrl);
     }
 
 }
