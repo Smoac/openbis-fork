@@ -27,11 +27,11 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
-import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.CommonServerTest.PersonWithDisplaySettingsMatcher;
+import ch.systemsx.cisd.openbis.generic.server.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMetaprojectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IScriptBO;
@@ -116,7 +117,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IAuthenticationService authenticationService;
 
-    protected ISessionManager<Session> sessionManager;
+    protected IOpenBisSessionManager sessionManager;
 
     protected IDatabaseInstanceDAO databaseInstanceDAO;
 
@@ -134,7 +135,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected ISampleDAO sampleDAO;
 
-    protected ISpaceBO groupBO;
+    protected ISpaceBO spaceBO;
 
     protected ISampleBO sampleBO;
 
@@ -212,6 +213,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IScriptBO scriptBO;
 
+    protected IRoleAssignmentTable roleAssignmentTable;
+
     private MaterialConfigurationProvider oldProvider;
 
     @BeforeMethod
@@ -223,7 +226,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         logRecorder = new BufferedAppender("%m%n", Level.DEBUG);
         context = new Mockery();
         authenticationService = context.mock(IAuthenticationService.class);
-        sessionManager = context.mock(ISessionManager.class);
+        sessionManager = context.mock(IOpenBisSessionManager.class);
         propertiesBatchManager = context.mock(IPropertiesBatchManager.class);
         // DAO
         daoFactory = context.mock(IDAOFactory.class);
@@ -251,7 +254,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         metaprojectDAO = context.mock(IMetaprojectDAO.class);
         scriptDAO = context.mock(IScriptDAO.class);
         // BO
-        groupBO = context.mock(ISpaceBO.class);
+        spaceBO = context.mock(ISpaceBO.class);
         entityTypeBO = context.mock(IEntityTypeBO.class);
         sampleBO = context.mock(ISampleBO.class);
         materialBO = context.mock(IMaterialBO.class);
@@ -274,6 +277,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         propertyTypeTable = context.mock(IPropertyTypeTable.class);
         materialTable = context.mock(IMaterialTable.class);
         materialLister = context.mock(IMaterialLister.class);
+        roleAssignmentTable = context.mock(IRoleAssignmentTable.class);
 
         homeDatabaseInstance = CommonTestUtils.createHomeDatabaseInstance();
         context.checking(new Expectations()

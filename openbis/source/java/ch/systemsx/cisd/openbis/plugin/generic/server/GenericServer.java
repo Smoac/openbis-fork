@@ -32,13 +32,13 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractASyncAction;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.MaterialHelper;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
@@ -153,7 +153,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Private
-    GenericServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
+    GenericServer(final IOpenBisSessionManager sessionManager, final IDAOFactory daoFactory,
             IPropertiesBatchManager propertiesBatchManager,
             final IGenericBusinessObjectFactory businessObjectFactory,
             final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
@@ -899,8 +899,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     /**
      * @param sessionToken The session token for the request
-     * @param experiments Should be a NewExperimentsWithType where the newExperiments contains a
-     *            collection of {@link UpdatedBasicExperiment} objects.
+     * @param experiments Should be a NewExperimentsWithType where the newExperiments contains a collection of {@link UpdatedBasicExperiment} objects.
      */
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
@@ -937,8 +936,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     /**
-     * @param updatedExperiments The experiments should actually be instances of
-     *            UpdatedBasicExperiment.
+     * @param updatedExperiments The experiments should actually be instances of UpdatedBasicExperiment.
      */
     private List<ExperimentBatchUpdatesDTO> convertExperiments(
             final List<UpdatedBasicExperiment> updatedExperiments)

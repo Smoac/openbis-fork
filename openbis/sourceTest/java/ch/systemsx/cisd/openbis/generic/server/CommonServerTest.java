@@ -40,7 +40,6 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.EntityValidatorFactory;
@@ -65,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityVisit;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -113,6 +113,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.builders.ScriptPEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.ICommonPropertyBasedHotDeployPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
@@ -159,8 +160,6 @@ public final class CommonServerTest extends AbstractServerTestCase
     private IDataStoreServiceFactory dssFactory;
 
     private IDataStoreService dataStoreService;
-
-    private IRoleAssignmentTable roleAssignmentTable;
 
     private final CommonServer createServer()
     {
@@ -210,7 +209,6 @@ public final class CommonServerTest extends AbstractServerTestCase
         entityValidatorFactory = context.mock(IEntityValidatorFactory.class);
         entityValidatorHotDeployPlugin = context.mock(IEntityValidatorHotDeployPlugin.class);
         hotDeploymentController = context.mock(IHotDeploymentController.class);
-        roleAssignmentTable = context.mock(IRoleAssignmentTable.class);
     }
 
     @Test
@@ -463,10 +461,10 @@ public final class CommonServerTest extends AbstractServerTestCase
             {
                 {
                     one(commonBusinessObjectFactory).createSpaceBO(session);
-                    will(returnValue(groupBO));
+                    will(returnValue(spaceBO));
 
-                    one(groupBO).define(spaceCode, description);
-                    one(groupBO).save();
+                    one(spaceBO).define(spaceCode, description);
+                    one(spaceBO).save();
 
                     one(personDAO).tryFindPersonByUserId(CommonTestUtils.USER_ID);
                     will(returnValue(person));
@@ -477,15 +475,91 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(roleAssignmentTable).add(with(assignmentMatcher));
                     one(roleAssignmentTable).save();
 
-                    one(personDAO).getPerson(4);
-                    will(returnValue(person));
+                    one(sessionManager).updateAllSessions(daoFactory);
+
                 }
             });
 
         createServer().registerSpace(SESSION_TOKEN, spaceCode, description);
 
-        assertSame(person, session.tryGetPerson());
         assertEquals("PERSON:test=ADMIN@/group", assignmentMatcher.recordedObject().toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testRegisterInstanceRoleAssignment()
+    {
+        prepareGetSession();
+        final RecordingMatcher<NewRoleAssignment> assignmentMatcher =
+                new RecordingMatcher<NewRoleAssignment>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonBusinessObjectFactory).createRoleAssignmentTable(session);
+                    will(returnValue(roleAssignmentTable));
+
+                    one(roleAssignmentTable).add(with(assignmentMatcher));
+                    one(roleAssignmentTable).save();
+
+                    one(sessionManager).updateAllSessions(daoFactory);
+                }
+            });
+
+        createServer().registerInstanceRole(SESSION_TOKEN, RoleCode.ADMIN, Grantee.createPerson(CommonTestUtils.USER_ID));
+
+        assertEquals("PERSON:test=ADMIN@", assignmentMatcher.recordedObject().toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDeleteSpaceRole()
+    {
+        prepareGetSession();
+        final Grantee person = Grantee.createPerson(CommonTestUtils.USER_ID);
+        context.checking(new Expectations()
+            {
+                {
+                    one(roleAssignmentDAO).tryFindSpaceRoleAssignment(RoleCode.USER, "S42", person);
+                    RoleAssignmentPE assignment = new RoleAssignmentPE();
+                    assignment.setDatabaseInstance(new DatabaseInstancePE());
+                    assignment.setRole(RoleCode.USER);
+                    assignment.setPersonInternal(new PersonPE());
+                    will(returnValue(assignment));
+
+                    one(roleAssignmentDAO).deleteRoleAssignment(assignment);
+
+                    one(sessionManager).updateAllSessions(daoFactory);
+                }
+            });
+
+        createServer().deleteSpaceRole(SESSION_TOKEN, RoleCode.USER, new SpaceIdentifier("S42"), person);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testDeleteInstanceRole()
+    {
+        prepareGetSession();
+        final Grantee person = Grantee.createPerson(CommonTestUtils.USER_ID);
+        context.checking(new Expectations()
+            {
+                {
+                    one(roleAssignmentDAO).tryFindInstanceRoleAssignment(RoleCode.USER, person);
+                    RoleAssignmentPE assignment = new RoleAssignmentPE();
+                    assignment.setDatabaseInstance(new DatabaseInstancePE());
+                    assignment.setRole(RoleCode.USER);
+                    assignment.setPersonInternal(new PersonPE());
+                    will(returnValue(assignment));
+
+                    one(roleAssignmentDAO).deleteRoleAssignment(assignment);
+
+                    one(sessionManager).updateAllSessions(daoFactory);
+                }
+            });
+
+        createServer().deleteInstanceRole(SESSION_TOKEN, RoleCode.USER, person);
+
         context.assertIsSatisfied();
     }
 

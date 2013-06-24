@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
@@ -45,13 +44,13 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
 {
     private final ICommonBusinessObjectFactory businessObjectFactory;
 
-    public TrackingServer(final ISessionManager<Session> sessionManager,
+    public TrackingServer(final IOpenBisSessionManager sessionManager,
             final IDAOFactory daoFactory, final ICommonBusinessObjectFactory businessObjectFactory)
     {
         this(sessionManager, daoFactory, null, businessObjectFactory);
     }
 
-    TrackingServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
+    TrackingServer(final IOpenBisSessionManager sessionManager, final IDAOFactory daoFactory,
             IPropertiesBatchManager propertiesBatchManager,
             final ICommonBusinessObjectFactory businessObjectFactory)
     {

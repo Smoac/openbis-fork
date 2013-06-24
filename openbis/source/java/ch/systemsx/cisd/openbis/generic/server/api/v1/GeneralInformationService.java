@@ -34,11 +34,11 @@ import org.apache.commons.collections.Transformer;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
@@ -154,7 +154,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     {
     }
 
-    GeneralInformationService(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
+    GeneralInformationService(IOpenBisSessionManager sessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory, IPropertiesBatchManager propertiesBatchManager,
             ICommonServer commonServer)
     {

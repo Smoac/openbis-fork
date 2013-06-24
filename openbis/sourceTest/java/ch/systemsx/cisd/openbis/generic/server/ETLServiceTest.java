@@ -106,6 +106,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -119,6 +120,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatabaseInstancePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -152,6 +154,12 @@ public class ETLServiceTest extends AbstractServerTestCase
     private static final String URL = "http://remote-host:" + PORT;
 
     private static final String USER_FOR_ENTITY_OPERATIONS = "eo-user";
+
+    private static final String TEST_SPACE = "TEST-SPACE-CREATED-WITH-DSS";
+
+    private static final String TEST_SPACE_DESCRIPTION = "some description";
+
+    private static final String TEST_SPACE_USER = "test_space";
 
     private ICommonBusinessObjectFactory boFactory;
 
@@ -1077,7 +1085,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         dataSetUpdate.setDatasetId(CommonTestUtils.TECH_ID);
         dataSetUpdate.setFileFormatTypeCode("new-file-format");
         dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[]
-            { "c1", "c2" });
+        { "c1", "c2" });
 
         final MetaprojectPE metaprojectPE = new MetaprojectPE();
 
@@ -1099,13 +1107,15 @@ public class ETLServiceTest extends AbstractServerTestCase
 
         List<VocabularyUpdatesDTO> vocabularyUpdates = Collections.emptyList();
 
-        prepareEntityOperationsExpectations(samplePE, sampleUpdate, material, materialType,
+        NewSpace space = new NewSpace(TEST_SPACE, TEST_SPACE_DESCRIPTION, TEST_SPACE_USER);
+
+        RecordingMatcher<NewRoleAssignment> roleMatcher = prepareEntityOperationsExpectations(samplePE, sampleUpdate, material, materialType,
                 materialRegistrations, newSamplePE, newSampleIdentifier, newSample, externalData,
-                updatedDataSetCode, dataSetUpdate, newMetaproject, metaprojectPE, mtu);
+                updatedDataSetCode, dataSetUpdate, newMetaproject, metaprojectPE, mtu, space);
 
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(null, USER_FOR_ENTITY_OPERATIONS,
-                        new ArrayList<NewSpace>(), new ArrayList<NewProject>(),
+                        Arrays.asList(space), new ArrayList<NewProject>(),
                         new ArrayList<ProjectUpdatesDTO>(), new ArrayList<NewExperiment>(),
                         experimentUpdates, Collections.singletonList(sampleUpdate),
                         Collections.singletonList(newSample), materialRegistrations,
@@ -1120,20 +1130,23 @@ public class ETLServiceTest extends AbstractServerTestCase
         assertEquals(1, result.getSamplesUpdatedCount());
         assertEquals(1, result.getSamplesCreatedCount());
         assertEquals(1, result.getDataSetsUpdatedCount());
+        assertEquals(TEST_SPACE, roleMatcher.recordedObject().getSpaceIdentifier().getSpaceCode());
+        assertEquals(TEST_SPACE_USER, roleMatcher.recordedObject().getGrantee().getCode());
 
         context.assertIsSatisfied();
     }
 
-    private void prepareEntityOperationsExpectations(final SamplePE samplePE,
+    private RecordingMatcher<NewRoleAssignment> prepareEntityOperationsExpectations(final SamplePE samplePE,
             final SampleUpdatesDTO sampleUpdate, final MaterialPE material,
             final MaterialTypePE materialType, final Map<String, List<NewMaterial>> newMaterials,
             final SamplePE newSamplePE, final SampleIdentifier newSampleIdentifier,
             final NewSample newSample, final NewExternalData externalData,
             final String updatedDataSetCode, final DataSetBatchUpdatesDTO dataSetUpdate,
             final NewMetaproject newMetaproject, final MetaprojectPE metaprojectPE,
-            final MetaprojectUpdatesDTO metaprojectUpdates)
+            final MetaprojectUpdatesDTO metaprojectUpdates, final NewSpace newSpace)
     {
         final Session userSession = createSession(USER_FOR_ENTITY_OPERATIONS);
+        final RecordingMatcher<NewRoleAssignment> roleMatcher = new RecordingMatcher<NewRoleAssignment>();
         context.checking(new Expectations()
             {
                 {
@@ -1146,6 +1159,27 @@ public class ETLServiceTest extends AbstractServerTestCase
                     will(returnValue(userSession));
 
                     one(sessionManagerForEntityOperations).closeSession(sessionToken);
+
+                    one(entityOperationChecker).assertSpaceCreationAllowed(userSession, Arrays.asList(newSpace));
+                    one(boFactory).createSpaceBO(userSession);
+                    will(returnValue(spaceBO));
+
+                    one(spaceBO).define(TEST_SPACE, TEST_SPACE_DESCRIPTION);
+                    one(spaceBO).save();
+
+                    one(spaceBO).getSpace();
+                    SpacePE space = new SpacePE();
+                    space.setCode(TEST_SPACE);
+                    space.setDescription(TEST_SPACE_DESCRIPTION);
+                    will(returnValue(space));
+
+                    one(boFactory).createRoleAssignmentTable(userSession);
+                    will(returnValue(roleAssignmentTable));
+
+                    one(roleAssignmentTable).add(with(roleMatcher));
+                    one(roleAssignmentTable).save();
+
+                    one(sessionManager).updateAllSessions(daoFactory);
 
                     allowing(personDAO).tryFindPersonByUserId(USER_FOR_ENTITY_OPERATIONS);
                     PersonPE user = createSystemUser();
@@ -1269,6 +1303,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     // will(returnValue(externalDataPE));
                 }
             });
+        return roleMatcher;
     }
 
     @Test
@@ -1315,7 +1350,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         dataSetUpdate.setDatasetId(CommonTestUtils.TECH_ID);
         dataSetUpdate.setFileFormatTypeCode("new-file-format");
         dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[]
-            { "c1", "c2" });
+        { "c1", "c2" });
 
         final MetaprojectPE metaprojectPE = new MetaprojectPE();
         metaprojectPE.setOwner(CommonTestUtils.createPersonFromPrincipal(PRINCIPAL));
@@ -1338,9 +1373,11 @@ public class ETLServiceTest extends AbstractServerTestCase
 
         List<VocabularyUpdatesDTO> vocabularyUpdates = Collections.emptyList();
 
-        prepareEntityOperationsExpectations(samplePE, sampleUpdate, material, materialType,
+        NewSpace space = new NewSpace(TEST_SPACE, TEST_SPACE_DESCRIPTION, TEST_SPACE_USER);
+
+        RecordingMatcher<NewRoleAssignment> roleMatcher = prepareEntityOperationsExpectations(samplePE, sampleUpdate, material, materialType,
                 materialRegistrations, newSamplePE, newSampleIdentifier, newSample, externalData,
-                updatedDataSetCode, dataSetUpdate, newMetaproject, metaprojectPE, mtu);
+                updatedDataSetCode, dataSetUpdate, newMetaproject, metaprojectPE, mtu, space);
         context.checking(new Expectations()
             {
                 {
@@ -1351,7 +1388,7 @@ public class ETLServiceTest extends AbstractServerTestCase
 
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(new TechId(1), USER_FOR_ENTITY_OPERATIONS,
-                        new ArrayList<NewSpace>(), new ArrayList<NewProject>(),
+                        Arrays.asList(space), new ArrayList<NewProject>(),
                         new ArrayList<ProjectUpdatesDTO>(), new ArrayList<NewExperiment>(),
                         new ArrayList<ExperimentUpdatesDTO>(),
                         Collections.singletonList(sampleUpdate),
@@ -1367,6 +1404,9 @@ public class ETLServiceTest extends AbstractServerTestCase
         assertEquals(1, result.getSamplesUpdatedCount());
         assertEquals(1, result.getSamplesCreatedCount());
         assertEquals(1, result.getDataSetsUpdatedCount());
+
+        assertEquals(TEST_SPACE, roleMatcher.recordedObject().getSpaceIdentifier().getSpaceCode());
+        assertEquals(TEST_SPACE_USER, roleMatcher.recordedObject().getGrantee().getCode());
 
         context.assertIsSatisfied();
     }
@@ -1583,7 +1623,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     {
         // unknown data set type codes should be silently discarded
         return new DatastoreServiceDescription(key, key, new String[]
-            { DATA_SET_TYPE_CODE, UNKNOWN_DATA_SET_TYPE_CODE }, key, serviceKind);
+        { DATA_SET_TYPE_CODE, UNKNOWN_DATA_SET_TYPE_CODE }, key, serviceKind);
     }
 
     @SuppressWarnings("deprecation")
@@ -1592,7 +1632,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     {
         // wildcards should be handled correctly
         return new DatastoreServiceDescription(key, key, new String[]
-            { regex }, key, serviceKind);
+        { regex }, key, serviceKind);
     }
 
     private void assignRoles(PersonPE person)

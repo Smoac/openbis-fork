@@ -27,10 +27,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
-import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
@@ -58,7 +57,7 @@ public class AbstractServerTest extends AssertJUnit
 
     private AbstractServer<Object> server;
 
-    private ISessionManager<Session> sessionManager;
+    private IOpenBisSessionManager sessionManager;
 
     private IDAOFactory daoFactory;
 
@@ -67,12 +66,12 @@ public class AbstractServerTest extends AssertJUnit
     private IRoleAssignmentDAO roleAssigmentDAO;
 
     @SuppressWarnings(
-        { "cast", "unchecked" })
+    { "cast", "unchecked" })
     @BeforeMethod
     public void beforeMethod()
     {
         context = new Mockery();
-        sessionManager = (ISessionManager<Session>) context.mock(ISessionManager.class);
+        sessionManager = (IOpenBisSessionManager) context.mock(IOpenBisSessionManager.class);
         daoFactory = context.mock(IDAOFactory.class);
         personDAO = context.mock(IPersonDAO.class);
         roleAssigmentDAO = context.mock(IRoleAssignmentDAO.class);
