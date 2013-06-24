@@ -25,10 +25,10 @@ import net.lemnik.eodsql.DataSet;
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
@@ -88,7 +88,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     }
 
     @Private
-    PhosphoNetXServer(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
+    PhosphoNetXServer(IOpenBisSessionManager sessionManager, IDAOFactory daoFactory,
             IPropertiesBatchManager propertiesBatchManager,
             IPhosphoNetXDAOFactory specificDAOFactory, IBusinessObjectFactory specificBOFactory,
             ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,

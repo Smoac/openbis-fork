@@ -25,11 +25,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
@@ -45,10 +45,10 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -89,7 +89,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
 
     private ICommonBusinessObjectFactory commonBoFactory;
 
-    private ISessionManager<Session> sessionManagerFromConstructor;
+    private IOpenBisSessionManager sessionManagerFromConstructor;
 
     private ExperimentLoader experimentLoader;
 
@@ -101,7 +101,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     {
     }
 
-    public ProteomicsDataServiceInternal(ISessionManager<Session> sessionManager,
+    public ProteomicsDataServiceInternal(IOpenBisSessionManager sessionManager,
             IDAOFactory daoFactory, ICommonBusinessObjectFactory businessObjectFactory,
             IBusinessObjectFactory boFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
@@ -110,7 +110,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
                 managedPropertyEvaluatorFactory);
     }
 
-    ProteomicsDataServiceInternal(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
+    ProteomicsDataServiceInternal(IOpenBisSessionManager sessionManager, IDAOFactory daoFactory,
             IPropertiesBatchManager propertiesBatchManager,
             ICommonBusinessObjectFactory businessObjectFactory, IBusinessObjectFactory boFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
