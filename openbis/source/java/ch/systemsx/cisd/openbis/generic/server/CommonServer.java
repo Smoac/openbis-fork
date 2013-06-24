@@ -244,6 +244,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedDataSet;
@@ -476,7 +477,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
-    public void updateScript(final String sessionToken, final IScriptUpdates updates)
+    public ScriptUpdateResult updateScript(final String sessionToken, final IScriptUpdates updates)
     {
         assert sessionToken != null : "Unspecified session token";
         assert updates != null : "Unspecified updates";
@@ -484,6 +485,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
         final IScriptBO bo = businessObjectFactory.createScriptBO(session);
         bo.update(updates);
+
+        ScriptUpdateResult result = new ScriptUpdateResult();
+        result.setModificationDate(bo.getScript().getModificationDate());
+        return result;
     }
 
     @Override

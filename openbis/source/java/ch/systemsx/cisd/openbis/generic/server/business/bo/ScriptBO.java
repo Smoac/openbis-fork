@@ -38,8 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedProperty
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.JythonManagedPropertyEvaluator;
 
 /**
- * The only productive implementation of {@link IScriptBO}. We are using an interface here to keep
- * the system testable.
+ * The only productive implementation of {@link IScriptBO}. We are using an interface here to keep the system testable.
  * 
  * @author Izabela Adamczyk
  */
@@ -234,6 +233,16 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         {
             scheduleDynamicPropertiesEvaluation();
         }
+    }
+
+    @Override
+    public final ScriptPE getScript() throws IllegalStateException
+    {
+        if (script == null)
+        {
+            throw new IllegalStateException("Unloaded script.");
+        }
+        return script;
     }
 
     private void scheduleDynamicPropertiesEvaluation()
