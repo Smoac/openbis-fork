@@ -34,6 +34,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogLevel;
@@ -130,6 +131,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SpaceTranslator;
  * 
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = RoleAssignmentPE.class)
 public final class CommonServerTest extends AbstractServerTestCase
 {
 
@@ -520,10 +522,7 @@ public final class CommonServerTest extends AbstractServerTestCase
             {
                 {
                     one(roleAssignmentDAO).tryFindSpaceRoleAssignment(RoleCode.USER, "S42", person);
-                    RoleAssignmentPE assignment = new RoleAssignmentPE();
-                    assignment.setDatabaseInstance(new DatabaseInstancePE());
-                    assignment.setRole(RoleCode.USER);
-                    assignment.setPersonInternal(new PersonPE());
+                    RoleAssignmentPE assignment = createRoleAssignment();
                     will(returnValue(assignment));
 
                     one(roleAssignmentDAO).deleteRoleAssignment(assignment);
@@ -546,21 +545,28 @@ public final class CommonServerTest extends AbstractServerTestCase
             {
                 {
                     one(roleAssignmentDAO).tryFindInstanceRoleAssignment(RoleCode.USER, person);
-                    RoleAssignmentPE assignment = new RoleAssignmentPE();
-                    assignment.setDatabaseInstance(new DatabaseInstancePE());
-                    assignment.setRole(RoleCode.USER);
-                    assignment.setPersonInternal(new PersonPE());
+                    RoleAssignmentPE assignment = createRoleAssignment();
                     will(returnValue(assignment));
 
                     one(roleAssignmentDAO).deleteRoleAssignment(assignment);
 
                     one(sessionManager).updateAllSessions(daoFactory);
                 }
+
             });
 
         createServer().deleteInstanceRole(SESSION_TOKEN, RoleCode.USER, person);
 
         context.assertIsSatisfied();
+    }
+
+    private RoleAssignmentPE createRoleAssignment()
+    {
+        RoleAssignmentPE assignment = new RoleAssignmentPE();
+        assignment.setDatabaseInstance(new DatabaseInstancePE());
+        assignment.setRole(RoleCode.USER);
+        assignment.setPersonInternal(new PersonPE());
+        return assignment;
     }
 
     @Test
