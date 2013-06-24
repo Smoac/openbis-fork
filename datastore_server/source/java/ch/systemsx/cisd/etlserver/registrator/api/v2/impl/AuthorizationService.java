@@ -16,14 +16,22 @@
 
 package ch.systemsx.cisd.etlserver.registrator.api.v2.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.action.IMapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IAuthorizationGroupImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IRoleAssignmentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IUserImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.authorization.IAuthorizationService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 
 /**
  * @author Jakub Straszewski
@@ -95,5 +103,58 @@ public class AuthorizationService implements IAuthorizationService
 
         return AuthorizationHelper.filterToVisible(openBisService, user, samples, idMapper,
                 AuthorizationHelper.EntityKind.SAMPLE);
+    }
+
+    @Override
+    public List<IAuthorizationGroupImmutable> listAuthorizationGroups()
+    {
+        ArrayList<IAuthorizationGroupImmutable> authorizationGroups = new ArrayList<IAuthorizationGroupImmutable>();
+
+        List<AuthorizationGroup> authorizationGroupDtos = openBisService.listAuthorizationGroups();
+        for (AuthorizationGroup authorizationGroupDto : authorizationGroupDtos)
+        {
+            authorizationGroups.add(new AuthorizationGroupImmutable(authorizationGroupDto));
+        }
+        return authorizationGroups;
+    }
+
+    @Override
+    public List<IAuthorizationGroupImmutable> listAuthorizationGroupsForUser(String userId)
+    {
+        ArrayList<IAuthorizationGroupImmutable> authorizationGroups = new ArrayList<IAuthorizationGroupImmutable>();
+
+        List<AuthorizationGroup> authorizationGroupDtos = openBisService.listAuthorizationGroupsForUser(userId);
+        for (AuthorizationGroup authorizationGroupDto : authorizationGroupDtos)
+        {
+            authorizationGroups.add(new AuthorizationGroupImmutable(authorizationGroupDto));
+        }
+        return authorizationGroups;
+    }
+
+    @Override
+    public List<IUserImmutable> listUsersForAuthorizationGroup(IAuthorizationGroupImmutable authorizationGroup)
+    {
+        ArrayList<IUserImmutable> users = new ArrayList<IUserImmutable>();
+
+        TechId authorizationGroupId = TechId.create((AuthorizationGroupImmutable) authorizationGroup);
+        List<Person> persons = openBisService.listUsersForAuthorizationGroup(authorizationGroupId);
+        for (Person person : persons)
+        {
+            users.add(new UserImmutable(person));
+        }
+        return users;
+    }
+
+    @Override
+    public List<IRoleAssignmentImmutable> listRoleAssignments()
+    {
+        ArrayList<IRoleAssignmentImmutable> roleAssignments = new ArrayList<IRoleAssignmentImmutable>();
+
+        List<RoleAssignment> roleAssignmentDtos = openBisService.listRoleAssignments();
+        for (RoleAssignment roleAssignment : roleAssignmentDtos)
+        {
+            roleAssignments.add(new RoleAssignmentImmutable(roleAssignment));
+        }
+        return roleAssignments;
     }
 }

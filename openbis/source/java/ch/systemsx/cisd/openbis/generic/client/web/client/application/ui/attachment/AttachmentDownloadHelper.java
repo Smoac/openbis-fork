@@ -51,6 +51,7 @@ public class AttachmentDownloadHelper
         // NOTE: this exp.getId() could be null if exp is a proxy
         methodWithParameters.addParameter(AttachmentDownloadConstants.TECH_ID_PARAMETER,
                 attachmentHolder.getId());
+        methodWithParameters.addParameter(GenericConstants.TIMESTAMP_PARAMETER, Long.toString(System.currentTimeMillis()));
         return methodWithParameters.toString();
     }
 }

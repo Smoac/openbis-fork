@@ -33,10 +33,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * Implementation of {@link IETLEntityOperationChecker} which does nothing because checking is done
- * by aspects.
+ * Implementation of {@link IETLEntityOperationChecker} which does nothing because checking is done by aspects.
  * 
  * @author Franz-Josef Elmer
  */
@@ -116,5 +116,11 @@ public class ETLEntityOperationChecker implements IETLEntityOperationChecker
     public void assertExperimentUpdateAllowed(IAuthSession session,
             ExperimentUpdatesDTO experimentUpdates)
     {
+    }
+
+    @Override
+    public void assertSpaceRoleAssignmentAllowed(IAuthSession session, SpaceIdentifier space)
+    {
+
     }
 }

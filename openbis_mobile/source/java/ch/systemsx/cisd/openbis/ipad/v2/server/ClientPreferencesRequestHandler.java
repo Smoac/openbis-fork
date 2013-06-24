@@ -96,7 +96,7 @@ public class ClientPreferencesRequestHandler implements IRequestHandler
     {
         List<Map<String, String>> searchDomains = new ArrayList<Map<String, String>>();
         // Global search domain
-        searchDomains.add(getSearchDomain("GLOBAL", "Global"));
+        searchDomains.add(getSearchDomain("GLOBAL", "Search"));
 
         // Barcode search domain
         if (areBarcodesSupported())

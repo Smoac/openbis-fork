@@ -28,8 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 
 /**
- * A small <code>StandardSequenceNameMapper</code> which can handle sequencers that are not
- * constructed the standard way.
+ * A small <code>StandardSequenceNameMapper</code> which can handle sequencers that are not constructed the standard way.
  * 
  * @author Franz-Josef Elmer
  */
@@ -91,6 +90,7 @@ public final class SequenceNameMapper extends StandardSequenceNameMapper
         add(set, TableNames.DATA_SET_RELATIONSHIPS_ALL_TABLE);
         add(set, TableNames.DATA_STORE_SERVICES_DATASET_TYPES_TABLE);
         add(set, TableNames.LINK_DATA_TABLE);
+        add(set, TableNames.AUTHORIZATION_GROUP_PERSONS_TABLE);
         return Collections.unmodifiableSet(set);
     }
 

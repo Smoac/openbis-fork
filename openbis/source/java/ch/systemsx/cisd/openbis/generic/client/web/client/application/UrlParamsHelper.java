@@ -38,7 +38,7 @@ public final class UrlParamsHelper
     {
         return createTemplateURL(kind, type, withCodes, withExperiments, true, operationKind);
     }
-    
+
     public static final String createTemplateURL(EntityKind kind, EntityType type,
             boolean withCodes, boolean withExperiments, boolean withSapce,
             BatchOperationKind operationKind)
@@ -53,7 +53,7 @@ public final class UrlParamsHelper
         methodWithParameters.addParameter(GenericConstants.WITH_SPACE, withSapce);
         methodWithParameters.addParameter(GenericConstants.BATCH_OPERATION_KIND,
                 operationKind.name());
-        methodWithParameters.addParameter("timestamp", Long.toString(System.currentTimeMillis()));
+        methodWithParameters.addParameter(GenericConstants.TIMESTAMP_PARAMETER, Long.toString(System.currentTimeMillis()));
         return methodWithParameters.toString();
     }
 

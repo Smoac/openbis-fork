@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2013 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,33 +16,33 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 
 /**
- * An interface for spaces from the database that should not be altered.
+ * An interface for role assignments from the database that should not be altered.
  * 
- * @author Kaloyan Enimanev
+ * @author Chandrasekhar Ramakrishnan
  */
-public interface ISpaceImmutable
+public interface IRoleAssignmentImmutable
 {
 
     /**
-     * Return the code for this space.
+     * @return The authorization group or null if there is none for this assignment
      */
-    String getSpaceCode();
+    public IAuthorizationGroupImmutable getAuthorizationGroup();
 
     /**
-     * Return the description for this space.
+     * @return The user or null if there is none for this assignment
      */
-    String getDescription();
+    public IUserImmutable getUser();
 
     /**
-     * Return true if the space exists in the database.
+     * @return The space or null if there is none for this assignment
      */
-    boolean isExistingSpace();
+    public ISpaceImmutable getSpace();
 
     /**
-     * Return the identifier for this space.
+     * @return The role code.
      */
-    String getIdentifier();
-
+    public RoleWithHierarchy getRoleSetCode();
 }

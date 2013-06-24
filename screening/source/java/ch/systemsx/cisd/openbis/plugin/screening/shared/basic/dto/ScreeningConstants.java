@@ -27,6 +27,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
  */
 public class ScreeningConstants
 {
+    public static final String TECHNOLOGY_NAME = "screening";
+
     /** Name of the directory inside the dataset where files in original form are stored. */
     public static final String ORIGINAL_DATA_DIR = "original";
 

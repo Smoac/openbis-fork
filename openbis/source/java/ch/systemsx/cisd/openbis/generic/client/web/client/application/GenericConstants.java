@@ -65,6 +65,8 @@ public final class GenericConstants
     /** The HTTP URL parameter used to specify the export criteria. */
     public static final String EXPORT_CRITERIA_KEY_PARAMETER = "exportDataKey";
 
+    public static final String TIMESTAMP_PARAMETER = "timestamp";
+
     public static final String LABEL_SEPARATOR = ":";
 
     /** Name of the servlet to download a template. */

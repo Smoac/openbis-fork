@@ -34,8 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
 
 /**
- * An object that captures the state for performing the registration of one or many openBIS entities
- * atomically.
+ * An object that captures the state for performing the registration of one or many openBIS entities atomically.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -78,6 +77,10 @@ public class AtomicEntityOperationDetails implements Serializable
 
     private final List<VocabularyUpdatesDTO> vocabularyUpdates;
 
+    private final List<SpaceRoleAssignment> spaceRoleAssignments;
+
+    private final List<SpaceRoleAssignment> spaceRoleRevocations;
+
     private Integer batchSizeOrNull;
 
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
@@ -91,7 +94,9 @@ public class AtomicEntityOperationDetails implements Serializable
             List<DataSetBatchUpdatesDTO> dataSetUpdates,
             List<NewMetaproject> metaprojectRegistrations,
             List<MetaprojectUpdatesDTO> metaprojectUpdates,
-            List<VocabularyUpdatesDTO> vocabularyUpdates)
+            List<VocabularyUpdatesDTO> vocabularyUpdates,
+            List<SpaceRoleAssignment> spaceRoleAssignments,
+            List<SpaceRoleAssignment> spaceRoleRevocations)
     {
         this.registrationIdOrNull = registrationId;
         this.userIdOrNull = userIdOrNull;
@@ -109,6 +114,28 @@ public class AtomicEntityOperationDetails implements Serializable
         this.metaprojectRegistrations = new ArrayList<NewMetaproject>(metaprojectRegistrations);
         this.metaprojectUpdates = new ArrayList<MetaprojectUpdatesDTO>(metaprojectUpdates);
         this.vocabularyUpdates = new ArrayList<VocabularyUpdatesDTO>(vocabularyUpdates);
+        this.spaceRoleAssignments = new ArrayList<SpaceRoleAssignment>(spaceRoleAssignments);
+        this.spaceRoleRevocations = new ArrayList<SpaceRoleAssignment>(spaceRoleRevocations);
+    }
+
+    public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
+            List<NewSpace> spaceRegistrations, List<NewProject> projectRegistrations,
+            List<ProjectUpdatesDTO> projectUpdates, List<NewExperiment> experimentRegistrations,
+            List<ExperimentUpdatesDTO> experimentUpdates, List<SampleUpdatesDTO> sampleUpdates,
+            List<NewSample> sampleRegistrations,
+            Map<String, List<NewMaterial>> materialRegistrations,
+            List<MaterialUpdateDTO> materialUpdates,
+            List<? extends NewExternalData> dataSetRegistrations,
+            List<DataSetBatchUpdatesDTO> dataSetUpdates,
+            List<NewMetaproject> metaprojectRegistrations,
+            List<MetaprojectUpdatesDTO> metaprojectUpdates,
+            List<VocabularyUpdatesDTO> vocabularyUpdates)
+    {
+        this(registrationId, userIdOrNull, spaceRegistrations, projectRegistrations,
+                projectUpdates, experimentRegistrations, experimentUpdates, sampleUpdates,
+                sampleRegistrations, materialRegistrations, materialUpdates, dataSetRegistrations,
+                dataSetUpdates, metaprojectRegistrations, metaprojectUpdates, vocabularyUpdates, new ArrayList<SpaceRoleAssignment>(),
+                new ArrayList<SpaceRoleAssignment>());
     }
 
     public AtomicEntityOperationDetails(TechId registrationId, String userIdOrNull,
@@ -216,6 +243,16 @@ public class AtomicEntityOperationDetails implements Serializable
         return batchSizeOrNull;
     }
 
+    public List<SpaceRoleAssignment> getSpaceRoleAssignments()
+    {
+        return spaceRoleAssignments;
+    }
+
+    public List<SpaceRoleAssignment> getSpaceRoleRevocations()
+    {
+        return spaceRoleRevocations;
+    }
+
     @Override
     public String toString()
     {
@@ -235,6 +272,8 @@ public class AtomicEntityOperationDetails implements Serializable
         sb.append("metaprojectRegistrations", metaprojectRegistrations);
         sb.append("metaprojectUpdates", metaprojectUpdates);
         sb.append("vocabularyUpdates", vocabularyUpdates);
+        sb.append("spaceRoleAssignments", spaceRoleAssignments);
+        sb.append("spaceRoleRevocations", spaceRoleRevocations);
         return sb.toString();
     }
 

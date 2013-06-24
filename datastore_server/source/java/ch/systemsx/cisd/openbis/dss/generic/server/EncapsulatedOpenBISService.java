@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -70,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -149,7 +151,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             this.openBISURL = openBISURL;
             this.timeout = timeout;
         }
-        
+
         @Override
         protected boolean isRetryableException(RuntimeException e)
         {
@@ -181,8 +183,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     /**
-     * Creates a remote version of {@link IGeneralInformationService} for specified URL and time out
-     * (in minutes).
+     * Creates a remote version of {@link IGeneralInformationService} for specified URL and time out (in minutes).
      */
     public static IGeneralInformationService createGeneralInformationService(String openBISURL,
             String timeout)
@@ -197,8 +198,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     /**
-     * Creates a remote version of {@link IQueryApiServer} for specified URL and time out (in
-     * minutes)
+     * Creates a remote version of {@link IQueryApiServer} for specified URL and time out (in minutes)
      */
     public static IQueryApiServer createQueryApiServer(String openBISURL, String timeout)
     {
@@ -943,5 +943,29 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         throw new UnsupportedOperationException(
                 "Listing metaprojects is available only for the user-filtered version of service");
+    }
+
+    @Override
+    public List<AuthorizationGroup> listAuthorizationGroups()
+    {
+        return service.listAuthorizationGroups(session.getSessionToken());
+    }
+
+    @Override
+    public List<AuthorizationGroup> listAuthorizationGroupsForUser(String userId)
+    {
+        return service.listAuthorizationGroupsForUser(session.getSessionToken(), userId);
+    }
+
+    @Override
+    public List<Person> listUsersForAuthorizationGroup(TechId authorizationGroupId)
+    {
+        return service.listUsersForAuthorizationGroup(session.getSessionToken(), authorizationGroupId);
+    }
+
+    @Override
+    public List<RoleAssignment> listRoleAssignments()
+    {
+        return service.listRoleAssignments(session.getSessionToken());
     }
 }

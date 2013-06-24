@@ -53,9 +53,13 @@ public class AtomicEntityOperationResult implements Serializable
 
     private final long vocabulariesUpdatedCount;
 
+    private final long spaceRolesAssignedCount;
+
+    private final long spaceRolesRevokedCount;
+
     public AtomicEntityOperationResult()
     {
-        this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 
     public AtomicEntityOperationResult(long spacesCreated, long projectsCreated,
@@ -63,7 +67,7 @@ public class AtomicEntityOperationResult implements Serializable
             long experimentsCreated, long experimentsUpdated, long samplesCreated,
             long samplesUpdated, long dataSetsCreated, long dataSetsUpdated,
             long metaprojectsCreatedCount, long metaprojectsUpdatedCount,
-            long vocabulariesUpdatedCount)
+            long vocabulariesUpdatedCount, long spaceRolesAssignedCount, long spaceRolesRevokedCount)
     {
         this.spacesCreatedCount = spacesCreated;
         this.projectsCreatedCount = projectsCreated;
@@ -79,6 +83,8 @@ public class AtomicEntityOperationResult implements Serializable
         this.metaprojectsCreatedCount = metaprojectsCreatedCount;
         this.metaprojectsUpdatedCount = metaprojectsUpdatedCount;
         this.vocabulariesUpdatedCount = vocabulariesUpdatedCount;
+        this.spaceRolesAssignedCount = spaceRolesAssignedCount;
+        this.spaceRolesRevokedCount = spaceRolesRevokedCount;
     }
 
     public long getExperimentsUpdatedCount()
@@ -158,6 +164,16 @@ public class AtomicEntityOperationResult implements Serializable
                 + dataSetsUpdatedCount + metaprojectsCreatedCount + metaprojectsUpdatedCount + vocabulariesUpdatedCount;
     }
 
+    public long getSpaceRolesAssignedCount()
+    {
+        return spaceRolesAssignedCount;
+    }
+
+    public long getSpaceRolesRevokedCount()
+    {
+        return spaceRolesRevokedCount;
+    }
+
     @Override
     public String toString()
     {
@@ -184,6 +200,8 @@ public class AtomicEntityOperationResult implements Serializable
         updateMessage(message, metaprojectsCreatedCount, "Metaprojects created");
         updateMessage(message, metaprojectsUpdatedCount, "Metaprojects updated");
         updateMessage(message, vocabulariesUpdatedCount, "Vocabularies updated");
+        updateMessage(message, spaceRolesAssignedCount, "Space roles assigned");
+        updateMessage(message, spaceRolesRevokedCount, "Space roles revoked");
 
         return message.toString();
 

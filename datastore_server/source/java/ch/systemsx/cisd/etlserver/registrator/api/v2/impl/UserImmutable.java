@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2013 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis;
+package ch.systemsx.cisd.etlserver.registrator.api.v2.impl;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.common.test.AbstractDependencyCheckingTestCase;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IUserImmutable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
- * @author Franz-Josef Elmer
+ * @author Chandrasekhar Ramakrishnan
  */
-@Test
-public class DependencyCheckingTest extends AbstractDependencyCheckingTestCase
+public class UserImmutable implements IUserImmutable
 {
 
-    @Override
-    protected List<String> getExcludingClassesPatterns()
+    private final Person person;
+
+    public UserImmutable(Person person)
     {
-        return Arrays.asList("*.testframework.*", "*TestSuite*",
-                "*.web.client.application.*.Show*Editor");
+        this.person = person;
+    }
+
+    public String getUserId()
+    {
+        return person.getUserId();
     }
 
 }

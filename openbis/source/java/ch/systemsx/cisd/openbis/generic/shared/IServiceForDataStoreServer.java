@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -58,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -140,21 +142,18 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
             List<String> samplePermIds);
 
     /**
-     * Returns the ExperimentType together with assigned property types for specified experiment
-     * type code.
+     * Returns the ExperimentType together with assigned property types for specified experiment type code.
      */
     @Transactional(readOnly = true)
     public ExperimentType getExperimentType(String sessionToken, String experimentTypeCode)
             throws UserFailureException;
 
     /**
-     * Gets a sample with the specified identifier. Sample is enriched with properties and the
-     * experiment with properties.
+     * Gets a sample with the specified identifier. Sample is enriched with properties and the experiment with properties.
      * 
      * @param sessionToken the user authentication token. Must not be <code>null</code>.
      * @param sampleIdentifier an identifier which uniquely identifies the sample.
-     * @return <code>null</code> if no sample attached to an experiment could be found for given
-     *         <var>sampleIdentifier</var>.
+     * @return <code>null</code> if no sample attached to an experiment could be found for given <var>sampleIdentifier</var>.
      */
     @Transactional(readOnly = true)
     public Sample tryGetSampleWithExperiment(final String sessionToken,
@@ -181,16 +180,14 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
-     * Returns the data set type together with assigned property types for specified data set type
-     * code.
+     * Returns the data set type together with assigned property types for specified data set type code.
      */
     @Transactional(readOnly = true)
     public DataSetTypeWithVocabularyTerms getDataSetType(String sessionToken, String dataSetTypeCode)
             throws UserFailureException;
 
     /**
-     * For given experiment {@link TechId} returns the corresponding list of
-     * {@link AbstractExternalData}.
+     * For given experiment {@link TechId} returns the corresponding list of {@link AbstractExternalData}.
      * 
      * @return a sorted list of {@link AbstractExternalData}.
      */
@@ -199,8 +196,7 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
             final TechId experimentID) throws UserFailureException;
 
     /**
-     * For given sample {@link TechId} returns the corresponding list of
-     * {@link AbstractExternalData}.
+     * For given sample {@link TechId} returns the corresponding list of {@link AbstractExternalData}.
      * 
      * @return a sorted list of {@link AbstractExternalData}.
      */
@@ -228,28 +224,24 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
     public List<Sample> listSamples(final String sessionToken, final ListSampleCriteria criteria);
 
     /**
-     * Tries to return the properties of the top sample of the sample with given
-     * <var>sampleIdentifier</var>. The top sample is the root of the sample relationship graph of
-     * this sample. If a sample has multiple parents or no parents at all, it is considered its own
-     * top sample.
+     * Tries to return the properties of the top sample of the sample with given <var>sampleIdentifier</var>. The top sample is the root of the sample
+     * relationship graph of this sample. If a sample has multiple parents or no parents at all, it is considered its own top sample.
      * 
      * @param sessionToken the user authentication token. Must not be <code>null</code>.
      * @param sampleIdentifier an identifier which uniquely identifies the sample.
-     * @return <code>null</code> if no appropriated sample found. Returns an empty array if a a
-     *         sample found with no properties.
+     * @return <code>null</code> if no appropriated sample found. Returns an empty array if a a sample found with no properties.
      */
     @Transactional(readOnly = true)
     public IEntityProperty[] tryGetPropertiesOfTopSample(final String sessionToken,
             final SampleIdentifier sampleIdentifier) throws UserFailureException;
 
     /**
-     * Tries to return the properties of the sample with given <var>sampleIdentifier</var>.. If
-     * sample has no top sample, its own properties are returned.
+     * Tries to return the properties of the sample with given <var>sampleIdentifier</var>.. If sample has no top sample, its own properties are
+     * returned.
      * 
      * @param sessionToken the user authentication token. Must not be <code>null</code>.
      * @param sampleIdentifier an identifier which uniquely identifies the sample.
-     * @return <code>null</code> if no appropriated sample found. Returns an empty array if a a
-     *         sample found with no properties.
+     * @return <code>null</code> if no appropriated sample found. Returns an empty array if a a sample found with no properties.
      */
     @Transactional(readOnly = true)
     public IEntityProperty[] tryGetPropertiesOfSample(final String sessionToken,
@@ -260,7 +252,7 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     public void registerEntities(String sessionToken, EntityCollectionForCreationOrUpdate collection)
             throws UserFailureException;
 
@@ -301,11 +293,9 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      * 
      * @param sessionToken The user authentication token. Must not be <code>null</code>.
      * @param sampleIdentifier an identifier which uniquely identifies the sample.
-     * @param externalData Data set to be registered. It is assumed that the attributes
-     *            <code>location</code>, <code>fileFormatType</code>, <code>dataSetType</code>, and
-     *            <code>locatorType</code> are not-<code>null</code>.
-     * @throws UserFailureException if given data set code could not be found in the persistence
-     *             layer.
+     * @param externalData Data set to be registered. It is assumed that the attributes <code>location</code>, <code>fileFormatType</code>,
+     *            <code>dataSetType</code>, and <code>locatorType</code> are not-<code>null</code>.
+     * @throws UserFailureException if given data set code could not be found in the persistence layer.
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
@@ -317,11 +307,9 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      * 
      * @param sessionToken The user authentication token. Must not be <code>null</code>.
      * @param experimentIdentifier an identifier which uniquely identifies the experiment.
-     * @param externalData Data set to be registered. It is assumed that the attributes
-     *            <code>location</code>, <code>fileFormatType</code>, <code>dataSetType</code>, and
-     *            <code>locatorType</code> are not-<code>null</code>.
-     * @throws UserFailureException if given data set code could not be found in the persistence
-     *             layer.
+     * @param externalData Data set to be registered. It is assumed that the attributes <code>location</code>, <code>fileFormatType</code>,
+     *            <code>dataSetType</code>, and <code>locatorType</code> are not-<code>null</code>.
+     * @throws UserFailureException if given data set code could not be found in the persistence layer.
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
@@ -342,8 +330,7 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
     public void checkSpacePowerUserAuthorization(String sessionToken) throws UserFailureException;
 
     /**
-     * Does nothing besides checking that the current user has rights to access the content of the
-     * dataset.
+     * Does nothing besides checking that the current user has rights to access the content of the dataset.
      */
     @Transactional(readOnly = true)
     public void checkDataSetAccess(String sessionToken, String dataSetCode)
@@ -373,23 +360,20 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
-     * Tries to return the data set specified by its code, but only if it belongs to the data store
-     * of the caller.
+     * Tries to return the data set specified by its code, but only if it belongs to the data store of the caller.
      */
     @Transactional(readOnly = true)
     public AbstractExternalData tryGetLocalDataSet(String sessionToken, String dataSetCode,
             String dataStore) throws UserFailureException;
 
     /**
-     * Create and return a new permanent id that can be used to identify samples, experiments and
-     * datasets.
+     * Create and return a new permanent id that can be used to identify samples, experiments and datasets.
      */
     @Transactional
     public String createPermId(final String sessionToken) throws UserFailureException;
 
     /**
-     * Create and return a list of new permanent ids that can be used to identify samples,
-     * experiments and datasets.
+     * Create and return a list of new permanent ids that can be used to identify samples, experiments and datasets.
      */
     @Transactional
     public List<String> createPermIds(final String sessionToken, int n) throws UserFailureException;
@@ -401,8 +385,7 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
     public long drawANewUniqueID(String sessionToken) throws UserFailureException;
 
     /**
-     * Lists samples codes filtered by specified criteria, see {@link ListSamplesByPropertyCriteria}
-     * to see the details.
+     * Lists samples codes filtered by specified criteria, see {@link ListSamplesByPropertyCriteria} to see the details.
      */
     @Transactional(readOnly = true)
     public List<Sample> listSamplesByCriteria(final String sessionToken,
@@ -432,8 +415,7 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
             String dataStore, int limit) throws UserFailureException;
 
     /**
-     * Lists the <var>limit</var> oldest physical data sets younger than <var>youngerThan</var>
-     * belonging to specified data store.
+     * Lists the <var>limit</var> oldest physical data sets younger than <var>youngerThan</var> belonging to specified data store.
      * <p>
      * The result is ordered by registration date in ascending order.
      */
@@ -526,11 +508,9 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
-     * Set the status for a given dataset to the given new status value if the current status equals
-     * an expected value.
+     * Set the status for a given dataset to the given new status value if the current status equals an expected value.
      * 
-     * @return true if the update is successful, false if the current status is different than
-     *         <code>oldStatus</code>.
+     * @return true if the update is successful, false if the current status is different than <code>oldStatus</code>.
      */
     @Transactional
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
@@ -541,8 +521,8 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
     /**
      * Schedules archiving of specified data sets.
      * 
-     * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from
-     *            the data store after a successful archiving operation.
+     * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from the data store after a successful archiving
+     *            operation.
      * @return number of data sets scheduled for archiving.
      */
     @Transactional
@@ -582,8 +562,8 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
     public List<Person> listAdministrators(String sessionToken);
 
     /**
-     * Search for the person that matches the given userId or email. The search first tries to find
-     * a userId match; if none was found, it searches for an Email match.
+     * Search for the person that matches the given userId or email. The search first tries to find a userId match; if none was found, it searches for
+     * an Email match.
      */
     @Transactional(readOnly = true)
     public Person tryPersonWithUserIdOrEmail(String sessionToken, String useridOrEmail);
@@ -593,16 +573,14 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      * 
      * @param sessionToken The user authentication token. Must not be <code>null</code>.
      * @param newSample The new sample to register.
-     * @param externalData Data set to be registered. It is assumed that the attributes
-     *            <code>location</code>, <code>fileFormatType</code>, <code>dataSetType</code>, and
-     *            <code>locatorType</code> are not-<code>null</code>.
+     * @param externalData Data set to be registered. It is assumed that the attributes <code>location</code>, <code>fileFormatType</code>,
+     *            <code>dataSetType</code>, and <code>locatorType</code> are not-<code>null</code>.
      * @param userIdOrNull The user id on whose behalf we are registering the sample
-     * @throws UserFailureException if given data set code could not be found in the persistence
-     *             layer.
+     * @throws UserFailureException if given data set code could not be found in the persistence layer.
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    { ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     public Sample registerSampleAndDataSet(final String sessionToken, final NewSample newSample,
             final NewExternalData externalData, String userIdOrNull) throws UserFailureException;
 
@@ -611,11 +589,9 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      * 
      * @param sessionToken The user authentication token. Must not be <code>null</code>.
      * @param updates The sample updates to apply
-     * @param externalData Data set to be registered. It is assumed that the attributes
-     *            <code>location</code>, <code>fileFormatType</code>, <code>dataSetType</code>, and
-     *            <code>locatorType</code> are not-<code>null</code>.
-     * @throws UserFailureException if given data set code could not be found in the persistence
-     *             layer.
+     * @param externalData Data set to be registered. It is assumed that the attributes <code>location</code>, <code>fileFormatType</code>,
+     *            <code>dataSetType</code>, and <code>locatorType</code> are not-<code>null</code>.
+     * @throws UserFailureException if given data set code could not be found in the persistence layer.
      */
     @Transactional
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
@@ -628,16 +604,15 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      * 
      * @param sessionToken The user authentication token. Must not be <code>null</code>.
      * @param operationDetails A DTO containing information about the entities to change / register.
-     * @throws UserFailureException if given data set code could not be found in the persistence
-     *             layer.
+     * @throws UserFailureException if given data set code could not be found in the persistence layer.
      */
     @Transactional
     @Conversational(progress = Progress.MANUAL)
     @DatabaseUpdateModification(value =
-        { ObjectKind.SAMPLE, ObjectKind.EXPERIMENT, ObjectKind.DATA_SET })
+    { ObjectKind.SAMPLE, ObjectKind.EXPERIMENT, ObjectKind.DATA_SET })
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.SPACE, ObjectKind.PROJECT, ObjectKind.SAMPLE, ObjectKind.EXPERIMENT,
-                ObjectKind.DATA_SET })
+    { ObjectKind.SPACE, ObjectKind.PROJECT, ObjectKind.SAMPLE, ObjectKind.EXPERIMENT,
+            ObjectKind.DATA_SET })
     public AtomicEntityOperationResult performEntityOperations(String sessionToken,
             AtomicEntityOperationDetails operationDetails);
 
@@ -679,9 +654,9 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      */
     @Transactional
     @DatabaseUpdateModification(value =
-        { ObjectKind.SAMPLE, ObjectKind.EXPERIMENT })
+    { ObjectKind.SAMPLE, ObjectKind.EXPERIMENT })
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.DATA_SET })
+    { ObjectKind.DATA_SET })
     public void removeDataSetsPermanently(String sessionToken, List<String> dataSetCodes,
             String reason);
 
@@ -690,12 +665,12 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      */
     @Transactional
     @DatabaseUpdateModification(value =
-        { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
     public void updateDataSet(String sessionToken, DataSetUpdatesDTO dataSetUpdates);
 
     /**
-     * Returns a list of configured trusted domains which can host external shared web resources.
-     * Typically these are lightweight webapps that integrate with openBIS via JSON-RPC services.
+     * Returns a list of configured trusted domains which can host external shared web resources. Typically these are lightweight webapps that
+     * integrate with openBIS via JSON-RPC services.
      * <p>
      * Can return empty list.
      */
@@ -707,18 +682,17 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      */
     @Transactional
     @DatabaseUpdateModification(value =
-        { ObjectKind.DATA_SET })
+    { ObjectKind.DATA_SET })
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.POSTREGISTRATION_QUEUE })
+    { ObjectKind.POSTREGISTRATION_QUEUE })
     public void setStorageConfirmed(String sessionToken, String dataSetCode);
 
     /**
-     * Informs that the post-registration task for a given dataset was performed, and it should be
-     * removed from the post-registration queue.
+     * Informs that the post-registration task for a given dataset was performed, and it should be removed from the post-registration queue.
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.POSTREGISTRATION_QUEUE })
+    { ObjectKind.POSTREGISTRATION_QUEUE })
     public void markSuccessfulPostRegistration(String token, String dataSetCode);
 
     /**
@@ -729,8 +703,7 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
             String dataStoreCode);
 
     /**
-     * Return true if the log indicates that the performEntityOperations invocation for the given
-     * registrationId succeeded.
+     * Return true if the log indicates that the performEntityOperations invocation for the given registrationId succeeded.
      */
     @Transactional(readOnly = true)
     public EntityOperationsState didEntityOperationsSucceed(String token, TechId registrationId);
@@ -801,4 +774,28 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
     @Transactional(readOnly = true)
     public List<Metaproject> listMetaprojectsForEntity(String systemSessionToken, String userId,
             IObjectId entityId);
+
+    /**
+     * Return the authorization groups in openBIS
+     */
+    @Transactional(readOnly = true)
+    public List<AuthorizationGroup> listAuthorizationGroups(String sessionToken);
+
+    /**
+     * Return the authorization groups in openBIS for a particular user
+     */
+    @Transactional(readOnly = true)
+    public List<AuthorizationGroup> listAuthorizationGroupsForUser(String sessionToken, String userId);
+
+    /**
+     * Return the users in a particular authorization group
+     */
+    @Transactional(readOnly = true)
+    public List<Person> listUsersForAuthorizationGroup(String sessionToken, TechId authorizationGroupId);
+
+    /**
+     * Return all role assignments in the database
+     */
+    @Transactional(readOnly = true)
+    public List<RoleAssignment> listRoleAssignments(String sessionToken);
 }

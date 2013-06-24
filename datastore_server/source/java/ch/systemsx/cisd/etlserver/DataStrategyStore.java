@@ -162,7 +162,11 @@ public class DataStrategyStore implements IDataStrategyStore
         if (sampleIdentifier == null)
         {
             experimentIdentifier = dataSetInfo.getExperimentIdentifier();
-            Experiment experiment = openbisServiceWrapper.tryGetExperiment(experimentIdentifier);
+            Experiment experiment = dataSetInfo.tryToGetExperiment();
+            if (experiment == null)
+            {
+                experiment = openbisServiceWrapper.tryGetExperiment(experimentIdentifier);
+            }
             if (experiment == null)
             {
                 error(emailOrNull, "Unknown experiment identifier '" + experimentIdentifier + "'.");
@@ -176,7 +180,12 @@ public class DataStrategyStore implements IDataStrategyStore
             dataSetInfo.setExperiment(experiment);
         } else
         {
-            final Sample sample = openbisServiceWrapper.tryGetSample(sampleIdentifier);
+            Sample sample = dataSetInfo.tryToGetSample();
+            if (sample == null)
+            {
+                sample = openbisServiceWrapper.tryGetSample(sampleIdentifier);
+            }
+
             if (sample == null)
             {
                 error(emailOrNull, createNotificationMessage(dataSetInfo, incomingDataSetPath));

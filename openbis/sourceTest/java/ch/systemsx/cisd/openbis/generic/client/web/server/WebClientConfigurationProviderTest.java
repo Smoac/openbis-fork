@@ -21,6 +21,7 @@ import java.util.Properties;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.WebClientConfigurationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
 /**

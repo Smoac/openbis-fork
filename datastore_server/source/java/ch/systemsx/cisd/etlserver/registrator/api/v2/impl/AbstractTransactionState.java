@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Queue;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
-
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
@@ -61,12 +60,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentIm
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IMaterialImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IProjectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISampleImmutable;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISpaceImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -74,6 +75,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSpace;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
@@ -82,6 +84,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpaceRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -89,6 +92,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifierFactory;
 
 /**
  * Abstract superclass for the states a DataSetRegistrationTransaction can be in.
@@ -134,12 +138,10 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         private static int fileSystemAvailablityPollingWaitTimeMs = 10 * 1000;
 
         /**
-         * These two variables determine together how long the rollback mechanism waits for a file
-         * system that has become unavailable and how often it checks for the file system to become
-         * available.
+         * These two variables determine together how long the rollback mechanism waits for a file system that has become unavailable and how often it
+         * checks for the file system to become available.
          * <p>
-         * The duration the rollback mechanism will wait before giving up equals waitTimeMS *
-         * waitCount;
+         * The duration the rollback mechanism will wait before giving up equals waitTimeMS * waitCount;
          * <p>
          * Made public for testing.
          */
@@ -205,6 +207,10 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         private final Map<String, SampleType> cachedSampleTypes = new HashMap<String, SampleType>();
 
         private final PermIdCache permIdCache = new PermIdCache();
+
+        private final List<SpaceRoleAssignment> spaceRoleAssignments = new ArrayList<SpaceRoleAssignment>();
+
+        private final List<SpaceRoleAssignment> spaceRoleRevocations = new ArrayList<SpaceRoleAssignment>();
 
         private String userIdOrNull = null;
 
@@ -898,9 +904,8 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         /**
          * Recursively add folder creation commands to the rollback stack as necessary.
          * <p>
-         * Discussion: The operation needs to be recursive so that on a rollback, children will have
-         * been deleted before the parent gets deleted. This is required because the folder must be
-         * empty for delete to succeed.
+         * Discussion: The operation needs to be recursive so that on a rollback, children will have been deleted before the parent gets deleted. This
+         * is required because the folder must be empty for delete to succeed.
          */
         private void mkdirsIfNeeded(File dstFolder)
         {
@@ -956,6 +961,42 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                 queriesToCommit.put(dataSourceName, query);
             }
             return query;
+        }
+
+        public void assignRoleToSpace(RoleCode role, ISpaceImmutable space, List<String> userIds, List<String> groupCodes)
+        {
+            SpaceRoleAssignment assignment = createSpaceRoleAssignment(role, space, userIds, groupCodes);
+            spaceRoleAssignments.add(assignment);
+        }
+
+        private SpaceRoleAssignment createSpaceRoleAssignment(RoleCode role, ISpaceImmutable space, List<String> userIds, List<String> groupCodes)
+        {
+            SpaceRoleAssignment assignment = new SpaceRoleAssignment();
+            assignment.setRoleCode(role);
+            assignment.setSpaceIdentifier(new SpaceIdentifierFactory(space.getIdentifier()).createIdentifier());
+            ArrayList<Grantee> grantees = new ArrayList<Grantee>();
+            if (null != userIds)
+            {
+                for (String userId : userIds)
+                {
+                    grantees.add(Grantee.createPerson(userId));
+                }
+            }
+            if (null != groupCodes)
+            {
+                for (String code : groupCodes)
+                {
+                    grantees.add(Grantee.createAuthorizationGroup(code));
+                }
+            }
+            assignment.setGrantees(grantees);
+            return assignment;
+        }
+
+        public void revokeRoleFromSpace(RoleCode role, ISpaceImmutable space, List<String> userIds, List<String> groupCodes)
+        {
+            SpaceRoleAssignment assignment = createSpaceRoleAssignment(role, space, userIds, groupCodes);
+            spaceRoleRevocations.add(assignment);
         }
 
         public void deleteFile(String src)
@@ -1031,12 +1072,12 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                 if (experimentsToBeRegistered.contains(experiment)
                         || samplesToBeRegistered.contains(sample))
                 {
-                    // Sample/Experiment exists
+                    // Sample/Experiment does not exist and will be created.
                     algorithms.add(registrationService
                             .createStorageAlgorithmWithIdentifiedStrategy(contents, details));
                 } else
                 {
-                    // The experiment/sample does not yet exist
+                    // The experiment/sample already exists
                     algorithms.add(registrationService.createStorageAlgorithm(contents, details));
                 }
             }
@@ -1044,8 +1085,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         }
 
         /**
-         * Rollback any commands that have been executed. Rollback is done in the reverse order of
-         * execution.
+         * Rollback any commands that have been executed. Rollback is done in the reverse order of execution.
          */
         public void rollback()
         {
@@ -1067,8 +1107,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         }
 
         /**
-         * Generate a data set code for the registration details. Just calls openBisService to get a
-         * data set code by default.
+         * Generate a data set code for the registration details. Just calls openBisService to get a data set code by default.
          * 
          * @return A data set code
          */
@@ -1116,7 +1155,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                             experimentUpdates, experimentRegistrations, sampleUpdates,
                             sampleRegistrations, materialRegistrations, materialUpdates,
                             dataSetRegistrations, dataSetUpdates, metaprojectRegistrations,
-                            metaprojectUpdates, vocabularyUpdates);
+                            metaprojectUpdates, vocabularyUpdates, spaceRoleAssignments, spaceRoleRevocations);
             return registrationDetails;
         }
 
@@ -1328,8 +1367,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
     }
 
     /**
-     * Rollback stack delegate that checks whether the given filesystem is accessible before letting
-     * the rollback continue.
+     * Rollback stack delegate that checks whether the given filesystem is accessible before letting the rollback continue.
      */
     public static class LiveTransactionRollbackDelegate implements IRollbackStackDelegate
     {

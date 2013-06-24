@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 ETH Zuerich, CISD
+ * Copyright 2013 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis;
-
-import java.util.Arrays;
-import java.util.List;
-
-import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.common.test.AbstractDependencyCheckingTestCase;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2;
 
 /**
- * @author Franz-Josef Elmer
+ * An interface for users (persons) from the database that should not be altered.
+ * 
+ * @author Chandrasekhar Ramakrishnan
  */
-@Test
-public class DependencyCheckingTest extends AbstractDependencyCheckingTestCase
+public interface IUserImmutable
 {
-
-    @Override
-    protected List<String> getExcludingClassesPatterns()
-    {
-        return Arrays.asList("*.testframework.*", "*TestSuite*",
-                "*.web.client.application.*.Show*Editor");
-    }
+    /** @return The userId of the user */
+    public String getUserId();
 
 }

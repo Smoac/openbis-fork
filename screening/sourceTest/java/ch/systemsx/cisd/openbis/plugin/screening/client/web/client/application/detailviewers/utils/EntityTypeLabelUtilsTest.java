@@ -39,13 +39,24 @@ public class EntityTypeLabelUtilsTest extends AssertJUnit
         assertEquals("Analysis cell classifications (DAT), 2011-05-30, 123412342314-1234",
                 createLabel("HCS_ANALYSIS_CELL_CLASSIFICATIONS", true));
 
+        assertEquals("Features, additional text, 2011-05-30, 123412342314-1234",
+                createLabelWithText("HCS_ANALYSIS_WELL_FEATURES", "additional text"));
+
+    }
+
+    private String createLabelWithText(String typeCode, String labelTest)
+    {
+        DatasetReference ref =
+                new DatasetReference(0, "123412342314-1234", typeCode, null, "DAT", null, null,
+                        null, null, null, labelTest);
+        return EntityTypeLabelUtils.createDatasetLabel(ref, false, "2011-05-30", null, true);
     }
 
     private String createLabel(String typeCode, boolean withFileType)
     {
         DatasetReference ref =
                 new DatasetReference(0, "123412342314-1234", typeCode, null, "DAT", null, null,
-                        null, null, null);
+                        null, null, null, null);
         return EntityTypeLabelUtils.createDatasetLabel(ref, withFileType, "2011-05-30", null, true);
     }
 }

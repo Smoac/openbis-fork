@@ -516,7 +516,7 @@ public class DataSetRegistrationTransactionTest extends AbstractFileSystemTestCa
                         project.setSpace(space);
                         experiment.setProject(project);
 
-                        exactly(2).of(openBisService).tryGetExperiment(
+                        exactly(1).of(openBisService).tryGetExperiment(
                                 new ExperimentIdentifierFactory(EXPERIMENT_IDENTIFIER)
                                         .createIdentifier());
                         will(returnValue(experiment));

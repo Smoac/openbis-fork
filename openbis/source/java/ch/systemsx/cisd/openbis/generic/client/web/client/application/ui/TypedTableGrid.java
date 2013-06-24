@@ -2223,6 +2223,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                             GenericConstants.FILE_EXPORTER_DOWNLOAD_SERVLET_NAME);
             methodWithParameters.addParameter(GenericConstants.EXPORT_CRITERIA_KEY_PARAMETER,
                     exportDataKey);
+            methodWithParameters.addParameter(GenericConstants.TIMESTAMP_PARAMETER, Long.toString(System.currentTimeMillis()));
             WindowUtils.openWindow(methodWithParameters.toString());
         }
 

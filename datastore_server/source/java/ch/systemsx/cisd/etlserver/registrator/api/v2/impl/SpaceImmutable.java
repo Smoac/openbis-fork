@@ -75,4 +75,9 @@ public class SpaceImmutable implements ISpaceImmutable
         return space;
     }
 
+    @Override
+    public String getIdentifier()
+    {
+        return isExistingSpace() ? space.getIdentifier() : "/" + getSpaceCode();
+    }
 }
