@@ -44,8 +44,7 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
  * Default session manager. Needs
  * <ul>
  * <li>a {@link ISessionFactory} for creating new session objects,
- * <li>a {@link ILogMessagePrefixGenerator} for generating log messages which are logged by a logger
- * with category {@link LogCategory#AUTH},
+ * <li>a {@link ILogMessagePrefixGenerator} for generating log messages which are logged by a logger with category {@link LogCategory#AUTH},
  * <li>a {@link IAuthenticationService} for authenticating users,
  * <li>a {@link IRemoteHostProvider} for providing the remote host of the user client.
  * </ul>
@@ -77,7 +76,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     protected ExposablePropertyPlaceholderConfigurer configurer;
 
-    private static final class FullSession<S extends BasicSession>
+    protected static final class FullSession<S extends BasicSession>
     {
         /** Session data. */
         private final S session;
@@ -102,8 +101,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         }
 
         /**
-         * Sets the time of last activity (used to determine whether the session
-         * {@link #hasExpired()}.
+         * Sets the time of last activity (used to determine whether the session {@link #hasExpired()}.
          */
         void touch()
         {
@@ -124,10 +122,9 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     private final ILogMessagePrefixGenerator<T> prefixGenerator;
 
     /**
-     * The map of session tokens to sessions. Access to this data structure needs to be
-     * synchronized.
+     * The map of session tokens to sessions. Access to this data structure needs to be synchronized.
      */
-    private final Map<String, FullSession<T>> sessions =
+    protected final Map<String, FullSession<T>> sessions =
             new LinkedHashMap<String, FullSession<T>>();
 
     private final IAuthenticationService authenticationService;
@@ -326,7 +323,6 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                 }
             }
         }
-
     }
 
     private static void checkIfNotBlank(final String object, final String name)
