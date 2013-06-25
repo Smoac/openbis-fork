@@ -16,16 +16,13 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.zip.CRC32;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.io.IOUtilities;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
@@ -150,12 +147,11 @@ public abstract class AbstractDataSetPackager
             }
         } else if (file.isFile())
         {
-            long size = file.length();
-            long checksum = calculateChecksum(node, file);
+            long size = node.getFileLength();
+            long checksum = isChecksumNeeded() ? node.getChecksumCRC32() : 0;
             try
             {
-                FileInputStream fileInputStream = new FileInputStream(file);
-                addEntry(entryPath, file.lastModified(), size, checksum, new BufferedInputStream(fileInputStream));
+                addEntry(entryPath, node.getLastModified(), size, checksum, node.getInputStream());
             } catch (Exception ex)
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -164,29 +160,5 @@ public abstract class AbstractDataSetPackager
         {
             throw new IllegalStateException("Node '" + node.getRelativePath() + "' is a real folder");
         }
-    }
-
-    private long calculateChecksum(IHierarchicalContentNode node, File file)
-    {
-        long checksum = 0;
-        if (isChecksumNeeded())
-        {
-            boolean checksumCRC32Precalculated = node.isChecksumCRC32Precalculated();
-            if (checksumCRC32Precalculated)
-            {
-                checksum = node.getChecksumCRC32();
-            } else 
-            {
-                try
-                {
-                    FileInputStream fileInputStream = new FileInputStream(file);
-                    checksum = IOUtilities.getChecksumCRC32(new BufferedInputStream(fileInputStream));
-                } catch (Exception ex)
-                {
-                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-                }
-            }
-        }
-        return checksum;
     }
 }
