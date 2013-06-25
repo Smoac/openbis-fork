@@ -193,7 +193,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         genericClientService.registerSample("session", newSample);
     }
 
-    @Test(dependsOnMethods = "testCreateSampleWithDynamicProperty")
+    @Test(dependsOnMethods = "testCreateSampleWithDynamicProperty", groups = "broken")
     public void testUpdateDynamicPropertyAssignment()
     {
         final EntityKind entityKind = EntityKind.SAMPLE;
@@ -255,7 +255,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         check(SLEEP_TIME * 2, MAX_RETRIES, "testUpdateDynamicPropertyAssignment", assertAction);
     }
 
-    @Test(dependsOnMethods = "testUpdateDynamicPropertyAssignment")
+    @Test(dependsOnMethods = "testUpdateDynamicPropertyAssignment", groups = "broken")
     public void testUpdateSampleWithDynamicProperty()
     {
         testCreateSampleWithDynamicProperty();

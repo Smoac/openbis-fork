@@ -1276,7 +1276,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     public static PropertyType returnIfContained(PropertyType propertyType, List<EntityTypePropertyType<?>> inList)
     {
-        for (EntityTypePropertyType etpt : inList)
+        for (@SuppressWarnings("rawtypes")
+        EntityTypePropertyType etpt : inList)
         {
             if (etpt.getPropertyType().getCode().equals(propertyType.getCode()))
             {
@@ -1288,7 +1289,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     public void runIntegrityTest(List<EntityTypePropertyType<?>> ini, List<EntityTypePropertyType<?>> fin)
     {
-        for (EntityTypePropertyType etpt : fin)
+        for (@SuppressWarnings("rawtypes")
+        EntityTypePropertyType etpt : fin)
         {
             PropertyType contained = returnIfContained(etpt.getPropertyType(), ini);
             if (contained != null &&
@@ -1329,6 +1331,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         // Update Algorithm for property types
         // It calculates the changes necessary without destroying assignments when possible to prevent data loss
         List<EntityTypePropertyType<?>> ini = listEntityTypePropertyTypes(sessionToken, newETNewPTAssigments.getEntity());
+        @SuppressWarnings("unchecked")
         List<EntityTypePropertyType<?>> fin = (List<EntityTypePropertyType<?>>) newETNewPTAssigments.getEntity().getAssignedPropertyTypes();
 
         runIntegrityTest(ini, fin); // Since some changes trigger other changes this ones are validated only once at the beginning.
