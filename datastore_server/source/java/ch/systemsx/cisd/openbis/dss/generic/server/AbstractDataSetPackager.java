@@ -147,7 +147,7 @@ public abstract class AbstractDataSetPackager
             }
         } else if (file.isFile())
         {
-            long size = node.getFileLength();
+            long size = file.length();
             long checksum = isChecksumNeeded() ? node.getChecksumCRC32() : 0;
             try
             {
