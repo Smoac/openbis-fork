@@ -22,6 +22,8 @@ import ch.systemsx.cisd.authentication.ILogMessagePrefixGenerator;
 import ch.systemsx.cisd.authentication.ISessionFactory;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -59,9 +61,13 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
                     if (oldPerson != null
                             && oldPerson.isSystemUser() == false)
                     {
-                        PersonPE person = daoFactory.getPersonDAO().getPerson(oldPerson.getId());
-                        HibernateUtils.initialize(person.getAllPersonRoles());
-                        session.setPerson(person);
+                        IPersonDAO personDAO = daoFactory.getPersonDAO();
+                        PersonPE person = personDAO.tryGetByTechId(new TechId(oldPerson.getId()));
+                        if (person != null)
+                        {
+                            HibernateUtils.initialize(person.getAllPersonRoles());
+                            session.setPerson(person);
+                        }
                     }
                 }
             }
