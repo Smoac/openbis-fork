@@ -54,10 +54,20 @@ public class ZipBasedHierarchicalContentTest extends AbstractFileSystemTestCase
     private static final File TEST_HDF5_CONTAINER = new File(
             "../openbis-common/resource/test-data/HDF5ContainerBasedHierarchicalContentNodeTest/thumbnails.h5");
 
-    private IHierarchicalContent content;
+    public static File[] getUnzippedFiles()
+    {
+        File[] tempFiles = ZipBasedHierarchicalContent.TEMP_FOLDER.listFiles(new FilenameFilter()
+            {
+                @Override
+                public boolean accept(File file, String name)
+                {
+                    return name.startsWith(ZipBasedHierarchicalContent.TEMP_FILE_PREFIX);
+                }
+            });
+        return tempFiles;
+    }
 
-    @BeforeMethod
-    public void setUpContent() throws Exception
+    public static void removeUnzippedFiles()
     {
         File[] unzippedFiles = getUnzippedFiles();
         for (File unzippedFile : unzippedFiles)
@@ -65,6 +75,15 @@ public class ZipBasedHierarchicalContentTest extends AbstractFileSystemTestCase
             FileUtilities.delete(unzippedFile);
         }
     }
+    
+    private IHierarchicalContent content;
+
+    @BeforeMethod
+    public void setUpContent() throws Exception
+    {
+        removeUnzippedFiles();
+    }
+
 
     @AfterMethod
     public void closeContent()
@@ -129,19 +148,8 @@ public class ZipBasedHierarchicalContentTest extends AbstractFileSystemTestCase
         
         HDF5ContainerBasedHierarchicalContentNodeTest.assertH5ExampleContent(hdf5Node);
         
-    }
-
-    private File[] getUnzippedFiles()
-    {
-        File[] tempFiles = ZipBasedHierarchicalContent.TEMP_FOLDER.listFiles(new FilenameFilter()
-            {
-                @Override
-                public boolean accept(File file, String name)
-                {
-                    return name.startsWith(ZipBasedHierarchicalContent.TEMP_FILE_PREFIX);
-                }
-            });
-        return tempFiles;
+        content.close();
+        assertEquals("[]", Arrays.asList(getUnzippedFiles()).toString());
     }
 
     private void assertDirectoryNode(String expectedPath, String expectedName, IHierarchicalContentNode node)
@@ -228,7 +236,9 @@ public class ZipBasedHierarchicalContentTest extends AbstractFileSystemTestCase
                     {
                         path += "/";
                     }
-                    zipOutputStream.putNextEntry(new ZipEntry(path));
+                    ZipEntry entry = new ZipEntry(path);
+                    entry.setTime(file.lastModified());
+                    zipOutputStream.putNextEntry(entry);
                 } catch (IOException ex)
                 {
                     throw CheckedExceptionTunnel.wrapIfNecessary(ex);
