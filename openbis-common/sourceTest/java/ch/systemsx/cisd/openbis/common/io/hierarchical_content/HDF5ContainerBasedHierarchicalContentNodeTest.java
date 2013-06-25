@@ -42,6 +42,12 @@ public class HDF5ContainerBasedHierarchicalContentNodeTest extends AssertJUnit
                 new DefaultFileBasedHierarchicalContentFactory().asHierarchicalContent(
                         TEST_DATA_FOLDER, null);
         IHierarchicalContentNode node = content.getNode("thumbnails.h5");
+        
+        assertH5ExampleContent(node);
+    }
+
+    public static void assertH5ExampleContent(IHierarchicalContentNode node)
+    {
         List<IHierarchicalContentNode> nodes = getSortedChildren(node);
         
         assertEquals("3361fd20 24242 PLATE1_A01_01_Cy3.png\n" + 
@@ -95,7 +101,7 @@ public class HDF5ContainerBasedHierarchicalContentNodeTest extends AssertJUnit
         		"ced4332a 22199 wA1_d3-2_cGFP.png", getNamesChecksumsAndSizes(nodes));
     }
     
-    private String getNamesChecksumsAndSizes(List<IHierarchicalContentNode> nodes)
+    private static String getNamesChecksumsAndSizes(List<IHierarchicalContentNode> nodes)
     {
         StringBuilder builder = new StringBuilder();
         for (IHierarchicalContentNode node : nodes)
@@ -111,7 +117,7 @@ public class HDF5ContainerBasedHierarchicalContentNodeTest extends AssertJUnit
         return builder.toString();
     }
 
-    private List<IHierarchicalContentNode> getSortedChildren(IHierarchicalContentNode node)
+    private static List<IHierarchicalContentNode> getSortedChildren(IHierarchicalContentNode node)
     {
         List<IHierarchicalContentNode> nodes = node.getChildNodes();
         Collections.sort(nodes, new Comparator<IHierarchicalContentNode>()

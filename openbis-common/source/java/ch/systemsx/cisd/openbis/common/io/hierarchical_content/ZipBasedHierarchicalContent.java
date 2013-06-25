@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.common.io.hierarchical_content;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -25,8 +27,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.openbis.common.hdf5.IHDF5ContainerReader;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 
@@ -41,6 +48,9 @@ import de.schlichtherle.util.zip.ZipEntry;
  */
 public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
 {
+    static final String TEMP_FILE_PREFIX = "dss-unzipped-";
+    static final File TEMP_FOLDER = new File(System.getProperty("java.io.tmpdir"));
+    
     private static final String extractName(String relativePath)
     {
         int indexOfLastDelimiter = relativePath.lastIndexOf('/');
@@ -53,13 +63,13 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
 
     private static final class ZipContainerNode extends AbstractHierarchicalDirectoryContentNode
     {
-        private final String relativePath;
+        private final String relativePathFromZipEntry;
         private final String name;
         private final List<IHierarchicalContentNode> children = new ArrayList<IHierarchicalContentNode>();
         
         ZipContainerNode(String relativePath)
         {
-            this.relativePath = relativePath;
+            this.relativePathFromZipEntry = relativePath;
             name = extractName(relativePath);
         }
 
@@ -108,7 +118,7 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
         @Override
         protected String doGetRelativePath()
         {
-            return relativePath;
+            return relativePathFromZipEntry;
         }
 
         @Override
@@ -122,15 +132,15 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
     {
         private final BasicZipFile zipFile;
         private final ZipEntry zipEntry;
-        private final String relativePath;
+        private final String relativePathFromZipEntry;
         private final String name;
 
         ZipContentNode(BasicZipFile zipFile, ZipEntry zipEntry)
         {
             this.zipFile = zipFile;
             this.zipEntry = zipEntry;
-            relativePath = zipEntry.getName();
-            name = extractName(relativePath);
+            relativePathFromZipEntry = zipEntry.getName();
+            name = extractName(relativePathFromZipEntry);
         }
 
         @Override
@@ -172,7 +182,7 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
         @Override
         protected String doGetRelativePath()
         {
-            return relativePath;
+            return relativePathFromZipEntry;
         }
 
         @Override
@@ -216,11 +226,19 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
     {
         private final Map<String, ZipContainerNode> containerNodes = new HashMap<String, ZipContainerNode>();
         private final Map<String, IHierarchicalContentNode> allNodes = new HashMap<String, IHierarchicalContentNode>();
+        private final List<File> unzippedFiles = new ArrayList<File>();
         
         private ZipContainerNode rootNode;
+        private final IHierarchicalContent hierarchicalContent;
         
-        void handle(BasicZipFile zipFile, ZipEntry zipEntry)
+        public NodeManager(IHierarchicalContent hierarchicalContent)
         {
+            this.hierarchicalContent = hierarchicalContent;
+        }
+
+        void handle(final BasicZipFile zipFile, final ZipEntry zipEntry)
+        {
+            final String relativePath = zipEntry.getName();
             if (zipEntry.isDirectory())
             {
                 String name = zipEntry.getName();
@@ -228,43 +246,165 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
                 {
                     name = name.substring(0, name.length() - 1);
                 }
-                linkNode(new ZipContainerNode(name));
+                IHierarchicalContentNode contentNode = new ZipContainerNode(name);
+                linkNode(contentNode, relativePath);
+            } else if (FilenameUtils.isExtension(zipEntry.getName().toLowerCase(), FileUtilities.HDF5_FILE_TYPES))
+            {
+                try
+                {
+                    File tempFile = File.createTempFile(TEMP_FILE_PREFIX, extractName(relativePath), TEMP_FOLDER);
+                    unzippedFiles.add(tempFile);
+                    IHierarchicalContentNode contentNode = new HDF5ContainerBasedHierarchicalContentNode(hierarchicalContent, tempFile)
+                        {
+                            private boolean loaded;
+
+                            private synchronized void lazyLoad()
+                            {
+                                if (loaded == false)
+                                {
+                                    copyZipEntryToFile(zipFile, zipEntry, file);
+                                    loaded = true;
+                                }
+                            }
+
+                            @Override
+                            public String doGetRelativePath()
+                            {
+                                return relativePath;
+                            }
+
+                            @Override
+                            public String getName()
+                            {
+                                return extractName(relativePath);
+                            }
+
+                            @Override
+                            public InputStream doGetInputStream()
+                            {
+                                lazyLoad();
+                                return super.doGetInputStream();
+                            }
+
+                            @Override
+                            protected IHDF5ContainerReader createReader()
+                            {
+                                lazyLoad();
+                                return super.createReader();
+                            }
+                            
+                            @Override
+                            public long getLastModified()
+                            {
+                                return zipEntry.getTime();
+                            }
+                            
+                            @Override
+                            public long doGetFileLength()
+                            {
+                                return zipEntry.getSize();
+                            }
+                            
+                            @Override
+                            protected int doGetChecksumCRC32()
+                            {
+                                return (int) zipEntry.getCrc();
+                            }
+                            
+                            @Override
+                            public File getFile()
+                            {
+                                lazyLoad();
+                                return super.getFile();
+                            }
+                            
+                            @Override
+                            public boolean isChecksumCRC32Precalculated()
+                            {
+                                return true;
+                            }
+                            
+                            @Override
+                            public File tryGetFile()
+                            {
+                                lazyLoad();
+                                return super.tryGetFile();
+                            }
+                            
+                            @Override
+                            public IRandomAccessFile doGetFileContent()
+                            {
+                                lazyLoad();
+                                return super.doGetFileContent();
+                            }
+                       };
+                    linkNode(contentNode, relativePath);
+                } catch (Exception ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                }
             } else
             {
-                linkNode(new ZipContentNode(zipFile, zipEntry));
+                IHierarchicalContentNode contentNode = new ZipContentNode(zipFile, zipEntry);
+                linkNode(contentNode, relativePath);
             }
         }
 
-        private void linkNode(IHierarchicalContentNode contentNode)
+        private void copyZipEntryToFile(BasicZipFile zipFile, ZipEntry zipEntry, File tempFile)
         {
-            allNodes.put(contentNode.getRelativePath(), contentNode);
-            String parentRelativePath = contentNode.getParentRelativePath();
-            ZipContainerNode containerNode = containerNodes.get(parentRelativePath);
-            if (containerNode == null)
+            InputStream in = null;
+            FileOutputStream out = null;
+            BufferedOutputStream bufferedOut = null;
+            try
             {
-                containerNode = new ZipContainerNode(parentRelativePath);
-                containerNodes.put(parentRelativePath, containerNode);
-                if (parentRelativePath.length() == 0)
-                {
-                    rootNode = containerNode;
-                } else
-                {
-                    linkNode(containerNode);
-                }
+                in = zipFile.getInputStream(zipEntry);
+                out = new FileOutputStream(tempFile);
+                bufferedOut = new BufferedOutputStream(out);
+                IOUtils.copy(in, bufferedOut);
+            } catch (Exception ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            } finally
+            {
+                IOUtils.closeQuietly(in);
+                IOUtils.closeQuietly(bufferedOut);
             }
-            containerNode.children.add(contentNode);
+        }
+
+        private void linkNode(IHierarchicalContentNode contentNode, String relativePath)
+        {
+            allNodes.put(relativePath, contentNode);
+            String parentRelativePath = FileUtilities.getParentRelativePath(relativePath);
+            if (parentRelativePath != null)
+            {
+                ZipContainerNode containerNode = containerNodes.get(parentRelativePath);
+                if (containerNode == null)
+                {
+                    containerNode = new ZipContainerNode(parentRelativePath);
+                    containerNodes.put(parentRelativePath, containerNode);
+                    if (parentRelativePath.length() == 0)
+                    {
+                        rootNode = containerNode;
+                    } else
+                    {
+                        linkNode(containerNode, parentRelativePath);
+                    }
+                }
+                containerNode.children.add(contentNode);
+            }
         }
     }
 
     private final BasicZipFile zipFile;
     private final IHierarchicalContentNode rootNode;
     private final Map<String, IHierarchicalContentNode> allNodes;
+    private final List<File> unzippedFiles;
 
     public ZipBasedHierarchicalContent(File file)
     {
         try
         {
-            NodeManager nodeManager = new NodeManager();
+            NodeManager nodeManager = new NodeManager(this);
             zipFile = new BasicZipFile(new SimpleReadOnlyFile(file), "UTF-8", true, false);
             @SuppressWarnings("unchecked")
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
@@ -275,6 +415,7 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
             }
             rootNode = nodeManager.rootNode;
             allNodes = nodeManager.allNodes;
+            unzippedFiles = nodeManager.unzippedFiles;
         } catch (Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -310,6 +451,10 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
         try
         {
             zipFile.close();
+            for (File unzippedFile : unzippedFiles)
+            {
+                FileUtilities.delete(unzippedFile);
+            }
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);

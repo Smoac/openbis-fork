@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -65,7 +66,7 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
     }
 
     @Test(groups =
-        { "requires_unix" })
+    { "requires_unix" })
     public void testFailedConstructionReadOnly() throws IOException, InterruptedException
     {
         final File readOnlyDirectory = new File(workingDirectory, "read_only_directory");
@@ -373,6 +374,26 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         assertEquals("", relativeFile);
     }
 
+    @DataProvider(name = "parentRelativePaths")
+    public Object[][] getParentRelativePathsData()
+    {
+        return new Object[][] {
+                { "/test/a", "/test" },
+                { "/test/a/", "/test" },
+                { "/", null },
+                { "test/a", "test" },
+                { "test/a/", "test" },
+                { "test", "" },
+                { "", null },
+        };
+    }
+
+    @Test(dataProvider = "parentRelativePaths")
+    public void testGetParentRelativePath(String input, String output)
+    {
+        assertEquals(output, FileUtilities.getParentRelativePath(input));
+    }
+
     private class CountingActivityObserver implements IActivityObserver
     {
         int count = 0;
@@ -423,7 +444,7 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
 
         observer.count = 0;
         final List<File> list3 = FileUtilities.listFiles(dir, new String[]
-            { "dat" }, true, observer);
+        { "dat" }, true, observer);
         assertEquals(2, list3.size());
         assertEquals(new HashSet<File>(Arrays.asList(f1, f4)), new HashSet<File>(list3));
         assertTrue("" + observer.count, observer.count >= list3.size());
@@ -527,7 +548,7 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(file2, createDummyStringOfSize(300));
         File file3 = new File(subFolder, "text3.txt");
         FileUtilities.writeToFile(file3, createDummyStringOfSize(2900));
-        
+
         assertEquals(4500, FileUtilities.getSizeOf(file1));
         assertEquals(300, FileUtilities.getSizeOf(file2));
         assertEquals(2900, FileUtilities.getSizeOf(file3));
@@ -541,7 +562,7 @@ public final class FileUtilitiesTest extends AbstractFileSystemTestCase
             assertEquals(6 * 4096, FileUtilities.getSizeOf(testFolder));
         }
     }
-    
+
     private String createDummyStringOfSize(long size)
     {
         StringBuilder builder = new StringBuilder();
