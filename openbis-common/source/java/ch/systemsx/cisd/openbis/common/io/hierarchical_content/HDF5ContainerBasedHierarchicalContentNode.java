@@ -64,6 +64,12 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
     }
 
     @Override
+    protected boolean isPhysicalFile()
+    {
+        return true;
+    }
+
+    @Override
     public List<IHierarchicalContentNode> doGetChildNodes()
     {
         IHDF5ContainerReader reader = createReader();

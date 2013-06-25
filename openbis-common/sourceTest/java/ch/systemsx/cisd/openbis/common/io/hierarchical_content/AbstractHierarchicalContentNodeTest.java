@@ -149,7 +149,7 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
                 @Override
                 public String doGetRelativePath()
                 {
-                    return null;
+                    return "";
                 }
 
                 @Override
@@ -234,7 +234,7 @@ public class AbstractHierarchicalContentNodeTest extends AssertJUnit
                 @Override
                 public String doGetRelativePath()
                 {
-                    return null;
+                    return "";
                 }
 
                 @Override

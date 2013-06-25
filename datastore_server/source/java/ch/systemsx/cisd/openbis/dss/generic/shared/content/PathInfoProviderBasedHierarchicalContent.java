@@ -216,6 +216,13 @@ class PathInfoProviderBasedHierarchicalContent implements IHierarchicalContent
         }
 
         @Override
+        protected boolean isPhysicalFile()
+        {
+            File file = doGetFile();
+            return file.isFile();
+        }
+
+        @Override
         public boolean isDirectory()
         {
             return pathInfo.isDirectory();

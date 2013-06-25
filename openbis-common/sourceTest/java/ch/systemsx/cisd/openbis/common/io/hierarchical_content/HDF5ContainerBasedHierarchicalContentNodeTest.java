@@ -62,6 +62,8 @@ public class HDF5ContainerBasedHierarchicalContentNodeTest extends AssertJUnit
         		"f8d4cfc7 26367 PLATE1_A01_06_Cy3.png\n" + 
         		"aeb12b1a 25086 PLATE1_A01_06_DAPI.png\n" + 
         		"ced4332a 22199 PLATE1_A01_06_GFP.png", getNamesChecksumsAndSizes(nodes));
+        assertEquals(537641, node.getFileLength());
+        assertEquals(-2098219814, node.getChecksumCRC32());
     }
     
     @Test
