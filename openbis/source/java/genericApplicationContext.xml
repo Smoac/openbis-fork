@@ -103,7 +103,7 @@
         <constructor-arg ref="${authentication-service}" />
     </bean>
 
-    <bean id="session-manager" class="ch.systemsx.cisd.authentication.DefaultSessionManager">
+    <bean id="session-manager" class="ch.systemsx.cisd.openbis.generic.server.OpenBisSessionManager">
         <constructor-arg>
             <bean class="ch.systemsx.cisd.openbis.generic.server.SessionFactory">
                 <constructor-arg ref="dao-factory" />

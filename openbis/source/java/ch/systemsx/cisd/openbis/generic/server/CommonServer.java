@@ -39,7 +39,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
-import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -244,6 +243,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedDataSet;
@@ -358,7 +358,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     private String defaultPutDataStoreServerCodeOrNull;
 
     public CommonServer(final IAuthenticationService authenticationService,
-            final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
+            final IOpenBisSessionManager sessionManager, final IDAOFactory daoFactory,
             final ICommonBusinessObjectFactory businessObjectFactory,
             IDataStoreServiceRegistrator dataStoreServiceRegistrator,
             final LastModificationState lastModificationState,
@@ -372,7 +372,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     }
 
     CommonServer(final IAuthenticationService authenticationService,
-            final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
+            final IOpenBisSessionManager sessionManager, final IDAOFactory daoFactory,
             IPropertiesBatchManager propertiesBatchManager,
             final ICommonBusinessObjectFactory businessObjectFactory,
             IDataStoreServiceRegistrator dataStoreServiceRegistrator,
@@ -470,13 +470,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             registerSpaceRole(sessionToken, RoleCode.ADMIN, new SpaceIdentifier(spaceCode),
                     Grantee.createPerson(session.getUserName()));
-            session.setPerson(getDAOFactory().getPersonDAO().getPerson(person.getId()));
         }
     }
 
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
-    public void updateScript(final String sessionToken, final IScriptUpdates updates)
+    public ScriptUpdateResult updateScript(final String sessionToken, final IScriptUpdates updates)
     {
         assert sessionToken != null : "Unspecified session token";
         assert updates != null : "Unspecified updates";
@@ -484,6 +483,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
         final IScriptBO bo = businessObjectFactory.createScriptBO(session);
         bo.update(updates);
+
+        ScriptUpdateResult result = new ScriptUpdateResult();
+        result.setModificationDate(bo.getScript().getModificationDate());
+        return result;
     }
 
     @Override
@@ -527,13 +530,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
 
         final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
-        newRoleAssignment.setGrantee(grantee);
         newRoleAssignment.setSpaceIdentifier(spaceIdentifier);
-        newRoleAssignment.setRole(roleCode);
 
-        final IRoleAssignmentTable table = businessObjectFactory.createRoleAssignmentTable(session);
-        table.add(newRoleAssignment);
-        table.save();
+        registerRole(roleCode, grantee, session, newRoleAssignment);
+
     }
 
     @Override
@@ -543,15 +543,22 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
 
         final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
-        newRoleAssignment.setGrantee(grantee);
         newRoleAssignment.setDatabaseInstanceIdentifier(new DatabaseInstanceIdentifier(
                 DatabaseInstanceIdentifier.HOME));
+
+        registerRole(roleCode, grantee, session, newRoleAssignment);
+    }
+
+    protected void registerRole(RoleCode roleCode, Grantee grantee, final Session session, final NewRoleAssignment newRoleAssignment)
+    {
+        newRoleAssignment.setGrantee(grantee);
         newRoleAssignment.setRole(roleCode);
 
         final IRoleAssignmentTable table = businessObjectFactory.createRoleAssignmentTable(session);
         table.add(newRoleAssignment);
         table.save();
 
+        sessionManager.updateAllSessions(getDAOFactory());
     }
 
     @Override
@@ -590,6 +597,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             }
         }
         getDAOFactory().getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
+        sessionManager.updateAllSessions(getDAOFactory());
     }
 
     @Override
@@ -614,6 +622,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                             + "Ask another instance admin to do that for you.");
         }
         roleAssignmentDAO.deleteRoleAssignment(roleAssignment);
+        sessionManager.updateAllSessions(getDAOFactory());
     }
 
     @Override
@@ -2303,6 +2312,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             spaceBO.deleteByTechId(id, reason);
         }
+        sessionManager.updateAllSessions(getDAOFactory());
     }
 
     @Override

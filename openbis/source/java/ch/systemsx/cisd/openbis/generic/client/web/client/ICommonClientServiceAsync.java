@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -110,6 +112,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -120,8 +123,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiAction;
-
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * Asynchronous version of {@link ICommonClientService}.
@@ -204,7 +205,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void registerScript(Script newScript, AsyncCallback<Void> callback);
 
     /** @see ICommonClientService#updateScript(IScriptUpdates) */
-    public void updateScript(final IScriptUpdates updates, final AsyncCallback<Void> asyncCallback);
+    public void updateScript(final IScriptUpdates updates, final AsyncCallback<ScriptUpdateResult> asyncCallback);
 
     /** @see ICommonClientService#updateSpace(ISpaceUpdates) */
     public void updateSpace(final ISpaceUpdates updates, final AsyncCallback<Void> asyncCallback);

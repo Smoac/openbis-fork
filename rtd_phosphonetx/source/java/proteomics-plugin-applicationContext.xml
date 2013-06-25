@@ -28,7 +28,7 @@
           class="ch.systemsx.cisd.openbis.plugin.proteomics.server.ProteomicsDataServiceInternal" 
           init-method="replaceAutoWiredSesseionManagerByConstructorSessionManager">
         <constructor-arg>
-            <bean class="ch.systemsx.cisd.authentication.DefaultSessionManager">
+            <bean class="ch.systemsx.cisd.openbis.generic.server.OpenBisSessionManager">
                 <constructor-arg>
                     <bean class="ch.systemsx.cisd.openbis.generic.server.SessionFactory" />
                 </constructor-arg>

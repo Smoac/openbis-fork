@@ -22,23 +22,99 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.ColumnDisplaySettingsUpdate;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * @author Franz-Josef Elmer
  */
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class CommonServerTest extends SystemTestCase
 {
+    @Test
+    public void testRoleAssingmentDeleted()
+    {
+        String sessionTokenForInstanceAdmin = commonServer.tryAuthenticate("test", "a").getSessionToken();
+        String sessionTokenForSpaceAdmin = commonServer.tryAuthenticate("test_space", "a").getSessionToken();
+
+        // reproduce
+
+        commonServer.deleteSpaceRole(sessionTokenForInstanceAdmin, RoleCode.ADMIN,
+                new SpaceIdentifier("TEST-SPACE"), Grantee.createPerson("test_space"));
+
+        commonServer.updateDisplaySettings(sessionTokenForSpaceAdmin,
+                new ColumnDisplaySettingsUpdate("id_a_b_C", Collections.<ColumnSetting> emptyList()));
+        // clean up
+        commonServer.registerSpaceRole(sessionTokenForInstanceAdmin, RoleCode.ADMIN,
+                new SpaceIdentifier("TEST-SPACE"), Grantee.createPerson("test_space"));
+    }
+
+    @Test
+    public void testRoleAssignmentAdded()
+    {
+        String spaceCode = "TESTGROUP";
+
+        String sessionTokenForInstanceAdmin = commonServer.tryAuthenticate("test", "a").getSessionToken();
+        String sessionTokenForSpaceAdmin = commonServer.tryAuthenticate("test_space", "a").getSessionToken();
+
+        List<Space> spaces = commonServer.listSpaces(sessionTokenForSpaceAdmin, DatabaseInstanceIdentifier.createHome());
+        int matchingSpaces = containstSpace(spaces, spaceCode);
+        assertEquals(spaceCode + " should not be in test_space user groups before the role assignment" + spaces, 0, matchingSpaces);
+
+        commonServer.registerSpaceRole(sessionTokenForInstanceAdmin, RoleCode.ADMIN,
+                new SpaceIdentifier(spaceCode), Grantee.createPerson("test_space"));
+
+        spaces = commonServer.listSpaces(sessionTokenForSpaceAdmin, DatabaseInstanceIdentifier.createHome());
+        matchingSpaces = containstSpace(spaces, spaceCode);
+        assertEquals("Couldn't find " + spaceCode + " space in " + spaces, 1, matchingSpaces);
+
+        // cleanup
+
+        commonServer.deleteSpaceRole(sessionTokenForInstanceAdmin, RoleCode.ADMIN,
+                new SpaceIdentifier(spaceCode), Grantee.createPerson("test_space"));
+
+    }
+
+    private int containstSpace(List<Space> spaces, final String spaceCode)
+    {
+        int matchingSpaces = CollectionUtils.countMatches(spaces, new Predicate<Space>()
+            {
+                @Override
+                public boolean evaluate(Space object)
+                {
+                    return object.getCode().equals(spaceCode);
+                }
+
+            });
+        return matchingSpaces;
+    }
+
+    @AfterClass
+    public void cleanup()
+    {
+    }
+
     @Test
     public void testGetSampleWithAssignedPropertyTypesAndProperties()
     {

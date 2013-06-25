@@ -33,10 +33,10 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 public abstract class AbstractHierarchicalContentNode implements IHierarchicalContentNode
 {
     static final String OPERATION_NOT_SUPPORTED_FOR_A_DIRECTORY =
-            "Operation not supported for a directory";
+            "Operation not supported for a directory: ";
 
     static final String OPERATION_SUPPORTED_ONLY_FOR_A_DIRECTORY =
-            "Operation supported only for a directory";
+            "Operation supported only for a directory: ";
 
     /** Returns relative path of this node or <code>null</code> for root node. */
     abstract protected String doGetRelativePath();
@@ -72,15 +72,20 @@ public abstract class AbstractHierarchicalContentNode implements IHierarchicalCo
     {
         if (isDirectory() == false)
         {
-            throw new UnsupportedOperationException(OPERATION_SUPPORTED_ONLY_FOR_A_DIRECTORY);
+            throw new UnsupportedOperationException(OPERATION_SUPPORTED_ONLY_FOR_A_DIRECTORY + getRelativePath());
         }
     }
 
-    private final void failOnDirectory()
+    protected boolean isPhysicalFile()
     {
-        if (isDirectory())
+        return isDirectory() == false;
+    }
+
+    private final void requirePhysicalFile()
+    {
+        if (isDirectory() && isPhysicalFile() == false)
         {
-            throw new UnsupportedOperationException(OPERATION_NOT_SUPPORTED_FOR_A_DIRECTORY);
+            throw new UnsupportedOperationException(OPERATION_NOT_SUPPORTED_FOR_A_DIRECTORY + getRelativePath());
         }
     }
 
@@ -94,28 +99,28 @@ public abstract class AbstractHierarchicalContentNode implements IHierarchicalCo
     @Override
     public final long getFileLength() throws UnsupportedOperationException
     {
-        failOnDirectory();
+        requirePhysicalFile();
         return doGetFileLength();
     }
 
     @Override
     public int getChecksumCRC32() throws UnsupportedOperationException
     {
-        failOnDirectory();
+        requirePhysicalFile();
         return doGetChecksumCRC32();
     }
     
     @Override
     public final IRandomAccessFile getFileContent()
     {
-        failOnDirectory();
+        requirePhysicalFile();
         return doGetFileContent();
     }
 
     @Override
     public final InputStream getInputStream()
     {
-        failOnDirectory();
+        requirePhysicalFile();
         return doGetInputStream();
     }
 

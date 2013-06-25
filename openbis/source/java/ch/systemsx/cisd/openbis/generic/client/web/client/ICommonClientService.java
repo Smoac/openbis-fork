@@ -110,6 +110,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -233,7 +234,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Updates script.
      */
-    public void updateScript(final IScriptUpdates updates) throws UserFailureException;
+    public ScriptUpdateResult updateScript(final IScriptUpdates updates) throws UserFailureException;
 
     /**
      * Updates space.

@@ -318,7 +318,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
     @Override
     public boolean isHosted()
     {
-        return false;
+        return true;
     }
 
     @Override

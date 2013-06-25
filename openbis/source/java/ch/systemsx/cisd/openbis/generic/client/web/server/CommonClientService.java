@@ -192,6 +192,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -354,12 +355,12 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public final void updateScript(final IScriptUpdates updates)
+    public final ScriptUpdateResult updateScript(final IScriptUpdates updates)
     {
         assert updates != null : "Unspecified updates.";
 
         final String sessionToken = getSessionToken();
-        commonServer.updateScript(sessionToken, updates);
+        return commonServer.updateScript(sessionToken, updates);
     }
 
     @Override

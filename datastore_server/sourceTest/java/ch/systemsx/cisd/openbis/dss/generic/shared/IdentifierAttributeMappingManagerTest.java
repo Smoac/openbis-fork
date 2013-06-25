@@ -86,6 +86,11 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
                 + "/S1/P1/E1\t2\t" + as1 + "\n"
                 + "/S1/P1/E2\t2\t" + as2 + "\n"
                 + "/S1/P1\t2\t" + as2 + "\n"
+                + "\n"
+                + " \n"
+                + "\t \n"
+                + "\t\t\n"
+                + "\t\t\t \n"
                 + "/S1\t2\t" + as2 + "\n");
         as1.mkdirs();
         as2.mkdirs();

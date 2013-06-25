@@ -23,10 +23,10 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -63,7 +63,7 @@ public class GeneralInformationChangingService extends
     {
     }
 
-    GeneralInformationChangingService(ISessionManager<Session> sessionManager,
+    GeneralInformationChangingService(IOpenBisSessionManager sessionManager,
             IDAOFactory daoFactory, IPropertiesBatchManager propertiesBatchManager,
             ICommonServer server)
     {

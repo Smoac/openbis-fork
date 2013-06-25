@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptUpdateResult;
 
 /**
  * {@link AbstractScriptEditRegisterForm} extension for editing scripts.
@@ -135,7 +136,7 @@ public class ScriptEditForm extends AbstractScriptEditRegisterForm
     }
 
     private final class ScriptEditCallback extends
-            AbstractRegistrationForm.AbstractRegistrationCallback<Void>
+            AbstractRegistrationForm.AbstractRegistrationCallback<ScriptUpdateResult>
     {
         ScriptEditCallback(final IViewContext<?> viewContext)
         {
@@ -143,14 +144,15 @@ public class ScriptEditForm extends AbstractScriptEditRegisterForm
         }
 
         @Override
-        protected void process(final Void result)
+        protected void process(final ScriptUpdateResult result)
         {
+            originalScript.setModificationDate(result.getModificationDate());
             updateOriginalValues();
             super.process(result);
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo(Void result)
+        protected String createSuccessfullRegistrationInfo(ScriptUpdateResult result)
         {
             return "Script <b>" + originalScript.getName() + "</b> successfully updated.";
         }

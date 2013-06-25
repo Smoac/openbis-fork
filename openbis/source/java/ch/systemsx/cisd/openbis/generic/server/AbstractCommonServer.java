@@ -22,7 +22,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
-import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
@@ -45,7 +44,7 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
     protected final ICommonBusinessObjectFactory businessObjectFactory;
 
     public AbstractCommonServer(IAuthenticationService authenticationService,
-            ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
+            IOpenBisSessionManager sessionManager, IDAOFactory daoFactory,
             IPropertiesBatchManager propertiesBatchManager,
             ICommonBusinessObjectFactory businessObjectFactory)
     {

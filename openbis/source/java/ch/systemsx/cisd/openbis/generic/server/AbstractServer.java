@@ -141,7 +141,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
 
     @Resource(name = ComponentNames.SESSION_MANAGER)
-    protected ISessionManager<Session> sessionManager;
+    protected IOpenBisSessionManager sessionManager;
 
     @Resource(name = ComponentNames.DISPLAY_SETTINGS_PROVIDER)
     protected DisplaySettingsProvider displaySettingsProvider;
@@ -174,7 +174,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                 IServer.class.getSimpleName(), getClass().getName()));
     }
 
-    protected AbstractServer(final ISessionManager<Session> sessionManager,
+    protected AbstractServer(final IOpenBisSessionManager sessionManager,
             final IDAOFactory daoFactory, IPropertiesBatchManager propertiesBatchManager)
     {
         this();
@@ -184,7 +184,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     }
 
     // For testing purpose.
-    protected AbstractServer(final ISessionManager<Session> sessionManager,
+    protected AbstractServer(final IOpenBisSessionManager sessionManager,
             final IDAOFactory daoFactory, IPropertiesBatchManager propertiesBatchManager,
             final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
             final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin)
@@ -758,22 +758,25 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         try
         {
             final Session session = getSession(sessionToken);
-            PersonPE person = session.tryGetPerson();
-            if (person != null)
+            synchronized (session) // synchronized with OpenBisSessionManager.updateAllSessions()
             {
-                synchronized (displaySettingsProvider)
+                PersonPE person = session.tryGetPerson();
+                if (person != null)
                 {
-                    if (maxEntityVisits >= 0)
+                    synchronized (displaySettingsProvider)
                     {
-                        List<EntityVisit> visits = displaySettings.getVisits();
-                        sortAndRemoveMultipleVisits(visits);
-                        for (int i = visits.size() - 1; i >= maxEntityVisits; i--)
+                        if (maxEntityVisits >= 0)
                         {
-                            visits.remove(i);
+                            List<EntityVisit> visits = displaySettings.getVisits();
+                            sortAndRemoveMultipleVisits(visits);
+                            for (int i = visits.size() - 1; i >= maxEntityVisits; i--)
+                            {
+                                visits.remove(i);
+                            }
                         }
+                        displaySettingsProvider.replaceRegularDisplaySettings(person, displaySettings);
+                        getDAOFactory().getPersonDAO().updatePerson(person);
                     }
-                    displaySettingsProvider.replaceRegularDisplaySettings(person, displaySettings);
-                    getDAOFactory().getPersonDAO().updatePerson(person);
                 }
             }
         } catch (InvalidSessionException e)
@@ -794,18 +797,21 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         try
         {
             final Session session = getSession(sessionToken);
-            PersonPE person = session.tryGetPerson();
-            if (person != null)
+            synchronized (session) // synchronized with OpenBisSessionManager.updateAllSessions()
             {
-                synchronized (displaySettingsProvider)
+                PersonPE person = session.tryGetPerson();
+                if (person != null)
                 {
-                    DisplaySettings currentDisplaySettings =
-                            displaySettingsProvider.getCurrentDisplaySettings(person);
-                    DisplaySettings newDisplaySettings =
-                            displaySettingsUpdate.update(currentDisplaySettings);
-                    displaySettingsProvider.replaceCurrentDisplaySettings(person,
-                            newDisplaySettings);
-                    getDAOFactory().getPersonDAO().updatePerson(person);
+                    synchronized (displaySettingsProvider)
+                    {
+                        DisplaySettings currentDisplaySettings =
+                                displaySettingsProvider.getCurrentDisplaySettings(person);
+                        DisplaySettings newDisplaySettings =
+                                displaySettingsUpdate.update(currentDisplaySettings);
+                        displaySettingsProvider.replaceCurrentDisplaySettings(person,
+                                newDisplaySettings);
+                        getDAOFactory().getPersonDAO().updatePerson(person);
+                    }
                 }
             }
         } catch (InvalidSessionException e)

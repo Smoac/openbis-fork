@@ -30,10 +30,10 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
+import ch.systemsx.cisd.openbis.generic.server.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExpressionValidator;
@@ -84,7 +84,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     @Private
-    QueryServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
+    QueryServer(final IOpenBisSessionManager sessionManager, final IDAOFactory daoFactory,
             IPropertiesBatchManager propertiesBatchManager,
             final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
             final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin,

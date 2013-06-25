@@ -104,6 +104,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -166,7 +167,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @DatabaseUpdateModification(value = ObjectKind.SCRIPT)
-    public void updateScript(final String sessionToken, final IScriptUpdates updates);
+    public ScriptUpdateResult updateScript(final String sessionToken, final IScriptUpdates updates);
 
     /**
      * Updates a property type.

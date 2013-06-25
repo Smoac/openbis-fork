@@ -30,7 +30,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.multiplexer.IMultiplexer;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
@@ -41,6 +40,7 @@ import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.IDssServiceRpc
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.IDssServiceRpcScreeningMultiplexer;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
@@ -202,7 +202,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     @Private
-    ScreeningServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
+    ScreeningServer(final IOpenBisSessionManager sessionManager, final IDAOFactory daoFactory,
             IPropertiesBatchManager propertiesBatchManager,
             final IScreeningBusinessObjectFactory businessObjectFactory,
             final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
@@ -500,7 +500,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         settings.setAggregationType(MaterialReplicaSummaryAggregationType.MEDIAN);
         settings.setFeatureCodes(new ArrayList<String>());
         settings.setReplicaMatrialTypePatterns(new String[]
-            { "GENE", "CONTROL", "COMPOUND" });
+        { "GENE", "CONTROL", "COMPOUND" });
         settings.setMaterialDetailsPropertyType(ScreeningConstants.GENE_SYMBOLS);
         settings.setBiologicalReplicatePropertyTypeCodes("CONCENTRATION", "SIRNA");
         return settings;

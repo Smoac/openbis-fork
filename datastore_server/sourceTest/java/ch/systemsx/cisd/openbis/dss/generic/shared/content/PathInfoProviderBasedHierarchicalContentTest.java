@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -46,7 +48,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
  */
 public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSystemTestCase
 {
-
+    private static final File TEST_HDF5_EXAMPLE = new File(
+            "../openbis-common/resource/test-data/HDF5ContainerBasedHierarchicalContentNodeTest/thumbnails.h5");
+    
     private File rootDir;
 
     private File file1;
@@ -73,6 +77,8 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
 
     private IDelegatedAction onCloseAction;
 
+    private File hdf5Example;
+
     @BeforeMethod
     public void beforeMethod() throws Exception
     {
@@ -86,6 +92,8 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
         file2 = new File(rootDir, "file2");
 
         subDir = new File(rootDir, "subDir");
+        hdf5Example = new File(subDir, "my-hdf5.h5");
+        FileUtils.copyFile(TEST_HDF5_EXAMPLE, hdf5Example);
         subDir.mkdirs();
         subFile1 = new File(subDir, "subFile1");
         subFile2 = new File(subDir, "subFile2");
@@ -349,17 +357,21 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
                     will(returnValue(Arrays.asList(createDummyFileBasedPath(rootDir, subFile1, 1),
                             createDummyFileBasedPath(rootDir, subFile2, null),
                             createDummyFileBasedPath(rootDir, subFile3, 3),
-                            createDummyFileBasedPath(rootDir, subSubFile, 4))));
+                            createDummyFileBasedPath(rootDir, subSubFile, 4),
+                            createDummyHDF5FileBasedPath(rootDir, hdf5Example))));
                 }
             });
         List<IHierarchicalContentNode> matchingNodes =
                 rootContent.listMatchingNodes(startingPath, pattern);
-        assertEquals(4, matchingNodes.size());
+        assertEquals(5, matchingNodes.size());
         sortNodes(matchingNodes);
-        checkNodeMatchesFile(matchingNodes.get(0), subFile1, 1);
-        checkNodeMatchesFile(matchingNodes.get(1), subFile2, -2056143706);
-        checkNodeMatchesFile(matchingNodes.get(2), subFile3, 3);
-        checkNodeMatchesFile(matchingNodes.get(3), subSubFile, 4);
+        checkNodeMatchesFile(matchingNodes.get(0), hdf5Example, 0);
+        assertEquals(537641, matchingNodes.get(0).getFileLength());
+        assertEquals(-2098219814, matchingNodes.get(0).getChecksumCRC32());
+        checkNodeMatchesFile(matchingNodes.get(1), subFile1, 1);
+        checkNodeMatchesFile(matchingNodes.get(2), subFile2, -2056143706);
+        checkNodeMatchesFile(matchingNodes.get(3), subFile3, 3);
+        checkNodeMatchesFile(matchingNodes.get(4), subSubFile, 4);
 
         context.assertIsSatisfied();
     }
@@ -409,5 +421,16 @@ public class PathInfoProviderBasedHierarchicalContentTest extends AbstractFileSy
         }
         return result;
     }
+    
+    private static DataSetPathInfo createDummyHDF5FileBasedPath(final File root, final File file)
+    {
+        DataSetPathInfo result = new DataSetPathInfo();
+        result.setFileName(file.getName());
+        result.setDirectory(true);
+        result.setRelativePath(FileUtilities.getRelativeFilePath(root, file));
+        result.setSizeInBytes(file.length());
+        return result;
+    }
+    
 
 }

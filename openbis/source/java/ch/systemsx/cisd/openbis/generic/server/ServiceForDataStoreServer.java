@@ -286,7 +286,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
     public ServiceForDataStoreServer(IAuthenticationService authenticationService,
-            ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
+            IOpenBisSessionManager sessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory,
             TrustedCrossOriginDomainsProvider trustedOriginDomainProvider,
             IETLEntityOperationChecker entityOperationChecker,
@@ -309,7 +309,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     ServiceForDataStoreServer(IAuthenticationService authenticationService,
-            ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
+            IOpenBisSessionManager sessionManager, IDAOFactory daoFactory,
             IPropertiesBatchManager propertiesBatchManager, ICommonBusinessObjectFactory boFactory,
             IDataStoreServiceFactory dssFactory,
             TrustedCrossOriginDomainsProvider trustedOriginDomainProvider,
@@ -2030,15 +2030,16 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         // create space
         ISpaceBO groupBO = businessObjectFactory.createSpaceBO(session);
         groupBO.define(newSpace.getCode(), newSpace.getDescription());
+        SpacePE space = groupBO.getSpace();
+
         if (registratorUserIdOrNull != null)
         {
-            groupBO.getSpace().setRegistrator(
+            space.setRegistrator(
                     getOrCreatePerson(session.getSessionToken(), registratorUserIdOrNull));
         }
         groupBO.save();
 
         // create ADMIN role assignemnt
-        SpacePE space = groupBO.getSpace();
         if (newSpace.getSpaceAdminUserId() != null)
         {
             IRoleAssignmentTable roleTable =
@@ -2051,6 +2052,8 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             assignment.setGrantee(grantee);
             roleTable.add(assignment);
             roleTable.save();
+
+            sessionManager.updateAllSessions(getDAOFactory());
         }
         return space;
 
