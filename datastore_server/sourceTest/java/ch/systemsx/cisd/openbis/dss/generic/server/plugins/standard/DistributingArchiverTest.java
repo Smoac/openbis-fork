@@ -39,6 +39,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.ZipBasedHierarchicalContentTest;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -89,6 +90,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
     @BeforeMethod
     public void prepareTestData(Method method) throws IOException
     {
+        ZipBasedHierarchicalContentTest.removeUnzippedFiles();
         wait(1); // Without waiting sometimes the meta data from a previous test is extracted from zip file.
         ds1InStore = new File(share1, LOCATION);
         File subfolder = new File(ds1InStore, "original/my-data/subfolder");
@@ -277,6 +279,8 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         assertZipContent("Hello world!", archivedDataSetFile, "original/my-data/subfolder/hello.txt", true);
         assertZipContent("Nothing to read!", archivedDataSetFile, "original/my-data/read-me.txt", true);
         assertZipContent(HDF5_ARCHIVE, archivedDataSetFile, "original/my-data/subfolder/my-archive.h5", true);
+        File[] unzippedFiles = ZipBasedHierarchicalContentTest.getUnzippedFiles();
+        assertEquals("[]", Arrays.asList(unzippedFiles).toString());
     }
 
     @Test
