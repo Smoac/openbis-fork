@@ -16,11 +16,15 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.zip.CRC32;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.io.IOUtilities;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
@@ -121,8 +125,13 @@ public abstract class AbstractDataSetPackager
 
     private void addTo(String newRootPath, IHierarchicalContentNode node)
     {
+        File file = node.tryGetFile();
+        if (file == null)
+        {
+            return;
+        }
         String entryPath = newRootPath + node.getRelativePath();
-        if (node.isDirectory())
+        if (node.isDirectory() && file.isDirectory())
         {
             List<IHierarchicalContentNode> childNodes = node.getChildNodes();
             if (childNodes.isEmpty())
@@ -137,7 +146,7 @@ public abstract class AbstractDataSetPackager
             }
         } else
         {
-            long size = node.getFileLength();
+            long size = file.length();
             long checksum = 0;
             if (isChecksumNeeded())
             {
@@ -147,10 +156,24 @@ public abstract class AbstractDataSetPackager
                     checksum = node.getChecksumCRC32();
                 } else 
                 {
-                    checksum = IOUtilities.getChecksumCRC32(node.getInputStream());
+                    try
+                    {
+                        FileInputStream fileInputStream = new FileInputStream(file);
+                        checksum = IOUtilities.getChecksumCRC32(new BufferedInputStream(fileInputStream));
+                    } catch (Exception ex)
+                    {
+                        throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                    }
                 }
             }
-            addEntry(entryPath, node.getLastModified(), size, checksum, node.getInputStream());
+            try
+            {
+                FileInputStream fileInputStream = new FileInputStream(file);
+                addEntry(entryPath, file.lastModified(), size, checksum, new BufferedInputStream(fileInputStream));
+            } catch (Exception ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
         }
     }
 }
