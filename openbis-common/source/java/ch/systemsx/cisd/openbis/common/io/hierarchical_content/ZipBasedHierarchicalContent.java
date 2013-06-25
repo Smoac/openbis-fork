@@ -222,6 +222,126 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
         }
     }
     
+    private static final class HDF5ContainerNode extends HDF5ContainerBasedHierarchicalContentNode
+    {
+        private final BasicZipFile zipFile;
+
+        private final String relativePath;
+
+        private final ZipEntry zipEntry;
+
+        private boolean loaded;
+
+        private HDF5ContainerNode(IHierarchicalContent root, File hdf5ContainerFile, BasicZipFile zipFile,
+                String relativePath, ZipEntry zipEntry)
+        {
+            super(root, hdf5ContainerFile);
+            this.zipFile = zipFile;
+            this.relativePath = relativePath;
+            this.zipEntry = zipEntry;
+        }
+
+        private synchronized void lazyLoad()
+        {
+            if (loaded == false)
+            {
+                copyZipEntryToFile(file);
+                loaded = true;
+            }
+        }
+
+        private void copyZipEntryToFile(File tempFile)
+        {
+            InputStream in = null;
+            FileOutputStream out = null;
+            BufferedOutputStream bufferedOut = null;
+            try
+            {
+                in = zipFile.getInputStream(zipEntry);
+                out = new FileOutputStream(tempFile);
+                bufferedOut = new BufferedOutputStream(out);
+                IOUtils.copy(in, bufferedOut);
+            } catch (Exception ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            } finally
+            {
+                IOUtils.closeQuietly(in);
+                IOUtils.closeQuietly(bufferedOut);
+            }
+        }
+        @Override
+        public String doGetRelativePath()
+        {
+            return relativePath;
+        }
+
+        @Override
+        public String getName()
+        {
+            return extractName(relativePath);
+        }
+
+        @Override
+        public InputStream doGetInputStream()
+        {
+            lazyLoad();
+            return super.doGetInputStream();
+        }
+
+        @Override
+        protected IHDF5ContainerReader createReader()
+        {
+            lazyLoad();
+            return super.createReader();
+        }
+
+        @Override
+        public long getLastModified()
+        {
+            return zipEntry.getTime();
+        }
+
+        @Override
+        public long doGetFileLength()
+        {
+            return zipEntry.getSize();
+        }
+
+        @Override
+        protected int doGetChecksumCRC32()
+        {
+            return (int) zipEntry.getCrc();
+        }
+
+        @Override
+        public File getFile()
+        {
+            lazyLoad();
+            return super.getFile();
+        }
+
+        @Override
+        public boolean isChecksumCRC32Precalculated()
+        {
+            return true;
+        }
+
+        @Override
+        public File tryGetFile()
+        {
+            lazyLoad();
+            return super.tryGetFile();
+        }
+
+        @Override
+        public IRandomAccessFile doGetFileContent()
+        {
+            lazyLoad();
+            return super.doGetFileContent();
+        }
+    }
+
     private static final class NodeManager
     {
         private final Map<String, ZipContainerNode> containerNodes = new HashMap<String, ZipContainerNode>();
@@ -254,90 +374,8 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
                 {
                     File tempFile = File.createTempFile(TEMP_FILE_PREFIX, extractName(relativePath), TEMP_FOLDER);
                     unzippedFiles.add(tempFile);
-                    IHierarchicalContentNode contentNode = new HDF5ContainerBasedHierarchicalContentNode(hierarchicalContent, tempFile)
-                        {
-                            private boolean loaded;
-
-                            private synchronized void lazyLoad()
-                            {
-                                if (loaded == false)
-                                {
-                                    copyZipEntryToFile(zipFile, zipEntry, file);
-                                    loaded = true;
-                                }
-                            }
-
-                            @Override
-                            public String doGetRelativePath()
-                            {
-                                return relativePath;
-                            }
-
-                            @Override
-                            public String getName()
-                            {
-                                return extractName(relativePath);
-                            }
-
-                            @Override
-                            public InputStream doGetInputStream()
-                            {
-                                lazyLoad();
-                                return super.doGetInputStream();
-                            }
-
-                            @Override
-                            protected IHDF5ContainerReader createReader()
-                            {
-                                lazyLoad();
-                                return super.createReader();
-                            }
-                            
-                            @Override
-                            public long getLastModified()
-                            {
-                                return zipEntry.getTime();
-                            }
-                            
-                            @Override
-                            public long doGetFileLength()
-                            {
-                                return zipEntry.getSize();
-                            }
-                            
-                            @Override
-                            protected int doGetChecksumCRC32()
-                            {
-                                return (int) zipEntry.getCrc();
-                            }
-                            
-                            @Override
-                            public File getFile()
-                            {
-                                lazyLoad();
-                                return super.getFile();
-                            }
-                            
-                            @Override
-                            public boolean isChecksumCRC32Precalculated()
-                            {
-                                return true;
-                            }
-                            
-                            @Override
-                            public File tryGetFile()
-                            {
-                                lazyLoad();
-                                return super.tryGetFile();
-                            }
-                            
-                            @Override
-                            public IRandomAccessFile doGetFileContent()
-                            {
-                                lazyLoad();
-                                return super.doGetFileContent();
-                            }
-                       };
+                    IHierarchicalContentNode contentNode =
+                            new HDF5ContainerNode(hierarchicalContent, tempFile, zipFile, relativePath, zipEntry);
                     linkNode(contentNode, relativePath);
                 } catch (Exception ex)
                 {
@@ -347,27 +385,6 @@ public class ZipBasedHierarchicalContent extends AbstractHierarchicalContent
             {
                 IHierarchicalContentNode contentNode = new ZipContentNode(zipFile, zipEntry);
                 linkNode(contentNode, relativePath);
-            }
-        }
-
-        private void copyZipEntryToFile(BasicZipFile zipFile, ZipEntry zipEntry, File tempFile)
-        {
-            InputStream in = null;
-            FileOutputStream out = null;
-            BufferedOutputStream bufferedOut = null;
-            try
-            {
-                in = zipFile.getInputStream(zipEntry);
-                out = new FileOutputStream(tempFile);
-                bufferedOut = new BufferedOutputStream(out);
-                IOUtils.copy(in, bufferedOut);
-            } catch (Exception ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-            } finally
-            {
-                IOUtils.closeQuietly(in);
-                IOUtils.closeQuietly(bufferedOut);
             }
         }
 
