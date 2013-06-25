@@ -130,6 +130,10 @@ public abstract class AbstractDataSetPackager
         {
             return;
         }
+        if (file.exists() == false)
+        {
+            throw new IllegalStateException("File '" + file + "' doesn't exist.");
+        }
         String entryPath = newRootPath + node.getRelativePath();
         if (node.isDirectory() && file.isDirectory())
         {
@@ -144,28 +148,10 @@ public abstract class AbstractDataSetPackager
                     addTo(newRootPath, childNode);
                 }
             }
-        } else
+        } else if (file.isFile())
         {
             long size = file.length();
-            long checksum = 0;
-            if (isChecksumNeeded())
-            {
-                boolean checksumCRC32Precalculated = node.isChecksumCRC32Precalculated();
-                if (checksumCRC32Precalculated)
-                {
-                    checksum = node.getChecksumCRC32();
-                } else 
-                {
-                    try
-                    {
-                        FileInputStream fileInputStream = new FileInputStream(file);
-                        checksum = IOUtilities.getChecksumCRC32(new BufferedInputStream(fileInputStream));
-                    } catch (Exception ex)
-                    {
-                        throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-                    }
-                }
-            }
+            long checksum = calculateChecksum(node, file);
             try
             {
                 FileInputStream fileInputStream = new FileInputStream(file);
@@ -174,6 +160,33 @@ public abstract class AbstractDataSetPackager
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
+        } else
+        {
+            throw new IllegalStateException("Node '" + node.getRelativePath() + "' is a real folder");
         }
+    }
+
+    private long calculateChecksum(IHierarchicalContentNode node, File file)
+    {
+        long checksum = 0;
+        if (isChecksumNeeded())
+        {
+            boolean checksumCRC32Precalculated = node.isChecksumCRC32Precalculated();
+            if (checksumCRC32Precalculated)
+            {
+                checksum = node.getChecksumCRC32();
+            } else 
+            {
+                try
+                {
+                    FileInputStream fileInputStream = new FileInputStream(file);
+                    checksum = IOUtilities.getChecksumCRC32(new BufferedInputStream(fileInputStream));
+                } catch (Exception ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                }
+            }
+        }
+        return checksum;
     }
 }
