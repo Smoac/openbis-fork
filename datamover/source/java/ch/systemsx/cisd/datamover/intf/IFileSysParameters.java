@@ -50,6 +50,14 @@ public interface IFileSysParameters
     boolean isRsyncOverwrite();
 
     /**
+     * @return Basic parameters for the <code>rsync</code> command line.  
+     * If set, they will override the default of "--archive --delete-before --inplace". If basic parameters are defined, 
+     * these and the extra rsync parameters will allow full customization of the <code>rsync</code> command-line.
+     * Any further rsync configuration options, such as rsync-overwrite, will be ignored. 
+     */
+    public String[] getBasicRsyncParameters(); 
+    
+    /**
      * @return Additional parameters to be added to the end of the <code>rsync</code> command line.
      */
     public String[] getExtraRsyncParameters();

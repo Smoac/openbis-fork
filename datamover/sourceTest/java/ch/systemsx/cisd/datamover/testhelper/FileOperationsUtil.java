@@ -83,6 +83,12 @@ public class FileOperationsUtil
                 }
 
                 @Override
+                public String[] getBasicRsyncParameters()
+                {
+                    return null;
+                }
+                
+                @Override
                 public String[] getExtraRsyncParameters()
                 {
                     return null;

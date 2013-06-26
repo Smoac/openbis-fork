@@ -17,6 +17,9 @@
 package ch.systemsx.cisd.datamover.filesystem;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -94,8 +97,21 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
     {
         final File rsyncExecutable = findRsyncExecutable();
         final File sshExecutableOrNull = tryFindSshExecutable();
-        return new RsyncCopier(rsyncExecutable, sshExecutableOrNull, requiresDeletionBeforeCreation,
-                parameters.isRsyncOverwrite(), parameters.getExtraRsyncParameters());
+        RsyncCopier rsyncCopier; 
+        
+        if (parameters.getBasicRsyncParameters().length > 0) {
+        	// Concatenate the basic and extra command-line options into one array
+        	List<String> allCmdLineOptions = new ArrayList<String>(parameters.getBasicRsyncParameters().length 
+        	        + parameters.getExtraRsyncParameters().length);
+        	Collections.addAll(allCmdLineOptions, parameters.getBasicRsyncParameters());
+        	Collections.addAll(allCmdLineOptions, parameters.getExtraRsyncParameters());
+        	rsyncCopier = new RsyncCopier(rsyncExecutable, sshExecutableOrNull, 
+        	        allCmdLineOptions.toArray(new String[allCmdLineOptions.size()]) ); 
+        } else {
+        	rsyncCopier = new RsyncCopier(rsyncExecutable, sshExecutableOrNull, requiresDeletionBeforeCreation,
+                    parameters.isRsyncOverwrite(), parameters.getExtraRsyncParameters()); 
+        }
+        return rsyncCopier; 
     }
 
     @Override

@@ -128,6 +128,12 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     private boolean rsyncOverwrite = DEFAULT_RSYNC_OVERWRITE;
 
     /**
+     * Basic parameters for the <code>rsync</code> command line, like e.g. --archive --delete --inplace.  
+     */
+    @Option(longName = PropertyNames.BASIC_RSYNC_PARAMS, usage = "Basic parameters for the rsync command line.")
+    private String basicRsyncParameters = null; 
+    
+    /**
      * Extra parameters that are added to the end of the rsync command line, like e.g. --no-owner.
      */
     @Option(longName = PropertyNames.EXTRA_RSYNC_PARAMS, usage = "Additional parameters added to the end of the rsync "
@@ -500,6 +506,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         rsyncOverwrite =
                 PropertyUtils.getBoolean(serviceProperties, PropertyNames.RSYNC_OVERWRITE,
                         rsyncOverwrite);
+        basicRsyncParameters = 
+        		PropertyUtils.getProperty(serviceProperties, PropertyNames.BASIC_RSYNC_PARAMS);
         extraRsyncParameters =
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.EXTRA_RSYNC_PARAMS);
         lnExecutable =
@@ -684,17 +692,34 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
+     * @return Basic parameters for the <code>rsync</code> command line.  
+     * If set, they will override the default of "--archive --delete-before --inplace". If basic parameters are defined, 
+     * these and the extra rsync parameters will allow full customization of the <code>rsync</code> command-line.
+     * Any further rsync configuration options, such as rsync-overwrite, will be ignored. 
+     */
+    @Override
+    public String[] getBasicRsyncParameters()
+    {
+        return getRsyncParameters(basicRsyncParameters);
+    }
+    
+    /**
      * @return Extra parameters to be added to the end of the <code>rsync</code> command line.
      */
     @Override
     public String[] getExtraRsyncParameters()
     {
-        if (extraRsyncParameters == null)
+        return getRsyncParameters(extraRsyncParameters);
+    }
+
+    private String[] getRsyncParameters(String rsyncParameters)
+    {
+        if (rsyncParameters == null)
         {
             return new String[0];
         } else
         {
-            final String[] params = StringUtils.split(extraRsyncParameters, ',');
+            final String[] params = StringUtils.split(rsyncParameters, ',');
             for (int i = 0; i < params.length; ++i)
             {
                 params[i] = params[i].trim();

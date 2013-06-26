@@ -104,6 +104,8 @@ public final class PropertyNames
 
     static final String RSYNC_OVERWRITE = "rsync-overwrite";
     
+    static final String BASIC_RSYNC_PARAMS = "basic-rsync-params";
+    
     static final String EXTRA_RSYNC_PARAMS = "extra-rsync-params";
 
     static final String SSH_EXECUTABLE = "ssh-executable";
