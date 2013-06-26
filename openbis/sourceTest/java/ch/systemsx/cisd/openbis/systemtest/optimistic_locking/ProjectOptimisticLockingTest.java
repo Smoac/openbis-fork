@@ -56,7 +56,7 @@ public class ProjectOptimisticLockingTest extends OptimisticLockingTestCase
         project.setDescription("ProjectOptimisticLockingTest test");
         project.setSpace(toolBox.space1);
         logIntoCommonClientService();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker(1000);
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker(2000);
 
         commonClientService.registerProject(SESSION_KEY, project);
 
@@ -129,7 +129,7 @@ public class ProjectOptimisticLockingTest extends OptimisticLockingTestCase
                         ToolBox.EXPERIMENT_TYPE_CODE);
         experiment.setAttachments(Collections.<NewAttachment> emptyList());
         experiment.setProperties(new IEntityProperty[]
-            { new PropertyBuilder("DESCRIPTION").value("hello").getProperty() });
+        { new PropertyBuilder("DESCRIPTION").value("hello").getProperty() });
         assertEquals("system", toolBox.project1.getModifier().getUserId());
         TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
 
