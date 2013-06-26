@@ -28,9 +28,9 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -56,7 +56,7 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
     {
         NewExperiment experiment = toolBox.experiment(1);
         logIntoCommonClientService();
-        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker(1000);
+        TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker(2000);
 
         genericClientService.registerExperiment(SESSION_KEY, SESSION_KEY, experiment);
 
@@ -187,7 +187,7 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
         updates.setAttachments(ToolBox.NO_ATTACHMENTS);
         updates.setProperties(experiment.getProperties());
         updates.setMetaprojectsOrNull(new String[]
-            { "TEST_METAPROJECTS" });
+        { "TEST_METAPROJECTS" });
         String sessionToken = logIntoCommonClientService().getSessionID();
         assertEquals("", toolBox.renderMetaProjects(toolBox
                 .loadExperiment(sessionToken, experiment).getMetaprojects()));
@@ -276,7 +276,7 @@ public class ExperimentOptimisticLockingTest extends OptimisticLockingTestCase
         update.setVersion(toolBox.loadExperiment(experiment).getVersion());
         update.setExperimentId(new TechId(experiment));
         update.setSampleCodes(new String[]
-            { sample2.getCode(), sample3.getCode() });
+        { sample2.getCode(), sample3.getCode() });
         update.setProperties(ToolBox.NO_PROPERTIES);
         update.setAttachments(ToolBox.NO_ATTACHMENTS);
         update.setProjectIdentifier(toolBox.createProjectIdentifier(experiment.getProject()
