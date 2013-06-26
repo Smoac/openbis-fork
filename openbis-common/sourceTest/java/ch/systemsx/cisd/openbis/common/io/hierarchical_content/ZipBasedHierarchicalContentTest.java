@@ -106,7 +106,7 @@ public class ZipBasedHierarchicalContentTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(new File(alpha, "read.me"), "don't read me!");
         FileUtilities.writeToFile(new File(dataRoot, "change-log.txt"), "nothing really changed.");
         File originalHdf5ContainerFile = new File(dataRoot, "my-container.h5");
-        FileUtils.copyFile(TEST_HDF5_CONTAINER, originalHdf5ContainerFile);
+        FileUtils.copyFile(TEST_HDF5_CONTAINER, originalHdf5ContainerFile, false);
         File zipFile = new File(workingDirectory, "data.zip");
         zip(zipFile, dataRoot);
         
