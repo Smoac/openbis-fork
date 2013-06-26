@@ -283,6 +283,8 @@ public class SegmentedStoreUtils
             File dataSetDirInNewShare = new File(share, relativePath);
             dataSetDirInNewShare.mkdirs();
             copyToShare(dataSetDirInStore, dataSetDirInNewShare, logger);
+            logger.log(LogLevel.INFO, "Verifying structure, size and optional checksum of " 
+            		+ "data set content in share " + share.getName() + ".");
             long size =
                     assertEqualSizeAndChildren(dataSetCode, dataSetDirInStore, dataSetDirInStore,
                             dataSetDirInNewShare, dataSetDirInNewShare, checksumProvider);
