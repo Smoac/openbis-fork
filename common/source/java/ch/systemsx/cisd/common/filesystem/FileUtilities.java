@@ -93,6 +93,8 @@ import ch.systemsx.cisd.common.string.StringUtilities.IUniquenessChecker;
  */
 public final class FileUtilities
 {
+    public static final List<String> HDF5_FILE_TYPES = Arrays.asList("h5", "h5ar");
+    
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FileUtilities.class);
     private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
@@ -1430,6 +1432,10 @@ public final class FileUtilities
             return null;
         } else
         {
+            if (relativePath.endsWith(File.separator))
+            {
+                return getParentRelativePath(relativePath.substring(0, relativePath.length() - File.separator.length()));
+            }
             int lastIndexOf = relativePath.lastIndexOf(File.separator);
             if (lastIndexOf > -1)
             {
@@ -1458,7 +1464,7 @@ public final class FileUtilities
      */
     public final static boolean hasHDF5ContainerSuffix(File file)
     {
-        return FilenameUtils.isExtension(file.getName().toLowerCase(), Arrays.asList("h5", "h5ar"));
+        return FilenameUtils.isExtension(file.getName().toLowerCase(), HDF5_FILE_TYPES);
     }
 
     /**

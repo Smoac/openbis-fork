@@ -39,6 +39,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.ZipBasedHierarchicalContentTest;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -89,6 +90,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
     @BeforeMethod
     public void prepareTestData(Method method) throws IOException
     {
+        ZipBasedHierarchicalContentTest.removeUnzippedFiles();
         wait(1); // Without waiting sometimes the meta data from a previous test is extracted from zip file.
         ds1InStore = new File(share1, LOCATION);
         File subfolder = new File(ds1InStore, "original/my-data/subfolder");
@@ -139,10 +141,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - " 
-                + "Data set 'ds1' archived: " + archivedDataSetFile + "\n"
-                + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - " 
-                + "Data set 'ds1' unzipped from archive '" + archivedDataSetFile
-                        + "' to '" + RsyncArchiver.STAGING_FOLDER + "/ds1'.", logRecorder.getLogContent());
+                + "Data set 'ds1' archived: " + archivedDataSetFile, logRecorder.getLogContent());
         List<Status> errorStatuses = processingStatus.getErrorStatuses();
         assertEquals("[]", errorStatuses.toString());
         assertEquals(true, archivedDataSetFile.isFile());
@@ -195,10 +194,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
-                + archivedDataSetFile + "\n"
-                + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - "
-                + "Data set 'ds1' unzipped from archive '" + archivedDataSetFile
-                + "' to '" + new File(store, RsyncArchiver.STAGING_FOLDER) + "/ds1'.", logRecorder.getLogContent());
+                + archivedDataSetFile, logRecorder.getLogContent());
         List<Status> errorStatuses = processingStatus.getErrorStatuses();
         assertEquals("[]", errorStatuses.toString());
         assertEquals(true, archivedDataSetFile.isFile());
@@ -257,10 +253,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
                 + "INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
-                + archivedDataSetFile + "\n"
-                + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - "
-                + "Data set 'ds1' unzipped from archive '" + archivedDataSetFile
-                + "' to '" + new File(store, RsyncArchiver.STAGING_FOLDER) + "/ds1'.", logRecorder.getLogContent());
+                + archivedDataSetFile, logRecorder.getLogContent());
         List<Status> errorStatuses = processingStatus.getErrorStatuses();
         assertEquals("[]", errorStatuses.toString());
         assertEquals(true, archivedDataSetFile.isFile());
@@ -286,6 +279,8 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         assertZipContent("Hello world!", archivedDataSetFile, "original/my-data/subfolder/hello.txt", true);
         assertZipContent("Nothing to read!", archivedDataSetFile, "original/my-data/read-me.txt", true);
         assertZipContent(HDF5_ARCHIVE, archivedDataSetFile, "original/my-data/subfolder/my-archive.h5", true);
+        File[] unzippedFiles = ZipBasedHierarchicalContentTest.getUnzippedFiles();
+        assertEquals("[]", Arrays.asList(unzippedFiles).toString());
     }
 
     @Test
@@ -336,9 +331,6 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
                 + archivedDataSetFile + "\n"
-                + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - "
-                + "Data set 'ds1' unzipped from archive '" + archivedDataSetFile
-                + "' to '" + new File(store, RsyncArchiver.STAGING_FOLDER) + "/ds1'.\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Unarchiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Obtained the list of all datasets in all shares in ? s.\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - "
@@ -426,9 +418,6 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
                 + archivedDataSetFile + "\n"
-                + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - "
-                + "Data set 'ds1' unzipped from archive '" + archivedDataSetFile
-                + "' to '" + new File(store, RsyncArchiver.STAGING_FOLDER) + "/ds1'.\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Unarchiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Obtained the list of all datasets in all shares in ? s.\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - "
@@ -486,16 +475,10 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
                 + archivedDataSetFile + "\n"
-                + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - "
-                + "Data set 'ds1' unzipped from archive '" + archivedDataSetFile
-                + "' to '" + new File(store, RsyncArchiver.STAGING_FOLDER) + "/ds1'." + "\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
-                + archivedDataSetFile + "\n"
-                + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - "
-                + "Data set 'ds1' unzipped from archive '" + archivedDataSetFile
-                + "' to '" + new File(store, RsyncArchiver.STAGING_FOLDER) + "/ds1'.", logRecorder.getLogContent());
+                + archivedDataSetFile, logRecorder.getLogContent());
         assertEquals("[]", processingStatus2.getErrorStatuses().toString());
         assertEquals(true, archivedDataSetFile.isFile());
         assertZipContent("data_set\tcode\tds1\n"
@@ -550,10 +533,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
-                + archivedDataSetFile + "\n"
-                + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - "
-                + "Data set 'ds1' unzipped from archive '" + archivedDataSetFile
-                + "' to '" + new File(store, RsyncArchiver.STAGING_FOLDER) + "/ds1'.", logRecorder.getLogContent());
+                + archivedDataSetFile, logRecorder.getLogContent());
         assertEquals("[]", processingStatus2.getErrorStatuses().toString());
         assertEquals(false, archivedDataSetFile.exists());
     }
@@ -590,10 +570,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
-                + archivedDataSetFile + "\n"
-                + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - "
-                + "Data set 'ds1' unzipped from archive '" + archivedDataSetFile
-                + "' to '" + new File(store, RsyncArchiver.STAGING_FOLDER) + "/ds1'.", logRecorder.getLogContent());
+                + archivedDataSetFile, logRecorder.getLogContent());
         assertEquals("[]", processingStatus2.getErrorStatuses().toString());
         assertEquals(true, archivedDataSetFile.exists());
         File markerFile = new File(defaultArchive, DataSetFileOperationsManager.FOLDER_OF_AS_DELETED_MARKED_DATA_SETS 
@@ -634,10 +611,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
-                + archivedDataSetFile + "\n"
-                + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - "
-                + "Data set 'ds1' unzipped from archive '" + archivedDataSetFile
-                + "' to '" + new File(store, RsyncArchiver.STAGING_FOLDER) + "/ds1'.", logRecorder.getLogContent());
+                + archivedDataSetFile, logRecorder.getLogContent());
         assertEquals("[]", processingStatus2.getErrorStatuses().toString());
         assertEquals(true, archivedDataSetFile.exists());
         File markerFile = new File(defaultArchive, DataSetFileOperationsManager.FOLDER_OF_AS_DELETED_MARKED_DATA_SETS 
@@ -684,10 +658,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
                 + "INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
-                + archivedDataSetFile + "\n"
-                + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - "
-                + "Data set 'ds1' unzipped from archive '" + archivedDataSetFile
-                + "' to '" + new File(store, RsyncArchiver.STAGING_FOLDER) + "/ds1'.", logRecorder.getLogContent());
+                + archivedDataSetFile, logRecorder.getLogContent());
         assertEquals("[]", processingStatus2.getErrorStatuses().toString());
         assertEquals(true, archivedDataSetFile.exists());
         File markerFile = new File(archive, DataSetFileOperationsManager.FOLDER_OF_AS_DELETED_MARKED_DATA_SETS 

@@ -50,7 +50,7 @@ public class HDF5ContainerBasedHierarchicalContentNode extends
         this.hdf5Container = new HDF5Container(hdf5ContainerFile);
     }
 
-    private IHDF5ContainerReader createReader()
+    protected IHDF5ContainerReader createReader()
     {
         return hdf5Container.createSimpleReader();
     }

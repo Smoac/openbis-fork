@@ -104,7 +104,7 @@ public abstract class AbstractHierarchicalContentNode implements IHierarchicalCo
     }
 
     @Override
-    public int getChecksumCRC32() throws UnsupportedOperationException
+    public final int getChecksumCRC32() throws UnsupportedOperationException
     {
         requirePhysicalFile();
         return doGetChecksumCRC32();
