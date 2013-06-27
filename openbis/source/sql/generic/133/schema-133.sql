@@ -154,7 +154,7 @@ UNION
     vocabulary_term,
     material,
     pers_id_author,
-    valid_until_timestamp,
+    valid_from_timestamp,
     valid_until_timestamp
   FROM
     SAMPLE_PROPERTIES_HISTORY;
@@ -193,7 +193,7 @@ UNION
     vocabulary_term,
     material,
     pers_id_author,
-    valid_until_timestamp,
+    valid_from_timestamp,
     valid_until_timestamp
   FROM
     DATA_SET_PROPERTIES_HISTORY;
@@ -231,7 +231,7 @@ UNION
     vocabulary_term,
     material,
     pers_id_author,
-    valid_until_timestamp,
+    valid_from_timestamp,
     valid_until_timestamp
   FROM
     EXPERIMENT_PROPERTIES_HISTORY;
