@@ -87,8 +87,8 @@ public class SessionUpdateTest extends SystemTestCase
         assertUserCantAccessSpace(sessionTokenUser, "TESTGROUP");
 
         // cleanup
-        commonServer.deleteAuthorizationGroups(sessionToken, Arrays.asList(authorizationGroupTechId), "no reason");
 
+        commonServer.deleteAuthorizationGroups(sessionToken, Arrays.asList(authorizationGroupTechId), "no reason");
     }
 
     @Test

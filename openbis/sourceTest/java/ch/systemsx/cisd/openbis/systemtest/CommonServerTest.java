@@ -19,19 +19,24 @@ package ch.systemsx.cisd.openbis.systemtest;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
@@ -39,6 +44,39 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  */
 public class CommonServerTest extends SystemTestCase
 {
+
+    @Test
+    public void testDeleteGroupWithPersons()
+    {
+        String groupCode = "AUTHORIZATION_TEST_GROUP";
+        String sessionToken = authenticateAs("test");
+
+        // create a group
+
+        NewAuthorizationGroup newGroup = new NewAuthorizationGroup();
+        newGroup.setCode(groupCode);
+        commonServer.registerAuthorizationGroup(sessionToken, newGroup);
+        List<AuthorizationGroup> groups = commonServer.listAuthorizationGroups(sessionToken);
+        TechId authorizationGroupTechId = new TechId(findAuthorizationGroup(groups, groupCode).getId());
+
+        // add user to the group
+        commonServer.addPersonsToAuthorizationGroup(sessionToken, authorizationGroupTechId, Arrays.asList("test_space", "test_role", "test"));
+
+        commonServer.deleteAuthorizationGroups(sessionToken, Arrays.asList(authorizationGroupTechId), "no reason");
+    }
+
+    private AuthorizationGroup findAuthorizationGroup(List<AuthorizationGroup> spaces, final String spaceCode)
+    {
+        return CollectionUtils.find(spaces, new Predicate<AuthorizationGroup>()
+            {
+                @Override
+                public boolean evaluate(AuthorizationGroup object)
+                {
+                    return object.getCode().equals(spaceCode);
+                }
+
+            });
+    }
 
     @Test
     public void testGetSampleWithAssignedPropertyTypesAndProperties()
