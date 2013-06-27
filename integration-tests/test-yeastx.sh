@@ -188,8 +188,8 @@ function integration_tests_yeastx {
 	  build_and_install_yeastx
 	
     switch_dss "on" datastore_server_yeastx
+    wait_on_pattern_present $WORK/datastore_server_yeastx/log/startup_log.txt "Post registration of .*-42" 300
 
-		sleep 240
     assert_correct_incoming_contents $MY_DATA/incoming
     
     switch_dss "off" datastore_server_yeastx
