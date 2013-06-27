@@ -31,12 +31,11 @@ import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 
-import ch.systemsx.cisd.openbis.generic.server.OpenBisSessionManager;
-import ch.systemsx.cisd.openbis.generic.server.SessionsUpdateInterceptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.HibernateInterceptorsWrapper;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.IEntityValidatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
@@ -65,12 +64,12 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
 
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
-    private OpenBisSessionManager openBisSessionManager;
+    private IOpenBisSessionManager openBisSessionManager;
 
     public OpenBISHibernateTransactionManager(IDAOFactory daoFactory,
             IEntityValidatorFactory entityValidationFactory,
             IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, OpenBisSessionManager openBisSessionManager)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, IOpenBisSessionManager openBisSessionManager)
     {
         this.daoFactory = daoFactory;
         this.entityValidationFactory = entityValidationFactory;

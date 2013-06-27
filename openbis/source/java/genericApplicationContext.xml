@@ -124,6 +124,7 @@
         <constructor-arg value="${session-timeout}" />
         <!-- Enable login with email addresses -->
         <constructor-arg value="true" />
+        <constructor-arg ref="dao-factory"/>
     </bean>
     
     <bean id="display-settings-provider" class="ch.systemsx.cisd.openbis.generic.server.DisplaySettingsProvider" />

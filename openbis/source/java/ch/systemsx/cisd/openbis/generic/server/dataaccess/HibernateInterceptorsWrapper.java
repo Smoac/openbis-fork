@@ -22,9 +22,9 @@ import org.hibernate.EmptyInterceptor;
 import org.hibernate.Transaction;
 import org.hibernate.type.Type;
 
-import ch.systemsx.cisd.openbis.generic.server.SessionsUpdateInterceptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DynamicPropertiesInterceptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.EntityValidationInterceptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SessionsUpdateInterceptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**

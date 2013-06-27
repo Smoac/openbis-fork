@@ -523,7 +523,6 @@ public final class CommonServerTest extends AbstractServerTestCase
 
                     one(roleAssignmentDAO).deleteRoleAssignment(assignment);
 
-                    one(sessionManager).updateAllSessions(daoFactory);
                 }
             });
 
@@ -545,10 +544,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(assignment));
 
                     one(roleAssignmentDAO).deleteRoleAssignment(assignment);
-
-                    one(sessionManager).updateAllSessions(daoFactory);
                 }
-
             });
 
         createServer().deleteInstanceRole(SESSION_TOKEN, RoleCode.USER, person);

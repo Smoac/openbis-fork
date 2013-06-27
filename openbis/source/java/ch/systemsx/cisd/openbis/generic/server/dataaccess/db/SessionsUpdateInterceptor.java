@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.io.Serializable;
 
@@ -23,6 +23,7 @@ import org.hibernate.Transaction;
 import org.hibernate.type.Type;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -35,13 +36,13 @@ public class SessionsUpdateInterceptor extends EmptyInterceptor
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private OpenBisSessionManager openBisSessionManager;
+    private IOpenBisSessionManager openBisSessionManager;
 
     private IDAOFactory daoFactory;
 
     private boolean sessionsUpdateNeeded;
 
-    public SessionsUpdateInterceptor(OpenBisSessionManager openBisSessionManager, IDAOFactory daoFactory)
+    public SessionsUpdateInterceptor(IOpenBisSessionManager openBisSessionManager, IDAOFactory daoFactory)
     {
         this.openBisSessionManager = openBisSessionManager;
         this.daoFactory = daoFactory;
@@ -90,7 +91,7 @@ public class SessionsUpdateInterceptor extends EmptyInterceptor
     {
         if (sessionsUpdateNeeded && tx.wasCommitted())
         {
-            openBisSessionManager.updateAllSessions(daoFactory);
+            openBisSessionManager.updateAllSessions();
         }
     }
 
