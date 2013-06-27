@@ -24,6 +24,7 @@ import org.hibernate.type.Type;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -49,27 +50,27 @@ public class SessionsUpdateInterceptor extends EmptyInterceptor
     @Override
     public boolean onFlushDirty(Object entity, Serializable id, Object[] currentState, Object[] previousState, String[] propertyNames, Type[] types)
     {
-        checkRoleAssignment(entity);
+        checkAuthorizationEntity(entity);
         return false;
     }
 
     @Override
     public void onDelete(Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types)
     {
-        checkRoleAssignment(entity);
+        checkAuthorizationEntity(entity);
         checkSpace(entity);
     }
 
     @Override
     public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types)
     {
-        checkRoleAssignment(entity);
+        checkAuthorizationEntity(entity);
         return false;
     }
 
-    private void checkRoleAssignment(Object entity)
+    private void checkAuthorizationEntity(Object entity)
     {
-        if (entity instanceof RoleAssignmentPE)
+        if (entity instanceof RoleAssignmentPE || entity instanceof AuthorizationGroupPE)
         {
             sessionsUpdateNeeded = true;
         }
