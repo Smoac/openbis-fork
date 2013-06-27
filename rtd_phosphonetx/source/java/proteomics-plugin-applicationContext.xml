@@ -42,6 +42,7 @@
                     </bean>
                 </constructor-arg>
                 <constructor-arg value="${session-timeout}" />
+                <constructor-arg ref="dao-factory"/>
             </bean>
         </constructor-arg>
         <constructor-arg ref="dao-factory"/>
