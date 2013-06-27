@@ -23,6 +23,7 @@ import ch.systemsx.cisd.authentication.ISessionFactory;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
+import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -33,22 +34,26 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 public class OpenBisSessionManager extends DefaultSessionManager<Session> implements IOpenBisSessionManager
 {
+    IDAOFactory daoFactory;
 
     public OpenBisSessionManager(ISessionFactory<Session> sessionFactory, ILogMessagePrefixGenerator<Session> prefixGenerator,
             IAuthenticationService authenticationService, IRemoteHostProvider remoteHostProvider, int sessionExpirationPeriodMinutes,
-            boolean tryEmailAsUserName)
+            boolean tryEmailAsUserName, IDAOFactory daoFactory)
     {
         super(sessionFactory, prefixGenerator, authenticationService, remoteHostProvider, sessionExpirationPeriodMinutes, tryEmailAsUserName);
+        this.daoFactory = daoFactory;
     }
 
     public OpenBisSessionManager(ISessionFactory<Session> sessionFactory, ILogMessagePrefixGenerator<Session> prefixGenerator,
-            IAuthenticationService authenticationService, IRemoteHostProvider remoteHostProvider, int sessionExpirationPeriodMinutes)
+            IAuthenticationService authenticationService, IRemoteHostProvider remoteHostProvider, int sessionExpirationPeriodMinutes,
+            IDAOFactory daoFactory)
     {
         super(sessionFactory, prefixGenerator, authenticationService, remoteHostProvider, sessionExpirationPeriodMinutes);
+        this.daoFactory = daoFactory;
     }
 
     @Override
-    public void updateAllSessions(IDAOFactory daoFactory)
+    public void updateAllSessions()
     {
         synchronized (sessions)
         {

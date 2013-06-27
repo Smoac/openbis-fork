@@ -128,6 +128,11 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
         String code = authorizationGroup.getCode();
         try
         {
+            PersonPE[] persons = authorizationGroup.getPersons().toArray(new PersonPE[0]);
+            for (PersonPE personPE : persons)
+            {
+                authorizationGroup.removePerson(personPE);
+            }
             getAuthorizationGroupDAO().delete(authorizationGroup);
             getEventDAO().persist(createDeletionEvent(code, session.tryGetPerson(), reason));
         } catch (final DataAccessException ex)

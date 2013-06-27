@@ -145,6 +145,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
@@ -558,7 +559,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         table.add(newRoleAssignment);
         table.save();
 
-        sessionManager.updateAllSessions(getDAOFactory());
     }
 
     @Override
@@ -597,7 +597,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             }
         }
         getDAOFactory().getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
-        sessionManager.updateAllSessions(getDAOFactory());
     }
 
     @Override
@@ -622,7 +621,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                             + "Ask another instance admin to do that for you.");
         }
         roleAssignmentDAO.deleteRoleAssignment(roleAssignment);
-        sessionManager.updateAllSessions(getDAOFactory());
     }
 
     @Override
@@ -2315,7 +2313,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             spaceBO.deleteByTechId(id, reason);
         }
-        sessionManager.updateAllSessions(getDAOFactory());
     }
 
     @Override

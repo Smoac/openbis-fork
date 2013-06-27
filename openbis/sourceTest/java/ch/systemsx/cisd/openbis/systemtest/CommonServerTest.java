@@ -19,100 +19,63 @@ package ch.systemsx.cisd.openbis.systemtest;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.ColumnDisplaySettingsUpdate;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * @author Franz-Josef Elmer
  */
-@Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class CommonServerTest extends SystemTestCase
 {
-    @Test
-    public void testRoleAssingmentDeleted()
-    {
-        String sessionTokenForInstanceAdmin = commonServer.tryAuthenticate("test", "a").getSessionToken();
-        String sessionTokenForSpaceAdmin = commonServer.tryAuthenticate("test_space", "a").getSessionToken();
-
-        // reproduce
-
-        commonServer.deleteSpaceRole(sessionTokenForInstanceAdmin, RoleCode.ADMIN,
-                new SpaceIdentifier("TEST-SPACE"), Grantee.createPerson("test_space"));
-
-        commonServer.updateDisplaySettings(sessionTokenForSpaceAdmin,
-                new ColumnDisplaySettingsUpdate("id_a_b_C", Collections.<ColumnSetting> emptyList()));
-        // clean up
-        commonServer.registerSpaceRole(sessionTokenForInstanceAdmin, RoleCode.ADMIN,
-                new SpaceIdentifier("TEST-SPACE"), Grantee.createPerson("test_space"));
-    }
 
     @Test
-    public void testRoleAssignmentAdded()
+    public void testDeleteGroupWithPersons()
     {
-        String spaceCode = "TESTGROUP";
+        String groupCode = "AUTHORIZATION_TEST_GROUP";
+        String sessionToken = authenticateAs("test");
 
-        String sessionTokenForInstanceAdmin = commonServer.tryAuthenticate("test", "a").getSessionToken();
-        String sessionTokenForSpaceAdmin = commonServer.tryAuthenticate("test_space", "a").getSessionToken();
+        // create a group
 
-        List<Space> spaces = commonServer.listSpaces(sessionTokenForSpaceAdmin, DatabaseInstanceIdentifier.createHome());
-        int matchingSpaces = containstSpace(spaces, spaceCode);
-        assertEquals(spaceCode + " should not be in test_space user groups before the role assignment" + spaces, 0, matchingSpaces);
+        NewAuthorizationGroup newGroup = new NewAuthorizationGroup();
+        newGroup.setCode(groupCode);
+        commonServer.registerAuthorizationGroup(sessionToken, newGroup);
+        List<AuthorizationGroup> groups = commonServer.listAuthorizationGroups(sessionToken);
+        TechId authorizationGroupTechId = new TechId(findAuthorizationGroup(groups, groupCode).getId());
 
-        commonServer.registerSpaceRole(sessionTokenForInstanceAdmin, RoleCode.ADMIN,
-                new SpaceIdentifier(spaceCode), Grantee.createPerson("test_space"));
+        // add user to the group
+        commonServer.addPersonsToAuthorizationGroup(sessionToken, authorizationGroupTechId, Arrays.asList("test_space", "test_role", "test"));
 
-        spaces = commonServer.listSpaces(sessionTokenForSpaceAdmin, DatabaseInstanceIdentifier.createHome());
-        matchingSpaces = containstSpace(spaces, spaceCode);
-        assertEquals("Couldn't find " + spaceCode + " space in " + spaces, 1, matchingSpaces);
-
-        // cleanup
-
-        commonServer.deleteSpaceRole(sessionTokenForInstanceAdmin, RoleCode.ADMIN,
-                new SpaceIdentifier(spaceCode), Grantee.createPerson("test_space"));
-
+        commonServer.deleteAuthorizationGroups(sessionToken, Arrays.asList(authorizationGroupTechId), "no reason");
     }
 
-    private int containstSpace(List<Space> spaces, final String spaceCode)
+    private AuthorizationGroup findAuthorizationGroup(List<AuthorizationGroup> spaces, final String spaceCode)
     {
-        int matchingSpaces = CollectionUtils.countMatches(spaces, new Predicate<Space>()
+        return CollectionUtils.find(spaces, new Predicate<AuthorizationGroup>()
             {
                 @Override
-                public boolean evaluate(Space object)
+                public boolean evaluate(AuthorizationGroup object)
                 {
                     return object.getCode().equals(spaceCode);
                 }
 
             });
-        return matchingSpaces;
-    }
-
-    @AfterClass
-    public void cleanup()
-    {
     }
 
     @Test

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server;
+package ch.systemsx.cisd.openbis.generic.shared;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -25,5 +24,5 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  */
 public interface IOpenBisSessionManager extends ISessionManager<Session>
 {
-    public void updateAllSessions(IDAOFactory daoFactory);
+    public void updateAllSessions();
 }

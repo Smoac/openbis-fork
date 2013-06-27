@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObject
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
