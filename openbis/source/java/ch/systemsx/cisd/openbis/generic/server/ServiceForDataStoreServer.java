@@ -2052,8 +2052,6 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             assignment.setGrantee(grantee);
             roleTable.add(assignment);
             roleTable.save();
-
-            sessionManager.updateAllSessions(getDAOFactory());
         }
         return space;
 

@@ -558,7 +558,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         table.add(newRoleAssignment);
         table.save();
 
-        sessionManager.updateAllSessions(getDAOFactory());
     }
 
     @Override
@@ -597,7 +596,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             }
         }
         getDAOFactory().getRoleAssignmentDAO().deleteRoleAssignment(roleAssignment);
-        sessionManager.updateAllSessions(getDAOFactory());
     }
 
     @Override
@@ -622,7 +620,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                             + "Ask another instance admin to do that for you.");
         }
         roleAssignmentDAO.deleteRoleAssignment(roleAssignment);
-        sessionManager.updateAllSessions(getDAOFactory());
     }
 
     @Override
@@ -2315,7 +2312,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             spaceBO.deleteByTechId(id, reason);
         }
-        sessionManager.updateAllSessions(getDAOFactory());
     }
 
     @Override

@@ -50,13 +50,14 @@
         <constructor-arg ref="entity-validation-factory" />
         <constructor-arg ref="dynamic-property-calculator-factory" />
         <constructor-arg ref="managed-property-evaluator-factory" />
+        <constructor-arg ref="session-manager" />
         <property name="sessionFactory" ref="hibernate-session-factory" />
         <property name="jdbcExceptionTranslator" ref="exception-translator" />
         <property name="dynamicPropertiesInterceptor">
             <ref bean="dynamic-properties-interceptor" />
         </property>
     </bean>
-    
+
     <bean id="dynamic-properties-interceptor"
           class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DynamicPropertiesInterceptor">
           <property name="dynamicPropertyScheduler" ref="dynamic-property-scheduler" />

@@ -1179,8 +1179,6 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(roleAssignmentTable).add(with(roleMatcher));
                     one(roleAssignmentTable).save();
 
-                    one(sessionManager).updateAllSessions(daoFactory);
-
                     allowing(personDAO).tryFindPersonByUserId(USER_FOR_ENTITY_OPERATIONS);
                     PersonPE user = createSystemUser();
                     will(returnValue(user));

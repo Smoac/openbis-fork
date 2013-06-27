@@ -31,6 +31,8 @@ import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 
+import ch.systemsx.cisd.openbis.generic.server.OpenBisSessionManager;
+import ch.systemsx.cisd.openbis.generic.server.SessionsUpdateInterceptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.HibernateInterceptorsWrapper;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyCalculatorFactory;
@@ -42,8 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedProperty
  * An implementation of {@link HibernateTransactionManager} that:
  * <ul>
  * <li>creates a new EntityValidationInterceptor for each hibernate session,</li>
- * <li>injects (and clears) the connection of the current transaction as default managed database
- * connection into EoDSQL.</li> </li>
+ * <li>injects (and clears) the connection of the current transaction as default managed database connection into EoDSQL.</li> </li>
  * </ul>
  * 
  * @author Jakub Straszewski
@@ -64,15 +65,18 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
 
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
+    private OpenBisSessionManager openBisSessionManager;
+
     public OpenBISHibernateTransactionManager(IDAOFactory daoFactory,
             IEntityValidatorFactory entityValidationFactory,
             IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, OpenBisSessionManager openBisSessionManager)
     {
         this.daoFactory = daoFactory;
         this.entityValidationFactory = entityValidationFactory;
         this.dynamicPropertyCalculatorFactory = dynamicPropertyCalculatorFactory;
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
+        this.openBisSessionManager = openBisSessionManager;
     }
 
     public void setDynamicPropertiesInterceptor(
@@ -121,8 +125,10 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
                 new EntityValidationInterceptor(this, daoFactory, entityValidationFactory,
                         dynamicPropertyCalculatorFactory, managedPropertyEvaluatorFactory);
 
+        SessionsUpdateInterceptor sessionsUpdateInterceptor = new SessionsUpdateInterceptor(openBisSessionManager, daoFactory);
+
         return new HibernateInterceptorsWrapper(dynamicPropertiesInterceptor,
-                entityValidationInterceptor);
+                entityValidationInterceptor, sessionsUpdateInterceptor);
     }
 
     @Override
@@ -166,9 +172,8 @@ public class OpenBISHibernateTransactionManager extends HibernateTransactionMana
     }
 
     /**
-     * Extracts transaction from spring DefaultTransactionStatus. The inner transaction is protected
-     * by a private static class, and the only way to get it is with the reflection. This can lead
-     * to potential problems with the newer hibernate versions.
+     * Extracts transaction from spring DefaultTransactionStatus. The inner transaction is protected by a private static class, and the only way to
+     * get it is with the reflection. This can lead to potential problems with the newer hibernate versions.
      */
     private Transaction extractTransaction(DefaultTransactionStatus status)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException

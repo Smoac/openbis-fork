@@ -22,16 +22,15 @@ import org.hibernate.EmptyInterceptor;
 import org.hibernate.Transaction;
 import org.hibernate.type.Type;
 
+import ch.systemsx.cisd.openbis.generic.server.SessionsUpdateInterceptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DynamicPropertiesInterceptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.EntityValidationInterceptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * A wrapper for two interceptors. {@link DynamicPropertiesInterceptor} and
- * {@link EntityValidationInterceptor}. This class only provides implementation for the three
- * methods implemented in both our implementations. Implemetation assumes, that our interceptors
- * don't change entities when called, and thus always return false from the methods onFlushDirty and
- * onSave.
+ * A wrapper for several interceptors. {@link DynamicPropertiesInterceptor}, {@link EntityValidationInterceptor} and {@link SessionsUpdateInterceptor}
+ * . This class only provides implementation for the three methods implemented in both our implementations. Implemetation assumes, that our
+ * interceptors don't change entities when called, and thus always return false from the methods onFlushDirty and onSave.
  * 
  * @author Jakub Straszewski
  */
@@ -43,11 +42,14 @@ public class HibernateInterceptorsWrapper extends EmptyInterceptor implements Se
 
     EntityValidationInterceptor entityValidationInterceptor;
 
+    SessionsUpdateInterceptor sessionsUpdateInterceptor;
+
     public HibernateInterceptorsWrapper(DynamicPropertiesInterceptor hibernateInterceptor,
-            EntityValidationInterceptor entityValidationInterceptor)
+            EntityValidationInterceptor entityValidationInterceptor, SessionsUpdateInterceptor sessionsUpdateInterceptor)
     {
         this.dynamicPropertiesInterceptor = hibernateInterceptor;
         this.entityValidationInterceptor = entityValidationInterceptor;
+        this.sessionsUpdateInterceptor = sessionsUpdateInterceptor;
     }
 
     @Override
@@ -58,6 +60,7 @@ public class HibernateInterceptorsWrapper extends EmptyInterceptor implements Se
                 propertyNames, types);
         entityValidationInterceptor.onFlushDirty(entity, id, currentState, previousState,
                 propertyNames, types);
+        sessionsUpdateInterceptor.onFlushDirty(entity, id, currentState, previousState, propertyNames, types);
         return false;
     }
 
@@ -67,7 +70,14 @@ public class HibernateInterceptorsWrapper extends EmptyInterceptor implements Se
     {
         dynamicPropertiesInterceptor.onSave(entity, id, state, propertyNames, types);
         entityValidationInterceptor.onSave(entity, id, state, propertyNames, types);
+        sessionsUpdateInterceptor.onSave(entity, id, state, propertyNames, types);
         return false;
+    }
+
+    @Override
+    public void onDelete(Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types)
+    {
+        sessionsUpdateInterceptor.onDelete(entity, id, state, propertyNames, types);
     }
 
     // This method is only overriden in dynamic property interceptor
@@ -75,6 +85,7 @@ public class HibernateInterceptorsWrapper extends EmptyInterceptor implements Se
     public void afterTransactionCompletion(Transaction tx)
     {
         dynamicPropertiesInterceptor.afterTransactionCompletion(tx);
+        sessionsUpdateInterceptor.afterTransactionCompletion(tx);
     }
 
     // This method is only overriden in entity validation interceptor

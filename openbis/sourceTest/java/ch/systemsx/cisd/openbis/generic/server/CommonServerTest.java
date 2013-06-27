@@ -477,8 +477,6 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(roleAssignmentTable).add(with(assignmentMatcher));
                     one(roleAssignmentTable).save();
 
-                    one(sessionManager).updateAllSessions(daoFactory);
-
                 }
             });
 
@@ -502,8 +500,6 @@ public final class CommonServerTest extends AbstractServerTestCase
 
                     one(roleAssignmentTable).add(with(assignmentMatcher));
                     one(roleAssignmentTable).save();
-
-                    one(sessionManager).updateAllSessions(daoFactory);
                 }
             });
 
