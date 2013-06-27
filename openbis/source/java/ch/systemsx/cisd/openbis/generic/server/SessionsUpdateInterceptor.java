@@ -25,6 +25,7 @@ import org.hibernate.type.Type;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author Jakub Straszewski
@@ -37,7 +38,7 @@ public class SessionsUpdateInterceptor extends EmptyInterceptor
 
     private IDAOFactory daoFactory;
 
-    private boolean rolesAssignmentsChanged;
+    private boolean sessionsUpdateNeeded;
 
     public SessionsUpdateInterceptor(OpenBisSessionManager openBisSessionManager, IDAOFactory daoFactory)
     {
@@ -48,35 +49,45 @@ public class SessionsUpdateInterceptor extends EmptyInterceptor
     @Override
     public boolean onFlushDirty(Object entity, Serializable id, Object[] currentState, Object[] previousState, String[] propertyNames, Type[] types)
     {
-        checkEntity(entity);
+        checkRoleAssignment(entity);
         return false;
     }
 
     @Override
     public void onDelete(Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types)
     {
-        checkEntity(entity);
+        checkRoleAssignment(entity);
+        checkSpace(entity);
     }
 
     @Override
     public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types)
     {
-        checkEntity(entity);
+        checkRoleAssignment(entity);
         return false;
     }
 
-    private void checkEntity(Object entity)
+    private void checkRoleAssignment(Object entity)
     {
         if (entity instanceof RoleAssignmentPE)
         {
-            rolesAssignmentsChanged = true;
+            sessionsUpdateNeeded = true;
+        }
+    }
+
+    private void checkSpace(Object entity)
+    {
+
+        if (entity instanceof SpacePE)
+        {
+            sessionsUpdateNeeded = true;
         }
     }
 
     @Override
     public void afterTransactionCompletion(Transaction tx)
     {
-        if (rolesAssignmentsChanged && tx.wasCommitted())
+        if (sessionsUpdateNeeded && tx.wasCommitted())
         {
             openBisSessionManager.updateAllSessions(daoFactory);
         }

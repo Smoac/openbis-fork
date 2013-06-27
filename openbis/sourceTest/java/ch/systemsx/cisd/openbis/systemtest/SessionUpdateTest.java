@@ -16,12 +16,13 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
-import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import junit.framework.Assert;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
@@ -76,6 +78,29 @@ public class SessionUpdateTest extends SystemTestCase
     }
 
     @Test
+    public void testSpaceWithRoleAssignmentDeleted()
+    {
+        String sessionTokenForInstanceAdmin = commonServer.tryAuthenticate("test", "a").getSessionToken();
+
+        // reproduce
+
+        AtomicEntityOperationDetails eo =
+                new EntityOperationBuilder().user(ADMIN).space("TEST_SPACE_1", "test_space").create();
+
+        etlService.performEntityOperations(sessionTokenForInstanceAdmin, eo);
+
+        String sessionTokenForSpaceAdmin = commonServer.tryAuthenticate("test_space", "a").getSessionToken();
+
+        List<Space> spaces = commonServer.listSpaces(sessionTokenForSpaceAdmin, DatabaseInstanceIdentifier.HOME_INSTANCE);
+        Space space = findSpace(spaces, "TEST_SPACE_1");
+
+        commonServer.deleteSpaces(sessionTokenForInstanceAdmin, Arrays.asList(new TechId(space.getId())), "no reason");
+
+        commonServer.updateDisplaySettings(sessionTokenForSpaceAdmin,
+                new ColumnDisplaySettingsUpdate("id_a_b_C", Collections.<ColumnSetting> emptyList()));
+    }
+
+    @Test
     public void testRoleAssingmentDeleted()
     {
         String sessionTokenForInstanceAdmin = commonServer.tryAuthenticate("test", "a").getSessionToken();
@@ -102,15 +127,15 @@ public class SessionUpdateTest extends SystemTestCase
         String sessionTokenForSpaceAdmin = commonServer.tryAuthenticate("test_space", "a").getSessionToken();
 
         List<Space> spaces = commonServer.listSpaces(sessionTokenForSpaceAdmin, DatabaseInstanceIdentifier.createHome());
-        int matchingSpaces = containstSpace(spaces, spaceCode);
-        assertEquals(spaceCode + " should not be in test_space user groups before the role assignment" + spaces, 0, matchingSpaces);
+        boolean matchingSpaces = containsSpace(spaces, spaceCode);
+        Assert.assertFalse(spaceCode + " should not be in test_space user groups before the role assignment" + spaces, matchingSpaces);
 
         commonServer.registerSpaceRole(sessionTokenForInstanceAdmin, RoleCode.ADMIN,
                 new SpaceIdentifier(spaceCode), Grantee.createPerson("test_space"));
 
         spaces = commonServer.listSpaces(sessionTokenForSpaceAdmin, DatabaseInstanceIdentifier.createHome());
-        matchingSpaces = containstSpace(spaces, spaceCode);
-        assertEquals("Couldn't find " + spaceCode + " space in spaces of test_space user. Found only " + spaces, 1, matchingSpaces);
+        matchingSpaces = containsSpace(spaces, spaceCode);
+        Assert.assertTrue("Couldn't find " + spaceCode + " space in spaces of test_space user. Found only " + spaces, matchingSpaces);
 
         // cleanup
 
@@ -119,7 +144,7 @@ public class SessionUpdateTest extends SystemTestCase
 
     }
 
-    private int containstSpace(List<Space> spaces, final String spaceCode)
+    private boolean containsSpace(List<Space> spaces, final String spaceCode)
     {
         int matchingSpaces = CollectionUtils.countMatches(spaces, new Predicate<Space>()
             {
@@ -130,7 +155,20 @@ public class SessionUpdateTest extends SystemTestCase
                 }
 
             });
-        return matchingSpaces;
+        return matchingSpaces > 0;
+    }
+
+    private Space findSpace(List<Space> spaces, final String spaceCode)
+    {
+        return CollectionUtils.find(spaces, new Predicate<Space>()
+            {
+                @Override
+                public boolean evaluate(Space object)
+                {
+                    return object.getCode().equals(spaceCode);
+                }
+
+            });
     }
 
 }
