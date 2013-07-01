@@ -157,7 +157,6 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
         if (session == null)
         {
             session = request.getSession(true);
-            session.setAttribute("openbis-session-id", sessionIdOrNull);
             ConfigParameters configParameters = applicationContext.getConfigParameters();
             session.setMaxInactiveInterval(configParameters.getSessionTimeout());
 
@@ -168,8 +167,13 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
             appendServletSessionTimeout(sb);
             operationLog.info(sb.toString());
         }
+        if (sessionIdOrNull != null)
+        {
+            session.setAttribute("openbis-session-id", sessionIdOrNull);
+        }
 
-        if (applicationContext.getSessionTokenCache().isValidSessionToken(session.getAttribute("openbis-session-id").toString()) == false)
+        String sessionToken = session.getAttribute("openbis-session-id").toString();
+        if (applicationContext.getSessionTokenCache().isValidSessionToken(sessionToken) == false)
         {
             return null;
         }
