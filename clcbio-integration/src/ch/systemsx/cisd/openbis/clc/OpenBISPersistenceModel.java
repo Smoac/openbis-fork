@@ -3,6 +3,7 @@ package ch.systemsx.cisd.openbis.clc;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import com.clcbio.api.base.attribute_custom.CustomAttribute;
 import com.clcbio.api.base.persistence.PersistenceException;
@@ -16,6 +17,10 @@ import com.clcbio.api.base.persistence.model.RecycleBin;
 import com.clcbio.api.free.datatypes.ClcObject;
 import com.clcbio.api.free.datatypes.project.FolderObject;
 
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.OpenbisServiceFacade;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+
 /**
  * Dummy openBIS persistence model.
  * 
@@ -24,15 +29,19 @@ import com.clcbio.api.free.datatypes.project.FolderObject;
 public class OpenBISPersistenceModel extends BasePersistenceContainer implements PersistenceModel
 {
 
-    private List<PersistenceStructure> spaces;
+    private IOpenbisServiceFacade openbis;
 
     public OpenBISPersistenceModel(String name)
     {
         super(name, null, null);
-        spaces = new ArrayList<PersistenceStructure>();
-        spaces.add(new Folder("space1", this, this));
-        spaces.add(new Folder("space2", this, this));
-        spaces.add(new Folder("space3", this, this));
+        this.id = UUID.randomUUID().toString();
+        this.openbis = OpenbisServiceFacade.tryCreate("selenium", "password", "http://localhost:10000", 1000000L);
+    }
+
+    public static OpenBISPersistenceModel create(String name)
+    {
+        System.err.println("OpenBISPersistenceModel: static create with name " + name);
+        return new OpenBISPersistenceModel(name);
     }
 
     @Override
@@ -45,7 +54,7 @@ public class OpenBISPersistenceModel extends BasePersistenceContainer implements
     public Iterator<PersistenceStructure> list() throws PersistenceException
     {
         System.err.println(id + ": list()");
-        return spaces.iterator();
+        return getSpacesFromOpenBIS().iterator();
     }
 
     @Override
@@ -93,7 +102,7 @@ public class OpenBISPersistenceModel extends BasePersistenceContainer implements
     public PersistenceStructure fetch(String childId) throws PersistenceException
     {
         System.err.println(id + ": fetch(" + childId + ")");
-        for (PersistenceStructure child : spaces)
+        for (PersistenceStructure child : getSpacesFromOpenBIS())
         {
             if (child.getId().equals(childId))
             {
@@ -114,7 +123,7 @@ public class OpenBISPersistenceModel extends BasePersistenceContainer implements
     public Object[] getArgumentsToStaticCreate()
     {
         System.err.println(id + ": getArgumentsToStaticCreate()");
-        return new Object[0];
+        return new Object[] { "openBIS" };
     }
 
     @Override
@@ -202,5 +211,15 @@ public class OpenBISPersistenceModel extends BasePersistenceContainer implements
     {
         System.err.println(id + ": getType()");
         return FolderObject.class;
+    }
+
+    private List<PersistenceStructure> getSpacesFromOpenBIS()
+    {
+        List<PersistenceStructure> spaces = new ArrayList<PersistenceStructure>();
+        for (SpaceWithProjectsAndRoleAssignments a : openbis.getSpacesWithProjects())
+        {
+            spaces.add(new Folder(a.getCode(), this, this));
+        }
+        return spaces;
     }
 }
