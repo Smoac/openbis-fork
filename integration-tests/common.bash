@@ -172,6 +172,26 @@ function assert_pattern_present {
   fi 
 }
 
+function wait_on_pattern_present {
+    local file=$1
+    local pattern=$2
+    local timeout=$3
+    
+    for (( i=0; i < $timeout; i++ )) ; do  
+        echo -n "."
+        sleep 1
+        if [ -f "$file" ]; then
+            local lines=`cat $file | grep -i "$pattern" | wc -l`
+            if [ $lines -gt 0 ]; then
+                echo finished
+                echo [OK] "Pattern '$pattern' found in $file after $i seconds"
+                return
+            fi
+        fi
+    done
+    report_error "Pattern '$pattern' not found in $file after $timeout seconds"
+}
+
 function assert_files_number {
         local dir=$1
         local expected_files_count=$2
