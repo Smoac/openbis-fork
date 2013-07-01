@@ -21,7 +21,7 @@ public class Initialization extends Algo
     {
         super(applicationContext);
         PersistenceModelManager manager = PersistenceModelManager.getInstance();
-        PersistenceModel model = new OpenBISPersistenceModel();
+        PersistenceModel model = new OpenBISPersistenceModel("openBIS");
         manager.insertPersistenceModels(new PersistenceModel[] { model });
         PersistenceModelDescriptionBean modelDescription = new PersistenceModelDescriptionBean(model);
         manager.mountPersistenceModels(modelDescription, "openBIS");
