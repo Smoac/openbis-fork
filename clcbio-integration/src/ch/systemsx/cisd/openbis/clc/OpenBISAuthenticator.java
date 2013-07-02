@@ -31,118 +31,125 @@ import com.clcbio.api.base.persistence.accesscontrol.UsersGroupsChangedListener;
 public class OpenBISAuthenticator extends Authenticator
 {
 
+    private String creator;
+
+    public OpenBISAuthenticator(String creator)
+    {
+        this.creator = creator;
+    }
+
     @Override
     public void addGroup(String arg0, Session arg1) throws UserGroupException
     {
-        System.err.println("OpenBISAuthenticator.addGroup: " + arg0 + ", " + arg1);
+        System.err.println(creator + ": OpenBISAuthenticator.addGroup: " + arg0 + ", " + arg1);
     }
 
     @Override
     public void addListener(UsersGroupsChangedListener arg0)
     {
-        System.err.println("OpenBISAuthenticator.addListener: " + arg0);
+        System.err.println(creator + ": OpenBISAuthenticator.addListener: " + arg0);
     }
 
     @Override
     public void addUser(String arg0, String arg1, Session arg2) throws AuthenticationFailureException
     {
-        System.err.println("OpenBISAuthenticator.addUser: " + arg0 + ", " + arg1 + ", " + arg2);
+        System.err.println(creator + ": OpenBISAuthenticator.addUser: " + arg0 + ", " + arg1 + ", " + arg2);
     }
 
     @Override
     public void addUserToGroup(String arg0, String arg1, Session arg2) throws UserGroupException
     {
-        System.err.println("OpenBISAuthenticator.addUserToGroup: " + arg0 + ", " + arg1 + ", " + arg2);
+        System.err.println(creator + ": OpenBISAuthenticator.addUserToGroup: " + arg0 + ", " + arg1 + ", " + arg2);
     }
 
     @Override
     public void authorize(String arg0, String arg1) throws AuthenticationFailureException
     {
-        System.err.println("OpenBISAuthenticator.authorize: " + arg0 + ", " + arg1);
+        System.err.println(creator + ": OpenBISAuthenticator.authorize: " + arg0 + ", " + arg1);
     }
 
     @Override
     public void checkAdminPermission() throws PersistenceException
     {
-        System.err.println("OpenBISAuthenticator.checkAdminPermission");
+        System.err.println(creator + ": OpenBISAuthenticator.checkAdminPermission");
     }
 
     @Override
     public void deauthorize(String arg0)
     {
-        System.err.println("OpenBISAuthenticator.deauthorize: " + arg0);
+        System.err.println(creator + ": OpenBISAuthenticator.deauthorize: " + arg0);
     }
 
     @Override
     public String getAdminGroupID()
     {
-        System.err.println("OpenBISAuthenticator.getAdminGroupID");
+        System.err.println(creator + ": OpenBISAuthenticator.getAdminGroupID");
         return "ADMINS";
     }
 
     @Override
     public List<String> getAllGroups(Session arg0) throws UserGroupException
     {
-        System.err.println("OpenBISAuthenticator.getAllGroups: " + arg0);
+        System.err.println(creator + ": OpenBISAuthenticator.getAllGroups: " + arg0);
         return new ArrayList<String>();
     }
 
     @Override
     public List<String> getGroups(String arg0, Session arg1) throws UserGroupException
     {
-        System.err.println("OpenBISAuthenticator.getGroups: " + arg0 + ", " + arg1);
+        System.err.println(creator + ": OpenBISAuthenticator.getGroups: " + arg0 + ", " + arg1);
         return null;
     }
 
     @Override
     public List<String> getUsers(Session arg0)
     {
-        System.err.println("OpenBISAuthenticator.getUsers: " + arg0);
+        System.err.println(creator + ": OpenBISAuthenticator.getUsers: " + arg0);
         return new ArrayList<String>();
     }
 
     @Override
     public List<String> getUsersInGroup(String arg0, Session arg1) throws UserGroupException
     {
-        System.err.println("OpenBISAuthenticator.getUsersInGroup: " + arg0 + ", " + arg1);
+        System.err.println(creator + ": OpenBISAuthenticator.getUsersInGroup: " + arg0 + ", " + arg1);
         return new ArrayList<String>();
     }
 
     @Override
     public boolean isEditable()
     {
-        System.err.println("OpenBISAuthenticator.isEditable");
+        System.err.println(creator + ": OpenBISAuthenticator.isEditable");
         return true;
     }
 
     @Override
     public void removeGroup(String arg0, Session arg1) throws UserGroupException
     {
-        System.err.println("OpenBISAuthenticator.removeGroup: " + arg0 + ", " + arg1);
+        System.err.println(creator + ": OpenBISAuthenticator.removeGroup: " + arg0 + ", " + arg1);
     }
 
     @Override
     public void removeListener(UsersGroupsChangedListener arg0)
     {
-        System.err.println("OpenBISAuthenticator.removeListener: " + arg0);
+        System.err.println(creator + ": OpenBISAuthenticator.removeListener: " + arg0);
     }
 
     @Override
     public void removeUser(String arg0, Session arg1) throws AuthenticationFailureException
     {
-        System.err.println("OpenBISAuthenticator.removeUser: " + arg0 + ", " + arg1);
+        System.err.println(creator + ": OpenBISAuthenticator.removeUser: " + arg0 + ", " + arg1);
     }
 
     @Override
     public void removeUserFromGroup(String arg0, String arg1, Session arg2) throws UserGroupException
     {
-        System.err.println("OpenBISAuthenticator.removeUserFromGroup: " + arg0 + ", " + arg1 + ", " + arg2);
+        System.err.println(creator + ": OpenBISAuthenticator.removeUserFromGroup: " + arg0 + ", " + arg1 + ", " + arg2);
     }
 
     @Override
     public void setPassword(String arg0, String arg1, Session arg2) throws AuthenticationFailureException
     {
-        System.err.println("OpenBISAuthenticator.setPassword: " + arg0 + ", " + arg1 + ", " + arg2);
+        System.err.println(creator + ": OpenBISAuthenticator.setPassword: " + arg0 + ", " + arg1 + ", " + arg2);
     }
 
 }

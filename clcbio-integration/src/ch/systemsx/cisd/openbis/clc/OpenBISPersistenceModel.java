@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package ch.systemsx.cisd.openbis.clc;
 
 import java.util.ArrayList;
@@ -15,46 +31,19 @@ import com.clcbio.api.base.persistence.model.PersistenceStructureScore;
 import com.clcbio.api.base.persistence.model.PersistenceTransaction;
 import com.clcbio.api.base.persistence.model.RecycleBin;
 import com.clcbio.api.free.datatypes.ClcObject;
-import com.clcbio.api.free.datatypes.project.FolderObject;
-
-import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
-import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.OpenbisServiceFacade;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import com.clcbio.api.free.datatypes.project.LocationObject;
 
 /**
- * Dummy openBIS persistence model.
- * 
  * @author anttil
  */
-public class OpenBISPersistenceModel extends BasePersistenceContainer implements PersistenceModel
+public class OpenBISPersistenceModel extends Folder implements PersistenceModel
 {
 
-    private IOpenbisServiceFacade openbis;
-
-    public OpenBISPersistenceModel(String name)
+    public OpenBISPersistenceModel(String name, ContentProvider content)
     {
-        super(name, null, null);
+        super(name, null, null, content);
         this.id = UUID.randomUUID().toString();
-        this.openbis = OpenbisServiceFacade.tryCreate("selenium", "password", "http://localhost:10000", 1000000L);
-    }
-
-    public static OpenBISPersistenceModel create(String name)
-    {
-        System.err.println("OpenBISPersistenceModel: static create with name " + name);
-        return new OpenBISPersistenceModel(name);
-    }
-
-    @Override
-    public PersistenceModel getPersistenceModel()
-    {
-        return this;
-    }
-
-    @Override
-    public Iterator<PersistenceStructure> list() throws PersistenceException
-    {
-        System.err.println(id + ": list()");
-        return getSpacesFromOpenBIS().iterator();
+        this.model = this;
     }
 
     @Override
@@ -99,17 +88,17 @@ public class OpenBISPersistenceModel extends BasePersistenceContainer implements
     }
 
     @Override
-    public PersistenceStructure fetch(String childId) throws PersistenceException
+    public PersistenceStructure fetch(String structureId) throws PersistenceException
     {
-        System.err.println(id + ": fetch(" + childId + ")");
-        for (PersistenceStructure child : getSpacesFromOpenBIS())
+        try
         {
-            if (child.getId().equals(childId))
-            {
-                return child;
-            }
+            ContentSearch search = new ContentSearch(structureId);
+            return search.runOn(this);
+        } catch (RuntimeException e)
+        {
+            e.printStackTrace();
+            throw e;
         }
-        throw new PersistenceException("Could not find " + childId);
     }
 
     @Override
@@ -203,23 +192,13 @@ public class OpenBISPersistenceModel extends BasePersistenceContainer implements
     public ClcObject getObject()
     {
         System.err.println(id + ": getObject()");
-        return new FolderObject(this);
+        return new LocationObject(this);
     }
 
     @Override
     public Class<?> getType()
     {
         System.err.println(id + ": getType()");
-        return FolderObject.class;
-    }
-
-    private List<PersistenceStructure> getSpacesFromOpenBIS()
-    {
-        List<PersistenceStructure> spaces = new ArrayList<PersistenceStructure>();
-        for (SpaceWithProjectsAndRoleAssignments a : openbis.getSpacesWithProjects())
-        {
-            spaces.add(new Folder(a.getCode(), this, this));
-        }
-        return spaces;
+        return LocationObject.class;
     }
 }

@@ -9,6 +9,9 @@ import com.clcbio.api.base.persistence.model.PersistenceModelManager;
 import com.clcbio.api.base.session.ApplicationContext;
 import com.clcbio.api.free.framework.persistence.model.PersistenceModelDescriptionBean;
 
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.OpenbisServiceFacade;
+
 /**
  * Dummy algorithm which does no calculation, but initializes openBIS persistence model.
  * 
@@ -21,7 +24,8 @@ public class Initialization extends Algo
     {
         super(applicationContext);
         PersistenceModelManager manager = PersistenceModelManager.getInstance();
-        PersistenceModel model = new OpenBISPersistenceModel("openBIS");
+        IOpenbisServiceFacade openbis = OpenbisServiceFacade.tryCreate("selenium", "password", "http://localhost:10000", 1000000L);
+        PersistenceModel model = new OpenBISPersistenceModel("openBIS", new SpaceProvider(openbis));
         manager.insertPersistenceModels(new PersistenceModel[] { model });
         PersistenceModelDescriptionBean modelDescription = new PersistenceModelDescriptionBean(model);
         manager.mountPersistenceModels(modelDescription, "openBIS");

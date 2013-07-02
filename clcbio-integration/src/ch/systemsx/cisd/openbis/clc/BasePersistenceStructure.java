@@ -62,7 +62,7 @@ public abstract class BasePersistenceStructure implements PersistenceStructure
     @Override
     public String getName()
     {
-        System.err.println(id + ": : getName()");
+        System.err.println(id + ": getName()");
         return name;
     }
 
@@ -73,11 +73,7 @@ public abstract class BasePersistenceStructure implements PersistenceStructure
     }
 
     @Override
-    public Icon getIcon()
-    {
-        System.err.println(id + ": getIcon()");
-        return new DummyIcon();
-    }
+    public abstract Icon getIcon();
 
     @Override
     public abstract ClcObject getObject();

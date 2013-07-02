@@ -16,33 +16,16 @@
 
 package ch.systemsx.cisd.openbis.clc;
 
-import java.awt.Component;
-import java.awt.Graphics;
+import java.util.Collection;
 
-import javax.swing.Icon;
+import com.clcbio.api.base.persistence.model.PersistenceContainer;
+import com.clcbio.api.base.persistence.model.PersistenceModel;
+import com.clcbio.api.base.persistence.model.PersistenceStructure;
 
 /**
  * @author anttil
  */
-public class DummyIcon implements Icon
+public interface ContentProvider
 {
-
-    @Override
-    public int getIconHeight()
-    {
-        return 10;
-    }
-
-    @Override
-    public int getIconWidth()
-    {
-        return 10;
-    }
-
-    @Override
-    public void paintIcon(Component arg0, Graphics arg1,
-            int arg2, int arg3)
-    {
-    }
-
+    Collection<PersistenceStructure> getContent(PersistenceContainer parent, PersistenceModel model);
 }
