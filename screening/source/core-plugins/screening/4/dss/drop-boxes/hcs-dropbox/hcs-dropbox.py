@@ -78,6 +78,7 @@ def process(transaction):
         imageDataset.setRawImageDatasetType()
         imageDataset.setGenerateThumbnails(True)
         imageDataset.setUseImageMagicToGenerateThumbnails(False)
+        imageDataset.addGeneratedImageRepresentationWithResolution("512x512")
         plate = create_plate_if_needed(transaction)
         dataset = transaction.createNewImageDataSet(imageDataset, incoming);
         dataset.setSample(plate)

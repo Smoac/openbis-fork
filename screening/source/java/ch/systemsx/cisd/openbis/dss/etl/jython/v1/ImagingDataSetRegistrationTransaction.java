@@ -333,10 +333,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                 createImageContainerDataset(mainDataset, imageDataSetInformation,
                         containedDataSetCodes);
         containerDataset.setOriginalDataset(mainDataset);
-        for (IDataSet thumbnailDataset : thumbnailDatasets)
-        {
-            containerDataset.setThumbnailDatasets(Arrays.asList(thumbnailDataset));
-        }
+        containerDataset.setThumbnailDatasets(thumbnailDatasets);
         imageDataSetInformation.setContainerDatasetPermId(containerDataset.getDataSetCode());
 
         return containerDataset;
