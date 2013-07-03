@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -333,10 +332,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                 createImageContainerDataset(mainDataset, imageDataSetInformation,
                         containedDataSetCodes);
         containerDataset.setOriginalDataset(mainDataset);
-        for (IDataSet thumbnailDataset : thumbnailDatasets)
-        {
-            containerDataset.setThumbnailDatasets(Arrays.asList(thumbnailDataset));
-        }
+        containerDataset.setThumbnailDatasets(thumbnailDatasets);
         imageDataSetInformation.setContainerDatasetPermId(containerDataset.getDataSetCode());
 
         return containerDataset;
