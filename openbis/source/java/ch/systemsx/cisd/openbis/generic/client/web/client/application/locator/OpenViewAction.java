@@ -38,6 +38,11 @@ public class OpenViewAction implements IDelegatedAction
         this.viewLocator = viewLocator;
     }
 
+    public ViewLocator getViewLocator()
+    {
+        return viewLocator;
+    }
+
     /** @return true if executing this action would not result in opening any view */
     public boolean isEmpty()
     {
@@ -51,8 +56,7 @@ public class OpenViewAction implements IDelegatedAction
     }
 
     /**
-     * Opens the initial view and handles any user failure exceptions that may result in the
-     * process.
+     * Opens the initial view and handles any user failure exceptions that may result in the process.
      */
     protected void openView()
     {
