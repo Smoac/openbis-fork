@@ -29,6 +29,9 @@ def create_project_if_needed(transaction):
         create_space_if_needed(transaction)
         project = transaction.createNewProject(PROJECT_ID)
         project.setDescription("A demo project")
+        f = open("%s/%s" % (transaction.getIncoming().getPath(), "set1.txt"), 'r')
+        project.addAttachment("attachment.txt", 'Source Import File', 'Source Import File ', f.read())
+        f.close()
 
 def create_experiment_if_needed(transaction):
     exp = transaction.getExperiment(EXPERIMENT_ID)

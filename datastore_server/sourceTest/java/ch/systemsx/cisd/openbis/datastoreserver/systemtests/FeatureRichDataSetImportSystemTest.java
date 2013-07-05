@@ -26,8 +26,11 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -118,12 +121,19 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
     {
         List<Project> projects = openBISService.listProjects();
         boolean notFound = true;
+
         for (Project p : projects)
         {
             if (p.getIdentifier().equals("/RICH_SPACE/RICH_PROJECT"))
             {
                 notFound = false;
                 assertEquals("RICH_SPACE", p.getSpace().getCode());
+
+                IGeneralInformationService generalInformationService = ServiceProvider.getGeneralInformationService();
+                String sessionToken = generalInformationService.tryToAuthenticateForAllServices("test", "test");
+                List<Attachment> attachments =
+                        generalInformationService.listAttachmentsForProject(sessionToken, new ProjectTechIdId(p.getId()), true);
+                assertEquals(1, attachments.size());
             }
         }
         if (notFound)
