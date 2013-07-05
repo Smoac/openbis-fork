@@ -105,7 +105,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
             }
             result.setProjectLeader(leader);
         }
-        addAttachments(project, attachmentsOrNull, attachments);
+        addAttachments(result, attachmentsOrNull, attachments);
         return result;
     }
 
