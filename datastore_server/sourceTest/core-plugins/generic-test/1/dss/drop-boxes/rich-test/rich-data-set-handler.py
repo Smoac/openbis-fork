@@ -17,29 +17,25 @@ def post_metadata_registration(context):
     content = "post_metadata_registration rich %s " % context.getPersistentMap().get("email_text")
     sendMail(context, "Subject", content)
 
-def create_space_if_needed(transaction):
-    space = transaction.getSpace(SPACE_CODE)
-    if None == space:
-        space = transaction.createNewSpace(SPACE_CODE, None)
-        space.setDescription("A demo space")
+def add_attachment(entity, transaction):
+    f = open("%s/%s" % (transaction.getIncoming().getPath(), "set1.txt"), 'r')
+    entity.addAttachment("attachment.txt", 'Source Import File', 'Source Import File ', f.read())
+    f.close()
 
-def create_project_if_needed(transaction):
-    project = transaction.getProject(PROJECT_ID)
-    if None == project:
-        create_space_if_needed(transaction)
-        project = transaction.createNewProject(PROJECT_ID)
-        project.setDescription("A demo project")
-        f = open("%s/%s" % (transaction.getIncoming().getPath(), "set1.txt"), 'r')
-        project.addAttachment("attachment.txt", 'Source Import File', 'Source Import File ', f.read())
-        f.close()
 
-def create_experiment_if_needed(transaction):
-    exp = transaction.getExperiment(EXPERIMENT_ID)
-    if None == exp:
-        create_project_if_needed(transaction)
-        exp = transaction.createNewExperiment(EXPERIMENT_ID, 'SIRNA_HCS')
-        exp.setPropertyValue("DESCRIPTION", "A sample experiment")
+def create_space(transaction):
+    space = transaction.createNewSpace(SPACE_CODE, None)
+    space.setDescription("A demo space")
 
+def create_project(transaction):
+    project = transaction.createNewProject(PROJECT_ID)
+    project.setDescription("A demo project")
+    add_attachment(project, transaction)
+
+def create_experiment(transaction):
+    exp = transaction.createNewExperiment(EXPERIMENT_ID, 'SIRNA_HCS')
+    exp.setPropertyValue("DESCRIPTION", "A sample experiment")
+    add_attachment(exp, transaction)
     return exp
 
 def createMaterials(transaction):
@@ -49,6 +45,7 @@ def createMaterials(transaction):
 
 def createSamples(transaction):
     sample = transaction.createNewSample('/RICH_SPACE/SAMPLE123', 'DYNAMIC_PLATE')
+    add_attachment(sample, transaction)
 
 def updateMaterial(transaction):
     ma = transaction.getMaterialForUpdate("AD3", "VIRUS");
@@ -67,7 +64,9 @@ def createBacterias(transaction):
         
 def process(transaction):
     # create experiment
-    experiment = create_experiment_if_needed(transaction)
+    create_space(transaction)
+    create_project(transaction)
+    experiment = create_experiment(transaction)
     
     # register link data set
     link = transaction.createNewDataSet("LINK_TYPE", "FR_LINK_CODE")
