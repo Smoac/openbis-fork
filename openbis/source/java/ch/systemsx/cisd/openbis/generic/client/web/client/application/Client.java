@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Ma
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MetaprojectBrowserLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MetaprojectLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.OpenViewAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkEditingLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ProjectLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SampleRegistrationLocatorResolver;
@@ -439,6 +440,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         handlerRegistry.registerHandler(new ProjectLocatorResolver(context));
         handlerRegistry.registerHandler(new MetaprojectLocatorResolver(context));
         handlerRegistry.registerHandler(new AttachmentDownloadLocatorResolver(context));
+        handlerRegistry.registerHandler(new PermlinkEditingLocatorResolver(context));
         handlerRegistry.registerHandler(new PermlinkLocatorResolver(context));
 
         handlerRegistry.registerHandler(new SearchLocatorResolver(context));
