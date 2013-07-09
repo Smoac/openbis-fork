@@ -19,24 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ICallbackListener;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithCloseConfirmation;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations.IConfirmation;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations.IConfirmationChain;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint.DirtyChangeEvent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
-
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -56,6 +38,25 @@ import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.core.client.JavaScriptException;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ICallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithCloseConfirmation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations.IConfirmation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ButtonWithConfirmations.IConfirmationChain;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint.DirtyChangeEvent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IMessageElement;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 
 /**
  * An <i>abstract</i> registration form.
@@ -477,7 +478,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel implements
             setUploadEnabled(true);
         }
 
-        protected abstract String createSuccessfullRegistrationInfo(T result);
+        protected abstract List<? extends IMessageElement> createSuccessfullRegistrationInfo(T result);
 
         @Override
         public void finishOnFailure(final Throwable caught)

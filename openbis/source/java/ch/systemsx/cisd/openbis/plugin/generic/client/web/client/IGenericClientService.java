@@ -24,13 +24,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -43,9 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 /**
  * Service interface for the generic GWT client.
  * <p>
- * Each method should declare throwing {@link UserFailureException}. The authorization framework can
- * throw it when the user has insufficient privileges. If it is not marked, the GWT client will
- * report unexpected exception.
+ * Each method should declare throwing {@link UserFailureException}. The authorization framework can throw it when the user has insufficient
+ * privileges. If it is not marked, the GWT client will report unexpected exception.
  * </p>
  * 
  * @author Franz-Josef Elmer
@@ -67,7 +66,7 @@ public interface IGenericClientService extends IClientService
     /**
      * Registers a new sample.
      */
-    public void registerSample(final String sessionKey, final NewSample sample)
+    public Sample registerSample(final String sessionKey, final NewSample sample)
             throws UserFailureException;
 
     /**
@@ -76,8 +75,8 @@ public interface IGenericClientService extends IClientService
      * Uploaded files can be found as session attribute under given <var>sessionKey</var>.
      * </p>
      * 
-     * @param updateExisting if true and some entities already exist, they will be updated (instead
-     *            of throwing the exception and breaking the whole operation).
+     * @param updateExisting if true and some entities already exist, they will be updated (instead of throwing the exception and breaking the whole
+     *            operation).
      */
     public List<BatchRegistrationResult> registerSamples(final SampleType sampleType,
             final String sessionKey, String defaultGroupIdentifier, boolean updateExisting)
@@ -128,8 +127,8 @@ public interface IGenericClientService extends IClientService
      * Uploaded files can be found as session attribute under given <var>sessionKey</var>.
      * </p>
      * 
-     * @param updateExisting if true and some entities already exist, they will be updated (instead
-     *            of throwing the exception and breaking the whole operation).
+     * @param updateExisting if true and some entities already exist, they will be updated (instead of throwing the exception and breaking the whole
+     *            operation).
      */
     public List<BatchRegistrationResult> registerMaterials(final MaterialType materialType,
             boolean updateExisting, final String sessionKey, boolean async, String userEmail)
@@ -138,8 +137,7 @@ public interface IGenericClientService extends IClientService
     /**
      * Updates materials from a file which has been previously uploaded.
      * 
-     * @param ignoreUnregisteredMaterials If <code>true</code> materials in the uploaded file will
-     *            be ignored if they are not already registered.
+     * @param ignoreUnregisteredMaterials If <code>true</code> materials in the uploaded file will be ignored if they are not already registered.
      */
     public List<BatchRegistrationResult> updateMaterials(MaterialType materialType,
             String sessionKey, boolean ignoreUnregisteredMaterials, boolean async, String userEmail)

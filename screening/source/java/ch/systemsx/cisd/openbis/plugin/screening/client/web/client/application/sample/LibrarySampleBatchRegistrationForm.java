@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -34,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.E
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.AbstractSampleBatchRegistrationForm;
@@ -224,12 +227,12 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo(final Void result)
+        protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(final Void result)
         {
-            return viewContext
+            return Arrays.asList(new HtmlMessageElement(viewContext
                     .getMessage(
                             ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict.IMPORT_SCHEDULED_MESSAGE,
-                            emailField.getValue());
+                            emailField.getValue())));
         }
     }
 

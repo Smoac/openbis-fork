@@ -196,6 +196,12 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         Collection<MetaprojectPE> metaprojectPEs =
                 getDAOFactory().getMetaprojectDAO().listMetaprojectsForEntity(
                         session.tryGetPerson(), sample);
+        return translateSample(session, sample, metaprojectPEs);
+    }
+
+    private SampleParentWithDerived translateSample(final Session session, final SamplePE sample,
+            Collection<MetaprojectPE> metaprojectPEs)
+    {
         return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
                 .getSampleInfo(session, sample), session.getBaseIndexURL(), MetaprojectTranslator
                 .translate(metaprojectPEs), managedPropertyEvaluatorFactory);
@@ -212,7 +218,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void registerSample(final String sessionToken,
+    public Sample registerSample(final String sessionToken,
             @AuthorizationGuard(guardClass = NewSamplePredicate.class)
             final NewSample newSample, final Collection<NewAttachment> attachments)
     {
@@ -224,6 +230,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         newSample.setAttachments(new ArrayList<NewAttachment>(attachments));
         sampleBO.define(newSample);
         sampleBO.save();
+        return translateSample(session, sampleBO.tryToGetSample(), Collections.<MetaprojectPE> emptySet()).getParent();
     }
 
     public Experiment getExperimentInfo(final String sessionToken,

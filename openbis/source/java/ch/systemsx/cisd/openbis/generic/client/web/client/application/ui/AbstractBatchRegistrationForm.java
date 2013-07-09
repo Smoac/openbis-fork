@@ -2,6 +2,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -29,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 
@@ -43,7 +45,7 @@ public abstract class AbstractBatchRegistrationForm extends AbstractRegistration
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo(
+        protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(
                 final List<BatchRegistrationResult> result)
         {
             final StringBuilder builder = new StringBuilder();
@@ -53,7 +55,7 @@ public abstract class AbstractBatchRegistrationForm extends AbstractRegistration
                 builder.append(batchRegistrationResult.getMessage());
                 builder.append("<br />");
             }
-            return builder.toString();
+            return Arrays.asList(new HtmlMessageElement(builder.toString()));
         }
     }
 

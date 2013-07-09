@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project;
 
+import java.util.Arrays;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 
 /**
@@ -78,10 +82,10 @@ public class ProjectRegistrationForm extends AbstractProjectEditRegisterForm
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo(Void result)
+        protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(Void result)
         {
-            return "Project <b>" + project.getIdentifier().toUpperCase()
-                    + "</b> successfully registered.";
+            return Arrays.asList(new HtmlMessageElement("Project <b>" + project.getIdentifier().toUpperCase()
+                    + "</b> successfully registered."));
         }
     }
 

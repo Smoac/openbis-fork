@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.script;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.widget.Component;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -24,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
@@ -152,9 +156,9 @@ public class ScriptEditForm extends AbstractScriptEditRegisterForm
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo(ScriptUpdateResult result)
+        protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(ScriptUpdateResult result)
         {
-            return "Script <b>" + originalScript.getName() + "</b> successfully updated.";
+            return Arrays.asList(new HtmlMessageElement("Script <b>" + originalScript.getName() + "</b> successfully updated."));
         }
     }
 

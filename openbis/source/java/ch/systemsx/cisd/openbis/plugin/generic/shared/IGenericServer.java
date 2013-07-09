@@ -27,12 +27,12 @@ import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModificatio
 import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
@@ -52,11 +52,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 /**
  * Definition of the client-server interface.
  * <p>
- * Provides backend support for the "default" rendering of detail views (e.g. for samples,
- * materials, datasets) of the openBIS presentation layer. Plugins have the choice to either use
- * this "generic" functionality, or to implement/extend it on their own. {@link IGenericServer} can
- * be thought of as an optional convenience/utility service that goes together with the central
- * entity-type unspecific <code>ICommonServer</code>.
+ * Provides backend support for the "default" rendering of detail views (e.g. for samples, materials, datasets) of the openBIS presentation layer.
+ * Plugins have the choice to either use this "generic" functionality, or to implement/extend it on their own. {@link IGenericServer} can be thought
+ * of as an optional convenience/utility service that goes together with the central entity-type unspecific <code>ICommonServer</code>.
  * 
  * @author Franz-Josef Elmer
  */
@@ -66,8 +64,8 @@ public interface IGenericServer extends IServer
      * For given {@link TechId} returns the {@link Sample} and its derived (child) samples.
      * 
      * @return never <code>null</code>.
-     * @throws UserFailureException if given <var>sessionToken</var> is invalid or whether sample
-     *             uniquely identified by given <var>sampleId</var> does not exist.
+     * @throws UserFailureException if given <var>sessionToken</var> is invalid or whether sample uniquely identified by given <var>sampleId</var>
+     *             does not exist.
      */
     @Transactional(readOnly = true)
     public SampleParentWithDerived getSampleInfo(final String sessionToken, final TechId sampleId)
@@ -78,7 +76,7 @@ public interface IGenericServer extends IServer
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
-    public void registerSample(final String sessionToken, final NewSample newSample,
+    public Sample registerSample(final String sessionToken, final NewSample newSample,
             final Collection<NewAttachment> attachments);
 
     /**
@@ -125,7 +123,7 @@ public interface IGenericServer extends IServer
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.SAMPLE, ObjectKind.MATERIAL })
+    { ObjectKind.SAMPLE, ObjectKind.MATERIAL })
     public void registerOrUpdateSamplesAndMaterials(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType,
             List<NewMaterialsWithTypes> newMaterialsWithType) throws UserFailureException;
@@ -135,7 +133,7 @@ public interface IGenericServer extends IServer
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.SAMPLE, ObjectKind.MATERIAL })
+    { ObjectKind.SAMPLE, ObjectKind.MATERIAL })
     public void registerOrUpdateSamplesAndMaterialsAsync(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType,
             final List<NewMaterialsWithTypes> newMaterialsWithType, String userEmail)
@@ -154,7 +152,7 @@ public interface IGenericServer extends IServer
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
+    { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public void registerExperiment(String sessionToken, final NewExperiment experiment,
             final Collection<NewAttachment> attachments) throws UserFailureException;
@@ -202,8 +200,7 @@ public interface IGenericServer extends IServer
             boolean ignoreUnregisteredMaterials, String userEmail) throws UserFailureException;
 
     /**
-     * Registers new materials or if they exist updates in batch their properties (properties which
-     * are not mentioned stay unchanged).
+     * Registers new materials or if they exist updates in batch their properties (properties which are not mentioned stay unchanged).
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
@@ -211,8 +208,7 @@ public interface IGenericServer extends IServer
             throws UserFailureException;
 
     /**
-     * Asynchronously registers new materials or if they exist updates in batch their properties
-     * (properties which are not mentioned stay unchanged).
+     * Asynchronously registers new materials or if they exist updates in batch their properties (properties which are not mentioned stay unchanged).
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
@@ -245,7 +241,7 @@ public interface IGenericServer extends IServer
      */
     @Transactional
     @DatabaseUpdateModification(value =
-        { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
+    { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
     public ExperimentUpdateResult updateExperiment(String sessionToken, ExperimentUpdatesDTO updates);
 
     /**

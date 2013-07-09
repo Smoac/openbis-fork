@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.script;
 
+import java.util.Arrays;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.ScriptTypeSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
@@ -67,7 +71,7 @@ public class ScriptRegistrationForm extends AbstractScriptEditRegisterForm
         newScript.setPluginType(pluginType);
         newScript.setEntityKind(entityKindField.tryGetEntityKind() == null ? null
                 : new EntityKind[]
-                    { entityKindField.tryGetEntityKind() });
+                { entityKindField.tryGetEntityKind() });
         newScript.setAvailable(true);
         return newScript;
     }
@@ -84,9 +88,9 @@ public class ScriptRegistrationForm extends AbstractScriptEditRegisterForm
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo(Void result)
+        protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(Void result)
         {
-            return "Script <b>" + script.getName().toUpperCase() + "</b> successfully registered.";
+            return Arrays.asList(new HtmlMessageElement("Script <b>" + script.getName().toUpperCase() + "</b> successfully registered."));
         }
     }
 

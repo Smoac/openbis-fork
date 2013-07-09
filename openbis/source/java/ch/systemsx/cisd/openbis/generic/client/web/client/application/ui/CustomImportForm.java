@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
@@ -36,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelL
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
@@ -131,10 +135,9 @@ public class CustomImportForm extends AbstractRegistrationForm
                                     }
 
                                     @Override
-                                    protected String createSuccessfullRegistrationInfo(String result)
+                                    protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(String result)
                                     {
-                                        return result
-                                                + " succesfully uploaded to the datastore server.";
+                                        return Arrays.asList(new HtmlMessageElement(result + " succesfully uploaded to the datastore server."));
                                     }
 
                                     @Override

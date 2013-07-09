@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.GXT;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
@@ -191,7 +193,7 @@ public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatc
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo(
+        protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(
                 final List<BatchRegistrationResult> result)
         {
             final StringBuilder builder = new StringBuilder();
@@ -201,9 +203,8 @@ public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatc
                 builder.append(batchRegistrationResult.getMessage());
                 builder.append("<br />");
             }
-            return builder.toString();
+            return Arrays.asList(new HtmlMessageElement(builder.toString()));
         }
-
     }
 
 }

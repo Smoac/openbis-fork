@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -26,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
@@ -99,9 +101,9 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo(SampleUpdateResult result)
+        protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(SampleUpdateResult result)
         {
-            return "Sample successfully updated";
+            return Arrays.asList(new HtmlMessageElement("Sample successfully updated"));
         }
     }
 

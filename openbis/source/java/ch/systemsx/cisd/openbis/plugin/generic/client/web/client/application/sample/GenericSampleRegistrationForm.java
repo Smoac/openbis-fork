@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,8 +25,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionCont
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.EntityLinkMessageElement;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IMessageElement;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedInputWidgetDescription;
@@ -58,7 +64,7 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
 
     // public only for tests
     public final class RegisterSampleCallback extends
-            AbstractRegistrationForm.AbstractRegistrationCallback<Void>
+            AbstractRegistrationForm.AbstractRegistrationCallback<Sample>
     {
         public RegisterSampleCallback(IViewContext<?> viewContext)
         {
@@ -66,20 +72,25 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo(Void result)
+        protected List<? extends IMessageElement> createSuccessfullRegistrationInfo(Sample sample)
         {
-            String code = codeField.getValue();
             final Space selectedGroup = groupSelectionWidget.tryGetSelectedSpace();
+            String code = sample.getCode();
             boolean shared = SpaceSelectionWidget.isSharedSpace(selectedGroup);
+            List<IMessageElement> result = new ArrayList<IMessageElement>();
             if (shared)
             {
-                return "Shared sample <b>" + code + "</b> successfully registered";
-
+                result.add(new HtmlMessageElement("Shared sample"));
+                result.add(new EntityLinkMessageElement(viewContext, code, EntityKind.SAMPLE, sample.getPermId()));
+                result.add(new HtmlMessageElement("successfully registered"));
             } else
             {
-                return "Sample <b>" + code + "</b> successfully registered in space <b>"
-                        + selectedGroup.getCode() + "</b>";
+                result.add(new HtmlMessageElement("Sample"));
+                result.add(new EntityLinkMessageElement(viewContext, code, EntityKind.SAMPLE, sample.getPermId()));
+                result.add(new HtmlMessageElement("successfully registered in space <b>"
+                        + selectedGroup.getCode() + "</b>"));
             }
+            return result;
         }
     }
 

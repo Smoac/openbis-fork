@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -39,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.X
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularySelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -307,9 +311,9 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo(Void result)
+        protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(Void result)
         {
-            return "Property type <b>" + propertyType.getCode() + "</b> successfully registered.";
+            return Arrays.asList(new HtmlMessageElement("Property type <b>" + propertyType.getCode() + "</b> successfully registered."));
         }
     }
 

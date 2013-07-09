@@ -16,8 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
-import com.extjs.gxt.ui.client.widget.Html;
+import java.util.List;
+
+import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
+import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.BorderStyle;
 import com.google.gwt.dom.client.Style.Unit;
@@ -30,15 +36,13 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * Information panel that nicely informs a user about a certain action result. It should be used
- * instead of a {@link MessageBox} in some cases.
+ * Information panel that nicely informs a user about a certain action result. It should be used instead of a {@link MessageBox} in some cases.
  * 
  * @author Christian Ribeaud
  */
@@ -48,8 +52,6 @@ public final class InfoBox extends Composite implements IInfoHandler
 
     private static final String TRUNCATE_SUFFIX = "...";
 
-    private static final String PLACEHOLDER_TEXT = "X";
-
     private static final String WHITE = "#ffffff";
 
     private Panel mainPanel;
@@ -58,7 +60,7 @@ public final class InfoBox extends Composite implements IInfoHandler
 
     private InfoType messageType;
 
-    private Html truncatedMessageHtml;
+    private LayoutContainer message;
 
     private PopupDialogBasedInfoHandler fullMessageDialog;
 
@@ -77,7 +79,9 @@ public final class InfoBox extends Composite implements IInfoHandler
     public InfoBox(final IMessageProvider messageProvider,
             final HorizontalAlignmentConstant alignment)
     {
-        truncatedMessageHtml = new Html();
+        HBoxLayout messageLayout = new HBoxLayout();
+        message = new LayoutContainer(messageLayout);
+
         showFullMessageLink =
                 new Anchor(messageProvider.getMessage(Dict.INFO_BOX_SHOW_FULL_MESSAGE));
         showFullMessageLink.addClickHandler(new ClickHandler()
@@ -94,9 +98,10 @@ public final class InfoBox extends Composite implements IInfoHandler
                 }
             });
 
-        VerticalPanel verticalPanel = new VerticalPanel();
-        verticalPanel.setHorizontalAlignment(alignment);
-        verticalPanel.add(truncatedMessageHtml);
+        TableLayout layout = new TableLayout(1);
+        layout.setWidth("100%");
+        LayoutContainer verticalPanel = new LayoutContainer(layout);
+        verticalPanel.add(message);
         verticalPanel.add(showFullMessageLink);
 
         mainPanel = new SimplePanel();
@@ -128,6 +133,27 @@ public final class InfoBox extends Composite implements IInfoHandler
         display(text, InfoType.INFO);
     }
 
+    @Override
+    public void displayInfo(List<? extends IMessageElement> elements)
+    {
+        setInfoBoxStyle(InfoType.INFO);
+
+        for (IMessageElement element : elements)
+        {
+            message.add(element.render(), new HBoxLayoutData(new Margins(0, 5, 0, 0)));
+        }
+        message.layout(true);
+        getElement().scrollIntoView();
+    }
+
+    private void setInfoBoxStyle(InfoType type)
+    {
+        Style mainPanelStyle = mainPanel.getElement().getStyle();
+        mainPanelStyle.setColor("#000000");
+        mainPanelStyle.setBackgroundColor(type.getBackgroundColor());
+        mainPanelStyle.setBorderColor(type.getBorderColor());
+    }
+
     /**
      * Display given <var>text</var> as <i>progress</i> text.
      */
@@ -151,7 +177,7 @@ public final class InfoBox extends Composite implements IInfoHandler
                         dots = "...";
                     }
 
-                    truncatedMessageHtml.setHtml(truncate(text) + dots);
+                    addHtmlToMessage(truncate(text) + dots);
                 }
             };
         progressTimer.run();
@@ -170,21 +196,18 @@ public final class InfoBox extends Composite implements IInfoHandler
         }
         if (StringUtils.isBlank(text) == false)
         {
-            Style mainPanelStyle = mainPanel.getElement().getStyle();
-            mainPanelStyle.setColor("#000000");
-            mainPanelStyle.setBackgroundColor(type.getBackgroundColor());
-            mainPanelStyle.setBorderColor(type.getBorderColor());
+            setInfoBoxStyle(type);
 
             fullMessage = text;
             messageType = type;
 
             if (shouldTruncate(text))
             {
-                truncatedMessageHtml.setHtml(truncate(text));
+                addHtmlToMessage(truncate(text));
                 showFullMessageLink.setVisible(true);
             } else
             {
-                truncatedMessageHtml.setHtml(text);
+                addHtmlToMessage(text);
                 showFullMessageLink.setVisible(false);
             }
 
@@ -193,16 +216,21 @@ public final class InfoBox extends Composite implements IInfoHandler
                 fullMessageDialog.hide();
                 fullMessageDialog = null;
             }
-
             getElement().scrollIntoView();
         }
+    }
+
+    private void addHtmlToMessage(String messageElement)
+    {
+        message.removeAll();
+        message.add(new HtmlMessageElement(messageElement).render());
+        message.layout(true);
     }
 
     /**
      * Resets the info box.
      * <p>
-     * Background resp. border color are reset to <i>white</i>. And <i>HTML</i> text is reset to a
-     * placeholder default text.
+     * Background resp. border color are reset to <i>white</i>. And <i>HTML</i> text is reset to a placeholder default text.
      * </p>
      */
     public final void reset()
@@ -220,7 +248,7 @@ public final class InfoBox extends Composite implements IInfoHandler
         mainPanelStyle.setColor(WHITE);
 
         fullMessage = null;
-        truncatedMessageHtml.setHtml(PLACEHOLDER_TEXT);
+        message.removeAll();
         showFullMessageLink.setVisible(false);
 
         if (fullMessageDialog != null)

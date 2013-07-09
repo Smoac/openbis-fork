@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import java.util.Arrays;
+
 import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.google.gwt.xml.client.Document;
@@ -23,6 +25,7 @@ import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.XMLParser;
 
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IInfoHandler;
 
 /**
@@ -47,7 +50,7 @@ abstract public class FormPanelListener implements Listener<FormEvent>
         final String type = typeNode.getNodeValue();
         if ("info".equals(type))
         {
-            infoBox.displayInfo(messageText);
+            infoBox.displayInfo(Arrays.asList(new HtmlMessageElement(messageText)));
         } else
         {
             infoBox.displayError(messageText);

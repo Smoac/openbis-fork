@@ -27,11 +27,11 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithType;
@@ -58,8 +59,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 final class GenericServerLogger extends AbstractServerLogger implements IGenericServer
 {
     /**
-     * Creates an instance for the specified session manager invocation status and elapsed time. The
-     * session manager is used to retrieve user information which will be a part of the log message.
+     * Creates an instance for the specified session manager invocation status and elapsed time. The session manager is used to retrieve user
+     * information which will be a part of the log message.
      */
     GenericServerLogger(final ISessionManager<Session> sessionManager,
             IInvocationLoggerContext context)
@@ -87,11 +88,12 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     }
 
     @Override
-    public void registerSample(final String sessionToken, final NewSample newSample,
+    public Sample registerSample(final String sessionToken, final NewSample newSample,
             final Collection<NewAttachment> attachments)
     {
         logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%S) ATTACHMENTS(%S)",
                 newSample.getSampleType(), newSample.getIdentifier(), attachments.size());
+        return null;
     }
 
     @Override

@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailure
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.exception.SampleUniqueCodeViolationExceptionAbstract;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AsyncBatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
@@ -51,7 +52,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialBatchUpdateResultMessage;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -148,17 +148,22 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     @Override
-    public final void registerSample(final String sessionKey, final NewSample newSample)
+    public final Sample registerSample(final String sessionKey, final NewSample newSample)
     {
         final String sessionToken = getSessionToken();
-        new AttachmentRegistrationHelper()
+        class SampleRegistrationHelper extends AttachmentRegistrationHelper
+        {
+            Sample sample;
+
+            @Override
+            public void register(Collection<NewAttachment> attachments)
             {
-                @Override
-                public void register(Collection<NewAttachment> attachments)
-                {
-                    genericServer.registerSample(sessionToken, newSample, attachments);
-                }
-            }.process(sessionKey, getHttpSession(), newSample.getAttachments());
+                sample = genericServer.registerSample(sessionToken, newSample, attachments);
+            }
+        }
+        final SampleRegistrationHelper sampleRegistrationHelper = new SampleRegistrationHelper();
+        sampleRegistrationHelper.process(sessionKey, getHttpSession(), newSample.getAttachments());
+        return sampleRegistrationHelper.sample;
     }
 
     @Override

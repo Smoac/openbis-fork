@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
@@ -124,9 +126,9 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo(ExperimentUpdateResult result)
+        protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(ExperimentUpdateResult result)
         {
-            return "Experiment successfully updated";
+            return Arrays.asList(new HtmlMessageElement("Experiment successfully updated"));
         }
 
     }

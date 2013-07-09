@@ -16,11 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.metaproject.form;
 
+import java.util.Arrays;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 
 /**
@@ -77,9 +81,9 @@ public class MetaprojectEditForm extends AbstractMetaprojectEditRegisterForm
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo(Metaproject result)
+        protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(Metaproject result)
         {
-            return "Metaproject <b>" + originalMetaproject.getName() + "</b> successfully updated.";
+            return Arrays.asList(new HtmlMessageElement("Metaproject <b>" + originalMetaproject.getName() + "</b> successfully updated."));
         }
     }
 

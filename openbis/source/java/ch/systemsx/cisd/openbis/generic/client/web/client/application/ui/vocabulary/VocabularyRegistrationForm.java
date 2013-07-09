@@ -16,6 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
+import java.util.Arrays;
+import java.util.List;
+
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -23,12 +30,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ICallbackL
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.AddVocabularyDialog.VocabularyPopUpCallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 
 /**
  * Form allowing to register new vocabularies.
@@ -106,9 +110,9 @@ public final class VocabularyRegistrationForm extends AbstractRegistrationForm
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo(Void result)
+        protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(Void result)
         {
-            return "Vocabulary <b>" + vocabulary.getCode() + "</b> successfully registered.";
+            return Arrays.asList(new HtmlMessageElement("Vocabulary <b>" + vocabulary.getCode() + "</b> successfully registered."));
         }
     }
 

@@ -1,5 +1,9 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
+import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CallbackListenerAdapter;
@@ -8,12 +12,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationForm.VocabularyRegistrationCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-
-import com.extjs.gxt.ui.client.widget.Label;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class AddVocabularyDialog extends AbstractRegistrationDialog
 {
@@ -36,7 +37,14 @@ public class AddVocabularyDialog extends AbstractRegistrationDialog
         public void finishOnSuccessOf(final AbstractAsyncCallback<Void> callback, final Void result)
         {
             VocabularyRegistrationCallback vocabularyCallback = (VocabularyRegistrationCallback) callback;
-            MessageBox.info("Success", vocabularyCallback.createSuccessfullRegistrationInfo(null), null);
+
+            StringBuilder html = new StringBuilder();
+            for (HtmlMessageElement element : vocabularyCallback.createSuccessfullRegistrationInfo(null))
+            {
+                html.append(element.getHtml());
+            }
+
+            MessageBox.info("Success", html.toString(), null);
             postRegistrationCallback.execute();
             hide();
         }

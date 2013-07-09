@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.da
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsH
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
@@ -170,7 +172,7 @@ public final class GenericDataSetBatchUpdateForm extends AbstractRegistrationFor
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo(
+        protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(
                 final List<BatchRegistrationResult> result)
         {
             final StringBuilder builder = new StringBuilder();
@@ -180,7 +182,7 @@ public final class GenericDataSetBatchUpdateForm extends AbstractRegistrationFor
                 builder.append(batchRegistrationResult.getMessage());
                 builder.append("<br />");
             }
-            return builder.toString();
+            return Arrays.asList(new HtmlMessageElement(builder.toString()));
         }
 
     }

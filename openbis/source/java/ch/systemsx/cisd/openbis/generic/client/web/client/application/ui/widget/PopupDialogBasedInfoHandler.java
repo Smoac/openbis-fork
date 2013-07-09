@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Label;
@@ -113,6 +115,17 @@ public class PopupDialogBasedInfoHandler extends Dialog implements IInfoHandler
         textArea.setValue(textWithoutTags);
 
         layout();
+    }
+
+    @Override
+    public void displayInfo(List<? extends IMessageElement> elements)
+    {
+        StringBuilder html = new StringBuilder();
+        for (IMessageElement element : elements)
+        {
+            html.append(element.toString());
+        }
+        displayInfo(html.toString());
     }
 
 }
