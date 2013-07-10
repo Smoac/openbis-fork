@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
@@ -99,7 +100,7 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      * @see IGenericClientService#registerExperiment(String,String,NewExperiment)
      */
     public void registerExperiment(final String attachmentsSessionKey, String samplesSessionKey,
-            NewExperiment newExp, AsyncCallback<Void> assyncCallback) throws UserFailureException;
+            NewExperiment newExp, AsyncCallback<Experiment> assyncCallback) throws UserFailureException;
 
     /**
      * @see IGenericClientService#registerMaterials(MaterialType, boolean, String, boolean, String)

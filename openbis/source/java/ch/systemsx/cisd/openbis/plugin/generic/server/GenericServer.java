@@ -78,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialBatchUpdateResultMessage;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
@@ -600,7 +601,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @Capability("WRITE_EXPERIMENT_SAMPLE")
-    public void registerExperiment(String sessionToken,
+    public Experiment registerExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = NewExperimentPredicate.class)
             final NewExperiment newExperiment, final Collection<NewAttachment> attachments)
             throws UserFailureException
@@ -653,6 +654,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 sampleBO.setExperiment(experiment);
             }
         }
+
+        return ExperimentTranslator
+                .translate(experiment, session.getBaseIndexURL(), new HashSet<Metaproject>(), managedPropertyEvaluatorFactory);
+
     }
 
     @Override

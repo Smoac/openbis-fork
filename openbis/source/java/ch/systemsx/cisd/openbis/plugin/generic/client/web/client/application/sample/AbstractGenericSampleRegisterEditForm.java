@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sa
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -109,6 +110,8 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     private Button saveUploadButton;
 
+    private Sample parentOrNull;
+
     protected AbstractGenericSampleRegisterEditForm(
             IViewContext<IGenericClientServiceAsync> viewContext,
             Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptions,
@@ -144,6 +147,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     {
         this.initialExperimentIdentifierOrNull = tryGetExperimentIdentifier(context);
         this.initialGroupCodeOrNull = tryGetSpaceCode(context);
+        parentOrNull = context.getParent();
     }
 
     private ExperimentIdentifier tryGetExperimentIdentifier(ActionContext context)
@@ -323,6 +327,10 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                         SampleTypeDisplayID.SAMPLE_REGISTRATION_PARENT_CHOOSER
                                 .withSuffix(getSampleTypeCode()), true);
         parentsArea = new ParentSamplesArea(viewContext, getId());
+        if (parentOrNull != null)
+        {
+            parentsArea.setSamples(Arrays.asList(parentOrNull));
+        }
         SampleChooserButton parentChooserButton = parentButton.getChooserButton();
         parentChooserButton
                 .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Sample>>()

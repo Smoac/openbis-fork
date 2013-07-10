@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -104,12 +105,13 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     }
 
     @Override
-    public void registerExperiment(String sessionToken, NewExperiment experiment,
+    public Experiment registerExperiment(String sessionToken, NewExperiment experiment,
             final Collection<NewAttachment> attachments)
     {
         logTracking(sessionToken, "register_experiment",
                 "EXPERIMENT_TYPE(%s) EXPERIMENT(%S) ATTACHMENTS(%S)",
                 experiment.getExperimentTypeCode(), experiment.getIdentifier(), attachments.size());
+        return null;
     }
 
     @Override

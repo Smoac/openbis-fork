@@ -29,21 +29,21 @@ public interface IInfoHandler
     /**
      * Display given <var>text</var> as <i>error</i> text.
      */
-    public abstract void displayError(final String text);
+    public void displayError(final String text);
 
     /**
      * Display given <var>text</var> as <i>info</i> text.
      */
-    public abstract void displayInfo(final String text);
+    public void displayInfo(final String text);
 
     /**
      * Display given <var>text</var> as <i>info</i> text.
      */
-    public abstract void displayInfo(final List<? extends IMessageElement> elements);
+    public void displayInfo(final List<? extends IMessageElement> elements);
 
     /**
      * Display given <var>text</var> as <i>progress</i> text.
      */
-    public abstract void displayProgress(final String text);
+    public void displayProgress(final String text);
 
 }

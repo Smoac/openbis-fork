@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -154,7 +155,7 @@ public interface IGenericServer extends IServer
     @DatabaseCreateOrDeleteModification(value =
     { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE })
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
-    public void registerExperiment(String sessionToken, final NewExperiment experiment,
+    public Experiment registerExperiment(String sessionToken, final NewExperiment experiment,
             final Collection<NewAttachment> attachments) throws UserFailureException;
 
     /**

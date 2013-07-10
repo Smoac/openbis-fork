@@ -55,12 +55,17 @@ public class EntityLinkMessageElement implements IMessageElement
     }
 
     @Override
+    public Widget render(int maxLength)
+    {
+        return render();
+    }
+
+    @Override
     public Widget render()
     {
         Anchor linkElement = new Anchor(label);
         linkElement.addClickHandler(new ClickHandler()
             {
-
                 @Override
                 public void onClick(ClickEvent event)
                 {

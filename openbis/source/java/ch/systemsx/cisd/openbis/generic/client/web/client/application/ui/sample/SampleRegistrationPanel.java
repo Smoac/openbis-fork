@@ -44,32 +44,29 @@ public final class SampleRegistrationPanel extends
 
     public static final DatabaseModificationAwareComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext, final ActionContext context,
-            final SampleRegistrationConfig config)
+            final SampleRegistrationTypeFilter filter)
     {
-        SampleRegistrationPanel panel = new SampleRegistrationPanel(viewContext, context, config);
+        SampleRegistrationPanel panel = new SampleRegistrationPanel(viewContext, context, filter);
         panel.setId("registration-panel");
         return new DatabaseModificationAwareComponent(panel, panel);
     }
 
     private SampleRegistrationPanel(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final ActionContext context, final SampleRegistrationConfig config)
+            final ActionContext context, final SampleRegistrationTypeFilter filter)
     {
         super(viewContext, EntityKind.SAMPLE, createSampleTypeSelectionWidget(viewContext, context,
-                config), context);
+                filter), context);
     }
 
     private static SampleTypeSelectionWidget createSampleTypeSelectionWidget(
             final IViewContext<ICommonClientServiceAsync> viewContext, final ActionContext context,
-            final SampleRegistrationConfig config)
+            final SampleRegistrationTypeFilter filter)
     {
         SampleTypeSelectionWidget widget =
                 new SampleTypeSelectionWidget(viewContext,
                         EntityRegistrationPanel.createId(EntityKind.SAMPLE), false,
                         SampleTypeDisplayID.SAMPLE_REGISTRATION, context.tryGetSampleTypeCode());
-        if (config != null)
-        {
-            widget.setFilterPattern(config.getFilterPattern());
-        }
+        widget.setFilter(filter);
         return widget;
     }
 }

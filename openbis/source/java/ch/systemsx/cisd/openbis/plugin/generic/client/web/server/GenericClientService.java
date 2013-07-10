@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
@@ -308,7 +309,7 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     @Override
-    public void registerExperiment(final String attachmentsSessionKey,
+    public Experiment registerExperiment(final String attachmentsSessionKey,
             final String samplesSessionKey, final NewExperiment experiment)
     {
         final String sessionToken = getSessionToken();
@@ -326,14 +327,19 @@ public class GenericClientService extends AbstractClientService implements IGene
             experiment.setNewSamples(result.getSamples());
             experiment.setSamples(result.getCodes());
         }
-        new AttachmentRegistrationHelper()
+        class ExperimentRegistrationHelper extends AttachmentRegistrationHelper
+        {
+            Experiment exp;
+
+            @Override
+            public void register(Collection<NewAttachment> attachments)
             {
-                @Override
-                public void register(Collection<NewAttachment> attachments)
-                {
-                    genericServer.registerExperiment(sessionToken, experiment, attachments);
-                }
-            }.process(attachmentsSessionKey, getHttpSession(), experiment.getAttachments());
+                exp = genericServer.registerExperiment(sessionToken, experiment, attachments);
+            }
+        }
+        ExperimentRegistrationHelper helper = new ExperimentRegistrationHelper();
+        helper.process(attachmentsSessionKey, getHttpSession(), experiment.getAttachments());
+        return helper.exp;
     }
 
     private BatchSamplesOperation parseSamples(final SampleType sampleType,

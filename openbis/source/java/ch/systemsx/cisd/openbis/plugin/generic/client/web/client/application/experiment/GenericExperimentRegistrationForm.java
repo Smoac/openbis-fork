@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +26,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.EntityLinkMessageElement;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IMessageElement;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -78,7 +82,7 @@ public final class GenericExperimentRegistrationForm extends
     }
 
     private final class RegisterExperimentCallback extends
-            AbstractRegistrationForm.AbstractRegistrationCallback<Void>
+            AbstractRegistrationForm.AbstractRegistrationCallback<Experiment>
     {
 
         RegisterExperimentCallback(final IViewContext<?> viewContext)
@@ -87,9 +91,13 @@ public final class GenericExperimentRegistrationForm extends
         }
 
         @Override
-        protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(Void result)
+        protected List<IMessageElement> createSuccessfullRegistrationInfo(Experiment experiment)
         {
-            return Arrays.asList(new HtmlMessageElement("Experiment <b>" + createExperimentIdentifier() + "</b> successfully registered"));
+            List<IMessageElement> message = new ArrayList<IMessageElement>();
+            message.add(new HtmlMessageElement("Experiment"));
+            message.add(new EntityLinkMessageElement(viewContext, createExperimentIdentifier(), EntityKind.EXPERIMENT, experiment.getPermId()));
+            message.add(new HtmlMessageElement("successfully registered"));
+            return message;
         }
 
     }

@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBatchRegisterUpdatePanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationTypeFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid;
@@ -415,7 +415,7 @@ public final class ComponentProvider
     }
 
     public final AbstractTabItemFactory getSampleRegistration(final ActionContext context,
-            final SampleRegistrationConfig config)
+            final SampleRegistrationTypeFilter filter)
     {
         AbstractTabItemFactory tab = new AbstractTabItemFactory()
             {
@@ -423,7 +423,7 @@ public final class ComponentProvider
                 public ITabItem create()
                 {
                     DatabaseModificationAwareComponent component =
-                            SampleRegistrationPanel.create(viewContext, context, config);
+                            SampleRegistrationPanel.create(viewContext, context, filter);
                     return createRegistrationTab(getTabTitle(), component);
                 }
 

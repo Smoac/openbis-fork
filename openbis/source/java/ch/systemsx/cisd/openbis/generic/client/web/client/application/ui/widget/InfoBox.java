@@ -21,11 +21,11 @@ import java.util.List;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
-import com.extjs.gxt.ui.client.widget.layout.HBoxLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.BorderStyle;
+import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -36,6 +36,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -49,8 +50,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 public final class InfoBox extends Composite implements IInfoHandler
 {
     private static final int TRUNCATE_THRESHOLD = 200;
-
-    private static final String TRUNCATE_SUFFIX = "...";
 
     private static final String WHITE = "#ffffff";
 
@@ -79,8 +78,7 @@ public final class InfoBox extends Composite implements IInfoHandler
     public InfoBox(final IMessageProvider messageProvider,
             final HorizontalAlignmentConstant alignment)
     {
-        HBoxLayout messageLayout = new HBoxLayout();
-        message = new LayoutContainer(messageLayout);
+        message = new LayoutContainer();
 
         showFullMessageLink =
                 new Anchor(messageProvider.getMessage(Dict.INFO_BOX_SHOW_FULL_MESSAGE));
@@ -137,13 +135,47 @@ public final class InfoBox extends Composite implements IInfoHandler
     public void displayInfo(List<? extends IMessageElement> elements)
     {
         setInfoBoxStyle(InfoType.INFO);
-
+        boolean nonHtmlMessageElements = containsNonHtmlMessageElements(elements);
+        int currentLength = 0;
+        StringBuilder builder = new StringBuilder();
         for (IMessageElement element : elements)
         {
-            message.add(element.render(), new HBoxLayoutData(new Margins(0, 5, 0, 0)));
+            if (builder.length() > 0)
+            {
+                builder.append(' ');
+            }
+            builder.append(element);
+            Widget widget;
+            FlowData layoutData = new FlowData(new Margins(0, 5, 0, 0));
+            if (nonHtmlMessageElements)
+            {
+                widget = element.render();
+                widget.getElement().getStyle().setDisplay(Display.INLINE);
+                message.add(widget, layoutData);
+            } else if (TRUNCATE_THRESHOLD >= currentLength)
+            {
+                widget = element.render(TRUNCATE_THRESHOLD - currentLength);
+                widget.getElement().getStyle().setDisplay(Display.INLINE);
+                currentLength += element.length();
+                message.add(widget, layoutData);
+            }
         }
-        message.layout(true);
+        fullMessage = builder.toString();
+        showFullMessageLink.setVisible(nonHtmlMessageElements == false && TRUNCATE_THRESHOLD < currentLength);
+        message.layout(false);
         getElement().scrollIntoView();
+    }
+
+    private boolean containsNonHtmlMessageElements(List<? extends IMessageElement> elements)
+    {
+        for (IMessageElement element : elements)
+        {
+            if (element instanceof HtmlMessageElement == false)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void setInfoBoxStyle(InfoType type)
@@ -152,6 +184,7 @@ public final class InfoBox extends Composite implements IInfoHandler
         mainPanelStyle.setColor("#000000");
         mainPanelStyle.setBackgroundColor(type.getBackgroundColor());
         mainPanelStyle.setBorderColor(type.getBorderColor());
+        messageType = type;
     }
 
     /**
@@ -177,7 +210,7 @@ public final class InfoBox extends Composite implements IInfoHandler
                         dots = "...";
                     }
 
-                    addHtmlToMessage(truncate(text) + dots);
+                    setHtmlMessage(text + dots);
                 }
             };
         progressTimer.run();
@@ -199,17 +232,8 @@ public final class InfoBox extends Composite implements IInfoHandler
             setInfoBoxStyle(type);
 
             fullMessage = text;
-            messageType = type;
-
-            if (shouldTruncate(text))
-            {
-                addHtmlToMessage(truncate(text));
-                showFullMessageLink.setVisible(true);
-            } else
-            {
-                addHtmlToMessage(text);
-                showFullMessageLink.setVisible(false);
-            }
+            setHtmlMessage(text);
+            showFullMessageLink.setVisible(shouldTruncate(text));
 
             if (fullMessageDialog != null)
             {
@@ -220,10 +244,10 @@ public final class InfoBox extends Composite implements IInfoHandler
         }
     }
 
-    private void addHtmlToMessage(String messageElement)
+    private void setHtmlMessage(String messageElement)
     {
         message.removeAll();
-        message.add(new HtmlMessageElement(messageElement).render());
+        message.add(new HtmlMessageElement(messageElement).render(TRUNCATE_THRESHOLD));
         message.layout(true);
     }
 
@@ -261,17 +285,6 @@ public final class InfoBox extends Composite implements IInfoHandler
     private boolean shouldTruncate(String text)
     {
         return text != null && text.length() > TRUNCATE_THRESHOLD;
-    }
-
-    private String truncate(String text)
-    {
-        if (shouldTruncate(text))
-        {
-            return text.substring(0, TRUNCATE_THRESHOLD) + TRUNCATE_SUFFIX;
-        } else
-        {
-            return text;
-        }
     }
 
 }

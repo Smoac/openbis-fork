@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -38,6 +39,8 @@ public class ActionContext
 
     private ExperimentType experimentTypeOrNull;
 
+    private Sample parent;
+
     public ActionContext()
     {
     }
@@ -47,6 +50,16 @@ public class ActionContext
         this.experimentOrNull = experiment;
         this.projectOrNull = experiment.getProject();
         this.spaceCodeOrNull = projectOrNull.getSpace().getCode();
+    }
+
+    public Sample getParent()
+    {
+        return parent;
+    }
+
+    public void setParent(Sample parent)
+    {
+        this.parent = parent;
     }
 
     public Experiment tryGetExperiment()

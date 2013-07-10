@@ -16,17 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
-import com.extjs.gxt.ui.client.widget.Html;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Message element for a HTML.
  * 
  * @author anttil
- */public class HtmlMessageElement implements IMessageElement
+ */
+public class HtmlMessageElement implements IMessageElement
 {
 
     private final String content;
+
+    private static final String TRUNCATE_SUFFIX = "...";
 
     public HtmlMessageElement(String content)
     {
@@ -43,7 +46,34 @@ import com.google.gwt.user.client.ui.Widget;
     @Override
     public Widget render()
     {
-        return new Html(content);
+        return createHTMLWidget(content);
+    }
+
+    @Override
+    public Widget render(int maxLength)
+    {
+        return createHTMLWidget(truncate(content, maxLength));
+    }
+
+    private Widget createHTMLWidget(String truncatedContent)
+    {
+        return new HTML(truncatedContent);
+    }
+
+    private String truncate(String text, int maxLength)
+    {
+        if (shouldTruncate(text, maxLength))
+        {
+            return text.substring(0, maxLength) + TRUNCATE_SUFFIX;
+        } else
+        {
+            return text;
+        }
+    }
+
+    private boolean shouldTruncate(String text, int maxLength)
+    {
+        return text != null && text.length() > maxLength;
     }
 
     public String getHtml()

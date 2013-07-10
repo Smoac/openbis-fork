@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionCont
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationTypeFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
@@ -44,9 +44,9 @@ public class SampleRegistrationLocatorResolver extends AbstractViewLocatorResolv
     @Override
     public void resolve(final ViewLocator locator) throws UserFailureException
     {
-        SampleRegistrationConfig config = new SampleRegistrationConfig();
-        config.setFilterPattern(locator.getParameters().get(PATTERN));
+        String pattern = locator.getParameters().get(PATTERN);
+        SampleRegistrationTypeFilter filter = new SampleRegistrationTypeFilter(pattern, true);
         DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext)
-                .getSampleRegistration(new ActionContext(), config));
+                .getSampleRegistration(new ActionContext(), filter));
     }
 }

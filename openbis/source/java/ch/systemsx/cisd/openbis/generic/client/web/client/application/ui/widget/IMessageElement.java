@@ -29,4 +29,5 @@ public interface IMessageElement
 
     public Widget render();
 
+    public Widget render(int maxLength);
 }

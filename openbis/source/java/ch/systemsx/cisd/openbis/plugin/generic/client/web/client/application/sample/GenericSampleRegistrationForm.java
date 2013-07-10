@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.EntityLinkMessageElement;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IMessageElement;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SampleRegistrationLinkMessageElement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -82,14 +83,15 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
             {
                 result.add(new HtmlMessageElement("Shared sample"));
                 result.add(new EntityLinkMessageElement(viewContext, code, EntityKind.SAMPLE, sample.getPermId()));
-                result.add(new HtmlMessageElement("successfully registered"));
+                result.add(new HtmlMessageElement("successfully registered."));
             } else
             {
                 result.add(new HtmlMessageElement("Sample"));
                 result.add(new EntityLinkMessageElement(viewContext, code, EntityKind.SAMPLE, sample.getPermId()));
                 result.add(new HtmlMessageElement("successfully registered in space <b>"
-                        + selectedGroup.getCode() + "</b>"));
+                        + selectedGroup.getCode() + "</b>."));
             }
+            result.add(new SampleRegistrationLinkMessageElement(viewContext, sample));
             return result;
         }
     }

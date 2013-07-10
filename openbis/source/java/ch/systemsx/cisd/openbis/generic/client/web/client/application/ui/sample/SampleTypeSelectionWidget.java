@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
-import java.util.Iterator;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -58,7 +57,7 @@ public class SampleTypeSelectionWidget extends DropDownList<SampleTypeModel, Sam
 
     private final String initialCodeOrNull;
 
-    private String filterPattern;
+    private SampleRegistrationTypeFilter filter;
 
     public SampleTypeSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
             final boolean onlyListable, final boolean withAll, final boolean withTypeInFile,
@@ -120,9 +119,9 @@ public class SampleTypeSelectionWidget extends DropDownList<SampleTypeModel, Sam
         return super.tryGetSelected();
     }
 
-    public void setFilterPattern(String filterPattern)
+    public void setFilter(SampleRegistrationTypeFilter filter)
     {
-        this.filterPattern = filterPattern;
+        this.filter = filter;
     }
 
     @Override
@@ -142,28 +141,20 @@ public class SampleTypeSelectionWidget extends DropDownList<SampleTypeModel, Sam
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { createOrDelete(ObjectKind.SAMPLE_TYPE), edit(ObjectKind.SAMPLE_TYPE),
-                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
+        { createOrDelete(ObjectKind.SAMPLE_TYPE), edit(ObjectKind.SAMPLE_TYPE),
+                createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
     /**
-     * Filters sample types returned from server. By default it filters out all the types that do
-     * not match the filterPattern. If the filterPattern is null then it leaves the original list of
-     * types untouched. Behavior of this method can be overwritten in subclasses.
+     * Filters sample types returned from server. By default it filters out all the types that do not match the filterPattern. If the filterPattern is
+     * null then it leaves the original list of types untouched. Behavior of this method can be overwritten in subclasses.
      */
     protected void filterTypes(List<SampleType> types)
     {
-        if (filterPattern != null)
+        if (filter != null)
         {
-            for (Iterator<SampleType> iterator = types.iterator(); iterator.hasNext();)
-            {
-                SampleType type = iterator.next();
-                if (!type.getCode().matches(filterPattern))
-                {
-                    iterator.remove();
-                }
-            }
+            filter.filter(types);
         }
     }
 
