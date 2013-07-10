@@ -33,9 +33,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
@@ -156,6 +158,23 @@ public class CommonServerTest extends SystemTestCase
 
         assertEquals("20081105092159111-1", dataSet.getCode());
         assertEquals("/CISD/CP-TEST-1", dataSet.getSampleIdentifier());
+    }
+
+    @Test
+    public void testGetMaterialInfo()
+    {
+        Material materialInfo = commonServer.getMaterialInfo(systemSessionToken, new TechId(1));
+
+        assertEquals("AD3", materialInfo.getCode());
+        assertEquals(EntityKind.MATERIAL, materialInfo.getEntityKind());
+        EntityType entityType = materialInfo.getEntityType();
+        assertEquals("VIRUS", entityType.getCode());
+        List<? extends EntityTypePropertyType<?>> assignedPropertyTypes = entityType.getAssignedPropertyTypes();
+        assertEquals("VIRUS", assignedPropertyTypes.get(0).getEntityType().getCode());
+        assertEquals("DESCRIPTION", assignedPropertyTypes.get(0).getPropertyType().getCode());
+        assertEquals("VARCHAR", assignedPropertyTypes.get(0).getPropertyType().getDataType().getCode().toString());
+        assertEquals(1, assignedPropertyTypes.size());
+        assertEquals("[DESCRIPTION: Adenovirus 3]", materialInfo.getProperties().toString());
     }
 
     private void assertAssignedPropertyTypes(String expected, EntityType entityType)

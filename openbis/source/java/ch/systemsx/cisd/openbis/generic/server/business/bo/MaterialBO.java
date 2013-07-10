@@ -90,6 +90,7 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
     {
         material = getMaterialById(materialId);
         dataChanged = false;
+        HibernateUtils.initialize(material.getMaterialType().getMaterialTypePropertyTypes());
     }
 
     @Override
