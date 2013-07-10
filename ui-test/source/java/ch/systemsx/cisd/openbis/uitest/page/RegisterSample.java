@@ -122,7 +122,7 @@ public class RegisterSample
     {
         String sampleCode = code.getValue();
         save.click();
-        infoBox.findElement(By.xpath(".//div/b[text()='" + sampleCode + "']"));
+        infoBox.findElement(By.xpath(".//div/a[contains(text(), '" + sampleCode + "')]"));
     }
 
     public Collection<String> getProperties()
