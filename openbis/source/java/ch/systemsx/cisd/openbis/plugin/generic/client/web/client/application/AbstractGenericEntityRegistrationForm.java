@@ -139,8 +139,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     // ID generation
     // ---------------------------------------------------------------------------------------------
     /**
-     * Creates unique id based on {@link #createSimpleId(IIdAndCodeHolder, EntityKind)} and
-     * application specific ID prefix.
+     * Creates unique id based on {@link #createSimpleId(IIdAndCodeHolder, EntityKind)} and application specific ID prefix.
      */
     public static final String createId(IIdAndCodeHolder identifiable, EntityKind entityKind)
     {
@@ -148,8 +147,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     }
 
     /**
-     * Creates unique id based on {@link #createSimpleId(TechId, EntityKind)} and application
-     * specific ID prefix.
+     * Creates unique id based on {@link #createSimpleId(TechId, EntityKind)} and application specific ID prefix.
      */
     public static final String createId(TechId techId, EntityKind entityKind)
     {
@@ -415,7 +413,12 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
         initializeFormFields();
         addFormFieldsToPanel(formPanel);
         layout();
+        postRenderingTask();
         setLoading(false);
+    }
+
+    protected void postRenderingTask()
+    {
     }
 
     /**

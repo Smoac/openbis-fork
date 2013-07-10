@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sa
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -98,7 +97,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     protected SpaceSelectionWidget groupSelectionWidget;
 
-    private String initialGroupCodeOrNull;
+    private String initialSpaceCodeOrNull;
 
     protected SampleChooserFieldAdaptor container;
 
@@ -146,7 +145,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     private void extractInitialValues(ActionContext context)
     {
         this.initialExperimentIdentifierOrNull = tryGetExperimentIdentifier(context);
-        this.initialGroupCodeOrNull = tryGetSpaceCode(context);
+        this.initialSpaceCodeOrNull = tryGetSpaceCode(context);
         parentOrNull = context.getParent();
     }
 
@@ -313,10 +312,19 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     }
 
     @Override
+    protected void postRenderingTask()
+    {
+        if (parentOrNull != null)
+        {
+            parentsArea.appendItem(parentOrNull.getIdentifier());
+        }
+    }
+
+    @Override
     protected void createEntitySpecificFormFields()
     {
         groupSelectionWidget =
-                new SpaceSelectionWidget(viewContext, getId(), true, false, initialGroupCodeOrNull);
+                new SpaceSelectionWidget(viewContext, getId(), true, false, initialSpaceCodeOrNull);
         groupSelectionWidget.setId("register-sample-space-selection");
         FieldUtil.markAsMandatory(groupSelectionWidget);
         groupSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.GROUP));
@@ -327,10 +335,6 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                         SampleTypeDisplayID.SAMPLE_REGISTRATION_PARENT_CHOOSER
                                 .withSuffix(getSampleTypeCode()), true);
         parentsArea = new ParentSamplesArea(viewContext, getId());
-        if (parentOrNull != null)
-        {
-            parentsArea.setSamples(Arrays.asList(parentOrNull));
-        }
         SampleChooserButton parentChooserButton = parentButton.getChooserButton();
         parentChooserButton
                 .addChosenEntityListener(new IChosenEntitiesListener<TableModelRowWithObject<Sample>>()
