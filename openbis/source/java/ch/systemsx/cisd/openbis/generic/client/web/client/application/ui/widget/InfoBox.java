@@ -51,6 +51,8 @@ public final class InfoBox extends Composite implements IInfoHandler
 {
     private static final int TRUNCATE_THRESHOLD = 200;
 
+    private static final String PLACEHOLDER_TEXT = "X";
+
     private static final String WHITE = "#ffffff";
 
     private Panel mainPanel;
@@ -138,6 +140,7 @@ public final class InfoBox extends Composite implements IInfoHandler
         boolean nonHtmlMessageElements = containsNonHtmlMessageElements(elements);
         int currentLength = 0;
         StringBuilder builder = new StringBuilder();
+        message.removeAll();
         for (IMessageElement element : elements)
         {
             if (builder.length() > 0)
@@ -272,7 +275,7 @@ public final class InfoBox extends Composite implements IInfoHandler
         mainPanelStyle.setColor(WHITE);
 
         fullMessage = null;
-        message.removeAll();
+        setHtmlMessage(PLACEHOLDER_TEXT);
         showFullMessageLink.setVisible(false);
 
         if (fullMessageDialog != null)
