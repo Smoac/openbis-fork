@@ -73,19 +73,19 @@ public class PopupDialogBasedInfoHandler extends Dialog implements IInfoHandler
     @Override
     public void displayInfo(String aText)
     {
-        display(InfoType.INFO, text);
+        display(InfoType.INFO, aText);
     }
 
     @Override
     public void displayError(String aText)
     {
-        display(InfoType.ERROR, text);
+        display(InfoType.ERROR, aText);
     }
 
     @Override
     public void displayProgress(String aText)
     {
-        display(InfoType.PROGRESS, text);
+        display(InfoType.PROGRESS, aText);
     }
 
     public void display(InfoType aType, String aText)
