@@ -2,7 +2,6 @@ from ch.systemsx.cisd.openbis.ipad.v2.server import IRequestHandler, AbstractReq
 from ch.systemsx.cisd.openbis.ipad.v2.server import DrillRequestHandler, NavigationRequestHandler, DetailRequestHandler, SearchRequestHandler
 from ch.systemsx.cisd.openbis.ipad.v2.server import EmptyDataRequestHandler, IpadServiceUtilities
 from ch.systemsx.cisd.openbis.ipad.v2.server import IRequestHandlerFactory, RequestHandlerDispatcher
-
 from ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1 import MaterialIdentifierCollection
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto import MaterialIdentifier
 from com.fasterxml.jackson.databind import ObjectMapper 
@@ -573,9 +572,7 @@ class YeastLabRootRequestHandler(RootRequestHandler):
 
 			# Check which navigational entities are being requested here
 		nav_entities = self.entities_parameter()
-		print "Root: %s" % nav_entities
 		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
-		print "Root: %s" % nav_perm_ids
 		self.add_match_clause(all_samples_sc, "OLIGO", nav_perm_ids)
 		self.add_match_clause(all_samples_sc, "ANTIBODY", nav_perm_ids)
 		self.add_match_clause(all_samples_sc, "CHEMICAL", nav_perm_ids)
@@ -681,7 +678,6 @@ class YeastLabSearchRequestHandler(SearchRequestHandler):
 		self.westernBlottings = samplesByType.getSamples('WESTERN_BLOTTING')
 
 	def retrieve_data(self):
-		print "SearchRequestHandler: retrieve_data"
 		all_samples_sc = SearchCriteria()
 		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAnyFieldMatch(self.parameters['searchtext']))
 		self.samples = self.searchService.searchForSamples(all_samples_sc)
@@ -699,19 +695,45 @@ class YeastLabSearchRequestHandler(SearchRequestHandler):
 				children.append(yeast)			
 
 	def add_data_rows(self):
-		print "SearchRequestHandler: add_data_rows"
-		self.add_rows(oligos_to_dict(self.oligos, False))
-		self.add_rows(antibodies_to_dict(self.antibodies, False))
-		self.add_rows(chemicals_to_dict(self.chemicals, False))
-		self.add_rows(protocols_to_dict(self.protocols, False))
-		self.add_rows(medias_to_dict(self.medias, False))
-		self.add_rows(pcrs_to_dict(self.pcrs, False))
-		self.add_rows(buffers_to_dict(self.buffers, False))
-		self.add_rows(plasmids_to_dict(self.plasmids, self.children_map, False))
-		self.add_rows(yeasts_to_dict(self.yeasts, self.children_map, False))
-		self.add_rows(bacterias_to_dict(self.bacterias, False))
-		self.add_rows(enzymes_to_dict(self.enzymes, False))
-		self.add_rows(westernBlottings_to_dict(self.westernBlottings, False))
+		#To Group the search results by the order given
+		for sample in self.samples:
+			if sample.getSampleType() == 'OLIGO':
+				self.add_row(oligo_to_dict(sample, False))
+			if sample.getSampleType() == 'ANTIBODY':
+				self.add_row(antibody_to_dict(sample, False))
+			if sample.getSampleType() == 'CHEMICAL':
+				self.add_row(chemical_to_dict(sample, False))
+			if sample.getSampleType() == 'GENERAL_PROTOCOL':
+				self.add_row(protocol_to_dict(sample, False))
+			if sample.getSampleType() == 'MEDIA':
+				self.add_row(media_to_dict(sample, False))
+			if sample.getSampleType() == 'PCR':
+				self.add_row(pcr_to_dict(sample, False))
+			if sample.getSampleType() == 'SOLUTIONS_BUFFERS':
+				self.add_row(buffer_to_dict(sample, False))
+			if sample.getSampleType() == 'PLASMID':
+				self.add_row(plasmid_to_dict(sample, self.children_map, False))
+			if sample.getSampleType() == 'YEAST':
+				self.add_row(yeast_to_dict(sample, {}, False))
+			if sample.getSampleType() == 'BACTERIA':
+				self.add_row(bacteria_to_dict(sample, False))
+			if sample.getSampleType() == 'ENZYME':
+				self.add_row(enzyme_to_dict(sample, False))
+			if sample.getSampleType() == 'WESTERN_BLOTTING':
+				self.add_row(westernBlotting_to_dict(sample, False))
+		#To Group the search results by type
+		#self.add_rows(oligos_to_dict(self.oligos, False))
+		#self.add_rows(antibodies_to_dict(self.antibodies, False))
+		#self.add_rows(chemicals_to_dict(self.chemicals, False))
+		#self.add_rows(protocols_to_dict(self.protocols, False))
+		#self.add_rows(medias_to_dict(self.medias, False))
+		#self.add_rows(pcrs_to_dict(self.pcrs, False))
+		#self.add_rows(buffers_to_dict(self.buffers, False))
+		#self.add_rows(plasmids_to_dict(self.plasmids, self.children_map, False))
+		#self.add_rows(yeasts_to_dict(self.yeasts, self.children_map, False))
+		#self.add_rows(bacterias_to_dict(self.bacterias, False))
+		#self.add_rows(enzymes_to_dict(self.enzymes, False))
+		#self.add_rows(westernBlottings_to_dict(self.westernBlottings, False))
 
 class YeastLabDetailRequestHandler(DetailRequestHandler):
 	"""Handler for the DETAIL request."""
@@ -772,7 +794,6 @@ class DetailRequestHandlerFactory(IRequestHandlerFactory):
 			
 class SearchRequestHandlerFactory(IRequestHandlerFactory):
 	def createRequestHandler(self, parameters, builder, searchService):
-		print "SearchRequestHandlerFactory: createRequestHandler"
 		return YeastLabSearchRequestHandler(parameters, builder)
         
 def aggregate(parameters, builder):
