@@ -47,6 +47,7 @@ public class ScriptRegistrationForm extends AbstractScriptEditRegisterForm
     {
         super(viewContext, scriptTypeChooser, entityKindOrNull);
         setResetButtonVisible(true);
+        onPluginOrScriptTypeChanged(PluginType.JYTHON, scriptTypeChooser.getSimpleValue());
     }
 
     @Override
