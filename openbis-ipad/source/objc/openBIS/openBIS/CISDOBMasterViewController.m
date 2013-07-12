@@ -26,6 +26,7 @@
 #import "CISDOBDetailViewController.h"
 #import "CISDOBIpadEntity.h"
 #import "CISDOBOpenBisModel.h"
+#import "CISDOBBarcodeViewController.h"
 
 @interface CISDOBMasterViewController ()
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath;
@@ -60,6 +61,12 @@
     self.filterState = [[CISDOBTableFilterState alloc] initWithController: self];
     self.searchState = [[CISDOBTableSearchState alloc] initWithController: self];
     self.searchFilterState = self.filterState;
+    
+    [[NSNotificationCenter defaultCenter]
+     addObserver:self
+     selector:@selector(receiveSearchNotification:)
+     name:@"SearchNotification"
+     object:nil];
 }
 
 - (IBAction)refreshFromServer:(id)sender
@@ -219,7 +226,7 @@
 - (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id <NSFetchedResultsSectionInfo>)sectionInfo
            atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type
 {
-    switch(type) {
+    switch(type) { 
         case NSFetchedResultsChangeInsert:
             [self.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
             break;
@@ -272,6 +279,16 @@
  */
 
 #pragma mark - UISearchDisplayDelegate
+
+- (void) receiveSearchNotification:(NSNotification *) notification
+{
+    NSString * searchString = [notification object];
+    [self searchDisplayControllerWillBeginSearch: self.searchDisplayController];
+    self.searchDisplayController.searchBar.text = searchString;
+    self.openBisModel.searchString = searchString;
+    [self searchDisplayController: self.searchDisplayController shouldReloadTableForSearchScope: 0];
+}
+
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
 {
     self.openBisModel.searchString = searchString;
@@ -282,10 +299,23 @@
 {
     CISDOBTableDisplayState *oldDisplayState = self.searchFilterState;
     self.openBisModel.selectedSearchScopeIndex = searchOption;
+    NSString* searchTitle = [self scopeButtonTitles][self.openBisModel.selectedSearchScopeIndex];
     self.searchFilterState = [self.openBisModel isSelectedSearchScopeIndexSearch] ? self.searchState : self.filterState;
-    return (oldDisplayState != self.searchFilterState) ?
+    if (self.openBisModel.searchString == nil) {
+        self.openBisModel.searchString = @"";
+    }
+    
+    if ([searchTitle isEqualToString:@"Barcode"]) {
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard_iPad" bundle:nil];
+        CISDOBBarcodeViewController *barcodeController = [storyboard instantiateViewControllerWithIdentifier:@"Barcode"];
+        barcodeController.modalPresentationStyle = UIModalPresentationFullScreen;
+        [self presentModalViewController:barcodeController animated:YES];
+        return NO;
+    } else {
+        return (oldDisplayState != self.searchFilterState) ?
         [self.searchFilterState searchDisplayController: controller shouldReloadTableForSearchString: self.openBisModel.searchString] :
         YES;
+    }
 }
 
 - (void)searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
