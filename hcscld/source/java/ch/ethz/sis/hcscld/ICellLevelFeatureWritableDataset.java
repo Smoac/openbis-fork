@@ -239,7 +239,7 @@ public interface ICellLevelFeatureWritableDataset extends ICellLevelWritableData
      * @param featureGroup The feature group to write.
      * @param featureValues The feature values to write. The first index is the object id, the
      *            second index is the feature index as defined by the <var>featureGroup</var>.
-     * @throw {@link IllegalArgumentException} If <var>T</var> is not compatible with
+     * @throws IllegalArgumentException if <var>T</var> is not compatible with
      *        <var>featureGroup</var>.
      */
     public <T extends Enum<T>> void writeFeatures(ImageId id, IFeatureGroup featureGroup,
@@ -449,7 +449,7 @@ public interface ICellLevelFeatureWritableDataset extends ICellLevelWritableData
      * @param id The well and field to write the features for.
      * @param featureValues The feature values to write. The first index is the object id, the
      *            second index is the feature index as defined by the <var>featureGroup</var>.
-     * @throw {@link IllegalArgumentException} If <var>T</var> is not compatible with
+     * @throws IllegalArgumentException if <var>T</var> is not compatible with
      *        <var>featureGroup</var>.
      */
     public <T extends Enum<T>> void writeFeatures(ImageId id, T[][] featureValues);

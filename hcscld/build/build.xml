@@ -85,14 +85,19 @@
 		<delete dir="${targets}/doc" />
 		<delete dir="${targets}/source-base" />
 		<unzip src="../libraries/cisd-base/cisd-base-src.zip" dest="${targets}/source-base" />
+		<unzip src="../libraries/cisd-jhdf5/cisd-jhdf5-src.zip" dest="${targets}/source-base" />
 		<javadoc sourcepath="source/java:${targets}/source-base"
 		         packagenames="ch.ethz.cisd.hcscld"
-		         classpath="../libraries/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar"
+		         classpath="../libraries/commons-lang/commons-lang.jar:../libraries/commons-io/commons-io.jar:../libraries/restrictionchecker/restrictions.jar"
 		         destdir="targets/doc"
 		         doctitle="HCSCLD"
 		         author="false"
 		         overview="overview.html"
-		         access="public" />
+		         access="public">
+			<fileset dir="source/java" defaultexcludes="yes">
+				<include name="**/*.java" />
+			</fileset>
+		</javadoc>
 		<copy todir="${targets}/doc">
 			<fileset dir="${sources.examples}"/>
 		</copy>
