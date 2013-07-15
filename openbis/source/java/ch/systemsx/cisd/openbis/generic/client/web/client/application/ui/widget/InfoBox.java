@@ -136,6 +136,7 @@ public final class InfoBox extends Composite implements IInfoHandler
     @Override
     public void displayInfo(List<? extends IMessageElement> elements)
     {
+        stopProgress();
         setInfoBoxStyle(InfoType.INFO);
         boolean nonHtmlMessageElements = containsNonHtmlMessageElements(elements);
         int currentLength = 0;
@@ -225,11 +226,7 @@ public final class InfoBox extends Composite implements IInfoHandler
      */
     public final void display(final String text, final InfoType type)
     {
-        if (progressTimer != null)
-        {
-            progressTimer.cancel();
-            progressTimer = null;
-        }
+        stopProgress();
         if (StringUtils.isBlank(text) == false)
         {
             setInfoBoxStyle(type);
@@ -244,6 +241,15 @@ public final class InfoBox extends Composite implements IInfoHandler
                 fullMessageDialog = null;
             }
             getElement().scrollIntoView();
+        }
+    }
+
+    private void stopProgress()
+    {
+        if (progressTimer != null)
+        {
+            progressTimer.cancel();
+            progressTimer = null;
         }
     }
 
@@ -262,11 +268,7 @@ public final class InfoBox extends Composite implements IInfoHandler
      */
     public final void reset()
     {
-        if (progressTimer != null)
-        {
-            progressTimer.cancel();
-            progressTimer = null;
-        }
+        stopProgress();
 
         // Make placeholder invisible.
         Style mainPanelStyle = mainPanel.getElement().getStyle();
