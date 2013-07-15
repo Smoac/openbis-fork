@@ -39,9 +39,8 @@ public interface IClientServiceAsync
     /** @see IClientService#getCustomImports */
     public void getCustomImports(AsyncCallback<List<CustomImport>> callback);
 
-    /** @see IClientService#tryToGetCurrentSessionContext(boolean anonymous) */
-    public void tryToGetCurrentSessionContext(boolean anonymous,
-            AsyncCallback<SessionContext> callback);
+    /** @see IClientService#tryToGetCurrentSessionContext(boolean, String) */
+    public void tryToGetCurrentSessionContext(boolean anonymous, String sessionIdOrNull, AsyncCallback<SessionContext> callback);
 
     /** @see IClientService#tryToLogin(String, String) */
     public void tryToLogin(String userID, String password, AsyncCallback<SessionContext> callback);

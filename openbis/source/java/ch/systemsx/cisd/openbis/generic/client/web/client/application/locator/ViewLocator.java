@@ -23,16 +23,15 @@ import java.util.Map;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 
 /**
- * A view locator represents the information necessary to open a view including populating it any
- * parameters. The concept is similar to a URL (Universal Resource Locator), but made specific to
- * view in openBIS.
+ * A view locator represents the information necessary to open a view including populating it any parameters. The concept is similar to a URL
+ * (Universal Resource Locator), but made specific to view in openBIS.
  * <p>
- * The view locator may be initialized from URL-encoded parameters. One parameter, ACTION, is
- * required. ENTITY, though not required, is often used. These two parameters are thus handled
- * specially.
+ * The view locator may be initialized from URL-encoded parameters. One parameter, ACTION, is required. ENTITY, though not required, is often used.
+ * These two parameters are thus handled specially.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -42,6 +41,8 @@ public class ViewLocator
     private static final String KEY_VALUE_SEPARATOR = "=";
 
     private static final String PARAMETER_SEPARATOR = "&";
+
+    public static final String SESSION_ID_PARAMETER = GenericSharedConstants.SESSION_ID_PARAMETER;
 
     public static final String ACTION_PARAMETER = BasicConstant.LOCATOR_ACTION_PARAMETER;
 
@@ -54,6 +55,8 @@ public class ViewLocator
     private static final String GWT_PARAMETER = "gwt.codesvr";
 
     // Instance Variables
+    private String sessionIdOrNull;
+
     private String actionOrNull;
 
     private String entityOrNull;
@@ -78,6 +81,14 @@ public class ViewLocator
     public String getHistoryToken()
     {
         return historyToken;
+    }
+
+    /**
+     * Returns the session id or <code>null</code> if not known.
+     */
+    public String getSessionId()
+    {
+        return sessionIdOrNull;
     }
 
     /**
@@ -107,8 +118,7 @@ public class ViewLocator
     }
 
     /**
-     * Return true if this view locator meets the minimal criteria for validity. If the locator is
-     * valid, then action is non-null.
+     * Return true if this view locator meets the minimal criteria for validity. If the locator is valid, then action is non-null.
      */
     public boolean isValid()
     {
@@ -150,6 +160,9 @@ public class ViewLocator
             if (GWT_PARAMETER.equals(paramName))
             {
                 // skip GWT parameters -- only relevant during testing
+            } else if (SESSION_ID_PARAMETER.equalsIgnoreCase(paramName))
+            {
+                sessionIdOrNull = paramValue;
             } else if (ACTION_PARAMETER.equalsIgnoreCase(paramName))
             {
                 actionOrNull = paramValue;

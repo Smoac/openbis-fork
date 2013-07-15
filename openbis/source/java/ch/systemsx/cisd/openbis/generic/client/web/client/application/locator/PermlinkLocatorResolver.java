@@ -17,11 +17,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
  */
 public class PermlinkLocatorResolver extends AbstractViewLocatorResolver
 {
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
+    protected final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public PermlinkLocatorResolver(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(ViewLocator.PERMLINK_ACTION);
+        this(ViewLocator.PERMLINK_ACTION, viewContext);
+    }
+
+    protected PermlinkLocatorResolver(String action, IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        super(action);
         this.viewContext = viewContext;
     }
 

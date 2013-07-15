@@ -300,9 +300,11 @@ public class ConversionUtils
     public static ProjectUpdatesDTO convertToProjectUpdateDTO(Project apiProject)
     {
         final ProjectUpdatesDTO projectUpdate = new ProjectUpdatesDTO();
+        projectUpdate.setIdentifier(apiProject.getProjectIdentifier());
         projectUpdate.setTechId(new TechId(apiProject.getId()));
         projectUpdate.setDescription(apiProject.getDescription());
         projectUpdate.setAttachments(apiProject.getNewAttachments());
+        projectUpdate.setVersion(apiProject.getProject().getVersion());
         return projectUpdate;
     }
 

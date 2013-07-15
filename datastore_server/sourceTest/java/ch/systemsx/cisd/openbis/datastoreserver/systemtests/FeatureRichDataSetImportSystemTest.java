@@ -26,8 +26,13 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -57,6 +62,12 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         return 280;
     }
 
+    private IGeneralInformationService generalInformationService;
+
+    private String sessionToken;
+
+    private IEncapsulatedOpenBISService openBISService;
+
     @Test
     public void testRichImport() throws Exception
     {
@@ -66,26 +77,37 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         moveFileToIncoming(exampleDataSet);
         waitUntilDataSetImported();
 
-        IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
-
         Thread.sleep(1000);
 
-        assertSpaceProjectExperiment(openBISService);
+        openBISService = ServiceProvider.getOpenBISService();
+        generalInformationService = ServiceProvider.getGeneralInformationService();
+        sessionToken = generalInformationService.tryToAuthenticateForAllServices("test", "test");
 
-        assertLinkedDataSetImported(openBISService);
+        assertSpaceProjectExperiment();
 
-        assertMaterialsCreated(openBISService);
+        assertLinkedDataSetImported();
+
+        assertMaterialsCreated();
 
         assertEmailHasBeenSentFromHook();
 
-        assertMaterialUpdated(openBISService);
+        assertMaterialUpdated();
 
-        assertExperimentUpdated(openBISService);
+        assertExperimentUpdated();
 
-        assertVocabularyMaterialsCreated(openBISService);
+        assertVocabularyMaterialsCreated();
+
+        assertSampleWithAttachmentCreated();
     }
 
-    private void assertExperimentUpdated(IEncapsulatedOpenBISService openBISService)
+    private void assertSampleWithAttachmentCreated()
+    {
+        List<Attachment> attachments =
+                generalInformationService.listAttachmentsForSample(sessionToken, new SampleIdentifierId("/RICH_SPACE/SAMPLE123"), false);
+        assertEquals(1, attachments.size());
+    }
+
+    private void assertExperimentUpdated()
     {
         Experiment experiment =
                 openBISService.tryGetExperiment(new ExperimentIdentifier(null, "CISD", "NEMO",
@@ -114,16 +136,21 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         fail("No email found!");
     }
 
-    private void assertSpaceProjectExperiment(IEncapsulatedOpenBISService openBISService)
+    private void assertSpaceProjectExperiment()
     {
         List<Project> projects = openBISService.listProjects();
         boolean notFound = true;
+
         for (Project p : projects)
         {
             if (p.getIdentifier().equals("/RICH_SPACE/RICH_PROJECT"))
             {
                 notFound = false;
                 assertEquals("RICH_SPACE", p.getSpace().getCode());
+
+                List<Attachment> attachments =
+                        generalInformationService.listAttachmentsForProject(sessionToken, new ProjectTechIdId(p.getId()), true);
+                assertEquals(1, attachments.size());
             }
         }
         if (notFound)
@@ -137,10 +164,14 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         assertEquals(1, experiments.size());
         Experiment experiment = experiments.get(0);
 
+        List<Attachment> attachments =
+                generalInformationService.listAttachmentsForExperiment(sessionToken, new ExperimentTechIdId(experiment.getId()), true);
+        assertEquals(1, attachments.size());
+
         assertEquals("RICH_EXPERIMENT", experiment.getCode());
     }
 
-    private void assertMaterialsCreated(IEncapsulatedOpenBISService openBISService)
+    private void assertMaterialsCreated()
     {
         LinkedList<MaterialIdentifier> ids = new LinkedList<MaterialIdentifier>();
 
@@ -167,11 +198,11 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
 
     }
 
-    private void assertVocabularyMaterialsCreated(IEncapsulatedOpenBISService openBISService)
+    private void assertVocabularyMaterialsCreated()
     {
         String[] items = new String[]
-            { "RAT", "DOG", "HUMAN", "GORILLA", "FLY" };
-        
+        { "RAT", "DOG", "HUMAN", "GORILLA", "FLY" };
+
         LinkedList<MaterialIdentifier> ids = new LinkedList<MaterialIdentifier>();
 
         for (String item : items)
@@ -188,9 +219,9 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         for (Material m : materials)
         {
             String code = m.getCode();
-            
-            HashMap<String , IEntityProperty> properties = new HashMap<String , IEntityProperty>();
-            
+
+            HashMap<String, IEntityProperty> properties = new HashMap<String, IEntityProperty>();
+
             for (IEntityProperty property : m.getProperties())
             {
                 properties.put(property.getPropertyType().getCode(), property);
@@ -208,7 +239,7 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         }
     }
 
-    private void assertMaterialUpdated(IEncapsulatedOpenBISService openBISService)
+    private void assertMaterialUpdated()
     {
         LinkedList<MaterialIdentifier> ids = new LinkedList<MaterialIdentifier>();
         MaterialIdentifier ident = MaterialIdentifier.tryParseIdentifier("AD3 (VIRUS)");
@@ -228,9 +259,9 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
         }
     }
 
-    private void assertLinkedDataSetImported(IEncapsulatedOpenBISService openBISService)
+    private void assertLinkedDataSetImported()
     {
-        AbstractExternalData a = listOneDataSet(openBISService, "FR_LINK_CODE");
+        AbstractExternalData a = listOneDataSet("FR_LINK_CODE");
 
         assertTrue("The imported dataset should be isLinkData", a.isLinkData());
         assertTrue("The imported dataset should be LinkDataSet", a instanceof LinkDataSet);
@@ -245,7 +276,7 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
     /**
      * List exactly one dataset. assert that it exists.
      */
-    private AbstractExternalData listOneDataSet(IEncapsulatedOpenBISService openBISService, String code)
+    private AbstractExternalData listOneDataSet(String code)
     {
         List<String> codes = new LinkedList<String>();
         codes.add(code);

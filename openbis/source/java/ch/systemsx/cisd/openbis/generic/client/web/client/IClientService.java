@@ -53,8 +53,9 @@ public interface IClientService extends RemoteService
      * Tries to return the current session context. If failed <code>null</code> is returned.
      * 
      * @param anonymous whether the session is expected to be anonymous or not
+     * @param sessionIdOrNull id of the session or <code>null</code>.
      */
-    public SessionContext tryToGetCurrentSessionContext(boolean anonymous);
+    public SessionContext tryToGetCurrentSessionContext(boolean anonymous, String sessionIdOrNull);
 
     /**
      * Tries to login with specified user ID and password. If failed <code>null</code> is returned.
@@ -81,8 +82,8 @@ public interface IClientService extends RemoteService
     /**
      * Resets display settings of the logged user to the default settings.
      * <p>
-     * NOTE: this changes user display settings only on the DB level. Old settings are still in the
-     * session and needs to be updated with the settings returned by this function.
+     * NOTE: this changes user display settings only on the DB level. Old settings are still in the session and needs to be updated with the settings
+     * returned by this function.
      * 
      * @return default display settings
      */

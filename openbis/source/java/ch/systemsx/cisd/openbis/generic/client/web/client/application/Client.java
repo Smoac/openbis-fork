@@ -45,6 +45,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Ho
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MaterialLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MetaprojectBrowserLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MetaprojectLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.OpenViewAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkEditingLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.PermlinkLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ProjectLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.SampleRegistrationLocatorResolver;
@@ -223,10 +225,12 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                     model.setAnonymousAllowed(anonymous);
                     // the callback sets the SessionContext and redirects to the login page or the
                     // initial page and may additionaly open an initial tab
+                    OpenViewAction action = UrlParamsHelper.createNavigateToCurrentUrlAction(viewContext);
                     SessionContextCallback sessionContextCallback =
                             new SessionContextCallback((CommonViewContext) viewContext,
-                                    UrlParamsHelper.createNavigateToCurrentUrlAction(viewContext));
-                    service.tryToGetCurrentSessionContext(anonymous, sessionContextCallback);
+                                    action);
+                    String sessionId = action.getViewLocator().getSessionId();
+                    service.tryToGetCurrentSessionContext(anonymous, sessionId, sessionContextCallback);
                 }
 
                 private ViewMode findViewMode(ApplicationInfo info)
@@ -277,8 +281,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
     }
 
     /**
-     * A version of onModuleLoad specifically for tests. Ignore the state in the session and go
-     * directly to the login page.
+     * A version of onModuleLoad specifically for tests. Ignore the state in the session and go directly to the login page.
      */
     public final void onModuleLoadTest()
     {
@@ -308,8 +311,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
     }
 
     /**
-     * Callback class which handles return value
-     * {@link ICommonClientService#tryToGetCurrentSessionContext()}.
+     * Callback class which handles return value {@link ICommonClientService#tryToGetCurrentSessionContext()}.
      * 
      * @author Franz-Josef Elmer
      */
@@ -426,8 +428,8 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
      * Register any handlers for locators specified in the openBIS URL.
      * 
      * @param handlerRegistry The handler registry to initialize
-     * @param context The ViewContext which may be needed by resolvers. Can't use the viewContext
-     *            instance variable since it may not have been initialized yet.
+     * @param context The ViewContext which may be needed by resolvers. Can't use the viewContext instance variable since it may not have been
+     *            initialized yet.
      */
     protected void initializeLocatorHandlerRegistry(ViewLocatorResolverRegistry handlerRegistry,
             IViewContext<ICommonClientServiceAsync> context)
@@ -438,6 +440,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         handlerRegistry.registerHandler(new ProjectLocatorResolver(context));
         handlerRegistry.registerHandler(new MetaprojectLocatorResolver(context));
         handlerRegistry.registerHandler(new AttachmentDownloadLocatorResolver(context));
+        handlerRegistry.registerHandler(new PermlinkEditingLocatorResolver(context));
         handlerRegistry.registerHandler(new PermlinkLocatorResolver(context));
 
         handlerRegistry.registerHandler(new SearchLocatorResolver(context));

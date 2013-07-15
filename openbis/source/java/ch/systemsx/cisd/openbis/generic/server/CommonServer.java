@@ -3607,6 +3607,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             return calculator.eval(adaptor);
         } catch (Throwable e)
         {
+            operationLog.warn("Dynamic property evaluation failed", e);
             // return error message if there is a problem with evaluation
             return e.getMessage();
         }
@@ -3663,6 +3664,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             }
         } catch (Throwable e)
         {
+            operationLog.warn("Validation script evaluation failed", e);
             // return error message if there is a problem with evaluation
             return e.getMessage();
         }

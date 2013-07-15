@@ -537,11 +537,12 @@ public abstract class AbstractClientService implements IClientService,
     }
 
     @Override
-    public final SessionContext tryToGetCurrentSessionContext(boolean anonymous)
+    public final SessionContext tryToGetCurrentSessionContext(boolean anonymous, String sessionIdOrNull)
     {
+        boolean sessionIdSpecified = sessionIdOrNull != null;
         try
         {
-            final String sessionToken = getSessionToken();
+            final String sessionToken = sessionIdSpecified ? sessionIdOrNull : getSessionToken();
             final SessionContextDTO session = getServer().tryGetSession(sessionToken);
             if (session == null)
             {
@@ -552,7 +553,7 @@ public abstract class AbstractClientService implements IClientService,
                 getServer().logout(sessionToken);
                 return null;
             }
-            return createSessionContext(session);
+            return sessionIdSpecified ? tryToLogin(session) : createSessionContext(session);
         } catch (final InvalidSessionException e)
         {
             return null;

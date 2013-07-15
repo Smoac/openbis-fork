@@ -2137,8 +2137,6 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             String registratorUserIdOrNull)
     {
         IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
-        ProjectIdentifier identifier =
-                new ProjectIdentifierFactory(projectToUpdate.getIdentifier()).createIdentifier();
         if (projectToUpdate.getTechId() != null)
         {
             projectBO.loadDataByTechId(projectToUpdate.getTechId());
@@ -2147,6 +2145,8 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             projectBO.loadByPermId(projectToUpdate.getPermId());
         } else
         {
+            ProjectIdentifier identifier =
+                    new ProjectIdentifierFactory(projectToUpdate.getIdentifier()).createIdentifier();
             projectBO.loadByProjectIdentifier(identifier);
         }
         projectBO.update(projectToUpdate);
