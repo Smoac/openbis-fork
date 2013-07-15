@@ -3,8 +3,50 @@ body, div, td, table td, select {
     font-size: 11px;
 }
 
+.items-widget {
+    font-color: red;
+    border: 1px solid #B5B8C8;
+    padding: 2px;
+    background-image: url("../images/text-bg.gif");
+    background-repeat: repeat-x;
+}
+
+.item-widget {
+    background-color: #d0dff0;
+    margin-right: 0px;
+    border-radius: 3px;
+    padding-bottom: 2px;
+    white-space: nowrap;
+}
+
+.items-widget-space {
+}
+
+.item-widget-label {
+    padding-left: 3px;
+    color: #00327f;
+}
+
+.item-widget-delete-button {
+    border-width: 0px;
+    padding: 0;
+    margin-bottom: 3px;
+    background-color: transparent;
+    color: #666;
+    cursor: pointer;
+}
+
+.items-widget-text-field {
+    border: none;
+    background: transparent;
+}
+
+.items-widget-text-field:focus {
+    border: none;
+    background: transparent;
+}
 .cifex-main-page {
-		margin: 10px;
+    margin: 10px;
 }
 
 .cifex-heading {
