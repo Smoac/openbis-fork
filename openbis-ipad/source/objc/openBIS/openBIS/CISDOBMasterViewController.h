@@ -41,6 +41,7 @@
 
 @property (weak, nonatomic) IBOutlet UITableView *browseTableView;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;
+@property (strong, nonatomic) UIAlertView *waitDialog;
 
 - (IBAction)refreshFromServer:(id)sender;
 

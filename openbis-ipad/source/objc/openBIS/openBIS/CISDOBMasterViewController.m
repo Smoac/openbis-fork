@@ -111,6 +111,24 @@
     }
 }
 
+- (void)showActivityIndicatorDialog:(NSString *)message
+{
+    _waitDialog = [[UIAlertView alloc] initWithTitle:message message:nil delegate:self cancelButtonTitle:nil otherButtonTitles: nil];
+    [_waitDialog show];
+    
+    UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle: UIActivityIndicatorViewStyleWhiteLarge];
+    
+    // Adjust the indicator so it is up a few pixels from the bottom of the alert
+    indicator.center = CGPointMake(_waitDialog.bounds.size.width / 2, _waitDialog.bounds.size.height - 50);
+    [indicator startAnimating];
+    [_waitDialog addSubview:indicator];
+}
+
+- (void)removeActivityIndicatorDialog
+{
+    [_waitDialog dismissWithClickedButtonIndex:0 animated:YES];
+}
+
 - (void)showActivityIndicatorOnView:(UIView *)view
 {
     self.activityIndicator.center = view.center;
@@ -306,16 +324,28 @@
     }
     
     if ([searchTitle isEqualToString:@"Barcode"]) {
-        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard_iPad" bundle:nil];
-        CISDOBBarcodeViewController *barcodeController = [storyboard instantiateViewControllerWithIdentifier:@"Barcode"];
-        barcodeController.modalPresentationStyle = UIModalPresentationFullScreen;
-        [self presentModalViewController:barcodeController animated:YES];
+        [self showActivityIndicatorDialog: @"Loading Barcode Reader"];
+        /* [self showBarcodeScanner]; */
+        [NSTimer scheduledTimerWithTimeInterval:1.0
+                                         target:self
+                                       selector:@selector(showBarcodeScanner)
+                                       userInfo:nil
+                                        repeats:NO];
         return NO;
     } else {
         return (oldDisplayState != self.searchFilterState) ?
         [self.searchFilterState searchDisplayController: controller shouldReloadTableForSearchString: self.openBisModel.searchString] :
         YES;
     }
+}
+
+- (void)showBarcodeScanner
+{
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard_iPad" bundle:nil];
+    CISDOBBarcodeViewController *barcodeController = [storyboard instantiateViewControllerWithIdentifier:@"Barcode"];
+    barcodeController.modalPresentationStyle = UIModalPresentationFullScreen;
+    [self presentModalViewController:barcodeController animated:YES];
+    [self removeActivityIndicatorDialog];
 }
 
 - (void)searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
