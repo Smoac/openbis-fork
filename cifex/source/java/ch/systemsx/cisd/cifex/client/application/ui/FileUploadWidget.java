@@ -77,7 +77,6 @@ import ch.systemsx.cisd.cifex.client.application.FileShareUploadDialog;
 import ch.systemsx.cisd.cifex.client.application.ServletPathConstants;
 import ch.systemsx.cisd.cifex.client.application.UserUtils;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
-import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
 import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.WindowUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -152,7 +151,7 @@ public final class FileUploadWidget extends LayoutContainer
         recipientsTextArea.setToolTip(msg(UPLOAD_FILES_RECIPIENT_FIELD_TOOLTIP));
         recipientsTextArea.setName("email-addresses");
         recipientsTextArea.setPreventScrollbars(false);
-        recipientsTextArea.setValidator(CifexValidator.getUserFieldValidator());
+        
         trySetInitialValueFromURL(recipientsTextArea, Constants.RECIPIENTS_PARAMETER);
     }
 
@@ -253,7 +252,7 @@ public final class FileUploadWidget extends LayoutContainer
                     (registratorOrNull != null) ? registratorOrNull.getUserCode() : null;
             if (registratorUserCode != null)
             {
-                recipientsTextArea.setValue("id:" + registratorUserCode);
+                recipientsTextArea.addItem("id:" + registratorUserCode);
             }
         }
         return recipientsTextArea;
@@ -284,7 +283,7 @@ public final class FileUploadWidget extends LayoutContainer
                 {
                     final List<UserInfoDTO> existingUsers = new ArrayList<UserInfoDTO>();
                     final List<UserInfoDTO> newUsers = new ArrayList<UserInfoDTO>();
-                    final String[] userEntries = recipientsTextArea.getUserEntries();
+                    final String[] userEntries = recipientsTextArea.getItems();
                     final FileShareUploadDialog dialog =
                             new FileShareUploadDialog(context, existingUsers, newUsers,
                                     "Upload New Files", recipientsTextArea);
@@ -359,9 +358,9 @@ public final class FileUploadWidget extends LayoutContainer
                     });
     }
 
-    private final TextArea createCommentField()
+    private final Widget createCommentField()
     {
-        final UserTextArea textAreaConfig = new UserTextArea();
+        final TextArea textAreaConfig = new TextArea();
         textAreaConfig.setAllowBlank(true);
         textAreaConfig.setFieldLabel(msg(CREATE_USER_COMMENT_LABEL));
         textAreaConfig.setName("upload-comment");
@@ -401,7 +400,7 @@ public final class FileUploadWidget extends LayoutContainer
         return fileField;
     }
 
-    private void trySetInitialValueFromURL(UserTextArea field, String paramKey)
+    private void trySetInitialValueFromURL(TextArea field, String paramKey)
     {
         String initialValueOrNull = tryGetUrlParamValue(paramKey);
         if (StringUtils.isBlank(initialValueOrNull) == false)

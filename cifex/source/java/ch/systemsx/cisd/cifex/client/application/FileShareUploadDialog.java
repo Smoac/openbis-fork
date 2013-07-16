@@ -63,7 +63,7 @@ public class FileShareUploadDialog extends AbstractFileShareUserDialog
                 userEntries.add((newUsers.get(i)).getEmail());
             }
         }
-        userTextArea.setUserEntries(userEntries.toArray(new String[userEntries.size()]));
+        userTextArea.setItems(userEntries.toArray(new String[userEntries.size()]));
     }
 
     @Override

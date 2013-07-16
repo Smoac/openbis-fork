@@ -35,6 +35,35 @@ public class CifexValidator
 {
 
     /**
+     * Validator for user inputs like 'id:<user code>' or e-mail addresses.
+     */
+    public static IValidator USER_VALIDATOR = new IValidator()
+        {
+            @Override
+            public String validate(String value)
+            {
+                final String[] result = value.split("[,\\s]+");
+                if (result.length == 0)
+                {
+                    return msg(VALIDATION_REQUIRED_BLANK_MSG);
+                }
+                for (int i = 0; i < result.length; i++)
+                {
+                    assert result[i] != null : "Must not be null.";
+                    final String item = result[i].trim();
+                    if (item.length() > 0
+                            && StringUtils.matches(Constants.EMAIL_REGEX, item) == false
+                            && StringUtils.matches(Constants.USER_CODE_WITH_ID_PREFIX_REGEX,
+                                    item, Constants.CASE_INSENSITIVE_MATCHING) == false)
+                    {
+                        return msg(UPLOAD_FILES_RECIPIENT_FIELD_INVALID_MSG);
+                    }
+                }
+                return null;
+            }
+        };
+
+    /**
      * Returns a validator for a user field. The validator allows to specify email addresses and
      * user codes (with the prefix 'id:'). The Validator allows that the field has one or more
      * entries, which are separated by comma or tabs.
@@ -47,24 +76,7 @@ public class CifexValidator
                 @Override
                 public String validate(Field<?> field, String value)
                 {
-                    final String[] result = value.split("[,\\s]+");
-                    if (result.length == 0)
-                    {
-                        return msg(VALIDATION_REQUIRED_BLANK_MSG);
-                    }
-                    for (int i = 0; i < result.length; i++)
-                    {
-                        assert result[i] != null : "Must not be null.";
-                        final String item = result[i].trim();
-                        if (item.length() > 0
-                                && StringUtils.matches(Constants.EMAIL_REGEX, item) == false
-                                && StringUtils.matches(Constants.USER_CODE_WITH_ID_PREFIX_REGEX,
-                                        item, Constants.CASE_INSENSITIVE_MATCHING) == false)
-                        {
-                            return msg(UPLOAD_FILES_RECIPIENT_FIELD_INVALID_MSG);
-                        }
-                    }
-                    return null;
+                    return USER_VALIDATOR.validate(value);
                 }
             };
     }
