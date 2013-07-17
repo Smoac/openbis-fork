@@ -56,6 +56,8 @@ public class ItemsWidget extends FlowPanel
     
     private final Set<IItemsWidgetChangeListener> changeListeners = new LinkedHashSet<IItemsWidgetChangeListener>();
 
+    private boolean readOnly;
+
     /**
      * Creates a new instance for the specified oracle and/or validator. At least one of the arguments has to be not <code>null</code>.
      * 
@@ -76,7 +78,10 @@ public class ItemsWidget extends FlowPanel
                     @Override
                     public void onValueChange(ValueChangeEvent<String> event)
                     {
-                        addItem(event.getValue());
+                        if (readOnly == false)
+                        {
+                            addItem(event.getValue());
+                        }
                     }
                 });
         }
@@ -85,7 +90,10 @@ public class ItemsWidget extends FlowPanel
                 @Override
                 public void onSelection(SelectionEvent<Suggestion> event)
                 {
-                    addItem(box.getValue());
+                    if (readOnly == false)
+                    {
+                        addItem(box.getValue());
+                    }
                 }
             });
         getElement().setClassName("items-widget");
@@ -105,9 +113,18 @@ public class ItemsWidget extends FlowPanel
         super.onAttach();
     }
 
+    /**
+     * Sets minimum size of the input field for entering new items. Default value is 40.
+     */
     public void setMinimumInputFieldSize(int minimumInputFieldSize)
     {
         this.minimumInputFieldSize = minimumInputFieldSize;
+    }
+
+    public void setReadOnly(boolean readOnly)
+    {
+        this.readOnly = readOnly;
+        box.setVisible(readOnly == false);
     }
 
     public List<String> getItems()
@@ -180,7 +197,10 @@ public class ItemsWidget extends FlowPanel
                 @Override
                 public void onClick(ClickEvent event)
                 {
-                    delete(panel);
+                    if (readOnly == false)
+                    {
+                        delete(panel);
+                    }
                 }
             });
         deleteButton.getElement().setClassName("item-widget-delete-button");

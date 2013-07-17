@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.client.application.ui.itemswidget;
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
@@ -26,7 +27,7 @@ import com.google.gwt.user.client.ui.SuggestOracle;
 import ch.systemsx.cisd.cifex.client.application.utils.IValidator;
 
 /**
- * 
+ * A variant of a {@link TextArea} {@link Field} based on {@link ItemsWidget}.
  *
  * @author Franz-Josef Elmer
  */
@@ -55,7 +56,6 @@ public class ItemsField extends TextArea
                     }
                     String renderedItems = builder.toString();
                     hiddenTextField.setAttribute("value", renderedItems);
-                    setValue(renderedItems);
                 }
             });
         hiddenTextField = DOM.createInputText();
@@ -76,6 +76,30 @@ public class ItemsField extends TextArea
                 addItem(items[i]);
             }
         }
+    }
+
+    @Override
+    public void setValue(String value)
+    {
+        setItems(value.split(" "));
+    }
+
+    @Override
+    protected void initValue()
+    {
+    }
+
+    @Override
+    public String getRawValue()
+    {
+        return hiddenTextField.getAttribute("value");
+    }
+
+    @Override
+    public void setReadOnly(boolean readOnly)
+    {
+        super.setReadOnly(readOnly);
+        itemsWidget.setReadOnly(readOnly);
     }
 
     @Override
