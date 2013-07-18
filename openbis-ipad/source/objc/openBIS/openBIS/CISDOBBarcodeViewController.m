@@ -53,8 +53,11 @@
 #pragma mark - View Controller Methods
 
 - (void)viewWillAppear:(BOOL)animated {
+    [NSThread detachNewThreadSelector:@selector(loadBarcodeReader) toTarget:self withObject:nil];
     [super viewWillAppear:animated];
-    
+}
+
+- (void)loadBarcodeReader {
     self.capture = [[ZXCapture alloc] init];
     self.capture.delegate = self;
     self.capture.rotation = 90.0f;

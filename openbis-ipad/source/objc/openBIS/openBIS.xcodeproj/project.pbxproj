@@ -264,6 +264,7 @@
 		5D07C0391771CC1100555DE2 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D07C0381771CC1100555DE2 /* CoreVideo.framework */; };
 		5D07C03B1771CC1F00555DE2 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D07C03A1771CC1F00555DE2 /* ImageIO.framework */; };
 		5D07C03D1771CC4700555DE2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D07C03C1771CC4600555DE2 /* QuartzCore.framework */; };
+		5DC8068E179812C2002D3DB1 /* qrcodeIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 5DC8068D179812C2002D3DB1 /* qrcodeIcon.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -775,6 +776,7 @@
 		5D07C0381771CC1100555DE2 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		5D07C03A1771CC1F00555DE2 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
 		5D07C03C1771CC4600555DE2 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		5DC8068D179812C2002D3DB1 /* qrcodeIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = qrcodeIcon.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -898,6 +900,7 @@
 		36F71E81161C3AE900C87277 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				5DC8068D179812C2002D3DB1 /* qrcodeIcon.png */,
 				3656C9C8165ABD4C00E9B0FA /* Zoom-small.png */,
 				3656C9C5165ABC5D00E9B0FA /* Zoom.png */,
 				3687D8FD162D3AB500622690 /* openbis-icon-72.png */,
@@ -1764,6 +1767,7 @@
 				3605B05C1653EE8500CEC7F8 /* Settings.bundle in Resources */,
 				3656C9C6165ABC5D00E9B0FA /* Zoom.png in Resources */,
 				3656C9C9165ABD4C00E9B0FA /* Zoom-small.png in Resources */,
+				5DC8068E179812C2002D3DB1 /* qrcodeIcon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

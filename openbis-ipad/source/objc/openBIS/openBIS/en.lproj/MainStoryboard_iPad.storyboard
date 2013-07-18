@@ -483,22 +483,32 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
                                     <constraint firstAttribute="width" constant="367" id="Mgw-ab-X16"/>
                                     <constraint firstAttribute="height" constant="134" id="yT0-bZ-zpH"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                                <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="22"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <view userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="1" verticalHuggingPriority="1" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="vFb-Tp-Uap">
+                                <subviews>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="qrcodeIcon.png" translatesAutoresizingMaskIntoConstraints="NO" id="TMb-No-FGo"/>
+                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="hj7-bf-kQR"/>
+                                </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <accessibility key="accessibilityConfiguration">
                                     <accessibilityTraits key="traits" none="YES" notEnabled="YES"/>
                                 </accessibility>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="360" type="user" id="AhB-w2-dO2"/>
+                                    <constraint firstItem="TMb-No-FGo" firstAttribute="bottom" secondItem="vFb-Tp-Uap" secondAttribute="bottom" type="default" id="TAL-Gq-T4X"/>
+                                    <constraint firstItem="hj7-bf-kQR" firstAttribute="centerX" secondItem="TMb-No-FGo" secondAttribute="centerX" type="default" id="bM1-QU-fdM"/>
+                                    <constraint firstItem="TMb-No-FGo" firstAttribute="leading" secondItem="vFb-Tp-Uap" secondAttribute="leading" type="default" id="dF6-Qd-8kW"/>
+                                    <constraint firstItem="hj7-bf-kQR" firstAttribute="top" secondItem="vFb-Tp-Uap" secondAttribute="top" constant="156" id="deP-RS-EiH"/>
+                                    <constraint firstItem="TMb-No-FGo" firstAttribute="trailing" secondItem="vFb-Tp-Uap" secondAttribute="trailing" type="default" id="g0D-Te-hlh"/>
+                                    <constraint firstItem="TMb-No-FGo" firstAttribute="top" secondItem="vFb-Tp-Uap" secondAttribute="top" type="default" id="pid-y2-Kdl"/>
                                     <constraint firstAttribute="height" constant="360" type="user" id="zx2-gM-LXw"/>
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="centerX" secondItem="vFb-Tp-Uap" secondAttribute="centerX" type="user" id="Eeb-R7-DTj"/>
                             <constraint firstAttribute="centerY" secondItem="vFb-Tp-Uap" secondAttribute="centerY" type="user" id="Iz9-PT-7DJ"/>
@@ -521,6 +531,7 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
     </scenes>
     <resources>
         <image name="Zoom-small.png" width="32" height="32"/>
+        <image name="qrcodeIcon.png" width="1200" height="1200"/>
     </resources>
     <classes>
         <class className="CISDOBBarcodeViewController" superclassName="UIViewController">

@@ -111,6 +111,7 @@
     }
 }
 
+/*
 - (void)showActivityIndicatorDialog:(NSString *)message
 {
     _waitDialog = [[UIAlertView alloc] initWithTitle:message message:nil delegate:self cancelButtonTitle:nil otherButtonTitles: nil];
@@ -128,6 +129,7 @@
 {
     [_waitDialog dismissWithClickedButtonIndex:0 animated:YES];
 }
+*/
 
 - (void)showActivityIndicatorOnView:(UIView *)view
 {
@@ -281,20 +283,21 @@
     }
 }
 
+
 - (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
 {
     [self.tableView endUpdates];
 }
 
-/*
+
 // Implementing the above methods to update the table view in response to individual changes may have performance implications if a large number of changes are made simultaneously. If this proves to be an issue, you can instead just implement controllerDidChangeContent: which notifies the delegate that all section and object changes have been processed. 
- 
+ /*
  - (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
 {
     // In the simplest, most efficient, case, reload the table view.
     [self.tableView reloadData];
-}
- */
+} */
+
 
 #pragma mark - UISearchDisplayDelegate
 
@@ -319,33 +322,24 @@
     self.openBisModel.selectedSearchScopeIndex = searchOption;
     NSString* searchTitle = [self scopeButtonTitles][self.openBisModel.selectedSearchScopeIndex];
     self.searchFilterState = [self.openBisModel isSelectedSearchScopeIndexSearch] ? self.searchState : self.filterState;
-    if (self.openBisModel.searchString == nil) {
+    if (self.openBisModel.searchString == nil) { //Avoid application crash
         self.openBisModel.searchString = @"";
     }
     
     if ([searchTitle isEqualToString:@"Barcode"]) {
-        [self showActivityIndicatorDialog: @"Loading Barcode Reader"];
-        /* [self showBarcodeScanner]; */
-        [NSTimer scheduledTimerWithTimeInterval:1.0
-                                         target:self
-                                       selector:@selector(showBarcodeScanner)
-                                       userInfo:nil
-                                        repeats:NO];
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard_iPad" bundle:nil];
+        CISDOBBarcodeViewController *barcodeController = [storyboard instantiateViewControllerWithIdentifier:@"Barcode"];
+        barcodeController.modalPresentationStyle = UIModalPresentationFullScreen;
+        [self presentModalViewController:barcodeController animated:YES];
+        
         return NO;
-    } else {
+    } else if(self.openBisModel.searchString.length > 2) { //Search String should have a minimum size
         return (oldDisplayState != self.searchFilterState) ?
         [self.searchFilterState searchDisplayController: controller shouldReloadTableForSearchString: self.openBisModel.searchString] :
         YES;
+    } else {
+        return NO; //Do nothing
     }
-}
-
-- (void)showBarcodeScanner
-{
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard_iPad" bundle:nil];
-    CISDOBBarcodeViewController *barcodeController = [storyboard instantiateViewControllerWithIdentifier:@"Barcode"];
-    barcodeController.modalPresentationStyle = UIModalPresentationFullScreen;
-    [self presentModalViewController:barcodeController animated:YES];
-    [self removeActivityIndicatorDialog];
 }
 
 - (void)searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
