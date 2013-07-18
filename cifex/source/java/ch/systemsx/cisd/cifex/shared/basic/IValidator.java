@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.client.application.utils;
+package ch.systemsx.cisd.cifex.shared.basic;
 
 /**
  * Validator of string values.

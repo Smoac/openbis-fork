@@ -37,7 +37,7 @@ import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.cifex.client.application.utils.IValidator;
+import ch.systemsx.cisd.cifex.shared.basic.IValidator;
 
 /**
  * A widget which allows to add and remove items. The items are little boxes with a delete element for interactive deletion.

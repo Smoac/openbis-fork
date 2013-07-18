@@ -24,7 +24,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.SuggestOracle;
 
-import ch.systemsx.cisd.cifex.client.application.utils.IValidator;
+import ch.systemsx.cisd.cifex.shared.basic.IValidator;
 
 /**
  * A variant of a {@link TextArea} {@link Field} based on {@link ItemsWidget}.

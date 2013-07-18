@@ -74,3 +74,12 @@ layer rpc-common = [rpc.common]
 layer rpc-client-server = [rpc.client] [rpc.server]
 
 check layeringOf rpc-common rpc-client-server 
+
+######################################################################
+# Check dependencies package itemswidget
+
+[itemswidget] = ${client}.application.ui.itemswidget.*
+check sets [itemswidget]
+
+check [itemswidget] independentOf [client.application]
+
