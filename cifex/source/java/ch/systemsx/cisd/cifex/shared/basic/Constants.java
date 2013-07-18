@@ -85,9 +85,10 @@ public final class Constants
     /** The table <i>empty</i> value representation. */
     public static final String TABLE_EMPTY_VALUE = "";
 
+    private static final String PURE_EMAIL_REGEX = "([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+";
+
     /** A regular expression that match email addresses. */
-    public static final String EMAIL_REGEX =
-            "^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$";
+    public static final String EMAIL_REGEX = "^(" + PURE_EMAIL_REGEX + ")|(([^,<]+ )?<" + PURE_EMAIL_REGEX + ">)$";
 
     /** A regular expression that match user code with prefix {@link #USER_ID_PREFIX}. */
     public static final String USER_CODE_WITH_ID_PREFIX_REGEX =

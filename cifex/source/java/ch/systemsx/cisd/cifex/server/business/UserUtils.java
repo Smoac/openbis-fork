@@ -41,7 +41,7 @@ public class UserUtils
             Pattern.compile(Constants.USER_CODE_WITH_ID_PREFIX_REGEX, Pattern.CASE_INSENSITIVE);
 
     static final Pattern EMAIL_PATTERN = Pattern.compile(Constants.EMAIL_REGEX);
-
+    
     final static String USER_ID_PREFIX = Constants.USER_ID_PREFIX;
 
     /**
@@ -94,6 +94,17 @@ public class UserUtils
     static boolean isEmail(final String identifier)
     {
         return UserUtils.EMAIL_PATTERN.matcher(identifier).matches();        
+    }
+    
+    static String extractEmail(String identifier)
+    {
+        String normalizedIdentifier = identifier.toLowerCase();
+        int indexOfBracket = normalizedIdentifier.indexOf('<');
+        if (indexOfBracket < 0)
+        {
+            return normalizedIdentifier;
+        }
+        return normalizedIdentifier.substring(indexOfBracket + 1, normalizedIdentifier.length() - 1);
     }
 
     /**

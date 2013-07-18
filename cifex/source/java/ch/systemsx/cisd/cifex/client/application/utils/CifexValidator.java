@@ -42,7 +42,7 @@ public class CifexValidator
             @Override
             public String validate(String value)
             {
-                final String[] result = value.split("[,\\s]+");
+                final String[] result = value.split(",\\s*");
                 if (result.length == 0)
                 {
                     return msg(VALIDATION_REQUIRED_BLANK_MSG);

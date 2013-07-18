@@ -36,6 +36,7 @@ public class ItemsField extends TextArea
 
     private ItemsWidget itemsWidget;
     private Element hiddenTextField;
+    private String itemDelimiter = ",";
 
     public ItemsField(SuggestOracle oracleOrNull, final IValidator validatorOrNull)
     {
@@ -50,7 +51,7 @@ public class ItemsField extends TextArea
                     {
                         if (builder.length() > 0)
                         {
-                            builder.append(' ');
+                            builder.append(itemDelimiter);
                         }
                         builder.append(item);
                     }
@@ -93,6 +94,11 @@ public class ItemsField extends TextArea
     public String getRawValue()
     {
         return hiddenTextField.getAttribute("value");
+    }
+    
+    public void setItemDelimiter(String itemDelimiter)
+    {
+        this.itemDelimiter = itemDelimiter;
     }
 
     @Override
