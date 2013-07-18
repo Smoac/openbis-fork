@@ -106,7 +106,10 @@
 	<target name="dist" depends="clean, jar, src-zip, examples-src-zip, doc">
 		<zip destfile="${javadoc.zip.file}" basedir="${targets}" includes="doc/**" />
 		<delete dir="${dist}/${mainfolder}" />
-		<copy file="${lib}/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar" todir="${dist}/${distfolder}/lib" />
+		<copy file="${lib}/jhdf5/cisd-jhdf5-core.jar" todir="${dist}/${distfolder}/lib" />
+		<copy file="${lib}/jhdf5/hdf5-linux-intel.jar" todir="${dist}/${distfolder}/lib" />
+		<copy file="${lib}/jhdf5/hdf5-macosx-intel.jar" todir="${dist}/${distfolder}/lib" />
+		<copy file="${lib}/jhdf5/hdf5-windows-intel.jar" todir="${dist}/${distfolder}/lib" />
 		<move todir="${dist}/${distfolder}/lib">
 			<fileset dir="${dist}">
 				<include name="*.jar" />
