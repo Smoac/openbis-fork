@@ -28,7 +28,6 @@ import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_RECIPIENT_FIELD_TOOLTIP;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_RESET_BUTTON_LABEL;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_SUBMIT_BUTTON_LABEL;
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_VALIDATE_USERS_BUTTON_LABEL;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_WEBSTART_PANEL_TITLE;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_WEBSTART_PROS_INFO;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
@@ -99,8 +98,6 @@ public final class FileUploadWidget extends LayoutContainer
     private final ViewContext context;
 
     private Button submitButton;
-
-    private Button validateButton;
 
     private final FormPanel formPanel;
 
@@ -213,10 +210,6 @@ public final class FileUploadWidget extends LayoutContainer
 
             });
         submitButton.setIcon(AbstractImagePrototype.create(ImageUtils.ICONS.getUploaderIcon()));
-
-        formPanel.addButton(validateButton =
-                new Button(msg(UPLOAD_FILES_VALIDATE_USERS_BUTTON_LABEL)));
-        validateButton.addSelectionListener(getUserValidateButtonListener());
 
         formPanel.addButton(new Button(msg(UPLOAD_FILES_RESET_BUTTON_LABEL),
                 new SelectionListener<ButtonEvent>()
