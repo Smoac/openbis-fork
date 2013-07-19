@@ -109,6 +109,7 @@ static bool isIPad();
     hard_stop = false;
     capture_device = 0;
     capture_device_index = -1;
+    camera = 1;
     order_in_skip = 0;
     order_out_skip = 0;
     transform = CGAffineTransformIdentity;
@@ -397,7 +398,7 @@ static bool isIPad();
 
     ZXAV(layer.videoGravity = AVLayerVideoGravityResizeAspect);
     ZXAV(layer.videoGravity = AVLayerVideoGravityResizeAspectFill);
-    
+
     [layer setAffineTransform:transform];
     layer.delegate = self;
 
@@ -635,7 +636,7 @@ ZXAV(didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer)
 }
 
 - (int)front {
-  return 1;
+  return 0;
 }
 
 - (int)back {

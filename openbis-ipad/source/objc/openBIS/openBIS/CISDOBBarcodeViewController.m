@@ -28,6 +28,7 @@
 
 @property (nonatomic, retain) IBOutlet UILabel* decodedLabel;
 @property (nonatomic, retain) IBOutlet UIView* cameraView;
+@property (nonatomic, retain) IBOutlet UIBarButtonItem* backButton;
 
 
 - (NSString*)displayForResult:(ZXResult*)result;
@@ -56,6 +57,7 @@
     [self.capture release];
     [self.decodedLabel release];
     [self.cameraView release];
+    [self.backButton release];
     
     [super dealloc];
 }
@@ -80,6 +82,7 @@
 }
 
 - (void)loadBarcodeReader {
+    self.backButton.enabled = NO;
     self.capture = [[ZXCapture alloc] init];
     self.capture.delegate = self;
     // self.capture.rotation = 90.0f;
@@ -96,7 +99,7 @@
     [overlayImageView setFrame:CGRectMake((768/2 - 180), 100, 360, 277)];
     [self.cameraView addSubview:overlayImageView];
     [overlayImageView release];
-    
+    self.backButton.enabled = YES;
     //[self.cameraSession stopRunning];
     //[self.previewLayer removeFromSuperlayer];
 }

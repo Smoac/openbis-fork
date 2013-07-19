@@ -503,11 +503,11 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
                                 </accessibility>
                                 <constraints>
                                     <constraint firstItem="hj7-bf-kQR" firstAttribute="centerX" secondItem="TMb-No-FGo" secondAttribute="centerX" type="default" id="3re-JE-D66"/>
-                                    <constraint firstAttribute="centerY" secondItem="TMb-No-FGo" secondAttribute="centerY" type="user" id="O9h-Gn-OBR"/>
                                     <constraint firstAttribute="centerX" secondItem="hj7-bf-kQR" secondAttribute="centerX" type="user" id="RTh-W9-8J6"/>
                                     <constraint firstItem="hj7-bf-kQR" firstAttribute="centerX" secondItem="6wU-An-596" secondAttribute="centerX" type="default" id="ZOb-NB-byv"/>
                                     <constraint firstItem="6wU-An-596" firstAttribute="top" secondItem="vFb-Tp-Uap" secondAttribute="top" constant="-12" id="gg2-fo-Jgf"/>
-                                    <constraint firstItem="hj7-bf-kQR" firstAttribute="top" secondItem="vFb-Tp-Uap" secondAttribute="top" constant="455" id="xbz-s6-DP9"/>
+                                    <constraint firstItem="TMb-No-FGo" firstAttribute="top" secondItem="vFb-Tp-Uap" secondAttribute="top" constant="100" id="nry-0X-5Vx"/>
+                                    <constraint firstItem="hj7-bf-kQR" firstAttribute="top" secondItem="vFb-Tp-Uap" secondAttribute="top" constant="256" id="yYo-cs-Xe0"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -524,6 +524,7 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
                     </view>
                     <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
                     <connections>
+                        <outlet property="backButton" destination="Thn-OB-Ryg" id="nqC-AQ-AZv"/>
                         <outlet property="cameraView" destination="vFb-Tp-Uap" id="u7B-v1-i9E"/>
                         <outlet property="decodedLabel" destination="6wU-An-596" id="tZ6-5s-Dju"/>
                     </connections>
@@ -541,6 +542,7 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
         <class className="CISDOBBarcodeViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/CISDOBBarcodeViewController.h"/>
             <relationships>
+                <relationship kind="outlet" name="backButton" candidateClass="UIBarButtonItem"/>
                 <relationship kind="outlet" name="cameraView" candidateClass="UIView"/>
                 <relationship kind="outlet" name="decodedLabel" candidateClass="UILabel"/>
             </relationships>
