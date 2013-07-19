@@ -161,7 +161,6 @@ static bool isIPad();
       if (camera == self.front) {
         position = AVCaptureDevicePositionFront;
       }
-
       for(unsigned int i=0; i < [devices count]; ++i) {
         ZXCaptureDevice *dev = [devices objectAtIndex:i];
         if (dev.position == position) {
@@ -248,6 +247,7 @@ static bool isIPad();
         preset = AVCaptureSessionPresetMedium;
       }
       session.sessionPreset = preset;
+      
     });
     [session addInput:input ZXQT(error:nil)];
   }
@@ -635,7 +635,7 @@ ZXAV(didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer)
 }
 
 - (int)front {
-  return 0;
+  return 1;
 }
 
 - (int)back {

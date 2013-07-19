@@ -21,8 +21,14 @@
 @interface CISDOBBarcodeViewController ()
 
 @property (nonatomic, retain) ZXCapture* capture;
+@property (nonatomic, retain) AVCaptureSession* cameraSession;
+@property (nonatomic, retain) AVCaptureVideoPreviewLayer* previewLayer;
+@property (nonatomic, retain) AVCaptureDevice *videoDevice;
+@property (nonatomic, retain) AVCaptureDeviceInput *videoIn;
+
 @property (nonatomic, retain) IBOutlet UILabel* decodedLabel;
 @property (nonatomic, retain) IBOutlet UIView* cameraView;
+
 
 - (NSString*)displayForResult:(ZXResult*)result;
 
@@ -53,6 +59,19 @@
 #pragma mark - View Controller Methods
 
 - (void)viewWillAppear:(BOOL)animated {
+    /*
+    self.videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    NSError *error;
+    self.videoIn = [AVCaptureDeviceInput deviceInputWithDevice:self.videoDevice error:&error];
+    self.cameraSession = [[AVCaptureSession alloc] init];
+    [self.cameraSession addInput:self.videoIn];
+    self.previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:self.cameraSession];
+    self.previewLayer.frame = CGRectMake(0.f, 0.f, 360.f, 360.f);
+    [self.previewLayer setVideoGravity:AVLayerVideoGravityResizeAspectFill];
+    
+    [self.cameraView.layer addSublayer: self.previewLayer];
+    [self.cameraSession startRunning];
+    */
     [NSThread detachNewThreadSelector:@selector(loadBarcodeReader) toTarget:self withObject:nil];
     [super viewWillAppear:animated];
 }
@@ -60,12 +79,17 @@
 - (void)loadBarcodeReader {
     self.capture = [[ZXCapture alloc] init];
     self.capture.delegate = self;
-    self.capture.rotation = 90.0f;
+    // self.capture.rotation = 90.0f;
     
     // Use the back camera
-    self.capture.camera = self.capture.back;
+    // self.capture.camera = self.capture.back;
     self.capture.layer.frame = CGRectMake(0.f, 0.f, 360.f, 360.f);
+    
     [self.cameraView.layer addSublayer: self.capture.layer];
+    
+    
+    //[self.cameraSession stopRunning];
+    //[self.previewLayer removeFromSuperlayer];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
