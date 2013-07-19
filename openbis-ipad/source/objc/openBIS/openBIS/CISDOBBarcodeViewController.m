@@ -46,6 +46,9 @@
     [self.capture.layer removeFromSuperlayer];
     [self.capture stop];
     [self dismissViewControllerAnimated:YES completion:nil];
+    [[NSNotificationCenter defaultCenter]
+     postNotificationName:@"DissmissNotification"
+     object:nil];
 }
 
 #pragma mark - Creation/Deletion Methods
@@ -83,17 +86,27 @@
     
     // Use the back camera
     // self.capture.camera = self.capture.back;
-    self.capture.layer.frame = CGRectMake(0.f, 0.f, 360.f, 360.f);
+    self.capture.layer.frame = CGRectMake(0.f, 0.f, 768.f, 960.f);
     
     [self.cameraView.layer addSublayer: self.capture.layer];
     
+    [self.cameraView bringSubviewToFront:self.decodedLabel];
+    
+    UIImageView *overlayImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"overlaygraphic.png"]];
+    [overlayImageView setFrame:CGRectMake((768/2 - 180), 100, 360, 277)];
+    [self.cameraView addSubview:overlayImageView];
+    [overlayImageView release];
     
     //[self.cameraSession stopRunning];
     //[self.previewLayer removeFromSuperlayer];
 }
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
-    return toInterfaceOrientation == UIInterfaceOrientationPortrait;
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+	return (interfaceOrientation == UIInterfaceOrientationPortrait);
+}
+
+- (NSUInteger)supportedInterfaceOrientations{
+    return UIInterfaceOrientationMaskPortrait;
 }
 
 #pragma mark - Private Methods

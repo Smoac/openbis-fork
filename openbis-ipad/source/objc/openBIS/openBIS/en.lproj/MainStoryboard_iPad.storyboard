@@ -478,47 +478,51 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
                                     </navigationItem>
                                 </items>
                             </navigationBar>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Hold up to a barcode to scan." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="10" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="367" translatesAutoresizingMaskIntoConstraints="NO" id="6wU-An-596">
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="367" id="Mgw-ab-X16"/>
-                                    <constraint firstAttribute="height" constant="134" id="yT0-bZ-zpH"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="22"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <view userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="1" verticalHuggingPriority="1" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="vFb-Tp-Uap">
                                 <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="qrcodeIcon.png" translatesAutoresizingMaskIntoConstraints="NO" id="TMb-No-FGo"/>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="qrcodeIcon.png" translatesAutoresizingMaskIntoConstraints="NO" id="TMb-No-FGo">
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="360" id="DNo-X0-Ads"/>
+                                            <constraint firstAttribute="width" constant="360" id="dht-vB-4pV"/>
+                                        </constraints>
+                                    </imageView>
                                     <activityIndicatorView opaque="NO" contentMode="scaleToFill" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="hj7-bf-kQR"/>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Hold up to a barcode to scan." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="10" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="367" translatesAutoresizingMaskIntoConstraints="NO" id="6wU-An-596">
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="367" id="Mgw-ab-X16"/>
+                                            <constraint firstAttribute="height" constant="134" id="yT0-bZ-zpH"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="22"/>
+                                        <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <accessibility key="accessibilityConfiguration">
                                     <accessibilityTraits key="traits" none="YES" notEnabled="YES"/>
                                 </accessibility>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="360" type="user" id="AhB-w2-dO2"/>
-                                    <constraint firstItem="TMb-No-FGo" firstAttribute="bottom" secondItem="vFb-Tp-Uap" secondAttribute="bottom" type="default" id="TAL-Gq-T4X"/>
-                                    <constraint firstItem="hj7-bf-kQR" firstAttribute="centerX" secondItem="TMb-No-FGo" secondAttribute="centerX" type="default" id="bM1-QU-fdM"/>
-                                    <constraint firstItem="TMb-No-FGo" firstAttribute="leading" secondItem="vFb-Tp-Uap" secondAttribute="leading" type="default" id="dF6-Qd-8kW"/>
-                                    <constraint firstItem="hj7-bf-kQR" firstAttribute="top" secondItem="vFb-Tp-Uap" secondAttribute="top" constant="156" id="deP-RS-EiH"/>
-                                    <constraint firstItem="TMb-No-FGo" firstAttribute="trailing" secondItem="vFb-Tp-Uap" secondAttribute="trailing" type="default" id="g0D-Te-hlh"/>
-                                    <constraint firstItem="TMb-No-FGo" firstAttribute="top" secondItem="vFb-Tp-Uap" secondAttribute="top" type="default" id="pid-y2-Kdl"/>
-                                    <constraint firstAttribute="height" constant="360" type="user" id="zx2-gM-LXw"/>
+                                    <constraint firstItem="hj7-bf-kQR" firstAttribute="centerX" secondItem="TMb-No-FGo" secondAttribute="centerX" type="default" id="3re-JE-D66"/>
+                                    <constraint firstAttribute="centerY" secondItem="TMb-No-FGo" secondAttribute="centerY" type="user" id="O9h-Gn-OBR"/>
+                                    <constraint firstAttribute="centerX" secondItem="hj7-bf-kQR" secondAttribute="centerX" type="user" id="RTh-W9-8J6"/>
+                                    <constraint firstItem="hj7-bf-kQR" firstAttribute="centerX" secondItem="6wU-An-596" secondAttribute="centerX" type="default" id="ZOb-NB-byv"/>
+                                    <constraint firstItem="6wU-An-596" firstAttribute="top" secondItem="vFb-Tp-Uap" secondAttribute="top" constant="-12" id="gg2-fo-Jgf"/>
+                                    <constraint firstItem="hj7-bf-kQR" firstAttribute="top" secondItem="vFb-Tp-Uap" secondAttribute="top" constant="455" id="xbz-s6-DP9"/>
                                 </constraints>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstAttribute="centerX" secondItem="vFb-Tp-Uap" secondAttribute="centerX" type="user" id="Eeb-R7-DTj"/>
-                            <constraint firstAttribute="centerY" secondItem="vFb-Tp-Uap" secondAttribute="centerY" type="user" id="Iz9-PT-7DJ"/>
-                            <constraint firstItem="6wU-An-596" firstAttribute="centerX" secondItem="wRF-uy-Ag3" secondAttribute="centerX" type="user" id="LUG-x8-d0q"/>
-                            <constraint firstItem="vFb-Tp-Uap" firstAttribute="top" secondItem="6wU-An-596" secondAttribute="bottom" constant="8" symbolic="YES" type="user" id="RxQ-JG-e8a"/>
+                            <constraint firstItem="vFb-Tp-Uap" firstAttribute="bottom" secondItem="yix-wn-HfT" secondAttribute="bottom" type="default" id="0df-p0-cop"/>
+                            <constraint firstItem="vFb-Tp-Uap" firstAttribute="trailing" secondItem="yix-wn-HfT" secondAttribute="trailing" type="default" id="EPU-lV-3qg"/>
+                            <constraint firstItem="vFb-Tp-Uap" firstAttribute="top" secondItem="wRF-uy-Ag3" secondAttribute="bottom" type="default" id="JFQ-nN-wuY"/>
+                            <constraint firstItem="vFb-Tp-Uap" firstAttribute="leading" secondItem="yix-wn-HfT" secondAttribute="leading" type="default" id="LxQ-Yh-tMQ"/>
                             <constraint firstItem="wRF-uy-Ag3" firstAttribute="trailing" secondItem="yix-wn-HfT" secondAttribute="trailing" type="user" id="T3M-Yb-4yG"/>
                             <constraint firstItem="wRF-uy-Ag3" firstAttribute="leading" secondItem="yix-wn-HfT" secondAttribute="leading" type="user" id="dAA-nq-FWn"/>
                             <constraint firstItem="wRF-uy-Ag3" firstAttribute="top" secondItem="yix-wn-HfT" secondAttribute="top" type="default" id="qFw-C2-feX"/>
                         </constraints>
                     </view>
+                    <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
                     <connections>
                         <outlet property="cameraView" destination="vFb-Tp-Uap" id="u7B-v1-i9E"/>
                         <outlet property="decodedLabel" destination="6wU-An-596" id="tZ6-5s-Dju"/>

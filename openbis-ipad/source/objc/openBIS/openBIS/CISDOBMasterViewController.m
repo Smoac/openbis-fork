@@ -67,6 +67,11 @@
      selector:@selector(receiveSearchNotification:)
      name:@"SearchNotification"
      object:nil];
+    [[NSNotificationCenter defaultCenter]
+     addObserver:self
+     selector:@selector(receiveDissmissNotification:)
+     name:@"DissmissNotification"
+     object:nil];
 }
 
 - (IBAction)refreshFromServer:(id)sender
@@ -308,6 +313,11 @@
     self.searchDisplayController.searchBar.text = searchString;
     self.openBisModel.searchString = searchString;
     [self searchDisplayController: self.searchDisplayController shouldReloadTableForSearchScope: 0];
+}
+
+- (void) receiveDissmissNotification:(NSNotification *) notification
+{
+    self.searchDisplayController.searchBar.selectedScopeButtonIndex = 0;
 }
 
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
