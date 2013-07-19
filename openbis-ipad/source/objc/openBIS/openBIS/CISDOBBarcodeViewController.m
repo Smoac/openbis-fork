@@ -85,7 +85,7 @@
     self.backButton.enabled = NO;
     self.capture = [[ZXCapture alloc] init];
     self.capture.delegate = self;
-    // self.capture.rotation = 90.0f;
+    self.capture.rotation = 90.0f;
     
     // Use the back camera
     // self.capture.camera = self.capture.back;
