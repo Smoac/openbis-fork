@@ -343,12 +343,10 @@
         [self presentModalViewController:barcodeController animated:YES];
         
         return NO;
-    } else if(self.openBisModel.searchString.length > 2) { //Search String should have a minimum size
+    } else { //Search String should have a minimum size
         return (oldDisplayState != self.searchFilterState) ?
         [self.searchFilterState searchDisplayController: controller shouldReloadTableForSearchString: self.openBisModel.searchString] :
         YES;
-    } else {
-        return NO; //Do nothing
     }
 }
 
@@ -563,20 +561,43 @@
     return @"Search Results";
 }
 
-- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
+- (void) makeSearch:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
 {
     [self.controller showActivityIndicatorOnView: controller.searchResultsTableView];
     
     __weak CISDOBTableSearchState *weakSelf = self;
-    [self.openBisModel searchServerOnSuccess: ^(id result) {
+    [self.openBisModel searchServerOnSuccess: ^(NSArray *result) {
+        NSLog(@"Search Returned with Success.", nil);
         [weakSelf.controller removeActivityIndicatorFromView: controller.searchResultsTableView];
         weakSelf.filteredResults = result;
         [controller.searchResultsTableView reloadData];
+        
+        if([result count] == 1) {
+            [self.controller tableView: controller.searchResultsTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+        }
     }];
+}
 
+static NSTimer *timer = nil;
 
-    // Do not refresh the table yet, wait until the server returns
-    return NO;
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
+{
+    if(timer != nil) {
+        [timer invalidate];
+    }
+    
+    if(searchString.length > 2) {
+        NSMethodSignature *methodSignature = [self methodSignatureForSelector:@selector(makeSearch:shouldReloadTableForSearchString:)];
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+        [invocation setTarget:self];
+        [invocation setSelector:@selector(makeSearch:shouldReloadTableForSearchString:)];
+        [invocation setArgument:&controller atIndex:2];
+        [invocation setArgument:&searchString atIndex:3];
+        
+        timer = [NSTimer scheduledTimerWithTimeInterval:1.0 invocation:invocation repeats:NO];
+    }
+    
+    return NO; // Do not refresh the table yet, wait until the server returns
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
