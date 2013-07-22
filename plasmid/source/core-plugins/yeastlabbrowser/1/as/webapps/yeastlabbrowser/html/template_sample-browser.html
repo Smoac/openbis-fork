@@ -30,45 +30,6 @@ var SAMPLE_TYPE = "TEMPLATE_SAMPLE";
 var SAMPLE_TYPE_PROPERTIES = ["TEMPLATE_DESCRIPTION", "TEMPLATE_NUMBER", "TEMPLATE_TEXT"];
 var SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME = ["Description", "Number", "Text"];
 
-function createTableFromProperties() {
-	var tableTemplate = "<table id=\"yeast-table\" cellpadding=\"0\" cellspacing=\"0\" border=\"1\" bordercolor=\"white\" class=\"display\" width=\"100%\"><thead><tr class=\"yeast-table-header\"><th>Code</th>";
-	for(var i=0; i<SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME.length;i++) {
-		tableTemplate += "<th>" + SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME[i]+ "</th>";
-	}
-	tableTemplate += "</tr></thead><tbody></tbody></table>";
-	$("#TABLE_TEMPLATE").append(tableTemplate);
-}
-
-function createTableFilterFromProperties() {
-	var PADDING = 40;
-	var START = 640;
-	
-	
-	var tableTemplate = "<table>";
-	for(var i=0; i<SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME.length;i++) {
-		START = START+PADDING;
-		tableTemplate += "<tr style=\"position:absolute; top: "+START+"px; left: 400px\"><td style=\"font-weight: bold; width: 200px\">"+SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME[i]+"</td><td><input style=\"width: 200px\" id=\""+SAMPLE_TYPE_PROPERTIES[i]+"_filter\" type=\"text\"></td></tr>";
-	}
-	
-	tableTemplate += "</table>";
-	$("#TABLE_FILTER_TEMPLATE").append(tableTemplate);
-}
-
-function createVisualizeFiltersFromProperties() {
-	for(var i=0;i<SAMPLE_TYPE_PROPERTIES.length;i++) {
-		$('#'+SAMPLE_TYPE_PROPERTIES[i]+'_filter').keyup(function() {
-			var filterResults = [];
-			for(var i=0;i<SAMPLE_TYPE_PROPERTIES.length;i++) {
-				filterResults[i] = $('#'+SAMPLE_TYPE_PROPERTIES[i]+'_filter').val();
-			}
-			
-			visualize(
-				filterResults
-			);
-		});	
-	}
-}
-
 /// All yeasts
 var yeasts = null;
 
@@ -852,11 +813,10 @@ function enterApp(data)
 	$("#login-form-div").hide();
 	$("#main").show();
 	
-	$('#openbis-logo').height(30);
-	
 	createVis();
 	
 	//showChildrenSamples();
+	populateMenu();
 	createTableFromProperties();
 	createTableFilterFromProperties();
 	createVisualizeFiltersFromProperties();
@@ -874,14 +834,6 @@ $(document).ready(function() {
 	} else {
 		$("#login-button").focus();
 	}
-	
-	$('#logout-button').click(function() { 
-		openbisServer.logout(function(data) { 
-			$("#login-form-div").show();
-			$("#main").hide();
-			$("#username").focus();
-		});
-	});
 	
 	$('#login-form').submit(function() {
 		 openbisServer.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { enterApp(data) })
@@ -933,8 +885,8 @@ function ShowHide(divId)
 
 </head>
 <body>
-	<img id="openbis-logo" src="images/openBIS_Logo.png" alt="openBIS" style="position: absolute; left: 10px; height: 100px;"/>
-	<div id="login-form-div"style="position: absolute; left: 300px; top: 200px;">
+	<img id="openbis-logo" src="images/openBIS_Logo.png" alt="openBIS" style="position: absolute; left: 10px; width: 120px;"/>
+	<div id="login-form-div" style="position: absolute; left: 300px; top: 200px;">
 		<h1>openBIS YeastLab</h1>
 		<form id="login-form" action="javascript:">
 			<input id="username" type="text" required="required"> 
@@ -944,63 +896,14 @@ function ShowHide(divId)
 	</div>
 
 <div id="main">
-	  <div id = "title" style="padding-top:20px"> TEMPLATE_SAMPLE </div>
-		<div id="button-group">	
-			<button id="logout-button" style="position: absolute; right:10px;;top:10px">Logout</button>
-		</div>
-		<div id="bacteria_browser"	style="position: absolute; left:10px; top:100px">
-		  <a href="bacteria-browser.html">Bacteria</a> 
-		</div>   
-		<div id="chemical_browser"	style="position: absolute; left:10px; top:150px">
-		  <a href="chemical-browser.html">Chemicals</a> 
-		</div>   
-		<div id="antibody_browser" style="position: absolute; left:10px; top:200px">
-		 	<a href="antibody-browser.html">Antibodies</a>  
-		</div>		
-		<div id="media_browser" style="position: absolute; left:10px; top:250px">
-		 	<a href="media-browser.html">Media</a>  
-		</div>						
-		<div id="buffer_browser" style="position: absolute; left:10px; top:300px">
-		 	<a href="solutions_buffers-browser.html">Solutions Buffers</a>  
-		</div>		
-		<div id="enzyme_browser" style="position: absolute; left:10px; top:350px">
-		 	<a href="enzyme-browser.html">Enzymes</a>  
-		</div>				
-		<div id="oligo_browser"	style="position: absolute; left:10px; top:400px">
-		  <a href="oligo-browser.html">Oligos</a>  
-		</div>		
-		<div id="plasmid_browser"	style="position: absolute; left:10px; top:450px">
-		  <a href="plasmid-browser.html">Plasmids</a>  
-		</div>		
-		<div id="yeast_browser" style="position: absolute; left:10px; top:500px">
-		 	<a href="yeast-browser.html">Yeasts</a>  
-		</div>		
-		<div id="protocol_browser" style="position: absolute; left:10px; top:550px">
-		 	<a href="general_protocol-browser.html">General Protocols</a>  
-		</div>		
-		<div id="pcr_browser" style="position: absolute; left:10px; top:600px">
-		 	<a href="pcr-browser.html">PCR</a>  
-		</div>		
-			<div id="western_blotting_browser" style="position: absolute; left:10px; top:650px">
-		 	<a href="western_blotting-browser.html">Western Blotting</a>  
-		</div>					
-			<div id="search_browser" style="position: absolute; left:200px; padding-top:570px">
-		 	<a href="search-browser.html">Search</a>  
-		</div>					
-
-
-
-		<div id="filter-button"	style=" padding-top: 570px; padding-left: 400px; font-weight:bold; padding-bottom:30px;">
-		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
-		</div> 	
-
-	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
-		<table id="TABLE_FILTER_TEMPLATE">
- 	   </table>
- 	</div>
+	  	<div id = "title" style="padding-top:20px"> TEMPLATE_SAMPLE </div>
+		<div id ="sectionsContainer"><div>
+		<div id='filter-button' style='padding-top: 570px; padding-left: 400px; font-weight:bold; padding-bottom:30px;'> <a onclick ="javascript:ShowHide('HiddenDiv')"  href='javascript:;' >Filters</a> </div>
+		<div class="mid" id="HiddenDiv" style="display: none;"> <table id="filterContainer"></table></div>
+		
  		<div id="vis">
  		   <div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
-			   <div id="TABLE_TEMPLATE"></div>
+			   <div id="tableContainer"></div>
 	 	   </div>
 	 		
 			<div id="inspectorsContainer" style="float:right "></div>
