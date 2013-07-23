@@ -11,6 +11,7 @@ from ch.systemsx.cisd.openbis.generic.shared.managed_property import ManagedProp
 
 import codecs
 import re
+import time
 
 #
 # BEGIN Infrastructure
@@ -678,60 +679,26 @@ class YeastLabSearchRequestHandler(SearchRequestHandler):
 		self.enzymes = samplesByType.getSamples('ENZYME')
 		self.westernBlottings = samplesByType.getSamples('WESTERN_BLOTTING')
 
-	def retrieve_data(self):
-		all_samples_sc = SearchCriteria()
-		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAnyFieldMatch(self.parameters['searchtext']))
-		self.samples = self.searchService.searchForSamples(all_samples_sc)
-		
-		#Custom Sorting
-		samplesWithScores = [];
-		for sample in self.samples:
-			score = self.calculate_score(sample, self.parameters['searchtext']);
-			samplesWithScores.append([sample, score]);
-		
-		samplesWithScores = sorted(samplesWithScores, key=lambda sampleWithScore: sampleWithScore[1], reverse=True);
-		
-		index = 0;
-		samplesLen = len(self.samples);
-		while index < samplesLen: # run forever
-			print "This sample %s on scores" % (samplesWithScores[index][0].getSampleIdentifier());
-			self.samples[index] = samplesWithScores[index][0];
-			print "This sample %s on samples" % (self.samples[index].getSampleIdentifier());
-			index = index +1;
-		#
-		
-		#print "Sample: " + self.samples[0]
-		# Sort out the results
-		self.sort_samples_by_type(self.samples)
-		
-		self.children_map = dict()
-		for plasmid in self.plasmids:
-			for parent in plasmid.getParentSampleIdentifiers():
-				children = self.children_map.setdefault(parent, [])
-				children.append(plasmid)
-		for yeast in self.yeasts:
-			for parent in yeast.getParentSampleIdentifiers():
-				children = self.children_map.setdefault(parent, [])
-				children.append(yeast)			
-
 	def calculate_score(self, sample, searchTerm):
 		score = 0;
+		
 		searchTermWithoutWildcards = searchTerm.replace("*","").replace("?","");
 		regularExpresion = re.compile(searchTerm, re.IGNORECASE);
 		
-		if self.matches_exactly(sample.getCode(), searchTermWithoutWildcards):
-			score += 10000;
 		if self.matches_with_wildcards(sample.getCode(), regularExpresion):
-			score += 1000;
-		for property in sample.sample.getProperties():
-			if self.matches_exactly(property.getValue(), searchTermWithoutWildcards):
-				score += 100;
-		if self.matches_exactly(sample.getSampleType(), searchTermWithoutWildcards):
-			score += 10;
+			score += 100000;
+			if self.matches_exactly(sample.getCode(), searchTermWithoutWildcards):
+				score += 1000000;
+		
 		for property in sample.sample.getProperties():
 			if self.matches_with_wildcards(property.getValue(), regularExpresion):
-				score += 1;
-		print "This sample %s this score %d:" % (sample.getSampleIdentifier(), score);
+				score += 100;
+				if self.matches_exactly(property.getValue(), searchTermWithoutWildcards):
+					score += 10000;
+		
+		if self.matches_exactly(sample.getSampleType(), searchTermWithoutWildcards):
+			score += 1000;
+		
 		return score;
         
 	def matches_exactly(self, string, searchTerm):
@@ -746,14 +713,40 @@ class YeastLabSearchRequestHandler(SearchRequestHandler):
 		else:
 			return False;
 
+	def retrieve_data(self):
+		all_samples_sc = SearchCriteria()
+		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAnyFieldMatch(self.parameters['searchtext']))
+		all_unsorted_samples = self.searchService.searchForSamples(all_samples_sc)
+		
+		#Custom Sorting
+		start = int(round(time.time() * 1000));
+		samples_with_scores = [];
+		for sample in all_unsorted_samples:
+			score = self.calculate_score(sample, self.parameters['searchtext']);
+			samples_with_scores.append([sample, score]);
+		
+		samples_with_scores = sorted(samples_with_scores, key=lambda sample_with_score: sample_with_score[1], reverse=True); #Sorting the list using the score
+		self.samples = [sample_with_score[0] for sample_with_score in samples_with_scores[0:100]]; #Get first 100 results for the ipad
+		
+		total = int(round(time.time() * 1000)) - start;
+		print "Time To Sort: %d" % total;
+		
+		# Children of the results
+		self.sort_samples_by_type(self.samples)
+		
+		self.children_map = dict()
+		for plasmid in self.plasmids:
+			for parent in plasmid.getParentSampleIdentifiers():
+				children = self.children_map.setdefault(parent, [])
+				children.append(plasmid)
+		for yeast in self.yeasts:
+			for parent in yeast.getParentSampleIdentifiers():
+				children = self.children_map.setdefault(parent, [])
+				children.append(yeast)			
+
 	def add_data_rows(self):
 		#To Group the search results by the order given
-		loop = 0
 		for sample in self.samples:
-			print "This sample %s on output" % (sample.getSampleIdentifier());
-			loop = loop + 1
-			if loop > 100:
-				break
 			if sample.getSampleType() == 'OLIGO':
 				self.add_row(oligo_to_dict(sample, False))
 			if sample.getSampleType() == 'ANTIBODY':
