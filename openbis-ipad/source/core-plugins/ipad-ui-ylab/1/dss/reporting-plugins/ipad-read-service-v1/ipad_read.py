@@ -10,6 +10,7 @@ from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
 from ch.systemsx.cisd.openbis.generic.shared.managed_property import ManagedPropertyFunctions
 
 import codecs
+import re
 
 #
 # BEGIN Infrastructure
@@ -681,6 +682,25 @@ class YeastLabSearchRequestHandler(SearchRequestHandler):
 		all_samples_sc = SearchCriteria()
 		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAnyFieldMatch(self.parameters['searchtext']))
 		self.samples = self.searchService.searchForSamples(all_samples_sc)
+		
+		#Custom Sorting
+		samplesWithScores = [];
+		for sample in self.samples:
+			score = self.calculate_score(sample, self.parameters['searchtext']);
+			samplesWithScores.append([sample, score]);
+		
+		samplesWithScores = sorted(samplesWithScores, key=lambda sampleWithScore: sampleWithScore[1], reverse=True);
+		
+		index = 0;
+		samplesLen = len(self.samples);
+		while index < samplesLen: # run forever
+			print "This sample %s on scores" % (samplesWithScores[index][0].getSampleIdentifier());
+			self.samples[index] = samplesWithScores[index][0];
+			print "This sample %s on samples" % (self.samples[index].getSampleIdentifier());
+			index = index +1;
+		#
+		
+		#print "Sample: " + self.samples[0]
 		# Sort out the results
 		self.sort_samples_by_type(self.samples)
 		
@@ -694,9 +714,46 @@ class YeastLabSearchRequestHandler(SearchRequestHandler):
 				children = self.children_map.setdefault(parent, [])
 				children.append(yeast)			
 
+	def calculate_score(self, sample, searchTerm):
+		score = 0;
+		searchTermWithoutWildcards = searchTerm.replace("*","").replace("?","");
+		regularExpresion = re.compile(searchTerm, re.IGNORECASE);
+		
+		if self.matches_exactly(sample.getCode(), searchTermWithoutWildcards):
+			score += 10000;
+		if self.matches_with_wildcards(sample.getCode(), regularExpresion):
+			score += 1000;
+		for property in sample.sample.getProperties():
+			if self.matches_exactly(property.getValue(), searchTermWithoutWildcards):
+				score += 100;
+		if self.matches_exactly(sample.getSampleType(), searchTermWithoutWildcards):
+			score += 10;
+		for property in sample.sample.getProperties():
+			if self.matches_with_wildcards(property.getValue(), regularExpresion):
+				score += 1;
+		print "This sample %s this score %d:" % (sample.getSampleIdentifier(), score);
+		return score;
+        
+	def matches_exactly(self, string, searchTerm):
+		if string != None and searchTerm != None:
+			return string.lower() == searchTerm.lower();
+		else:
+			return False;
+		
+	def matches_with_wildcards(self, string, regularExpresion):
+		if string != None and regularExpresion != None:
+			return regularExpresion.search(string) != None;
+		else:
+			return False;
+
 	def add_data_rows(self):
 		#To Group the search results by the order given
+		loop = 0
 		for sample in self.samples:
+			print "This sample %s on output" % (sample.getSampleIdentifier());
+			loop = loop + 1
+			if loop > 100:
+				break
 			if sample.getSampleType() == 'OLIGO':
 				self.add_row(oligo_to_dict(sample, False))
 			if sample.getSampleType() == 'ANTIBODY':

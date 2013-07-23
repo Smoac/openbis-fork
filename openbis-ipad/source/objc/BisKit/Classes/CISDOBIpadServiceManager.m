@@ -430,7 +430,23 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 - (NSArray *)entitiesByPermId:(NSArray *)permIds error:(NSError **)error
 {
     NSFetchRequest *request = [self fetchRequestForEntitiesByPermId: permIds];
-    return [self executeFetchRequest: request error: error];
+    NSArray *results = [self executeFetchRequest: request error: error];
+    
+    //1. Put results on a map with the format <permId, result>
+    NSMutableDictionary *resultsWithKeys = [NSMutableDictionary dictionaryWithCapacity:permIds.count];
+    
+    for (CISDOBIpadEntity *entity in results) {
+        [resultsWithKeys setObject:entity forKey:entity.permId];
+    }
+
+    //2. Iterate over permIds to get the things from the map in order to create a new array with the correct order
+    NSMutableArray *sortedResults = [NSMutableArray arrayWithCapacity:permIds.count];
+    for (id key in permIds) {
+        CISDOBIpadEntity *entity = [resultsWithKeys objectForKey:key];
+        [sortedResults addObject:entity];
+    }
+    
+    return sortedResults;
 }
 
 - (NSArray *)entitiesNotUpdatedSince:(NSDate *)date error:(NSError **)error

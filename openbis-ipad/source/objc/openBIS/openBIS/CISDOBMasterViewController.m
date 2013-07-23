@@ -567,7 +567,6 @@
     
     __weak CISDOBTableSearchState *weakSelf = self;
     [self.openBisModel searchServerOnSuccess: ^(NSArray *result) {
-        NSLog(@"Search Returned with Success.", nil);
         [weakSelf.controller removeActivityIndicatorFromView: controller.searchResultsTableView];
         weakSelf.filteredResults = result;
         [controller.searchResultsTableView reloadData];
