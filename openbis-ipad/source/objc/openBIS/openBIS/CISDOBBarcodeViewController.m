@@ -21,11 +21,12 @@
 @interface CISDOBBarcodeViewController ()
 
 @property (nonatomic, retain) ZXCapture* capture;
+/*
 @property (nonatomic, retain) AVCaptureSession* cameraSession;
 @property (nonatomic, retain) AVCaptureVideoPreviewLayer* previewLayer;
 @property (nonatomic, retain) AVCaptureDevice *videoDevice;
 @property (nonatomic, retain) AVCaptureDeviceInput *videoIn;
-
+*/
 @property (nonatomic, retain) IBOutlet UILabel* decodedLabel;
 @property (nonatomic, retain) IBOutlet UIView* cameraView;
 @property (nonatomic, retain) IBOutlet UIBarButtonItem* backButton;
@@ -44,16 +45,21 @@
 #pragma mark - Creation/Deletion Methods
 
 - (IBAction) dismissModalViewController {
-    [self.capture.layer removeFromSuperlayer];
-    [self.capture stop];
     [self dismissViewControllerAnimated:YES completion:nil];
     [[NSNotificationCenter defaultCenter]
      postNotificationName:@"DissmissNotification"
+     object:nil];
+    [[NSNotificationCenter defaultCenter]
+     postNotificationName:@"BarcodeReaderSwitchAutoRotation"
      object:nil];
 }
 
 #pragma mark - Creation/Deletion Methods
 - (void)dealloc {
+    [self.capture.layer removeFromSuperlayer];
+    [self.capture stop];
+
+    
     [self.capture release];
     [self.decodedLabel release];
     [self.cameraView release];
@@ -64,6 +70,9 @@
 #pragma mark - View Controller Methods
 
 - (void)viewWillAppear:(BOOL)animated {
+    [[NSNotificationCenter defaultCenter]
+     postNotificationName:@"BarcodeReaderSwitchAutoRotation"
+     object:nil];
     /*
     self.videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
     NSError *error;
@@ -77,6 +86,7 @@
     [self.cameraView.layer addSublayer: self.previewLayer];
     [self.cameraSession startRunning];
     */
+    
     [NSThread detachNewThreadSelector:@selector(loadBarcodeReader) toTarget:self withObject:nil];
     [super viewWillAppear:animated];
 }
@@ -103,6 +113,7 @@
     //[self.cameraSession stopRunning];
     //[self.previewLayer removeFromSuperlayer];
 }
+
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
 	return (interfaceOrientation == UIInterfaceOrientationPortrait);

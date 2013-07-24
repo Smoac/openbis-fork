@@ -188,7 +188,7 @@
         <!--Split View Controller-->
         <scene sceneID="18">
             <objects>
-                <splitViewController id="5" sceneMemberID="viewController">
+                <splitViewController id="5" customClass="CISDOBSplitViewController" sceneMemberID="viewController">
                     <toolbarItems/>
                     <simulatedStatusBarMetrics key="simulatedStatusBarMetrics" statusBarStyle="blackTranslucent"/>
                     <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
@@ -436,6 +436,9 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
                         <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
                         <dataDetectorType key="dataDetectorTypes"/>
                     </webView>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="keyPath" value="YES"/>
+                    </userDefinedRuntimeAttributes>
                     <connections>
                         <outlet property="webView" destination="vBh-MQ-5Tm" id="8LE-n7-KZf"/>
                     </connections>
@@ -586,6 +589,9 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
                 <relationship kind="outlet" name="activityIndicator" candidateClass="UIActivityIndicatorView"/>
                 <relationship kind="outlet" name="browseTableView" candidateClass="UITableView"/>
             </relationships>
+        </class>
+        <class className="CISDOBSplitViewController" superclassName="UISplitViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/CISDOBSplitViewController.h"/>
         </class>
         <class className="NSLayoutConstraint" superclassName="NSObject">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>

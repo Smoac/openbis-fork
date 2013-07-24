@@ -56,6 +56,7 @@
 		36F71F30161C4F0400C87277 /* CISDOBJsonRpcCall.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F71ED4161C453D00C87277 /* CISDOBJsonRpcCall.m */; };
 		36F71F32161C4F0400C87277 /* persistent-data-model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 36F71ED6161C453D00C87277 /* persistent-data-model.xcdatamodeld */; };
 		36F97A2E1628123F005D063E /* CISDOBOpenBisModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F97A2D1628123F005D063E /* CISDOBOpenBisModel.m */; };
+		5D01C3E5179FD10E00D355D9 /* CISDOBSplitViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D01C3E4179FD10E00D355D9 /* CISDOBSplitViewController.m */; };
 		5D07BF671771C6E100555DE2 /* ZXAztecDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D07BDAB1771C6E100555DE2 /* ZXAztecDecoder.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		5D07BF681771C6E100555DE2 /* ZXAztecDetector.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D07BDAE1771C6E100555DE2 /* ZXAztecDetector.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		5D07BF691771C6E100555DE2 /* ZXAztecCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 5D07BDB11771C6E100555DE2 /* ZXAztecCode.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
@@ -354,6 +355,8 @@
 		36F71F25161C4AE900C87277 /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.md; sourceTree = "<group>"; };
 		36F97A2C1628123F005D063E /* CISDOBOpenBisModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBOpenBisModel.h; sourceTree = "<group>"; };
 		36F97A2D1628123F005D063E /* CISDOBOpenBisModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBOpenBisModel.m; sourceTree = "<group>"; };
+		5D01C3E3179FD10E00D355D9 /* CISDOBSplitViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CISDOBSplitViewController.h; path = ../../BisKit/Classes/CISDOBSplitViewController.h; sourceTree = "<group>"; };
+		5D01C3E4179FD10E00D355D9 /* CISDOBSplitViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CISDOBSplitViewController.m; path = ../../BisKit/Classes/CISDOBSplitViewController.m; sourceTree = "<group>"; };
 		5D07BDAA1771C6E100555DE2 /* ZXAztecDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZXAztecDecoder.h; sourceTree = "<group>"; };
 		5D07BDAB1771C6E100555DE2 /* ZXAztecDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZXAztecDecoder.m; sourceTree = "<group>"; };
 		5D07BDAD1771C6E100555DE2 /* ZXAztecDetector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZXAztecDetector.h; sourceTree = "<group>"; };
@@ -893,6 +896,8 @@
 				36F97A2D1628123F005D063E /* CISDOBOpenBisModel.m */,
 				5D07C0311771C88400555DE2 /* CISDOBBarcodeViewController.h */,
 				5D07C0321771C88400555DE2 /* CISDOBBarcodeViewController.m */,
+				5D01C3E3179FD10E00D355D9 /* CISDOBSplitViewController.h */,
+				5D01C3E4179FD10E00D355D9 /* CISDOBSplitViewController.m */,
 				364D509A161C6ADB00A739B0 /* DevData */,
 				36F71E81161C3AE900C87277 /* Supporting Files */,
 			);
@@ -2024,6 +2029,7 @@
 				5D07C02F1771C6E100555DE2 /* ZXResultPoint.m in Sources */,
 				5D07C0301771C6E100555DE2 /* ZXRGBLuminanceSource.m in Sources */,
 				5D07C0331771C88400555DE2 /* CISDOBBarcodeViewController.m in Sources */,
+				5D01C3E5179FD10E00D355D9 /* CISDOBSplitViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
