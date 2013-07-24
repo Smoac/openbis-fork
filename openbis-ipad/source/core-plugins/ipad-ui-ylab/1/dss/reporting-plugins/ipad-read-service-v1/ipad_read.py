@@ -6,11 +6,11 @@ from ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v1 import Material
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto import MaterialIdentifier
 from com.fasterxml.jackson.databind import ObjectMapper 
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria import SearchOperator
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
 from ch.systemsx.cisd.openbis.generic.shared.managed_property import ManagedPropertyFunctions
 
 import codecs
-import re
 import time
 
 #
@@ -679,26 +679,26 @@ class YeastLabSearchRequestHandler(SearchRequestHandler):
 		self.enzymes = samplesByType.getSamples('ENZYME')
 		self.westernBlottings = samplesByType.getSamples('WESTERN_BLOTTING')
 
-	def calculate_score(self, sample, searchTerm):
+	def calculate_score(self, sample, searchTerms):
 		score = 0;
+		for searchTerm in searchTerms:
+			searchTermWithoutWildcards = searchTerm.replace("*","").replace("?","");
 		
-		searchTermWithoutWildcards = searchTerm.replace("*","").replace("?","");
-		regularExpresion = re.compile(searchTerm, re.IGNORECASE);
+			if self.matches_with_wildcards(sample.getCode(), searchTermWithoutWildcards):
+				score += 100000;
+				if self.matches_exactly(sample.getCode(), searchTermWithoutWildcards):
+					score += 1000000;
+			
+			for property in sample.sample.getProperties():
+				if self.matches_with_wildcards(property.getValue(), searchTermWithoutWildcards):
+					score += 100;
+					if self.matches_exactly(property.getValue(), searchTermWithoutWildcards):
+						score += 10000;
 		
-		if self.matches_with_wildcards(sample.getCode(), regularExpresion):
-			score += 100000;
-			if self.matches_exactly(sample.getCode(), searchTermWithoutWildcards):
-				score += 1000000;
+			if self.matches_exactly(sample.getSampleType(), searchTermWithoutWildcards):
+				score += 1000;
 		
-		for property in sample.sample.getProperties():
-			if self.matches_with_wildcards(property.getValue(), regularExpresion):
-				score += 100;
-				if self.matches_exactly(property.getValue(), searchTermWithoutWildcards):
-					score += 10000;
-		
-		if self.matches_exactly(sample.getSampleType(), searchTermWithoutWildcards):
-			score += 1000;
-		
+		print "For Sample: %s Score: %d" % (sample.getCode(), score);
 		return score;
         
 	def matches_exactly(self, string, searchTerm):
@@ -707,22 +707,25 @@ class YeastLabSearchRequestHandler(SearchRequestHandler):
 		else:
 			return False;
 		
-	def matches_with_wildcards(self, string, regularExpresion):
-		if string != None and regularExpresion != None:
-			return regularExpresion.search(string) != None;
+	def matches_with_wildcards(self, string, searchTerm):
+		if string != None and searchTerm != None:
+			return string.lower().find(searchTerm.lower()) != -1;
 		else:
 			return False;
 
 	def retrieve_data(self):
-		all_samples_sc = SearchCriteria()
-		all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAnyFieldMatch(self.parameters['searchtext']))
-		all_unsorted_samples = self.searchService.searchForSamples(all_samples_sc)
+		all_samples_sc = SearchCriteria();
+		all_samples_sc.setOperator(SearchOperator.MATCH_ALL_CLAUSES);
+		search_parameters = self.parameters['searchtext'].split();
+		for search_parameter in search_parameters:
+			all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAnyFieldMatch( "*" + search_parameter + "*"));
+		all_unsorted_samples = self.searchService.searchForSamples(all_samples_sc);
 		
 		#Custom Sorting
 		# start = int(round(time.time() * 1000));
 		samples_with_scores = [];
 		for sample in all_unsorted_samples:
-			score = self.calculate_score(sample, self.parameters['searchtext']);
+			score = self.calculate_score(sample, search_parameters);
 			samples_with_scores.append([sample, score]);
 		
 		samples_with_scores = sorted(samples_with_scores, key=lambda sample_with_score: sample_with_score[1], reverse=True); #Sorting the list using the score
