@@ -719,7 +719,7 @@ class YeastLabSearchRequestHandler(SearchRequestHandler):
 		all_unsorted_samples = self.searchService.searchForSamples(all_samples_sc)
 		
 		#Custom Sorting
-		start = int(round(time.time() * 1000));
+		# start = int(round(time.time() * 1000));
 		samples_with_scores = [];
 		for sample in all_unsorted_samples:
 			score = self.calculate_score(sample, self.parameters['searchtext']);
@@ -728,8 +728,8 @@ class YeastLabSearchRequestHandler(SearchRequestHandler):
 		samples_with_scores = sorted(samples_with_scores, key=lambda sample_with_score: sample_with_score[1], reverse=True); #Sorting the list using the score
 		self.samples = [sample_with_score[0] for sample_with_score in samples_with_scores[0:100]]; #Get first 100 results for the ipad
 		
-		total = int(round(time.time() * 1000)) - start;
-		print "Time To Sort: %d" % total;
+		# total = int(round(time.time() * 1000)) - start;
+		# print "Time To Sort: %d" % total;
 		
 		# Children of the results
 		self.sort_samples_by_type(self.samples)
