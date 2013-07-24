@@ -138,7 +138,7 @@
 
 - (void)showActivityIndicatorOnView:(UIView *)view
 {
-    self.activityIndicator.center = view.center;
+    self.activityIndicator.center = CGPointMake(view.center.x, view.center.y - 242 - 90);
     [self.activityIndicator startAnimating];
     [view addSubview: self.activityIndicator];
 }
@@ -328,30 +328,39 @@
 
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchScope:(NSInteger)searchOption
 {
-    CISDOBTableDisplayState *oldDisplayState = self.searchFilterState;
-    self.openBisModel.selectedSearchScopeIndex = searchOption;
-    NSString* searchTitle = [self scopeButtonTitles][self.openBisModel.selectedSearchScopeIndex];
-    self.searchFilterState = [self.openBisModel isSelectedSearchScopeIndexSearch] ? self.searchState : self.filterState;
-    if (self.openBisModel.searchString == nil) { //Avoid application crash
+    // BUGFIX - Avoid application crash
+    if (self.openBisModel.searchString == nil) {
         self.openBisModel.searchString = @"";
     }
+    // BUGFIX
     
+    //Updating the state controller if the user presses a scope buttion
+    self.openBisModel.selectedSearchScopeIndex = searchOption;
+    self.searchFilterState = [self.openBisModel isSelectedSearchScopeIndexSearch] ? self.searchState : self.filterState;
+    
+    //Searching for barcodes or normal search
+    NSString* searchTitle = [self scopeButtonTitles][searchOption];
     if ([searchTitle isEqualToString:@"Barcode"]) {
         UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard_iPad" bundle:nil];
         CISDOBBarcodeViewController *barcodeController = [storyboard instantiateViewControllerWithIdentifier:@"Barcode"];
         barcodeController.modalPresentationStyle = UIModalPresentationFullScreen;
         [self presentModalViewController:barcodeController animated:YES];
-        
         return NO;
-    } else { //Search String should have a minimum size
-        return (oldDisplayState != self.searchFilterState) ?
-        [self.searchFilterState searchDisplayController: controller shouldReloadTableForSearchString: self.openBisModel.searchString] :
-        YES;
+    } else {
+        return [self.searchFilterState searchDisplayController: controller shouldReloadTableForSearchString: self.openBisModel.searchString];
     }
 }
 
 - (void)searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
 {
+    // BUGFIX - Avoid inconsistent selected button when moving through sections that change the state
+    if ([self.searchFilterState class] == [CISDOBTableSearchState class]) {
+        controller.searchBar.selectedScopeButtonIndex = 0;
+    } else if ([self.searchFilterState class] == [CISDOBTableFilterState class]) {
+        controller.searchBar.selectedScopeButtonIndex = [self scopeButtonTitles].count - 1;
+    }
+    // BUGFIX
+    
     controller.searchBar.scopeButtonTitles = [self scopeButtonTitles];
     controller.searchBar.showsScopeBar = YES;
 }
@@ -594,9 +603,13 @@ static NSTimer *timer = nil;
         [invocation setArgument:&searchString atIndex:3];
         
         timer = [NSTimer scheduledTimerWithTimeInterval:1.0 invocation:invocation repeats:NO];
+        return NO; // Do not refresh the table yet, wait until the server returns
+    } else {
+        __weak CISDOBTableSearchState *weakSelf = self;
+        NSMutableArray *emptyResult = [NSMutableArray arrayWithCapacity:0];
+        weakSelf.filteredResults = emptyResult;
+        return YES;
     }
-    
-    return NO; // Do not refresh the table yet, wait until the server returns
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
