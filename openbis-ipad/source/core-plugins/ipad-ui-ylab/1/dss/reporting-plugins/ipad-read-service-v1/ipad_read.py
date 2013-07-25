@@ -12,6 +12,7 @@ from ch.systemsx.cisd.openbis.generic.shared.managed_property import ManagedProp
 
 import codecs
 import time
+import re
 
 #
 # BEGIN Infrastructure
@@ -679,37 +680,43 @@ class YeastLabSearchRequestHandler(SearchRequestHandler):
 		self.enzymes = samplesByType.getSamples('ENZYME')
 		self.westernBlottings = samplesByType.getSamples('WESTERN_BLOTTING')
 
-	def calculate_score(self, sample, searchTerms):
+	def calculate_score(self, sample, matches_exactly_terms, matches_wildcards_patterns):
 		score = 0;
-		for searchTerm in searchTerms:
-			searchTermWithoutWildcards = searchTerm.replace("*","").replace("?","");
-		
-			if self.matches_with_wildcards(sample.getCode(), searchTermWithoutWildcards):
+		for i in range(0,len(matches_exactly_terms)):
+			if self.matches_with_wildcards(sample.getCode(), matches_wildcards_patterns[i]):
 				score += 100000;
-				if self.matches_exactly(sample.getCode(), searchTermWithoutWildcards):
+				if self.matches_exactly(sample.getCode(), matches_exactly_terms[i]):
 					score += 1000000;
 			
 			for property in sample.sample.getProperties():
-				if self.matches_with_wildcards(property.getValue(), searchTermWithoutWildcards):
+				if self.matches_with_wildcards(property.getValue(), matches_wildcards_patterns[i]):
 					score += 100;
-					if self.matches_exactly(property.getValue(), searchTermWithoutWildcards):
+					if self.matches_exactly(property.getValue(), matches_exactly_terms[i]):
 						score += 10000;
 		
-			if self.matches_exactly(sample.getSampleType(), searchTermWithoutWildcards):
+			if self.matches_exactly(sample.getSampleType(), matches_exactly_terms[i]):
 				score += 1000;
 		
 		print "For Sample: %s Score: %d" % (sample.getCode(), score);
 		return score;
-        
-	def matches_exactly(self, string, searchTerm):
-		if string != None and searchTerm != None:
-			return string.lower() == searchTerm.lower();
+		
+	def prepare_search_term_without_wildcards(self, search_term):
+		return search_term.replace("*","").replace("?","");
+		
+	def prepare_search_pattern_with_wildcards(self, search_term):
+		search_term = re.sub(r"\*", ".*", search_term);
+		search_term = re.sub(r"\?", ".?", search_term);
+		return re.compile(search_term, re.IGNORECASE);
+		
+	def matches_exactly(self, string, search_term):
+		if string != None and search_term != None:
+			return string.lower() == search_term.lower();
 		else:
 			return False;
 		
-	def matches_with_wildcards(self, string, searchTerm):
-		if string != None and searchTerm != None:
-			return string.lower().find(searchTerm.lower()) != -1;
+	def matches_with_wildcards(self, string, searchPattern):
+		if string != None and searchPattern != None:
+			return searchPattern.search(string) != None;
 		else:
 			return False;
 
@@ -717,22 +724,27 @@ class YeastLabSearchRequestHandler(SearchRequestHandler):
 		all_samples_sc = SearchCriteria();
 		all_samples_sc.setOperator(SearchOperator.MATCH_ALL_CLAUSES);
 		search_parameters = self.parameters['searchtext'].split();
+		
+		matches_exactly_terms = []
+		matches_wildcards_patterns = []
 		for search_parameter in search_parameters:
+			matches_exactly_terms.append(self.prepare_search_term_without_wildcards(search_parameter));
+			matches_wildcards_patterns.append(self.prepare_search_pattern_with_wildcards(search_parameter));
 			all_samples_sc.addMatchClause(SearchCriteria.MatchClause.createAnyFieldMatch( "*" + search_parameter + "*"));
 		all_unsorted_samples = self.searchService.searchForSamples(all_samples_sc);
 		
 		#Custom Sorting
-		# start = int(round(time.time() * 1000));
+		start = int(round(time.time() * 1000));
 		samples_with_scores = [];
 		for sample in all_unsorted_samples:
-			score = self.calculate_score(sample, search_parameters);
+			score = self.calculate_score(sample, matches_exactly_terms, matches_wildcards_patterns);
 			samples_with_scores.append([sample, score]);
 		
 		samples_with_scores = sorted(samples_with_scores, key=lambda sample_with_score: sample_with_score[1], reverse=True); #Sorting the list using the score
 		self.samples = [sample_with_score[0] for sample_with_score in samples_with_scores[0:100]]; #Get first 100 results for the ipad
 		
-		# total = int(round(time.time() * 1000)) - start;
-		# print "Time To Sort: %d" % total;
+		total = int(round(time.time() * 1000)) - start;
+		print "Time To Sort: %d" % total;
 		
 		# Children of the results
 		self.sort_samples_by_type(self.samples)
