@@ -436,9 +436,6 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
                         <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
                         <dataDetectorType key="dataDetectorTypes"/>
                     </webView>
-                    <userDefinedRuntimeAttributes>
-                        <userDefinedRuntimeAttribute type="boolean" keyPath="keyPath" value="YES"/>
-                    </userDefinedRuntimeAttributes>
                     <connections>
                         <outlet property="webView" destination="vBh-MQ-5Tm" id="8LE-n7-KZf"/>
                     </connections>
