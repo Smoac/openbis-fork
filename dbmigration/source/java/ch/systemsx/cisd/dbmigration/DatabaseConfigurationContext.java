@@ -28,7 +28,6 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.jdbc.support.SQLErrorCodesFactory;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -140,13 +139,7 @@ public class DatabaseConfigurationContext implements DisposableBean
         final String url = getDatabaseURL();
         final String validationQuery = getValidationQuery();
         logParameters();
-        DataSource result = dataSourceFactory.createDataSource(dsDriver, url, owner, password, validationQuery);
-        /*
-         * This triggers population of a lazily populated hashmap of error codes which requires locking and connection to the database. This can lead
-         * to dead-locks in multi-threaded code.
-         */
-        SQLErrorCodesFactory.getInstance().getErrorCodes(result);
-        return result;
+        return dataSourceFactory.createDataSource(dsDriver, url, owner, password, validationQuery);
     }
 
     private final void logParameters()

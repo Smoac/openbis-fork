@@ -25,6 +25,7 @@ import javax.sql.DataSource;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.support.SQLErrorCodesFactory;
 
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
 import ch.systemsx.cisd.common.db.Script;
@@ -225,6 +226,12 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
                 throw ex;
             }
         }
+    }
+
+    @Override
+    public void initializeErrorCodes()
+    {
+        SQLErrorCodesFactory.getInstance().getErrorCodes(getJdbcTemplate().getDataSource());
     }
 
     @Override

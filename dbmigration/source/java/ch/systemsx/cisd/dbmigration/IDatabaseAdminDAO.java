@@ -66,4 +66,9 @@ public interface IDatabaseAdminDAO
      * Drops the database.
      */
     public void dropDatabase();
+
+    /**
+     * Initialize error codes for this database.
+     */
+    public void initializeErrorCodes();
 }
