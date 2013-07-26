@@ -445,6 +445,11 @@ public class DataSet
         return getDataSetDss().getURLForFileWithTimeout(path, validityDurationInSeconds);
     }
 
+    public String tryGetInternalPathInDataStore()
+    {
+      return getDataSetDss().tryGetInternalPathInDataStore();
+    }
+
     /**
      * Internal accessor, made public for testing, but clients should not need it.
      */
