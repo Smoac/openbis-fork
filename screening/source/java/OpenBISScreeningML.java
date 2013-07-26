@@ -203,8 +203,6 @@ public class OpenBISScreeningML
         }
     }
 
-    static final String DATASETS_FOLDER = "openbis_datasets";
-
     private static File temporarySessionDir;
 
     private static Map<PlateImageReference, File> loadedImages;
@@ -253,8 +251,6 @@ public class OpenBISScreeningML
      * The required version ("major.minor") of the screening API on the openBIS datastore server.
      */
     public static final String REQUIRES_OPENBIS_DSS_API = "1.1";
-
-    private static File dataSetsDir;
 
     /**
      * Root temporary directory for data sets and images. By default <code>java.io.tmpdir</code> is
@@ -306,14 +302,9 @@ public class OpenBISScreeningML
     {
         openbis = openBisFacade;
         genericOpenbis = genericFacade;
-        dataSetsDir = new File(tempDir, DATASETS_FOLDER);
-        if (dataSetsDir.isDirectory() == false && dataSetsDir.mkdirs() == false)
-        {
-            throw new RuntimeException("Couldn't create a data set directory.");
-        }
         temporarySessionDir =
-                new File(tempDir, TEMP_DIR_PREFIX + System.currentTimeMillis() / 1000
-                        + TEMP_DIR_POSTFIX);
+                new File(tempDir, TEMP_DIR_PREFIX + System.getProperty("user.name") + "_"
+                        + System.currentTimeMillis() / 1000 + TEMP_DIR_POSTFIX);
         if (temporarySessionDir.mkdirs() == false)
         {
             throw new RuntimeException("Couldn't create a temporary directory.");
@@ -1005,10 +996,10 @@ public class OpenBISScreeningML
         {
             DataSet dataSet = dataSets.get(i);
             String code = dataSet.getCode();
-            File file = new File(dataSetsDir, code);
+            File file = new File(temporarySessionDir, code);
             if (file.exists() == false)
             {
-                file = dataSet.getLinkOrCopyOfContents(overrideStoreRootPathOrNull, dataSetsDir);
+                file = dataSet.getLinkOrCopyOfContents(overrideStoreRootPathOrNull, temporarySessionDir);
             }
             List<String> parents = dataSet.getParentCodes();
             Object[] parentCodes = new Object[parents.size()];
@@ -1051,6 +1042,10 @@ public class OpenBISScreeningML
             String overrideStoreRootPathOrNull)
     {
         checkLoggedIn();
+        File file = new File(temporarySessionDir + "/" + dataSetCode, pathInDataSet);
+        if (file.exists() && file.isFile() && file.length() > 0) {
+            return file.toString();
+        }
         IDataSetDss dataSet = openbis.getDataSet(dataSetCode);
         return dataSet.getLinkOrCopyOfContent(overrideStoreRootPathOrNull, temporarySessionDir,
                 pathInDataSet).toString();
@@ -1150,12 +1145,17 @@ public class OpenBISScreeningML
         for (int i = 0; i < dataSetCodes.length; i++)
         {
             DataSet dataSet = dataSetMap.tryGet(dataSetCodes[i]);
-            result[i] = new Object[4][];
+            result[i] = new Object[5][];
             result[i][0] = new Object[]
                 { dataSet.getCode(), dataSet.getDataSetTypeCode() };
             result[i][1] = listProperties(dataSet.getProperties());
             result[i][2] = dataSet.getParentCodes().toArray();
             result[i][3] = dataSet.getChildrenCodes().toArray();
+            if (dataSet.isContainerDataSet()){
+              result[i][4] = new Object[] { "" };
+            } else {
+              result[i][4] = new Object[] { dataSet.tryGetInternalPathInDataStore() };
+            }
         }
 
         return result;
