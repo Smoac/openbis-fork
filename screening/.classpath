@@ -76,5 +76,6 @@
 	<classpathentry kind="lib" path="/libraries/cisd-jhdf5/hdf5-windows-intel.jar"/>
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jackcess/jackcess.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-hotdeploy/cisd-hotdeploy.jar" sourcepath="/libraries/cisd-hotdeploy/cisd-hotdeploy-src.zip"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>
