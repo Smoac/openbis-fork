@@ -81,6 +81,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
  */
 public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
 {
+    private static String DATASETS_FOLDER = "DataSets";
+
     private static final PlateIdentifier PLATE_1 = PlateIdentifier
             .createFromAugmentedCode("/S/PLATE-1");
 
@@ -414,7 +416,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                     FeatureVectorWithDescription f1 =
                             new FeatureVectorWithDescription(well1, Arrays.asList("F1", "F3"),
                                     new double[]
-                                        { 1.5, 42 });
+                                    { 1.5, 42 });
                     FeatureVectorDatasetReference fds2 =
                             new FeatureVectorDatasetReference("ds2", "MY-TYPE", "", p2,
                                     ExperimentIdentifier.createFromAugmentedCode("/S/P/E"),
@@ -425,7 +427,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                     FeatureVectorWithDescription f2 =
                             new FeatureVectorWithDescription(well2, Arrays.asList("F1", "F2"),
                                     new double[]
-                                        { -3, 7.125 });
+                                    { -3, 7.125 });
                     will(returnValue(Arrays.asList(f1, f2)));
                 }
             });
@@ -495,11 +497,11 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                                     Geometry.createFromCartesianDimensions(3, 2), new Date(4711),
                                     null, null);
                     FeatureVector v1 = new FeatureVector(new WellPosition(2, 1), new double[]
-                        { 1.5, 42 });
+                    { 1.5, 42 });
                     FeatureVector v2 = new FeatureVector(new WellPosition(1, 3), new double[]
-                        { 1.25, 42.5 }, new boolean[]
-                        { true, false }, new String[]
-                        { "a", "b" });
+                    { 1.25, 42.5 }, new boolean[]
+                    { true, false }, new String[]
+                    { "a", "b" });
                     FeatureVectorDataset d1 =
                             new FeatureVectorDataset(ref, Arrays.asList("F1", "F3"), Arrays.asList(
                                     "f1", "f3"), Arrays.asList(v1, v2));
@@ -509,7 +511,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
 
         Object[][][][] matrix =
                 OpenBISScreeningML.getFeatureMatrixForPlate("/S/PLATE-1", null, new String[]
-                    { "F1", "F2", "F3" });
+                { "F1", "F2", "F3" });
 
         assertPlateFeatures("[a, 1.5]", matrix[0][0]);
         assertPlateFeatures("[42.5, 42.0]", matrix[0][1]);
@@ -590,7 +592,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
             });
 
         OpenBISScreeningML.updateWellProperties("/S/PLATE-1", 1, 2, new Object[][]
-            {
+        {
                 { "A", "42" },
                 { "B", "43" } });
 
@@ -610,14 +612,14 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
 
                     one(ds1).listFiles("/", true);
                     will(returnValue(new FileInfoDssDTO[]
-                        { new FileInfoDssDTO("a", "a", true, -1),
-                                new FileInfoDssDTO("a/b", "a/b", false, 42) }));
+                    { new FileInfoDssDTO("a", "a", true, -1),
+                            new FileInfoDssDTO("a/b", "a/b", false, 42) }));
                     one(ds1).getCode();
                     will(returnValue("ds1"));
 
                     one(ds2).listFiles("/", true);
                     will(returnValue(new FileInfoDssDTO[]
-                        { new FileInfoDssDTO("c", "c", false, 137) }));
+                    { new FileInfoDssDTO("c", "c", false, 137) }));
                     one(ds2).getCode();
                     will(returnValue("ds2"));
                 }
@@ -658,9 +660,9 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
     public void testLoadDataSets()
     {
         final File dataSetFolder =
-                new File(OpenBISScreeningML.tempDir, OpenBISScreeningML.DATASETS_FOLDER);
+                new File(OpenBISScreeningML.tempDir, DATASETS_FOLDER);
         final File ds1Folder = new File(dataSetFolder, "ds-1");
-        File ds2Folder = new File(dataSetFolder, "ds-2");
+        final File ds2Folder = new File(dataSetFolder, "ds-2");
         ds2Folder.mkdirs();
         final String datasetTypePattern = "blablaCode";
         final String mountPoint = "/mount/openbis/store";
@@ -678,8 +680,11 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                             with(filterMatcher));
                     will(returnValue(Arrays.asList(dataSet1, dataSet2)));
 
-                    one(ds1).getLinkOrCopyOfContents(mountPoint, dataSetFolder);
+                    one(ds1).getLinkOrCopyOfContents(with(mountPoint), with(any(File.class)));
                     will(returnValue(ds1Folder));
+
+                    one(ds2).getLinkOrCopyOfContents(with(mountPoint), with(any(File.class)));
+                    will(returnValue(ds2Folder));
 
                 }
             });
@@ -702,9 +707,9 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
     public void testLoadDataSetsFilteredOnProperties()
     {
         final File dataSetFolder =
-                new File(OpenBISScreeningML.tempDir, OpenBISScreeningML.DATASETS_FOLDER);
+                new File(OpenBISScreeningML.tempDir, DATASETS_FOLDER);
         final File ds1Folder = new File(dataSetFolder, "ds-1");
-        File ds2Folder = new File(dataSetFolder, "ds-2");
+        final File ds2Folder = new File(dataSetFolder, "ds-2");
         ds2Folder.mkdirs();
         final String datasetTypePattern = "blablaCode";
         final String mountPoint = "/mount/openbis/store";
@@ -722,13 +727,16 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                             with(filterMatcher));
                     will(returnValue(Arrays.asList(dataSet1, dataSet2)));
 
-                    one(ds1).getLinkOrCopyOfContents(mountPoint, dataSetFolder);
+                    one(ds1).getLinkOrCopyOfContents(with(mountPoint), with(any(File.class)));
                     will(returnValue(ds1Folder));
+
+                    one(ds2).getLinkOrCopyOfContents(with(mountPoint), with(any(File.class)));
+                    will(returnValue(ds2Folder));
                 }
             });
 
         Object[][] properties = new Object[][]
-            { new Object[]
+        { new Object[]
                 { "a", "alpha" }, new Object[]
                 { "b", "beta" } };
         Object[][] result =
@@ -751,9 +759,9 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
     public void testLoadDataSetsForExperiment()
     {
         final File dataSetFolder =
-                new File(OpenBISScreeningML.tempDir, OpenBISScreeningML.DATASETS_FOLDER);
+                new File(OpenBISScreeningML.tempDir, DATASETS_FOLDER);
         final File ds1Folder = new File(dataSetFolder, "ds-1");
-        File ds2Folder = new File(dataSetFolder, "ds-2");
+        final File ds2Folder = new File(dataSetFolder, "ds-2");
         ds2Folder.mkdirs();
         final String datasetTypePattern = "blablaCode";
         final String mountPoint = "/mount/openbis/store";
@@ -770,8 +778,11 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                     one(openbis).getFullDataSets(with(eId1), with(filterMatcher));
                     will(returnValue(Arrays.asList(dataSet1, dataSet2)));
 
-                    one(ds1).getLinkOrCopyOfContents(mountPoint, dataSetFolder);
+                    one(ds1).getLinkOrCopyOfContents(with(mountPoint), with(any(File.class)));
                     will(returnValue(ds1Folder));
+
+                    one(ds2).getLinkOrCopyOfContents(with(mountPoint), with(any(File.class)));
+                    will(returnValue(ds2Folder));
 
                 }
             });
@@ -795,7 +806,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
     public void testUpdateDataSet()
     {
         final File dataSetFolder =
-                new File(OpenBISScreeningML.tempDir, OpenBISScreeningML.DATASETS_FOLDER);
+                new File(OpenBISScreeningML.tempDir, DATASETS_FOLDER);
         final File ds1Folder = new File(dataSetFolder, "ds-1");
         ds1Folder.mkdirs();
         final RecordingMatcher<NewDataSetMetadataDTO> metaDataMatcher =
@@ -824,7 +835,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
         Object code =
                 OpenBISScreeningML.uploadDataSet("/S/PLATE-1", ds1Folder.getPath(), "my-type",
                         new Object[][]
-                            {
+                        {
                                 { "A", "42" },
                                 { "B", "43" } });
 
@@ -838,7 +849,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
     public void testUploadDataSetForPlateAndParents()
     {
         final File dataSetFolder =
-                new File(OpenBISScreeningML.tempDir, OpenBISScreeningML.DATASETS_FOLDER);
+                new File(OpenBISScreeningML.tempDir, DATASETS_FOLDER);
         final File ds1Folder = new File(dataSetFolder, "ds-1");
         ds1Folder.mkdirs();
         final RecordingMatcher<NewDataSetMetadataDTO> metaDataMatcher =
@@ -865,8 +876,8 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
             });
 
         Object code = OpenBISScreeningML.uploadDataSetForPlateAndParents("/S/PLATE-1", new Object[]
-            { "DATA-SET-CODE1", "DATA-SET-CODE2" }, ds1Folder.getPath(), "my-type", new Object[][]
-            {
+        { "DATA-SET-CODE1", "DATA-SET-CODE2" }, ds1Folder.getPath(), "my-type", new Object[][]
+        {
                 { "A", "42" },
                 { "B", "43" } });
 
@@ -882,7 +893,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
     public void testUploadDataSetForExperimentAndParents()
     {
         final File dataSetFolder =
-                new File(OpenBISScreeningML.tempDir, OpenBISScreeningML.DATASETS_FOLDER);
+                new File(OpenBISScreeningML.tempDir, DATASETS_FOLDER);
         final File ds1Folder = new File(dataSetFolder, "ds-1");
         ds1Folder.mkdirs();
         final RecordingMatcher<NewDataSetMetadataDTO> metaDataMatcher =
@@ -911,9 +922,9 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
 
         Object code =
                 OpenBISScreeningML.uploadDataSetForExperimentAndParents("/S/P/E1", new Object[]
-                    { "DATA-SET-CODE1", "DATA-SET-CODE2" }, ds1Folder.getPath(), "my-type",
+                { "DATA-SET-CODE1", "DATA-SET-CODE2" }, ds1Folder.getPath(), "my-type",
                         new Object[][]
-                            {
+                        {
                                 { "A", "42" },
                                 { "B", "43" } });
 
@@ -1036,7 +1047,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
             });
 
         Object[][][] result1 = OpenBISScreeningML.loadImages("/S/PLATE-1", 1, 2, 1, new String[]
-            { "G" });
+        { "G" });
         List<PlateImageReference> imgRefs1 = imgRefsMatcher1.recordedObject();
         for (PlateImageReference plateImageReference : imgRefs1)
         {
@@ -1110,7 +1121,7 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
     {
 
         final String[] analysisProcedures = new String[]
-            { "PROC-1", "PROC-2", "PROC-3" };
+        { "PROC-1", "PROC-2", "PROC-3" };
 
         context.checking(new Expectations()
             {
@@ -1144,11 +1155,14 @@ public class OpenBISScreeningMLTest extends AbstractFileSystemTestCase
                             createDataSet("ds1", ds1, Arrays.asList("ds3", "ds4"), noCodes),
                             createDataSet("ds2", ds2, Arrays.asList("ds1"),
                                     Arrays.asList("ds3", "ds5")))));
+
+                    one(ds1).tryGetInternalPathInDataStore();
+                    one(ds2).tryGetInternalPathInDataStore();
                 }
             });
 
         Object[][][] dataSets = OpenBISScreeningML.getDataSetMetaData(new String[]
-            { "ds1", "ds2" });
+        { "ds1", "ds2" });
 
         assertEquals("ds1", dataSets[0][0][0]);
         assertEquals("ds-type", dataSets[0][0][1]);
