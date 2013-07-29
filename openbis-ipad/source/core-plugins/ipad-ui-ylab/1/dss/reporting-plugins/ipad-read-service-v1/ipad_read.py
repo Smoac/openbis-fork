@@ -13,6 +13,7 @@ from ch.systemsx.cisd.openbis.generic.shared.managed_property import ManagedProp
 import codecs
 import time
 import re
+import xml.dom.minidom
 
 #
 # BEGIN Infrastructure
@@ -308,6 +309,31 @@ def navigation_layer(oligos, antibodies, chemicals, protocols, medias, pcrs, buf
 	westernBlotting_dict = western_blotting_navigation_layer(westernBlottings)
 	return [oligo_dict, antibody_dict, chemical_dict, protocol_dict, media_dict, pcr_dict, buffer_dict, plasmid_dict, yeast_dict, bacteria_dict, enzyme_dict, westernBlotting_dict]
 
+def html_from_xml(xml_to_convert):
+	table_head = None;
+	table_body = "";
+	dom = xml.dom.minidom.parseString(xml_to_convert);
+	for child in dom.childNodes[0].childNodes:
+		if child.localName != None:
+			keys = child.attributes.keys();
+			if table_head == None:
+				table_head = "<tr>";
+				for key in keys:
+					if key != "permId":
+						table_head += "<th style='text-align:left;'>"+ key + "</th>";
+				table_head += "</tr>";
+			
+			table_body += "<tr>";
+			for key in keys:
+				if key != "permId":
+					if key == "date":
+						table_body += "<td>"+ time.ctime(long(child.attributes[key].value)/1000) + "</td>";
+					else:
+						table_body += "<td>"+ child.attributes[key].value + "</td>";
+			table_body += "</tr>";
+	html = "<html><body><table style='font-family:helvetica; font-size:90%; width: 100%;'><thead>" + table_head + "</thead><tbody>"+ table_body + "</tbody></table></body></html>";
+	return html;
+	
 def sample_to_dict_with_props_ignoring(sample, want_props, props_to_ignore):
 	"""Convert a sample to a dictionary, ignoring the specified properties.
 
@@ -336,7 +362,10 @@ def sample_to_dict_with_props_ignoring(sample, want_props, props_to_ignore):
 
 	if want_props:
 		properties_sample = ordered_properties_for_sample_ignoring(sample, props_to_ignore)
-		sample_dict['PROPERTIES'] = json_encoded_value(properties_sample)
+		for properti_sample in properties_sample:
+			if properti_sample['value'] != None and properti_sample['value'].find("<root>") != -1:
+				properti_sample['value'] = html_from_xml(properti_sample['value']);
+		sample_dict['PROPERTIES'] = json_encoded_value(properties_sample);
 
 	sample_dict['ROOT_LEVEL'] = None
 	return sample_dict
@@ -627,22 +656,21 @@ class YeastLabDrillRequestHandler(DrillRequestHandler):
 	"""Handler for the DRILL request."""
 
 	def retrieve_data(self):
-		entities = self.parameters['entities']
-		drill_navigation = [entity for entity in entities if 'NAVIGATION' == entity['REFCON']['entityType']]
-		drill_oligos = [entity for entity in entities if 'OLIGO' == entity['REFCON']['entityType']]
-		drill_antibodies = [entity for entity in entities if 'ANTIBODY' == entity['REFCON']['entityType']]
-		drill_chemicals = [entity for entity in entities if 'CHEMICAL' == entity['REFCON']['entityType']]	
-		drill_protocols = [entity for entity in entities if 'GENERAL_PROTOCOL' == entity['REFCON']['entityType']]	
-		drill_medias = [entity for entity in entities if 'MEDIA' == entity['REFCON']['entityType']]	
-		drill_pcrs = [entity for entity in entities if 'PCR' == entity['REFCON']['entityType']]	
-		drill_buffers = [entity for entity in entities if 'SOLUTIONS_BUFFERS' == entity['REFCON']['entityType']]	
-		drill_plasmids = [entity for entity in entities if 'PLASMID' == entity['REFCON']['entityType']]
-		drill_bacterias = [entity for entity in entities if 'BACTERIA' == entity['REFCON']['entityType']]	
-		drill_enzymes = [entity for entity in entities if 'ENZYME' == entity['REFCON']['entityType']]	
-		drill_westernBlottings = [entity for entity in entities if 'WESTERN_BLOTTING' == entity['REFCON']['entityType']]	
-
+		pass
+		# entities = self.parameters['entities']
+		# drill_navigation = [entity for entity in entities if 'NAVIGATION' == entity['REFCON']['entityType']]
+		# drill_oligos = [entity for entity in entities if 'OLIGO' == entity['REFCON']['entityType']]
+		# drill_antibodies = [entity for entity in entities if 'ANTIBODY' == entity['REFCON']['entityType']]
+		# drill_chemicals = [entity for entity in entities if 'CHEMICAL' == entity['REFCON']['entityType']]	
+		# drill_protocols = [entity for entity in entities if 'GENERAL_PROTOCOL' == entity['REFCON']['entityType']]	
+		# drill_medias = [entity for entity in entities if 'MEDIA' == entity['REFCON']['entityType']]	
+		# drill_pcrs = [entity for entity in entities if 'PCR' == entity['REFCON']['entityType']]	
+		# drill_buffers = [entity for entity in entities if 'SOLUTIONS_BUFFERS' == entity['REFCON']['entityType']]	
+		# drill_plasmids = [entity for entity in entities if 'PLASMID' == entity['REFCON']['entityType']]
+		# drill_bacterias = [entity for entity in entities if 'BACTERIA' == entity['REFCON']['entityType']]	
+		# drill_enzymes = [entity for entity in entities if 'ENZYME' == entity['REFCON']['entityType']]	
+		# drill_westernBlottings = [entity for entity in entities if 'WESTERN_BLOTTING' == entity['REFCON']['entityType']]	
 		# No information to return for navigation, oligos, or antibodies
-		
 
 	def add_data_rows(self):
 		pass
