@@ -365,6 +365,8 @@ def sample_to_dict_with_props_ignoring(sample, want_props, props_to_ignore):
 		for properti_sample in properties_sample:
 			if properti_sample['value'] != None and properti_sample['value'].find("<root>") != -1:
 				properti_sample['value'] = html_from_xml(properti_sample['value']);
+			elif properti_sample['value'] != None and properti_sample['value'].find("<root/>") != -1:
+				properti_sample['value'] = "-";
 		sample_dict['PROPERTIES'] = json_encoded_value(properties_sample);
 
 	sample_dict['ROOT_LEVEL'] = None
