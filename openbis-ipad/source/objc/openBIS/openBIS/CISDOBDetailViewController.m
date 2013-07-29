@@ -262,24 +262,88 @@
     if ([[NSNull null] isEqual: label]) label = @"";
     NSString *value = [properties valueForKey: @"value"];
     if ([[NSNull null] isEqual: value]) value = @"";
-
+    
     // Font and size obtained from the storyboard
     CGFloat labelFontSize = 12.f;
     CGFloat valueFontSize = 15.f;
     CGFloat veryLargeHeight = 2000.f;
     CGFloat labelWidth = 100.f;
     CGSize labelSize =
-        [label
-            sizeWithFont: [UIFont boldSystemFontOfSize: labelFontSize + 1.]
-            constrainedToSize: CGSizeMake(labelWidth, veryLargeHeight)
-            lineBreakMode: NSLineBreakByWordWrapping];
+    [label
+     sizeWithFont: [UIFont boldSystemFontOfSize: labelFontSize + 1.]
+     constrainedToSize: CGSizeMake(labelWidth, veryLargeHeight)
+     lineBreakMode: NSLineBreakByWordWrapping];
     CGSize valueSize =
-        [value
-            sizeWithFont: [UIFont boldSystemFontOfSize: valueFontSize + 1.]
-            constrainedToSize: CGSizeMake(tableView.frame.size.width - labelWidth, veryLargeHeight)
-            lineBreakMode: NSLineBreakByWordWrapping];    
+    [value
+     sizeWithFont: [UIFont boldSystemFontOfSize: valueFontSize + 1.]
+     constrainedToSize: CGSizeMake(tableView.frame.size.width - labelWidth, veryLargeHeight)
+     lineBreakMode: NSLineBreakByWordWrapping];
     CGFloat height = MAX(labelSize.height, MAX(valueSize.height, 44.0f));
+    
+    //Check if is a HTML table
+    CGFloat tableHeight = [self heightForHTMLTable:value];
+    if (tableHeight != 0) {
+        tableHeight += 20; // Additional distance to the borders
+    }
+    height = MAX(height, tableHeight);
     return height;
+}
+
+- (CGFloat)heightForHTMLTable:(NSString *)HTMLTable
+{
+    CGFloat height = 0;
+    if ([HTMLTable rangeOfString:@"<html>"].location != NSNotFound) {
+        NSUInteger count = 0, length = [HTMLTable length];
+        NSRange range = NSMakeRange(0, length);
+        while(range.location != NSNotFound)
+        {
+            range = [HTMLTable rangeOfString: @"<tr>" options:0 range:range];
+            if(range.location != NSNotFound)
+            {
+                range = NSMakeRange(range.location + range.length, length - (range.location + range.length));
+                count++;
+            }
+        }
+        
+        height = (count-1) * 23 + 30 + 12;
+    }
+    
+    return height;
+}
+
+- (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
+{
+    //Always remove the webview if pressent, don't reuse them
+    for (UIView *view in cell.subviews) {
+        if ([view isKindOfClass:[UIWebView class]]) {
+            [view removeFromSuperview];
+        }
+    }
+    
+    //Common Cell Setup
+    if (!self.detailItem) return;
+    NSDictionary *properties;
+    properties = [self propertiesAtIndexPath: indexPath];
+    
+    NSString *label = [properties valueForKey: @"label"];
+    if ([[NSNull null] isEqual: label]) label = @"";
+    NSString *value = [properties valueForKey: @"value"];
+    if ([[NSNull null] isEqual: value]) value = @"";
+    
+    
+    cell.textLabel.text = label;
+    cell.detailTextLabel.text = value;
+    
+    //Add web view if necessary for the HTML content and empty the label
+    if ([value rangeOfString:@"<html>"].location != NSNotFound) {
+        CGRect aRect = CGRectMake(107, 12, 590, [self heightForHTMLTable:value]);
+        UIWebView *webView = [[UIWebView alloc] initWithFrame:aRect];
+        webView.scrollView.scrollEnabled = NO;
+        
+        [webView loadHTMLString:value baseURL:nil];
+        [cell addSubview:webView];
+        cell.detailTextLabel.text = @"";
+    }
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
@@ -295,21 +359,6 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
 
-}
-
-- (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
-{
-    if (!self.detailItem) return;
-    NSDictionary *properties;
-    properties = [self propertiesAtIndexPath: indexPath];
-
-    NSString *label = [properties valueForKey: @"label"];
-    if ([[NSNull null] isEqual: label]) label = @"";
-    NSString *value = [properties valueForKey: @"value"];
-    if ([[NSNull null] isEqual: value]) value = @"";
-    
-    cell.textLabel.text = label;
-    cell.detailTextLabel.text = value;
 }
 
 #pragma mark - Status Updates
