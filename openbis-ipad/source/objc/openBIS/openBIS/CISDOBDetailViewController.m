@@ -339,6 +339,9 @@
         CGRect aRect = CGRectMake(107, 12, 590, [self heightForHTMLTable:value]);
         UIWebView *webView = [[UIWebView alloc] initWithFrame:aRect];
         webView.scrollView.scrollEnabled = NO;
+        [webView setOpaque:NO];
+        [webView setBackgroundColor:[UIColor clearColor]];
+        
         
         [webView loadHTMLString:value baseURL:nil];
         [cell addSubview:webView];
