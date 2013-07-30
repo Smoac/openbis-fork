@@ -130,7 +130,7 @@ public class MonitoringDataSource extends BasicDataSource
     protected void createDataSourceInstance() throws SQLException
     {
         final MonitoringPoolingDataSource pds =
-                new MonitoringPoolingDataSource(connectionPool, activeConnectionsLogInterval,
+                new MonitoringPoolingDataSource(connectionPool, url, activeConnectionsLogInterval,
                         activeConnectionsLogThreshold, oldActiveConnectionTimeMillis, logStackTrace);
         pds.setAccessToUnderlyingConnectionAllowed(isAccessToUnderlyingConnectionAllowed());
         pds.setLogWriter(logWriter);

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.dbmigration;
 
+import java.io.File;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -23,15 +24,23 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
-import java.util.IdentityHashMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.dbcp.DelegatingCallableStatement;
 import org.apache.commons.dbcp.DelegatingConnection;
 import org.apache.commons.dbcp.DelegatingPreparedStatement;
 import org.apache.commons.dbcp.DelegatingStatement;
 import org.apache.commons.dbcp.PoolingDataSource;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.log4j.Logger;
 
@@ -46,22 +55,31 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 class MonitoringPoolingDataSource extends PoolingDataSource
 {
+    private static final long DEFAULT_PERIOD_TIMER_MILLIS = 10 * 1000L;
+
     private final static Logger machineLog =
             LogFactory.getLogger(LogCategory.MACHINE, MonitoringPoolingDataSource.class);
 
     private final static Logger notifyLog =
             LogFactory.getLogger(LogCategory.NOTIFY, MonitoringPoolingDataSource.class);
 
-    private final Map<PoolGuardConnectionWrapper, Long> activeConnectionMap =
-            new IdentityHashMap<MonitoringPoolingDataSource.PoolGuardConnectionWrapper, Long>();
+    // static fields for inter-datasource connection logging
+
+    private static final Timer infoControlTimer = new Timer("db connection info", true);
+
+    private static DatabaseConnectionInfoController infoController =
+            new DatabaseConnectionInfoController();
+
+    static final Map<Integer, BorrowedConnectionRecord> activeConnections =
+            new ConcurrentHashMap<Integer, BorrowedConnectionRecord>();
+
+    private static volatile boolean logStackTrace;
 
     private final long activeConnectionsLogInterval;
 
     private final int activeConnectionsLogThreshold;
 
-    private final long oldActiveConnectionTimeMillis;
-
-    private final boolean logStackTrace;
+    private final String url;
 
     private long lastLogged;
 
@@ -69,15 +87,128 @@ class MonitoringPoolingDataSource extends PoolingDataSource
 
     private volatile boolean logConnection;
 
-    public MonitoringPoolingDataSource(ObjectPool pool, long activeConnectionsLogInterval,
-            int activeConnectionsLogThreshold, long oldActiveConnectionTimeMillis,
-            boolean logStackTrace)
+    static
+    {
+        infoControlTimer.schedule(infoController, DEFAULT_PERIOD_TIMER_MILLIS, DEFAULT_PERIOD_TIMER_MILLIS);
+    }
+
+    public MonitoringPoolingDataSource(ObjectPool pool, String url,
+            long activeConnectionsLogInterval,
+            int activeConnectionsLogThreshold)
     {
         super(pool);
         this.activeConnectionsLogThreshold = activeConnectionsLogThreshold;
         this.activeConnectionsLogInterval = activeConnectionsLogInterval;
-        this.oldActiveConnectionTimeMillis = oldActiveConnectionTimeMillis;
-        this.logStackTrace = logStackTrace;
+        this.url = url;
+    }
+
+    // Kept for backward compatibility, but oldActiveConnectionTimeMillis and logStackTrace are
+    // ignored now.
+    public MonitoringPoolingDataSource(ObjectPool pool, String url,
+            long activeConnectionsLogInterval,
+            int activeConnectionsLogThreshold, long oldActiveConnectionTimeMillis,
+            boolean logStackTrace)
+    {
+        this(pool, url, activeConnectionsLogInterval, activeConnectionsLogThreshold);
+    }
+
+    /**
+     * A record of information on a connection borrowed from the pool.
+     */
+    private static class BorrowedConnectionRecord
+    {
+        final long timeOfBorrowing;
+
+        final String dbUrl;
+
+        final String threadName;
+
+        final StackTraceElement[] borrowStackTraceOrNull;
+
+        BorrowedConnectionRecord(long timeOfBorrowing, String dbUrl, String threadName,
+                StackTraceElement[] borrowStackTraceOrNull)
+        {
+            this.timeOfBorrowing = timeOfBorrowing;
+            this.dbUrl = dbUrl;
+            this.threadName = threadName;
+            this.borrowStackTraceOrNull = borrowStackTraceOrNull;
+        }
+    }
+
+    /**
+     * A class that controls printing of information about active database connections.
+     */
+    private static class DatabaseConnectionInfoController extends TimerTask
+    {
+        private final File controlDir = new File("control");
+
+        @Override
+        public void run()
+        {
+            final File[] controlFiles = controlDir.listFiles();
+            if (controlFiles == null)
+            {
+                return;
+            }
+            for (File f : controlFiles)
+            {
+                boolean knownCommand = false;
+                final String name = f.getName();
+                if (name.startsWith("db-connections-print-active"))
+                {
+                    final String[] split = StringUtils.split(name, '.');
+                    final long oldActiveConnTimeMillis =
+                            (split.length > 1) ? NumberUtils.toLong(split[1], 0) : 0;
+                    logActiveDatabaseConnections(System.currentTimeMillis(),
+                            oldActiveConnTimeMillis);
+                    knownCommand = true;
+                } else if ("db-connections-stacktrace-on".equals(name))
+                {
+                    setLogStackTrace(true);
+                    knownCommand = true;
+                } else if ("db-connections-stacktrace-off".equals(name))
+                {
+                    setLogStackTrace(false);
+                    knownCommand = true;
+                }
+                if (knownCommand == false)
+                {
+                    machineLog.warn("Don't know what to do with control file '" + name
+                            + "', ignoring.");
+                    machineLog.warn("Supported control files are:");
+                    machineLog.warn("db-connections-print-active[.nnn] - print all active " +
+                            "database connections older than nnn milli-seconds.");
+                    machineLog.warn("db-connections-stacktrace-on - switch on recording " +
+                            "stacktraces when handing out a database connection.");
+                    machineLog.warn("db-connections-stacktrace-off - switch off recording " +
+                            "stacktraces when handing out a database connection.");
+                }
+                f.delete();
+            }
+        }
+    }
+
+    /**
+     * Re-schedules the database info controller with a new period.
+     */
+    public synchronized static void rescheduleInfoController(long periodInMillis)
+    {
+        infoController.cancel();
+        infoControlTimer.purge();
+        infoController = new DatabaseConnectionInfoController();
+        infoControlTimer.schedule(infoController, periodInMillis, periodInMillis);
+    }
+
+    public static boolean isLogStackTrace()
+    {
+        return logStackTrace;
+    }
+
+    public static void setLogStackTrace(boolean logStackTrace)
+    {
+        MonitoringPoolingDataSource.logStackTrace = logStackTrace;
+        machineLog.info((logStackTrace ? "Enable" : "Disable")
+                + " stacktrace recording for database connections.");
     }
 
     /**
@@ -139,36 +270,14 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                 }
                 lastLogged = now;
                 maxActiveSinceLastLogged = 0;
-                if (doLogOldConnections())
-                {
-                    for (Map.Entry<PoolGuardConnectionWrapper, Long> entry : activeConnectionMap
-                            .entrySet())
-                    {
-                        if (now - entry.getValue() > oldActiveConnectionTimeMillis)
-                        {
-                            final StackTraceElement[] stackTraceOrNull =
-                                    entry.getKey().tryGetCreationStackTrace();
-                            if (stackTraceOrNull != null)
-                            {
-                                machineLog.warn("Database connection has not been returned: id="
-                                        + entry.getKey().hashCode() + ".\n"
-                                        + traceToString(stackTraceOrNull));
-                            } else
-                            {
-                                machineLog.warn("Database connection has not been returned: id="
-                                        + entry.getKey().hashCode() + ".");
-                            }
-                        }
-                    }
-                }
             }
             if (conn != null)
             {
                 conn = new PoolGuardConnectionWrapper(conn);
-                if (doLogOldConnections())
-                {
-                    activeConnectionMap.put((PoolGuardConnectionWrapper) conn, now);
-                }
+                activeConnections.put(System.identityHashCode(conn),
+                        new BorrowedConnectionRecord(now, url,
+                                Thread.currentThread().getName(), logStackTrace ? getStackTrace()
+                                        : null));
             }
             return conn;
         } catch (SQLException e)
@@ -188,9 +297,81 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         }
     }
 
-    boolean doLogOldConnections()
+    static void logActiveDatabaseConnections(long now, long oldActiveConnTimeMillis)
     {
-        return oldActiveConnectionTimeMillis > 0;
+        final List<BorrowedConnectionRecord> records =
+                new ArrayList<BorrowedConnectionRecord>(activeConnections.values());
+        Collections.sort(records, new Comparator<BorrowedConnectionRecord>()
+            {
+                @Override
+                public int compare(BorrowedConnectionRecord o1,
+                        BorrowedConnectionRecord o2)
+                {
+                    return (int) (o2.timeOfBorrowing - o1.timeOfBorrowing);
+                }
+            });
+        if (records.isEmpty()
+                || now - records.get(0).timeOfBorrowing < oldActiveConnTimeMillis)
+        {
+            System.err.printf("There are no active database connections older than %d ms.\n",
+                    oldActiveConnTimeMillis);
+            return;
+        }
+        System.err
+                .printf("\n>>>--- %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL " +
+                        "---------------------------------->>>\n", now);
+        if (oldActiveConnTimeMillis > 0)
+        {
+            System.err
+                    .printf("Active database connection overview older than %d ms (sorted by age)\n",
+                            oldActiveConnTimeMillis);
+        } else
+        {
+            System.err.printf("Active database connection overview (sorted by age)\n");
+
+        }
+        System.err.printf("%-25s\t%-25s\t%-25s\n", "Time", "Thread", "Database");
+        boolean hasStackTraces = false;
+        for (BorrowedConnectionRecord record : records)
+        {
+            if (now - record.timeOfBorrowing > oldActiveConnTimeMillis)
+            {
+                System.err.printf(
+                        "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL  \t%2$-25s\t%3$-25s\n",
+                        record.timeOfBorrowing, record.threadName, record.dbUrl);
+                hasStackTraces |= (record.borrowStackTraceOrNull != null);
+            }
+        }
+
+        if (hasStackTraces)
+        {
+            System.err.println("\nActive database connection stacktraces");
+            // Print stacktraces
+            boolean noNewline = true;
+            for (BorrowedConnectionRecord record : records)
+            {
+                if (now - record.timeOfBorrowing > oldActiveConnTimeMillis
+                        && record.borrowStackTraceOrNull != null)
+                {
+                    if (noNewline)
+                    {
+                        noNewline = false;
+                    } else
+                    {
+                        System.err.println();
+                    }
+                    System.err.printf("Time: %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL\n",
+                            record.timeOfBorrowing);
+                    System.err.printf("Database: %s\n", record.dbUrl);
+                    System.err.printf("Thread: %s\n", record.threadName);
+                    System.err.print("Stacktrace:\n"
+                            + traceToString(record.borrowStackTraceOrNull));
+                }
+            }
+        }
+        System.err
+                .printf("<<<--- %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL " +
+                        "----------------------------------<<<\n", now);
     }
 
     static StackTraceElement[] getStackTrace()
@@ -222,7 +403,8 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         if (innerMethodName.equals(outerMethodName))
         {
             return outerMethodName;
-        } else {
+        } else
+        {
             return outerMethodName + " / " + innerMethodName;
         }
     }
@@ -230,8 +412,14 @@ class MonitoringPoolingDataSource extends PoolingDataSource
     static String traceToString(StackTraceElement[] trace)
     {
         final StringBuilder builder = new StringBuilder();
+        boolean skip = true;
         for (StackTraceElement te : trace)
         {
+            if (skip)
+            {
+                skip = false;
+                continue;
+            }
             builder.append("\tat ");
             builder.append(te.toString());
             builder.append('\n');
@@ -245,24 +433,10 @@ class MonitoringPoolingDataSource extends PoolingDataSource
      */
     private class PoolGuardConnectionWrapper extends DelegatingConnection
     {
-        private final StackTraceElement[] creationStackTraceOrNull;
-
         PoolGuardConnectionWrapper(Connection delegate)
         {
             super(delegate);
-            if (doLogOldConnections())
-            {
-                creationStackTraceOrNull = getStackTrace();
-            } else
-            {
-                creationStackTraceOrNull = null;
-            }
             log("Hand out database connection");
-        }
-
-        StackTraceElement[] tryGetCreationStackTrace()
-        {
-            return creationStackTraceOrNull;
         }
 
         void log(String action)
@@ -315,10 +489,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
             {
                 this._conn.close();
                 super.setDelegate(null);
-                if (doLogOldConnections())
-                {
-                    activeConnectionMap.remove(this);
-                }
+                activeConnections.remove(System.identityHashCode(this));
                 log("Return database connection");
             }
         }
