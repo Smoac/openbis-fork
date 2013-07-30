@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.dbmigration;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -141,11 +142,20 @@ class MonitoringPoolingDataSource extends PoolingDataSource
     private static class DatabaseConnectionInfoController extends TimerTask
     {
         private final File controlDir = new File("control");
+        
+        private final FilenameFilter prefixFilter = new FilenameFilter()
+            {
+                @Override
+                public boolean accept(File dir, String name)
+                {
+                    return name.startsWith("db-connections-");
+                }
+            };
 
         @Override
         public void run()
         {
-            final File[] controlFiles = controlDir.listFiles();
+            final File[] controlFiles = controlDir.listFiles(prefixFilter);
             if (controlFiles == null)
             {
                 return;

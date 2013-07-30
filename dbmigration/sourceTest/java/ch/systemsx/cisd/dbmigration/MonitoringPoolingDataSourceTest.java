@@ -43,7 +43,7 @@ public class MonitoringPoolingDataSourceTest
                 new FileOutputStream(new File("control/db-connections-stacktrace-on"));
         IOUtils.closeQuietly(os);
         os =
-                new FileOutputStream(new File("control/trash"));
+                new FileOutputStream(new File("control/db-connections-trash"));
         IOUtils.closeQuietly(os);
 
         final SimpleDatabaseConfigurationContext context1 =
