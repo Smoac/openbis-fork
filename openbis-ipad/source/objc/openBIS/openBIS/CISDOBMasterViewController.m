@@ -341,6 +341,9 @@
     //Searching for barcodes or normal search
     NSString* searchTitle = [self scopeButtonTitles][searchOption];
     if ([searchTitle isEqualToString:@"Barcode"]) {
+        [[NSNotificationCenter defaultCenter]
+         postNotificationName:@"BarcodeReaderSwitchAutoRotationOff"
+         object:nil];
         UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard_iPad" bundle:nil];
         CISDOBBarcodeViewController *barcodeController = [storyboard instantiateViewControllerWithIdentifier:@"Barcode"];
         barcodeController.modalPresentationStyle = UIModalPresentationFullScreen;

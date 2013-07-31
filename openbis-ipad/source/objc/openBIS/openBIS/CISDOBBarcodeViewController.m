@@ -50,7 +50,7 @@
      postNotificationName:@"DissmissNotification"
      object:nil];
     [[NSNotificationCenter defaultCenter]
-     postNotificationName:@"BarcodeReaderSwitchAutoRotation"
+     postNotificationName:@"BarcodeReaderSwitchAutoRotationOn"
      object:nil];
 }
 
@@ -70,9 +70,6 @@
 #pragma mark - View Controller Methods
 
 - (void)viewWillAppear:(BOOL)animated {
-    [[NSNotificationCenter defaultCenter]
-     postNotificationName:@"BarcodeReaderSwitchAutoRotation"
-     object:nil];
     /*
     self.videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
     NSError *error;

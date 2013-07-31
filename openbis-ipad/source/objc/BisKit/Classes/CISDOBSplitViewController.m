@@ -29,8 +29,13 @@
 	// Do any additional setup after loading the view.
     [[NSNotificationCenter defaultCenter]
      addObserver:self
-     selector:@selector(switchAutoRotate:)
-     name:@"BarcodeReaderSwitchAutoRotation"
+     selector:@selector(switchAutoRotateOn:)
+     name:@"BarcodeReaderSwitchAutoRotationOn"
+     object:nil];
+    [[NSNotificationCenter defaultCenter]
+     addObserver:self
+     selector:@selector(switchAutoRotateOff:)
+     name:@"BarcodeReaderSwitchAutoRotationOff"
      object:nil];
 }
 
@@ -42,9 +47,14 @@
 
 static BOOL shouldAutorotate = YES;
 
-- (void) switchAutoRotate:(NSNotification *) notification
+- (void) switchAutoRotateOn:(NSNotification *) notification
 {
-    shouldAutorotate = !shouldAutorotate;
+    shouldAutorotate = YES;
+}
+
+- (void) switchAutoRotateOff:(NSNotification *) notification
+{
+    shouldAutorotate = NO;
 }
 
 - (BOOL)shouldAutorotate
