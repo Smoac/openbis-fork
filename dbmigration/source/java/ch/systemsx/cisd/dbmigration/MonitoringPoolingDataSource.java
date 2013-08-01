@@ -99,16 +99,6 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         this.url = url;
     }
 
-    // Kept for backward compatibility. oldActiveConnectionTimeMillis, logStackTrace and
-    // activeConnectionsLogThreshold are ignored.
-    public MonitoringPoolingDataSource(ObjectPool pool, String url,
-            long activeConnectionsLogInterval,
-            int activeConnectionsLogThreshold, long oldActiveConnectionTimeMillis,
-            boolean logStackTrace)
-    {
-        this(pool, url, activeConnectionsLogInterval);
-    }
-
     /**
      * A record of information on a connection borrowed from the pool.
      */

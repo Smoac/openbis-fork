@@ -64,12 +64,6 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
     static final String ACTIVE_CONNECTIONS_LOG_INTERVAL =
             "database-active-connections-log-interval";
 
-    static final String ACTIVE_NUMBER_CONNECTIONS_LOG_THRESHOLD =
-            "database-active-number-connections-log-threshold";
-
-    static final String LOG_STACKTRACE_ON_CONNECTION_LOGGING =
-            "database-log-stacktrace-on-connection-logging";
-
     static final String VALIDATION_QUERY_KEY = "validation-query";
 
     private IDataSourceFactory dataSourceFactory = new BasicDataSourceFactory();
@@ -125,18 +119,6 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
         {
             dataSourceFactory.setActiveConnectionsLogInterval(getInt(properties,
                     ACTIVE_CONNECTIONS_LOG_INTERVAL, -1));
-        }
-
-        if (hasProperty(properties, ACTIVE_NUMBER_CONNECTIONS_LOG_THRESHOLD))
-        {
-            dataSourceFactory.setActiveNumConnectionsLogThreshold(getInt(properties,
-                    ACTIVE_NUMBER_CONNECTIONS_LOG_THRESHOLD, -1));
-        }
-
-        if (hasProperty(properties, LOG_STACKTRACE_ON_CONNECTION_LOGGING))
-        {
-            dataSourceFactory.setLogStackTraceOnConnectionLogging(getBoolean(properties,
-                    LOG_STACKTRACE_ON_CONNECTION_LOGGING, false));
         }
 
         this.validationQuery = getProperty(properties, VALIDATION_QUERY_KEY);
