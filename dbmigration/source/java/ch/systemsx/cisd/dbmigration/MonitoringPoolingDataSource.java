@@ -45,6 +45,7 @@ import org.apache.commons.dbcp.PoolingDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.pool.ObjectPool;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -76,6 +77,8 @@ class MonitoringPoolingDataSource extends PoolingDataSource
             new ConcurrentHashMap<Integer, BorrowedConnectionRecord>();
 
     private static volatile boolean logStackTrace;
+    
+    private static volatile Level configuredLogLevel;
 
     private final long activeConnectionsLogInterval;
 
@@ -166,6 +169,18 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                 {
                     setLogStackTrace(false);
                     knownCommand = true;
+                } else if ("db-connections-debug-on".equals(name))
+                {
+                    configuredLogLevel = machineLog.getLevel();
+                    machineLog.setLevel(Level.DEBUG);
+                    machineLog.info("Enable debug log for database connections.");
+                    knownCommand = true;
+                } else if ("db-connections-debug-off".equals(name))
+                {
+                    final Level level = configuredLogLevel;
+                    machineLog.setLevel((level == null) ? Level.INFO : level);
+                    machineLog.info("Disable debug log for database connections.");
+                    knownCommand = true;
                 }
                 if (knownCommand == false)
                 {
@@ -178,6 +193,10 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                             "stacktraces when handing out a database connection.");
                     machineLog.warn("db-connections-stacktrace-off - switch off recording " +
                             "stacktraces when handing out a database connection.");
+                    machineLog.warn("db-connections-debug-on - switch on detailed logging " +
+                    		"of db connection borrowing.");
+                    machineLog.warn("db-connections-debug-off - switch off detailed logging " +
+                            "of db connection borrowing.");
                 }
                 f.delete();
             }
@@ -212,6 +231,16 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         MonitoringPoolingDataSource.logStackTrace = logStackTrace;
         machineLog.info((logStackTrace ? "Enable" : "Disable")
                 + " stacktrace recording for database connections.");
+    }
+
+    /**
+     * Sets the log level for connection logging.
+     */
+    public static void setLogLevel(Level logLevel)
+    {
+        MonitoringPoolingDataSource.machineLog.setLevel(logLevel);
+        configuredLogLevel = logLevel;
+        machineLog.info("Set loglevel to " + logLevel + ".");
     }
 
     /**

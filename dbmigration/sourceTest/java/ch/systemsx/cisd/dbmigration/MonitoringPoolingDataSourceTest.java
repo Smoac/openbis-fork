@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Level;
 
 import ch.systemsx.cisd.common.logging.LogInitializer;
 
@@ -36,9 +37,9 @@ public class MonitoringPoolingDataSourceTest
     public static void main(String[] args) throws InterruptedException, IOException
     {
         LogInitializer.init();
+        MonitoringPoolingDataSource.setLogLevel(Level.INFO);
         MonitoringPoolingDataSource.rescheduleInfoController(10);
         new File(".control").mkdir();
-        MonitoringPoolingDataSource.setLogStackTrace(true);
         FileOutputStream os =
                 new FileOutputStream(new File(".control/db-connections-trash"));
         IOUtils.closeQuietly(os);
@@ -62,7 +63,6 @@ public class MonitoringPoolingDataSourceTest
                         System.err.println("Got connection (" + Thread.currentThread().getName()
                                 + ")");
                         throw new Error("Null Bock");
-                        //Thread.sleep(100000L);
                     } catch (SQLException ex)
                     {
                         ex.printStackTrace();
@@ -79,11 +79,11 @@ public class MonitoringPoolingDataSourceTest
                 {
                     try
                     {
-                        Thread.sleep(100L);
+                        Thread.sleep(600L);
                         Connection conn = ds2.getConnection();
                         System.err.println("Got connection (" + Thread.currentThread().getName()
                                 + ")");
-                        Thread.sleep(1500L);
+                        Thread.sleep(400L);
                         conn.close();
                         Thread.sleep(100000L);
                     } catch (SQLException ex)
@@ -124,11 +124,21 @@ public class MonitoringPoolingDataSourceTest
         Thread t3 = new Thread(r3, "T3");
         t3.setDaemon(true);
         t3.start();
-        Thread.sleep(1000L);
+        Thread.sleep(500L);
+        os =
+                new FileOutputStream(new File(".control/db-connections-debug-on"));
+        IOUtils.closeQuietly(os);
+        Thread.sleep(200L);
+        
         os =
                 new FileOutputStream(new File(".control/db-connections-print-active"));
         IOUtils.closeQuietly(os);
-        Thread.sleep(1000L);
+        Thread.sleep(500L);
+        os =
+                new FileOutputStream(new File(".control/db-connections-debug-off"));
+        IOUtils.closeQuietly(os);
+        Thread.sleep(900L);
+        
         os =
                 new FileOutputStream(new File(".control/db-connections-print-active"));
         IOUtils.closeQuietly(os);
