@@ -33,17 +33,14 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
  */
 public class MonitoringPoolingDataSourceTest
 {
-
     public static void main(String[] args) throws InterruptedException, IOException
     {
         LogInitializer.init();
         MonitoringPoolingDataSource.rescheduleInfoController(10);
-        new File("control").mkdir();
+        new File(".control").mkdir();
+        MonitoringPoolingDataSource.setLogStackTrace(true);
         FileOutputStream os =
-                new FileOutputStream(new File("control/db-connections-stacktrace-on"));
-        IOUtils.closeQuietly(os);
-        os =
-                new FileOutputStream(new File("control/db-connections-trash"));
+                new FileOutputStream(new File(".control/db-connections-trash"));
         IOUtils.closeQuietly(os);
 
         final SimpleDatabaseConfigurationContext context1 =
@@ -64,11 +61,9 @@ public class MonitoringPoolingDataSourceTest
                         ds1.getConnection();
                         System.err.println("Got connection (" + Thread.currentThread().getName()
                                 + ")");
-                        Thread.sleep(100000L);
+                        throw new Error("Null Bock");
+                        //Thread.sleep(100000L);
                     } catch (SQLException ex)
-                    {
-                        ex.printStackTrace();
-                    } catch (InterruptedException ex)
                     {
                         ex.printStackTrace();
                     }
@@ -131,11 +126,11 @@ public class MonitoringPoolingDataSourceTest
         t3.start();
         Thread.sleep(1000L);
         os =
-                new FileOutputStream(new File("control/db-connections-print-active"));
+                new FileOutputStream(new File(".control/db-connections-print-active"));
         IOUtils.closeQuietly(os);
         Thread.sleep(1000L);
         os =
-                new FileOutputStream(new File("control/db-connections-print-active"));
+                new FileOutputStream(new File(".control/db-connections-print-active"));
         IOUtils.closeQuietly(os);
         Thread.sleep(1000L);
     }
