@@ -262,9 +262,8 @@ case "$command" in
     echo "  $0 show-command-queue  -  show the queue of commands from openBIS AS waiting to be executed"
     echo "  $0 log-db-connections  -  log the currently active database connections to log/startup_log.txt"
     echo "  $0 log-thread-dump  -  log the current thread dump to log/startup_log.txt"
-    echo "  $0 debug-db-connections  -  switch on database connection debug logging"
-    echo "  $0 no-debug-db-connections  -  switch off database connection debug logging"
-    echo "  $0 record-stacktrace-db-connections  -  switch on database connection stacktrace recording"
+    echo "  $0 debug-db-connections on / off -  switch on / off database connection debug logging"
+    echo "  $0 record-stacktrace-db-connections on / off -  switch on / off database connection stacktrace recording"
     echo "  $0 no-record-stacktrace-db-connections  -  switch off database connection stacktrace recording"
     ;;
   version)
@@ -303,8 +302,8 @@ case "$command" in
       exit 100
     fi
   	mkdir -p .control
-  	if [ "$1" != "" ]; then
-    	touch .control/db-connections-print-active.$1
+  	if [ "$2" != "" ]; then
+    	touch .control/db-connections-print-active.$2
    	else
     	touch .control/db-connections-print-active
    	fi
@@ -318,19 +317,13 @@ case "$command" in
       exit 100
     fi
   	mkdir -p .control
-  	touch .control/db-connections-debug-on
-  	echo "Switched on debug logging for database connections."
-    ;;
-  no-debug-db-connections)
-    getStatus
-    EXIT_STATUS=$?
-    if [ $EXIT_STATUS -ne 0 ]; then
-      echo "Error: Data Store Server not running."
-      exit 100
-    fi
-  	mkdir -p .control
-  	touch .control/db-connections-debug-off
-  	echo "Switched off debug logging for database connections."
+  	if [ "$2" == "off" ]; then
+	  	touch .control/db-connections-debug-off
+  		echo "Switched off debug logging for database connections."
+  	else
+	  	touch .control/db-connections-debug-on
+  		echo "Switched on debug logging for database connections."
+  	fi
     ;;
   record-stacktrace-db-connections)
     getStatus
@@ -340,17 +333,13 @@ case "$command" in
       exit 100
     fi
   	mkdir -p .control
-  	touch .control/db-connections-stacktrace-on
-    ;;
-  no-record-stacktrace-db-connections)
-    getStatus
-    EXIT_STATUS=$?
-    if [ $EXIT_STATUS -ne 0 ]; then
-      echo "Error: Data Store Server not running."
-      exit 100
-    fi
-  	mkdir -p .control
-  	touch .control/db-connections-stacktrace-off
+  	if [ "$2" == "off" ]; then
+	  	touch .control/db-connections-stacktrace-off
+  		echo "Switched off stacktrace recording for database connections."
+	  else
+	  	touch .control/db-connections-stacktrace-on
+  		echo "Switched on stacktrace recording for database connections."
+	  fi
     ;;
   *)
     echo "Usage: $0 {start|stop|restart|status|help|version}"
