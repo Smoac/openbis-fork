@@ -23,6 +23,7 @@ import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -57,6 +58,9 @@ public final class ExperimentTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
+                    allowing(daoFactory).getHomeDatabaseInstance();
+                    will(returnValue(CommonTestUtils.createHomeDatabaseInstance()));
+
                     allowing(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
                     will(returnValue(entityTypeDAO));
 
@@ -79,6 +83,42 @@ public final class ExperimentTableTest extends AbstractBOTest
             });
         createExperimentTable().load(experimentType.getCode(), projectIdentifier);
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testLoadByProjectNonexistent() throws Exception
+    {
+        final ProjectIdentifier projectIdentifier = CommonTestUtils.createProjectIdentifier();
+        final ExperimentTypePE experimentType = CommonTestUtils.createExperimentType();
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getHomeDatabaseInstance();
+                    will(returnValue(CommonTestUtils.createHomeDatabaseInstance()));
+
+                    allowing(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    will(returnValue(entityTypeDAO));
+
+                    allowing(daoFactory).getProjectDAO();
+                    will(returnValue(projectDAO));
+
+                    allowing(daoFactory).getExperimentDAO();
+                    will(returnValue(experimentDAO));
+
+                    one(projectDAO).tryFindProjects(Collections.singletonList(projectIdentifier));
+                    will(returnValue(Collections.emptyList()));
+                }
+            });
+
+        try
+        {
+            createExperimentTable().load(experimentType.getCode(), projectIdentifier);
+            fail();
+        } catch (UserFailureException e)
+        {
+            context.assertIsSatisfied();
+            assertEquals("Projects '[HOME_DATABASE:/HOME_GROUP/PROJECT_EVOLUTION]' unknown.", e.getMessage());
+        }
     }
 
     @Test
