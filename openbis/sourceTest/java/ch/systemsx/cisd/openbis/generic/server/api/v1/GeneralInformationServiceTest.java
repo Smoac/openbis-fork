@@ -581,7 +581,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                     ProjectIdentifier projectIdentifier =
                             new ProjectIdentifier("SPACE-1", "PROJECT-1");
                     one(commonServer).listExperiments(SESSION_TOKEN, returnExperimentType,
-                            projectIdentifier);
+                            Collections.singletonList(projectIdentifier));
 
                     Person registrator = new Person();
                     registrator.setEmail("mail@mail.com");

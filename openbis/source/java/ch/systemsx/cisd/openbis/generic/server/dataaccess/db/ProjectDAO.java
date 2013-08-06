@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
@@ -129,15 +130,15 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
         List<ProjectPE> allProjects = listProjects();
         List<ProjectPE> matchingProjects = new LinkedList<ProjectPE>();
 
-        Set<String> projectIdentifiersSet = new HashSet<String>();
+        Set<ProjectIdentifier> projectIdentifiersSet = new HashSet<ProjectIdentifier>();
         for (ProjectIdentifier projectIdentifier : projectIdentifiers)
         {
-            projectIdentifiersSet.add(projectIdentifier.toString());
+            projectIdentifiersSet.add(IdentifierHelper.createFullProjectIdentifier(projectIdentifier, getDatabaseInstance()));
         }
 
         for (ProjectPE project : allProjects)
         {
-            if (projectIdentifiersSet.contains(project.getIdentifier()))
+            if (projectIdentifiersSet.contains(IdentifierHelper.createFullProjectIdentifier(project)))
             {
                 matchingProjects.add(project);
             }

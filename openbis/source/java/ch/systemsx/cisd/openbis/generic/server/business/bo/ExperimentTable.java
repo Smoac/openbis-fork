@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -174,7 +175,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
 
     private void checkNotNull(final List<ProjectIdentifier> projectIdentifiers, final List<ProjectPE> projects)
     {
-        Set<String> unknownProjectIdentifiers = new HashSet<String>();
+        Set<ProjectIdentifier> unknownProjectIdentifiers = new HashSet<ProjectIdentifier>();
 
         if (projectIdentifiers != null)
         {
@@ -182,7 +183,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
             {
                 if (projectIdentifier != null)
                 {
-                    unknownProjectIdentifiers.add(projectIdentifier.toString());
+                    unknownProjectIdentifiers.add(IdentifierHelper.createFullProjectIdentifier(projectIdentifier, getHomeDatabaseInstance()));
                 }
             }
         }
@@ -193,7 +194,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
             {
                 if (project != null)
                 {
-                    unknownProjectIdentifiers.remove(project.getIdentifier());
+                    unknownProjectIdentifiers.remove(IdentifierHelper.createFullProjectIdentifier(project));
                 }
             }
         }
