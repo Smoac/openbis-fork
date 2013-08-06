@@ -55,8 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedProperty
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
- * The only productive implementation of {@link IProjectBO}. We are using an interface here to keep
- * the system testable.
+ * The only productive implementation of {@link IProjectBO}. We are using an interface here to keep the system testable.
  * 
  * @author Christian Ribeaud
  */
@@ -340,7 +339,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
             List<String> codes = new ArrayList<String>();
             List<String> trashedCodes = new ArrayList<String>();
             List<ExperimentPE> experiments =
-                    getExperimentDAO().listExperimentsWithProperties(project, false, false);
+                    getExperimentDAO().listExperimentsWithProperties(Collections.singletonList(project), false, false);
             for (ExperimentPE experiment : experiments)
             {
                 codes.add(experiment.getCode());

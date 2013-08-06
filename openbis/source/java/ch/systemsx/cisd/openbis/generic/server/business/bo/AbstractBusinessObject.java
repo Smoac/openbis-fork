@@ -149,6 +149,17 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return actor;
     }
 
+    protected void fillSpaceIdentifiers(final List<? extends SpaceIdentifier> spaceIdentifiers)
+    {
+        if (spaceIdentifiers != null)
+        {
+            for (SpaceIdentifier spaceIdentifier : spaceIdentifiers)
+            {
+                fillSpaceIdentifier(spaceIdentifier);
+            }
+        }
+    }
+
     protected void fillSpaceIdentifier(final SpaceIdentifier spaceIdentifier)
     {
         if (org.apache.commons.lang.StringUtils.isBlank(spaceIdentifier.getSpaceCode()))

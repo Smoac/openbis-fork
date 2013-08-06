@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
@@ -68,11 +69,10 @@ public final class ExperimentTableTest extends AbstractBOTest
                     one(entityTypeDAO).tryToFindEntityTypeByCode(experimentType.getCode());
                     will(returnValue(experimentType));
 
-                    one(projectDAO).tryFindProject(projectIdentifier.getDatabaseInstanceCode(),
-                            projectIdentifier.getSpaceCode(), projectIdentifier.getProjectCode());
-                    will(returnValue(project));
+                    one(projectDAO).tryFindProjects(Collections.singletonList(projectIdentifier));
+                    will(returnValue(Collections.singletonList(project)));
 
-                    one(experimentDAO).listExperimentsWithProperties(experimentType, project, null,
+                    one(experimentDAO).listExperimentsWithProperties(experimentType, Collections.singletonList(project), null,
                             false, false);
                     will(returnValue(new ArrayList<ExperimentPE>()));
                 }

@@ -17,7 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -36,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * Implementation of {@link IProjectDAO}.
@@ -115,7 +119,31 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
             spaceCriteria.createCriteria("databaseInstance").add(
                     Restrictions.eq("code", CodeConverter.tryToDatabase(databaseInstanceCode)));
         }
+
         return (ProjectPE) criteria.uniqueResult();
+    }
+
+    @Override
+    public List<ProjectPE> tryFindProjects(List<ProjectIdentifier> projectIdentifiers)
+    {
+        List<ProjectPE> allProjects = listProjects();
+        List<ProjectPE> matchingProjects = new LinkedList<ProjectPE>();
+
+        Set<String> projectIdentifiersSet = new HashSet<String>();
+        for (ProjectIdentifier projectIdentifier : projectIdentifiers)
+        {
+            projectIdentifiersSet.add(projectIdentifier.toString());
+        }
+
+        for (ProjectPE project : allProjects)
+        {
+            if (projectIdentifiersSet.contains(project.getIdentifier()))
+            {
+                matchingProjects.add(project);
+            }
+        }
+
+        return matchingProjects;
     }
 
     @Override

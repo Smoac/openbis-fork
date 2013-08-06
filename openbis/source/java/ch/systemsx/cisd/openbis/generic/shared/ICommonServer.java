@@ -326,13 +326,22 @@ public interface ICommonServer extends IServer
             ExperimentType experimentType, ProjectIdentifier project);
 
     /**
+     * Lists experiments by projects.
+     * 
+     * @return a sorted list of {@link Experiment}.
+     */
+    @Transactional(readOnly = true)
+    public List<Experiment> listExperiments(final String sessionToken,
+            ExperimentType experimentType, List<ProjectIdentifier> projects);
+
+    /**
      * Lists experiments having data sets by project.
      * 
      * @return a sorted list of {@link Experiment}.
      */
     @Transactional(readOnly = true)
     public List<Experiment> listExperimentsHavingDataSets(final String sessionToken,
-            ExperimentType experimentType, ProjectIdentifier project);
+            ExperimentType experimentType, List<ProjectIdentifier> projects);
 
     /**
      * Lists experiments having samples by project.
@@ -341,7 +350,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     public List<Experiment> listExperimentsHavingSamples(final String sessionToken,
-            ExperimentType experimentType, ProjectIdentifier project);
+            ExperimentType experimentType, List<ProjectIdentifier> projects);
 
     /**
      * Lists experiments by space.
