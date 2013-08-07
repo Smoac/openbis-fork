@@ -56,6 +56,7 @@ function createTableFromProperties() {
 	}
 	tableTemplate += "<th></th></tr></thead><tbody id='sample-data-holder'></tbody></table>";
 	
+	$("#tableContainer").empty();
 	$("#tableContainer").append(tableTemplate);
 	
 	for(var i=0;i<SAMPLE_TYPE_PROPERTIES.length;i++) {
@@ -70,35 +71,6 @@ function createTableFromProperties() {
 			);
 		});	
 	}
-}
-
-function populateMenu() {
-	
-	var menu = "";
-		menu += "<div id='button-group'>	<button class='btn' id='logout-button' style='position: absolute; right:10px; top:10px;'>Logout</button> </div>";
-		menu += "<div id='search_browser' style='position: absolute; left:10px; top:100px'> <a style='width:110px' class='btn' href='search-browser.html'>Search</a> </div>";
-		menu += "<div id='bacteria_browser'	style='position: absolute; left:10px; top:150px'> <a style='width:110px' class='btn' href='bacteria-browser.html'>Bacteria</a> </div>";
-		menu += "<div id='chemical_browser'	style='position: absolute; left:10px; top:200px'> <a style='width:110px' class='btn' href='chemical-browser.html'>Chemicals</a> </div>";
-		menu += "<div id='antibody_browser' style='position: absolute; left:10px; top:250px'> <a style='width:110px' class='btn' href='antibody-browser.html'>Antibodies</a> </div>";
-		menu += "<div id='media_browser' style='position: absolute; left:10px; top:300px'> <a style='width:110px' class='btn' href='media-browser.html'>Media</a> </div>";
-		menu += "<div id='buffer_browser' style='position: absolute; left:10px; top:350px'> <a style='width:110px' class='btn' href='solutions_buffers-browser.html'>Solutions Buffers</a> </div>";
-		menu += "<div id='enzyme_browser' style='position: absolute; left:10px; top:400px'> <a style='width:110px' class='btn' href='enzyme-browser.html'>Enzymes</a> </div>";
-		menu += "<div id='oligo_browser'	style='position: absolute; left:10px; top:450px'> <a style='width:110px' class='btn' href='oligo-browser.html'>Oligos</a> </div>";
-		menu += "<div id='plasmid_browser'	style='position: absolute; left:10px; top:500px'> <a style='width:110px' class='btn' href='plasmid-browser.html'>Plasmids</a> </div>";
-		menu += "<div id='yeast_browser' style='position: absolute; left:10px; top:550px'> <a style='width:110px' class='btn' href='yeast-browser.html'>Yeasts</a> </div>";
-		menu += "<div id='protocol_browser' style='position: absolute; left:10px; top:600px'> <a style='width:110px' class='btn' href='general_protocol-browser.html'>Protocols</a> </div>";
-		menu += "<div id='pcr_browser' style='position: absolute; left:10px; top:650px'> <a style='width:110px' class='btn' href='pcr-browser.html'>PCR</a> </div>";
-		menu += "<div id='western_blotting_browser' style='position: absolute; left:10px; top:700px'> <a style='width:110px' class='btn' href='western_blotting-browser.html'>Western Blotting</a> </div>";
-		
-	$("#sectionsContainer").append(menu);
-	
-	$('#logout-button').click(function() { 
-		openbisServer.logout(function(data) { 
-			$("#login-form-div").show();
-			$("#main").hide();
-			$("#username").focus();
-		});
-	});
 }
 
 function populateMenuNew() {
@@ -121,6 +93,7 @@ function populateMenuNew() {
 		menu += "<span id='western_blotting_browser'> <a style='width:110px; margin:5px;' class='btn' href='western_blotting-browser.html'>Western Blotting</a> </span>";
 		menu += "</center>";
 		
+	$("#sectionsContainer").empty();
 	$("#sectionsContainer").append(menu);
 	
 	$('#logout-button').click(function() { 
@@ -133,10 +106,16 @@ function populateMenuNew() {
 }
 
 function showEditWindowForSample(code, permId) {
+	//Add iframe
+//	if ($("#editFrame").length == 0){
+//		$('#containerForIframe').append("<iframe style='width:800px; height:500px;' id='editFrame'></iframe>");
+//	}
+	
+	//Load iframe content
 	//Working Example: https://sprint-openbis.ethz.ch/openbis/?viewMode=embedded#action=EDITING&entity=SAMPLE&code=A123&permId=20091006093948112-162773
 	var editURLTemplate = openbisUrl + "openbis/?viewMode=embedded#action=EDITING&entity=SAMPLE";
 	var codeParam = "&code="+code;
 	var permId = "&permId="+permId;
-	//window.open(editURLTemplate+codeParam+permId);
-	$('#editFrame').attr('src', editURLTemplate+codeParam+permId);
+	window.open(editURLTemplate+codeParam+permId,'Edit Sample',null);
+	//$('#editFrame').attr('src', editURLTemplate+codeParam+permId);
 }

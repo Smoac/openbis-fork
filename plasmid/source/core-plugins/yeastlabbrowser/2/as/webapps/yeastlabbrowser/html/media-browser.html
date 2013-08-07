@@ -1,63 +1,71 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 <head>
-	<title>Media Browser</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<link type="text/css" rel="stylesheet" href="media-body-style.css" />
-	<link type="text/css" rel="stylesheet" href="button.css" />
-	<script type="text/javascript" src="d3.js"></script>
-	<script type="text/javascript" src="d3.layout.js"></script>
-	<script type="text/javascript" src="d3.time.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+	<title>YeastLab Browser</title>
+	<link type="text/css" rel="stylesheet" href="./bootstrap/css/bootstrap.css" />
+	<link type="text/css" rel="stylesheet" href="./bootstrap/css/bootstrap-responsive.css" />
+	<link type="text/css" rel="stylesheet" href="./css/style.css" />
+	
 	<script type="text/javascript" src="/openbis/resources/js/jquery.js"></script>
 	<script type="text/javascript" src="/openbis/resources/js/openbis.js"></script>
-	<script type="text/javascript" src="infra.js"></script>
-	<script type="text/javascript" src="common.js"></script>
 	<script type="text/javascript" src="/openbis/resources/js/openbis-login.js"></script>
-	<!-- To speed development, cache the requests -->
-	<!-- <script type="text/javascript" src="/openbis/resources/js/openbis-request-cache.js"></script> -->
+	<!-- <script To speed development, cache the requests type="text/javascript" src="/openbis/resources/js/openbis-request-cache.js"></script> -->
+	<script type="text/javascript" src="./js/d3.js"></script>
+	<script type="text/javascript" src="./js/d3.layout.js"></script>
+	<script type="text/javascript" src="./js/d3.time.js"></script>
+	<script type="text/javascript" src="./js/d3.tsv.js"></script>
+	<script type="text/javascript" src="./js/infra.js"></script>
+	<script type="text/javascript" src="./js/jquery.dataTables.js"></script>
+	<script type="text/javascript" src="./js/common.js"></script>
 </head>
 
 <body>
-	<img id="openbis-logo" src="images/openBIS_Logo.png" alt="openBIS" style="position: absolute; left: 10px; width: 120px;">
-	<div id="login-form-div"style="position: absolute; left: 300px; top: 200px;">
-		<h1>openBIS YeastLab</h1>
-		<form id="login-form" action="javascript:">
-			<input id="username" type="text" required="required"> 
-			<input id="password" type="password" required="required"> 
-			<button class="login-button" id="login-button" type="submit">Login</button>
-		</form>
+	<div>
+		<img id="openbis-logo" src="images/openBIS_Logo.png" alt="openBIS" style="position: absolute; margin-left: 10px; margin-top: 10px; width: 120px;"/>
+	</div>
+	
+	<div id="login-form-div" style="margin-top: 10px; auto; margin-left: auto; margin-right: auto; display: block; background-color: #EEEEEE; border-radius: 6px 6px 6px 6px; width: 400px; padding: 20px;">
+			<img id="openbis-logo" src="images/openBIS_Logo.png" alt="openBIS" />
+			<br /><br />
+			<form id="login-form" action="javascript:">
+				<input placeholder="username" id="username" type="text" required="required">
+				<br />
+				<input placeholder="password" id="password" type="password" required="required">
+				<br />
+				<button class="btn" id="login-button" type="submit">Login</button>
+				<br /><br />
+				<center>
+					Compatible With:
+					<br />
+					<img src="./images/browser-icon-chrome.png" style="width: 96px; height:96px;" /><img src="./images/browser-icon-firefox.png" style="width: 96px; height:96px;" />
+				</center>
+			</form>
 	</div>
 
 	<div id="main">
-	<div id = "title" style="padding-top:20px"> MEDIA </div>
-	<div id ="sectionsContainer"><div>
+		<center>
+			<h1 id = "title" style="padding-top:20px">Media</h1>
+		</center>
 
-	
-<!--  
-		<div id="filter-button"	style="padding-left:200px; padding-top: 570px; font-weight:bold; padding-bottom:30px;">
-		  <a onclick ="javascript:ShowHide('HiddenDiv')"  href="javascript:;" >Filters</a> 
-		</div> 		
-	 <div class="mid" id="HiddenDiv" style="DISPLAY: none;"> 
-		<table>
-			  <tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Owner</td><td><input style="width: 200px" id="owner_filter" type="text"></td></tr> 		
-			  <tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Owner Number</td><td><input style="width: 200px" id="ownerNum_filter" type="text"></td></tr>
-				<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Antibody Name</td><td> <input style="width: 200px" id="antibodyName_filter" type="text"></td></tr> 		
-      	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">Backbone</td><td> <input style="width: 200px" id="backbone_filter" type="text"></td></tr> 		
-   	  	<tr style="padding-top: 15px"><td style="font-weight: bold; padding-left: 200px">Bacterial Antibitioc Resistance</td><td> <input style="width: 200px" id="antibiotic_filter" type="text"></td></tr> 		
-   	  	<tr style="padding-top: 15px"><td style="font-weight: bold;  padding-left: 200px">(Yeast) Marker</td><td> <input style="width: 200px" id="marker_filter" type="text"></td></tr> 		
-   	  </table> 		
-    </div>	
-	-->	
-		
-	
-    
-		<div id="vis">
-  	 	<div style="position:absolute; left:200px; width: 1000px;height: 500px; top: 100px; overflow: auto">
-		  <table id="media-table" style="float: left">
-			  <tr class="media-table-header"><th>Code</th><th>Name</th><th>Storage</th><th>For What</th><th>Organism</th></tr>
-				</table>
-			</div>
-			<span id="inspectorsContainer"></span>
+		<div class="container-fluid">
+		    <div class="row-fluid">
+		    	<div class="span2" id ="sectionsContainer"></div>
+		    	<div class="span10">
+					<div id="vis">
+						<div style="height: 500px; width:100%; overflow: auto;">
+							<table class="table table-striped table-bordered table-hover">
+								<thead>
+									<tr class="media-table-header"><th>Code</th><th>Name</th><th>Storage</th><th>For What</th><th>Organism</th><th></th></tr>
+								</thead>
+								<tbody id='media-table'></tbody>
+							</table>
+						</div>
+					</div>
+					<div id="inspectorsContainer"></div>
+		    	</div>
+		    </div>
 		</div>
 	</div>
 
@@ -110,10 +118,7 @@ function createVis()
 	// An element for the inspectors.
 	inspectors = d3.select("#inspectorsContainer")
 		.style("width", + inspectorsWidth + "px")
-		.style("position", "absolute")
 		.style("overflow", "auto")
-		.style("left", "1250px")
-		.style("top", "100px")
 		.style("display", "none");
 
 	didCreateVis = true;
@@ -740,14 +745,23 @@ function displayReturnedSamples(data)
 		.enter()
 		.append("tr")
 		.attr("class", "media-table-data")
+		.attr("permId", function(sample){ return sample.permId })
 		.style("cursor", "pointer")
 		.on("click", inspectMedia)
-		.selectAll("td").data(function(sample) { return [sample.identifier.slice(11,50), sample.properties.NAME, sample.properties.STORAGE, sample.properties.FOR_WHAT, sample.properties.ORGANISM]; })
+		.selectAll("td").data(function(sample) {
+			tableFields = [sample.identifier.slice(11,50), sample.properties.NAME, sample.properties.STORAGE, sample.properties.FOR_WHAT, sample.properties.ORGANISM];
+			tableFields[tableFields.length] = "<center><a class='btn' onclick=\"jsfunction\" href=\"javascript:showEditWindowForSample('"+sample.code+"', '"+sample.permId+"');\">Edit</a></center>";
+			return tableFields;
+		})
 			.enter()
 			.append("td")
 			.append("div")
 			.attr("class", "media-table-data-cell")
-			.text(String)
+			.html(String)
+			
+	$('a').click(function(e){
+	   e.stopPropagation();
+	});
 
 }
 
@@ -880,7 +894,7 @@ function enterApp(data)
 	
 	createVis();
 	
-	populateMenu();
+	populateMenuNew();
 	
 	showMatchingSamples();
 }
