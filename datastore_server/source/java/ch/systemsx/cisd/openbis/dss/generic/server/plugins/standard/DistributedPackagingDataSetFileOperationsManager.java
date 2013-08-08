@@ -63,24 +63,24 @@ import de.schlichtherle.util.zip.BasicZipFile;
 import de.schlichtherle.util.zip.ZipEntry;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DistributedPackagingDataSetFileOperationsManager implements IDataSetFileOperationsManager
 {
     static final String MAPPING_FILE_KEY = "mapping-file";
-    
+
     static final String CREATE_ARCHIVES_KEY = MAPPING_FILE_KEY + ".create-archives";
 
     static final String DEFAULT_DESTINATION_KEY = "default-archive-folder";
-    
+
     static final String WITH_SHARDING_KEY = "with-sharding";
 
     static final String COMPRESS_KEY = "compressing";
 
+    static final String IGNORE_EXISTING_KEY = "ignore-existing";
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DistributedPackagingDataSetFileOperationsManager.class);
-    
+
     private static final IHierarchicalContentNodeFilter FILTER = new IHierarchicalContentNodeFilter()
         {
             @Override
@@ -89,21 +89,23 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
                 return AbstractDataSetPackager.META_DATA_FILE_NAME.equals(node.getRelativePath()) == false;
             }
         };
-        
+
     private boolean compress;
-    
+
+    private boolean ignoreExisting;
+
     private File defaultFolder;
 
     private boolean withSharding;
 
     private String mappingFilePathOrNull;
-    
+
     private boolean createArchives;
-    
+
     private transient IEncapsulatedOpenBISService service;
-    
+
     private transient IHierarchicalContentProvider contentProvider;
-    
+
     private transient IDataSetDirectoryProvider directoryProvider;
 
     private transient IdentifierAttributeMappingManager archiveFolderMapping;
@@ -112,20 +114,22 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
     {
         this(properties, null, null, null);
     }
-    
-    DistributedPackagingDataSetFileOperationsManager(Properties properties, 
-            IEncapsulatedOpenBISService service, IHierarchicalContentProvider contentProvider, 
+
+    DistributedPackagingDataSetFileOperationsManager(Properties properties,
+            IEncapsulatedOpenBISService service, IHierarchicalContentProvider contentProvider,
             IDataSetDirectoryProvider directoryProvider)
     {
         this.service = service;
         this.contentProvider = contentProvider;
         this.directoryProvider = directoryProvider;
         compress = PropertyUtils.getBoolean(properties, COMPRESS_KEY, true);
+        ignoreExisting = PropertyUtils.getBoolean(properties,
+                IGNORE_EXISTING_KEY, false);
         withSharding = PropertyUtils.getBoolean(properties, WITH_SHARDING_KEY, false);
         defaultFolder = new File(PropertyUtils.getMandatoryProperty(properties, DEFAULT_DESTINATION_KEY));
         if (defaultFolder.isDirectory() == false)
         {
-            throw new ConfigurationFailureException("Default archive folder '" + defaultFolder.getPath() 
+            throw new ConfigurationFailureException("Default archive folder '" + defaultFolder.getPath()
                     + "' doesn't exist or is not a folder.");
         }
         mappingFilePathOrNull = properties.getProperty(MAPPING_FILE_KEY);
@@ -191,8 +195,8 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
             {
                 ZipEntry entry = entries.nextElement();
                 File outputFile = new File(originalData, entry.getName());
-                if (entry.isDirectory() == false                        )
-                { 
+                if (entry.isDirectory() == false)
+                {
                     if (AbstractDataSetPackager.META_DATA_FILE_NAME.equals(entry.getName()) == false)
                     {
                         outputFile.getParentFile().mkdirs();
@@ -212,7 +216,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
                 {
                     if (outputFile.isFile())
                     {
-                        throw new EnvironmentFailureException("Could not extract directory '" + outputFile 
+                        throw new EnvironmentFailureException("Could not extract directory '" + outputFile
                                 + "' because it exists already as a plain file.");
                     }
                     outputFile.mkdirs();
@@ -235,7 +239,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
                 {
                     throw CheckedExceptionTunnel.wrapIfNecessary(ex);
                 }
-            } 
+            }
             IOUtils.closeQuietly(fileOutputStream);
         }
     }
@@ -252,7 +256,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
         boolean success = archiveFile.delete();
         return success ? Status.OK : Status.createError("Couldn't delete archive file '" + archiveFile + "'.");
     }
-    
+
     private File tryFindArchiveFile(IDatasetLocation datasetLocation)
     {
         File archiveFile = getArchiveFile(defaultFolder, datasetLocation, false);
@@ -304,15 +308,36 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
     }
 
     @Override
-    public BooleanStatus isSynchronizedWithDestination(File originalData, DatasetDescription datasetDescription)
+    public BooleanStatus isSynchronizedWithDestination(File originalData,
+            DatasetDescription datasetDescription)
     {
-        return BooleanStatus.createFalse();
+        return isPresentInDestination(datasetDescription);
     }
 
     @Override
-    public BooleanStatus isPresentInDestination(DatasetDescription datasetDescription)
+    public BooleanStatus isPresentInDestination(
+            DatasetDescription datasetDescription)
     {
-        return BooleanStatus.createFalse();
+
+        if (ignoreExisting)
+        {
+            File file = getArchiveFile(datasetDescription);
+
+            if (file.exists() && file.length() > 0)
+            {
+                operationLog
+                        .info("Data set '"
+                                + datasetDescription.getDataSetCode()
+                                + "' will be ignored as it already exists in the archive.");
+                return BooleanStatus.createTrue();
+            } else
+            {
+                return BooleanStatus.createFalse();
+            }
+        } else
+        {
+            return BooleanStatus.createFalse();
+        }
     }
 
     @Override
@@ -339,7 +364,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
         }
         return dataSet;
     }
-    
+
     private File getArchiveFile(DatasetDescription datasetDescription)
     {
         File folder = getArchiveFolderMapping().getArchiveFolder(datasetDescription, defaultFolder);
@@ -379,7 +404,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
         }
         return service;
     }
-    
+
     private IHierarchicalContentProvider getContentProvider()
     {
         if (contentProvider == null)
@@ -388,7 +413,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
         }
         return contentProvider;
     }
-    
+
     private IDataSetDirectoryProvider getDirectoryProvider()
     {
         if (directoryProvider == null)
@@ -397,7 +422,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
         }
         return directoryProvider;
     }
-    
+
     private IdentifierAttributeMappingManager getArchiveFolderMapping()
     {
         if (archiveFolderMapping == null)
@@ -406,5 +431,5 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
         }
         return archiveFolderMapping;
     }
-    
+
 }

@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LoginController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.AttachmentDownloadLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.BrowserLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.CustomImportLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.GlobalSearchLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.HomeLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MaterialLocatorResolver;
@@ -450,6 +451,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         handlerRegistry.registerHandler(new HomeLocatorResolver(context));
         handlerRegistry.registerHandler(new SampleRegistrationLocatorResolver(context));
         handlerRegistry.registerHandler(new AggregationServiceLocatorResolver(context));
+        handlerRegistry.registerHandler(new CustomImportLocatorResolver(context));
     }
 
     @Override

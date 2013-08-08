@@ -27,6 +27,7 @@ import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 import org.h2.tools.DeleteDbFiles;
+import org.springframework.jdbc.support.SQLErrorCodesFactory;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.db.ISqlScriptExecutor;
@@ -107,6 +108,12 @@ public class H2AdminDAO extends AbstractDatabaseAdminDAO
         // Creation of databases happens "on the fly" with H2, we only need to create the
         // database_version_logs table
         createDatabaseVersionLogsTable();
+    }
+
+    @Override
+    public void initializeErrorCodes()
+    {
+        SQLErrorCodesFactory.getInstance().getErrorCodes(getJdbcTemplate().getDataSource());
     }
 
     private void createDatabaseVersionLogsTable()

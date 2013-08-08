@@ -61,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = {AbstractArchiverProcessingPlugin.class, RsyncArchiver.class})
+@Friend(toClasses = { AbstractArchiverProcessingPlugin.class, RsyncArchiver.class })
 public class DistributingArchiverTest extends AbstractArchiverTestCase
 {
     private static final String LOCATION = "a/b/c/ds1";
@@ -140,7 +140,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         File archivedDataSetFile = new File(defaultArchive, ds1.getDataSetCode() + ".zip");
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
-                + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - " 
+                + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - "
                 + "Data set 'ds1' archived: " + archivedDataSetFile, logRecorder.getLogContent());
         List<Status> errorStatuses = processingStatus.getErrorStatuses();
         assertEquals("[]", errorStatuses.toString());
@@ -173,8 +173,8 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").getExperiment();
         PhysicalDataSet ds1 =
                 new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION)
-                .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).fileFormat("ABC").property("ANSWER", "42")
-                .experiment(experiment).getDataSet();
+                        .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).fileFormat("ABC").property("ANSWER", "42")
+                        .experiment(experiment).getDataSet();
         DatasetDescription dsd1 = DataSetTranslator.translateToDescription(ds1);
         prepareGetShareId();
         prepareUpdateShareIdAndSize(537669);
@@ -187,9 +187,9 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         prepareAsContent(ds1.getCode(), ds1InStore);
         prepareAsContent(ds1.getCode(), ds1InStore);
         prepareUpdateStatus(DataSetArchivingStatus.AVAILABLE, true);
-        
+
         ProcessingStatus processingStatus = archiver.archive(Arrays.asList(dsd1), archiverTaskContext, false);
-        
+
         File archivedDataSetFile = new File(defaultArchive, LOCATION + "/" + ds1.getDataSetCode() + ".zip");
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
@@ -216,7 +216,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         assertZipContent("Nothing to read!", archivedDataSetFile, "original/my-data/read-me.txt", false);
         assertZipContent(HDF5_ARCHIVE, archivedDataSetFile, "original/my-data/subfolder/my-archive.h5", false);
     }
-    
+
     @Test
     public void testArchivingFlatToSpaceMappedArchive()
     {
@@ -230,8 +230,8 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         Sample sample = new SampleBuilder("/S/S1").type("MY-S").property("ANSWER", "42").getSample();
         PhysicalDataSet ds1 =
                 new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION)
-                .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).fileFormat("ABC")
-                .experiment(experiment).sample(sample).getDataSet();
+                        .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).fileFormat("ABC")
+                        .experiment(experiment).sample(sample).getDataSet();
         DatasetDescription dsd1 = DataSetTranslator.translateToDescription(ds1);
         prepareGetShareId();
         prepareUpdateShareIdAndSize(537669);
@@ -245,9 +245,9 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         prepareAsContent(ds1.getCode(), ds1InStore);
         prepareAsContent(ds1.getCode(), ds1InStore);
         prepareUpdateStatus(DataSetArchivingStatus.AVAILABLE, true);
-        
+
         ProcessingStatus processingStatus = archiver.archive(Arrays.asList(dsd1), archiverTaskContext, false);
-        
+
         File archivedDataSetFile = new File(archive, ds1.getDataSetCode() + ".zip");
         assertEquals("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile + "' successfully loaded.\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - "
@@ -264,12 +264,12 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
                 + "data_set\tis_measured\tTRUE\n"
                 + "data_set\tis_complete\tFALSE\n"
                 + "data_set\tparent_codes\t\n"
-                + "sample\ttype_code\tMY-S\n" 
-                + "sample\tcode\tS1\n" 
-                + "sample\tspace_code\tS\n" 
-                + "sample\tregistration_timestamp\t\n" 
-                + "sample\tregistrator\t\n" 
-                + "sample\tANSWER\t42\n" 
+                + "sample\ttype_code\tMY-S\n"
+                + "sample\tcode\tS1\n"
+                + "sample\tspace_code\tS\n"
+                + "sample\tregistration_timestamp\t\n"
+                + "sample\tregistrator\t\n"
+                + "sample\tANSWER\t42\n"
                 + "experiment\tspace_code\tS\n"
                 + "experiment\tproject_code\tP\n"
                 + "experiment\texperiment_code\tE1\n"
@@ -313,7 +313,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         // archive
         ProcessingStatus processingStatus = archiver.archive(Arrays.asList(dsd1), archiverTaskContext, true);
         assertEquals("[]", processingStatus.getErrorStatuses().toString());
-        FileUtilities.deleteRecursively(ds1InStore);     // delete in store
+        FileUtilities.deleteRecursively(ds1InStore); // delete in store
         prepareUpdateStatus(DataSetArchivingStatus.AVAILABLE, true);
         context.checking(new Expectations()
             {
@@ -322,9 +322,9 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
                     will(returnValue(DATA_STORE_CODE));
                 }
             });
-        
+
         processingStatus = archiver.unarchive(Arrays.asList(dsd1), archiverTaskContext);
-        
+
         File archivedDataSetFile = new File(defaultArchive, ds1.getDataSetCode() + ".zip");
         String logContent = logRecorder.getLogContent().replaceFirst("in all shares in .*s", "in all shares in ? s");
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
@@ -377,8 +377,8 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").getExperiment();
         PhysicalDataSet ds1 =
                 new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION).size(28)
-                .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).fileFormat("ABC")
-                .experiment(experiment).getDataSet();
+                        .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).fileFormat("ABC")
+                        .experiment(experiment).getDataSet();
         final DatasetDescription dsd1 = DataSetTranslator.translateToDescription(ds1);
         prepareGetShareId();
         prepareGetDataSetDirectory(dsd1);
@@ -399,7 +399,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         // archive
         ProcessingStatus processingStatus = archiver.archive(Arrays.asList(dsd1), archiverTaskContext, true);
         assertEquals("[]", processingStatus.getErrorStatuses().toString());
-        FileUtilities.deleteRecursively(ds1InStore);     // delete in store
+        FileUtilities.deleteRecursively(ds1InStore); // delete in store
         prepareUpdateStatus(DataSetArchivingStatus.AVAILABLE, true);
         context.checking(new Expectations()
             {
@@ -408,9 +408,9 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
                     will(returnValue(DATA_STORE_CODE));
                 }
             });
-        
+
         processingStatus = archiver.unarchive(Arrays.asList(dsd1), archiverTaskContext);
-        
+
         File archivedDataSetFile = new File(archive, LOCATION + "/" + ds1.getDataSetCode() + ".zip");
         String logContent = logRecorder.getLogContent().replaceFirst("in all shares in .*s", "in all shares in ? s");
         assertEquals("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile + "' successfully loaded.\n"
@@ -431,10 +431,11 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         assertEquals(true, emptyFolder.exists());
         assertEquals(true, emptyFolder.isDirectory());
     }
-    
+
     @Test
-    public void testArchivingTwice()
+    public void testArchivingTwiceWithIgnoreExistingSetToFalse()
     {
+        properties.setProperty(DistributedPackagingDataSetFileOperationsManager.IGNORE_EXISTING_KEY, "false");
         DistributingArchiver archiver = createArchiver();
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").property("E-PROP", "42").getExperiment();
         PhysicalDataSet ds1 =
@@ -498,7 +499,71 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         assertZipContent("Nothing to read!", archivedDataSetFile, "original/my-data/read-me.txt", true);
         assertZipContent(HDF5_ARCHIVE, archivedDataSetFile, "original/my-data/subfolder/my-archive.h5", true);
     }
-    
+
+    @Test
+    public void testArchivingTwiceWithIgnoreExistingSetToTrue()
+    {
+        properties.setProperty(DistributedPackagingDataSetFileOperationsManager.IGNORE_EXISTING_KEY, "true");
+        DistributingArchiver archiver = createArchiver();
+        Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").property("E-PROP", "42").getExperiment();
+        PhysicalDataSet ds1 =
+                new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION)
+                        .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).fileFormat("ABC")
+                        .experiment(experiment).getDataSet();
+        DatasetDescription dsd1 = DataSetTranslator.translateToDescription(ds1);
+        prepareGetShareId();
+        prepareUpdateShareIdAndSize(537669);
+        prepareGetDataSetDirectory(dsd1);
+        prepareTryGetDataSet(ds1);
+        prepareTryGetExperiment(ds1.getExperiment());
+        prepareLockAndReleaseDataSet(ds1.getCode());
+        prepareGetDataSetDirectory("");
+        prepareGetDataSetDirectory(LOCATION);
+        prepareAsContent(ds1.getCode(), ds1InStore);
+        prepareAsContent(ds1.getCode(), ds1InStore);
+        prepareUpdateStatus(DataSetArchivingStatus.AVAILABLE, true);
+        ProcessingStatus processingStatus1 = archiver.archive(Arrays.asList(dsd1), archiverTaskContext, false);
+        assertEquals("[]", processingStatus1.getErrorStatuses().toString());
+        ds1.setExperiment(new ExperimentBuilder().identifier("/S/P/E2").type("MY-E").getExperiment());
+        dsd1 = DataSetTranslator.translateToDescription(ds1);
+        prepareUpdateShareIdAndSize(537669);
+        prepareGetDataSetDirectory(dsd1);
+        prepareUpdateStatus(DataSetArchivingStatus.AVAILABLE, true);
+
+        ProcessingStatus processingStatus2 = archiver.archive(Arrays.asList(dsd1), archiverTaskContext, false);
+
+        File archivedDataSetFile = new File(defaultArchive, ds1.getDataSetCode() + ".zip");
+        assertEquals(
+                "INFO  OPERATION.AbstractDatastorePlugin - "
+                        + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
+                        + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
+                        + archivedDataSetFile
+                        + "\n"
+                        + "INFO  OPERATION.AbstractDatastorePlugin - "
+                        + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
+                        + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' will be ignored as it already exists in the archive."
+                , logRecorder.getLogContent());
+        assertEquals("[]", processingStatus2.getErrorStatuses().toString());
+        assertEquals(true, archivedDataSetFile.isFile());
+        assertZipContent("data_set\tcode\tds1\n"
+                + "data_set\tproduction_timestamp\t\n"
+                + "data_set\tproducer_code\t\n"
+                + "data_set\tdata_set_type\tMY-TYPE\n"
+                + "data_set\tis_measured\tTRUE\n"
+                + "data_set\tis_complete\tFALSE\n"
+                + "data_set\tparent_codes\t\n"
+                + "experiment\tspace_code\tS\n"
+                + "experiment\tproject_code\tP\n"
+                + "experiment\texperiment_code\tE1\n"
+                + "experiment\texperiment_type_code\tMY-E\n"
+                + "experiment\tregistration_timestamp\t\n"
+                + "experiment\tregistrator\t\n"
+                + "experiment\tE-PROP\t42\n", archivedDataSetFile, AbstractDataSetPackager.META_DATA_FILE_NAME, true);
+        assertZipContent("Hello world!", archivedDataSetFile, "original/my-data/subfolder/hello.txt", true);
+        assertZipContent("Nothing to read!", archivedDataSetFile, "original/my-data/read-me.txt", true);
+        assertZipContent(HDF5_ARCHIVE, archivedDataSetFile, "original/my-data/subfolder/my-archive.h5", true);
+    }
+
     @Test
     public void testDeleteFromArchive()
     {
@@ -526,7 +591,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         assertEquals("[]", processingStatus1.getErrorStatuses().toString());
         File archivedDataSetFile = new File(defaultArchive, LOCATION + "/" + ds1.getDataSetCode() + ".zip");
         assertEquals(true, archivedDataSetFile.exists());
-        
+
         ProcessingStatus processingStatus2 = archiver.deleteFromArchive(Arrays.asList(
                 new DatasetLocation(ds1.getCode(), ds1.getLocation(), DATA_STORE_CODE, "")));
 
@@ -537,7 +602,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         assertEquals("[]", processingStatus2.getErrorStatuses().toString());
         assertEquals(false, archivedDataSetFile.exists());
     }
-    
+
     @Test
     public void testMarkAsDeletedFromArchive()
     {
@@ -545,8 +610,8 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").property("E-PROP", "42").getExperiment();
         PhysicalDataSet ds1 =
                 new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION)
-                .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).fileFormat("ABC")
-                .experiment(experiment).getDataSet();
+                        .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).fileFormat("ABC")
+                        .experiment(experiment).getDataSet();
         DatasetDescription dsd1 = DataSetTranslator.translateToDescription(ds1);
         prepareGetShareId();
         prepareUpdateShareIdAndSize(537669);
@@ -563,7 +628,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         assertEquals("[]", processingStatus1.getErrorStatuses().toString());
         File archivedDataSetFile = new File(defaultArchive, ds1.getDataSetCode() + ".zip");
         assertEquals(true, archivedDataSetFile.exists());
-        
+
         ProcessingStatus processingStatus2 = archiver.deleteFromArchive(Arrays.asList(
                 new DatasetLocation(ds1.getCode(), ds1.getLocation(), DATA_STORE_CODE, "")));
 
@@ -573,7 +638,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
                 + archivedDataSetFile, logRecorder.getLogContent());
         assertEquals("[]", processingStatus2.getErrorStatuses().toString());
         assertEquals(true, archivedDataSetFile.exists());
-        File markerFile = new File(defaultArchive, DataSetFileOperationsManager.FOLDER_OF_AS_DELETED_MARKED_DATA_SETS 
+        File markerFile = new File(defaultArchive, DataSetFileOperationsManager.FOLDER_OF_AS_DELETED_MARKED_DATA_SETS
                 + "/" + ds1.getDataSetCode());
         assertEquals(true, markerFile.exists());
     }
@@ -586,8 +651,8 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").property("E-PROP", "42").getExperiment();
         PhysicalDataSet ds1 =
                 new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION)
-                .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).fileFormat("ABC")
-                .experiment(experiment).getDataSet();
+                        .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).fileFormat("ABC")
+                        .experiment(experiment).getDataSet();
         DatasetDescription dsd1 = DataSetTranslator.translateToDescription(ds1);
         prepareGetShareId();
         prepareUpdateShareIdAndSize(537669);
@@ -604,7 +669,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         assertEquals("[]", processingStatus1.getErrorStatuses().toString());
         File archivedDataSetFile = new File(defaultArchive, LOCATION + "/" + ds1.getDataSetCode() + ".zip");
         assertEquals(true, archivedDataSetFile.exists());
-        
+
         ProcessingStatus processingStatus2 = archiver.deleteFromArchive(Arrays.asList(
                 new DatasetLocation(ds1.getCode(), ds1.getLocation(), DATA_STORE_CODE, "")));
 
@@ -614,11 +679,11 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
                 + archivedDataSetFile, logRecorder.getLogContent());
         assertEquals("[]", processingStatus2.getErrorStatuses().toString());
         assertEquals(true, archivedDataSetFile.exists());
-        File markerFile = new File(defaultArchive, DataSetFileOperationsManager.FOLDER_OF_AS_DELETED_MARKED_DATA_SETS 
+        File markerFile = new File(defaultArchive, DataSetFileOperationsManager.FOLDER_OF_AS_DELETED_MARKED_DATA_SETS
                 + "/" + ds1.getDataSetCode());
         assertEquals(true, markerFile.exists());
     }
-    
+
     @Test
     public void testMarkAsDeletedFromArchiveWithShardingAndMapping()
     {
@@ -632,8 +697,8 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").property("E-PROP", "42").getExperiment();
         PhysicalDataSet ds1 =
                 new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION)
-                .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).fileFormat("ABC")
-                .experiment(experiment).getDataSet();
+                        .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).fileFormat("ABC")
+                        .experiment(experiment).getDataSet();
         DatasetDescription dsd1 = DataSetTranslator.translateToDescription(ds1);
         prepareGetShareId();
         prepareUpdateShareIdAndSize(537669);
@@ -650,10 +715,10 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         assertEquals("[]", processingStatus1.getErrorStatuses().toString());
         File archivedDataSetFile = new File(archive, LOCATION + "/" + ds1.getDataSetCode() + ".zip");
         assertEquals(true, archivedDataSetFile.exists());
-        
+
         ProcessingStatus processingStatus2 = archiver.deleteFromArchive(Arrays.asList(
                 new DatasetLocation(ds1.getCode(), ds1.getLocation(), DATA_STORE_CODE, "")));
-        
+
         assertEquals("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile + "' successfully loaded.\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
@@ -661,11 +726,11 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
                 + archivedDataSetFile, logRecorder.getLogContent());
         assertEquals("[]", processingStatus2.getErrorStatuses().toString());
         assertEquals(true, archivedDataSetFile.exists());
-        File markerFile = new File(archive, DataSetFileOperationsManager.FOLDER_OF_AS_DELETED_MARKED_DATA_SETS 
+        File markerFile = new File(archive, DataSetFileOperationsManager.FOLDER_OF_AS_DELETED_MARKED_DATA_SETS
                 + "/" + ds1.getDataSetCode());
         assertEquals(true, markerFile.exists());
     }
-    
+
     private void assertZipContent(File expectedContent, File file, String path, boolean compressed)
     {
         try
@@ -678,14 +743,14 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
                 fail("Directory path: " + path);
             }
             assertEquals(compressed ? ZipEntry.DEFLATED : ZipEntry.STORED, entry.getMethod());
-            assertEquals(IOUtils.toByteArray(new FileInputStream(expectedContent)), 
+            assertEquals(IOUtils.toByteArray(new FileInputStream(expectedContent)),
                     IOUtils.toByteArray(zipFile.getInputStream(entry)));
         } catch (Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
-    
+
     private void assertZipContent(String expectedContent, File file, String path, boolean compressed)
     {
         try
@@ -704,7 +769,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
-    
+
     private void assertZipDirectoryEntry(File file, String path)
     {
         try
@@ -718,7 +783,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
-    
+
     private void prepareAsContent(final String dataSetCode, final File file)
     {
         context.checking(new Expectations()
@@ -740,16 +805,16 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
                 }
             });
     }
-    
+
     private void prepareTryGetSample(final Sample sample)
     {
         context.checking(new Expectations()
-        {
             {
-                one(service).tryGetSampleWithExperiment(SampleIdentifierFactory.parse(sample.getIdentifier()));
-                will(returnValue(sample));
-            }
-        });
+                {
+                    one(service).tryGetSampleWithExperiment(SampleIdentifierFactory.parse(sample.getIdentifier()));
+                    will(returnValue(sample));
+                }
+            });
     }
 
     private void prepareTryGetDataSet(final AbstractExternalData dataSet)
@@ -833,7 +898,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         archiver.statusUpdater = statusUpdater;
         return archiver;
     }
-    
+
     private void wait(int seconds)
     {
         try

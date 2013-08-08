@@ -18,7 +18,7 @@
 </head>
 
 <body>
-	<img id="openbis-logo" src="images/openBIS_Logo.png" alt="openBIS" style="position: absolute; left: 10px; height: 100px;"/>
+	<img id="openbis-logo" src="images/openBIS_Logo.png" alt="openBIS" style="position: absolute; left: 10px; width: 120px;">
 	<div id="login-form-div"style="position: absolute; left: 300px; top: 200px;">
 		<h1>openBIS YeastLab</h1>
 		<form id="login-form" action="javascript:">
@@ -29,49 +29,8 @@
 	</div>
 
 	<div id="main">
-	  <div id = "title" style="padding-top:20px"> MEDIA </div>
-		<div id="button-group">	
-			<button id="logout-button" style="position: absolute; right:10px;;top:10px">Logout</button>
-		</div>
-		<div id="bacteria_browser"	style="position: absolute; left:10px; top:100px">
-		  <a href="bacteria-browser.html">Bacteria</a> 
-		</div>   
-		<div id="chemical_browser"	style="position: absolute; left:10px; top:150px">
-		  <a href="chemical-browser.html">Chemicals</a> 
-		</div>   
-		<div id="antibody_browser" style="position: absolute; left:10px; top:200px">
-		 	<a href="antibody-browser.html">Antibodies</a>  
-		</div>		
-		<div id="media_browser" style="position: absolute; left:10px; top:250px">
-		 	<a href="media-browser.html">Media</a>  
-		</div>						
-		<div id="buffer_browser" style="position: absolute; left:10px; top:300px">
-		 	<a href="solutions_buffers-browser.html">Solutions Buffers</a>  
-		</div>		
-		<div id="enzyme_browser" style="position: absolute; left:10px; top:350px">
-		 	<a href="enzyme-browser.html">Enzymes</a>  
-		</div>				
-		<div id="oligo_browser"	style="position: absolute; left:10px; top:400px">
-		  <a href="oligo-browser.html">Oligos</a>  
-		</div>		
-		<div id="plasmid_browser"	style="position: absolute; left:10px; top:450px">
-		  <a href="plasmid-browser.html">Plasmids</a>  
-		</div>		
-		<div id="yeast_browser" style="position: absolute; left:10px; top:500px">
-		 	<a href="yeast-browser.html">Yeasts</a>  
-		</div>		
-		<div id="protocol_browser" style="position: absolute; left:10px; top:550px">
-		 	<a href="general_protocol-browser.html">General Protocols</a>  
-		</div>		
-		<div id="pcr_browser" style="position: absolute; left:10px; top:600px">
-		 	<a href="pcr-browser.html">PCR</a>  
-		</div>		
-			<div id="western_blotting_browser" style="position: absolute; left:10px; top:650px">
-		 	<a href="western_blotting-browser.html">Western Blotting</a>  
-		</div>					
-			<div id="search_browser" style="position: absolute; left:200px; padding-top:570px">
-		 	<a href="search-browser.html">Search</a>  
-		</div>					
+	<div id = "title" style="padding-top:20px"> MEDIA </div>
+	<div id ="sectionsContainer"><div>
 
 	
 <!--  
@@ -919,9 +878,10 @@ function enterApp(data)
 	$("#login-form-div").hide();
 	$("#main").show();
 	
-	$('#openbis-logo').height(30);
+	createVis();
 	
-	createVis()
+	populateMenu();
+	
 	showMatchingSamples();
 }
 

@@ -58,6 +58,11 @@ public final class DBMigrationEngine
                 new DBMigrationEngine(migrationDAOFactory, sqlScriptProvider, context
                         .isCreateFromScratch());
         migrationEngine.migrateTo(databaseVersion);
+        /*
+         * This triggers population of a lazily populated hashmap of error codes which requires locking and connection to the database. This can lead
+         * to dead-locks in multi-threaded code.
+         */
+        migrationEngine.adminDAO.initializeErrorCodes();
         return sqlScriptProvider;
     }
 
