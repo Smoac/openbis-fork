@@ -12,21 +12,39 @@
 
         .axis path,
         .axis line {
-                     fill: none;
-                     stroke: #000;
-                     shape-rendering: crispEdges;
+          fill: none;
+          stroke: #000;
+          shape-rendering: crispEdges;
         }
 
 	.axis text {
-		font-family: sans-serif;
-		font-size: 10px;
+	  font-family: sans-serif;
+	  font-size: 10px;
         }
 
         table.tableStats {
-		font-family: sans-serif;
-		font-size: 14px;
-                text-align: right;
+	  font-family: sans-serif;
+	  font-size: 14px;
+          border-collapse:collapse;
 	}
+
+        .tableStats th {
+	  padding:6px 10px;
+	  color:#444;
+	  font-weight:bold;
+	  text-shadow:1px 1px 1px #fff;
+	  border-bottom:2px solid #444;
+        } 
+
+        .tableStats tr:nth-child(even) {
+          background: WhiteSmoke;
+        }
+        .tableStats td {
+
+          padding:0px 10px 10px 10px;
+
+       }
+         
         div.tooltip {   
           position: absolute;           
 	  text-align: center;           
@@ -56,35 +74,21 @@
   function getProperties(dataSetProperties) {
     for (var i = 0; i < dataSetProperties.result.length; i++) {
 
-      statisticsArray.push({'percRawClustersPerLane': parseFloat(dataSetProperties.result[i].properties.PERCENTAGE_RAW_CLUSTERS_PER_LANE),
+      statisticsArray.push({
+                            'externalSampleName' : dataSetProperties.result[i].properties.EXTERNAL_SAMPLE_NAME,
                             'index1': dataSetProperties.result[i].properties.BARCODE,
                             'index2': dataSetProperties.result[i].properties.INDEX2,
-                            'externalSampleName' : dataSetProperties.result[i].properties.EXTERNAL_SAMPLE_NAME,
                             'percFilteringPass' : parseFloat(dataSetProperties.result[i].properties.PERCENTAGE_PASSED_FILTERING),
-                            'rawYieldMbases' : dataSetProperties.result[i].properties.RAW_YIELD_MBASES,
-                            'pfMeanQualityScore' : parseFloat(dataSetProperties.result[i].properties.PFMEANQUALITYSCORE),
-                            'pfYieldq30Percentage' : parseFloat(dataSetProperties.result[i].properties.PFYIELDQ30PERCENTAGE),
-                            'pfReadsSum' : dataSetProperties.result[i].properties.PF_READS_SUM,
                             'rawReadsSum' : dataSetProperties.result[i].properties.RAW_READS_SUM,
+                            'pfReadsSum' : dataSetProperties.result[i].properties.PF_READS_SUM,
                             'rawYieldMbases' : dataSetProperties.result[i].properties.RAW_YIELD_MBASES,
-                            'yieldMbases' : dataSetProperties.result[i].properties.YIELD_MBASES
+                            'yieldMbases' : dataSetProperties.result[i].properties.YIELD_MBASES,
+                            'percRawClustersPerLane': parseFloat(dataSetProperties.result[i].properties.PERCENTAGE_RAW_CLUSTERS_PER_LANE),
+                            'pfMeanQualityScore' : parseFloat(dataSetProperties.result[i].properties.PFMEANQUALITYSCORE),
+                            'pfYieldq30Percentage' : parseFloat(dataSetProperties.result[i].properties.PFYIELDQ30PERCENTAGE)
                             }); 
     }
-/* 
-    statisticsArray = [{"index1": "abc", "percFilteringPass": 0.10, "percRawClustersPerLane" : 20}, {"index1" : "cde", "percFilteringPass": 10.01, "percRawClustersPerLane": 31},
-                       {"index1": "yyy", "percFilteringPass": 40.10, "percRawClustersPerLane" : 20}, {"index1" : "asas", "percFilteringPass": 50.01, "percRawClustersPerLane": 32},
-                       {"index1": "xxx", "percFilteringPass": 20.10, "percRawClustersPerLane" : 20}, {"index1" : "dffds", "percFilteringPass": 60.01, "percRawClustersPerLane": 32},
-                       {"index1": "zzz", "percFilteringPass": 70.10, "percRawClustersPerLane" : 20}, {"index1" : "cfggg", "percFilteringPass": 70.01, "percRawClustersPerLane": 32},
-                       {"index1": "z", "percFilteringPass": 99.10, "percRawClustersPerLane" : 20}, {"index1" : "KHJdfsk", "percFilteringPass": 80.01, "percRawClustersPerLane": 32},
-                       {"index1": "zppp", "percFilteringPass": 30.10, "percRawClustersPerLane" : 20}, {"index1" : "sda", "percFilteringPass": 90.01, "percRawClustersPerLane": 32}
-                       ]
-*/
-/*
-    statisticsArray = [{"index1": "abc", "percFilteringPass": 90, "percRawClustersPerLane" : 20}, {"index1" : "cde", "percFilteringPass": 91, "percRawClustersPerLane": 31},
-                       {"index1": "yyy", "percFilteringPass": 80, "percRawClustersPerLane" : 20}, {"index1" : "asas", "percFilteringPass": 92, "percRawClustersPerLane": 32},
-                       {"index1": "zppp", "percFilteringPass": 90, "percRawClustersPerLane" : 20}, {"index1" : "sda", "percFilteringPass": 99, "percRawClustersPerLane": 32}
-                       ]
-*/
+
     //console.log (statisticsArray)
     //console.log (statisticsArray.length)
 
@@ -110,20 +114,18 @@ function plotTable (statisticsArray) {
 
   var tableStats = d3.select("body")
     .append("table")
-    .style("border-collapse", "collapse")
-    .style("border", "1px black solid")
     .attr("class", "tableStats")
     ;
 
+  var header={"External Sample Name":1, "Index1":1, "Index2":1, "Passed Filtering(PF) in %":1, "Raw Reads":1, "PF Reads":1,"Raw Bases":1,
+              "PF Bases":1,"Raw Clusters in %":1, "Mean Phred Score":1, "> 30 Phred Score in %":1}
+
   // create the table header
   var thead = d3.select("table").selectAll("th")
-              .data(d3.keys(statisticsArray[0]))
+              //.data(d3.keys(statisticsArray[0])) // got replaced with more readable names
+              .data(d3.keys(header))
               .enter().append("th")
               .text(function(d){return d})
-              .style("padding", "15px")
-              .on("mouseover", function(){d3.select(this).style("background-color", "aliceblue")})
-              .on("mouseout", function(){d3.select(this).style("background-color", "white")})
-              .style("font-size", "16px")
               ;
 
   // fill the table
@@ -136,10 +138,16 @@ function plotTable (statisticsArray) {
     .data(function(d){return d3.values(d)})
     .enter().append("td")
     .text(function(d) {if (isNumber(d)) {return formatThousands(d)}; return d;})
-    .on("mouseover", function(){d3.select(this).style("background-color", "aliceblue")})
-    .on("mouseout", function(){d3.select(this).style("background-color", "white")})
-    .style("padding", "5px")
+    //.on("mouseover", function(){d3.select(this).style("background-color", "aliceblue")})
+    //.on("mouseout", function(){d3.select(this).style("background-color", "white")})
+    .style("text-align", function(d){if (isNumber(d)) {return "right"} return "left"})
     ;
+
+var space = d3.select("body")
+              .append("svg")
+              .attr("width", 1800)
+              .attr("height", 50)
+              ;
 }
 
 function plotPercFilteringPass (statisticsArray) {
@@ -218,7 +226,6 @@ function plotPercFilteringPass (statisticsArray) {
   var xAxis = d3.svg.axis()
     .scale(x)
     .orient("bottom")
-    //.tickPadding("padding", function () {return 100});
     //.tickPadding(25);
 
   var yAxis = d3.svg.axis()
@@ -250,11 +257,6 @@ function plotPercFilteringPass (statisticsArray) {
   svgFilteredChart.selectAll(".axis text")  // select all the text elements for the xaxis
     .data(statisticsArray)
     .attr ("y", function(d, i) {if (i%2 == 0) {return 8} return 22}); // if index is even the put the text up, else further down
-
-    //.attr("transform", function(d) {
-    // return "translate(" + this.getBBox().height*-2 + "," + this.getBBox().height + ")rotate(-45)";
-  //});
-    
 
   svgFilteredChart.append("g")
       .attr("class", "y axis")
@@ -342,6 +344,12 @@ function plotReadsSum (statisticsArray, field){
       .attr("class", "axis")
       .attr("transform", "translate(0," + svgHeight + ")")
       .call(xAxis);
+
+  // alternate between minimal padding and high padding of the tick names
+  svgReadsSum.selectAll(".axis text")  // select all the text elements for the xaxis
+    .data(statisticsArray)
+    .attr ("y", function(d, i) {if (i%2 == 0) {return 8} return 22}); // if index is even the put the text up, else further down
+
 
   var ReadsSum = svgReadsSum.selectAll("ReadsSum")
                                       .data(statisticsArray)
@@ -465,7 +473,7 @@ function plotPercRawClustersPerLane (percRawClustersPerLaneArray) {
 
 
   svgPercRawClustersPerLaneChart.append('text')
-                   .text("Raw Clusters per Index in %")
+                   .text("Raw Clusters in %")
                    .attr("fill", "black")
                    .attr("transform", "translate(" + "0" + "," + (height -220) + ")")
                    .attr("font-family", "sans-serif")
