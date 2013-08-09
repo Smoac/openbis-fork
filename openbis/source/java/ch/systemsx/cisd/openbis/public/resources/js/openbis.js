@@ -1535,6 +1535,22 @@ openbis.prototype.getPathToDataSet = function(dataSetCode, overrideStoreRootPath
 }
 
 /**
+ * @see IDssServiceRpcGeneric.tryGetPathToDataSet(String, String, String)
+ * @method
+ */
+openbis.prototype.tryGetPathToDataSet = function(dataSetCode, overrideStoreRootPathOrNull, action) {
+	var openbisObj = this;
+	this._internal.getDataStoreApiUrlForDataSetCode(dataSetCode, function(dataStoreApiUrl){
+		openbisObj._internal.ajaxRequest({
+			url: dataStoreApiUrl,
+			data: { "method" : "tryGetPathToDataSet",
+					"params" : [ openbisObj.getSession(), dataSetCode, overrideStoreRootPathOrNull ] },
+			success: action
+		});
+	});
+}
+
+/**
  * List shares from the default data store.
  * 
  * @see IDssServiceRpcGeneric.listAllShares(String)

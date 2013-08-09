@@ -1534,6 +1534,18 @@ test("getPathToDataSet()", function(){
 	});
 });
 
+test("tryGetPathToDataSet()", function(){
+	createFacadeAndLogin(function(facade){
+		var dataSetCode = "20130412152036861-380";
+		var overrideStoreRootPathOrNull = "";
+		
+		facade.tryGetPathToDataSet(dataSetCode, overrideStoreRootPathOrNull, function(response){
+			equal(response.result, "/1/1FD3FF61-1576-4908-AE3D-296E60B4CE06/7e/71/80/20130412152036861-380", "Data set path is correct");
+			facade.close();
+		});
+	});
+});
+
 test("listAllShares()", function(){
 	createFacadeAndLogin(function(facade){
 		try{
