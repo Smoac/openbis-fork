@@ -116,6 +116,7 @@ function showEditWindowForSample(code, permId) {
 	var editURLTemplate = openbisUrl + "openbis/?viewMode=embedded#action=EDITING&entity=SAMPLE";
 	var codeParam = "&code="+code;
 	var permId = "&permId="+permId;
-	window.open(editURLTemplate+codeParam+permId,'Edit Sample',null);
+	var sessionId = "&sessionID="+openbisServer.getSession();
+	window.open(editURLTemplate+codeParam+permId+sessionId,'Edit Sample',null);
 	//$('#editFrame').attr('src', editURLTemplate+codeParam+permId);
 }
