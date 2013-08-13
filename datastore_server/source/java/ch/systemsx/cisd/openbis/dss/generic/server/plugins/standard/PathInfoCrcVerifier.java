@@ -29,21 +29,18 @@ import de.schlichtherle.util.zip.ZipFile;
 /**
  * @author anttil
  */
-public class ZipFilePathInfoVerifier implements Verifier
+public class PathInfoCrcVerifier implements IArchiveFileVerifier
 {
-
-    private final File file;
 
     private final ICrcProvider crcProvider;
 
-    public ZipFilePathInfoVerifier(File file, ICrcProvider crcProvider)
+    public PathInfoCrcVerifier(ICrcProvider crcProvider)
     {
-        this.file = file;
         this.crcProvider = crcProvider;
     }
 
     @Override
-    public List<String> verify()
+    public List<String> verify(File file)
     {
         List<String> errors = new ArrayList<String>();
         ZipFile zip;

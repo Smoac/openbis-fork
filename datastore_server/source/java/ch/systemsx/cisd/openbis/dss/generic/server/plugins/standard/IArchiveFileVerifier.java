@@ -16,12 +16,13 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
+import java.io.File;
 import java.util.List;
 
 /**
  * @author anttil
  */
-public interface Verifier
+public interface IArchiveFileVerifier
 {
-    public List<String> verify();
+    public List<String> verify(File file);
 }

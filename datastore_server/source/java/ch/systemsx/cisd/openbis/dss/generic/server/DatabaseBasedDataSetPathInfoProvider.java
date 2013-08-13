@@ -52,7 +52,7 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         public String file_name;
 
         public long size_in_bytes;
-        
+
         public Integer checksum_crc32;
 
         public boolean is_directory;
@@ -154,6 +154,23 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
                     return getDao().listDataSetFiles(dataSetId);
                 }
             }).getRoot();
+    }
+
+    @Override
+    public Map<String, Integer> getDataSetChecksums(String dataSetCode)
+    {
+        Map<String, Integer> files = new HashMap<String, Integer>();
+        IPathInfoDAO queries = getDao();
+        Long id = queries.tryToGetDataSetId(dataSetCode);
+        if (id == null) {
+            return files;
+        }
+        List<DataSetFileRecord> records = getDao().listDataSetFiles(id);
+        for (DataSetFileRecord record : records)
+        {
+            files.put(record.relative_path, record.checksum_crc32);
+        }
+        return files;
     }
 
     @Override

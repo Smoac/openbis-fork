@@ -22,8 +22,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
@@ -153,7 +155,6 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
         {
             dataSetPackager = createPackager(file, dataSetExistenceChecker);
             dataSetPackager.addDataSetTo("", dataSet);
-            operationLog.info("Data set '" + dataSetCode + "' archived: " + file);
         } catch (Exception ex)
         {
             status = Status.createError(ex.toString());
@@ -165,14 +166,34 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
                 try
                 {
                     dataSetPackager.close();
+
+                    List<String> errors =
+                            verify(file, new ZipFileIntegrityVerifier(),
+                                    new PathInfoCrcVerifier(new CrcProvider(datasetDescription.getDataSetCode())));
+
+                    if (errors.size() > 0)
+                    {
+                        throw new RuntimeException(errors.toString());
+                    }
+                    operationLog.info("Data set '" + dataSetCode + "' archived: " + file);
                 } catch (Exception ex)
                 {
-                    status = Status.createError("Couldn't close package file: " + file + ": " + ex);
+                    operationLog.error("Couldn't create package file: " + file, ex);
                 }
             }
             shareIdManager.releaseLock(dataSetCode);
         }
         return status;
+    }
+
+    private List<String> verify(File file, IArchiveFileVerifier... verifiers)
+    {
+        List<String> errors = new ArrayList<String>();
+        for (IArchiveFileVerifier verifier : verifiers)
+        {
+            errors.addAll(verifier.verify(file));
+        }
+        return errors;
     }
 
     private AbstractDataSetPackager createPackager(File file, DataSetExistenceChecker dataSetExistenceChecker)

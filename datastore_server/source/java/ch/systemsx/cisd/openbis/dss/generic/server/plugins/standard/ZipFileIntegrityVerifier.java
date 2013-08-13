@@ -34,18 +34,11 @@ import de.schlichtherle.util.zip.ZipFile;
 /**
  * @author anttil
  */
-public class ZipFileCrcVerifier implements Verifier
+public class ZipFileIntegrityVerifier implements IArchiveFileVerifier
 {
 
-    private final File file;
-
-    public ZipFileCrcVerifier(File file)
-    {
-        this.file = file;
-    }
-
     @Override
-    public List<String> verify()
+    public List<String> verify(File file)
     {
         List<String> errors = new ArrayList<String>();
         ZipFile zip;
