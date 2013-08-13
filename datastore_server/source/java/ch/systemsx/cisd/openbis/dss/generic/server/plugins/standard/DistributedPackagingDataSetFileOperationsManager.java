@@ -169,7 +169,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
 
                     List<String> errors =
                             verify(file, new ZipFileIntegrityVerifier(),
-                                    new PathInfoCrcVerifier(new CrcProvider(datasetDescription.getDataSetCode())));
+                                    new ZipFilePathInfoChecksumVerifier(new CrcProvider(datasetDescription.getDataSetCode())));
 
                     if (errors.size() > 0)
                     {

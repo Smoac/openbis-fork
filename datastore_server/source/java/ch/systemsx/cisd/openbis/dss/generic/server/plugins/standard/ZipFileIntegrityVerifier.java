@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
-import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -25,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.zip.CRC32;
 import java.util.zip.ZipException;
 
 import de.schlichtherle.util.zip.ZipEntry;
@@ -34,26 +31,13 @@ import de.schlichtherle.util.zip.ZipFile;
 /**
  * @author anttil
  */
-public class ZipFileIntegrityVerifier implements IArchiveFileVerifier
+public class ZipFileIntegrityVerifier extends AbstractZipFileVerifier
 {
 
     @Override
-    public List<String> verify(File file)
+    public List<String> verify(ZipFile zip)
     {
         List<String> errors = new ArrayList<String>();
-        ZipFile zip;
-        try
-        {
-            zip = new ZipFile(file);
-        } catch (ZipException ex)
-        {
-            errors.add("Reading zip file failed: " + ex.getMessage());
-            return errors;
-        } catch (IOException ex)
-        {
-            errors.add("Reading zip file failed: " + ex.getMessage());
-            return errors;
-        }
 
         Enumeration<?> entries = zip.entries();
         while (entries.hasMoreElements())
@@ -70,9 +54,7 @@ public class ZipFileIntegrityVerifier implements IArchiveFileVerifier
         try
         {
             input = zip.getInputStream(entry);
-
-            long crc = calcCRC32(input);
-
+            long crc = calculateCRC32(input);
             if (crc != entry.getCrc())
             {
                 return Arrays.asList(entry.getName() + ": CRC failure (got " + Long.toHexString(crc) + ", should be "
@@ -98,24 +80,5 @@ public class ZipFileIntegrityVerifier implements IArchiveFileVerifier
             }
         }
         return new ArrayList<String>();
-    }
-
-    private static long calcCRC32(InputStream input) throws IOException
-    {
-        BufferedInputStream inStream = new BufferedInputStream(input);
-        int BLOCK_SIZE = 128 * 1024;
-        int len;
-        byte[] buffer = new byte[BLOCK_SIZE];
-
-        CRC32 crc32 = new CRC32();
-        crc32.reset();
-
-        while ((len = inStream.read(buffer, 0, BLOCK_SIZE)) > 0)
-        {
-            crc32.update(buffer, 0, len);
-            buffer = new byte[BLOCK_SIZE];
-        }
-
-        return crc32.getValue();
     }
 }

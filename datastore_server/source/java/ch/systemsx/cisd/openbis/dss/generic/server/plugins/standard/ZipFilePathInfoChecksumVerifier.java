@@ -16,12 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.zip.ZipException;
 
 import de.schlichtherle.util.zip.ZipEntry;
 import de.schlichtherle.util.zip.ZipFile;
@@ -29,34 +26,19 @@ import de.schlichtherle.util.zip.ZipFile;
 /**
  * @author anttil
  */
-public class PathInfoCrcVerifier implements IArchiveFileVerifier
+public class ZipFilePathInfoChecksumVerifier extends AbstractZipFileVerifier
 {
-
     private final ICrcProvider crcProvider;
 
-    public PathInfoCrcVerifier(ICrcProvider crcProvider)
+    public ZipFilePathInfoChecksumVerifier(ICrcProvider crcProvider)
     {
         this.crcProvider = crcProvider;
     }
 
     @Override
-    public List<String> verify(File file)
+    public List<String> verify(ZipFile zip)
     {
         List<String> errors = new ArrayList<String>();
-        ZipFile zip;
-        try
-        {
-            zip = new ZipFile(file);
-        } catch (ZipException ex)
-        {
-            errors.add("Reading zip file failed: " + ex.getMessage());
-            return errors;
-        } catch (IOException ex)
-        {
-            errors.add("Reading zip file failed: " + ex.getMessage());
-            return errors;
-        }
-
         Enumeration<?> entries = zip.entries();
         while (entries.hasMoreElements())
         {
@@ -70,5 +52,4 @@ public class PathInfoCrcVerifier implements IArchiveFileVerifier
         }
         return errors;
     }
-
 }
