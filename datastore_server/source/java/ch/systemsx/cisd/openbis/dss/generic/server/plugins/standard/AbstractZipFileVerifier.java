@@ -27,6 +27,8 @@ import java.util.zip.CRC32;
 import de.schlichtherle.util.zip.ZipFile;
 
 /**
+ * Verifies a zip file.
+ * 
  * @author anttil
  */
 public abstract class AbstractZipFileVerifier implements IArchiveFileVerifier

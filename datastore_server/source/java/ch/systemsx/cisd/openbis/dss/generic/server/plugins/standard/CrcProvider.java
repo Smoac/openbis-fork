@@ -21,6 +21,8 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.dss.generic.server.DatabaseBasedDataSetPathInfoProvider;
 
 /**
+ * Provides a CRC32 checksum from pathinfo db for given file.
+ * 
  * @author anttil
  */
 public class CrcProvider implements ICrcProvider

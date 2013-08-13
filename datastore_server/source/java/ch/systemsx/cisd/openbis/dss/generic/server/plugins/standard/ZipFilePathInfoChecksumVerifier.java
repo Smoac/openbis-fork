@@ -24,6 +24,8 @@ import de.schlichtherle.util.zip.ZipEntry;
 import de.schlichtherle.util.zip.ZipFile;
 
 /**
+ * Compares checksums in zip file headers to checksums from an outside source (such as pathinfo db)
+ * 
  * @author anttil
  */
 public class ZipFilePathInfoChecksumVerifier extends AbstractZipFileVerifier

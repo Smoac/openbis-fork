@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 /**
+ * Provides a CRC32 checksum for given file.
+ * 
  * @author anttil
  */
 public interface ICrcProvider

@@ -29,6 +29,8 @@ import de.schlichtherle.util.zip.ZipEntry;
 import de.schlichtherle.util.zip.ZipFile;
 
 /**
+ * Verifies integrity of a zip file by comparing its header checksums with real checksums of extracted files.
+ * 
  * @author anttil
  */
 public class ZipFileIntegrityVerifier extends AbstractZipFileVerifier

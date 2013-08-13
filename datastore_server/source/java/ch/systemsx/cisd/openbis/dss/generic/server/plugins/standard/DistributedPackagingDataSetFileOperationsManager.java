@@ -168,8 +168,10 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
                     dataSetPackager.close();
 
                     List<String> errors =
-                            verify(file, new ZipFileIntegrityVerifier(),
-                                    new ZipFilePathInfoChecksumVerifier(new CrcProvider(datasetDescription.getDataSetCode())));
+                            verify(file, new ZipFileIntegrityVerifier()/*
+                                                                        * , new ZipFilePathInfoChecksumVerifier(new
+                                                                        * CrcProvider(datasetDescription.getDataSetCode()))
+                                                                        */);
 
                     if (errors.size() > 0)
                     {
