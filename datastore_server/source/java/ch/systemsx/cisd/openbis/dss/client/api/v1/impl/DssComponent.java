@@ -697,8 +697,15 @@ class AuthenticatedState extends AbstractDssComponentState
 
         try
         {
-            return dataSetDss.getService().tryGetPathToDataSet(getSessionToken(),
-                    dataSetDss.getCode(), overrideStoreRootPathOrNull);
+            if (minorVersion < 8)
+            {
+                return dataSetDss.getService().getPathToDataSet(getSessionToken(),
+                        dataSetDss.getCode(), overrideStoreRootPathOrNull);
+            } else
+            {
+                return dataSetDss.getService().tryGetPathToDataSet(getSessionToken(),
+                        dataSetDss.getCode(), overrideStoreRootPathOrNull);
+            }
         } catch (IllegalArgumentException e)
         {
             // We could not create a link, return null
