@@ -91,14 +91,14 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
     }
 
     @Override
-    public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE project,
+    public List<ExperimentPE> listExperimentsWithProperties(final List<ProjectPE> projects,
             boolean onlyHavingSamples, boolean onlyHavingDataSets) throws DataAccessException
     {
-        if (project == null)
+        if (projects == null || projects.isEmpty())
         {
-            throw new IllegalArgumentException("Project wasn't set");
+            throw new IllegalArgumentException("Projects were not set");
         }
-        return listExperimentsWithProperties(null, project, null, onlyHavingSamples,
+        return listExperimentsWithProperties(null, projects, null, onlyHavingSamples,
                 onlyHavingDataSets);
     }
 
@@ -118,13 +118,13 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
             final ExperimentTypePE experimentTypeOrNull, final ProjectPE projectOrNull,
             final SpacePE spaceOrNull) throws DataAccessException
     {
-        return listExperimentsWithProperties(experimentTypeOrNull, projectOrNull, spaceOrNull,
-                false, false);
+        List<ProjectPE> projectsOrNull = projectOrNull != null ? Collections.singletonList(projectOrNull) : null;
+        return listExperimentsWithProperties(experimentTypeOrNull, projectsOrNull, spaceOrNull, false, false);
     }
 
     @Override
     public List<ExperimentPE> listExperimentsWithProperties(
-            final ExperimentTypePE experimentTypeOrNull, final ProjectPE projectOrNull,
+            final ExperimentTypePE experimentTypeOrNull, final List<ProjectPE> projectsOrNull,
             final SpacePE spaceOrNull, final boolean onlyHavingSamples,
             final boolean onlyHavingDataSets) throws DataAccessException
     {
@@ -133,9 +133,9 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         {
             criteria.add(Restrictions.eq("experimentType", experimentTypeOrNull));
         }
-        if (projectOrNull != null)
+        if (projectsOrNull != null && projectsOrNull.isEmpty() == false)
         {
-            criteria.add(Restrictions.eq("projectInternal", projectOrNull));
+            criteria.add(Restrictions.in("projectInternal", projectsOrNull));
         }
         if (spaceOrNull != null)
         {
@@ -156,10 +156,11 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("%d experiments have been found for project '%s'%s.",
-                    list.size(), projectOrNull, (experimentTypeOrNull == null) ? ""
+            operationLog.debug(String.format("%d experiments have been found for projects '%s'%s.",
+                    list.size(), projectsOrNull, (experimentTypeOrNull == null) ? ""
                             : " and experiment type '" + experimentTypeOrNull + "'"));
         }
+
         return list;
     }
 

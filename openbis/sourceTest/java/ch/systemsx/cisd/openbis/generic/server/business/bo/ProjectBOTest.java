@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.E
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_PROJECT;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -213,7 +214,7 @@ public final class ProjectBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(experimentDAO).listExperimentsWithProperties(EXAMPLE_PROJECT, false, false);
+                    one(experimentDAO).listExperimentsWithProperties(Collections.singletonList(EXAMPLE_PROJECT), false, false);
                     will(returnValue(Arrays.asList(experiments)));
                 }
             });

@@ -93,7 +93,7 @@ printStatus()
     PID=`cat $PIDFILE`
     isPIDRunning $PID
     if [ $? -eq 0 ]; then
-      echo "Data Store Server is running (pid $PID)"
+    	echo "Data Store Server is running (pid $PID)"
       return 0
     else
       echo "Data Store Server is dead (stale pid $PID)"
@@ -142,8 +142,10 @@ fi
 
 command=$1
 
-# Create lib symlinks before building the classpath
-./autosymlink.sh
+if [ "$command" == "start" ]; then
+  # Create lib symlinks before building the classpath
+  ./autosymlink.sh
+fi
 
 # Build classpath from $LIB_FOLDER and $EXT_LIB_FOLDER content. First JAR is datastore_server.jar because it has to appear before cifex.jar
 CP=`echo $LIB_FOLDER/datastore_server.jar $LIB_FOLDER/*.jar $EXT_LIB_FOLDER/*.jar | sed 's/ /:/g'`
@@ -253,7 +255,16 @@ case "$command" in
     $SCRIPT start
     ;;
   help)
-    ${CMD} --help
+    echo "Usage: $0 {start|stop|restart|status|help|version}"
+    echo "Advanced:"
+    echo "  $0 show-shredder  -  show the list of files / directories that wait to be shreddered"
+    echo "  $0 show-updater-queue  -  show the queue of datasets that await updating their archiving status in openBIS AS"
+    echo "  $0 show-command-queue  -  show the queue of commands from openBIS AS waiting to be executed"
+    echo "  $0 log-db-connections  -  log the currently active database connections to log/startup_log.txt"
+    echo "  $0 log-thread-dump  -  log the current thread dump to log/startup_log.txt"
+    echo "  $0 debug-db-connections on / off -  switch on / off database connection debug logging"
+    echo "  $0 record-stacktrace-db-connections on / off -  switch on / off database connection stacktrace recording"
+    echo "  $0 no-record-stacktrace-db-connections  -  switch off database connection stacktrace recording"
     ;;
   version)
     ${CMD} --version
@@ -267,8 +278,71 @@ case "$command" in
   show-command-queue)
     ${CMD} --show-command-queue
     ;;
+  log-thread-dump)
+    if [ -f $PIDFILE ]; then
+      PID=`cat $PIDFILE 2> /dev/null`
+      isPIDRunning $PID
+      if [ $? -eq 0 ]; then
+        kill -3 $PID
+   			echo "Thread dump logged to log/startup_log.txt"
+      else
+      	echo "Error: Data Store Server not running."
+      	exit 100
+      fi
+    else
+    	echo "Error: Data Store Server not running."
+     	exit 100
+    fi
+    ;;
+  log-db-connections)
+    getStatus
+    EXIT_STATUS=$?
+    if [ $EXIT_STATUS -ne 0 ]; then
+      echo "Error: Data Store Server not running."
+      exit 100
+    fi
+  	mkdir -p .control
+  	if [ "$2" != "" ]; then
+    	touch .control/db-connections-print-active.$2
+   	else
+    	touch .control/db-connections-print-active
+   	fi
+   	echo "Active database connections logged to log/startup_log.txt"
+    ;;
+  debug-db-connections)
+    getStatus
+    EXIT_STATUS=$?
+    if [ $EXIT_STATUS -ne 0 ]; then
+      echo "Error: Data Store Server not running."
+      exit 100
+    fi
+  	mkdir -p .control
+  	if [ "$2" == "off" ]; then
+	  	touch .control/db-connections-debug-off
+  		echo "Switched off debug logging for database connections."
+  	else
+	  	touch .control/db-connections-debug-on
+  		echo "Switched on debug logging for database connections."
+  	fi
+    ;;
+  record-stacktrace-db-connections)
+    getStatus
+    EXIT_STATUS=$?
+    if [ $EXIT_STATUS -ne 0 ]; then
+      echo "Error: Data Store Server not running."
+      exit 100
+    fi
+  	mkdir -p .control
+  	if [ "$2" == "off" ]; then
+	  	touch .control/db-connections-stacktrace-off
+  		echo "Switched off stacktrace recording for database connections."
+	  else
+	  	touch .control/db-connections-stacktrace-on
+  		echo "Switched on stacktrace recording for database connections."
+	  fi
+    ;;
   *)
-    echo $"Usage: $0 {start|stop|restart|status|help|version|show-shredder|show-updater-queue|show-command-queue}"
+    echo "Usage: $0 {start|stop|restart|status|help|version}"
     exit 200
     ;;
 esac

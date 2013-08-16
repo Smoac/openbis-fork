@@ -192,8 +192,8 @@ public final class IdentifierHelper
     }
 
     /**
-     * Extracts "sub" code from {@link SamplePE} that is in exactly the same as the one kept in DB
-     * (so the same one that is mapped with {@link SamplePE#getCode()}).
+     * Extracts "sub" code from {@link SamplePE} that is in exactly the same as the one kept in DB (so the same one that is mapped with
+     * {@link SamplePE#getCode()}).
      */
     public final static String extractSubCode(SamplePE samplePE)
     {
@@ -201,8 +201,7 @@ public final class IdentifierHelper
     }
 
     /**
-     * Converts "sub" code from <var>sampleCode</var> that is in exactly the same as the one kept in
-     * DB.
+     * Converts "sub" code from <var>sampleCode</var> that is in exactly the same as the one kept in DB.
      */
     public final static String convertSubCode(String sampleCode)
     {
@@ -210,9 +209,8 @@ public final class IdentifierHelper
     }
 
     /**
-     * Extracts "full" sample code from {@link SamplePE}. For contained samples has a prefix
-     * consisting of container sample DB code and a colon, otherwise it is just sample DB code,
-     * where by "sample DB code" is the code kept in the DB.
+     * Extracts "full" sample code from {@link SamplePE}. For contained samples has a prefix consisting of container sample DB code and a colon,
+     * otherwise it is just sample DB code, where by "sample DB code" is the code kept in the DB.
      */
     public final static String extractCode(SamplePE samplePE)
     {
@@ -232,11 +230,9 @@ public final class IdentifierHelper
     }
 
     /**
-     * Converts "full" sample code from the <var>sampleCode</var> and
-     * <var>containerCodeOrNull</var>. For contained samples (i.e.
-     * <code>containerCodeOrNull != null</code>) has a prefix consisting of container sample DB code
-     * and a colon, otherwise it is just sample DB code, where by "sample DB code" is the code kept
-     * in the DB.
+     * Converts "full" sample code from the <var>sampleCode</var> and <var>containerCodeOrNull</var>. For contained samples (i.e.
+     * <code>containerCodeOrNull != null</code>) has a prefix consisting of container sample DB code and a colon, otherwise it is just sample DB code,
+     * where by "sample DB code" is the code kept in the DB.
      */
     public final static String convertCode(String sampleCode, String containerCodeOrNull)
     {
@@ -267,6 +263,36 @@ public final class IdentifierHelper
         final ProjectIdentifier identifier =
                 new ProjectIdentifier(instanceCode, group.getCode(), project.getCode());
         return identifier;
+    }
+
+    /**
+     * Creates a full {@link ProjectIdentifier} (i.e. identifier with database instance, space and project codes specified) from given
+     * <var>project</var>.
+     */
+    public final static ProjectIdentifier createFullProjectIdentifier(final ProjectPE project)
+    {
+        assert project != null : "Unspecified project";
+        return new ProjectIdentifier(project.getSpace().getDatabaseInstance().getCode(), project.getSpace().getCode(), project.getCode());
+    }
+
+    /**
+     * Creates a full {@link ProjectIdentifier} (i.e. identifier with database instance, space and project codes specified) from given
+     * <var>projectIdentifier</var> and <var>homeDatabaseInstance</var>.
+     */
+    public final static ProjectIdentifier createFullProjectIdentifier(final ProjectIdentifier projectIdentifier,
+            DatabaseInstancePE homeDatabaseInstance)
+    {
+        assert projectIdentifier != null : "Unspecified project identifier";
+        assert homeDatabaseInstance != null : "Unspecified home database instance";
+
+        if (projectIdentifier.isHomeDatabase())
+        {
+            return new ProjectIdentifier(homeDatabaseInstance.getCode(), projectIdentifier.getSpaceCode(), projectIdentifier.getProjectCode());
+        } else
+        {
+            return new ProjectIdentifier(projectIdentifier.getDatabaseInstanceCode(), projectIdentifier.getSpaceCode(),
+                    projectIdentifier.getProjectCode());
+        }
     }
 
     /**

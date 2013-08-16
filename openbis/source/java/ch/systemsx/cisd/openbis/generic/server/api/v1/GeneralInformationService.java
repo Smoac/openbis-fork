@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -517,37 +518,40 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             }
         }
 
-        // Retrieve the matches for each project
-        ArrayList<Experiment> experiments = new ArrayList<Experiment>();
+        List<ProjectIdentifier> projectIdentifiers = new LinkedList<ProjectIdentifier>();
+        List<Experiment> experiments = new ArrayList<Experiment>();
 
         for (Project project : projects)
         {
             ProjectIdentifier projectIdentifier =
                     new ProjectIdentifier(project.getSpaceCode(), project.getCode());
-
-            List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment> basicExperiments;
-
-            if (onlyHavingSamples)
-            {
-                basicExperiments =
-                        commonServer.listExperimentsHavingSamples(sessionToken, experimentType,
-                                projectIdentifier);
-            } else if (onlyHavingDataSets)
-            {
-                basicExperiments =
-                        commonServer.listExperimentsHavingDataSets(sessionToken, experimentType,
-                                projectIdentifier);
-            } else
-            {
-                basicExperiments =
-                        commonServer.listExperiments(sessionToken, experimentType,
-                                projectIdentifier);
-            }
-            for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment basicExperiment : basicExperiments)
-            {
-                experiments.add(Translator.translate(basicExperiment));
-            }
+            projectIdentifiers.add(projectIdentifier);
         }
+
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment> basicExperiments;
+
+        if (onlyHavingSamples)
+        {
+            basicExperiments =
+                    commonServer.listExperimentsHavingSamples(sessionToken, experimentType,
+                            projectIdentifiers);
+        } else if (onlyHavingDataSets)
+        {
+            basicExperiments =
+                    commonServer.listExperimentsHavingDataSets(sessionToken, experimentType,
+                            projectIdentifiers);
+        } else
+        {
+            basicExperiments =
+                    commonServer.listExperiments(sessionToken, experimentType,
+                            projectIdentifiers);
+        }
+
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment basicExperiment : basicExperiments)
+        {
+            experiments.add(Translator.translate(basicExperiment));
+        }
+
         return experiments;
     }
 
@@ -622,7 +626,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed(value =
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public String tryGetDataStoreBaseURL(String sessionToken, String dataSetCode)
     {
         Session session = getSession(sessionToken);
@@ -640,7 +644,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed(value =
-        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<DataStoreURLForDataSets> getDataStoreBaseURLs(String sessionToken,
             List<String> dataSetCodes)
     {

@@ -414,10 +414,17 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public List<Experiment> listExperiments(final String sessionToken,
-            final ExperimentType experimentType, final ProjectIdentifier project)
+    public List<Experiment> listExperiments(String sessionToken, ExperimentType experimentType, ProjectIdentifier project)
     {
         logAccess(sessionToken, "list_experiments", "TYPE(%s) PROJECT(%s)", experimentType, project);
+        return null;
+    }
+
+    @Override
+    public List<Experiment> listExperiments(final String sessionToken,
+            final ExperimentType experimentType, final List<ProjectIdentifier> projects)
+    {
+        logAccess(sessionToken, "list_experiments", "TYPE(%s) PROJECTS(%s)", experimentType, abbreviate(projects));
         return null;
     }
 
@@ -431,19 +438,19 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     @Override
     public List<Experiment> listExperimentsHavingSamples(final String sessionToken,
-            final ExperimentType experimentType, final ProjectIdentifier project)
+            final ExperimentType experimentType, final List<ProjectIdentifier> projects)
     {
-        logAccess(sessionToken, "list_experiments_having_samples", "TYPE(%s) PROJECT(%s)",
-                experimentType, project);
+        logAccess(sessionToken, "list_experiments_having_samples", "TYPE(%s) PROJECTS(%s)",
+                experimentType, abbreviate(projects));
         return null;
     }
 
     @Override
     public List<Experiment> listExperimentsHavingDataSets(final String sessionToken,
-            final ExperimentType experimentType, final ProjectIdentifier project)
+            final ExperimentType experimentType, final List<ProjectIdentifier> projects)
     {
-        logAccess(sessionToken, "list_experiments_data_sets", "TYPE(%s) PROJECT(%s)",
-                experimentType, project);
+        logAccess(sessionToken, "list_experiments_data_sets", "TYPE(%s) PROJECTS(%s)",
+                experimentType, abbreviate(projects));
         return null;
     }
 

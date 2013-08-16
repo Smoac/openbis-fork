@@ -164,10 +164,6 @@ public class DatabaseConfigurationContext implements DisposableBean
                     dataSourceFactory.getMaxWait()));
             operationLog.info(String.format("activeConnectionsLogIntervalMillis = %d",
                     dataSourceFactory.getActiveConnectionsLogInterval()));
-            operationLog.info(String.format("activeNumConnectionsLogThreshold = %d",
-                    dataSourceFactory.getActiveNumConnectionsLogThreshold()));
-            operationLog.info(String.format("logStackTraceOnConnectionLogging = %s",
-                    dataSourceFactory.isLogStackTraceOnConnectionLogging()));
         }
     }
 
@@ -495,44 +491,6 @@ public class DatabaseConfigurationContext implements DisposableBean
         {
             this.dataSourceFactory.setActiveConnectionsLogInterval(Integer
                     .parseInt(activeConnectionLogIntervalStr) * 1000L);
-        }
-    }
-
-    /**
-     * Set the time interval (in seconds) after which an active database connection is considered
-     * "old" and thus a warning log is issued for this connection. Set to 0 to disable this feature.
-     */
-    public void setOldActiveConnectionTimeProp(String oldActiveConnectionTimeStr)
-    {
-        if (isSet(oldActiveConnectionTimeStr))
-        {
-            this.dataSourceFactory.setOldActiveConnectionTime(Integer
-                    .parseInt(oldActiveConnectionTimeStr) * 1000L);
-        }
-    }
-
-    /**
-     * Sets the number of active connections that will trigger a NOTIFY log and will switch on
-     * detailed connection logging.
-     */
-    public void setActiveNumConnectionsLogThresholdProp(String activeConnectionsLogThresholdStr)
-    {
-        if (isSet(activeConnectionsLogThresholdStr))
-        {
-            this.dataSourceFactory.setActiveNumConnectionsLogThreshold(Integer
-                    .parseInt(activeConnectionsLogThresholdStr));
-        }
-    }
-
-    /**
-     * Sets whether the StackTrace should be logged also for detailed connection logging.
-     */
-    public void setLogStackTraceOnConnectionLoggingProp(String logStackTraceOnConnectionLoggingStr)
-    {
-        if (isSet(logStackTraceOnConnectionLoggingStr))
-        {
-            this.dataSourceFactory.setLogStackTraceOnConnectionLogging(Boolean
-                    .parseBoolean(logStackTraceOnConnectionLoggingStr));
         }
     }
 

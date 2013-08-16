@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * <i>Data Access Object</i> for {@link ProjectPE}.
@@ -46,11 +47,15 @@ public interface IProjectDAO extends IGenericDAO<ProjectPE>
     public ProjectPE tryGetByPermID(String permId);
 
     /**
-     * Returns project for given database instance code, space code and project code or null if such
-     * a project does not exist.
+     * Returns project for given database instance code, space code and project code or null if such a project does not exist.
      */
     public ProjectPE tryFindProject(String databaseInstanceCode, String spaceCode,
             String projectCode);
+
+    /**
+     * Returns projects for the given project identifiers or an empty list if none of the projects exists.
+     */
+    public List<ProjectPE> tryFindProjects(List<ProjectIdentifier> projectIdentifiers);
 
     /**
      * Creates a new project.

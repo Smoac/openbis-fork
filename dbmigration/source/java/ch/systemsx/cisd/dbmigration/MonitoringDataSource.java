@@ -37,12 +37,6 @@ public class MonitoringDataSource extends BasicDataSource
 
     private long activeConnectionsLogInterval;
 
-    private int activeConnectionsLogThreshold;
-
-    private long oldActiveConnectionTimeMillis;
-
-    private boolean logStackTrace;
-
     @Override
     public synchronized void setUrl(String url)
     {
@@ -73,65 +67,11 @@ public class MonitoringDataSource extends BasicDataSource
         this.activeConnectionsLogInterval = activeConnectionLogInterval;
     }
 
-    /**
-     * Returns the number of active connections that will trigger a NOTIFY log and will switch one
-     * detailed connection logging.
-     */
-    public int getActiveConnectionsLogThreshold()
-    {
-        return activeConnectionsLogThreshold;
-    }
-
-    /**
-     * Sets the number of active connections that will trigger a NOTIFY log and will switch one
-     * detailed connection logging.
-     */
-    public void setActiveConnectionsLogThreshold(int activeConnectionsLogThreshold)
-    {
-        this.activeConnectionsLogThreshold = activeConnectionsLogThreshold;
-    }
-
-    /**
-     * Returns <code>true</code> if the stack traces are to be logged for detailed connection
-     * logging.
-     */
-    public boolean isLogStackTrace()
-    {
-        return logStackTrace;
-    }
-
-    /**
-     * Sets whether stack traces are to be logged for detailed connection logging.
-     */
-    public void setLogStackTrace(boolean logStackTrace)
-    {
-        this.logStackTrace = logStackTrace;
-    }
-
-    /**
-     * Returns the time (in ms) after which an active database connection is considered old and thus
-     * logged.
-     */
-    public long getOldActiveConnectionTimeMillis()
-    {
-        return oldActiveConnectionTimeMillis;
-    }
-
-    /**
-     * Sets the time (in ms) after which an active database connection is considered old and thus
-     * logged. 0 means: do not log old database connections.
-     */
-    public void setOldActiveConnectionTimeMillis(long oldActiveConnectionTimeMillis)
-    {
-        this.oldActiveConnectionTimeMillis = oldActiveConnectionTimeMillis;
-    }
-
     @Override
     protected void createDataSourceInstance() throws SQLException
     {
         final MonitoringPoolingDataSource pds =
-                new MonitoringPoolingDataSource(connectionPool, activeConnectionsLogInterval,
-                        activeConnectionsLogThreshold, oldActiveConnectionTimeMillis, logStackTrace);
+                new MonitoringPoolingDataSource(connectionPool, url, activeConnectionsLogInterval);
         pds.setAccessToUnderlyingConnectionAllowed(isAccessToUnderlyingConnectionAllowed());
         pds.setLogWriter(logWriter);
         dataSource = pds;

@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.dbmigration;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -23,16 +27,25 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
-import java.util.IdentityHashMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.dbcp.DelegatingCallableStatement;
 import org.apache.commons.dbcp.DelegatingConnection;
 import org.apache.commons.dbcp.DelegatingPreparedStatement;
 import org.apache.commons.dbcp.DelegatingStatement;
 import org.apache.commons.dbcp.PoolingDataSource;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.pool.ObjectPool;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -46,38 +59,293 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 class MonitoringPoolingDataSource extends PoolingDataSource
 {
+    private static final String CONTROL_FILE_DIRECTORY = ".control";
+
+    private static final long DEFAULT_PERIOD_TIMER_MILLIS = 10 * 1000L;
+
     private final static Logger machineLog =
             LogFactory.getLogger(LogCategory.MACHINE, MonitoringPoolingDataSource.class);
 
-    private final static Logger notifyLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, MonitoringPoolingDataSource.class);
+    // static fields for inter-datasource connection logging
 
-    private final Map<PoolGuardConnectionWrapper, Long> activeConnectionMap =
-            new IdentityHashMap<MonitoringPoolingDataSource.PoolGuardConnectionWrapper, Long>();
+    private static final Timer infoControlTimer = new Timer("db connection info", true);
+
+    private static DatabaseConnectionInfoController infoController =
+            new DatabaseConnectionInfoController();
+
+    static final Map<Integer, BorrowedConnectionRecord> activeConnections =
+            new ConcurrentHashMap<Integer, BorrowedConnectionRecord>();
+
+    private static volatile boolean logStackTrace;
+    
+    private static volatile Level configuredLogLevel;
 
     private final long activeConnectionsLogInterval;
 
-    private final int activeConnectionsLogThreshold;
-
-    private final long oldActiveConnectionTimeMillis;
-
-    private final boolean logStackTrace;
+    private final String url;
 
     private long lastLogged;
 
     private int maxActiveSinceLastLogged;
 
-    private volatile boolean logConnection;
+    static
+    {
+        infoControlTimer.schedule(infoController, DEFAULT_PERIOD_TIMER_MILLIS,
+                DEFAULT_PERIOD_TIMER_MILLIS);
+    }
 
-    public MonitoringPoolingDataSource(ObjectPool pool, long activeConnectionsLogInterval,
-            int activeConnectionsLogThreshold, long oldActiveConnectionTimeMillis,
-            boolean logStackTrace)
+    public MonitoringPoolingDataSource(ObjectPool pool, String url,
+            long activeConnectionsLogInterval)
     {
         super(pool);
-        this.activeConnectionsLogThreshold = activeConnectionsLogThreshold;
         this.activeConnectionsLogInterval = activeConnectionsLogInterval;
-        this.oldActiveConnectionTimeMillis = oldActiveConnectionTimeMillis;
-        this.logStackTrace = logStackTrace;
+        this.url = url;
+    }
+
+    /**
+     * A record of information on a connection borrowed from the pool.
+     */
+    private static class BorrowedConnectionRecord
+    {
+        final long timeOfBorrowing;
+
+        final String dbUrl;
+
+        final String threadName;
+
+        final StackTraceElement[] borrowStackTraceOrNull;
+
+        BorrowedConnectionRecord(long timeOfBorrowing, String dbUrl, String threadName,
+                StackTraceElement[] borrowStackTraceOrNull)
+        {
+            this.timeOfBorrowing = timeOfBorrowing;
+            this.dbUrl = dbUrl;
+            this.threadName = threadName;
+            this.borrowStackTraceOrNull = borrowStackTraceOrNull;
+        }
+    }
+
+    /**
+     * A class that controls printing of information about active database connections.
+     */
+    private static class DatabaseConnectionInfoController extends TimerTask
+    {
+        private final File controlDir = new File(CONTROL_FILE_DIRECTORY);
+
+        private final FilenameFilter prefixFilter = new FilenameFilter()
+            {
+                @Override
+                public boolean accept(File dir, String name)
+                {
+                    return name.startsWith("db-connections-");
+                }
+            };
+
+        @Override
+        public void run()
+        {
+            final File[] controlFiles = controlDir.listFiles(prefixFilter);
+            if (controlFiles == null)
+            {
+                return;
+            }
+            for (File f : controlFiles)
+            {
+                boolean knownCommand = false;
+                final String name = f.getName();
+                if (name.startsWith("db-connections-print-active"))
+                {
+                    final String[] split = StringUtils.split(name, '.');
+                    final long oldActiveConnTimeMillis =
+                            (split.length > 1) ? NumberUtils.toLong(split[1], 0) : 0;
+                    logActiveDatabaseConnections(System.err, System.currentTimeMillis(),
+                            oldActiveConnTimeMillis);
+                    knownCommand = true;
+                } else if ("db-connections-stacktrace-on".equals(name))
+                {
+                    setLogStackTrace(true);
+                    knownCommand = true;
+                } else if ("db-connections-stacktrace-off".equals(name))
+                {
+                    setLogStackTrace(false);
+                    knownCommand = true;
+                } else if ("db-connections-debug-on".equals(name))
+                {
+                    configuredLogLevel = machineLog.getLevel();
+                    machineLog.setLevel(Level.DEBUG);
+                    machineLog.info("Enable debug log for database connections.");
+                    knownCommand = true;
+                } else if ("db-connections-debug-off".equals(name))
+                {
+                    final Level level = configuredLogLevel;
+                    machineLog.setLevel((level == null) ? Level.INFO : level);
+                    machineLog.info("Disable debug log for database connections.");
+                    knownCommand = true;
+                }
+                if (knownCommand == false)
+                {
+                    machineLog.warn("Don't know what to do with control file '" + name
+                            + "', ignoring.");
+                    machineLog.warn("Supported control files are:");
+                    machineLog.warn("db-connections-print-active[.nnn] - print all active " +
+                            "database connections older than nnn milli-seconds.");
+                    machineLog.warn("db-connections-stacktrace-on - switch on recording " +
+                            "stacktraces when handing out a database connection.");
+                    machineLog.warn("db-connections-stacktrace-off - switch off recording " +
+                            "stacktraces when handing out a database connection.");
+                    machineLog.warn("db-connections-debug-on - switch on detailed logging " +
+                    		"of db connection borrowing.");
+                    machineLog.warn("db-connections-debug-off - switch off detailed logging " +
+                            "of db connection borrowing.");
+                }
+                f.delete();
+            }
+        }
+    }
+
+    /**
+     * Re-schedules the database info controller with a new period.
+     */
+    public synchronized static void rescheduleInfoController(long periodInMillis)
+    {
+        infoController.cancel();
+        infoControlTimer.purge();
+        infoController = new DatabaseConnectionInfoController();
+        infoControlTimer.schedule(infoController, periodInMillis, periodInMillis);
+    }
+
+    /**
+     * Return <code>true</code>, if recording stack traces for database connection borrowing is
+     * switched on.
+     */
+    public static boolean isLogStackTrace()
+    {
+        return logStackTrace;
+    }
+
+    /**
+     * Switches recording stack traces for database connection borrowing on and off.
+     */
+    public static void setLogStackTrace(boolean logStackTrace)
+    {
+        MonitoringPoolingDataSource.logStackTrace = logStackTrace;
+        machineLog.info((logStackTrace ? "Enable" : "Disable")
+                + " stacktrace recording for database connections.");
+    }
+
+    /**
+     * Sets the log level for connection logging.
+     */
+    public static void setLogLevel(Level logLevel)
+    {
+        MonitoringPoolingDataSource.machineLog.setLevel(logLevel);
+        configuredLogLevel = logLevel;
+        machineLog.info("Set loglevel to " + logLevel + ".");
+    }
+
+    /**
+     * Print the active (borrowed) database connections older than
+     * <var>oldActiveConnTimeMillis</var> to to <var>out</var>, sorted by the time when the
+     * connection was borrowed.
+     */
+    public static void logActiveDatabaseConnections(PrintWriter out,
+            long oldActiveConnTimeMillis)
+    {
+        logActiveDatabaseConnections(out, System.currentTimeMillis(), oldActiveConnTimeMillis);
+    }
+
+    /**
+     * Print the active (borrowed) database connections older than
+     * <var>oldActiveConnTimeMillis</var> to to <var>out</var>, sorted by the time when the
+     * connection was borrowed.
+     */
+    public static void logActiveDatabaseConnections(PrintStream out,
+            long oldActiveConnTimeMillis)
+    {
+        logActiveDatabaseConnections(new PrintWriter(out, true), System.currentTimeMillis(),
+                oldActiveConnTimeMillis);
+    }
+
+    static void logActiveDatabaseConnections(PrintStream out, long now,
+            long oldActiveConnTimeMillis)
+    {
+        logActiveDatabaseConnections(new PrintWriter(out, true), now, oldActiveConnTimeMillis);
+    }
+
+    static void logActiveDatabaseConnections(PrintWriter out, long now,
+            long oldActiveConnTimeMillis)
+    {
+        final List<BorrowedConnectionRecord> records =
+                new ArrayList<BorrowedConnectionRecord>(activeConnections.values());
+        Collections.sort(records, new Comparator<BorrowedConnectionRecord>()
+            {
+                @Override
+                public int compare(BorrowedConnectionRecord o1,
+                        BorrowedConnectionRecord o2)
+                {
+                    return (int) (o2.timeOfBorrowing - o1.timeOfBorrowing);
+                }
+            });
+        if (records.isEmpty()
+                || now - records.get(0).timeOfBorrowing < oldActiveConnTimeMillis)
+        {
+            out.printf("There are no active database connections older than %d ms.\n",
+                    oldActiveConnTimeMillis);
+            return;
+        }
+        out
+                .printf("\n>>>--- %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL " +
+                        "---------------------------------->>>\n", now);
+        if (oldActiveConnTimeMillis > 0)
+        {
+            out
+                    .printf("Active database connection overview older than %d ms (sorted by age)\n",
+                            oldActiveConnTimeMillis);
+        } else
+        {
+            out.printf("Active database connection overview (sorted by age)\n");
+
+        }
+        out.printf("%-25s\t%-25s\t%-25s\n", "Time", "Thread", "Database");
+        boolean hasStackTraces = false;
+        for (BorrowedConnectionRecord record : records)
+        {
+            if (now - record.timeOfBorrowing > oldActiveConnTimeMillis)
+            {
+                out.printf(
+                        "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL  \t%2$-25s\t%3$-25s\n",
+                        record.timeOfBorrowing, record.threadName, record.dbUrl);
+                hasStackTraces |= (record.borrowStackTraceOrNull != null);
+            }
+        }
+
+        if (hasStackTraces)
+        {
+            out.println("\nActive database connection stacktraces");
+            // Print stacktraces
+            boolean noNewline = true;
+            for (BorrowedConnectionRecord record : records)
+            {
+                if (now - record.timeOfBorrowing > oldActiveConnTimeMillis
+                        && record.borrowStackTraceOrNull != null)
+                {
+                    if (noNewline)
+                    {
+                        noNewline = false;
+                    } else
+                    {
+                        out.println();
+                    }
+                    out.printf("Time: %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL\n",
+                            record.timeOfBorrowing);
+                    out.printf("Database: %s\n", record.dbUrl);
+                    out.printf("Thread: %s\n", record.threadName);
+                    out.print("Stacktrace:\n" + traceToString(record.borrowStackTraceOrNull));
+                }
+            }
+        }
+        out.printf("<<<--- %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL " +
+                "----------------------------------<<<\n", now);
     }
 
     /**
@@ -94,81 +362,26 @@ class MonitoringPoolingDataSource extends PoolingDataSource
             final long now = System.currentTimeMillis();
             final int numActive = _pool.getNumActive();
             maxActiveSinceLastLogged = Math.max(maxActiveSinceLastLogged, numActive);
-            if (numActive > activeConnectionsLogThreshold)
-            {
-                if (logConnection == false)
-                {
-                    logConnection = true;
-                    if (activeConnectionsLogThreshold > 0)
-                    {
-                        notifyLog.warn(String.format(
-                                "Switch on database connection logging: %d > %d",
-                                numActive, activeConnectionsLogThreshold));
-                    } else
-                    {
-                        if (machineLog.isInfoEnabled())
-                        {
-                            machineLog.info(String.format(
-                                    "Switch on database connection logging: %d > %d",
-                                    numActive, activeConnectionsLogThreshold));
-                        }
-                    }
-                }
-            } else
-            {
-                if (logConnection)
-                {
-                    logConnection = false;
-                    if (machineLog.isInfoEnabled())
-                    {
-                        machineLog.info(String.format(
-                                "Switch off database connection logging: %d <= %d",
-                                numActive, activeConnectionsLogThreshold));
-                    }
-                }
-            }
             if ((activeConnectionsLogInterval > 0)
                     && (now - lastLogged > activeConnectionsLogInterval)
                     && maxActiveSinceLastLogged > 1)
             {
-                if (machineLog.isInfoEnabled() && logConnection == false)
+                if (machineLog.isInfoEnabled())
                 {
                     machineLog.info(String.format(
-                            "Active database connections: current: %d, peak: %d.", numActive,
-                            maxActiveSinceLastLogged));
+                            "Active database connections [%s]: current: %d, peak: %d.", url,
+                            numActive, maxActiveSinceLastLogged));
                 }
                 lastLogged = now;
                 maxActiveSinceLastLogged = 0;
-                if (doLogOldConnections())
-                {
-                    for (Map.Entry<PoolGuardConnectionWrapper, Long> entry : activeConnectionMap
-                            .entrySet())
-                    {
-                        if (now - entry.getValue() > oldActiveConnectionTimeMillis)
-                        {
-                            final StackTraceElement[] stackTraceOrNull =
-                                    entry.getKey().tryGetCreationStackTrace();
-                            if (stackTraceOrNull != null)
-                            {
-                                machineLog.warn("Database connection has not been returned: id="
-                                        + entry.getKey().hashCode() + ".\n"
-                                        + traceToString(stackTraceOrNull));
-                            } else
-                            {
-                                machineLog.warn("Database connection has not been returned: id="
-                                        + entry.getKey().hashCode() + ".");
-                            }
-                        }
-                    }
-                }
             }
             if (conn != null)
             {
                 conn = new PoolGuardConnectionWrapper(conn);
-                if (doLogOldConnections())
-                {
-                    activeConnectionMap.put((PoolGuardConnectionWrapper) conn, now);
-                }
+                activeConnections.put(System.identityHashCode(conn),
+                        new BorrowedConnectionRecord(now, url,
+                                Thread.currentThread().getName(), logStackTrace ? getStackTrace()
+                                        : null));
             }
             return conn;
         } catch (SQLException e)
@@ -186,11 +399,6 @@ class MonitoringPoolingDataSource extends PoolingDataSource
             throw new org.apache.commons.dbcp.SQLNestedException(
                     "Cannot get a connection, general error", e);
         }
-    }
-
-    boolean doLogOldConnections()
-    {
-        return oldActiveConnectionTimeMillis > 0;
     }
 
     static StackTraceElement[] getStackTrace()
@@ -222,7 +430,8 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         if (innerMethodName.equals(outerMethodName))
         {
             return outerMethodName;
-        } else {
+        } else
+        {
             return outerMethodName + " / " + innerMethodName;
         }
     }
@@ -230,13 +439,24 @@ class MonitoringPoolingDataSource extends PoolingDataSource
     static String traceToString(StackTraceElement[] trace)
     {
         final StringBuilder builder = new StringBuilder();
+        traceToString(builder, trace);
+        return builder.toString();
+    }
+    
+    static void traceToString(StringBuilder builder, StackTraceElement[] trace)
+    {
+        boolean skip = true;
         for (StackTraceElement te : trace)
         {
+            if (skip)
+            {
+                skip = false;
+                continue;
+            }
             builder.append("\tat ");
             builder.append(te.toString());
             builder.append('\n');
         }
-        return builder.toString();
     }
 
     /**
@@ -245,57 +465,42 @@ class MonitoringPoolingDataSource extends PoolingDataSource
      */
     private class PoolGuardConnectionWrapper extends DelegatingConnection
     {
-        private final StackTraceElement[] creationStackTraceOrNull;
-
         PoolGuardConnectionWrapper(Connection delegate)
         {
             super(delegate);
-            if (doLogOldConnections())
-            {
-                creationStackTraceOrNull = getStackTrace();
-            } else
-            {
-                creationStackTraceOrNull = null;
-            }
             log("Hand out database connection");
-        }
-
-        StackTraceElement[] tryGetCreationStackTrace()
-        {
-            return creationStackTraceOrNull;
         }
 
         void log(String action)
         {
-            if (logConnection && machineLog.isDebugEnabled())
+            if (machineLog.isDebugEnabled())
             {
                 final int numActive = _pool.getNumActive();
                 final StackTraceElement[] stackTrace = getStackTrace();
                 final String serviceMethod = tryGetServiceMethodName(stackTrace);
-                if (serviceMethod == null)
+                final StringBuilder b = new StringBuilder();
+                b.append('[');
+                b.append(url);
+                b.append("] ");
+                b.append(action);
+                b.append(", id=");
+                b.append(hashCode());
+                b.append(", active=");
+                b.append(numActive);
+                if (serviceMethod != null)
                 {
-                    if (logStackTrace)
-                    {
-                        machineLog.debug(action + ", id=" + hashCode() + ", active=" + numActive
-                                + ".\n" + traceToString(stackTrace));
-                    } else
-                    {
-                        machineLog.debug(action + ", id=" + hashCode() + ", active=" + numActive
-                                + ".");
-                    }
+                    b.append(", service method: ");
+                    b.append(serviceMethod);
+                }
+                if (logStackTrace)
+                {
+                    b.append(", stacktrace:\n");
+                    traceToString(b, stackTrace);
                 } else
                 {
-                    if (logStackTrace)
-                    {
-                        machineLog.debug(action + ", id=" + hashCode() + ", active=" + numActive
-                                + ", service method: " + serviceMethod + ".\n"
-                                + traceToString(stackTrace));
-                    } else
-                    {
-                        machineLog.debug(action + ", id=" + hashCode() + ", active=" + numActive
-                                + ", service method: " + serviceMethod + ".");
-                    }
+                    b.append('.');
                 }
+                machineLog.debug(b.toString());
             }
         }
 
@@ -313,13 +518,10 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         {
             if (_conn != null)
             {
+                log("Return database connection");
                 this._conn.close();
                 super.setDelegate(null);
-                if (doLogOldConnections())
-                {
-                    activeConnectionMap.remove(this);
-                }
-                log("Return database connection");
+                activeConnections.remove(System.identityHashCode(this));
             }
         }
 

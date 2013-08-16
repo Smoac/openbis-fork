@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -98,24 +100,24 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     public final void load(final String experimentTypeCode,
             final ProjectIdentifier projectIdentifier)
     {
-        load(experimentTypeCode, projectIdentifier, false, false);
+        checkNotNull(experimentTypeCode, projectIdentifier);
+        load(experimentTypeCode, Collections.singletonList(projectIdentifier), false, false);
     }
 
     @Override
     public final void load(final String experimentTypeCode,
-            final ProjectIdentifier projectIdentifier, boolean onlyHavingSamples,
+            final List<ProjectIdentifier> projectIdentifiers, boolean onlyHavingSamples,
             boolean onlyHavingDataSets)
     {
-        checkNotNull(experimentTypeCode, projectIdentifier);
-        fillSpaceIdentifier(projectIdentifier);
-        final ProjectPE project =
-                getProjectDAO().tryFindProject(projectIdentifier.getDatabaseInstanceCode(),
-                        projectIdentifier.getSpaceCode(), projectIdentifier.getProjectCode());
-        checkNotNull(projectIdentifier, project);
+        checkNotNull(experimentTypeCode, projectIdentifiers);
+        fillSpaceIdentifiers(projectIdentifiers);
+        final List<ProjectPE> projects =
+                getProjectDAO().tryFindProjects(projectIdentifiers);
+        checkNotNull(projectIdentifiers, projects);
         if (EntityType.isAllTypesCode(experimentTypeCode))
         {
             experiments =
-                    getExperimentDAO().listExperimentsWithProperties(project, onlyHavingSamples,
+                    getExperimentDAO().listExperimentsWithProperties(projects, onlyHavingSamples,
                             onlyHavingDataSets);
         } else
         {
@@ -125,7 +127,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
             checkNotNull(experimentTypeCode, entityType);
             experiments =
                     getExperimentDAO().listExperimentsWithProperties((ExperimentTypePE) entityType,
-                            project, null, onlyHavingSamples, onlyHavingDataSets);
+                            projects, null, onlyHavingSamples, onlyHavingDataSets);
         }
         attachmentListsOrNull = null;
     }
@@ -171,11 +173,35 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         }
     }
 
-    private void checkNotNull(final ProjectIdentifier projectIdentifier, final ProjectPE project)
+    private void checkNotNull(final List<ProjectIdentifier> projectIdentifiers, final List<ProjectPE> projects)
     {
-        if (project == null)
+        Set<ProjectIdentifier> unknownProjectIdentifiers = new HashSet<ProjectIdentifier>();
+
+        if (projectIdentifiers != null)
         {
-            throw new UserFailureException("Project '" + projectIdentifier + "' unknown.");
+            for (ProjectIdentifier projectIdentifier : projectIdentifiers)
+            {
+                if (projectIdentifier != null)
+                {
+                    unknownProjectIdentifiers.add(IdentifierHelper.createFullProjectIdentifier(projectIdentifier, getHomeDatabaseInstance()));
+                }
+            }
+        }
+
+        if (projects != null)
+        {
+            for (ProjectPE project : projects)
+            {
+                if (project != null)
+                {
+                    unknownProjectIdentifiers.remove(IdentifierHelper.createFullProjectIdentifier(project));
+                }
+            }
+        }
+
+        if (unknownProjectIdentifiers.isEmpty() == false)
+        {
+            throw new UserFailureException("Projects '" + unknownProjectIdentifiers + "' unknown.");
         }
     }
 
@@ -197,6 +223,19 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         if (projectIdentifier == null)
         {
             throw new UserFailureException("Project not specified.");
+        }
+    }
+
+    private void checkNotNull(final String experimentTypeCode,
+            final List<ProjectIdentifier> projectIdentifiers)
+    {
+        if (experimentTypeCode == null)
+        {
+            throw new UserFailureException("Experiment type not specified.");
+        }
+        if (projectIdentifiers == null || projectIdentifiers.isEmpty())
+        {
+            throw new UserFailureException("Projects not specified.");
         }
     }
 

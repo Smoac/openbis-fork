@@ -189,6 +189,12 @@ public class MetaprojectDAO extends AbstractGenericEntityDAO<MetaprojectPE> impl
         criteria.createAlias("metaproject", "m");
         criteria.add(Restrictions.eq("m.owner", owner));
         criteria.add(Restrictions.in(entityKind.getLabel(), entities));
+
+        criteria.setFetchMode("experiment", FetchMode.SELECT);
+        criteria.setFetchMode("sample", FetchMode.SELECT);
+        criteria.setFetchMode("dataSet", FetchMode.SELECT);
+        criteria.setFetchMode("material", FetchMode.SELECT);
+
         final List<MetaprojectAssignmentPE> assignments =
                 cast(getHibernateTemplate().findByCriteria(criteria));
 

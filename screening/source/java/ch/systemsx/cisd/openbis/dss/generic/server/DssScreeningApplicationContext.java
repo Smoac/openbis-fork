@@ -31,7 +31,10 @@ public class DssScreeningApplicationContext
 
     private static final String DSS_RPC_SERVICE_JSON = "data-store-rpc-service-screening-json";
 
-    private static ApplicationContext instance;
+    private static ApplicationContext instance = null;
+
+    // applicationContex is lazily initialized
+    private static boolean buildingApplicationContext;
 
     public static StreamSupportingHttpInvokerServiceExporter getDssRpcService()
     {
@@ -47,8 +50,27 @@ public class DssScreeningApplicationContext
     {
         if (instance == null)
         {
-            instance = new ClassPathXmlApplicationContext(new String[]
-                { "screening-dssApplicationContext.xml" }, true);
+            synchronized (DssScreeningApplicationContext.class)
+            {
+                if (instance == null)
+                {
+                    if (buildingApplicationContext)
+                    {
+                        throw new IllegalStateException("Building application context. "
+                                + "Application context hasn't been built completely. "
+                                + "Beans should access other beans lazily.");
+                    }
+                    buildingApplicationContext = true;
+                    instance = new ClassPathXmlApplicationContext(new String[]
+                        { "screening-dssApplicationContext.xml" }, true)
+                        {
+                            {
+                                setDisplayName("Application Context from { screening-dssApplicationContext.xml }");
+                            }
+                        };
+                    buildingApplicationContext = false;
+                }
+            }
         }
         return instance;
     }

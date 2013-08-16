@@ -22,6 +22,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,6 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -42,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Izabela Adamczyk
  */
 @Test(groups =
-    { "db", "project" })
+{ "db", "project" })
 public class ProjectDAOTest extends AbstractDAOTest
 {
 
@@ -61,7 +64,7 @@ public class ProjectDAOTest extends AbstractDAOTest
     public static final String DEFAULT = "DEFAULT";
 
     static final String[] PRELOADED_PROJECTS =
-        { DEFAULT, NEMO, NOE, TEST_PROJECT, TESTPROJ };
+    { DEFAULT, NEMO, NOE, TEST_PROJECT, TESTPROJ };
 
     @Test
     public void testListProjects()
@@ -142,6 +145,45 @@ public class ProjectDAOTest extends AbstractDAOTest
 
         AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(NONEXISTENT,
                 templateProject.getSpace().getCode(), templateProject.getCode()));
+    }
+
+    @Test
+    public void testTryFindProjects() throws Exception
+    {
+        final List<ProjectPE> allProjects = daoFactory.getProjectDAO().listProjects();
+        Collections.sort(allProjects);
+
+        final ProjectPE noe = allProjects.get(2);
+        final ProjectPE testproj = allProjects.get(4);
+
+        assertEquals(noe.getCode(), NOE);
+        assertEquals(testproj.getCode(), TESTPROJ);
+
+        List<ProjectPE> found = daoFactory.getProjectDAO().tryFindProjects(
+                Arrays.asList(IdentifierHelper.createProjectIdentifier(noe), IdentifierHelper.createFullProjectIdentifier(testproj)));
+
+        Collections.sort(found);
+
+        assertEquals(2, found.size());
+        assertEquals(noe.getCode(), found.get(0).getCode());
+        assertEquals(testproj.getCode(), found.get(1).getCode());
+    }
+
+    @Test
+    public void testTryFindProjectsNonexistent() throws Exception
+    {
+        final List<ProjectPE> allProjects = daoFactory.getProjectDAO().listProjects();
+        Collections.sort(allProjects);
+
+        final ProjectPE noe = allProjects.get(2);
+
+        assertEquals(noe.getCode(), NOE);
+
+        List<ProjectPE> found = daoFactory.getProjectDAO().tryFindProjects(
+                Arrays.asList(IdentifierHelper.createProjectIdentifier(noe), new ProjectIdentifier(NONEXISTENT, NONEXISTENT, NONEXISTENT)));
+
+        assertEquals(1, found.size());
+        assertEquals(noe.getCode(), found.get(0).getCode());
     }
 
     @Test

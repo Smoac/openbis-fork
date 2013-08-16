@@ -36,11 +36,6 @@ public class BasicDataSourceFactory implements IDataSourceFactory
 
     private static final int DEFAULT_ACTIVE_CONNECTIONS_LOG_INTERVAL = 3600 * 1000;
 
-    private static final int DEFAULT_ACTIVE_NUM_CONNECTIONS_LOG_THRESHOLD =
-            (int) (DEFAULT_MAX_ACTIVE * 0.8);
-
-    private static final int DEFAULT_OLD_ACTIVE_CONNECTION_TIME = 0;
-
     private long maxWaitMillis = DEFAULT_MAX_WAIT;
 
     private int maxIdle = DEFAULT_MAX_IDLE;
@@ -49,16 +44,8 @@ public class BasicDataSourceFactory implements IDataSourceFactory
 
     private long activeConnectionsLogIntervalMillis = DEFAULT_ACTIVE_CONNECTIONS_LOG_INTERVAL;
 
-    private int activeNumConnectionsLogThreshold = DEFAULT_ACTIVE_NUM_CONNECTIONS_LOG_THRESHOLD;
-    
-    private long oldActiveConnectionTimeMillis = DEFAULT_OLD_ACTIVE_CONNECTION_TIME;
-    
-    private boolean activeNumConnectionLogThresholdIsDefault = true;
-    
     private boolean maxIdleIsDefault = true;
     
-    private boolean logStackTraceOnConnectionLogging = false;
-
     //
     // IDataSourceFactory
     //
@@ -76,9 +63,6 @@ public class BasicDataSourceFactory implements IDataSourceFactory
         dataSource.setMaxActive(maxActive);
         dataSource.setMaxWait(maxWaitMillis * 1000L);
         dataSource.setActiveConnectionsLogInterval(activeConnectionsLogIntervalMillis);
-        dataSource.setActiveConnectionsLogThreshold(activeNumConnectionsLogThreshold);
-        dataSource.setOldActiveConnectionTimeMillis(oldActiveConnectionTimeMillis);
-        dataSource.setLogStackTrace(logStackTraceOnConnectionLogging);
         dataSource.setValidationQuery(validationQuery);
         return dataSource;
     }
@@ -118,10 +102,6 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     public void setMaxActive(int maxActive)
     {
         this.maxActive = maxActive;
-        if (activeNumConnectionLogThresholdIsDefault)
-        {
-            this.activeNumConnectionsLogThreshold = (int) (0.8 * maxActive);
-        }
         if (maxIdleIsDefault)
         {
             this.maxIdle = maxActive;
@@ -138,43 +118,6 @@ public class BasicDataSourceFactory implements IDataSourceFactory
     public void setActiveConnectionsLogInterval(long activeConnectionLogIntervalMillis)
     {
         this.activeConnectionsLogIntervalMillis = activeConnectionLogIntervalMillis;
-    }
-
-    @Override
-    public int getActiveNumConnectionsLogThreshold()
-    {
-        return activeNumConnectionsLogThreshold;
-    }
-    
-    @Override
-    public void setActiveNumConnectionsLogThreshold(int activeConnectionsLogThreshold)
-    {
-        this.activeNumConnectionsLogThreshold = activeConnectionsLogThreshold;
-        this.activeNumConnectionLogThresholdIsDefault = false;
-    }
-
-    @Override
-    public void setOldActiveConnectionTime(long oldActiveConnectionTimeMillis)
-    {
-        this.oldActiveConnectionTimeMillis = oldActiveConnectionTimeMillis;
-    }
-
-    @Override
-    public long getOldActiveConnectionTime()
-    {
-        return oldActiveConnectionTimeMillis;
-    }
-
-    @Override
-    public boolean isLogStackTraceOnConnectionLogging()
-    {
-        return logStackTraceOnConnectionLogging;
-    }
-
-    @Override
-    public void setLogStackTraceOnConnectionLogging(boolean logStackTrace)
-    {
-        logStackTraceOnConnectionLogging = logStackTrace;
     }
 
 }

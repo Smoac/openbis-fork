@@ -825,7 +825,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(commonBusinessObjectFactory).createExperimentTable(session);
                     will(returnValue(experimentTable));
 
-                    one(experimentTable).load(experimentType.getCode(), projectIdentifier, false,
+                    one(experimentTable).load(experimentType.getCode(), Collections.singletonList(projectIdentifier), false,
                             false);
 
                     one(experimentTable).getExperiments();

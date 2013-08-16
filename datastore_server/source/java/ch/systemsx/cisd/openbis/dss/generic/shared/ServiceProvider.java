@@ -48,7 +48,7 @@ public class ServiceProvider
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ServiceProvider.class);
 
-    // applicationContex it lazily initialized
+    // applicationContex is lazily initialized
     private static BeanFactory applicationContext = null;
 
     private static boolean buildingApplicationContext;
@@ -85,7 +85,12 @@ public class ServiceProvider
                     }
                     buildingApplicationContext = true;
                     applicationContext = new ClassPathXmlApplicationContext(new String[]
-                        { "dssApplicationContext.xml" }, true);
+                        { "dssApplicationContext.xml" }, true)
+                    {
+                        {
+                            setDisplayName("Application Context from { dssApplicationContext.xml }");
+                        }
+                    };
                     buildingApplicationContext = false;
                 }
             }

@@ -16,24 +16,12 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
-import java.io.File;
-import java.util.Properties;
-
 /**
- * Archiver which distributes and zips data sets to be archived on archive destinations specified by the
- * space to which the data set belongs. In addition all meta data of the data set its related experiment
- * and sample are store in a tab-separated value file inside the zipped data set. 
- *
- * @author Franz-Josef Elmer
+ * Provides a CRC32 checksum for given file.
+ * 
+ * @author anttil
  */
-public class DistributingArchiver extends RsyncArchiver
+public interface ICrcProvider
 {
-
-    private static final long serialVersionUID = 1L;
-
-    public DistributingArchiver(Properties properties, File storeRoot)
-    {
-        super(properties, storeRoot, new DistributedPackagingDataSetFileOperationsManager(properties));
-    }
-
+    Long getCrc(String name);
 }

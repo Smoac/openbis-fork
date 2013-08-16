@@ -1037,7 +1037,18 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             ProjectIdentifier projectIdentifier)
     {
-        return listExperiments(sessionToken, experimentType, null, projectIdentifier, false, false);
+        List<ProjectIdentifier> projectIdentifiers = projectIdentifier != null ? Collections.singletonList(projectIdentifier) : null;
+        return listExperiments(sessionToken, experimentType, null, projectIdentifiers, false, false);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Experiment> listExperiments(final String sessionToken,
+            ExperimentType experimentType,
+            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
+            List<ProjectIdentifier> projectIdentifiers)
+    {
+        return listExperiments(sessionToken, experimentType, null, projectIdentifiers, false, false);
     }
 
     @Override
@@ -1045,9 +1056,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public List<Experiment> listExperimentsHavingSamples(final String sessionToken,
             ExperimentType experimentType,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ProjectIdentifier projectIdentifier)
+            List<ProjectIdentifier> projectIdentifiers)
     {
-        return listExperiments(sessionToken, experimentType, null, projectIdentifier, true, false);
+        return listExperiments(sessionToken, experimentType, null, projectIdentifiers, true, false);
     }
 
     @Override
@@ -1055,9 +1066,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public List<Experiment> listExperimentsHavingDataSets(final String sessionToken,
             ExperimentType experimentType,
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
-            ProjectIdentifier projectIdentifier)
+            List<ProjectIdentifier> projectIdentifiers)
     {
-        return listExperiments(sessionToken, experimentType, null, projectIdentifier, false, true);
+        return listExperiments(sessionToken, experimentType, null, projectIdentifiers, false, true);
     }
 
     @Override
@@ -1098,15 +1109,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     private final List<Experiment> listExperiments(final String sessionToken,
             final ExperimentType experimentType, final SpaceIdentifier spaceIdentifierOrNull,
-            final ProjectIdentifier projectIdentifierOrNull, boolean onlyHavingSamples,
+            final List<ProjectIdentifier> projectIdentifiersOrNull, boolean onlyHavingSamples,
             boolean onlyHavingDataSets)
     {
         final Session session = getSession(sessionToken);
         final IExperimentTable experimentTable =
                 businessObjectFactory.createExperimentTable(session);
-        if (projectIdentifierOrNull != null)
+        if (projectIdentifiersOrNull != null)
         {
-            experimentTable.load(experimentType.getCode(), projectIdentifierOrNull,
+            experimentTable.load(experimentType.getCode(), projectIdentifiersOrNull,
                     onlyHavingSamples, onlyHavingDataSets);
         } else if (spaceIdentifierOrNull != null)
         {
@@ -1301,6 +1312,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    @SuppressWarnings("cast")
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public String updateEntitytypeAndPropertyTypes(final String sessionToken, NewETNewPTAssigments newETNewPTAssigments)

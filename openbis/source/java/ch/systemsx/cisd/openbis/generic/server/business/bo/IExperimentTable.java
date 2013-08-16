@@ -41,8 +41,7 @@ public interface IExperimentTable
     public void loadByIds(Collection<Long> experimentIds);
 
     /**
-     * Loads all experiments of given type and from given project together with all their
-     * properties.
+     * Loads all experiments of given type and from given project together with all their properties.
      * 
      * @param experimentTypeCodeOrNull the experiment type code or <code>null</code>.
      * @param projectIdentifier identifier of the project to which we restrict the load.
@@ -50,17 +49,14 @@ public interface IExperimentTable
     public void load(String experimentTypeCodeOrNull, ProjectIdentifier projectIdentifier);
 
     /**
-     * Loads all experiments of given type and from given project together with all their
-     * properties.
+     * Loads all experiments of given type and from given project together with all their properties.
      * 
      * @param experimentTypeCodeOrNull the experiment type code or <code>null</code>.
-     * @param projectIdentifier identifier of the project to which we restrict the load.
-     * @param onlyHavingSamples if <code>true</code> load will be restricted only to experiments
-     *            having samples.
-     * @param onlyHavingDataSets if <code>true</code> load will be restricted only to experiments
-     *            having data sets.
+     * @param projectIdentifiers list of project identifiers to which we restrict the load.
+     * @param onlyHavingSamples if <code>true</code> load will be restricted only to experiments having samples.
+     * @param onlyHavingDataSets if <code>true</code> load will be restricted only to experiments having data sets.
      */
-    public void load(String experimentTypeCodeOrNull, ProjectIdentifier projectIdentifier,
+    public void load(String experimentTypeCodeOrNull, List<ProjectIdentifier> projectIdentifiers,
             boolean onlyHavingSamples, boolean onlyHavingDataSets);
 
     /**

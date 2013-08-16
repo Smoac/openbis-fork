@@ -132,7 +132,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public static final int MINOR_VERSION = 14;
 
     // this dao will hold one connection to the database
-    private IImagingReadonlyQueryDAO dao;
+    private final IImagingReadonlyQueryDAO dao;
 
     private final IImagingTransformerDAO transformerDAO;
 
@@ -141,7 +141,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
      */
     public DssServiceRpcScreening(String storeRootDir)
     {
-        this(storeRootDir, null, DssScreeningUtils.createImagingTransformerDAO(), ServiceProvider
+        this(storeRootDir, DssScreeningUtils.getQuery(), DssScreeningUtils.createImagingTransformerDAO(), ServiceProvider
                 .getOpenBISService(), null, null, null, true);
     }
 
@@ -393,7 +393,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             IImagingDatasetLoader imageAccessor)
     {
         List<ImgImageZoomLevelDTO> zoomLevelLists =
-                transformerDAO.listOriginalImageZoomLevelsByPermId(dataset.getPermId());
+                dao.listOriginalImageZoomLevelsByPermId(dataset.getPermId());
 
         if (zoomLevelLists.isEmpty())
         {
@@ -425,7 +425,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             IImagingDatasetLoader imageAccessor)
     {
         List<ImgImageZoomLevelDTO> zoomLevelLists =
-                transformerDAO.listThumbImageZoomLevelsByPermId(dataset.getPermId());
+                dao.listThumbImageZoomLevelsByPermId(dataset.getPermId());
         if (zoomLevelLists.isEmpty())
         {
             operationLog.warn("No zoom-level entry found for the thumbnail of specified dataset "
@@ -1822,13 +1822,6 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
     private IImagingReadonlyQueryDAO getDAO()
     {
-        synchronized (this)
-        {
-            if (dao == null)
-            {
-                dao = DssScreeningUtils.getQuery();
-            }
-        }
         return dao;
     }
 

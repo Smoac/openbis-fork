@@ -67,30 +67,4 @@ public interface IDataSourceFactory
      */
     public void setActiveConnectionsLogInterval(long activeConnectionLogIntervalMillis);
 
-    public int getActiveNumConnectionsLogThreshold();
-
-    /**
-     * Sets the time interval (in ms) after which an active database connection is considered
-     * "old" and a warning is issued. 0 means: no logging of old database connections.
-     */
-    public void setOldActiveConnectionTime(long oldActiveConnectionTimeMillis);
-
-    public long getOldActiveConnectionTime();
-
-    /**
-     * Sets the number of active connections that will trigger a NOTIFY log and will switch on
-     * detailed connection logging.
-     */
-    public void setActiveNumConnectionsLogThreshold(int activeConnectionsLogThreshold);
-
-    /**
-     * Returns <code>true</code> if the StackTrace should be logged also for detailed connection
-     * logging.
-     */
-    public boolean isLogStackTraceOnConnectionLogging();
-
-    /**
-     * Sets whether the StackTrace should be logged also for detailed connection logging.
-     */
-    public void setLogStackTraceOnConnectionLogging(boolean logStackTrace);
 }

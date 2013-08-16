@@ -35,11 +35,6 @@ public class SqlMigrationDataSourceFactory implements IDataSourceFactory
     }
 
     @Override
-    public void setActiveNumConnectionsLogThreshold(int activeConnectionsLogThreshold)
-    {
-    }
-
-    @Override
     public int getMaxIdle()
     {
         return 0;
@@ -59,34 +54,6 @@ public class SqlMigrationDataSourceFactory implements IDataSourceFactory
 
     @Override
     public long getActiveConnectionsLogInterval()
-    {
-        return 0;
-    }
-
-    @Override
-    public int getActiveNumConnectionsLogThreshold()
-    {
-        return 0;
-    }
-
-    @Override
-    public boolean isLogStackTraceOnConnectionLogging()
-    {
-        return false;
-    }
-
-    @Override
-    public void setLogStackTraceOnConnectionLogging(boolean logStackTrace)
-    {
-    }
-
-    @Override
-    public void setOldActiveConnectionTime(long oldActiveConnectionTimeMillis)
-    {
-    }
-
-    @Override
-    public long getOldActiveConnectionTime()
     {
         return 0;
     }
