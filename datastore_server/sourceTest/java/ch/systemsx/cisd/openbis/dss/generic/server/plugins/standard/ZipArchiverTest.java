@@ -62,7 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = { AbstractArchiverProcessingPlugin.class, RsyncArchiver.class })
-public class DistributingArchiverTest extends AbstractArchiverTestCase
+public class ZipArchiverTest extends AbstractArchiverTestCase
 {
     private static final String LOCATION = "a/b/c/ds1";
 
@@ -113,7 +113,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
     @Test
     public void testArchivingFlatToDefaultArchive()
     {
-        DistributingArchiver archiver = createArchiver();
+        ZipArchiver archiver = createArchiver();
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E")
                 .registrator(new PersonBuilder().name("Albert", "Einstein").getPerson())
                 .property("E-PROP", "42").getExperiment();
@@ -169,7 +169,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
     {
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.WITH_SHARDING_KEY, "true");
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.COMPRESS_KEY, "false");
-        DistributingArchiver archiver = createArchiver();
+        ZipArchiver archiver = createArchiver();
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").getExperiment();
         PhysicalDataSet ds1 =
                 new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION)
@@ -225,7 +225,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         FileUtilities.writeToFile(mappingFile, "Space\tLive Share\tArchive Folder\n/S\t1\t" + archive + "\n");
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.MAPPING_FILE_KEY, mappingFile.getPath());
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.CREATE_ARCHIVES_KEY, "true");
-        DistributingArchiver archiver = createArchiver();
+        ZipArchiver archiver = createArchiver();
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").getExperiment();
         Sample sample = new SampleBuilder("/S/S1").type("MY-S").property("ANSWER", "42").getSample();
         PhysicalDataSet ds1 =
@@ -287,7 +287,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
     public void testUnarchivingFromDefaultArchiveNoShardingWithCompression()
     {
         properties.setProperty(SHARE_FINDER_KEY + ".class", ShareFinder.class.getName());
-        DistributingArchiver archiver = createArchiver();
+        ZipArchiver archiver = createArchiver();
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").getExperiment();
         PhysicalDataSet ds1 =
                 new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION).size(28)
@@ -373,7 +373,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.WITH_SHARDING_KEY, "true");
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.COMPRESS_KEY, "false");
         properties.setProperty(SHARE_FINDER_KEY + ".class", ShareFinder.class.getName());
-        DistributingArchiver archiver = createArchiver();
+        ZipArchiver archiver = createArchiver();
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").getExperiment();
         PhysicalDataSet ds1 =
                 new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION).size(28)
@@ -436,7 +436,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
     public void testArchivingTwiceWithIgnoreExistingSetToFalse()
     {
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.IGNORE_EXISTING_KEY, "false");
-        DistributingArchiver archiver = createArchiver();
+        ZipArchiver archiver = createArchiver();
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").property("E-PROP", "42").getExperiment();
         PhysicalDataSet ds1 =
                 new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION)
@@ -504,7 +504,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
     public void testArchivingTwiceWithIgnoreExistingSetToTrue()
     {
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.IGNORE_EXISTING_KEY, "true");
-        DistributingArchiver archiver = createArchiver();
+        ZipArchiver archiver = createArchiver();
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").property("E-PROP", "42").getExperiment();
         PhysicalDataSet ds1 =
                 new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION)
@@ -569,7 +569,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
     {
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.WITH_SHARDING_KEY, "true");
         properties.setProperty(RsyncArchiver.ONLY_MARK_AS_DELETED_KEY, "false");
-        DistributingArchiver archiver = createArchiver();
+        ZipArchiver archiver = createArchiver();
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").property("E-PROP", "42").getExperiment();
         PhysicalDataSet ds1 =
                 new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION)
@@ -606,7 +606,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
     @Test
     public void testMarkAsDeletedFromArchive()
     {
-        DistributingArchiver archiver = createArchiver();
+        ZipArchiver archiver = createArchiver();
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").property("E-PROP", "42").getExperiment();
         PhysicalDataSet ds1 =
                 new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION)
@@ -647,7 +647,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
     public void testMarkAsDeletedFromArchiveWithSharding()
     {
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.WITH_SHARDING_KEY, "true");
-        DistributingArchiver archiver = createArchiver();
+        ZipArchiver archiver = createArchiver();
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").property("E-PROP", "42").getExperiment();
         PhysicalDataSet ds1 =
                 new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION)
@@ -693,7 +693,7 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.MAPPING_FILE_KEY, mappingFile.getPath());
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.CREATE_ARCHIVES_KEY, "true");
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.WITH_SHARDING_KEY, "true");
-        DistributingArchiver archiver = createArchiver();
+        ZipArchiver archiver = createArchiver();
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").property("E-PROP", "42").getExperiment();
         PhysicalDataSet ds1 =
                 new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION)
@@ -892,9 +892,9 @@ public class DistributingArchiverTest extends AbstractArchiverTestCase
             });
     }
 
-    private DistributingArchiver createArchiver()
+    private ZipArchiver createArchiver()
     {
-        DistributingArchiver archiver = new DistributingArchiver(properties, store);
+        ZipArchiver archiver = new ZipArchiver(properties, store);
         archiver.statusUpdater = statusUpdater;
         return archiver;
     }

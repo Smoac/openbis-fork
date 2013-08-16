@@ -26,12 +26,12 @@ import java.util.Properties;
  *
  * @author Franz-Josef Elmer
  */
-public class DistributingArchiver extends RsyncArchiver
+public class ZipArchiver extends RsyncArchiver
 {
 
     private static final long serialVersionUID = 1L;
 
-    public DistributingArchiver(Properties properties, File storeRoot)
+    public ZipArchiver(Properties properties, File storeRoot)
     {
         super(properties, storeRoot, new DistributedPackagingDataSetFileOperationsManager(properties));
     }
