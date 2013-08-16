@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Title</title>
+    <title>Lane Statistics</title>
     <script type="text/javascript" src="d3.v3.min.js"></script>
     <script type="text/javascript" src="d3.layout.js"></script>
     <script type="text/javascript" src="/openbis/resources/js/jquery.js"></script>
     <script type="text/javascript" src="pie.js"></script>
     <script type="text/javascript" src="/openbis/resources/js/openbis.js"></script>
     <script type="text/javascript" src="openbis-dsu.js"></script>
+    <script type="text/javascript" src="FileSaver.js"></script>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/css/bootstrap.min.css">
     <style type="text/css">
 
         .axis path,
@@ -62,15 +64,20 @@
   </head>
   <body>
   <script>
-  
-  statisticsArray = []
  
   dsu = new openbis_dsu('/openbis/openbis', '/datastore_server');
   var webAppContext = new openbisWebAppContext();
   dsu.server.useSession(webAppContext.getSessionId());
+
+  loadData()
+
+function loadData () { 
+  statisticsArray = []
+ 
   var dataSetProperties;
   dsu.retrieveDataSetsForSample(webAppContext.getEntityIdentifier(), getProperties);
- 
+  //console.log (statisticsArray)
+
   function getProperties(dataSetProperties) {
     for (var i = 0; i < dataSetProperties.result.length; i++) {
 
@@ -89,31 +96,96 @@
                             }); 
     }
 
-    //console.log (statisticsArray)
     //console.log (statisticsArray.length)
+    var sums = calculateSum(statisticsArray, true)
+    var sumsWithNOINDEX = calculateSum(statisticsArray, false)
 
     if (! isNaN(statisticsArray[0].percFilteringPass)) {
-      plotTable (statisticsArray)
+      plotLaneTable(sumsWithNOINDEX, false)
+      placeholder();
+      plotLaneTable(sums, true)
+      placeholder();
+      plotTable (statisticsArray);
+      downloadButton ("tableStats");
+      placeholder();
       plotPercFilteringPass (statisticsArray);
-      plotReadsSum (statisticsArray, 'rawReadsSum');
-      plotPercRawClustersPerLane (statisticsArray)
+      downloadButton ("filteredChart");
+      plotReadsSum (statisticsArray, sums);
+      downloadButton ("unfilteredReads");
+      plotPercRawClustersPerLane (statisticsArray);
+      downloadButton ("percRawClusters");
+
+      $("#save_as" + "tableStats").click(function() { submit_download_form("html", "tableStats"); });
+      $("#save_as" + "filteredChart").click(function() { submit_download_form("svg", "filteredChart"); });
+      $("#save_as" + "unfilteredReads").click(function() { submit_download_form("svg", "unfilteredReads"); });
+      $("#save_as" + "percRawClusters").click(function() { submit_download_form("svg", "percRawClusters"); });
+    }
+    else {
+      d3.select("body").append("text").text("No data available!") 
     }
   }
+}
  
 colors = ["#FED976", "#FEB24C", "#FD8D3C", "#FC4E2A", "#E31A1C", "#800026", "#610B5E", "#4C0B5F",
           "#0B0B61", "#0B4C5F", "#0B5F48","#0B5F1E", "#4C5F0B", "#5F480B", "#5F1E0B", "#5F0B22",
            ]
+var formatThousands = d3.format(",");
 
 function isNumber(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
-function plotTable (statisticsArray) {
+function plotLaneTable (sums, withNOINDEX) {
 
-  var formatThousands = d3.format(",");
+  d3.select("body").append("text")
+    .text("Lane Based Summary Table") 
+    .attr("class", "h4");
+  
+  d3.select("body").append("text")
+    .text(function (){if (withNOINDEX) {return " without NOINDEX";} return " with NOINDEX";}) 
+    .attr("class", "h6");
+
+
+  var laneTableStats = d3.select("body")
+    .append("table")
+    .attr("id", "tableLaneStats")
+    .attr("class", "tableStats")
+    ;
+
+  header = {"Average Passed Filtering (PF)":1, "Sum Raw Reads":1, "Sum PF Reads":1, "Sum Raw Bases":1, "Sum PF Bases":1, "Average Raw Clusters in % per Index":1, "Average PF Phred Score":1, "Average > 30 Phred Score":1 }
+
+  // create the table header
+  var thead = laneTableStats.selectAll("th")
+              .data(d3.keys(header))
+              .enter().append("th")
+              .text(function(d){return d})
+              ;
+
+  // fill the table
+  // create rows
+  var tr = laneTableStats.selectAll("tr")
+           .data(sums).enter().append("tr")
+
+  // cells
+  var td = tr.selectAll("td")
+    .data(function(d){return d3.values(d)})
+    .enter().append("td")
+    .text(function(d) {if (isNumber(d)) {return formatThousands(d)}; return d;})
+    .style("text-align", function(d){if (isNumber(d)) {return "right"} return "left"})
+    ;
+}
+
+function plotTable (statisticsArray) {
+  
+  /*
+  d3.select("body").append("text")
+    .text("Index Based Summary Table") 
+    .attr("class", "h4");
+  */
 
   var tableStats = d3.select("body")
     .append("table")
+    .attr("id", "tableStats")
     .attr("class", "tableStats")
     ;
 
@@ -121,7 +193,7 @@ function plotTable (statisticsArray) {
               "PF Bases":1,"Raw Clusters in %":1, "Mean Phred Score":1, "> 30 Phred Score in %":1}
 
   // create the table header
-  var thead = d3.select("table").selectAll("th")
+  var thead = tableStats.selectAll("th")
               //.data(d3.keys(statisticsArray[0])) // got replaced with more readable names
               .data(d3.keys(header))
               .enter().append("th")
@@ -130,7 +202,7 @@ function plotTable (statisticsArray) {
 
   // fill the table
   // create rows
-  var tr = d3.select("table").selectAll("tr")
+  var tr = tableStats.selectAll("tr")
            .data(statisticsArray).enter().append("tr")
 
   // cells
@@ -142,13 +214,18 @@ function plotTable (statisticsArray) {
     //.on("mouseout", function(){d3.select(this).style("background-color", "white")})
     .style("text-align", function(d){if (isNumber(d)) {return "right"} return "left"})
     ;
+}
+
+function placeholder() {
 
 var space = d3.select("body")
               .append("svg")
-              .attr("width", 1800)
+              .attr("id", "placeholder")
+              .attr("width", 1500)
               .attr("height", 50)
               ;
 }
+
 
 function plotPercFilteringPass (statisticsArray) {
 
@@ -156,7 +233,7 @@ function plotPercFilteringPass (statisticsArray) {
   else if (statisticsArray.length > 10) {var svgWidth = 4000;}
   else {var svgWidth = 3000;}
 
-  svgWidth = statisticsArray.length * 120
+  svgWidth = statisticsArray.length * 100
   if (svgWidth < 200) {svgWidth = 300;}
 
 
@@ -170,8 +247,12 @@ function plotPercFilteringPass (statisticsArray) {
     svgWidth = svgWidth - margin.left - margin.right,
     svgHeight = 250 - margin.top - margin.bottom;
 
+
+//d3.select("#ex1").append("svg")
+
   var svgFilteredChartAgenda = d3.select("body")
                            .append("svg")
+                           .attr("id", "chartAgenda")
                            .attr("width", agendaWidth )
                            .attr("height", svgHeight + margin.top + margin.bottom)
                            ;  
@@ -202,6 +283,7 @@ function plotPercFilteringPass (statisticsArray) {
   
   var svgFilteredChart = d3.select("body")
                            .append("svg")
+                           .attr("id", "filteredChart")
 			   .attr("width", svgWidth + margin.left + margin.right)
     	    		   .attr("height", svgHeight + margin.top + margin.bottom)
                            .append("g")
@@ -286,9 +368,9 @@ function plotPercFilteringPass (statisticsArray) {
 }
 
 
-function plotReadsSum (statisticsArray, field){
+function plotReadsSum (statisticsArray, sums){
 
-  svgWidth = statisticsArray.length * 120
+  svgWidth = statisticsArray.length * 100
   if (svgWidth < 200) {svgWidth = 300;}
 
   var formatThousands = d3.format(",");
@@ -306,16 +388,18 @@ function plotReadsSum (statisticsArray, field){
 
   var svgReadsSum = d3.select("body")
                            .append("svg")
+                           .attr("id", "unfilteredReads")
                            .attr("width", svgWidth + margin.left + margin.right)
                            .attr("height", svgHeight + margin.top + margin.bottom)
                            .append("g")
                            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
                            ;
 
-  var rawReadsSum = calculateSum(statisticsArray, field)
+  var rawReadsSum = 0;
+  rawReadsSum = sums[0].rawReadsSum
 
   svgReadsSum.append('text')
-                  .text("Number of unfiltered Reads " +  formatThousands(rawReadsSum))
+                  .text("Number of raw Reads: " +  formatThousands(rawReadsSum))
                   .attr("transform", "translate(" + (svgWidth/2) + "," + (svgHeight - 200) + ")")
                   .attr("font-family", "sans-serif")
                   .attr("font-size", "14px")
@@ -369,7 +453,8 @@ function plotReadsSum (statisticsArray, field){
      .enter()
      .append("text")
      .text(function(d) { return formatThousands(d.rawReadsSum); })
-     .attr("x", function(d, i) { return i * 1/(1+valuePadding)*(svgWidth / statisticsArray.length) + ((svgWidth /statisticsArray.length ) /2) - 20; })
+     //.attr("x", function(d, i) { return i * 1/(1+valuePadding)*(svgWidth / statisticsArray.length) + ((svgWidth /statisticsArray.length ) /2) -10; })
+     .attr ("x", function (d) {return x(d.externalSampleName+d.index1) + 20;})
      .attr("y", function(d) {
                    return (svgHeight - margin.top - margin.bottom + 20) ;
                   })
@@ -382,23 +467,61 @@ function plotReadsSum (statisticsArray, field){
 
 }
 
-function calculateSum(statisticsArray, field) {
-  /*console.log(field)
-  var obj = JSON.parse(field);
-  console.log(obj);
-*/
-  var sum = 0;
-  for (var i = 0; i < statisticsArray.length; i++) {
-    sum = sum + parseInt(statisticsArray[i].rawReadsSum);
-  }
-  //console.log(sum);
-  return sum;
-
+function roundFloat(myFloat) {
+  return Number(myFloat).toFixed(2); 
 }
 
 
+function calculateSum(statisticsArray, withNOINDEX) {
 
+  var sums = []
+  var averagePercFilteringPass = 0;
+  var sumRawReads = 0;
+  var sumPfReads = 0;
+  var sumRawYieldMbases = 0;
+  var sumYieldMbases = 0;
+  var averagePercRawClustersPerLane = 0;
+  var averagePfMeanQualityScore = 0;
+  var averagePfYieldq30Percentage = 0;
+  
+  for (var i = 0; i < statisticsArray.length; i++) {
+    // do not calculate with the NOINDEX reads
+    if ((typeof (statisticsArray[i].externalSampleName) == 'undefined') && withNOINDEX) {
+       continue;
+    }  else {
 
+      averagePercFilteringPass = averagePercFilteringPass + parseFloat(statisticsArray[i].percFilteringPass);
+      sumRawReads = sumRawReads + parseInt(statisticsArray[i].rawReadsSum);
+      sumPfReads = sumPfReads + parseInt(statisticsArray[i].pfReadsSum);
+      sumRawYieldMbases = sumRawYieldMbases + parseInt(statisticsArray[i].rawYieldMbases);
+      sumYieldMbases = sumYieldMbases + parseInt(statisticsArray[i].yieldMbases);
+      averagePercRawClustersPerLane = averagePercRawClustersPerLane + parseInt(statisticsArray[i].percRawClustersPerLane);
+      averagePfMeanQualityScore = averagePfMeanQualityScore + parseInt(statisticsArray[i].pfMeanQualityScore);
+      averagePfYieldq30Percentage = averagePfYieldq30Percentage + parseInt(statisticsArray[i].pfYieldq30Percentage);
+    }
+  }
+  if (withNOINDEX) {penalty = -1} else {penalty = 0} 
+  
+  averagePercFilteringPass = roundFloat(averagePercFilteringPass / (statisticsArray.length + penalty));
+  averagePercRawClustersPerLane = roundFloat(averagePercRawClustersPerLane / (statisticsArray.length + penalty));
+  averagePfMeanQualityScore = roundFloat(averagePfMeanQualityScore / (statisticsArray.length + penalty));
+  averagePfYieldq30Percentage = roundFloat(averagePfYieldq30Percentage / (statisticsArray.length + penalty));
+
+  sums.push({
+                            'averagePercFilteringPass' : averagePercFilteringPass,
+                            'rawReadsSum' : sumRawReads,
+                            'pfReadsSum' : sumPfReads,
+                            'rawYieldMbases' : sumRawYieldMbases,
+                            'yieldMbases' : sumYieldMbases,
+                            'percRawClustersPerLane': averagePercRawClustersPerLane,
+                            'pfMeanQualityScore' : averagePfMeanQualityScore,
+                            'pfYieldq30Percentage' : averagePfYieldq30Percentage 
+                            });
+
+  //console.log(sums);
+  return sums;
+
+}
 
 
 function plotPercRawClustersPerLane (percRawClustersPerLaneArray) {
@@ -425,6 +548,7 @@ function plotPercRawClustersPerLane (percRawClustersPerLaneArray) {
       .value(function(d) { return d.percRawClustersPerLane; });
 
   var svgPercRawClustersPerLaneChart = d3.select("body").append("svg")
+      .attr("id", "percRawClusters")
       .attr("width", width)
       .attr("height", height)
       .append("g")
@@ -454,8 +578,6 @@ function plotPercRawClustersPerLane (percRawClustersPerLaneArray) {
        var perc = d.data.percRawClustersPerLane + " %";
        if (d.data.externalSampleName == undefined || d.data.externalSampleName.length > 10) {return d.data.index1 + "  " + perc}
                return d.data.externalSampleName + "  " + perc })
-      //.on("mouseover", function(){d3.select(this).attr("font-size", "20px")})
-      //.on("mouseout", function(){d3.select(this).style("", "white")})
       .on("mouseover", function(d) {      
             div.transition()        
                 .duration(200)      
@@ -482,6 +604,55 @@ function plotPercRawClustersPerLane (percRawClustersPerLaneArray) {
                    ;
 
 }
+
+
+function downloadButton (buttonName) {
+
+
+  var div = d3.select("body").append("button")
+    .attr("class", "btn-xs")
+    .attr("type", "submit")
+    .attr("id", "save_as" + buttonName)
+    .attr("value", "")
+    .text("Save")
+    ;
+}
+
+  function submit_download_form(output_format, svgName)
+  {
+    var rawSampleName = webAppContext.entityIdentifier
+    var split = rawSampleName.split(":")
+    var fc = split[0].split("/")[2]
+    var lane = split[1]
+
+    // Get the d3js SVG element
+    var tmp = document.getElementById(svgName);
+
+    if (output_format == "svg") {
+
+      // Extract the data as SVG text string
+      var svg_xml = "<svg  xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">" + (new XMLSerializer).serializeToString(tmp) + "</svg>";
+
+      var blob = new Blob([svg_xml], {type: "image/svg+xml;charset=utf-8"});
+    }
+    if (output_format == "html") {
+      var html = "<html> <head> <title></title> <style type=\"text/css\">" + 
+        "table.tableStats { font-family: sans-serif; font-size: 14px; border-collapse:collapse; }" +
+        ".tableStats th { padding:6px 10px; color:#444; font-weight:bold; text-shadow:1px 1px 1px #fff; border-bottom:2px solid #444; }" +
+        ".tableStats tr:nth-child(even) { background: WhiteSmoke; }" +
+        ".tableStats td { padding:0px 10px 10px 10px; }" +
+        "</style> </head> <body>" +
+        (new XMLSerializer).serializeToString(tmp) +
+        "</body> </html>"
+      var blob = new Blob([html], {type: "image/html;charset=utf-8"});
+    }
+   if (output_format == "png") {
+       console.log("png")
+   }
+
+    saveAs(blob, fc + "_Lane_" + lane + "_" + svgName + "." + output_format);
+
+  }
 
   </script>
   </body>
