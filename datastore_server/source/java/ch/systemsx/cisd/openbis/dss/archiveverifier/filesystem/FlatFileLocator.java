@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
+package ch.systemsx.cisd.openbis.dss.archiveverifier.filesystem;
+
+import java.io.File;
 
 /**
- * Provides a CRC32 checksum for given file.
+ * Locates dataset archive files from an archive directory when sharding is not in use.
  * 
  * @author anttil
  */
-public interface ICrcProvider
+public class FlatFileLocator implements IFileLocator
 {
-    Long getCrc(String name);
+    @Override
+    public File getPathToArchiveOfDataSet(File directory, String dataSetCode)
+    {
+        return new File(directory, dataSetCode + ".zip");
+    }
+
 }

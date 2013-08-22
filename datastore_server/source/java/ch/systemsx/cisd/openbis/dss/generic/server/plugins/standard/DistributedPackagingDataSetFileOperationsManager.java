@@ -45,6 +45,8 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalCont
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.ZipBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.IArchiveFileVerifier;
+import ch.systemsx.cisd.openbis.dss.archiveverifier.verifier.ZipFileIntegrityVerifier;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.server.ZipDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
@@ -168,10 +170,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
                     dataSetPackager.close();
 
                     List<String> errors =
-                            verify(file, new ZipFileIntegrityVerifier()/*
-                                                                        * , new ZipFilePathInfoChecksumVerifier(new
-                                                                        * CrcProvider(datasetDescription.getDataSetCode()))
-                                                                        */);
+                            verify(file, new ZipFileIntegrityVerifier());
 
                     if (errors.size() > 0)
                     {

@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
+package ch.systemsx.cisd.openbis.dss.archiveverifier.batch;
 
-import java.io.File;
 import java.util.List;
 
 /**
+ * Result of verification of a dataset archive file.
+ * 
  * @author anttil
  */
-public interface IArchiveFileVerifier
+public interface IResult
 {
-    public List<String> verify(File file);
+    boolean success();
+
+    String getFile();
+
+    List<String> getErrors();
 }
