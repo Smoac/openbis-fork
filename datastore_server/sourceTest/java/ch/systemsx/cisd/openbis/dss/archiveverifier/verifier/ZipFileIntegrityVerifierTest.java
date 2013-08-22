@@ -54,6 +54,7 @@ public class ZipFileIntegrityVerifierTest
     public void verificationOfValidZipFileSucceeds() throws Exception
     {
         List<String> errors = verifier.verify(VALID_ZIP_FILE);
+        System.out.println(errors);
         assertThat(errors.isEmpty(), is(true));
     }
 
@@ -65,7 +66,7 @@ public class ZipFileIntegrityVerifierTest
 
     private IArchiveFileVerifier verifier;
 
-    private static final File PWD = new File("../datastore_server/sourceTest/java/ch/systemsx/cisd/openbis/dss/verifier/check/");
+    private static final File PWD = new File("../datastore_server/sourceTest/java/ch/systemsx/cisd/openbis/dss/archiveverifier/verifier/");
 
     private static final File VALID_ZIP_FILE = new File(PWD, "VALID.zip");
 
