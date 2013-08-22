@@ -60,10 +60,14 @@ public class ResultPrinter
                     out.println("  " + error);
                 }
                 failed++;
-            } else
+            } else if (result.getErrors().isEmpty())
             {
                 out.println("NOT TESTED - " + dataSet + " (file not found)");
                 notTested++;
+            } else
+            {
+                out.println(result.getErrors().get(0));
+                return;
             }
         }
 

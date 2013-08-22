@@ -87,7 +87,7 @@ public class DataSetArchiveVerificationBatchFactory
     {
         if (args.length < 2)
         {
-            return error("Usage: java -jar ..adsfadf");
+            return error("Usage: datastore_server.sh verify-archives [dataset code 1] [dataset code 2] ...");
         }
 
         String servicePropertiesPath = args[0];
@@ -95,14 +95,14 @@ public class DataSetArchiveVerificationBatchFactory
         File serviceProperties = new File(servicePropertiesPath);
         if (serviceProperties.exists() == false)
         {
-            return error("No service.properties given");
+            return error("File " + serviceProperties.getAbsolutePath() + " does not exist");
         }
 
         Properties properties = DssPropertyParametersUtil.loadProperties(serviceProperties.getAbsolutePath());
         String defaultArchiveDirectoryPath = properties.getProperty(DEFAULT_ARCHIVE_FOLDER);
         if (defaultArchiveDirectoryPath == null)
         {
-            return error("Given service.properties files does not contain mandatory property " + DEFAULT_ARCHIVE_FOLDER);
+            return error("Given service.properties file does not contain mandatory property " + DEFAULT_ARCHIVE_FOLDER);
         }
 
         IArchiveFileMetaDataRepository pathInfoRepository = null;
