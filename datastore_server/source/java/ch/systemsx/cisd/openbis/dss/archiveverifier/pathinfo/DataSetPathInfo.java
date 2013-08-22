@@ -48,5 +48,4 @@ public class DataSetPathInfo implements IArchiveFileContent
         PathInfoEntry entry = data.get(file);
         return entry != null ? entry.getSize() : null;
     }
-
 }

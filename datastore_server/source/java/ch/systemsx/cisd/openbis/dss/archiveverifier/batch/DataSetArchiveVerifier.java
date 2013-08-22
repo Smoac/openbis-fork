@@ -46,7 +46,7 @@ public class DataSetArchiveVerifier implements IDataSetArchiveVerifier
             return errors.isEmpty() ? new SuccessResult(file) : new FailedResult(file, errors);
         } else
         {
-            return new FailedResult();
+            return new SkippedResult();
         }
     }
 }

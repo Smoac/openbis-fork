@@ -16,42 +16,32 @@
 
 package ch.systemsx.cisd.openbis.dss.archiveverifier.batch;
 
-import java.io.File;
 import java.io.PrintStream;
-import java.util.List;
 
 /**
- * Result of verification with errors.
+ * Result of configuration failure.
  * 
  * @author anttil
  */
-public class FailedResult implements IResult
+public class ConfigurationFailure implements IResult
 {
+    private final String error;
 
-    private final File file;
-
-    private final List<String> errors;
-
-    public FailedResult(File file, List<String> errors)
+    public ConfigurationFailure(String error)
     {
-        this.file = file;
-        this.errors = errors;
+        this.error = error;
     }
 
     @Override
     public void printTo(String dataSet, PrintStream out)
     {
-        out.println("FAILED - " + dataSet + " (" + file + ")");
-        for (String error : errors)
-        {
-            out.println("  " + error);
-        }
+        out.println(error);
     }
 
     @Override
     public ResultType getType()
     {
-        return ResultType.FAILED;
+        return ResultType.FATAL;
     }
 
 }

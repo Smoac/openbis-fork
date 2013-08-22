@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.dss.archiveverifier.verifier.IArchiveFileMetaDat
 public class JdbcPathInfoRepository implements IArchiveFileMetaDataRepository
 {
     private static final String QUERY_PATHINFO =
-            "SELECT ds.location, dsf.relative_path, dsf.file_name, dsf.size_in_bytes, dsf.checksum_crc32, dsf.is_directory, dsf.last_modified " +
+            "SELECT dsf.relative_path, dsf.file_name, dsf.size_in_bytes, dsf.checksum_crc32, dsf.is_directory, dsf.last_modified " +
                     "FROM data_sets ds, data_set_files dsf " +
                     "WHERE dsf.dase_id = ds.id AND ds.code=?";
 

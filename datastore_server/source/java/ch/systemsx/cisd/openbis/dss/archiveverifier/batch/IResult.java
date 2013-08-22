@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.archiveverifier.batch;
 
-import java.util.List;
+import java.io.PrintStream;
 
 /**
  * Result of verification of a dataset archive file.
@@ -25,9 +25,7 @@ import java.util.List;
  */
 public interface IResult
 {
-    boolean success();
+    public void printTo(String dataSet, PrintStream out);
 
-    String getFile();
-
-    List<String> getErrors();
+    public ResultType getType();
 }

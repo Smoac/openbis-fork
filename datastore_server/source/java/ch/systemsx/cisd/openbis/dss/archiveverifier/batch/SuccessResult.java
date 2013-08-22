@@ -17,8 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.archiveverifier.batch;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.PrintStream;
 
 /**
  * Result of successfull verification
@@ -36,26 +35,15 @@ public class SuccessResult implements IResult
     }
 
     @Override
-    public boolean success()
+    public void printTo(String dataSet, PrintStream out)
     {
-        return true;
+        out.println("OK - " + dataSet + " (" + file + ")");
     }
 
     @Override
-    public String getFile()
+    public ResultType getType()
     {
-        return file.getAbsolutePath();
+        return ResultType.OK;
     }
 
-    @Override
-    public List<String> getErrors()
-    {
-        return new ArrayList<String>();
-    }
-
-    @Override
-    public String toString()
-    {
-        return "SuccessResult: " + file;
-    }
 }

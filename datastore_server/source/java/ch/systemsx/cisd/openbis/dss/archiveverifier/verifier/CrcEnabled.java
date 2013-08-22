@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.archiveverifier.verifier;
 
 /**
+ * CRC check status.
+ * 
  * @author anttil
  */
 public enum CrcEnabled

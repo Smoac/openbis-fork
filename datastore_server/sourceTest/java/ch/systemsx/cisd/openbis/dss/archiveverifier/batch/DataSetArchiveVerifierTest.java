@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.archiveverifier.batch;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
@@ -35,26 +34,21 @@ public class DataSetArchiveVerifierTest
     public void successfulVerificationCausesSuccessResult() throws Exception
     {
         IResult result = verifier.run(CODE_OF_DATASET_WITH_GOOD_ARCHIVE);
-        assertThat(result.success(), is(true));
-        assertThat(result.getFile(), is(GOOD_ARCHIVE_FILE.getAbsolutePath()));
+        assertThat(result.getType(), is(ResultType.OK));
     }
 
     @Test
     public void failingVerificationCausesFailedResult() throws Exception
     {
         IResult result = verifier.run(CODE_OF_DATASET_WITH_BAD_ARCHIVE);
-        assertThat(result.success(), is(false));
-        assertThat(result.getFile(), is(BAD_ARCHIVE_FILE.getAbsolutePath()));
-        assertThat(result.getErrors().isEmpty(), is(false));
+        assertThat(result.getType(), is(ResultType.FAILED));
     }
 
     @Test
     public void failureToLocateArchiveFileCausesFailedResult() throws Exception
     {
         IResult result = verifier.run(CODE_OF_DATASET_WITHOUT_AN_ARCHIVE_FILE);
-        assertThat(result.success(), is(false));
-        assertThat(result.getFile(), is(nullValue()));
-        assertThat(result.getErrors().isEmpty(), is(true));
+        assertThat(result.getType(), is(ResultType.SKIPPED));
     }
 
     @BeforeMethod

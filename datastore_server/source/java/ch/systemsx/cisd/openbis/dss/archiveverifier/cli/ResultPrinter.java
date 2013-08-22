@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.openbis.dss.archiveverifier.cli;
 
 import java.io.PrintStream;
+import java.util.EnumMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.IResult;
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.ResultType;
 
 /**
  * Prints the results of a dataset archive batch verification.
@@ -38,43 +40,46 @@ public class ResultPrinter
 
     public void print(Map<String, IResult> results)
     {
-        int ok = 0;
-        int failed = 0;
-        int notTested = 0;
+        Map<ResultType, Integer> counts = createCountMap();
 
         for (String dataSet : results.keySet())
         {
             IResult result = results.get(dataSet);
-            boolean success = result.success();
-            String file = result.getFile();
+            result.printTo(dataSet, out);
+            ResultType type = result.getType();
+            counts.put(type, counts.get(type) + 1);
+        }
 
-            if (success)
-            {
-                out.println("OK - " + dataSet + " (" + file + ")");
-                ok++;
-            } else if (file != null)
-            {
-                out.println("FAILED - " + dataSet + " (" + file + ")");
-                for (String error : result.getErrors())
-                {
-                    out.println("  " + error);
-                }
-                failed++;
-            } else if (result.getErrors().isEmpty())
-            {
-                out.println("NOT TESTED - " + dataSet + " (file not found)");
-                notTested++;
-            } else
-            {
-                out.println(result.getErrors().get(0));
-                return;
-            }
+        printTotals(counts);
+    }
+
+    private Map<ResultType, Integer> createCountMap()
+    {
+        Map<ResultType, Integer> counts = new EnumMap<ResultType, Integer>(ResultType.class);
+        for (ResultType type : ResultType.values())
+        {
+            counts.put(type, 0);
+        }
+        return counts;
+    }
+
+    private void printTotals(Map<ResultType, Integer> counts)
+    {
+        int ok = counts.get(ResultType.OK);
+        int failed = counts.get(ResultType.FAILED);
+        int notTested = counts.get(ResultType.SKIPPED);
+        int fatal = counts.get(ResultType.FATAL);
+        int total = ok + failed;
+
+        if (fatal > 0)
+        {
+            return;
         }
 
         out.println();
         out.println("---");
-        int total = ok + failed;
         out.println("Total of " + total + " dataset archives tested.");
+
         if (failed == 0)
         {
             out.println("No errors found");
