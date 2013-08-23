@@ -282,7 +282,7 @@ case "$command" in
     ;;
   verify-archives)
     shift
-    java -cp lib/* ch.systemsx.cisd.openbis.dss.archiveverifier.cli.Main etc/service.properties $*
+    java -cp "lib/*" ch.systemsx.cisd.openbis.dss.archiveverifier.cli.Main etc/service.properties $*
     ;;    
   log-thread-dump)
     if [ -f $PIDFILE ]; then

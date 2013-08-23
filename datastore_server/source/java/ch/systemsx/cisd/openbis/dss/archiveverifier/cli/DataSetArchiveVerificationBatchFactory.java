@@ -73,7 +73,7 @@ public class DataSetArchiveVerificationBatchFactory
         {
             if (args.length < 2)
             {
-                throw new ConfigurationException("Usage: datastore_server.sh verify-archives <dataset_code_1> <dataset code 2> ...");
+                throw new ConfigurationException("Usage: datastore_server.sh verify-archives <dataset_code_1> <dataset_code_2> ...");
             }
 
             Properties properties = readServiceProperties(args[0]);
