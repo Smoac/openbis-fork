@@ -133,10 +133,12 @@ public class SecondCopyPostRegistrationTaskTest extends AbstractFileSystemTestCa
             });
         OpenBISSessionHolder sessionHolder = new OpenBISSessionHolder();
         sessionHolder.setDataStoreCode(DATA_STORE_CODE);
-        contentProviderRecordingWrapper = InvocationRecordingWrapper.<IHierarchicalContentProvider>wrap(
-                new HierarchicalContentProvider(service, shareIdManager, configProvider,
-                        contentCache, new DefaultFileBasedHierarchicalContentFactory(),
-                        dssServiceFactory, sessionHolder, null), IHierarchicalContentProvider.class, IHierarchicalContent.class, IHierarchicalContentNode.class);
+        contentProviderRecordingWrapper =
+                InvocationRecordingWrapper.<IHierarchicalContentProvider> wrap(
+                        new HierarchicalContentProvider(service, shareIdManager, configProvider,
+                                contentCache, new DefaultFileBasedHierarchicalContentFactory(),
+                                dssServiceFactory, sessionHolder, null), IHierarchicalContentProvider.class, IHierarchicalContent.class,
+                        IHierarchicalContentNode.class);
         File exampleFile = new File(store, SHARE_ID + "/" + DATA_SET1_EXAMPLE_FILE_PATH);
         exampleFile.getParentFile().mkdirs();
         FileUtilities.writeToFile(exampleFile, EXAMPLE_CONTENT);
@@ -259,7 +261,7 @@ public class SecondCopyPostRegistrationTaskTest extends AbstractFileSystemTestCa
                 + "/a/b/c\n" + "ERROR OPERATION.AbstractDatastorePlugin - Archiving failed :path '"
                 + destination.getAbsolutePath() + "/a/b/c' does not exist\n"
                 + "java.io.IOException: path '" + destination.getAbsolutePath()
-                + "/a/b/c' does not exist\n" + "ERROR OPERATION.AbstractDatastorePlugin - "
+                + "/a/b/c' does not exist\n" + "ERROR NOTIFY.AbstractDatastorePlugin - "
                 + "Archiving for dataset ds1 finished with the status: "
                 + "ERROR: \"Archiving failed :path '" + destination.getAbsolutePath()
                 + "/a/b/c' does not exist\".\n" + "ERROR NOTIFY.SecondCopyPostRegistrationTask - "
