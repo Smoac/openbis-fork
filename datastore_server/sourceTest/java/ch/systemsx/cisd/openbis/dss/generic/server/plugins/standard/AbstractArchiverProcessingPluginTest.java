@@ -417,10 +417,10 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
                         + "ERROR OPERATION.AbstractDatastorePlugin - "
                         + "Archiving failed :Data set ds1 throws exception.\n"
                         + "java.lang.RuntimeException: Data set ds1 throws exception.\n"
-                        + "ERROR OPERATION.AbstractDatastorePlugin - "
+                        + "ERROR NOTIFY.AbstractDatastorePlugin - "
                         + "Archiving for dataset ds1 finished with the status: "
                         + "ERROR: \"Archiving failed :Data set ds1 throws exception.\".\n"
-                        + "ERROR OPERATION.AbstractDatastorePlugin - "
+                        + "ERROR NOTIFY.AbstractDatastorePlugin - "
                         + "Archiving for dataset ds2 finished with the status: "
                         + "ERROR: \"Archiving failed :Data set ds1 throws exception.\".",
                 LogUtils.removeEmbeddedStackTrace(logRecorder.getLogContent()));
@@ -461,9 +461,9 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         assertEquals(
                 "INFO  OPERATION.AbstractDatastorePlugin - "
                         + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
-                        + "ERROR OPERATION.AbstractDatastorePlugin - "
+                        + "ERROR NOTIFY.AbstractDatastorePlugin - "
                         + "Archiving for dataset ds1 finished with the status: ERROR.\n"
-                        + "ERROR OPERATION.AbstractDatastorePlugin - "
+                        + "ERROR NOTIFY.AbstractDatastorePlugin - "
                         + "Archiving for dataset ds2 finished with the status: ERROR.",
                 logRecorder.getLogContent());
         context.assertIsSatisfied();
@@ -614,7 +614,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         assertEquals(
                 "INFO  OPERATION.AbstractDatastorePlugin - "
                         + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
-                        + "ERROR OPERATION.AbstractDatastorePlugin - "
+                        + "ERROR NOTIFY.AbstractDatastorePlugin - "
                         + "Archiving for dataset ds2 finished with the status: ERROR.",
                 logRecorder.getLogContent());
         context.assertIsSatisfied();
@@ -645,7 +645,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         assertEquals("[ERROR]", status.getErrorStatuses().toString());
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
-                + "ERROR OPERATION.AbstractDatastorePlugin - "
+                + "ERROR NOTIFY.AbstractDatastorePlugin - "
                 + "Archiving for dataset ds1 finished with the status: ERROR.",
                 logRecorder.getLogContent());
         context.assertIsSatisfied();
@@ -681,7 +681,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         assertEquals("[ds1]", status.getDatasetsByStatus(Status.createError()).toString());
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
-                + "ERROR OPERATION.AbstractDatastorePlugin - "
+                + "ERROR NOTIFY.AbstractDatastorePlugin - "
                 + "Archiving for dataset ds1 finished with the status: ERROR.",
                 logRecorder.getLogContent());
         context.assertIsSatisfied();
@@ -752,7 +752,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         assertEquals("[ERROR]", status.getErrorStatuses().toString());
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Unarchiving of the following datasets has been requested: [Dataset 'ds1']\n"
-                + "ERROR OPERATION.AbstractDatastorePlugin - "
+                + "ERROR NOTIFY.AbstractDatastorePlugin - "
                 + "Unarchiving for dataset ds1 finished with the status: ERROR.",
                 replaceTimeInfo(LogUtils.removeEmbeddedStackTrace(logRecorder.getLogContent())));
         context.assertIsSatisfied();
@@ -795,7 +795,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
                         + "Unarchiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
                         + "INFO  OPERATION.AbstractDatastorePlugin - "
                         + "Obtained the list of all datasets in all shares in ?.?? s.\n"
-                        + "ERROR OPERATION.AbstractDatastorePlugin - "
+                        + "ERROR NOTIFY.AbstractDatastorePlugin - "
                         + "Unarchiving for dataset ds1 finished with the status: ERROR.",
                 replaceTimeInfo(LogUtils.removeEmbeddedStackTrace(logRecorder.getLogContent())));
         context.assertIsSatisfied();
@@ -837,7 +837,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
                 + "ERROR OPERATION.AbstractDatastorePlugin - "
                 + "Unarchiving failed: Data set ds1 throws exception.\n"
                 + "java.lang.RuntimeException: Data set ds1 throws exception.\n"
-                + "ERROR OPERATION.AbstractDatastorePlugin - "
+                + "ERROR NOTIFY.AbstractDatastorePlugin - "
                 + "Unarchiving for dataset ds1 finished with the status: "
                 + "ERROR: \"Unarchiving failed: Data set ds1 throws exception.\".",
                 replaceTimeInfo(LogUtils.removeEmbeddedStackTrace(logRecorder.getLogContent())));
