@@ -236,7 +236,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
         return new GroupedDatasets(upToDateInArchive, differentInArchive);
     }
-    
+
     private List<DatasetDescription> getDataSetsFailedToBeArchived(
             List<DatasetDescription> datasets, DatasetProcessingStatuses statuses)
     {
@@ -336,7 +336,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         DatasetProcessingStatuses status = doDeleteFromArchive(datasets);
         return status != null ? status.getProcessingStatus() : null;
     }
-    
+
     protected DatasetProcessingStatuses deletePermanentlyFromArchive(List<? extends IDatasetLocation> dataSets)
     {
         return doDeleteFromArchive(dataSets);
@@ -417,7 +417,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             String logMessage = createLogMessage(datasetCode, status, operationDescription);
             if (status.isError())
             {
-                operationLog.error(logMessage);
+                notifyLog.error(logMessage);
                 failedDatasetCodes.add(datasetCode);
             } else
             {
@@ -554,12 +554,12 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
         this.statusUpdater = statusUpdater;
     }
-    
+
     protected void setShareIdManager(IShareIdManager shareIdManager)
     {
         this.shareIdManager = shareIdManager;
     }
-    
+
     protected void setService(IEncapsulatedOpenBISService service)
     {
         this.service = service;

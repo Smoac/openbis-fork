@@ -169,13 +169,18 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
                 {
                     dataSetPackager.close();
 
-                    List<String> errors =
-                            verify(file, new ZipFileIntegrityVerifier());
-
-                    if (errors.size() > 0)
+                    if (Status.OK.equals(status))
                     {
-                        throw new RuntimeException(errors.toString());
+                        List<String> errors =
+                                verify(file, new ZipFileIntegrityVerifier());
+
+                        if (errors.size() > 0)
+                        {
+                            status = Status.createError(errors.toString());
+                            throw new RuntimeException(errors.toString());
+                        }
                     }
+
                     operationLog.info("Data set '" + dataSetCode + "' archived: " + file);
                 } catch (Exception ex)
                 {
