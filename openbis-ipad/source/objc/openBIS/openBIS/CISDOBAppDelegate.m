@@ -32,6 +32,16 @@
 #import "CISDOBAuthenticationChallengeConfirmationDialog.h"
 #import "CISDOBIpadEntity.h"
 
+NSURL *StoreUrlFromOpenbisUrl(NSURL *applicationDocumentsDirectory, NSURL *openbisUrl)
+{
+    NSString *host = [openbisUrl host];
+    NSNumber *port = [openbisUrl port];
+    
+    NSString *pathString = (port) ? [NSString stringWithFormat: @"%@_%@-data.sqlite", host, port] : [NSString stringWithFormat: @"%@-data.sqlite", host];
+    NSURL *storeUrl = [applicationDocumentsDirectory URLByAppendingPathComponent: pathString];
+    return storeUrl;
+}
+
 @implementation CISDOBAppDelegate
 
 @synthesize rootOpenBisModel = _rootOpenBisModel;
@@ -67,6 +77,7 @@
 
 - (void)verifyLoginURL:(NSURL *)openbisUrl username:(NSString *)username password:(NSString *)password sender:(CISDOBLoginViewController *)controller
 {
+    
     NSError *error;
     if (![self initializeServiceManager: openbisUrl error: &error]) {
         [controller showError: error];
@@ -247,7 +258,7 @@
 - (BOOL)initializeServiceManager:(NSURL *)openbisUrl error:(NSError **)error
 {
     
-    NSURL *storeUrl = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"openBISData.sqlite"];
+    NSURL *storeUrl = StoreUrlFromOpenbisUrl([self applicationDocumentsDirectory], openbisUrl);
         
     _serviceManager =
         [[CISDOBIpadServiceManager alloc]

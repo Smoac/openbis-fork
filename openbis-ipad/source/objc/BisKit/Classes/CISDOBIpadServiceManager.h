@@ -46,9 +46,11 @@ FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidRetrieveDetailsForEntityNo
 FOUNDATION_EXPORT NSString *const CISDOBIpadServiceWillSynchEntitiesNotification;
 FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidSynchEntitiesNotification;
 
+FOUNDATION_EXPORT NSString *const CISDOBIpadServiceWillSynchPruningEntitiesNotification;
+FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidSynchPruningEntitiesNotification;
+
 FOUNDATION_EXPORT NSString *const CISDOBIpadServiceWillSearchForEntitiesNotification;
 FOUNDATION_EXPORT NSString *const CISDOBIpadServiceDidSearchForEntitiesNotification;
-
 
 //
 // Errors that can happen in the service manager
@@ -88,6 +90,7 @@ typedef void (^MocSaveBlock)(CISDOBIpadServiceManager *serviceManager, NSArray *
 @property (readonly) NSOperationQueue *queue;
 @property (readonly) NSString *sessionToken;
 @property (nonatomic, getter=isOnline) BOOL online;
+@property (nonatomic, getter=isSyncDone) BOOL syncDone;
 
 @property(strong, nonatomic) NSDate *lastRootSetUpdateDate;
 

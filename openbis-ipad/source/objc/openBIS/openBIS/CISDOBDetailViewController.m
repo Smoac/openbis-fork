@@ -404,6 +404,10 @@
         [self setStatusText: @"Synching entities with cache..."];
     } else if ([CISDOBIpadServiceDidSynchEntitiesNotification isEqualToString: [note name]]) {
         [self clearStatusText];
+    } else if ([CISDOBIpadServiceWillSynchPruningEntitiesNotification isEqualToString: [note name]]) {
+        [self setStatusText: @"Pruning entities from cache..."];
+    } else if ([CISDOBIpadServiceDidSynchPruningEntitiesNotification isEqualToString: [note name]]) {
+        [self clearStatusText];
     } else if ([CISDOBIpadServiceWillDrillOnEntityNotification isEqualToString: [note name]]) {
         [self setStatusText: @"Retrieving drill information..."];
     } else if ([CISDOBIpadServiceDidDrillOnEntityNotification isEqualToString: [note name]]) {

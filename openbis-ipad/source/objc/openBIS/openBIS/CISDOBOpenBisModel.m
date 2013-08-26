@@ -66,7 +66,7 @@
     NSString *filterScope = @"Filter";
     
     // Search is only possible if we are online
-    if (self.isOnline) {
+    if (self.isOnline && self.serviceManager.isSyncDone) {
         NSArray *searchDomains = self.serviceManager.service.clientPreferences.searchDomains;
         for (NSDictionary *domain in searchDomains) {
             NSString *label = [domain objectForKey: @"label"];

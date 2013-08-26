@@ -39,6 +39,8 @@ NSString *const CISDOBIpadServiceWillRetrieveDetailsForEntityNotification = @"CI
 NSString *const CISDOBIpadServiceDidRetrieveDetailsForEntityNotification = @"CISDOBIpadServiceDidRetrieveDetailsForEntityNotification";
 NSString *const CISDOBIpadServiceWillSynchEntitiesNotification = @"CISDOBIpadServiceWillSynchEntitiesNotification";
 NSString *const CISDOBIpadServiceDidSynchEntitiesNotification = @"CISDOBIpadServiceDidSynchEntitiesNotification";
+NSString *const CISDOBIpadServiceWillSynchPruningEntitiesNotification = @"CISDOBIpadServiceWillSynchPruningEntitiesNotification";
+NSString *const CISDOBIpadServiceDidSynchPruningEntitiesNotification = @"CISDOBIpadServiceDidSynchPruningEntitiesNotification";
 NSString *const CISDOBIpadServiceWillSearchForEntitiesNotification = @"CISDOBIpadServiceWillSearchForEntitiesNotification";
 NSString *const CISDOBIpadServiceDidSearchForEntitiesNotification = @"CISDOBIpadServiceDidSearchForEntitiesNotification";
 
@@ -126,7 +128,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
         // Restrict this queue to processing operations serially
     [_queue setMaxConcurrentOperationCount: 1];
     self.online = NO;
-    
+    self.syncDone = NO;
     return self;
 }
 
@@ -644,7 +646,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 - (void)run
 {
     if (!self.pruneCutoffDate) return;
-    
+    [[NSNotificationCenter defaultCenter] postNotificationName: CISDOBIpadServiceWillSynchPruningEntitiesNotification object: self];
     BOOL success;
     NSError *error;
     // Remove entities that were not updated since the prune cutoff date
@@ -655,7 +657,8 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
         [(NSMutableArray *)_deletedEntityPermIds addObject: entity.permId];
         [self.managedObjectContext deleteObject: entity];
     }
-    
+    self.serviceManager.syncDone = YES;
+    [[NSNotificationCenter defaultCenter] postNotificationName: CISDOBIpadServiceDidSynchPruningEntitiesNotification object: self];
     success = [self.managedObjectContext save: &error];
     if (!success) {
         self.error = error;
