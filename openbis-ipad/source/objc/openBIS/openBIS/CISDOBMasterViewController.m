@@ -339,15 +339,21 @@
     self.searchFilterState = [self.openBisModel isSelectedSearchScopeIndexSearch] ? self.searchState : self.filterState;
     
     //Searching for barcodes or normal search
-    NSString* searchTitle = [self scopeButtonTitles][searchOption];
-    if ([searchTitle isEqualToString:@"Barcode"]) {
+    NSArray *options = [self scopeButtonTitles];
+    
+    NSString* searchTitle = nil;
+    if(options != nil) {
+        searchTitle = options[searchOption];
+    }
+    
+    if (searchTitle != nil && [searchTitle isEqualToString:@"Barcode"]) {
         [[NSNotificationCenter defaultCenter]
          postNotificationName:@"BarcodeReaderSwitchAutoRotationOff"
          object:nil];
         UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard_iPad" bundle:nil];
         CISDOBBarcodeViewController *barcodeController = [storyboard instantiateViewControllerWithIdentifier:@"Barcode"];
         barcodeController.modalPresentationStyle = UIModalPresentationFullScreen;
-        [self presentModalViewController:barcodeController animated:YES];
+        [self presentViewController:barcodeController animated:YES completion:nil];
         return NO;
     } else {
         return [self.searchFilterState searchDisplayController: controller shouldReloadTableForSearchString: self.openBisModel.searchString];
