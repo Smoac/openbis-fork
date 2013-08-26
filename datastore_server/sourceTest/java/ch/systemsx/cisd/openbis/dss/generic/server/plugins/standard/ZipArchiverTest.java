@@ -22,7 +22,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -138,7 +140,7 @@ public class ZipArchiverTest extends AbstractArchiverTestCase
         ProcessingStatus processingStatus = archiver.archive(Arrays.asList(dsd1), archiverTaskContext, false);
 
         File archivedDataSetFile = new File(defaultArchive, ds1.getDataSetCode() + ".zip");
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        assertLogContains("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - "
                 + "Data set 'ds1' archived: " + archivedDataSetFile, logRecorder.getLogContent());
@@ -191,7 +193,7 @@ public class ZipArchiverTest extends AbstractArchiverTestCase
         ProcessingStatus processingStatus = archiver.archive(Arrays.asList(dsd1), archiverTaskContext, false);
 
         File archivedDataSetFile = new File(defaultArchive, LOCATION + "/" + ds1.getDataSetCode() + ".zip");
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        assertLogContains("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
                 + archivedDataSetFile, logRecorder.getLogContent());
@@ -249,7 +251,7 @@ public class ZipArchiverTest extends AbstractArchiverTestCase
         ProcessingStatus processingStatus = archiver.archive(Arrays.asList(dsd1), archiverTaskContext, false);
 
         File archivedDataSetFile = new File(archive, ds1.getDataSetCode() + ".zip");
-        assertEquals("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile + "' successfully loaded.\n"
+        assertLogContains("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile + "' successfully loaded.\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
@@ -327,7 +329,7 @@ public class ZipArchiverTest extends AbstractArchiverTestCase
 
         File archivedDataSetFile = new File(defaultArchive, ds1.getDataSetCode() + ".zip");
         String logContent = logRecorder.getLogContent().replaceFirst("in all shares in .*s", "in all shares in ? s");
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        assertLogContains("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
                 + archivedDataSetFile + "\n"
@@ -413,7 +415,7 @@ public class ZipArchiverTest extends AbstractArchiverTestCase
 
         File archivedDataSetFile = new File(archive, LOCATION + "/" + ds1.getDataSetCode() + ".zip");
         String logContent = logRecorder.getLogContent().replaceFirst("in all shares in .*s", "in all shares in ? s");
-        assertEquals("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile + "' successfully loaded.\n"
+        assertLogContains("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile + "' successfully loaded.\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
@@ -472,7 +474,7 @@ public class ZipArchiverTest extends AbstractArchiverTestCase
         ProcessingStatus processingStatus2 = archiver.archive(Arrays.asList(dsd1), archiverTaskContext, false);
 
         File archivedDataSetFile = new File(defaultArchive, ds1.getDataSetCode() + ".zip");
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        assertLogContains("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
                 + archivedDataSetFile + "\n"
@@ -533,7 +535,7 @@ public class ZipArchiverTest extends AbstractArchiverTestCase
         ProcessingStatus processingStatus2 = archiver.archive(Arrays.asList(dsd1), archiverTaskContext, false);
 
         File archivedDataSetFile = new File(defaultArchive, ds1.getDataSetCode() + ".zip");
-        assertEquals(
+        assertLogContains(
                 "INFO  OPERATION.AbstractDatastorePlugin - "
                         + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                         + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
@@ -595,7 +597,7 @@ public class ZipArchiverTest extends AbstractArchiverTestCase
         ProcessingStatus processingStatus2 = archiver.deleteFromArchive(Arrays.asList(
                 new DatasetLocation(ds1.getCode(), ds1.getLocation(), DATA_STORE_CODE, "")));
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        assertLogContains("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
                 + archivedDataSetFile, logRecorder.getLogContent());
@@ -632,7 +634,7 @@ public class ZipArchiverTest extends AbstractArchiverTestCase
         ProcessingStatus processingStatus2 = archiver.deleteFromArchive(Arrays.asList(
                 new DatasetLocation(ds1.getCode(), ds1.getLocation(), DATA_STORE_CODE, "")));
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        assertLogContains("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
                 + archivedDataSetFile, logRecorder.getLogContent());
@@ -673,7 +675,7 @@ public class ZipArchiverTest extends AbstractArchiverTestCase
         ProcessingStatus processingStatus2 = archiver.deleteFromArchive(Arrays.asList(
                 new DatasetLocation(ds1.getCode(), ds1.getLocation(), DATA_STORE_CODE, "")));
 
-        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+        assertLogContains("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
                 + archivedDataSetFile, logRecorder.getLogContent());
@@ -719,7 +721,7 @@ public class ZipArchiverTest extends AbstractArchiverTestCase
         ProcessingStatus processingStatus2 = archiver.deleteFromArchive(Arrays.asList(
                 new DatasetLocation(ds1.getCode(), ds1.getLocation(), DATA_STORE_CODE, "")));
 
-        assertEquals("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile + "' successfully loaded.\n"
+        assertLogContains("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile + "' successfully loaded.\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - Data set 'ds1' archived: "
@@ -782,6 +784,16 @@ public class ZipArchiverTest extends AbstractArchiverTestCase
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
+    }
+
+    private void assertLogContains(String expected, String actual)
+    {
+        Collection<String> expectedLines = new ArrayList<String>(Arrays.asList(expected.split("\n")));
+        Collection<String> actualLines = new ArrayList<String>(Arrays.asList(actual.split("\n")));
+
+        expectedLines.removeAll(actualLines);
+
+        assertTrue("Expected the log to contain lines: \n" + expected + "\nbut found: \n" + actual, expectedLines.isEmpty());
     }
 
     private void prepareAsContent(final String dataSetCode, final File file)
