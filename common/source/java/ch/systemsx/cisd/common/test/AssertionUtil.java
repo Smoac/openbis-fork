@@ -19,6 +19,9 @@ package ch.systemsx.cisd.common.test;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -63,6 +66,16 @@ public class AssertionUtil
     public static void assertContainsInsensitive(String expectedSubstring, String text)
     {
         assertContains(expectedSubstring.toUpperCase(), text.toUpperCase());
+    }
+
+    public static void assertContainsLines(String expected, String actual)
+    {
+        Collection<String> expectedLines = getLines(expected);
+        Collection<String> actualLines = getLines(actual);
+
+        actualLines.retainAll(expectedLines);
+
+        assertTrue("Expected to contain lines:\n" + expected + "\nactual lines:\n" + actual, expectedLines.equals(actualLines));
     }
 
     /** asserts that two int arrays are equal **/
@@ -111,7 +124,18 @@ public class AssertionUtil
         }
         return stringValues;
     }
-    
+
+    private static Collection<String> getLines(String text)
+    {
+        if (text == null || text.isEmpty())
+        {
+            return new ArrayList<String>();
+        } else
+        {
+            return new ArrayList<String>(Arrays.asList(text.split("\n")));
+        }
+    }
+
     /**
      * returns true if error was caused by unexpected invocation.
      */

@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
@@ -177,7 +178,7 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTaskTest 
 
         task.execute();
 
-        assertEquals(INFO_LOG_PREFIX + "Got 1 deletions to process\n" + INFO_LOG_PREFIX
+        AssertionUtil.assertContainsLines(INFO_LOG_PREFIX + "Got 1 deletions to process\n" + INFO_LOG_PREFIX
                 + "Is going to delete a known data set: DS1\n" + INFO_LOG_PREFIX
                 + "Data set deletion post-processing task took 1 seconds.",
                 logRecorder.getLogContent());
@@ -210,7 +211,7 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTaskTest 
 
         task.execute();
 
-        assertEquals(INFO_LOG_PREFIX + "Got 1 deletions to process\n" + INFO_LOG_PREFIX
+        AssertionUtil.assertContainsLines(INFO_LOG_PREFIX + "Got 1 deletions to process\n" + INFO_LOG_PREFIX
                 + "Is going to delete an unknown data set: DS1\n" + INFO_LOG_PREFIX
                 + "Start deleting data set DS1 at " + file + "\n" + INFO_LOG_PREFIX
                 + "Data set DS1 at " + file + " has been successfully deleted.\n" + INFO_LOG_PREFIX
@@ -218,7 +219,7 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTaskTest 
                 logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDeleteNonExistingDataSet()
     {
@@ -241,7 +242,7 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTaskTest 
 
         task.execute();
 
-        assertEquals(INFO_LOG_PREFIX + "Got 1 deletions to process\n"
+        AssertionUtil.assertContainsLines(INFO_LOG_PREFIX + "Got 1 deletions to process\n"
                 + "WARN  OPERATION.DataSetExistenceChecker - Data set 'DS1' no longer exists.\n"
                 + INFO_LOG_PREFIX + "Data set deletion post-processing task took 1 seconds.",
                 logRecorder.getLogContent());
@@ -270,7 +271,7 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTaskTest 
 
         task.execute();
 
-        assertEquals(INFO_LOG_PREFIX + "Got 1 deletions to process\n"
+        AssertionUtil.assertContainsLines(INFO_LOG_PREFIX + "Got 1 deletions to process\n"
                 + "ERROR NOTIFY.DataSetExistenceChecker - "
                 + "Data set 'DS1' couldn't retrieved because share '" + new File(store, "2")
                 + "' doesn't exists after 2 retries (waiting 1000 msec between retries).\n"
