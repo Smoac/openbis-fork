@@ -71,6 +71,8 @@ typedef void (^AuthenticationChallengeBlock)(CISDOBAsyncCall *call, NSURLAuthent
 
 typedef void (^MocSaveBlock)(CISDOBIpadServiceManager *serviceManager, NSArray *deletedEntityPermIds);
 
+typedef void (^MocPostSaveBlock)(CISDOBIpadServiceManager *serviceManager);
+
 
 
 /**
@@ -90,7 +92,7 @@ typedef void (^MocSaveBlock)(CISDOBIpadServiceManager *serviceManager, NSArray *
 @property (readonly) NSOperationQueue *queue;
 @property (readonly) NSString *sessionToken;
 @property (nonatomic, getter=isOnline) BOOL online;
-@property (nonatomic, getter=isSyncDone) BOOL syncDone;
+@property (getter=isSyncDone) BOOL syncDone;
 
 @property(strong, nonatomic) NSDate *lastRootSetUpdateDate;
 
@@ -99,6 +101,9 @@ typedef void (^MocSaveBlock)(CISDOBIpadServiceManager *serviceManager, NSArray *
 
 //! Called before the service manager saves the managed object context which will delete the entities with the deletedEntityPermIds
 @property (copy, nonatomic) MocSaveBlock mocSaveBlock;
+
+//! Called after the service manager successfully saves the managed object context
+@property (copy, nonatomic) MocPostSaveBlock mocPostSaveBlock;
 
 
 // Initialization

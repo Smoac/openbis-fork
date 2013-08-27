@@ -166,7 +166,7 @@ id ObjectFromJsonData(NSString *jsonDataString, NSError **error)
     CISDOBIpadServiceCall *serviceCall = [self createIpadServiceCallWithParameters: parameters];
     return serviceCall;
 }
-
+/*
 - (CISDOBAsyncCall *)listRootLevelEntities:(NSArray *)permIds refcons:(NSArray *)refcons
 {
     NSUInteger count = [permIds count];
@@ -181,6 +181,24 @@ id ObjectFromJsonData(NSString *jsonDataString, NSError **error)
     // Make sure the timeout interval is at least 60s
     if (serviceCall.timeoutInterval < 60.) serviceCall.timeoutInterval = 60.;
     return serviceCall;
+}
+*/
+- (CISDOBAsyncCall *)listChangesSince:(NSDate *)lastUpdateDate rootLevelEntity:(NSArray *)permIds refcons:(NSArray *)refcons
+{
+    NSUInteger count = [permIds count];
+    NSAssert([refcons count] == count, @"Drilling requires permIds and refcons. There must be an equal number of these.");
+    NSArray *entities;
+    entities = [self convertToEntitiesPermIds: permIds refcons: refcons count: count];
+    NSDictionary *parameters =
+        [NSDictionary dictionaryWithObjectsAndKeys:
+            @"ROOT", @"requestKey",
+            entities, @"entities",
+            [NSString stringWithFormat: @"%f", [lastUpdateDate timeIntervalSince1970]], @"lastupdate", nil];
+    CISDOBIpadServiceCall *serviceCall = [self createIpadServiceCallWithParameters: parameters];
+    // Make sure the timeout interval is at least 60s
+    if (serviceCall.timeoutInterval < 60.) serviceCall.timeoutInterval = 60.;
+    return serviceCall;
+
 }
 
 - (NSArray *)convertToEntitiesPermIds:(NSArray *)permIds refcons:(NSArray *)refcons count:(NSUInteger)count

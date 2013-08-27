@@ -55,6 +55,8 @@ NSURL *StoreUrlFromOpenbisUrl(NSURL *applicationDocumentsDirectory, NSURL *openb
 
 - (NSString *)username { return [[NSUserDefaults standardUserDefaults] stringForKey: @"openbis_username"]; }
 - (NSString *)password { return [[NSUserDefaults standardUserDefaults] stringForKey: @"openbis_password"]; }
+- (NSDate *)lastUpdatedDate { return [[NSUserDefaults standardUserDefaults] objectForKey: @"last_updated_date"]; }
+
 - (NSURL *)openbisUrl {
     NSString *urlString = [[NSUserDefaults standardUserDefaults] stringForKey: @"openbis_server_url"];
     return [NSURL URLWithString: urlString];
@@ -68,6 +70,11 @@ NSURL *StoreUrlFromOpenbisUrl(NSURL *applicationDocumentsDirectory, NSURL *openb
 {
     return [[NSUserDefaults standardUserDefaults] setObject: password forKey: @"openbis_password"];
 }
+- (void)setLastUpdatedDate:(NSDate *)lastUpdatedDate
+{
+    return [[NSUserDefaults standardUserDefaults] setObject: lastUpdatedDate forKey: @"last_updated_date"];
+}
+
 - (void)setOpenbisUrl:(NSURL *)openbisUrl
 {
     return [[NSUserDefaults standardUserDefaults] setObject: [openbisUrl absoluteString] forKey: @"openbis_server_url"];
@@ -274,6 +281,10 @@ NSURL *StoreUrlFromOpenbisUrl(NSURL *applicationDocumentsDirectory, NSURL *openb
         if (!_serviceManager) return NO;
     }
     
+    // Initialize the lastUpdateDate of the service manager from the stored state
+    NSDate* lastUpdatedDate = [self lastUpdatedDate];
+    _serviceManager.lastRootSetUpdateDate = lastUpdatedDate;
+    
     // Use a weak reference to self in blocks to avoid retain cycles
     __weak CISDOBAppDelegate *weakSelf = self;
     _serviceManager.authenticationChallengeBlock = ^(CISDOBAsyncCall *call, NSURLAuthenticationChallenge *challenge) {
@@ -281,6 +292,10 @@ NSURL *StoreUrlFromOpenbisUrl(NSURL *applicationDocumentsDirectory, NSURL *openb
     };
     _serviceManager.mocSaveBlock = ^(CISDOBIpadServiceManager *serviceManager, NSArray *deletedEntityPermIds) {
         [weakSelf serviceManager: serviceManager willSaveDeletingEntities: deletedEntityPermIds];
+    };
+    _serviceManager.mocPostSaveBlock = ^(CISDOBIpadServiceManager *serviceManager) {
+        // Update the lastUpdateDate to the time the service manager was created
+        [weakSelf setLastUpdatedDate: serviceManager.lastRootSetUpdateDate];
     };
     
     return YES;

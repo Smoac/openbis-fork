@@ -164,7 +164,11 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 - (BOOL)saveManagedObjectContextDeleting:(NSArray *)deletedEntities error:(NSError **)error
 {
     if (self.mocSaveBlock) self.mocSaveBlock(self, deletedEntities);
-    return [self.managedObjectContext save: error];
+    BOOL success = [self.managedObjectContext save: error];
+    if (success) {
+        if (self.mocPostSaveBlock) self.mocPostSaveBlock(self);
+    }
+    return success;
 }
 
 - (void)pruneEntitiesNotifying:(CISDOBIpadServiceManagerCall *)managerCall
@@ -319,13 +323,14 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     CISDOBAsyncCall *call = [self.service listNavigationalEntities];
     
     CISDOBIpadServiceManagerCall *managerCall = [[CISDOBIpadServiceManagerCall alloc] initWithServiceManager: self serviceCall: call];
+    // Save the update date to be the time the call is constructed (i.e., before the call is made)
+    NSDate *timeOfCallConstruction = [NSDate date];
     
     __weak CISDOBIpadServiceManager *weakSelf = self;
     
     call.success = ^(id result) {
         weakSelf.online = YES;
-        // Update the set update date
-        weakSelf.lastRootSetUpdateDate = [NSDate date];
+        self.lastRootSetUpdateDate = timeOfCallConstruction;
         CISDOBIpadServiceManagerRetrieveRootSetCommand *command = [[CISDOBIpadServiceManagerRetrieveRootSetCommand alloc] init];
         command.serviceManager = weakSelf;
         command.serviceManagerCall = managerCall;
@@ -651,12 +656,16 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     NSError *error;
     // Remove entities that were not updated since the prune cutoff date
     // Remove all entities that were not mentioned
-    NSFetchRequest *fetchRequest = [self.serviceManager fetchRequestForEntitiesNotUpdatedSince: self.pruneCutoffDate];
-    NSArray *entitiesToDelete = [self.managedObjectContext executeFetchRequest: fetchRequest error: &error];
-    for (CISDOBIpadEntity *entity in entitiesToDelete) {
-        [(NSMutableArray *)_deletedEntityPermIds addObject: entity.permId];
-        [self.managedObjectContext deleteObject: entity];
-    }
+    
+    // TODO Do not pune any more (change still in progress...)
+//    NSFetchRequest *fetchRequest = [self.serviceManager fetchRequestForEntitiesNotUpdatedSince: self.pruneCutoffDate];
+//    NSArray *entitiesToDelete = [self.managedObjectContext executeFetchRequest: fetchRequest error: &error];
+//    for (CISDOBIpadEntity *entity in entitiesToDelete) {
+//        [(NSMutableArray *)_deletedEntityPermIds addObject: entity.permId];
+//        [self.managedObjectContext deleteObject: entity];
+//    }
+    
+    // Could be an issue -- synchDone variable not updated in the main thread
     self.serviceManager.syncDone = YES;
     [[NSNotificationCenter defaultCenter] postNotificationName: CISDOBIpadServiceDidSynchPruningEntitiesNotification object: self];
     success = [self.managedObjectContext save: &error];
@@ -809,7 +818,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 
     NSArray *permIds = [NSArray arrayWithObject: navEntity.permId];
     NSArray *refcons = [NSArray arrayWithObject: navEntity.refcon];
-    CISDOBAsyncCall *call = [self.serviceManager.service listRootLevelEntities: permIds refcons: refcons];
+    CISDOBAsyncCall *call = [self.serviceManager.service listChangesSince: self.serviceManager.lastRootSetUpdateDate rootLevelEntity: permIds refcons: refcons];
     call.success = ^(id result) {
         [self.serviceManager syncEntities: result notifying: nil];
         if (currentIndex+1 == count) {
@@ -831,7 +840,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
         // listRootLevelEntites without arguments
         NSArray *permIds = [NSArray array];
         NSArray *refcons = [NSArray array];
-        CISDOBAsyncCall *call = [self.serviceManager.service listRootLevelEntities: permIds refcons: refcons];
+        CISDOBAsyncCall *call = [self.serviceManager.service listChangesSince: self.serviceManager.lastRootSetUpdateDate rootLevelEntity: permIds refcons: refcons];
     
         call.success = ^(id result) {
            [self.serviceManager syncEntities: result notifying: nil];

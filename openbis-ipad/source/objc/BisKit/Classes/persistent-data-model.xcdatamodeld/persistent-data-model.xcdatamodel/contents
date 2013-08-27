@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1811" systemVersion="11G56" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="2057" systemVersion="12D78" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="CISDOBIpadEntity" representedClassName="CISDOBIpadEntity" syncable="YES">
         <attribute name="category" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="childrenPermIds" optional="YES" transient="YES" syncable="YES"/>
@@ -22,6 +22,6 @@
     <fetchRequest name="EntityAndChildren" entity="CISDOBIpadEntity" predicateString="SELF == $ENTITY OR permId IN $CHILDREN" fetchBatchSize="20"/>
     <fetchRequest name="RootEntities" entity="CISDOBIpadEntity" predicateString="rootLevel == 0" fetchBatchSize="20"/>
     <elements>
-        <element name="CISDOBIpadEntity" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="CISDOBIpadEntity" positionX="0" positionY="0" width="128" height="270"/>
     </elements>
 </model>
