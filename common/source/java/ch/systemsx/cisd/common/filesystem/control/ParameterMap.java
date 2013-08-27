@@ -64,8 +64,9 @@ public class ParameterMap
         {
             String parameter = event.substring(0, event.lastIndexOf("-"));
             String value = event.substring(event.lastIndexOf("-") + 1);
+            IValueFilter filter = filters.get(parameter);
 
-            if (filters.get(parameter).isValid(value))
+            if (filter != null && filter.isValid(value))
             {
                 values.put(parameter, value);
             }

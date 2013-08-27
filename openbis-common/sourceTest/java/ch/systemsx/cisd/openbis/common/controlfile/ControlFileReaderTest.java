@@ -47,7 +47,7 @@ public class ControlFileReaderTest
     }
 
     @Test
-    public void testSwitchOnAndOff() throws IOException
+    public void testSwitchLogServiceCallStart() throws IOException
     {
         ControlFileReader reader = new ControlFileReader(getControlFileDirectory(), -1);
         Assert.assertFalse(reader.isLogServiceCallStartEnabled());
@@ -60,15 +60,39 @@ public class ControlFileReaderTest
     }
 
     @Test
-    public void testWithNotExistingControlFileDirectory() throws IOException
+    public void testSwitchLogServiceCallStartWithValueInDifferentCase() throws IOException
     {
-        ControlFileReader reader = new ControlFileReader(new File(getControlFileDirectory(), "notExisting"), -1);
+        ControlFileReader reader = new ControlFileReader(getControlFileDirectory(), -1);
         Assert.assertFalse(reader.isLogServiceCallStartEnabled());
 
-        new File(getControlFileDirectory(), "log-service-call-start-on").createNewFile();
+        new File(getControlFileDirectory(), "log-service-call-start-On").createNewFile();
+        Assert.assertTrue(reader.isLogServiceCallStartEnabled());
+    }
+
+    @Test
+    public void testSwitchLogServiceCallStartWithIncorrectValue() throws IOException
+    {
+        ControlFileReader reader = new ControlFileReader(getControlFileDirectory(), -1);
         Assert.assertFalse(reader.isLogServiceCallStartEnabled());
 
-        new File(getControlFileDirectory(), "log-service-call-start-off").createNewFile();
+        new File(getControlFileDirectory(), "log-service-call-start-incorrect-value").createNewFile();
+        Assert.assertFalse(reader.isLogServiceCallStartEnabled());
+    }
+
+    @Test
+    public void testGetLogServiceCallStartWithNotExistingControlDirectory() throws IOException
+    {
+        File notExistingFile = new File(getControlFileDirectory(), "notExisting");
+        ControlFileReader reader = new ControlFileReader(notExistingFile, -1);
+        Assert.assertFalse(reader.isLogServiceCallStartEnabled());
+    }
+
+    @Test
+    public void testGetLogServiceCallStartWithControlDirectoryThatIsAFile() throws IOException
+    {
+        File file = new File(getControlFileDirectory(), "aFile");
+        file.createNewFile();
+        ControlFileReader reader = new ControlFileReader(file, -1);
         Assert.assertFalse(reader.isLogServiceCallStartEnabled());
     }
 
